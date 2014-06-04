@@ -1,0 +1,23 @@
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{20D4826A-C6FA-45DB-90F4-C717570B9F32}") = "PocketEdit", "PocketEdit.csdproj", "{A3EA1CC1-1E60-485F-8E9D-0C3346A9E5EA}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		Debug = Debug
+		Release = Release
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{A3EA1CC1-1E60-485F-8E9D-0C3346A9E5EA}.Debug.ActiveCfg = Debug|Pocket PC
+		{A3EA1CC1-1E60-485F-8E9D-0C3346A9E5EA}.Debug.Build.0 = Debug|Pocket PC
+		{A3EA1CC1-1E60-485F-8E9D-0C3346A9E5EA}.Debug.Deploy.0 = Debug|Pocket PC
+		{A3EA1CC1-1E60-485F-8E9D-0C3346A9E5EA}.Release.ActiveCfg = Release|Pocket PC
+		{A3EA1CC1-1E60-485F-8E9D-0C3346A9E5EA}.Release.Build.0 = Release|Pocket PC
+		{A3EA1CC1-1E60-485F-8E9D-0C3346A9E5EA}.Release.Deploy.0 = Release|Pocket PC
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal

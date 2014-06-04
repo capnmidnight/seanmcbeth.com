@@ -1,0 +1,27 @@
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PocketEdit", "PocketEdit.csproj", "{A3EA1CC1-1E60-485F-8E9D-0C3346A9E5EA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsApplication1", "..\WindowsApplication1\WindowsApplication1.csproj", "{6ADCD85D-FDC1-44D0-B628-6420C1E139AB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A3EA1CC1-1E60-485F-8E9D-0C3346A9E5EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A3EA1CC1-1E60-485F-8E9D-0C3346A9E5EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A3EA1CC1-1E60-485F-8E9D-0C3346A9E5EA}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{A3EA1CC1-1E60-485F-8E9D-0C3346A9E5EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A3EA1CC1-1E60-485F-8E9D-0C3346A9E5EA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A3EA1CC1-1E60-485F-8E9D-0C3346A9E5EA}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{6ADCD85D-FDC1-44D0-B628-6420C1E139AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6ADCD85D-FDC1-44D0-B628-6420C1E139AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6ADCD85D-FDC1-44D0-B628-6420C1E139AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6ADCD85D-FDC1-44D0-B628-6420C1E139AB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
