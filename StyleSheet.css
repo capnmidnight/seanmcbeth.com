@@ -1,0 +1,109 @@
+﻿body
+{
+	background-color: #C0C0C0;
+	font-family: Sans-Serif;
+	font-size: 12pt;
+}
+#allContent
+{
+	background-color: #000000;
+	border: solid 2px #000000;
+	width: 800px;
+}
+#banner
+{
+	height: 200px;
+	width: 800px;
+	display: none;
+}
+#main
+{
+	background-color: #eeeeee;
+	text-align: left;
+	padding: 0.25em;
+}
+#spacer
+{
+	width: 800px;
+	height: 20px;
+}
+#footer
+{
+	width: 100%;
+	background-color: #E0E0E0;
+	border-bottom: solid 1px #C0C0C0;
+	border-right: solid 1px #C0C0C0;
+	border-top: solid 1px #FFFFFF;
+	border-left: solid 1px #FFFFFF;
+	text-align: center;
+	font-size: 10pt;
+	color: #7F7F7F;
+}
+#header
+{
+	background-image: url(images/banner.jpg);
+}
+#mainMenu
+{
+	height:200px;
+	font-weight: bold;
+	font-family: Trebuchet MS, Arial, Sans-Serif
+}
+.menuItem
+{
+	font-size: 16pt;
+	text-align: center;
+}
+.menuLink
+{
+	color: #FCEF87;
+	text-decoration: none;
+}
+#mainContentTable
+{
+	padding-bottom: 10px;
+}
+.entryHeaderRow
+{
+	background-color: #000000;
+	color: #FFFFFF;
+}
+.entryContentRow
+{
+}
+.entryFooterRow
+{
+}
+.entryTitle
+{
+	font-weight: bold;
+	padding-left: 0.5em;
+	padding-top: 2px;
+	padding-right: 3em;
+}
+.entryTitle a
+{
+	color: #FCEF87;
+	text-decoration: none;
+}
+.entryDate
+{
+	font-size: 10pt;
+	font-family: Courier New;
+	padding-right: 0.5em;
+	text-align: right;
+}
+.entryText
+{
+	background-color: #FFFFFF;
+	color: #000000;
+	padding: 0.5em;
+	border: solid 2px #000000;
+}
+.entryFooter
+{
+}
+a:hover.menuLink
+{
+	text-decoration:underline;
+}

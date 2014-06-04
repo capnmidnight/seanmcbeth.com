@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Entries>
+  <Entry title="Mibbit" created="March 21st, 2008">
+    &lt;iframe width="95%" height="450" scrolling="no" style="border:0" src="http://embed.mibbit.com/?server=irc.afternet.org&amp;channel=%23gamedev&amp;noServerNotices=true&amp;noServerMotd=true"&gt;&lt;/iframe&gt;
+  </Entry>
+  <Entry title="Doesn't Afraid" created="March 10th, 2008">
+        So, a little while ago I wrote some .NET code that downloaded a given numbered user's
+    profile page on &lt;a href="http://www.gamedev.net"&gt;GameDev.net&lt;/a&gt;,
+    and parsed the page to get the user name and a little bit of text from one of
+    their posts. Well, I just wrapped it all up into a SOAP Web Service, with a
+    form that you can use to test it out &lt;a href="InstAfraid.aspx"&gt;here&lt;/a&gt;.
+    </Entry>
+  <Entry title="New Site" created="March 1st, 2008">
+        Here it is, my new site. It took a while to get it running again,
+    but hopefully I can keep up with the work load. The site has been
+    completely redesigned, and is now running on a database backend.
+    Hopefully, in the coming weeks I'll be able to develop a number of
+    tools to help manage the site.
+    </Entry>
+  <Entry title="The Zombie Apocalypse" created="November 16, 2007">
+        &lt;a href="http://www.justsayhi.com/bb/zombie" style="color: #fff; text-decoration: none; display: block; width: 385px; height: 209px; padding-top: 35px; background: url(http://assets.justsayhi.com/badges/130/769/zombie.1pmgqfxlih.jpg) no-repeat; font-family: Times New Roman, sans-serif; font-size: 60px; text-align: center;"&gt;&lt;span style="display: block;"&gt;78%&lt;/span&gt;&lt;/a&gt;
+    </Entry>
+</Entries>

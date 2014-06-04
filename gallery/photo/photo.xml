@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Entries>
+  <Entry title="Nature Gallery" created=".">
+    <a href="Default.aspx?page=gallery/photo/nature/nature.xml">
+      <img src="gallery/photo/nature/horses3.jpg" height="400"/>
+    </a>
+  </Entry>
+  <Entry title="Portraits Gallery" created=".">
+    <a href="Default.aspx?page=gallery/photo/portraits/portraits.xml">
+      <img src="gallery/photo/portraits/sean1.jpg" height="400"/>
+    </a>
+  </Entry>
+  <Entry title="Scotland Gallery" created=".">
+    <a href="Default.aspx?page=gallery/photo/scotland/scotland.xml">
+      <img src="gallery/photo/scotland/scotland032.jpg" height="400"/>
+    </a>
+  </Entry>
+  <Entry title="Other Gallery" created=".">
+    <a href="Default.aspx?page=gallery/photo/other/other.xml">
+      <img src="gallery/photo/other/100_1151.jpg" height="400"/>
+    </a>
+  </Entry>
+</Entries>

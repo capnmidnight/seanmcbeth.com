@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Entries>
+  <Entry title="Kentucky Derby" created="May 4th, 2008">&lt;script type="text/javascript"&gt;
+      for(var i = 0; i &lt; 46; ++i)
+      {
+        document.write(" &lt;a href='gallery/derby/derby"+i+".jpg' target='newWindow'&gt;&lt;img src='gallery/derby/thumbs/derby"+i+".jpg'/&gt;&lt;/a&gt; ");
+      }                       
+    &lt;/script&gt;</Entry>
+</Entries>

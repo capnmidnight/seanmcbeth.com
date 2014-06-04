@@ -1,0 +1,75 @@
+<%@ Master Language="C#" AutoEventWireup="true" CodeFile="MasterPage.master.cs" Inherits="MasterPage" %>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <title>Sean T. McBeth</title>
+    <link rel="stylesheet" type="text/css" href="StyleSheet.css" />
+</head>
+<body>
+    <center>
+        <form id="form1" runat="server">
+            <div id="allContent">
+                <center id="header">
+                    <table id="mainMenu" cellpadding="0" cellspacing="0">
+                        <tr>
+                            <td class="menuItem menuLink" colspan="2">
+                                SEAN T. MCBETH</td>
+                        </tr>
+                        <tr>
+                            <td class="menuItem">
+                                <a class="menuLink" href="Default.aspx">Main</a>
+                            </td>
+                            <td class="menuItem">
+                                <a class="menuLink" href="Default.aspx?page=RnD/RnD.xml">Research and Development</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="menuItem">
+                                <a class="menuLink" href="Default.aspx?page=3hgdc/3hgdc.xml">The 3H-GDC</a>
+                            </td>
+                            <td class="menuItem">
+                                <a class="menuLink" href="Default.aspx?page=gallery/gallery.xml">Image Gallery</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="menuItem">
+                                <a class="menuLink" href="http://seanmcbeth.blogspot.com">Development Journal</a>
+                            </td>
+                            <td class="menuItem">
+                                <a class="menuLink" href="mailto:sean.mcbeth@gmail.com">Contact Me</a>
+                            </td>
+                        </tr>
+                    </table>
+                </center>
+                <div id="main">
+                    <asp:ContentPlaceHolder ID="Main" runat="server">
+                    </asp:ContentPlaceHolder>
+                </div>
+                <div id="spacer">
+                </div>
+                <div id="footer">
+                    Copyright © Sean T. McBeth, 2000 - 2008
+                </div>
+            </div>
+        </form>
+    </center>
+
+    <script type="text/javascript">
+for(var i = 0; i < document.images.length; ++i)
+{
+	if(document.images[i].src.indexOf("3hgdc")>0)
+	{
+		document.images[i].onmouseover = function()
+		{
+			this.style.width = "";
+		};
+		document.images[i].onmouseout = function()
+		{
+			this.style.width = "200px";
+		};
+	}
+}
+</script>
+
+</body>
+</html>

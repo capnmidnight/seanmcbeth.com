@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Entries>
+  <Entry title="Photo Gallery" created="May 12th, 2008">
+    <a href="Default.aspx?page=gallery/photo/photo.xml">Some of my photography</a>
+  </Entry>
+  <Entry title="Art Gallery" created="May 12th, 2008">
+    <a href="Default.aspx?page=gallery/art/art.xml">Some of my artwork</a>
+  </Entry>
+  <Entry title="Kentucky Derby" created="May 4th, 2008">I've got pictures from my dad's &lt;a href="Default.aspx?page=gallery/derby/gallery.xml"&gt;Kentucky Derby Party&lt;/a&gt;.</Entry>
+</Entries>
