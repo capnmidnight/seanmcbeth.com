@@ -1,0 +1,896 @@
+
+
+
+--------------------
+12/15/06 09:59 / 12.34.246.7
+--------------------
+[JavaScript tidbits]
+!Variable Scope
+JavaScript has 3 levels of scope: block, function, and function prototype. 
+
+*'''Block Scope''' 
+For users of the more traditional C-like languages (including C++, C#, Java, etc), block level scope is the most familiar and works in much the same way. Nested blocks can access variables from their parent blocks, but variables may not be accessed from outside of a block.
+
+
+--------------------
+12/15/06 09:59 / 12.34.246.36
+--------------------
+[JavaScript tidbits]
+!Variable Scope
+JavaScript has 3 levels of scope: block, function, and function prototype. 
+
+*'''Block Scope''' - For users of the more traditional C-like languages (including C++, C#, Java, etc), block level scope is the most familiar and works in much the same way. Nested blocks can access variables from their parent blocks, but variables may not be accessed from outside of a block.
+
+
+--------------------
+12/15/06 10:04 / 12.34.246.7
+--------------------
+[JavaScript tidbits]
+!!Variable Scope
+JavaScript has 3 levels of scope: block, function, and function prototype. 
+
+!'''Block Scope''' - For users of the more traditional C-like languages (including C++, C#, Java, etc), block level scope is the most familiar and works in much the same way. Nested blocks can access variables from their parent blocks, but variables may not be accessed from outside of a block. Block level variables are declared either with the "var" keyword or by setting the variable name to a value.
+{
+var z; //z is declared, but its value remains "null"
+z = 10;
+//x is currently "undefined"
+alert(x === undefined); //will alert "true"
+var x = 24; //x is declared and its value is set
+y = 13; //y is declared and its value is set
+for(var index = 0; index < 10; ++index)??< //index has scope at the level of the for loop block
+??>
+}
+!'''Function Scope''' - Function scope is most similar to the pubically accessible member variables of a class in most object oriented languages.
+
+
+--------------------
+12/15/06 10:04 / 12.34.246.36
+--------------------
+[JavaScript tidbits]
+!!Variable Scope
+JavaScript has 3 levels of scope: block, function, and function prototype. 
+
+!Block Scope
+For users of the more traditional C-like languages (including C++, C#, Java, etc), block level scope is the most familiar and works in much the same way. Nested blocks can access variables from their parent blocks, but variables may not be accessed from outside of a block. Block level variables are declared either with the "var" keyword or by setting the variable name to a value.
+{
+var z; //z is declared, but its value remains "null"
+z = 10;
+//x is currently "undefined"
+alert(x === undefined); //will alert "true"
+var x = 24; //x is declared and its value is set
+y = 13; //y is declared and its value is set
+for(var index = 0; index < 10; ++index)??< //index has scope at the level of the for loop block
+??>
+}
+!Function Scope
+Function scope is most similar to the pubically accessible member variables of a class in most object oriented languages.
+
+
+--------------------
+12/15/06 10:05 / 12.34.246.36
+--------------------
+[JavaScript tidbits]
+!!Variable Scope
+JavaScript has 3 levels of scope: block, function, and function prototype. 
+
+!Block Scope
+For users of the more traditional C-like languages (including C++, C#, Java, etc), block level scope is the most familiar and works in much the same way. Nested blocks can access variables from their parent blocks, but variables may not be accessed from outside of a block. Block level variables are declared either with the "var" keyword or by setting the variable name to a value.
+{
+//x is currently "undefined"
+alert(x === undefined); //will alert "true"
+var x = 24; //x is declared and its value is set
+y = 13; //y is declared and its value is set
+var z; //z is declared, but its value remains "null"
+z = 10;
+for(var index = 0; index < 10; ++index)??< //index has scope at the level of the for loop block
+//x, y, and z are accessible from this block
+??>
+//index is no longer in scope
+}
+!Function Scope
+Function scope is most similar to the pubically accessible member variables of a class in most object oriented languages.
+
+
+--------------------
+12/15/06 10:10 / 12.34.246.37
+--------------------
+[JavaScript tidbits]
+!!Variable Scope
+JavaScript has 3 levels of scope: block, function, and function prototype. 
+
+!Block Scope
+For users of the more traditional C-like languages (including C++, C#, Java, etc), block level scope is the most familiar and works in much the same way. Nested blocks can access variables from their parent blocks, but variables may not be accessed from outside of a block. Block level variables are declared either with the "var" keyword or by setting the variable name to a value.
+{
+//x is currently "undefined"
+alert(x === undefined); //will alert "true"
+var x = 24; //x is declared and its value is set
+y = 13; //y is declared and its value is set
+var z; //z is declared, but its value remains "null"
+z = 10;
+for(var index = 0; index < 10; ++index)??< //index has scope at the level of the for loop block
+//x, y, and z are accessible from this block
+??>
+//index is no longer in scope
+}
+!Function Scope
+Function scope is most similar to the pubically accessible member variables of a class in most object oriented languages. Variables of function-level scope may be declared at any time. Function-level variables are tied to an instance of a function object ([JavaScript Is A Functional Language]), and will persist with that object until the member is deleted or the object is destroyed. Function scope variables are declared by setting their value using dot notation on an instance of a function object.
+{
+function AFunc()
+??<
+    this.msg = "Hello";
+    alert(this.msg);
+    alert(this.msg2);
+??>
+var a = new AFunc();
+a.msg2 = "Good bye";
+alert(a.msg);   //will alert "Hello"
+alert(a.msg2);  //will alert "Good Bye"
+AFunc();        //will alert "Hello" follwed by an alert "undefined"
+a();            //will alert "Hello" follwed by an alert "Good Bye"
+}
+
+
+--------------------
+12/15/06 10:14 / 12.34.246.37
+--------------------
+[JavaScript tidbits]
+!!Variable Scope
+JavaScript has 3 levels of scope: block, function, and function prototype. 
+
+!Block Scope
+For users of the more traditional C-like languages (including C++, C#, Java, etc), block level scope is the most familiar and works in much the same way. Nested blocks can access variables from their parent blocks, but variables may not be accessed from outside of a block. Block level variables are declared either with the "var" keyword or by setting the variable name to a value.
+{
+//x is currently "undefined"
+alert(x === undefined); //will alert "true"
+var x = 24; //x is declared and its value is set
+y = 13; //y is declared and its value is set
+var z; //z is declared, but its value remains "null"
+z = 10;
+for(var index = 0; index < 10; ++index)??< //index has scope at the level of the for loop block
+//x, y, and z are accessible from this block
+??>
+//index is no longer in scope
+}
+!Function Scope
+Function scope is most similar to the pubically accessible member variables of a class in most object oriented languages. Variables of function-level scope may be declared at any time. Function-level variables are tied to an instance of a function object ([JavaScript Is A Functional Language]), and will persist with that object until the member is deleted or the object is destroyed. Function scope variables are declared by setting their value using dot notation on an instance of a function object.
+{
+function AFunc()
+??<
+    this.msg = "Hello";
+    alert(this.msg);
+    alert(this.msg2);
+??>
+var a = new AFunc(); //will alert "Hello" follwed by an alert "undefined"
+a.msg2 = "Good bye";
+alert(a.msg);   //will alert "Hello"
+alert(a.msg2);  //will alert "Good Bye"
+AFunc();        //will alert "Hello" follwed by an alert "undefined"
+}
+
+
+--------------------
+12/15/06 10:32 / 12.34.246.36
+--------------------
+[JavaScript tidbits]
+!!Variable Scope
+JavaScript has 4 levels of scope: block, function instance, function prototype, and function handle. 
+
+!Block Scope
+For users of the more traditional C-like languages (including C++, C#, Java, etc), block level scope is the most familiar and works in much the same way. Nested blocks can access variables from their parent blocks, but variables may not be accessed from outside of a block. Block level variables are declared either with the "var" keyword or by setting the variable name to a value.
+{
+//x is currently "undefined"
+alert(x === undefined); //will alert "true"
+var x = 24; //x is declared and its value is set
+y = 13; //y is declared and its value is set
+var z; //z is declared, but its value remains "null"
+z = 10;
+for(var index = 0; index < 10; ++index)??< //index has scope at the level of the for loop block
+//x, y, and z are accessible from this block
+??>
+//index is no longer in scope
+}
+
+!Function Instance Scope
+Function instance scope is most similar to the pubically accessible member variables of a class in most object oriented languages. Variables of function instance level scope may be declared at any time. Function instance level variables are tied to an instance of a function object ([JavaScript Is A Functional Language]), and will persist with that object until the member is deleted or the object is destroyed. Function scope variables are declared by setting their value using dot notation on an instance of a function object.
+{
+function AFunc()
+??<
+    this.msg = "Hello";
+    alert(this.msg);
+    alert(this.msg2);
+??>
+var a = new AFunc(); //will alert "Hello" follwed by an alert "undefined"
+a.msg2 = "Good bye";
+alert(a.msg);   //will alert "Hello"
+alert(a.msg2);  //will alert "Good Bye"
+AFunc();        //will alert "Hello" follwed by an alert "undefined"
+delete a.msg;
+alert(a.msg);   //will alert "undefined"
+}
+
+Setting function instance level scope variables in the function definition (essentially, the object constructor when used with the new keyword), will assign a new copy of that variable for each new instance of the function object.
+
+Function instance level scope methods can access block level variables in the function block scope level.
+{
+function AFunc()
+??<
+    var x = 5;
+    this.getX = function(){ return x; };
+??>
+var a = new AFunc();
+alert(a.x);      //will alert "undefined"
+alert(a.getX()); //will alert "5"
+}
+In this way, we can create an analog to private member variables in more traditional object oriented languages.
+
+!Function Handle Scope
+Function handle level scope is somewhat odd. It doesn't have a direct parallel to anything in any languages that I'm familiar with. It's similar to function instance level scope, in that a new members are added to a specific instance of a function object, but the member is only accesible from references from the original function handle. Unlike function prototype level scope, members set at function handle level scope are not accessible from new copies of the function.
+{
+function AFunc()
+??<
+   alert(AFunc.msg);
+??>
+AFunc.msg = "hello";  //this member is only ever accessible as "AFunc.msg"
+}
+In a way, they are similar to static variables in C functions:
+{
+void func()
+??<
+    static int c = 0;
+    printf("%d", c);
+    c++;
+??>
+int main(void)
+??<
+    func();  //will print "0"
+    func();  //will print "1"
+    func();  //will print "2"
+??>
+}
+
+
+--------------------
+12/15/06 10:33 / 12.34.246.38
+--------------------
+[JavaScript tidbits]
+!!Variable Scope
+JavaScript has 4 levels of scope: block, function instance, function prototype, and function handle. 
+
+!Block Scope
+For users of the more traditional C-like languages (including C++, C#, Java, etc), block level scope is the most familiar and works in much the same way. Nested blocks can access variables from their parent blocks, but variables may not be accessed from outside of a block. Block level variables are declared either with the "var" keyword or by setting the variable name to a value.
+{
+//x is currently "undefined"
+alert(x === undefined); //will alert "true"
+var x = 24; //x is declared and its value is set
+y = 13; //y is declared and its value is set
+var z; //z is declared, but its value remains "null"
+z = 10;
+for(var index = 0; index < 10; ++index)??< //index has scope at the level of the for loop block
+//x, y, and z are accessible from this block
+??>
+//index is no longer in scope
+}
+
+!Function Instance Scope
+Function instance scope is most similar to the pubically accessible member variables of a class in most object oriented languages. Variables of function instance level scope may be declared at any time. Function instance level variables are tied to an instance of a function object ([JavaScript Is A Functional Language]), and will persist with that object until the member is deleted or the object is destroyed. Function scope variables are declared by setting their value using dot notation on an instance of a function object.
+{
+function AFunc()
+??<
+    this.msg = "Hello";
+    alert(this.msg);
+    alert(this.msg2);
+??>
+var a = new AFunc(); //will alert "Hello" follwed by an alert "undefined"
+a.msg2 = "Good bye";
+alert(a.msg);   //will alert "Hello"
+alert(a.msg2);  //will alert "Good Bye"
+AFunc();        //will alert "Hello" follwed by an alert "undefined"
+delete a.msg;
+alert(a.msg);   //will alert "undefined"
+}
+
+Setting function instance level scope variables in the function definition (essentially, the object constructor when used with the new keyword), will assign a new copy of that variable for each new instance of the function object.
+
+Function instance level scope methods can access block level variables in the function block scope level.
+{
+function AFunc()
+??<
+    var x = 5;
+    this.getX = function()??< return x; ??>;
+??>
+var a = new AFunc();
+alert(a.x);      //will alert "undefined"
+alert(a.getX()); //will alert "5"
+}
+In this way, we can create an analog to private member variables in more traditional object oriented languages.
+
+!Function Handle Scope
+Function handle level scope is somewhat odd. It doesn't have a direct parallel to anything in any languages that I'm familiar with. It's similar to function instance level scope, in that a new members are added to a specific instance of a function object, but the member is only accesible from references from the original function handle. Unlike function prototype level scope, members set at function handle level scope are not accessible from new copies of the function.
+{
+function AFunc()
+??<
+   alert(AFunc.msg);
+??>
+AFunc.msg = "hello";  //this member is only ever accessible as "AFunc.msg"
+}
+In a way, they are similar to static variables in C functions:
+{
+void func()
+??<
+    static int c = 0;
+    printf("%d", c);
+    c++;
+??>
+int main(void)
+??<
+    func();  //will print "0"
+    func();  //will print "1"
+    func();  //will print "2"
+??>
+}
+
+
+--------------------
+12/15/06 10:40 / 12.34.246.38
+--------------------
+[JavaScript tidbits]
+!!Variable Scope
+JavaScript has 4 levels of scope: block, function instance, function prototype, and function handle. 
+
+!Block Scope
+For users of the more traditional C-like languages (including C++, C#, Java, etc), block level scope is the most familiar and works in much the same way. Nested blocks can access variables from their parent blocks, but variables may not be accessed from outside of a block. Block level variables are declared either with the "var" keyword or by setting the variable name to a value.
+{
+//x is currently "undefined"
+alert(x === undefined); //will alert "true"
+var x = 24; //x is declared and its value is set
+y = 13; //y is declared and its value is set
+var z; //z is declared, but its value remains "null"
+z = 10;
+for(var index = 0; index < 10; ++index)??< //index has scope at the level of the for loop block
+//x, y, and z are accessible from this block
+??>
+//index is no longer in scope
+}
+
+!Function Instance Scope
+Function instance scope is most similar to the pubically accessible member variables of a class in most object oriented languages. Variables of function instance level scope may be declared at any time. Function instance level variables are tied to an instance of a function object ([JavaScript Is A Functional Language]), and will persist with that object until the member is deleted or the object is destroyed. Function scope variables are declared by setting their value using dot notation on an instance of a function object.
+{
+function AFunc()
+??<
+    this.msg = "Hello";
+    alert(this.msg);
+    alert(this.msg2);
+??>
+var a = new AFunc(); //will alert "Hello" follwed by an alert "undefined"
+a.msg2 = "Good bye";
+alert(a.msg);   //will alert "Hello"
+alert(a.msg2);  //will alert "Good Bye"
+AFunc();        //will alert "Hello" follwed by an alert "undefined"
+delete a.msg;
+alert(a.msg);   //will alert "undefined"
+}
+
+Setting function instance level scope variables in the function definition (essentially, the object constructor when used with the new keyword), will assign a new copy of that variable for each new instance of the function object.
+
+Function instance level scope methods can access block level variables in the function block scope level.
+{
+function AFunc()
+??<
+    var x = 5;
+    this.getX = function()??< return x; ??>;
+??>
+var a = new AFunc();
+alert(a.x);      //will alert "undefined"
+alert(a.getX()); //will alert "5"
+}
+In this way, we can create an analog to private member variables in more traditional object oriented languages.
+
+!Function Prototype Scope
+Function prototype level scope memebers are equivalent to public static members in languages like Java and C#. One copy of the member is hosted for all instances of the function object. Because of how JavaScript treats objects, one can think of the function prototype as a sort of template or pattern from which new instances of a function object are created.
+{
+function AFunc()
+{
+    this.msg2 = "what?";
+}
+AFunc.prototype.msg = "hello";
+var a = new AFunc();
+var b = new AFunc();
+alert(a.msg); //will alert "hello"
+alert(b.msg); //will alert "hello"
+alert(a.msg2); //will alert "what?"
+alert(b.msg2); //will alert "what?"
+a.msg = "goodbye";
+a.msg2 = "yo";
+alert(a.msg); //will alert "goodbye"
+alert(b.msg); //will alert "goodbye", changes from instance a effected instance b
+alert(a.msg2); //will alert "yo"
+alert(b.msg2); //will alert "what?"
+// msg2 was an instance level copy, it remains unchanged in b
+}
+
+!Function Handle Scope
+Function handle level scope is somewhat odd. It doesn't have a direct parallel to anything in any languages that I'm familiar with. It's similar to function instance level scope, in that a new members are added to a specific instance of a function object, but the member is only accesible from references from the original function handle. Unlike function prototype level scope, members set at function handle level scope are not accessible from new copies of the function.
+{
+function AFunc()
+??<
+   alert(AFunc.msg);
+??>
+AFunc.msg = "hello";  //this member is only ever accessible as "AFunc.msg"
+}
+In a way, they are similar to static variables in C functions:
+{
+void func()
+??<
+    static int c = 0;
+    printf("%d", c);
+    c++;
+??>
+int main(void)
+??<
+    func();  //will print "0"
+    func();  //will print "1"
+    func();  //will print "2"
+??>
+}
+
+
+--------------------
+12/15/06 10:40 / 12.34.246.7
+--------------------
+[JavaScript tidbits]
+!!Variable Scope
+JavaScript has 4 levels of scope: block, function instance, function prototype, and function handle. 
+
+!Block Scope
+For users of the more traditional C-like languages (including C++, C#, Java, etc), block level scope is the most familiar and works in much the same way. Nested blocks can access variables from their parent blocks, but variables may not be accessed from outside of a block. Block level variables are declared either with the "var" keyword or by setting the variable name to a value.
+{
+//x is currently "undefined"
+alert(x === undefined); //will alert "true"
+var x = 24; //x is declared and its value is set
+y = 13; //y is declared and its value is set
+var z; //z is declared, but its value remains "null"
+z = 10;
+for(var index = 0; index < 10; ++index)??< //index has scope at the level of the for loop block
+//x, y, and z are accessible from this block
+??>
+//index is no longer in scope
+}
+
+!Function Instance Scope
+Function instance scope is most similar to the pubically accessible member variables of a class in most object oriented languages. Variables of function instance level scope may be declared at any time. Function instance level variables are tied to an instance of a function object ([JavaScript Is A Functional Language]), and will persist with that object until the member is deleted or the object is destroyed. Function scope variables are declared by setting their value using dot notation on an instance of a function object.
+{
+function AFunc()
+??<
+    this.msg = "Hello";
+    alert(this.msg);
+    alert(this.msg2);
+??>
+var a = new AFunc(); //will alert "Hello" follwed by an alert "undefined"
+a.msg2 = "Good bye";
+alert(a.msg);   //will alert "Hello"
+alert(a.msg2);  //will alert "Good Bye"
+AFunc();        //will alert "Hello" follwed by an alert "undefined"
+delete a.msg;
+alert(a.msg);   //will alert "undefined"
+}
+
+Setting function instance level scope variables in the function definition (essentially, the object constructor when used with the new keyword), will assign a new copy of that variable for each new instance of the function object.
+
+Function instance level scope methods can access block level variables in the function block scope level.
+{
+function AFunc()
+??<
+    var x = 5;
+    this.getX = function()??< return x; ??>;
+??>
+var a = new AFunc();
+alert(a.x);      //will alert "undefined"
+alert(a.getX()); //will alert "5"
+}
+In this way, we can create an analog to private member variables in more traditional object oriented languages.
+
+!Function Prototype Scope
+Function prototype level scope memebers are equivalent to public static members in languages like Java and C#. One copy of the member is hosted for all instances of the function object. Because of how JavaScript treats objects, one can think of the function prototype as a sort of template or pattern from which new instances of a function object are created.
+{
+function AFunc()
+??<
+    this.msg2 = "what?";
+??>
+AFunc.prototype.msg = "hello";
+var a = new AFunc();
+var b = new AFunc();
+alert(a.msg); //will alert "hello"
+alert(b.msg); //will alert "hello"
+alert(a.msg2); //will alert "what?"
+alert(b.msg2); //will alert "what?"
+a.msg = "goodbye";
+a.msg2 = "yo";
+alert(a.msg); //will alert "goodbye"
+alert(b.msg); //will alert "goodbye", changes from instance a effected instance b
+alert(a.msg2); //will alert "yo"
+alert(b.msg2); //will alert "what?"
+// msg2 was an instance level copy, it remains unchanged in b
+}
+
+!Function Handle Scope
+Function handle level scope is somewhat odd. It doesn't have a direct parallel to anything in any languages that I'm familiar with. It's similar to function instance level scope, in that a new members are added to a specific instance of a function object, but the member is only accesible from references from the original function handle. Unlike function prototype level scope, members set at function handle level scope are not accessible from new copies of the function.
+{
+function AFunc()
+??<
+   alert(AFunc.msg);
+??>
+AFunc.msg = "hello";  //this member is only ever accessible as "AFunc.msg"
+}
+In a way, they are similar to static variables in C functions:
+{
+void func()
+??<
+    static int c = 0;
+    printf("%d", c);
+    c++;
+??>
+int main(void)
+??<
+    func();  //will print "0"
+    func();  //will print "1"
+    func();  //will print "2"
+??>
+}
+
+
+--------------------
+12/15/06 10:41 / 12.34.246.36
+--------------------
+[JavaScript tidbits]
+!!Variable Scope
+JavaScript has 4 levels of scope: block, function instance, function prototype, and function handle. 
+
+!Block Scope
+For users of the more traditional C-like languages (including C++, C#, Java, etc), block level scope is the most familiar and works in much the same way. Nested blocks can access variables from their parent blocks, but variables may not be accessed from outside of a block. Block level variables are declared either with the "var" keyword or by setting the variable name to a value.
+{
+//x is currently "undefined"
+alert(x === undefined); //will alert "true"
+var x = 24; //x is declared and its value is set
+y = 13; //y is declared and its value is set
+var z; //z is declared, but its value remains "null"
+z = 10;
+for(var index = 0; index < 10; ++index)??< //index has scope at the level of the for loop block
+//x, y, and z are accessible from this block
+??>
+//index is no longer in scope
+}
+
+!Function Instance Scope
+Function instance scope is most similar to the pubically accessible member variables of a class in most object oriented languages. Variables of function instance level scope may be declared at any time. Function instance level variables are tied to an instance of a function object ([JavaScript Is A Functional Language]), and will persist with that object until the member is deleted or the object is destroyed. Function scope variables are declared by setting their value using dot notation on an instance of a function object.
+{
+function AFunc()
+??<
+    this.msg = "Hello";
+    alert(this.msg);
+    alert(this.msg2);
+??>
+var a = new AFunc(); //will alert "Hello" follwed by an alert "undefined"
+a.msg2 = "Good bye";
+alert(a.msg);   //will alert "Hello"
+alert(a.msg2);  //will alert "Good Bye"
+AFunc();        //will alert "Hello" follwed by an alert "undefined"
+delete a.msg;
+alert(a.msg);   //will alert "undefined"
+}
+
+Setting function instance level scope variables in the function definition (essentially, the object constructor when used with the new keyword), will assign a new copy of that variable for each new instance of the function object.
+
+Function instance level scope methods can access block level variables in the function block scope level.
+{
+function AFunc()
+??<
+    var x = 5;
+    this.getX = function()??< return x; ??>;
+??>
+var a = new AFunc();
+alert(a.x);      //will alert "undefined"
+alert(a.getX()); //will alert "5"
+}
+In this way, we can create an analog to private member variables in more traditional object oriented languages.
+
+!Function Prototype Scope
+Function prototype level scope memebers are equivalent to public static members in languages like Java and C#. One copy of the member is hosted for all instances of the function object. Because of how JavaScript treats objects, one can think of the function prototype as a sort of template or pattern from which new instances of a function object are created.
+{
+function AFunc()
+??<
+    this.msg2 = "what?";
+??>
+AFunc.prototype.msg = "hello";
+var a = new AFunc();
+var b = new AFunc();
+alert(a.msg); //will alert "hello"
+alert(b.msg); //will alert "hello"
+alert(a.msg2); //will alert "what?"
+alert(b.msg2); //will alert "what?"
+a.msg = "goodbye";
+a.msg2 = "yo";
+alert(a.msg); //will alert "goodbye"
+alert(b.msg); //will alert "goodbye", changes from instance a affect instance b
+alert(a.msg2); //will alert "yo"
+alert(b.msg2); //will alert "what?"
+// msg2 was an instance level copy, it remains unchanged in b
+}
+
+!Function Handle Scope
+Function handle level scope is somewhat odd. It doesn't have a direct parallel to anything in any languages that I'm familiar with. It's similar to function instance level scope, in that a new members are added to a specific instance of a function object, but the member is only accesible from references from the original function handle. Unlike function prototype level scope, members set at function handle level scope are not accessible from new copies of the function.
+{
+function AFunc()
+??<
+   alert(AFunc.msg);
+??>
+AFunc.msg = "hello";  //this member is only ever accessible as "AFunc.msg"
+}
+In a way, they are similar to static variables in C functions:
+{
+void func()
+??<
+    static int c = 0;
+    printf("%d", c);
+    c++;
+??>
+int main(void)
+??<
+    func();  //will print "0"
+    func();  //will print "1"
+    func();  //will print "2"
+??>
+}
+
+
+--------------------
+12/15/06 10:42 / 12.34.246.5
+--------------------
+[JavaScript tidbits]
+!!Variable Scope
+JavaScript has three levels of scope: block, function instance, and function prototype
+!Block Scope
+For users of the more traditional C-like languages (including C++, C#, Java, etc), block level scope is the most familiar and works in much the same way. Nested blocks can access variables from their parent blocks, but variables may not be accessed from outside of a block. Block level variables are declared either with the "var" keyword or by setting the variable name to a value.
+{
+//x is currently "undefined"
+alert(x === undefined); //will alert "true"
+var x = 24; //x is declared and its value is set
+y = 13; //y is declared and its value is set
+var z; //z is declared, but its value remains "null"
+z = 10;
+for(var index = 0; index < 10; ++index)??< //index has scope at the level of the for loop block
+//x, y, and z are accessible from this block
+??>
+//index is no longer in scope
+}
+
+!Function Instance Scope
+Function instance scope is most similar to the pubically accessible member variables of a class in most object oriented languages. Variables of function instance level scope may be declared at any time. Function instance level variables are tied to an instance of a function object ([JavaScript Is A Functional Language]), and will persist with that object until the member is deleted or the object is destroyed. Function scope variables are declared by setting their value using dot notation on an instance of a function object.
+{
+function AFunc()
+??<
+    this.msg = "Hello";
+    alert(this.msg);
+    alert(this.msg2);
+??>
+var a = new AFunc(); //will alert "Hello" follwed by an alert "undefined"
+a.msg2 = "Good bye";
+alert(a.msg);   //will alert "Hello"
+alert(a.msg2);  //will alert "Good Bye"
+AFunc();        //will alert "Hello" follwed by an alert "undefined"
+delete a.msg;
+alert(a.msg);   //will alert "undefined"
+}
+
+Setting function instance level scope variables in the function definition (essentially, the object constructor when used with the new keyword), will assign a new copy of that variable for each new instance of the function object.
+
+Function instance level scope methods can access block level variables in the function block scope level.
+{
+function AFunc()
+??<
+    var x = 5;
+    this.getX = function()??< return x; ??>;
+??>
+var a = new AFunc();
+alert(a.x);      //will alert "undefined"
+alert(a.getX()); //will alert "5"
+}
+In this way, we can create an analog to private member variables in more traditional object oriented languages.
+
+!Function Prototype Scope
+Function prototype level scope memebers are equivalent to public static members in languages like Java and C#. One copy of the member is hosted for all instances of the function object. Because of how JavaScript treats objects, one can think of the function prototype as a sort of template or pattern from which new instances of a function object are created.
+{
+function AFunc()
+??<
+    this.msg2 = "what?";
+??>
+AFunc.prototype.msg = "hello";
+var a = new AFunc();
+var b = new AFunc();
+alert(a.msg); //will alert "hello"
+alert(b.msg); //will alert "hello"
+alert(a.msg2); //will alert "what?"
+alert(b.msg2); //will alert "what?"
+a.msg = "goodbye";
+a.msg2 = "yo";
+alert(a.msg); //will alert "goodbye"
+alert(b.msg); //will alert "goodbye", changes from instance a affect instance b
+alert(a.msg2); //will alert "yo"
+alert(b.msg2); //will alert "what?"
+// msg2 was an instance level copy, it remains unchanged in b
+}
+
+
+--------------------
+12/15/06 10:45 / 12.34.246.36
+--------------------
+[JavaScript tidbits]
+!!Variable Scope
+JavaScript has three levels of scope: block, function instance, and function prototype
+!Block Scope
+For users of the more traditional C-like languages (including C++, C#, Java, etc), block level scope is the most familiar and works in much the same way. Nested blocks can access variables from their parent blocks, but variables may not be accessed from outside of a block. Block level variables are declared either with the "var" keyword or by setting the variable name to a value.
+{
+//x is currently "undefined"
+alert(x === undefined); //will alert "true"
+var x = 24; //x is declared and its value is set
+y = 13; //y is declared and its value is set
+var z; //z is declared, but its value remains "null"
+z = 10;
+for(var index = 0; index < 10; ++index)??< //index has scope at the level of the for loop block
+//x, y, and z are accessible from this block
+??>
+//index is no longer in scope
+}
+
+!Function Instance Scope
+Function instance scope is most similar to the pubically accessible member variables of a class in most object oriented languages. Variables of function instance level scope may be declared at any time. Function instance level variables are tied to an instance of a function object ([JavaScript Is A Functional Language]), and will persist with that object until the member is deleted or the object is destroyed. Function scope variables are declared by setting their value using dot notation on an instance of a function object.
+{
+function AFunc()
+??<
+    this.msg = "Hello";
+    alert(this.msg);
+    alert(this.msg2);
+??>
+var a = new AFunc(); //will alert "Hello" follwed by an alert "undefined"
+a.msg2 = "Good bye";
+alert(a.msg);   //will alert "Hello"
+alert(a.msg2);  //will alert "Good Bye"
+AFunc();        //will alert "Hello" follwed by an alert "undefined"
+delete a.msg;
+alert(a.msg);   //will alert "undefined"
+}
+
+Setting function instance level scope variables in the function definition (essentially, the object constructor when used with the new keyword), will assign a new copy of that variable for each new instance of the function object.
+
+Function instance level scope methods can access block level variables in the function block scope level.
+{
+function AFunc()
+??<
+    var x = 5;
+    this.getX = function()??< return x; ??>;
+??>
+var a = new AFunc();
+alert(a.x);      //will alert "undefined"
+alert(a.getX()); //will alert "5"
+}
+In this way, we can create an analog to private member variables in more traditional object oriented languages.
+
+!Function Prototype Scope
+Function prototype level scope memebers are equivalent to public static members in languages like Java and C#. One copy of the member is hosted for all instances of the function object. Because of how JavaScript treats objects, one can think of the function prototype as a sort of template or pattern from which new instances of a function object are created.
+{
+function AFunc()
+??<
+    this.msg2 = "what?";
+??>
+AFunc.prototype.msg = "hello";
+var a = new AFunc();
+var b = new AFunc();
+alert(a.msg); //will alert "hello"
+alert(b.msg); //will alert "hello"
+alert(a.msg2); //will alert "what?"
+alert(b.msg2); //will alert "what?"
+a.msg = "goodbye";
+a.msg2 = "yo";
+alert(a.msg); //will alert "goodbye"
+alert(b.msg); //will alert "goodbye", changes from instance a affect instance b
+alert(a.msg2); //will alert "yo"
+alert(b.msg2); //will alert "what?"
+// msg2 was an instance level copy, it remains unchanged in b
+}
+!Function Prototype Caveat
+Do not forget the prototype keyword when assigning prototype level members. Because a function definition:
+{
+function a()??<??>;
+}
+is equivalent to a variable assignment of an anonymous function object:
+{
+var a = function()??<??>;
+}
+assigning members to the function handle without the prototype keyword only assigns an function instance-level member to a single instance of that function.
+
+
+--------------------
+12/15/06 10:46 / 12.34.246.36
+--------------------
+[JavaScript tidbits]
+!!Variable Scope
+JavaScript has three levels of scope: block, function instance, and function prototype
+!Block Scope
+For users of the more traditional C-like languages (including C++, C#, Java, etc), block level scope is the most familiar and works in much the same way. Nested blocks can access variables from their parent blocks, but variables may not be accessed from outside of a block. Block level variables are declared either with the "var" keyword or by setting the variable name to a value.
+{
+//x is currently "undefined"
+alert(x === undefined); //will alert "true"
+var x = 24; //x is declared and its value is set
+y = 13; //y is declared and its value is set
+var z; //z is declared, but its value remains "null"
+z = 10;
+for(var index = 0; index < 10; ++index)??< //index has scope at the level of the for loop block
+//x, y, and z are accessible from this block
+??>
+//index is no longer in scope
+}
+
+!Function Instance Scope
+Function instance scope is most similar to the pubically accessible member variables of a class in most object oriented languages. Variables of function instance level scope may be declared at any time. Function instance level variables are tied to an instance of a function object ([JavaScript Is A Functional Language]), and will persist with that object until the member is deleted or the object is destroyed. Function scope variables are declared by setting their value using dot notation on an instance of a function object.
+{
+function AFunc()
+??<
+    this.msg = "Hello";
+    alert(this.msg);
+    alert(this.msg2);
+??>
+var a = new AFunc(); //will alert "Hello" follwed by an alert "undefined"
+a.msg2 = "Good bye";
+alert(a.msg);   //will alert "Hello"
+alert(a.msg2);  //will alert "Good Bye"
+AFunc();        //will alert "Hello" follwed by an alert "undefined"
+delete a.msg;
+alert(a.msg);   //will alert "undefined"
+}
+
+Setting function instance level scope variables in the function definition (essentially, the object constructor when used with the new keyword), will assign a new copy of that variable for each new instance of the function object.
+
+Function instance level scope methods can access block level variables in the function block scope level.
+{
+function AFunc()
+??<
+    var x = 5;
+    this.getX = function()??< return x; ??>;
+??>
+var a = new AFunc();
+alert(a.x);      //will alert "undefined"
+alert(a.getX()); //will alert "5"
+}
+In this way, we can create an analog to private member variables in more traditional object oriented languages.
+
+!Function Prototype Scope
+Function prototype level scope memebers are equivalent to public static members in languages like Java and C#. One copy of the member is hosted for all instances of the function object. Because of how JavaScript treats objects, one can think of the function prototype as a sort of template or pattern from which new instances of a function object are created.
+{
+function AFunc()
+??<
+    this.msg2 = "what?";
+??>
+AFunc.prototype.msg = "hello";
+var a = new AFunc();
+var b = new AFunc();
+alert(a.msg); //will alert "hello"
+alert(b.msg); //will alert "hello"
+alert(a.msg2); //will alert "what?"
+alert(b.msg2); //will alert "what?"
+a.msg = "goodbye";
+a.msg2 = "yo";
+alert(a.msg); //will alert "goodbye"
+alert(b.msg); //will alert "goodbye", changes from instance a affect instance b
+alert(a.msg2); //will alert "yo"
+alert(b.msg2); //will alert "what?"
+// msg2 was an instance level copy, it remains unchanged in b
+}
+!Function Prototype Caveat
+Do not forget the prototype keyword when assigning prototype level members. Because a function definition:
+{
+function a()??<??>;
+}
+is equivalent to a variable assignment of an anonymous function object:
+{
+var a = function()??<??>;
+}
+assigning members to the function handle without the prototype keyword only assigns a function instance-level member to a single instance of that function.

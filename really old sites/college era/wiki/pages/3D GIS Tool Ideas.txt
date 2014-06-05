@@ -1,0 +1,34 @@
+!virtual collaberation on GIS data
+*A scenario: ground responce units are briefed on the projected effect of soil errosion due to heavy storm activity, with time-lapse visualizations "from the ground".
+	
+!state-of-the-art rendering and visualizations
+*providing the user with a more concrete concept of the presented data.
+	
+!hardware accelerated graphics
+*wrestling with slow applications is frustrating.
+*frustration leads to product "shelf death" (user never uses product, product sits on shelf)
+
+!hardware accelerated GIS operations
+*graphics and GIS share many similarities
+**a lot of on-the-fly projections of large numbers of vertex data
+*dedicated graphics cards are essential to high quality graphics
+**GPUs are SIMD (Single Instruction Multiple Data) architecture
+**CPUs are SISD design
+*[Generic GPU Programming|http://www.gpgpu.org] may be possible to leverage the SIMD architecture of the GPU for GIS work
+	
+!import DEM on-the-fly
+*DEM may be ideal format
+**standardized
+**common in GIS work
+**variable resolution
+**very detailed
+*on-the-fly importing allows for special caching features
+
+!recording
+*user actions for playback in viewer
+*xvid video for playback in media player w/ codec
+*opens market to commercial media
+**currently media houses utilize
+***costly in house apps
+***one of the aformentioned poor-quality, 3rd party apps
+**a high quality 3D terrain renderer with GIS layering and video recording capabilities will be very cost effective for journalists and documentors.

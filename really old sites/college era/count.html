@@ -1,0 +1,21 @@
+	<div onclick="toggleAll()" class="toggler" style="clear:left right;width:200px;margin-bottom:10px;">Toggle All Items</div>
+	</div>
+	<div class="blockTitle"><span id="t1" class="toggler" onclick="toggle('t1', 'b1')">-</span>Countdown 'til Leslie's sell-by date</div>
+	<div id="b1" class="entry">
+	</div>
+<script language="javascript">
+var endDate = new Date(2007, 11, 21, 0, 0, 0);
+function runner()
+{
+	var now = new Date();
+	var tillThen = new Date(endDate.getFullYear() - now.getFullYear(),
+	endDate.getMonth() - now.getMonth(),
+	endDate.getDate() - now.getDate(),
+	endDate.getHours() - now.getHours(),
+	endDate.getMinutes() - now.getMinutes(),
+	endDate.getSeconds() - now.getSeconds());
+	document.getElementById("b1").innerHTML = tillThen.getYear() + " years<br>" + tillThen.getMonth() + " months<br>" + tillThen.getDate() + " days<br>" + tillThen.getHours() + " hours<br>" + tillThen.getMinutes() + " minutes<br>" + tillThen.getSeconds() + " seconds";
+	setTimeout("runner()", 1000);
+}
+runner();
+</script>

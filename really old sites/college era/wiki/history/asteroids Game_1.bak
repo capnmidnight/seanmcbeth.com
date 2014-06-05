@@ -1,0 +1,78 @@
+
+
+
+--------------------
+12/22/06 12:52 / 12.34.246.36
+--------------------
+<HTML>
+<HEAD>
+<META NAME="GENERATOR" Content="Microsoft Visual Studio 6.0">
+<TITLE></TITLE>
+<script type="text/javascript" src="../test/Graphics.js"></script>
+<script type="text/javascript">
+var g;
+var id;
+var x = new Array();
+var y = new Array();
+var dx = new Array();
+var dy = new Array();
+var n = 0;
+for(var i = 0; i < 10; ++i)
+{
+	if(i < 5)
+	{
+		x[i] = Math.random() * 10 + 380;
+		y[i] = Math.random() * 10 + 280;
+		dx[i] = -(Math.random() * 1+1);
+		dy[i] = -(Math.random() * 1+1);
+	}
+	else
+	{
+		x[i] = Math.random() * 10 + 10;
+		y[i] = Math.random() * 10 + 10;
+		dx[i] = Math.random() * 1+1;
+		dy[i] = Math.random() * 1+1;
+	}
+}
+function draw()
+{
+	g.clear();
+	g.setStroke(2);
+	
+	for(var i = 0; i < x.length; ++i)
+	{
+		if(i < 5)
+		{
+			g.drawImage(x[i], y[i], "green.PNG");
+		}
+		else
+		{
+			g.drawImage(x[i], y[i], "tan.PNG");
+		}
+		
+		x[i]+=dx[i];
+		y[i]+=dy[i];
+		if(x[i]<=10 || x[i]>=400 )
+		{
+			dx[i] = -dx[i];
+		}
+		if(y[i]<=10 || y[i]>=300 )
+		{
+			dy[i] = -dy[i];
+		}
+	}
+	n++;
+	g.drawString(10, 10, "frames:"+n, "blue");
+}
+function init()
+{
+	g = new Graphics(10, 10, 400, 300, "body");
+	//g.setBackground("black");
+	setInterval(draw, 1);
+}
+</script>
+</HEAD>
+<BODY id="body" onload="init()">
+
+</BODY>
+</HTML>

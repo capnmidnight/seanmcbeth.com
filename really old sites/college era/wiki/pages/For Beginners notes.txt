@@ -1,0 +1,5 @@
+This page is a collection of notes for goals to meet in the next version of the "For Beginners" article. Feel free to edit it as you wish.
+
+*Stress language independence
+*Avoid information deluge
+*Avoid platform dependence

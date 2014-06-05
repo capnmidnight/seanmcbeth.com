@@ -1,0 +1,13 @@
+.toggler{
+	font-family:monospace;
+	background-color:#d4d0c8;
+	color:#000000;
+	border-top:solid 1px #ffffff;
+	border-left:solid 1px #ffffff;
+	border-right:solid 1px #7f7f7f;
+	border-bottom:solid 1px #7f7f7f;
+	padding-left:3px;
+	padding-right:3px;
+	margin-right:10px;
+	cursor:hand;
+}

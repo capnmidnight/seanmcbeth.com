@@ -1,0 +1,61 @@
+
+
+
+--------------------
+12/12/06 14:08 / 12.34.246.36
+--------------------
+The C-Style Trigraphs are a set of ISO 646 character strings, 3 characters in length (hence the name Trigraph), that are used in place of a character that may not appear on certain, limited keyboards.
+
+If this list does not display properly, please click the "edit" link below:
+
+* ??= for #
+* ??( for [
+* ??) for ]
+* ??< for {
+* ??> for }
+* ??/ for \
+* ??! for |
+* ??- for ~
+* ??' for ^
+
+Since RoWiki reserves many of those special characters as control characters, pages are broken when they are used in an article. Using Trigraphs prevents that breakage.
+
+
+--------------------
+05/11/07 10:38 / 64.8.50.160
+--------------------
+The C-Style Trigraphs are a set of ISO 646 character strings, 3 characters in length (hence the name Trigraph), that are used in place of specific characters that may not appear on certain, limited keyboards. They are called '''C-Style''' Trigraphs because of the need to represent the equivalent C programming language constructs on old Unix terminals.
+
+If this list does not display properly, please click the "edit" link below:
+
+* ??= for #
+* ??( for [
+* ??) for ]
+* ??< for {
+* ??> for }
+* ??/ for \
+* ??! for |
+* ??- for ~
+* ??' for ^
+
+Since RoWiki reserves many of those special characters as control characters, pages are broken when they are used in an article. Using Trigraphs prevents that breakage.
+
+
+--------------------
+05/11/07 10:38 / 64.8.50.160
+--------------------
+The C-Style Trigraphs are a set of ISO 646 character strings, 3 characters in length (hence the name '''Trigraph'''), that are used in place of specific characters that may not appear on certain, limited keyboards. They are called '''C-Style''' Trigraphs because of the need to represent the equivalent C programming language constructs on old Unix terminals.
+
+If this list does not display properly, please click the "edit" link below:
+
+* ??= for #
+* ??( for [
+* ??) for ]
+* ??< for {
+* ??> for }
+* ??/ for \
+* ??! for |
+* ??- for ~
+* ??' for ^
+
+Since RoWiki reserves many of those special characters as control characters, pages are broken when they are used in an article. Using Trigraphs prevents that breakage.

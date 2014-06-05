@@ -1,0 +1,7 @@
+!!MSDN
+The Microsoft Developer's Network (MSDN) is perhaps the single most comprehensive collection of technical documentation in the entire world. While it is certainly and understandably very Microsoft-centric A) it provides information on Microsoft products that are implementations of standardized technologies, and B) nobody important really cares about Linux anyway.
+
+As MSDN covers just about everything one could ever do with a Windows PC, for just about every version of Windows ever made, it is consequentially quite large. Finding specific information can be an arduous task. By taking some time to study MSDN's layout and understanding the full scope of its coverage, one will find retrieving information on MSDN quite a rewarding experience.
+
+!!How 2 porgram plz?
+(The MSDN [Starts Here|http://msdn2.microsoft.com/en-us/library/default.aspx])

@@ -1,0 +1,313 @@
+[JavaScript tidbits]
+{
+function Point(px, py)
+??<
+	//PRIVATE
+	var x = px;
+	var y = py;
+	
+	//PRIVILEGED
+	this.getX = function()
+	??<
+		return x;
+	??>;
+	this.getY = function()
+	??<
+		return y;
+	??>;
+	this.setX = function(px)
+	??<
+		x = px;
+	??>;
+	this.setY = function(py)
+	??<
+		y = py;
+	??>;
+	this.move = function(px, py)
+	??<
+		x = px;
+		y = py;
+	??>;
+	this.toString = function()
+	??<
+		return "("+x+", "+y+")";
+	??>;
+??>
+function Pixel(px, py, size, color)
+??<
+	//PRIVATE elements
+	var parent = new Point(px, py);
+	var size = size;
+	var color = color;
+	var elem = document.createElement("div");
+	elem.style.position = "absolute";
+	elem.style.overflow = "hidden";
+	
+	function updateStyle()
+	??<
+		elem.style.width = size + "px";
+		elem.style.height = size + "px";
+		elem.style.left = parent.getX() + "px";
+		elem.style.top = parent.getY() + "px";
+		elem.style.backgroundColor = color;
+	??>;
+	updateStyle();
+	
+	//PRIVILEGED elements
+	this.getElement = function()
+	??<
+		return elem;
+	??>;
+	this.move = function(x, y)
+	??<
+		parent.move(x, y);
+		updateStyle();
+	??>;
+	this.setSize = function(sz, opt)
+	??<
+		if(opt === undefined || opt === null)
+		??<
+			size = sz;
+			updateStyle();
+		??>
+		else
+		??<
+			elem.style.width = sz;
+			elem.style.height = opt;
+		??>
+	??>;
+	this.setColor = function(c)
+	??<
+		color = c;
+		updateStyle();
+	??>;
+	this.setBorder = function(sz, c)
+	??<
+		if(sz !== undefined && sz !== null)
+		??<
+			elem.style.border = "solid "+sz+"px "+c;
+		??>
+	??>;
+	this.clearBorder = this.setBorder;
+	this.setX = function(px)
+	??<
+		parent.setX(px);
+		updateStyle();
+	??>;
+	this.setY = function(py)
+	??<
+		parent.setY(py);
+		updateStyle();
+	??>;
+	this.toString = function()
+	??<
+		return "??("+parent.toString() +color+"??) - ??(("+elem.style.left+", "+elem.style.top+")"+elem.style.backgroundColor+"??)";
+	??>;
+??>
+
+function Graphics(scrnX, scrnY, scrnWidth, scrnHeight, parentId)
+??<
+	//PRIVATE
+	var pixSize = 1;
+	var pixBias = 1;
+	var pixDist = pixSize * pixBias;
+	var parent = document.getElementById(parentId);
+	var elem = document.createElement("div");
+	elem.style.border = "solid 1px #c0c0c0";
+	elem.style.overflow = "hidden";
+	var locX = scrnX;
+	var locY = scrnY;
+	var width = scrnWidth;
+	var height = scrnHeight;
+
+	function createPixel()
+	??<
+		pixels??(i??) = new Pixel(-pixSize, 0, pixSize, "white");
+		elem.appendChild(pixels??(i??).getElement());
+	??>
+	parent.appendChild(elem);
+	//pre allocate a few pixels for use
+	var pixelCount = Math.floor(Math.sqrt(width*height)*Math.log(Math.log(width*height))); //A funky function for fun fiddling
+	var pixels = new Array(pixelCount);
+	for(var i = 0; i < pixels.length; ++i)
+	??<
+		createPixel();
+	??>
+	var free = 0;
+	elem.style.position = "absolute";
+	elem.style.width = width + "px";
+	elem.style.height = height + "px";
+	elem.style.left = scrnX + "px";
+	elem.style.top = scrnY + "px";
+
+	function getPixel()
+	??<
+		if(free >= pixels.length)
+		??<
+			free = 0;
+		??>
+		var p = pixels??(free??);
+		free++;
+		return p;
+	??>;
+	
+	//PRIVILEGED
+	this.getElement = function()
+	??<
+		return elem;
+	??>;
+	
+	this.setStroke = function(stroke)
+	??<
+		pixSize = stroke;
+		pixDist = pixSize * pixBias;
+	??>;
+	
+	this.setBroken = function(boolVal)
+	??<
+		pixBias = boolVal?2:1;
+		pixDist = pixSize * pixBias;
+	??>;
+	
+	this.setColor = function(px, py, c)
+	??<
+		var p = getPixel();
+		p.move(px - locX, py - locY);
+		p.setSize(pixSize);
+		p.clearBorder();
+		p.setColor(c);
+	??>;
+	this.clear = function()
+	??<
+		for(var i = 0; i < pixels.length; ++i)
+		??<
+			pixels??(i??).setX(-pixSize); //get the pixel off the screen
+		??>
+		free = 0;
+	??>;
+	this.drawLine = function(x0, y0, x1, y1, c)
+	??<
+		var x, y, n;
+		var deltaX = x1 - x0;
+		var deltaY = y1 - y0;
+		var slope = deltaY / deltaX;
+		if(deltaX < 0)
+		??<
+			var temp = x0;
+			x0 = x1;
+			x1 = temp;
+			temp = y0;
+			y0 = y1;
+			y1 = temp;
+			deltaX = -deltaX;
+			deltaY = -deltaY;
+		??>			
+		if(deltaX === 0)
+		??<
+			//A vertical line can be optimized to a thin rectangle
+			var p = getPixel();
+			p.move(x0 - locX, Math.min(y0, y1) - locY);
+			p.clearBorder();
+			p.setColor(c);
+			p.setSize(pixSize, Math.abs(deltaY));
+		??>
+		else if(deltaY === 0)
+		??<
+			//A horizontal line can be optimized to a thin rectangle
+			var p = getPixel();
+			p.move(Math.min(x0, x1) - locX, y0 - locY);
+			p.clearBorder();
+			p.setColor(c);
+			p.setSize(Math.abs(deltaX), pixSize);
+		??>
+		else
+		??<
+			if(Math.abs(slope) > 1)
+			??<
+				//almost horizontal lines can be optimized to multiple, offset horizontal lines
+				n = Math.abs(deltaX);
+				for(var i = 0; i < n; i+=pixDist)
+				??<
+					if(deltaX > 0)
+					??<
+						x = x0 + i;
+						y = y0 + i*slope;
+					??>
+					else
+					??<
+						x = x0 - i;
+						y = y0 - (i+1)*slope;
+					??>
+					this.drawLine(x, y, x, y + slope*pixSize, c);
+				??>
+			??>
+			else if(Math.abs(slope) < 1)
+			??<
+				n = Math.abs(deltaY);
+				var w = Math.abs(1/slope);
+				for(var i = 0; i < n; i+=pixDist)
+				??<
+					if(deltaX > 0)
+					??<
+						x = x0 + i*w;
+					??>
+					else
+					??<
+						x = x0 - (i+1)*w;
+					??>
+					if(deltaY > 0)
+					??<
+						y = y0 + i;
+					??>
+					else
+					??<
+						y = y0 - i;
+					??>
+					this.drawLine(x, y, x + Math.abs(w)*pixSize, y, c);
+				??>
+			??>
+			else
+			??<
+				//45 degree angle lines cannot be further optimized
+				n = Math.abs(deltaX); //deltaY could also be used, the choice is arbitrary
+				for(var i = 0; i < n; i+=pixDist)
+				??<
+					x = deltaX * i / n + x0;
+					y = deltaY * i / n + y0;
+					this.setColor(x, y, c);
+				??>
+			??>
+		??>
+	??>;
+	this.drawPoly = function(px, py, xs, ys, c)
+	??<
+		var n = xs.length - 1;
+		for(var i = 0; i < n; ++i)
+		??<
+			this.drawLine(xs??(i??)+px, ys??(i??)+py, xs??(i+1??)+px, ys??(i+1??)+py, c);
+		??>
+		this.drawLine(xs??(n??)+px, ys??(n??)+py, xs??(0??)+px, ys??(0??)+py, c)
+	??>;
+	this.drawCircle = function(px, py, radius, c)
+	??<
+		var circumference = Math.PI * 2 * radius;
+		var a, cx, cy;
+		var s = pixDist;
+		for(var i = 0; i <= circumference; i += s)
+		??<
+			a = i / radius;
+			cx = radius * Math.cos(a) + px;
+			cy = radius * Math.sin(a) + py;
+			g.setColor(cx, cy, c);
+		??>
+	??>;
+	this.drawRect = function(px, py, w, h, c)
+	??<
+		var p = getPixel();
+		p.move(px - locX, py - locY);
+		p.setBorder(pixSize, c);
+		p.setColor("transparent");
+		p.setSize(w, h);
+	??>;
+??>
+}

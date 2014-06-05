@@ -1,0 +1,536 @@
+<HTML>
+<head>
+	<TITLE>Miami Trip, 2006</TITLE>
+	<META name="generator" content="Adobe Photoshop(R) CS Web Photo Gallery">
+	<META http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+	<link href="images/galleryStyle.css" rel="stylesheet" type="text/css">
+	<script language="javascript">
+	<!--
+	
+	var feedback = new Object();
+	var tabShowing = null;
+	
+	function showTab() {
+		if (tabShowing != null && tabShowing.toLowerCase() == "info") {
+			
+			top.TopFrame.CSAction(new Array(/*CMP*/'BAE16A9A0',/*CMP*/'BAE16AA81'));return top.TopFrame.CSClickReturn();
+		
+		} else if (tabShowing != null && tabShowing.toLowerCase() == "feedback") {
+
+			top.TopFrame.CSAction(new Array(/*CMP*/'BAE16AB52',/*CMP*/'BAE16ABF3'));return top.TopFrame.CSClickReturn();		
+		}
+	}
+	
+	function updateFeedback(picName) {
+		
+		if (feedback[picName]) {
+			
+			top.TopFrame.document.forms["wpgFeedback"].elements["comments"].value = feedback[picName].comments;
+		
+			top.TopFrame.document.forms["wpgFeedback"].elements["approved"].checked = feedback[picName].approved;
+		
+			top.TopFrame.document.forms["wpgFeedback"].elements["other"].checked = feedback[picName].other;
+			
+			top.TopFrame.document.images["saved"].src = "../images/saved.gif";
+		}
+	}
+	
+	function addComment(picName) {
+		feedback[picName] = new Object();
+		
+		feedback[picName].comments = top.TopFrame.document.forms["wpgFeedback"].elements["comments"].value;
+		
+		feedback[picName].approved = top.TopFrame.document.forms["wpgFeedback"].elements["approved"].checked ? true : false;
+		
+		feedback[picName].other = top.TopFrame.document.forms["wpgFeedback"].elements["other"].checked ? true : false;
+		
+		top.TopFrame.document.images["saved"].src = "../images/saved.gif";
+	}
+	
+	function removeFeedback(picName) {
+		//Make sure there is feedback to remove
+		if (!(top.TopFrame.document.forms["wpgFeedback"].elements["comments"].value == ""
+			&& top.TopFrame.document.forms["wpgFeedback"].elements["approved"].checked == false
+			&& top.TopFrame.document.forms["wpgFeedback"].elements["other"].checked == false)) {
+			if (confirm("Are you sure you want to remove feedback on this image?")) {
+				delete feedback[picName];
+				
+				top.TopFrame.document.forms["wpgFeedback"].elements["comments"].value = "";
+			
+				top.TopFrame.document.forms["wpgFeedback"].elements["approved"].checked = false;
+			
+				top.TopFrame.document.forms["wpgFeedback"].elements["other"].checked = false;
+				
+				top.TopFrame.document.images["saved"].src = "../images/spacer.gif";
+			}
+		}
+	}
+	
+	function sendFeedback(picName) {
+		checkForUnSavedChanges(picName);
+
+		var prefix = "mailto:sean.mcbeth@gmail.com?";
+		var name = null;
+		name = prompt("Enter Your Name:", "Your Name");
+		
+		if (name) {
+			prefix += "subject=" + escape("Feedback from " + name);
+			prefix += "&body=";
+			var str = ""
+			
+			for (var i in feedback) {
+				
+				str += i + " ~~ \n";
+				str += (feedback[i].approved == true) ? "Approved ~~ \n" : "";
+				str += (feedback[i].other == true) ? "Other ~~ \n" : "";
+				str += (feedback[i].comments != "") ? ("\nComments:\n" + feedback[i].comments + " ~~ \n") : "";
+				str += "____________________________________________\n\n";
+			
+			}
+			
+			str = escape(str);
+			location.href = prefix + str;
+		}	
+	}
+	
+	function setAsUnsaved() {
+		top.TopFrame.document.images["saved"].src = "../images/spacer.gif";
+	}
+	
+	function checkForUnSavedChanges(picName) {
+		
+		var unsavedChanges = false;
+		
+		if ((top.TopFrame.document.forms["wpgFeedback"].elements["comments"].value != "" && !feedback[picName]) 
+			|| (feedback[picName] && feedback[picName].comments != top.TopFrame.document.forms["wpgFeedback"].elements["comments"].value)) {
+			unsavedChanges = true;
+		} else if ((top.TopFrame.document.forms["wpgFeedback"].elements["approved"].checked != false && !feedback[picName]) 
+					|| (feedback[picName] && feedback[picName].approved != top.TopFrame.document.forms["wpgFeedback"].elements["approved"].checked)) {
+			unsavedChanges = true;
+		} else if ((top.TopFrame.document.forms["wpgFeedback"].elements["other"].checked != false && !feedback[picName]) 
+					|| (feedback[picName] && feedback[picName].other != top.TopFrame.document.forms["wpgFeedback"].elements["other"].checked)) {
+			unsavedChanges = true;
+		}		
+		
+		if (unsavedChanges) {
+			//Uncomment if auto-saving is not desired.
+			//if (confirm("There is unsaved feedback for this image. Would you like to save it?")) {
+				addComment(picName);
+			//}
+		}
+	}
+	//-->
+	</script>
+</head>
+<body bgcolor="#CCCCCC" leftmargin="0" marginheight="0" marginwidth="0" topmargin="0">
+	<div id="thumbnail">
+		<table width="100%" border="0" cellpadding="0" cellspacing="0">			
+<!-- Thumbnails with hyperlinks -->
+<tr><td align="center">
+<div class="indexContent">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="2"><a onmouseover="window.status='Miami 1 001.jpg';  return true;"  onmouseout="window.status='';  return true;" href="pages/Miami%201%20001.html" target="TopFrame"><img src="thumbnails/Miami%201%20001.jpg" width="75" height="56" border=0 alt="Miami 1 001"></a></td>
+    <td width="100%" valign="top"><div class="indexInfo"><div class="filename"><a href="pages/Miami%201%20001.html" target="TopFrame">Miami 1 001.jpg</a></div><div class="date">2/27/2006</div></div></td>
+  </tr>
+</table>
+<div></td></tr><!-- Thumbnails with hyperlinks -->
+<tr><td align="center">
+<div class="indexContent">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="2"><a onmouseover="window.status='Miami 1 002.jpg';  return true;"  onmouseout="window.status='';  return true;" href="pages/Miami%201%20002.html" target="TopFrame"><img src="thumbnails/Miami%201%20002.jpg" width="75" height="56" border=0 alt="Miami 1 002"></a></td>
+    <td width="100%" valign="top"><div class="indexInfo"><div class="filename"><a href="pages/Miami%201%20002.html" target="TopFrame">Miami 1 002.jpg</a></div><div class="date">2/27/2006</div></div></td>
+  </tr>
+</table>
+<div></td></tr><!-- Thumbnails with hyperlinks -->
+<tr><td align="center">
+<div class="indexContent">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="2"><a onmouseover="window.status='Miami 1 005.jpg';  return true;"  onmouseout="window.status='';  return true;" href="pages/Miami%201%20005.html" target="TopFrame"><img src="thumbnails/Miami%201%20005.jpg" width="75" height="56" border=0 alt="Miami 1 005"></a></td>
+    <td width="100%" valign="top"><div class="indexInfo"><div class="filename"><a href="pages/Miami%201%20005.html" target="TopFrame">Miami 1 005.jpg</a></div><div class="date">2/27/2006</div></div></td>
+  </tr>
+</table>
+<div></td></tr><!-- Thumbnails with hyperlinks -->
+<tr><td align="center">
+<div class="indexContent">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="2"><a onmouseover="window.status='Miami 1 007.jpg';  return true;"  onmouseout="window.status='';  return true;" href="pages/Miami%201%20007.html" target="TopFrame"><img src="thumbnails/Miami%201%20007.jpg" width="75" height="56" border=0 alt="Miami 1 007"></a></td>
+    <td width="100%" valign="top"><div class="indexInfo"><div class="filename"><a href="pages/Miami%201%20007.html" target="TopFrame">Miami 1 007.jpg</a></div><div class="date">2/27/2006</div></div></td>
+  </tr>
+</table>
+<div></td></tr><!-- Thumbnails with hyperlinks -->
+<tr><td align="center">
+<div class="indexContent">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="2"><a onmouseover="window.status='Miami 1 008.jpg';  return true;"  onmouseout="window.status='';  return true;" href="pages/Miami%201%20008.html" target="TopFrame"><img src="thumbnails/Miami%201%20008.jpg" width="75" height="56" border=0 alt="Miami 1 008"></a></td>
+    <td width="100%" valign="top"><div class="indexInfo"><div class="filename"><a href="pages/Miami%201%20008.html" target="TopFrame">Miami 1 008.jpg</a></div><div class="date">2/27/2006</div></div></td>
+  </tr>
+</table>
+<div></td></tr><!-- Thumbnails with hyperlinks -->
+<tr><td align="center">
+<div class="indexContent">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="2"><a onmouseover="window.status='Miami 1 012.jpg';  return true;"  onmouseout="window.status='';  return true;" href="pages/Miami%201%20012.html" target="TopFrame"><img src="thumbnails/Miami%201%20012.jpg" width="75" height="56" border=0 alt="Miami 1 012"></a></td>
+    <td width="100%" valign="top"><div class="indexInfo"><div class="filename"><a href="pages/Miami%201%20012.html" target="TopFrame">Miami 1 012.jpg</a></div><div class="date">2/27/2006</div></div></td>
+  </tr>
+</table>
+<div></td></tr><!-- Thumbnails with hyperlinks -->
+<tr><td align="center">
+<div class="indexContent">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="2"><a onmouseover="window.status='Miami 1 013.jpg';  return true;"  onmouseout="window.status='';  return true;" href="pages/Miami%201%20013.html" target="TopFrame"><img src="thumbnails/Miami%201%20013.jpg" width="75" height="56" border=0 alt="Miami 1 013"></a></td>
+    <td width="100%" valign="top"><div class="indexInfo"><div class="filename"><a href="pages/Miami%201%20013.html" target="TopFrame">Miami 1 013.jpg</a></div><div class="date">2/27/2006</div></div></td>
+  </tr>
+</table>
+<div></td></tr><!-- Thumbnails with hyperlinks -->
+<tr><td align="center">
+<div class="indexContent">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="2"><a onmouseover="window.status='Miami 1 017.jpg';  return true;"  onmouseout="window.status='';  return true;" href="pages/Miami%201%20017.html" target="TopFrame"><img src="thumbnails/Miami%201%20017.jpg" width="75" height="56" border=0 alt="Miami 1 017"></a></td>
+    <td width="100%" valign="top"><div class="indexInfo"><div class="filename"><a href="pages/Miami%201%20017.html" target="TopFrame">Miami 1 017.jpg</a></div><div class="date">2/27/2006</div></div></td>
+  </tr>
+</table>
+<div></td></tr><!-- Thumbnails with hyperlinks -->
+<tr><td align="center">
+<div class="indexContent">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="2"><a onmouseover="window.status='Miami 1 022.jpg';  return true;"  onmouseout="window.status='';  return true;" href="pages/Miami%201%20022.html" target="TopFrame"><img src="thumbnails/Miami%201%20022.jpg" width="75" height="56" border=0 alt="Miami 1 022"></a></td>
+    <td width="100%" valign="top"><div class="indexInfo"><div class="filename"><a href="pages/Miami%201%20022.html" target="TopFrame">Miami 1 022.jpg</a></div><div class="date">2/27/2006</div></div></td>
+  </tr>
+</table>
+<div></td></tr><!-- Thumbnails with hyperlinks -->
+<tr><td align="center">
+<div class="indexContent">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="2"><a onmouseover="window.status='Miami 1 024.jpg';  return true;"  onmouseout="window.status='';  return true;" href="pages/Miami%201%20024.html" target="TopFrame"><img src="thumbnails/Miami%201%20024.jpg" width="75" height="56" border=0 alt="Miami 1 024"></a></td>
+    <td width="100%" valign="top"><div class="indexInfo"><div class="filename"><a href="pages/Miami%201%20024.html" target="TopFrame">Miami 1 024.jpg</a></div><div class="date">2/27/2006</div></div></td>
+  </tr>
+</table>
+<div></td></tr><!-- Thumbnails with hyperlinks -->
+<tr><td align="center">
+<div class="indexContent">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="2"><a onmouseover="window.status='Miami 1 025.jpg';  return true;"  onmouseout="window.status='';  return true;" href="pages/Miami%201%20025.html" target="TopFrame"><img src="thumbnails/Miami%201%20025.jpg" width="56" height="75" border=0 alt="Miami 1 025"></a></td>
+    <td width="100%" valign="top"><div class="indexInfo"><div class="filename"><a href="pages/Miami%201%20025.html" target="TopFrame">Miami 1 025.jpg</a></div><div class="date">2/27/2006</div></div></td>
+  </tr>
+</table>
+<div></td></tr><!-- Thumbnails with hyperlinks -->
+<tr><td align="center">
+<div class="indexContent">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="2"><a onmouseover="window.status='Miami 2 001.jpg';  return true;"  onmouseout="window.status='';  return true;" href="pages/Miami%202%20001.html" target="TopFrame"><img src="thumbnails/Miami%202%20001.jpg" width="56" height="75" border=0 alt="Miami 2 001"></a></td>
+    <td width="100%" valign="top"><div class="indexInfo"><div class="filename"><a href="pages/Miami%202%20001.html" target="TopFrame">Miami 2 001.jpg</a></div><div class="date">2/27/2006</div></div></td>
+  </tr>
+</table>
+<div></td></tr><!-- Thumbnails with hyperlinks -->
+<tr><td align="center">
+<div class="indexContent">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="2"><a onmouseover="window.status='Miami 2 002.jpg';  return true;"  onmouseout="window.status='';  return true;" href="pages/Miami%202%20002.html" target="TopFrame"><img src="thumbnails/Miami%202%20002.jpg" width="75" height="56" border=0 alt="Miami 2 002"></a></td>
+    <td width="100%" valign="top"><div class="indexInfo"><div class="filename"><a href="pages/Miami%202%20002.html" target="TopFrame">Miami 2 002.jpg</a></div><div class="date">2/27/2006</div></div></td>
+  </tr>
+</table>
+<div></td></tr><!-- Thumbnails with hyperlinks -->
+<tr><td align="center">
+<div class="indexContent">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="2"><a onmouseover="window.status='Miami 2 003.jpg';  return true;"  onmouseout="window.status='';  return true;" href="pages/Miami%202%20003.html" target="TopFrame"><img src="thumbnails/Miami%202%20003.jpg" width="75" height="56" border=0 alt="Miami 2 003"></a></td>
+    <td width="100%" valign="top"><div class="indexInfo"><div class="filename"><a href="pages/Miami%202%20003.html" target="TopFrame">Miami 2 003.jpg</a></div><div class="date">2/27/2006</div></div></td>
+  </tr>
+</table>
+<div></td></tr><!-- Thumbnails with hyperlinks -->
+<tr><td align="center">
+<div class="indexContent">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="2"><a onmouseover="window.status='Miami 2 004.jpg';  return true;"  onmouseout="window.status='';  return true;" href="pages/Miami%202%20004.html" target="TopFrame"><img src="thumbnails/Miami%202%20004.jpg" width="56" height="75" border=0 alt="Miami 2 004"></a></td>
+    <td width="100%" valign="top"><div class="indexInfo"><div class="filename"><a href="pages/Miami%202%20004.html" target="TopFrame">Miami 2 004.jpg</a></div><div class="date">2/27/2006</div></div></td>
+  </tr>
+</table>
+<div></td></tr><!-- Thumbnails with hyperlinks -->
+<tr><td align="center">
+<div class="indexContent">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="2"><a onmouseover="window.status='Miami 2 005.jpg';  return true;"  onmouseout="window.status='';  return true;" href="pages/Miami%202%20005.html" target="TopFrame"><img src="thumbnails/Miami%202%20005.jpg" width="56" height="75" border=0 alt="Miami 2 005"></a></td>
+    <td width="100%" valign="top"><div class="indexInfo"><div class="filename"><a href="pages/Miami%202%20005.html" target="TopFrame">Miami 2 005.jpg</a></div><div class="date">2/27/2006</div></div></td>
+  </tr>
+</table>
+<div></td></tr><!-- Thumbnails with hyperlinks -->
+<tr><td align="center">
+<div class="indexContent">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="2"><a onmouseover="window.status='Miami 2 006.jpg';  return true;"  onmouseout="window.status='';  return true;" href="pages/Miami%202%20006.html" target="TopFrame"><img src="thumbnails/Miami%202%20006.jpg" width="56" height="75" border=0 alt="Miami 2 006"></a></td>
+    <td width="100%" valign="top"><div class="indexInfo"><div class="filename"><a href="pages/Miami%202%20006.html" target="TopFrame">Miami 2 006.jpg</a></div><div class="date">2/27/2006</div></div></td>
+  </tr>
+</table>
+<div></td></tr><!-- Thumbnails with hyperlinks -->
+<tr><td align="center">
+<div class="indexContent">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="2"><a onmouseover="window.status='Miami 2 007.jpg';  return true;"  onmouseout="window.status='';  return true;" href="pages/Miami%202%20007.html" target="TopFrame"><img src="thumbnails/Miami%202%20007.jpg" width="75" height="56" border=0 alt="Miami 2 007"></a></td>
+    <td width="100%" valign="top"><div class="indexInfo"><div class="filename"><a href="pages/Miami%202%20007.html" target="TopFrame">Miami 2 007.jpg</a></div><div class="date">2/27/2006</div></div></td>
+  </tr>
+</table>
+<div></td></tr><!-- Thumbnails with hyperlinks -->
+<tr><td align="center">
+<div class="indexContent">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="2"><a onmouseover="window.status='Miami 3 001.jpg';  return true;"  onmouseout="window.status='';  return true;" href="pages/Miami%203%20001.html" target="TopFrame"><img src="thumbnails/Miami%203%20001.jpg" width="75" height="56" border=0 alt="Miami 3 001"></a></td>
+    <td width="100%" valign="top"><div class="indexInfo"><div class="filename"><a href="pages/Miami%203%20001.html" target="TopFrame">Miami 3 001.jpg</a></div><div class="date">2/27/2006</div></div></td>
+  </tr>
+</table>
+<div></td></tr><!-- Thumbnails with hyperlinks -->
+<tr><td align="center">
+<div class="indexContent">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="2"><a onmouseover="window.status='Miami 3 002.jpg';  return true;"  onmouseout="window.status='';  return true;" href="pages/Miami%203%20002.html" target="TopFrame"><img src="thumbnails/Miami%203%20002.jpg" width="75" height="56" border=0 alt="Miami 3 002"></a></td>
+    <td width="100%" valign="top"><div class="indexInfo"><div class="filename"><a href="pages/Miami%203%20002.html" target="TopFrame">Miami 3 002.jpg</a></div><div class="date">2/27/2006</div></div></td>
+  </tr>
+</table>
+<div></td></tr><!-- Thumbnails with hyperlinks -->
+<tr><td align="center">
+<div class="indexContent">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="2"><a onmouseover="window.status='Miami 3 003.jpg';  return true;"  onmouseout="window.status='';  return true;" href="pages/Miami%203%20003.html" target="TopFrame"><img src="thumbnails/Miami%203%20003.jpg" width="75" height="56" border=0 alt="Miami 3 003"></a></td>
+    <td width="100%" valign="top"><div class="indexInfo"><div class="filename"><a href="pages/Miami%203%20003.html" target="TopFrame">Miami 3 003.jpg</a></div><div class="date">2/27/2006</div></div></td>
+  </tr>
+</table>
+<div></td></tr><!-- Thumbnails with hyperlinks -->
+<tr><td align="center">
+<div class="indexContent">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="2"><a onmouseover="window.status='Miami 3 011.jpg';  return true;"  onmouseout="window.status='';  return true;" href="pages/Miami%203%20011.html" target="TopFrame"><img src="thumbnails/Miami%203%20011.jpg" width="75" height="56" border=0 alt="Miami 3 011"></a></td>
+    <td width="100%" valign="top"><div class="indexInfo"><div class="filename"><a href="pages/Miami%203%20011.html" target="TopFrame">Miami 3 011.jpg</a></div><div class="date">2/27/2006</div></div></td>
+  </tr>
+</table>
+<div></td></tr><!-- Thumbnails with hyperlinks -->
+<tr><td align="center">
+<div class="indexContent">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="2"><a onmouseover="window.status='Miami 3 014.jpg';  return true;"  onmouseout="window.status='';  return true;" href="pages/Miami%203%20014.html" target="TopFrame"><img src="thumbnails/Miami%203%20014.jpg" width="75" height="56" border=0 alt="Miami 3 014"></a></td>
+    <td width="100%" valign="top"><div class="indexInfo"><div class="filename"><a href="pages/Miami%203%20014.html" target="TopFrame">Miami 3 014.jpg</a></div><div class="date">2/27/2006</div></div></td>
+  </tr>
+</table>
+<div></td></tr><!-- Thumbnails with hyperlinks -->
+<tr><td align="center">
+<div class="indexContent">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="2"><a onmouseover="window.status='Miami 3 015.jpg';  return true;"  onmouseout="window.status='';  return true;" href="pages/Miami%203%20015.html" target="TopFrame"><img src="thumbnails/Miami%203%20015.jpg" width="75" height="56" border=0 alt="Miami 3 015"></a></td>
+    <td width="100%" valign="top"><div class="indexInfo"><div class="filename"><a href="pages/Miami%203%20015.html" target="TopFrame">Miami 3 015.jpg</a></div><div class="date">2/27/2006</div></div></td>
+  </tr>
+</table>
+<div></td></tr><!-- Thumbnails with hyperlinks -->
+<tr><td align="center">
+<div class="indexContent">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="2"><a onmouseover="window.status='Miami 3 016.jpg';  return true;"  onmouseout="window.status='';  return true;" href="pages/Miami%203%20016.html" target="TopFrame"><img src="thumbnails/Miami%203%20016.jpg" width="56" height="75" border=0 alt="Miami 3 016"></a></td>
+    <td width="100%" valign="top"><div class="indexInfo"><div class="filename"><a href="pages/Miami%203%20016.html" target="TopFrame">Miami 3 016.jpg</a></div><div class="date">2/27/2006</div></div></td>
+  </tr>
+</table>
+<div></td></tr><!-- Thumbnails with hyperlinks -->
+<tr><td align="center">
+<div class="indexContent">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="2"><a onmouseover="window.status='Miami 3 018.jpg';  return true;"  onmouseout="window.status='';  return true;" href="pages/Miami%203%20018.html" target="TopFrame"><img src="thumbnails/Miami%203%20018.jpg" width="75" height="56" border=0 alt="Miami 3 018"></a></td>
+    <td width="100%" valign="top"><div class="indexInfo"><div class="filename"><a href="pages/Miami%203%20018.html" target="TopFrame">Miami 3 018.jpg</a></div><div class="date">2/27/2006</div></div></td>
+  </tr>
+</table>
+<div></td></tr><!-- Thumbnails with hyperlinks -->
+<tr><td align="center">
+<div class="indexContent">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="2"><a onmouseover="window.status='Miami 3 019.jpg';  return true;"  onmouseout="window.status='';  return true;" href="pages/Miami%203%20019.html" target="TopFrame"><img src="thumbnails/Miami%203%20019.jpg" width="75" height="56" border=0 alt="Miami 3 019"></a></td>
+    <td width="100%" valign="top"><div class="indexInfo"><div class="filename"><a href="pages/Miami%203%20019.html" target="TopFrame">Miami 3 019.jpg</a></div><div class="date">2/27/2006</div></div></td>
+  </tr>
+</table>
+<div></td></tr><!-- Thumbnails with hyperlinks -->
+<tr><td align="center">
+<div class="indexContent">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="2"><a onmouseover="window.status='Miami 3 022.jpg';  return true;"  onmouseout="window.status='';  return true;" href="pages/Miami%203%20022.html" target="TopFrame"><img src="thumbnails/Miami%203%20022.jpg" width="75" height="56" border=0 alt="Miami 3 022"></a></td>
+    <td width="100%" valign="top"><div class="indexInfo"><div class="filename"><a href="pages/Miami%203%20022.html" target="TopFrame">Miami 3 022.jpg</a></div><div class="date">2/27/2006</div></div></td>
+  </tr>
+</table>
+<div></td></tr><!-- Thumbnails with hyperlinks -->
+<tr><td align="center">
+<div class="indexContent">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="2"><a onmouseover="window.status='Miami 3 023.jpg';  return true;"  onmouseout="window.status='';  return true;" href="pages/Miami%203%20023.html" target="TopFrame"><img src="thumbnails/Miami%203%20023.jpg" width="75" height="56" border=0 alt="Miami 3 023"></a></td>
+    <td width="100%" valign="top"><div class="indexInfo"><div class="filename"><a href="pages/Miami%203%20023.html" target="TopFrame">Miami 3 023.jpg</a></div><div class="date">2/27/2006</div></div></td>
+  </tr>
+</table>
+<div></td></tr><!-- Thumbnails with hyperlinks -->
+<tr><td align="center">
+<div class="indexContent">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="2"><a onmouseover="window.status='Miami 3 030.jpg';  return true;"  onmouseout="window.status='';  return true;" href="pages/Miami%203%20030.html" target="TopFrame"><img src="thumbnails/Miami%203%20030.jpg" width="75" height="56" border=0 alt="Miami 3 030"></a></td>
+    <td width="100%" valign="top"><div class="indexInfo"><div class="filename"><a href="pages/Miami%203%20030.html" target="TopFrame">Miami 3 030.jpg</a></div><div class="date">2/27/2006</div></div></td>
+  </tr>
+</table>
+<div></td></tr><!-- Thumbnails with hyperlinks -->
+<tr><td align="center">
+<div class="indexContent">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="2"><a onmouseover="window.status='Miami 3 031.jpg';  return true;"  onmouseout="window.status='';  return true;" href="pages/Miami%203%20031.html" target="TopFrame"><img src="thumbnails/Miami%203%20031.jpg" width="75" height="56" border=0 alt="Miami 3 031"></a></td>
+    <td width="100%" valign="top"><div class="indexInfo"><div class="filename"><a href="pages/Miami%203%20031.html" target="TopFrame">Miami 3 031.jpg</a></div><div class="date">2/27/2006</div></div></td>
+  </tr>
+</table>
+<div></td></tr><!-- Thumbnails with hyperlinks -->
+<tr><td align="center">
+<div class="indexContent">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="2"><a onmouseover="window.status='Miami 3 032.jpg';  return true;"  onmouseout="window.status='';  return true;" href="pages/Miami%203%20032.html" target="TopFrame"><img src="thumbnails/Miami%203%20032.jpg" width="75" height="56" border=0 alt="Miami 3 032"></a></td>
+    <td width="100%" valign="top"><div class="indexInfo"><div class="filename"><a href="pages/Miami%203%20032.html" target="TopFrame">Miami 3 032.jpg</a></div><div class="date">2/27/2006</div></div></td>
+  </tr>
+</table>
+<div></td></tr><!-- Thumbnails with hyperlinks -->
+<tr><td align="center">
+<div class="indexContent">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="2"><a onmouseover="window.status='Miami 3 034.jpg';  return true;"  onmouseout="window.status='';  return true;" href="pages/Miami%203%20034.html" target="TopFrame"><img src="thumbnails/Miami%203%20034.jpg" width="75" height="56" border=0 alt="Miami 3 034"></a></td>
+    <td width="100%" valign="top"><div class="indexInfo"><div class="filename"><a href="pages/Miami%203%20034.html" target="TopFrame">Miami 3 034.jpg</a></div><div class="date">2/27/2006</div></div></td>
+  </tr>
+</table>
+<div></td></tr><!-- Thumbnails with hyperlinks -->
+<tr><td align="center">
+<div class="indexContent">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="2"><a onmouseover="window.status='Miami 3 035.jpg';  return true;"  onmouseout="window.status='';  return true;" href="pages/Miami%203%20035.html" target="TopFrame"><img src="thumbnails/Miami%203%20035.jpg" width="75" height="56" border=0 alt="Miami 3 035"></a></td>
+    <td width="100%" valign="top"><div class="indexInfo"><div class="filename"><a href="pages/Miami%203%20035.html" target="TopFrame">Miami 3 035.jpg</a></div><div class="date">2/27/2006</div></div></td>
+  </tr>
+</table>
+<div></td></tr><!-- Thumbnails with hyperlinks -->
+<tr><td align="center">
+<div class="indexContent">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="2"><a onmouseover="window.status='Miami 3 036.jpg';  return true;"  onmouseout="window.status='';  return true;" href="pages/Miami%203%20036.html" target="TopFrame"><img src="thumbnails/Miami%203%20036.jpg" width="75" height="56" border=0 alt="Miami 3 036"></a></td>
+    <td width="100%" valign="top"><div class="indexInfo"><div class="filename"><a href="pages/Miami%203%20036.html" target="TopFrame">Miami 3 036.jpg</a></div><div class="date">2/27/2006</div></div></td>
+  </tr>
+</table>
+<div></td></tr><!-- Thumbnails with hyperlinks -->
+<tr><td align="center">
+<div class="indexContent">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="2"><a onmouseover="window.status='Miami 3 037.jpg';  return true;"  onmouseout="window.status='';  return true;" href="pages/Miami%203%20037.html" target="TopFrame"><img src="thumbnails/Miami%203%20037.jpg" width="75" height="56" border=0 alt="Miami 3 037"></a></td>
+    <td width="100%" valign="top"><div class="indexInfo"><div class="filename"><a href="pages/Miami%203%20037.html" target="TopFrame">Miami 3 037.jpg</a></div><div class="date">2/27/2006</div></div></td>
+  </tr>
+</table>
+<div></td></tr><!-- Thumbnails with hyperlinks -->
+<tr><td align="center">
+<div class="indexContent">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="2"><a onmouseover="window.status='Miami 3 043.jpg';  return true;"  onmouseout="window.status='';  return true;" href="pages/Miami%203%20043.html" target="TopFrame"><img src="thumbnails/Miami%203%20043.jpg" width="75" height="56" border=0 alt="Miami 3 043"></a></td>
+    <td width="100%" valign="top"><div class="indexInfo"><div class="filename"><a href="pages/Miami%203%20043.html" target="TopFrame">Miami 3 043.jpg</a></div><div class="date">2/27/2006</div></div></td>
+  </tr>
+</table>
+<div></td></tr><!-- Thumbnails with hyperlinks -->
+<tr><td align="center">
+<div class="indexContent">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="2"><a onmouseover="window.status='Miami 3 044.jpg';  return true;"  onmouseout="window.status='';  return true;" href="pages/Miami%203%20044.html" target="TopFrame"><img src="thumbnails/Miami%203%20044.jpg" width="75" height="56" border=0 alt="Miami 3 044"></a></td>
+    <td width="100%" valign="top"><div class="indexInfo"><div class="filename"><a href="pages/Miami%203%20044.html" target="TopFrame">Miami 3 044.jpg</a></div><div class="date">2/27/2006</div></div></td>
+  </tr>
+</table>
+<div></td></tr><!-- Thumbnails with hyperlinks -->
+<tr><td align="center">
+<div class="indexContent">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="2"><a onmouseover="window.status='Miami 3 045.jpg';  return true;"  onmouseout="window.status='';  return true;" href="pages/Miami%203%20045.html" target="TopFrame"><img src="thumbnails/Miami%203%20045.jpg" width="75" height="56" border=0 alt="Miami 3 045"></a></td>
+    <td width="100%" valign="top"><div class="indexInfo"><div class="filename"><a href="pages/Miami%203%20045.html" target="TopFrame">Miami 3 045.jpg</a></div><div class="date">2/27/2006</div></div></td>
+  </tr>
+</table>
+<div></td></tr><!-- Thumbnails with hyperlinks -->
+<tr><td align="center">
+<div class="indexContent">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="2"><a onmouseover="window.status='Miami 3 046.jpg';  return true;"  onmouseout="window.status='';  return true;" href="pages/Miami%203%20046.html" target="TopFrame"><img src="thumbnails/Miami%203%20046.jpg" width="75" height="56" border=0 alt="Miami 3 046"></a></td>
+    <td width="100%" valign="top"><div class="indexInfo"><div class="filename"><a href="pages/Miami%203%20046.html" target="TopFrame">Miami 3 046.jpg</a></div><div class="date">2/27/2006</div></div></td>
+  </tr>
+</table>
+<div></td></tr><!-- Thumbnails with hyperlinks -->
+<tr><td align="center">
+<div class="indexContent">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="2"><a onmouseover="window.status='Miami 3 048.jpg';  return true;"  onmouseout="window.status='';  return true;" href="pages/Miami%203%20048.html" target="TopFrame"><img src="thumbnails/Miami%203%20048.jpg" width="75" height="56" border=0 alt="Miami 3 048"></a></td>
+    <td width="100%" valign="top"><div class="indexInfo"><div class="filename"><a href="pages/Miami%203%20048.html" target="TopFrame">Miami 3 048.jpg</a></div><div class="date">2/27/2006</div></div></td>
+  </tr>
+</table>
+<div></td></tr><!-- Thumbnails with hyperlinks -->
+<tr><td align="center">
+<div class="indexContent">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="2"><a onmouseover="window.status='Miami 3 049.jpg';  return true;"  onmouseout="window.status='';  return true;" href="pages/Miami%203%20049.html" target="TopFrame"><img src="thumbnails/Miami%203%20049.jpg" width="75" height="56" border=0 alt="Miami 3 049"></a></td>
+    <td width="100%" valign="top"><div class="indexInfo"><div class="filename"><a href="pages/Miami%203%20049.html" target="TopFrame">Miami 3 049.jpg</a></div><div class="date">2/27/2006</div></div></td>
+  </tr>
+</table>
+<div></td></tr><!-- Thumbnails with hyperlinks -->
+<tr><td align="center">
+<div class="indexContent">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="2"><a onmouseover="window.status='Miami 3 056.jpg';  return true;"  onmouseout="window.status='';  return true;" href="pages/Miami%203%20056.html" target="TopFrame"><img src="thumbnails/Miami%203%20056.jpg" width="75" height="56" border=0 alt="Miami 3 056"></a></td>
+    <td width="100%" valign="top"><div class="indexInfo"><div class="filename"><a href="pages/Miami%203%20056.html" target="TopFrame">Miami 3 056.jpg</a></div><div class="date">2/27/2006</div></div></td>
+  </tr>
+</table>
+<div></td></tr><!-- Thumbnails with hyperlinks -->
+<tr><td align="center">
+<div class="indexContent">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="2"><a onmouseover="window.status='Miami 3 060.jpg';  return true;"  onmouseout="window.status='';  return true;" href="pages/Miami%203%20060.html" target="TopFrame"><img src="thumbnails/Miami%203%20060.jpg" width="75" height="56" border=0 alt="Miami 3 060"></a></td>
+    <td width="100%" valign="top"><div class="indexInfo"><div class="filename"><a href="pages/Miami%203%20060.html" target="TopFrame">Miami 3 060.jpg</a></div><div class="date">2/27/2006</div></div></td>
+  </tr>
+</table>
+<div></td></tr><!-- Thumbnails with hyperlinks -->
+<tr><td align="center">
+<div class="indexContent">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="2"><a onmouseover="window.status='Miami 3 065.jpg';  return true;"  onmouseout="window.status='';  return true;" href="pages/Miami%203%20065.html" target="TopFrame"><img src="thumbnails/Miami%203%20065.jpg" width="56" height="75" border=0 alt="Miami 3 065"></a></td>
+    <td width="100%" valign="top"><div class="indexInfo"><div class="filename"><a href="pages/Miami%203%20065.html" target="TopFrame">Miami 3 065.jpg</a></div><div class="date">2/27/2006</div></div></td>
+  </tr>
+</table>
+<div></td></tr>		</table>
+	</div>
+</BODY>
+</HTML>

@@ -1,0 +1,1091 @@
+<gallery
+base = ""
+background = "#FFFFFF"
+banner = "#F0F0F0"
+text = "#000000"
+link = "#0000FF"
+alink = "#FF0000"
+vlink = "#800080"
+date = "3/24/2007">
+	<sitename>Grandma Mildred's 90th Birthday</sitename>
+	<photographer>Sean T. McBet</photographer>
+	<contactinfo></contactinfo>
+	<email>sean.mcbeth@gmail.com</email>
+	<security><![CDATA[&#194;&#169; Sean T. McBeth, 2007]]> </security>
+
+<banner font = "Arial" fontsize = "3" color =  "#F0F0F0"> </banner>
+<thumbnail base ="thumbnails/" font = "Arial" fontsize = "4" color = "#F0F0F0" border = "2" rows = "3" col = "5"> </thumbnail> 
+<large base ="images/" font = "Arial" fontsize = "3" color = "#F0F0F0" border = "5"> </large>
+<images id = "images">
+
+<image
+path = "granmas_bday_03242007_00.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_00.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_01.jpg"
+width = "640"
+height = "480"
+thumbpath = "granmas_bday_03242007_01.jpg"
+thumbwidth = "100"
+thumbheight = "75">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_01 (1).jpg"
+width = "479"
+height = "640"
+thumbpath = "granmas_bday_03242007_01 (1).jpg"
+thumbwidth = "74"
+thumbheight = "100">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_02.jpg"
+width = "640"
+height = "480"
+thumbpath = "granmas_bday_03242007_02.jpg"
+thumbwidth = "100"
+thumbheight = "75">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_02 (1).jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_02 (1).jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_03.jpg"
+width = "640"
+height = "480"
+thumbpath = "granmas_bday_03242007_03.jpg"
+thumbwidth = "100"
+thumbheight = "75">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_03 (1).jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_03 (1).jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_04.jpg"
+width = "640"
+height = "480"
+thumbpath = "granmas_bday_03242007_04.jpg"
+thumbwidth = "100"
+thumbheight = "75">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_04 (1).jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_04 (1).jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_05.jpg"
+width = "640"
+height = "480"
+thumbpath = "granmas_bday_03242007_05.jpg"
+thumbwidth = "100"
+thumbheight = "75">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_05 (1).jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_05 (1).jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_06.jpg"
+width = "640"
+height = "480"
+thumbpath = "granmas_bday_03242007_06.jpg"
+thumbwidth = "100"
+thumbheight = "75">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_06 (1).jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_06 (1).jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_07.jpg"
+width = "640"
+height = "480"
+thumbpath = "granmas_bday_03242007_07.jpg"
+thumbwidth = "100"
+thumbheight = "75">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_07 (1).jpg"
+width = "479"
+height = "640"
+thumbpath = "granmas_bday_03242007_07 (1).jpg"
+thumbwidth = "74"
+thumbheight = "100">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_08.jpg"
+width = "640"
+height = "480"
+thumbpath = "granmas_bday_03242007_08.jpg"
+thumbwidth = "100"
+thumbheight = "75">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_09.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_09.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_10.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_10.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_11.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_11.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_12.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_12.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_13.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_13.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_14.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_14.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_15.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_15.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_16.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_16.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_17.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_17.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_18.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_18.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_19.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_19.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_20.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_20.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_21.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_21.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_22.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_22.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_23.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_23.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_24.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_24.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_25.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_25.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_26.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_26.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_27.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_27.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_28.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_28.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_29.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_29.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_30.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_30.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_31.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_31.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_32.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_32.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_33.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_33.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_34.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_34.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_35.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_35.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_36.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_36.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_37.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_37.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_38.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_38.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_39.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_39.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_40.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_40.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_41.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_41.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_42.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_42.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_43.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_43.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_44.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_44.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_45.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_45.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_46.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_46.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_47.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_47.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_48.jpg"
+width = "479"
+height = "640"
+thumbpath = "granmas_bday_03242007_48.jpg"
+thumbwidth = "74"
+thumbheight = "100">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_49.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_49.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_50.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_50.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_51.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_51.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_52.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_52.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_53.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_53.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_54.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_54.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_55.jpg"
+width = "640"
+height = "480"
+thumbpath = "granmas_bday_03242007_55.jpg"
+thumbwidth = "100"
+thumbheight = "75">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_56.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_56.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_57.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_57.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_58.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_58.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_59.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_59.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_60.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_60.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_61.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_61.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_62.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_62.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_63.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_63.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_64.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_64.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_65.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_65.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_66.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_66.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_67.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_67.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_68.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_68.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_69.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_69.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_70.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_70.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_71.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_71.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_72.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_72.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_73.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_73.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_74.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_74.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_75.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_75.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_76.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_76.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_77.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_77.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_78.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_78.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_79.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_79.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_80.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_80.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_81.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_81.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_82.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_82.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_83.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_83.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_84.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_84.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_85.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_85.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_86.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_86.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_87.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_87.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_88.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_88.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_89.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_89.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_90.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_90.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_91.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_91.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_92.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_92.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_93.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_93.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_94.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_94.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_95.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_95.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_96.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_96.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_97.jpg"
+width = "479"
+height = "640"
+thumbpath = "granmas_bday_03242007_97.jpg"
+thumbwidth = "74"
+thumbheight = "100">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_98.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_98.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+
+<image
+path = "granmas_bday_03242007_99.jpg"
+width = "640"
+height = "479"
+thumbpath = "granmas_bday_03242007_99.jpg"
+thumbwidth = "100"
+thumbheight = "74">
+</image>
+
+</images>
+</gallery>

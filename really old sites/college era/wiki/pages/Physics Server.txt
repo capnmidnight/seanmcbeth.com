@@ -1,0 +1,23 @@
+Physics server for the [Asteroids Game].
+
+  The physics server provides a simulated universe in which the game takes place.  The physical model of the game universe will need to be significantly different from the physical model of the real world.  Some object like asteroids should ignore gravity so they can easily path in a closed loop.  Other object however like ships must be affected by the gravity of larger objects.  Since we can "create" our own world physics their design should improve the game.  Here are some driving factor in the physics system design.
+
+1. It must approximate the real world but doesn't need to be exact.  This will allow us to cut a lot of corner to improve playability and performance.
+2. The equations defining the system must be able to be calculated very efficiently.  The use of advanced math functions such as sqrt, tan, sin, cos should be replaced by lookup tables if necessary.  
+3. It must be able to handle a sufficiently large number of objects. When we are further along we will need to come up with some numbers for performance testing.
+4. It must support objects that ignore some or all of the rules in the system.  For example, shots fired by a ship should follow a path and only performance collision detection.
+5. It must be simple.  Most objects in the system should be able to represented by single mass points.
+
+I will add more later - ahammer
+
+
+----
+I agree with all your points. Full simulation just isn't possible. Memoization and/or look up tables are great uses of memory, and the physics server itself can afford to be a little more of a memory hog since it's not using any for rendering. Large number of objects definitely make for more interesting worlds. Ignoring the rules can make life a ton easier. Point-mass objects with ideal equations is definitely the easiest.
+
+Single point-mass is perfect for most of the objects in the world. Asteroids are roughly circular, planets are circular, space ships are small enough to be aproximated by circles, space stations can be designed to appear circular. Even things that don't fit a single circle too well can be approximated by two circles with overlap very well.
+
+As long as the physics server is responsive to user requests, a concept of "frame rate" doesn't really mean much to the physics engine. Given that this is going to run over a high-latency network (i.e. the internet), this is pretty much a given anyway. Even a low ping around 50 - 100ms means you can only access the physics at around 10 - 20 hz. So, as long as the object states are readily available, the physics calculations could take just about as much time as they want. This can then be mitigated on the client with a velocity integrator, using the client's higher frame rate to "fill in the blanks" with updating positions. It's not exploitable in any way, as it's only used to create the perception of smoothly moving objects. Games that are bad at this make the characters look like the jump around erratically, games that are good at it make the characters look like the are running on low-res poly-line instead of a smooth curve.
+
+It's all based on the idea that, 10ms from now, the world isn't going to change that much. It might change some, but that change is probably going to be imperceptable to the eye. So, we can approximate that change whenever possible, and then average out the error over time with periodic corrections.
+
+--- smcbeth

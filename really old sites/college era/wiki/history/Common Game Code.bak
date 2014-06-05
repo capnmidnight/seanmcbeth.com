@@ -1,0 +1,76 @@
+
+
+
+--------------------
+01/01/06 22:00 / 69.142.182.45
+--------------------
+!!Common Game Code
+!Overview
+Common Game Code is a single .NET assembly that will be used to assist in the creation of simple 2D games utilizing pure GDI+ graphics. The emphasis is on rapid development and ease of deployment. These ideals are necessitated by its original intention, the [3HGDC].
+
+!Cons
+As of version 2.0, the .NET API unfortunately does not include an audio API. Utlizing COM Interop it is possible to access the basic Windows Multi Media PlaySound function. However, PlaySound does not offer any sound mixing capability. Subsequentially, adequate sound capabilities cannot be added to the CGC while maintaining the intentions of the project. However, the PlaySound functionallity is still included for basic uses.
+
+
+--------------------
+01/01/06 22:02 / 69.142.182.45
+--------------------
+!!Common Game Code
+!Overview
+Common Game Code is a single .NET assembly that will be used to assist in the creation of simple 2D games utilizing pure GDI+ graphics. The emphasis is on rapid development and ease of deployment. These ideals are necessitated by its original intention, the [3HGDC].
+
+!Cons
+As of version 2.0, the .NET API unfortunately does not include an audio API. Utlizing COM Interop it is possible to access the basic Windows Multi Media PlaySound function. However, PlaySound does not offer any sound mixing capability. Subsequentially, adequate sound capabilities cannot be added to the CGC while maintaining the intentions of the project. However, the PlaySound functionallity is still included for basic uses.
+
+!Downloads
+Downloads will be provided for .NET 1.1 as well as .NET 2.0.
+
+
+--------------------
+01/04/06 10:15 / 71.240.156.223
+--------------------
+!!Common Game Code
+!Overview
+Common Game Code is a single .NET assembly that will be used to assist in the creation of simple 2D games utilizing pure GDI+ graphics. The emphasis is on rapid development and ease of deployment. These ideals are necessitated by its original intention, the [3H-GDC|http://www.seanmcbeth.com/3hgdc].
+
+!Cons
+As of version 2.0, the .NET API unfortunately does not include an audio API. Utlizing COM Interop it is possible to access the basic Windows Multi Media PlaySound function. However, PlaySound does not offer any sound mixing capability. Subsequentially, adequate sound capabilities cannot be added to the CGC while maintaining the intentions of the project. However, the PlaySound functionallity is still included for basic uses.
+
+!Downloads
+Downloads will be provided for .NET 1.1 as well as .NET 2.0.
+
+
+--------------------
+01/17/06 06:29 / 71.240.156.223
+--------------------
+!!Common Game Code
+!Overview
+Common Game Code is a single .NET assembly that will be used to assist in the creation of simple 2D games utilizing pure GDI+ graphics. The emphasis is on rapid development and ease of deployment. These ideals are necessitated by its original intention, the [3H-GDC|http://www.seanmcbeth.com/3hgdc].
+
+!Cons
+As of version 2.0, the .NET API unfortunately does not include an audio API. Utlizing COM Interop it is possible to access the basic Windows Multi Media PlaySound function. However, PlaySound does not offer any sound mixing capability. Subsequentially, adequate sound capabilities cannot be added to the CGC while maintaining the intentions of the project. However, the PlaySound functionallity is still included for basic uses.
+
+!Downloads
+Downloads will be provided for .NET 1.1 as well as .NET 2.0.
+
+!Discussion
+discuss whatever. Seperate posts with four '-' to make a horizontal reference
+----
+
+
+--------------------
+03/16/06 11:13 / 207.140.67.7
+--------------------
+!!Common Game Code
+!Overview
+Common Game Code is a single .NET assembly that will be used to assist in the creation of simple 2D games utilizing pure GDI+ graphics. The emphasis is on rapid development and ease of deployment. These ideals are necessitated by its original intention, the [3H-GDC|http://www.seanmcbeth.com/3hgdc].
+
+!Cons
+As of version 1.1, the .NET API unfortunately does not include an audio API. Utlizing COM Interop it is possible to access the basic Windows Multi Media PlaySound function. .NET version 2.0 includes classes that mirror the PlaySound functionallity. However, PlaySound does not offer any sound mixing capability. Subsequentially, adequate sound capabilities cannot be added to the CGC while maintaining the intentions of the project. However, the PlaySound functionallity is still included for basic uses.
+
+!Downloads
+Downloads will be provided for .NET 1.1 as well as .NET 2.0.
+
+!Discussion
+discuss whatever. Seperate posts with four '-' to make a horizontal reference
+----

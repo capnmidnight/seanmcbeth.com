@@ -1,0 +1,420 @@
+
+
+
+--------------------
+12/12/06 13:56 / 12.34.246.39
+--------------------
+{
+var Class = <>; //create a namespace
+//Class.inherits(classInstance, superClass, subClass [, superConstructorArguments...])
+//  A means for object-level inheritance in ECMAScript
+//  -classInstance:
+//     an instance of the subClass that is inheriting from the superClass
+//     this is necessary for the subClass to inherit any privileged members of the
+//     superClass.
+//  -superClass:
+//     the function class that is being inherited from.
+//  -subClass: 
+//     the extending function class.
+//  -superConstructorArguments...: 
+//     An optional, variable length set of arguments.
+//     When calling the inherits function, one may supply arguments
+//     to the super classes constructor by appending them to the
+//     end of the argument list.
+Class.inherits = function(instance, superClass, subClass)
+{<
+	instance.uber = superClass;
+	var superInstance;
+	// build the super constructor argument list
+	var args = "";
+	for(var i = 3; i < arguments.length; ++i)
+	<
+		if(i >= 4)  //past the first element, comma delimited list
+		<
+			args += ",";
+		>
+		args += "arguments["+i+"]";
+	>
+	
+	//copy the privileged level members
+	eval("instance.uber("+args+")");
+	//copy prototype level members
+	eval("superInstance = new superClass("+args+")");
+	for(member in superClass.prototype)
+	<
+		if(eval("subClass.prototype." + member + " === undefined"))
+		<
+			//add the items to the subClass prototype
+			eval("subClass.prototype." + member + " = superClass.prototype." + member);
+		>
+		//copy the values from the constructed super instance
+		eval("instance." + member + " = superInstance." + member);
+	>
+	delete superInstance; // get rid of the temporary junk
+	delete instance.uber;  
+>
+}
+
+
+--------------------
+12/12/06 13:56 / 12.34.246.4
+--------------------
+{
+var Class = <>; //create a namespace
+//Class.inherits(classInstance, superClass, subClass [, superConstructorArguments...])
+//  A means for object-level inheritance in ECMAScript
+//  -classInstance:
+//     an instance of the subClass that is inheriting from the superClass
+//     this is necessary for the subClass to inherit any privileged members of the
+//     superClass.
+//  -superClass:
+//     the function class that is being inherited from.
+//  -subClass: 
+//     the extending function class.
+//  -superConstructorArguments...: 
+//     An optional, variable length set of arguments.
+//     When calling the inherits function, one may supply arguments
+//     to the super classes constructor by appending them to the
+//     end of the argument list.
+Class.inherits = function(instance, superClass, subClass)
+<
+	instance.uber = superClass;
+	var superInstance;
+	// build the super constructor argument list
+	var args = "";
+	for(var i = 3; i < arguments.length; ++i)
+	<
+		if(i >= 4)  //past the first element, comma delimited list
+		<
+			args += ",";
+		>
+		args += "arguments["+i+"]";
+	>
+	
+	//copy the privileged level members
+	eval("instance.uber("+args+")");
+	//copy prototype level members
+	eval("superInstance = new superClass("+args+")");
+	for(member in superClass.prototype)
+	<
+		if(eval("subClass.prototype." + member + " === undefined"))
+		<
+			//add the items to the subClass prototype
+			eval("subClass.prototype." + member + " = superClass.prototype." + member);
+		>
+		//copy the values from the constructed super instance
+		eval("instance." + member + " = superInstance." + member);
+	>
+	delete superInstance; // get rid of the temporary junk
+	delete instance.uber;  
+>
+}
+
+
+--------------------
+12/12/06 13:57 / 12.34.246.37
+--------------------
+{
+var Class = <>; //create a namespace
+//Class.inherits(classInstance, superClass, subClass [[, superConstructorArguments...]])
+//  A means for object-level inheritance in ECMAScript
+//  -classInstance:
+//     an instance of the subClass that is inheriting from the superClass
+//     this is necessary for the subClass to inherit any privileged members of the
+//     superClass.
+//  -superClass:
+//     the function class that is being inherited from.
+//  -subClass: 
+//     the extending function class.
+//  -superConstructorArguments...: 
+//     An optional, variable length set of arguments.
+//     When calling the inherits function, one may supply arguments
+//     to the super classes constructor by appending them to the
+//     end of the argument list.
+Class.inherits = function(instance, superClass, subClass)
+<
+	instance.uber = superClass;
+	var superInstance;
+	// build the super constructor argument list
+	var args = "";
+	for(var i = 3; i < arguments.length; ++i)
+	<
+		if(i >= 4)  //past the first element, comma delimited list
+		<
+			args += ",";
+		>
+		args += "arguments[["+i+"]]";
+	>
+	
+	//copy the privileged level members
+	eval("instance.uber("+args+")");
+	//copy prototype level members
+	eval("superInstance = new superClass("+args+")");
+	for(member in superClass.prototype)
+	<
+		if(eval("subClass.prototype." + member + " === undefined"))
+		<
+			//add the items to the subClass prototype
+			eval("subClass.prototype." + member + " = superClass.prototype." + member);
+		>
+		//copy the values from the constructed super instance
+		eval("instance." + member + " = superInstance." + member);
+	>
+	delete superInstance; // get rid of the temporary junk
+	delete instance.uber;  
+>
+}
+
+
+--------------------
+12/12/06 14:00 / 12.34.246.35
+--------------------
+[JavaScript tidbits]
+{
+var Class = <>; //create a namespace
+//Class.inherits(classInstance, superClass, subClass [[, superConstructorArguments...]])
+//  A means for object-level inheritance in ECMAScript
+//  -classInstance:
+//     an instance of the subClass that is inheriting from the superClass
+//     this is necessary for the subClass to inherit any privileged members of the
+//     superClass.
+//  -superClass:
+//     the function class that is being inherited from.
+//  -subClass: 
+//     the extending function class.
+//  -superConstructorArguments...: 
+//     An optional, variable length set of arguments.
+//     When calling the inherits function, one may supply arguments
+//     to the super classes constructor by appending them to the
+//     end of the argument list.
+Class.inherits = function(instance, superClass, subClass)
+<
+	instance.uber = superClass;
+	var superInstance;
+	// build the super constructor argument list
+	var args = "";
+	for(var i = 3; i < arguments.length; ++i)
+	<
+		if(i >= 4)  //past the first element, comma delimited list
+		<
+			args += ",";
+		>
+		args += "arguments[["+i+"]]";
+	>
+	
+	//copy the privileged level members
+	eval("instance.uber("+args+")");
+	//copy prototype level members
+	eval("superInstance = new superClass("+args+")");
+	for(member in superClass.prototype)
+	<
+		if(eval("subClass.prototype." + member + " === undefined"))
+		<
+			//add the items to the subClass prototype
+			eval("subClass.prototype." + member + " = superClass.prototype." + member);
+		>
+		//copy the values from the constructed super instance
+		eval("instance." + member + " = superInstance." + member);
+	>
+	delete superInstance; // get rid of the temporary junk
+	delete instance.uber;  
+>
+}
+
+
+--------------------
+12/12/06 14:04 / 12.34.246.37
+--------------------
+[JavaScript tidbits]
+{
+var Class = ??<??>; //create a namespace
+//Class.inherits(classInstance, superClass, subClass ??(, superConstructorArguments...??))
+//  A means for object-level inheritance in ECMAScript
+//  -classInstance:
+//     an instance of the subClass that is inheriting from the superClass
+//     this is necessary for the subClass to inherit any privileged members of the
+//     superClass.
+//  -superClass:
+//     the function class that is being inherited from.
+//  -subClass: 
+//     the extending function class.
+//  -superConstructorArguments...: 
+//     An optional, variable length set of arguments.
+//     When calling the inherits function, one may supply arguments
+//     to the super classes constructor by appending them to the
+//     end of the argument list.
+Class.inherits = function(instance, superClass, subClass)
+??<
+	instance.uber = superClass;
+	var superInstance;
+	// build the super constructor argument list
+	var args = "";
+	for(var i = 3; i < arguments.length; ++i)
+	??<
+		if(i >= 4)  //past the first element, comma delimited list
+		??<
+			args += ",";
+		??>
+		args += "arguments??("+i+"??)";
+	??>
+	
+	//copy the privileged level members
+	eval("instance.uber("+args+")");
+	//copy prototype level members
+	eval("superInstance = new superClass("+args+")");
+	for(member in superClass.prototype)
+	??<
+		if(eval("subClass.prototype." + member + " === undefined"))
+		??<
+			//add the items to the subClass prototype
+			eval("subClass.prototype." + member + " = superClass.prototype." + member);
+		??>
+		//copy the values from the constructed super instance
+		eval("instance." + member + " = superInstance." + member);
+	??>
+	delete superInstance; // get rid of the temporary junk
+	delete instance.uber;  
+??>
+}
+
+
+--------------------
+12/12/06 14:19 / 12.34.246.5
+--------------------
+[JavaScript tidbits]
+{
+var Class = ??<??>; //create a namespace
+//Class.inherits(classInstance, superClass, subClass ??(, superConstructorArguments...??))
+//  A means for object-level inheritance in ECMAScript
+//  -classInstance:
+//     an instance of the subClass that is inheriting from the superClass
+//     this is necessary for the subClass to inherit any privileged members of the
+//     superClass.
+//  -superClass:
+//     the function class that is being inherited from.
+//  -subClass: 
+//     the extending function class.
+//  -superConstructorArguments...: 
+//     An optional, variable length set of arguments.
+//     When calling the inherits function, one may supply arguments
+//     to the super classes constructor by appending them to the
+//     end of the argument list.
+Class.inherits = function(instance, superClass, subClass)
+??<
+	instance.uber = superClass;
+	var superInstance;
+	// build the super constructor argument list
+	var args = "";
+	for(var i = 3; i < arguments.length; ++i)
+	??<
+		if(i >= 4)  //past the first element, comma delimited list
+		??<
+			args += ",";
+		??>
+		args += "arguments??("+i+"??)";
+	??>
+	
+	//copy the privileged level members
+	eval("instance.uber("+args+")");
+	//copy prototype level members
+	eval("superInstance = new superClass("+args+")");
+	for(member in superClass.prototype)
+	??<
+		if(eval("subClass.prototype." + member + " === undefined"))
+		??<
+			//add the items to the subClass prototype
+			eval("subClass.prototype." + member + " = superClass.prototype." + member);
+		??>
+		//copy the values from the constructed super instance
+		eval("instance." + member + " = superInstance." + member);
+	??>
+	delete superInstance; // get rid of the temporary junk
+	delete instance.uber;  
+??>
+}
+
+Usage is simple:
+{
+function ClassA(arg1)
+??<
+	//some definition
+??>
+function ClassB(arg1, arg2)
+??<
+	Class.inherits(this, ClassA, ClassB, arg1); 
+??>
+}
+
+
+--------------------
+12/12/06 14:20 / 12.34.246.38
+--------------------
+[JavaScript tidbits]
+{
+var Class = ??<??>; //create a namespace
+//Class.inherits(classInstance, superClass, subClass ??(, superConstructorArguments...??))
+//  A means for object-level inheritance in ECMAScript
+//  -classInstance:
+//     an instance of the subClass that is inheriting from the superClass
+//     this is necessary for the subClass to inherit any privileged members of the
+//     superClass.
+//  -superClass:
+//     the function class that is being inherited from.
+//  -subClass: 
+//     the extending function class.
+//  -superConstructorArguments...: 
+//     An optional, variable length set of arguments.
+//     When calling the inherits function, one may supply arguments
+//     to the super classes constructor by appending them to the
+//     end of the argument list.
+Class.inherits = function(instance, superClass, subClass)
+??<
+	instance.uber = superClass;
+	var superInstance;
+	// build the super constructor argument list
+	var args = "";
+	for(var i = 3; i < arguments.length; ++i)
+	??<
+		if(i >= 4)  //past the first element, comma delimited list
+		??<
+			args += ",";
+		??>
+		args += "arguments??("+i+"??)";
+	??>
+	
+	//copy the privileged level members
+	eval("instance.uber("+args+")");
+	//copy prototype level members
+	eval("superInstance = new superClass("+args+")");
+	for(member in superClass.prototype)
+	??<
+		if(eval("subClass.prototype." + member + " === undefined"))
+		??<
+			//add the items to the subClass prototype
+			eval("subClass.prototype." + member + " = superClass.prototype." + member);
+		??>
+		//copy the values from the constructed super instance
+		eval("instance." + member + " = superInstance." + member);
+	??>
+	delete superInstance; // get rid of the temporary junk
+	delete instance.uber;  
+??>
+}
+
+Usage is simple:
+{
+function ClassA(arg1)
+??<
+	this.a = arg1;
+??>
+function ClassB(arg1, arg2)
+??<
+	Class.inherits(this, ClassA, ClassB, arg1); 
+	this.b = arg2;
+??>
+var obj = new ClassB(3, 5);
+alert(obj.a + ", " + obj.b);
+}
+
+this will alert: 
+3, 5

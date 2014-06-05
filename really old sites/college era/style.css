@@ -1,0 +1,59 @@
+body{
+	background:#ffffff url(img/leafbg.jpg) repeat-x;
+	font-family:Arial, sans-serif;
+	font-size:1em;
+	color:black;
+}
+.page{
+	position:absolute;
+	min-width:640px;
+	width:75%;
+	max-width:800px;
+	left:12.5%;
+	top:0px;
+}
+.header{
+	position:relative;
+	width:100%;
+	height:75px;	
+	overflow:hidden;
+	border:solid 1px #336699;
+}
+.bottom{
+	position:absolute;
+	width:100%;
+	background-color:#336699;
+}
+.menu{
+	position:relative;
+	background-color:#336699;
+	color:white;
+	border: 1px solid #336699;
+	width:100%;
+}
+.menuItem{
+	font-size:10pt;
+	color:black;
+	float:left;
+	background-color:white;
+	border-right:solid 1px #226699;
+	width:14.3%;
+	text-align:center;
+}
+.menuLink{
+	text-decoration:none;
+}
+.main{
+	position:relative;
+	width:100%;
+}
+.blockTitle{
+	background-color:#336699;
+	color:white;
+}
+.entry{
+	background-color:white;
+	border:solid 1px #336699;
+	padding:10px;
+	margin-bottom:15px;
+}

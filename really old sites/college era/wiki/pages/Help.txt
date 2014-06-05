@@ -1,0 +1,56 @@
+!!!Help
+Here is an overview of all the formatting-rules you can use in ''roWiki''. Press "Edit Page" at the bottom, to see how everything is done.
+(If you only see "Locked Page", refer to the documentation to find out how to unlock a page!)
+----
+Headings, using !:
+!Big
+!!Bigger
+!!!Biggest
+----
+Font faces, using ':
+'''Bold'''
+''italics''
+'''''both'''''
+----
+Ordered lists, using #:
+#First
+#Second
+#Third
+----
+Unordered lists, using *:
+*First
+*Second
+*Third
+----
+Lists can be nested, using more than one list symbol
+*Level 1
+**Level 2
+***Level 3
+----
+Code and other stuff where formatting is important, using curly brackets:
+{<table>
+  <tr>
+    <td>
+      ...
+    </td>
+  </tr>
+</table>}
+----
+External links and eMail-addresses, either automagically...
+http://www.rowlff.de/rowiki/
+rowiki@rowlff.de
+
+or with an arbitrary linktext
+[Go to roWiki|http://www.rowlff.de/rowiki/]
+----
+Links to wiki-pages, using square brackets:
+[Home]
+If a page does not exist (as indicated by the different link color), it will be created the first time you click on the link. Click on "Sandbox" and you can simply write this new page ...
+[Sandbox]
+----
+Control characters like curly and square brackets can be escaped and displayed by entering them twice:
+A link in your wiki looks [[like that]] 
+----
+... and lots of lines, using ----:
+
+Try it out! Once you get used to it, it's pretty simple (^_^)

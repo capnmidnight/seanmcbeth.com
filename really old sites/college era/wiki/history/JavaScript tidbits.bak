@@ -1,0 +1,333 @@
+
+
+
+--------------------
+12/12/06 13:51 / 12.34.246.38
+--------------------
+{
+function a()
+{
+	if(this.b === undefined) this.b = 3;
+	alert(this.b);
+	this.b++;
+}
+a();
+a();
+a();
+a();
+}
+
+this will alert:
+3
+4
+5
+6
+
+this is similar to C/C++'s static variables in a function
+{
+void a()
+{
+	static int b = 0;
+	printf("%d",b);
+	b++;
+}
+}
+
+
+--------------------
+12/12/06 13:52 / 12.34.246.37
+--------------------
+[
+function a()
+{
+	if(this.b === undefined) this.b = 3;
+	alert(this.b);
+	this.b++;
+}
+a();
+a();
+a();
+a();
+]
+
+this will alert:
+3
+4
+5
+6
+
+this is similar to C/C++'s static variables in a function
+{
+void a()
+{
+	static int b = 0;
+	printf("%d",b);
+	b++;
+}
+}
+
+
+--------------------
+12/12/06 13:52 / 12.34.246.35
+--------------------
+(
+function a()
+{
+	if(this.b === undefined) this.b = 3;
+	alert(this.b);
+	this.b++;
+}
+a();
+a();
+a();
+a();
+)
+
+this will alert:
+3
+4
+5
+6
+
+this is similar to C/C++'s static variables in a function
+{
+void a()
+{
+	static int b = 0;
+	printf("%d",b);
+	b++;
+}
+}
+
+
+--------------------
+12/12/06 13:52 / 12.34.246.5
+--------------------
+{
+function a()
+<
+	if(this.b === undefined) this.b = 3;
+	alert(this.b);
+	this.b++;
+>
+a();
+a();
+a();
+a();
+}
+
+this will alert:
+3
+4
+5
+6
+
+this is similar to C/C++'s static variables in a function
+{
+void a()
+{
+	static int b = 0;
+	printf("%d",b);
+	b++;
+}
+}
+
+
+--------------------
+12/12/06 13:53 / 12.34.246.35
+--------------------
+(I need to update my wiki software, it doesn't support curly braces too well)
+{
+function a()
+<
+	if(this.b === undefined) this.b = 3;
+	alert(this.b);
+	this.b++;
+>
+a();
+a();
+a();
+a();
+}
+
+this will alert:
+3
+4
+5
+6
+
+this is similar to C/C++'s static variables in a function
+{
+void a()
+<
+	static int b = 0;
+	printf("%d",b);
+	b++;
+>
+}
+
+
+--------------------
+12/12/06 13:53 / 12.34.246.35
+--------------------
+[Static Function Variables]
+
+
+--------------------
+12/12/06 13:55 / 12.34.246.38
+--------------------
+I need to update my wiki software, it doesn't support curly braces too well. Until then, I will have to use angle brackets in my snippets
+
+[Static Function Variables]
+[Classical Object Inheritance]
+
+
+--------------------
+12/12/06 14:00 / 12.34.246.5
+--------------------
+I need to update my wiki software, it doesn't support curly braces too well. Until then, I will have to use angle brackets in my snippets
+
+[Static Function Variables]
+[Classical Object Inheritance]
+[More Useful Exception Class]
+
+
+--------------------
+12/12/06 14:03 / 12.34.246.38
+--------------------
+I need to update my wiki software, it doesn't support curly braces too well. Until then, I will have to use C-style trigraphs (http://publications.gbdirect.co.uk/c_book/chapter2/alphabet_of_c.html) in my snippets
+
+[Static Function Variables]
+[Classical Object Inheritance]
+[More Useful Exception Class]
+
+
+--------------------
+12/12/06 14:05 / 12.34.246.4
+--------------------
+I need to update my wiki software, it doesn't support curly braces too well. Until then, I will have to use [C-Style Trigraphs] in my snippets
+
+[Static Function Variables]
+[Classical Object Inheritance]
+[More Useful Exception Class]
+
+
+--------------------
+12/12/06 14:12 / 12.34.246.4
+--------------------
+I need to update my wiki software, it doesn't support curly braces too well. Until then, I will have to use [C-Style Trigraphs] in my snippets
+
+*[Classical Object Inheritance]
+*[Static Function Variables]
+*[More Useful Exception Class]
+*[Closures]
+
+
+--------------------
+12/12/06 14:22 / 12.34.246.36
+--------------------
+I need to update my wiki software, it doesn't support curly braces too well. Until then, I will have to use [C-Style Trigraphs] in my snippets
+
+*[Classical Object Inheritance]
+*[Static Function Variables]
+*[More Useful Exception Class]
+*[Closures]
+*[Vector Style Drawing without VML or SVG]
+
+
+--------------------
+12/12/06 14:28 / 12.34.246.38
+--------------------
+I need to update my wiki software, it doesn't support curly braces too well. Until then, I will have to use [C-Style Trigraphs] in my snippets
+
+*[Classical Object Inheritance]
+*[Static Function Variables]
+*[More Useful Exception Class]
+*[Closures]
+*[Vector Style Drawing without VML or SVG]
+*[Explaination of Function Members]
+
+
+--------------------
+12/12/06 14:28 / 12.34.246.35
+--------------------
+I need to update my wiki software, it doesn't support curly braces too well. Until then, I will have to use [C-Style Trigraphs] in my snippets
+
+*[Classical Object Inheritance]
+*[Static Function Variables]
+*[More Useful Exception Class]
+*[Closures]
+*[Vector Style Drawing without VML or SVG]
+*[Explanation of Function Members]
+
+
+--------------------
+12/12/06 14:31 / 12.34.246.39
+--------------------
+I need to update my wiki software, it doesn't support curly braces too well. Until then, I will have to use [C-Style Trigraphs] in my snippets
+
+*[Classical Object Inheritance]
+*[Static Function Variables]
+*[More Useful Exception Class]
+*[Closures]
+*[Vector Style Drawing without VML or SVG]
+*[XMLHttpRequest Wrapper]
+*[Explanation of Function Members]
+
+
+--------------------
+12/15/06 09:57 / 12.34.246.7
+--------------------
+I need to update my wiki software, it doesn't support curly braces too well. Until then, I will have to use [C-Style Trigraphs] in my snippets
+
+*[Classical Object Inheritance]
+*[Static Function Variables]
+*[More Useful Exception Class]
+*[Closures]
+*[Vector Style Drawing without VML or SVG]
+*[XMLHttpRequest Wrapper]
+*[Variable Scope]
+
+
+--------------------
+12/15/06 10:46 / 12.34.246.4
+--------------------
+I need to update my wiki software, it doesn't support curly braces too well. Until then, I will have to use [C-Style Trigraphs] in my snippets
+
+*[Classical Object Inheritance]
+*[Static Function Variables]
+*[More Useful Exception Class]
+*[Closures]
+*[Vector Style Drawing without VML or SVG]
+*[XMLHttpRequest Wrapper]
+*[Variable Scope]
+*[JavaScript Is A Procedural Language]
+*[JavaScript Is An Object Oriented Language]
+*[JavaScript Is A Functional Language]
+
+
+--------------------
+01/02/07 20:03 / 69.248.207.36
+--------------------
+I need to update my wiki software, it doesn't support curly braces too well. Until then, I will have to use [C-Style Trigraphs] in my snippets
+
+*[Classical Object Inheritance]
+*[Static Function Variables]
+*[More Useful Exception Class]
+*[Closures]
+*[Vector Style Drawing without VML or SVG]
+*[XMLHttpRequest Wrapper]
+*[Variable Scope]
+
+
+--------------------
+01/02/07 20:03 / 69.248.207.36
+--------------------
+I need to update my wiki software, it doesn't support curly braces too well. Until then, I will have to use [C-Style Trigraphs] in my snippets
+
+*[Classical Object Inheritance]
+*[Static Function Variables]
+*[More Useful Exception Class]
+*[Closures]
+*[XMLHttpRequest Wrapper]
+*[Variable Scope]

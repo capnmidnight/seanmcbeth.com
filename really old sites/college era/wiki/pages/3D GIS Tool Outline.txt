@@ -1,0 +1,28 @@
+!what?
+*application for visuallizing GIS data in full motion, real time 3D
+*combining powerful GIS tools with quality 3D rendering
+!why?
+*hot GIS topic
+**competitor products
+***ESRI ArcGlobe ("Looks worse than the original Duke Nukem 3D")
+***Google Earth
+***NASA World Wind
+***Skyline TerraExplorer
+***etc.
+*opportunity for innovation
+**Where competitors fail
+***Useful tool, inferior graphics
+***or,
+***superior rendering capability, no useful features
+!how?
+*Comparisons with computer games
+**terrain rendering
+**information overlays
+**real-time 3D picking is spatial query
+**3D rendering is coordinate projection
+*COTS renderers
+**Unreal
+**Torque
+**etc.
+*Extending current open source projects?
+**NASA World Wind

@@ -1,0 +1,65 @@
+
+
+
+--------------------
+12/18/05 12:28 / 69.142.182.45
+--------------------
+!!Current Products
+!3D mapping:
+*Google Earth:
+**http://earth.google.com/
+**Based on Keyhole
+**product features: http://earth.google.com/product_comparison.html
+*NASA World Wind:
+**http://worldwind.arc.nasa.gov/
+**subset of Blue Marble project
+**open source, NASA open source license
+*Skyline TerraExplorer
+**http://www.skylinesoft.com/corporate/corporate_home.asp
+**IE plugin available
+**includes building models
+**low poly, flat shaded, untextured features :(
+*Global Mapper
+**http://www.globalmapper.com/
+**http://www.eagleglobesoftware.com/screenshots.htm
+**limited viewing area
+**poor quality rendering
+*3DEM
+**http://www.visualizationsoftware.com/3dem.html
+**limited viewing area
+**anaglyph image capability
+**various texture modes
+*3map
+**http://www.ping.com.au/
+**3d cities
+**open source, GPL :(
+*Arc3D Analyst and ArcGlobe
+**http://www.esri.com/software/arcgis/extensions/3danalyst/index.html
+**"looks like the original Duke Nukem 3D" (that's bad)
+**many useful GIS tools, not just a neat toy
+*MultiGen-Paradigm - 3D GIS Solutions
+**http://www.multigen.com/solutions/3dgis.shtml
+**no useful screenshots available on site
+*Vis5D: http://www.ssec.wisc.edu/~billh/vis5d.html
+*osgPlanet: http://www.ossim.org/tiki-read_article.php?articleId=3
+*Blue Marble Viewer: http://www.andesengineering.com/BlueMarbleViewer/
+*Open 3D GIS: http://www.open3dgis.org/
+*gps3D: http://www.mgix.com/gps3d/
+*GeoVRML: http://www.geovrml.org/
+*DEM Tools: http://www.arq.net/%7Ekasten/demtools/
+*Java3D DEM Viewer: http://sourceforge.net/projects/jdemview
+
+!Engines:
+*TerraMetrics TerraBlocks: http://www.terrametrics.com/viz/
+*Ranger mk.2: http://web.interware.hu/bandi/ranger.html
+*Torque: http://www.garagegames.com/mg/projects/tge/
+*Unreal 3: http://www.unrealtechnology.com/html/technology/ue30.shtml
+*Demeter Terrain Engine: http://www.terrainengine.com/
+
+!Articles:
+*http://www.gamasutra.com/features/20000403/turner_01.htm
+*DevMaster.net list of engines: http://www.devmaster.net/engines/
+
+!Other:
+*InetAddressLocator: http://javainetlocator.sourceforge.net/
+*GIS-Knoppix: http://www.sourcepole.com/sources/software/gis-knoppix/

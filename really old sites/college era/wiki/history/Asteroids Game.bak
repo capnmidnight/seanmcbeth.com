@@ -1,0 +1,29 @@
+
+
+
+--------------------
+12/24/06 22:37 / 69.248.207.36
+--------------------
+!Description
+I've always wanted to do an upgraded version of Asteroids. Something with solar systems and trade routes. Maybe even a little multiplayer with some space piracy going on. Well, that's what we're trying to do here.
+
+One of the design goals is to develop in 100% pure Java, i.e. I will be sticking with Java2D for graphics, Java Sound for... well.. sound, no JOGL or OpenAL or anything else that requirs a seperate download. I like to have my games and programs to be as simple to use as possible. It frustrates me to no end to have to download various parts and pieces to get a program running, so I try to minimize that.
+
+Maybe this will turn into something like Freelancer in vector graphics.
+
+![Asteroids Tasks]
+
+![Physics Server]
+
+!SVN Repository for Project
+*http://www.seanmcbeth.com/stm72/Java/Gurt
+
+!Screen Shots
+*http://www.seanmcbeth.com/img/wiki/gurt/main_menu.png
+*http://www.seanmcbeth.com/img/wiki/gurt/options_menu.png
+*http://www.seanmcbeth.com/img/wiki/gurt/rock.png
+*http://www.seanmcbeth.com/img/wiki/gurt/small_planet.png
+*http://www.seanmcbeth.com/img/wiki/gurt/big_planet.png
+*http://www.seanmcbeth.com/img/wiki/gurt/composite_decal.png
+*http://www.seanmcbeth.com/img/wiki/gurt/decal_editor.png
+*http://www.seanmcbeth.com/img/wiki/gurt/map_with_grav_field.png
