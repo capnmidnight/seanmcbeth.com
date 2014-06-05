@@ -1,0 +1,236 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=1">
+    <style type="text/css">
+        select,video,canvas
+        {
+            padding: 0;
+            margin: 0;
+            width: 100%;
+        }
+    </style>
+    <script>
+        navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia || navigator.oGetUserMedia;
+
+        Array.prototype.groupBy = function (thunk) {
+            var obj = {};
+            for (var i = 0; i < this.length; ++i) {
+                var key = thunk(this[i], i);
+                if (!obj[key]) {
+                    obj[key] = [];
+                }
+                obj[key].push(this[i]);
+            }
+            var output = [];
+            for (var key in obj) {
+                if (obj.hasOwnProperty(key)) {
+                    output.push(obj[key]);
+                }
+            }
+            return output;
+        }
+
+        MediaStreamTrack.getVideoTracks =
+            (window["MediaStream"] && MediaStream.getVideoTracks && (function (getter, success) {
+                success(getter());
+            }).bind(MediaStream, MediaStream.getVideoTracks))
+            || (MediaStreamTrack.getSources && function (success) {
+                return MediaStreamTrack.getSources(function (sources) {
+                success(sources.filter(function (source) {
+                    return source.kind == "video";
+                }));
+            });
+            })
+            || function(success) {
+                return success([]);
+            };
+
+        function t() { Array.prototype.forEach.call(arguments, function (id) { window[id] = document.getElementById(id); }); }
+        var g1, mx1, my1, mx2, my2, drag, streaming;
+
+        function load() {
+            t("vid", "canv", "sources", "color");
+            g1 = canv.getContext("2d");
+            MediaStreamTrack.getVideoTracks(function (infos) {
+                infos.reverse().forEach(function (info, i) {
+                    var option = document.createElement("option");
+                    option.value = info.id;
+                    option.text = info.label || "camera " + i;
+                    sources.appendChild(option);
+                });
+
+                vid.addEventListener("canplay", function (ev) {
+                    if (!streaming) {
+                        streaming = true;
+                        window.requestAnimationFrame(snapshot);
+                    }
+                    canv.width = vid.videoWidth;
+                    canv.height = vid.videoHeight;
+                }, false);
+
+                connect();
+
+                sources.addEventListener("change", connect);
+            });
+
+            function connect() {
+                try {
+                    if (streaming) {
+                        if (!!window.stream) {
+                            window.stream.stop();
+                        }
+                        vid.src = null;
+                        streaming = false;
+                    }
+                }
+                catch (err) {
+                    alert(err);
+                }
+
+                navigator.getUserMedia(
+                    {
+                        video: {
+                            optional: [{ sourceId: sources.value }]
+                        }
+                    },
+
+                    function (stream) {
+                        vid.src = window.URL.createObjectURL(stream);
+                    }, alert);
+            }
+
+            function getInputX(evt) {
+                return ((evt.pageX || evt.touches[0].clientX) - canv.offsetLeft) * canv.width / canv.clientWidth;
+            }
+
+            function getInputY(evt) {
+                return ((evt.pageY || evt.touches[0].clientY) - canv.offsetTop) * canv.height / canv.clientHeight;
+            }
+
+            function getInput(evt) {
+                mx2 = getInputX(evt);
+                my2 = getInputY(evt);
+            }
+
+            function inputDown(evt) {
+                getInput(evt);
+                mx1 = mx2;
+                my1 = my2;
+                evt.preventDefault();
+                drag = true;
+            }
+
+            function inputUp() {
+                drag = false;
+            }
+
+            function inputMove(evt) {
+                if (drag) {
+                    getInput(evt);
+                }
+            }
+
+            canv.addEventListener("mousedown", inputDown);
+            canv.addEventListener("touchstart", inputDown);
+            canv.addEventListener("mouseup", inputUp);
+            canv.addEventListener("touchend", inputUp);
+            canv.addEventListener("mousemove", inputMove);
+            canv.addEventListener("touchmove", inputMove);
+
+            document.addEventListener("keyup", function (evt) {
+                if(evt.keyCode == 107) {// +
+                    gamut <<= 1;
+                }
+                else if (evt.keyCode == 109) {
+                    gamut >>= 1;
+                }
+            });
+        }
+
+        var gamut = 65536;
+
+        function makeV(dat, i) {
+            return Math.floor(((dat.data[i] << 8 | dat.data[i + 1]) << 8 | dat.data[i + 2]) * gamut / 0xffffff);
+        }
+
+        function unV(v) {
+            var rgb = Math.floor(v * 0xffffff / gamut);
+            var values = [];
+            for(var i = 0; i < 3; ++i){
+                values.unshift(rgb % 256);
+                rgb >>= 8;
+            }
+            return values;
+        }
+
+        function histogram(dat) {
+            var hist = [];
+            var max = 0;
+
+            for (var i = 0; i < dat.data.length; i += 4) {
+                var v = makeV(dat, i);
+                hist[v] = (hist[v] || 0) + 1;
+                max = Math.max(hist[v], max);
+            }
+
+            for (var i in hist) {
+                if (hist.hasOwnProperty(i)) {
+                    hist[i] /= max;
+                }
+            }
+
+            return hist;
+        }
+
+        function snapshot() {
+            if (canv.width > 0 && canv.height > 0) {
+                g1.drawImage(vid, 0, 0, canv.width, canv.height);
+
+                if (mx1 && my1 && mx2 && my2 && mx1 < mx2 && my1 < my2) {
+                    var dat1 = g1.getImageData(0, 0, canv.width, canv.height);
+                    var dat2 = g1.getImageData(mx1, my1, mx2 - mx1, my2 - my1);
+                    var buckets = histogram(dat2);
+                    for (var i = 0; i < dat1.data.length; i += 4) {
+                        var v = makeV(dat1, i);
+                        if ((buckets[v] || 0) > 0) {
+                            dat1.data[i] = 0;
+                            dat1.data[i + 1] = 0xff;
+                            dat1.data[i + 2] = 0;
+                        }
+                    }
+                    g1.putImageData(dat1, 0, 0);
+                    g1.strokeStyle = "#ff0000";
+                    g1.strokeRect(mx1, my1, mx2 - mx1, my2 - my1);
+
+                    var c = Array.prototype.filter.call(dat2.data, function (v, i) { return (i % 4) < 3; })
+                        .groupBy(function (v, i) { return Math.floor(i / 3); });
+                    var n = c.length;
+                    c = c.reduce(function (a, b) { return [a[0] + b[0], a[1] + b[1], a[2] + b[2]]; })
+                        .map(function (a) { return Math.floor(a / n); });
+                    document.body.style.backgroundColor = "rgb(" + c[0] + ", " + c[1] + ", " + c[2] + ")";
+                    color.innerHTML = document.body.style.backgroundColor;
+                }
+            }
+            window.requestAnimationFrame(snapshot);
+        }
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=1">
+    <title>HTML5 Video Test</title>
+</head>
+<body onload="load()">
+    <h1>Pick a color</h1>
+    <select id="sources"></select>
+    <canvas id="canv"></canvas>
+    <video id="vid" autoplay="autoplay" style="display:none;"></video>
+    <h2>Current color: <span id="color"></span></h2>
+    <h2>Instructions</h2>
+    <p>Confirm to your browser that you would like to allow this page to have access to any cameras connected to your computer or smartphone. Don't worry, this all runs in-browser, I don't send the images anywhere. View-source if you don't believe me.</p>
+    <p>Drag a box on the picture. The average color in the box will be set as the page background, and the colors that are in the box will be highlighted in the image.</p>
+    <h2>Why?</h2>
+    <p>A recent talk from some folks at the EPA got me interested in automatic color detection (the talk was in regardes to Harmful Algal Blooms and enabling citizens to report them in the wild).</p>
+    <p>This works with Google Chrome on desktop and mobile devices. I don't know if it works on Safari yet. I'd really like to get it to work with Firefox, but it causes an error "NS_ERROR_NOT_AVAILABLE" to draw the Video element to a Canvas. Does anyone know why that happens and if there is a fix? Let me know: sean.mcbeth+vid@gmail.com</p>
+    <p>All of the source is in the page, if you want to check it out.</p>
+</body>
+</html>
