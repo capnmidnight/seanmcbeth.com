@@ -198,31 +198,6 @@
                 if(mirror.checked){
                     g1.restore();
                 }
-
-                if (mx1 && my1 && mx2 && my2 && mx1 < mx2 && my1 < my2) {
-                    var dat1 = g1.getImageData(0, 0, canv.width, canv.height);
-                    var dat2 = g1.getImageData(mx1, my1, mx2 - mx1, my2 - my1);
-                    var buckets = histogram(dat2);
-                    for (var i = 0; i < dat1.data.length; i += 4) {
-                        var v = makeV(dat1, i);
-                        if ((buckets[v] || 0) > 0) {
-                            dat1.data[i] = 0;
-                            dat1.data[i + 1] = 0xff;
-                            dat1.data[i + 2] = 0;
-                        }
-                    }
-                    g1.putImageData(dat1, 0, 0);
-                    g1.strokeStyle = "#ff0000";
-                    g1.strokeRect(mx1, my1, mx2 - mx1, my2 - my1);
-
-                    var c = Array.prototype.filter.call(dat2.data, function (v, i) { return (i % 4) < 3; })
-                        .groupBy(function (v, i) { return Math.floor(i / 3); });
-                    var n = c.length;
-                    c = c.reduce(function (a, b) { return [a[0] + b[0], a[1] + b[1], a[2] + b[2]]; })
-                        .map(function (a) { return Math.floor(a / n); });
-                    document.body.style.backgroundColor = "rgb(" + c[0] + ", " + c[1] + ", " + c[2] + ")";
-                    color.innerHTML = document.body.style.backgroundColor;
-                }
             }
             window.requestAnimationFrame(snapshot);
         }
