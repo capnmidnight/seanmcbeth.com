@@ -1,0 +1,662 @@
+
+<!DOCTYPE html>
+<html >
+  <head>
+    <meta charset="UTF-8">
+    <meta name="google" value="notranslate">
+
+
+    <title>CodePen - No More Jabber Yabs: The Game</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    
+    
+        <style>
+      html,
+body,
+.cloud,
+.cloud-bit,
+.frowny,
+.boop,
+.beam,
+.subBeam,
+#scoreBox {
+  position: absolute;
+}
+
+html,
+body {
+  height: 100%;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  overflow: hidden;
+}
+
+body {
+  font-family: sans-serif;
+  font-size: 24pt;
+  background-color: hsl(200, 50%, 75%);
+  background-image: -webkit-linear-gradient(hsl(200, 50%, 50%), hsl(200, 20%, 75%) 75%, hsl(100, 75%, 50%) 75%, hsl(100, 100%, 20%));
+  background-image: linear-gradient(hsl(200, 50%, 50%), hsl(200, 20%, 75%) 75%, hsl(100, 75%, 50%) 75%, hsl(100, 100%, 20%));
+}
+
+#scoreBox {
+  display: none;
+  color: white;
+  top: 0;
+  left: 0;
+  padding: 1em;
+}
+
+.endMessage {
+  display: none;
+  position: absolute;
+  padding: 1em;
+  top: 0;
+  z-index: 9001;
+  color: white;
+  font-size: 8pt;
+}
+
+@media(min-width: 800px){
+  .endMessage{
+    font-size: 20pt;
+  }
+}
+
+.cloud-bit {
+  background-color: white;
+  width: 100px;
+  height: 50px;
+  border-bottom-right-radius: 25px;
+  border-bottom-left-radius: 50px;
+  border-top-right-radius: 12.5px;
+  border-top-left-radius: 6.25px;
+}
+
+.frowny {
+  font-family: fixedsys, monospace;
+  font-size: 24pt;
+  padding: 5px;
+  border: solid 2px black;
+  border-radius: 10px;
+  -webkit-transform: rotate(90deg);
+      -ms-transform: rotate(90deg);
+          transform: rotate(90deg);
+  width: 40px;
+  height: 40px;
+  overflow: hidden;
+}
+
+.boop {
+  display: none;
+  color: white;
+  text-transform: uppercase;
+  font-family: sans-serif;
+  font-weight: bold;
+  font-size: 10pt;
+  z-index: 9001;
+}
+
+.beam,
+.subBeam {
+  display: none;
+  background-color: red;
+  box-shadow: 0 0 25px red;
+  left: 0;
+}
+
+.beam {
+  top: 0;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+}
+
+.subBeam {
+  top: 50%;
+  height: 2000px;
+}
+
+#instructions {
+  position: relative;
+  font-weight: bold;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 3em;
+  width: 20em;
+  z-index: 9001;
+}
+    </style>
+
+    
+    
+    
+  </head>
+
+  <body>
+
+    <div id="instructions">Go ahead, click and hold the mouse</div>
+<div id="scoreBox">GET EM: <span class="pointDisplay">0</span></div>
+<div id="message0" class="endMessage">
+  <p>You have killed everyone. You did it. Just you. Noone else.</p>
+  <p>And why have you done this? Because you were ordered to? The pursuit of points?</p>
+  <p>You got your points. All <span class="pointDisplay">0</span> of them. What will you do with them? There's noone left. And it's not like they took them as currency, anyway.</p>
+  <p>For no reason whatsoever, you have committed genocide against another race of people. Congratulations.</p>
+  <p>Hitler.</p>
+</div>
+<div id="message1" class="endMessage">
+  <p>You have killed almost everyone. Their bodies are strewn about on the ground they once called their home.</p>
+  <p>There is but one person left. Did you spare them out of mercy? Or have you left them, devoid of personal contact, alone, surrounded by the burned and rotting bodies of their former loved ones, to serve as witness of your terrible deeds?</p>
+  <p>And why have you done this? Because you were ordered to? The pursuit of points?</p>
+  <p>You got your points. All <span class="pointDisplay">0</span> of them. What will you do with them? There's noone left. And it's not like they took them as currency, anyway.</p>
+  <p>You are sick.</p>
+</div>
+<div id="message2" class="endMessage">
+  <p>You have killed almost everyone. Their bodies are strewn about on the ground they once called their home.</p>
+  <p>There are only two people left. Did you spare them out of mercy? Or have you left them, surrounded by the burned and rotting bodies of their former loved ones, to repopulate their world together, to serve as witness of your terrible deeds to future generations?</p>
+  <p>And why have you done this? Because you were ordered to? The pursuit of points?</p>
+  <p>You got your points. All <span class="pointDisplay">0</span> of them. What will you do with them? There's noone left. And it's not like they took them as currency, anyway.</p>
+  <p>I... I don't understand you.</p>
+</div>
+<div id="messageN" class="endMessage" style="color:black">
+  <p>"Hi there!"</p>
+  <p>You blink. Did someone speak?</p>
+  <p>"Down here!"</p>
+  <p>It's the people below.</p>
+  <p>"We noticed you up there. What are you doing?"</p>
+  <p>You reply, haltingly, that you do not know.</p>
+  <p>"Oh, well, okay. Cool beans. Later!"</p>
+</div>
+    
+    
+        <script>
+      var NUM_YABS = Math.round(window.innerWidth / 30),
+    NUM_CLD = Math.round(window.innerWidth / 200),
+    HIT_POINTS = 2,
+    MSG_TIMEOUT = 5000;
+
+Math.randomRange = function(n, x) {
+  return Math.random() * (x - n) + n;
+}
+Math.randomInt = function(n, x) {
+  return Math.floor(Math.randomRange(n, x));
+}
+Array.prototype.random = function() {
+  return this[Math.randomInt(0, this.length)];
+}
+
+function sleep(millis) {
+  var start = Date.now();
+  while (Date.now() < start + millis);
+}
+
+var skins = ["#FFDFC4", "#F0D5BE", "#EECEB3", "#E1B899", "#E5C298", "#FFDCB2", "#E5B887", "#E5A073", "#E79E6D", "#DB9065", "#CE967C", "#C67856", "#BA6C49", "#A57257", "#F0C8C9", "#DDA8A0", "#B97C6D", "#A8756C", "#AD6452", "#5C3836", "#CB8442", "#BD723C", "#704139", "#A3866A", "#870400", "#710101", "#430000", "#5B0001", "#302E2E"];
+
+var curses = ["ow!", "yikes!", "holy cow!", "ouch!", "that smarts!", "ow!", "yikes!", "holy cow!", "ouch!", "that smarts!", "ow!", "yikes!", "holy cow!", "ouch!", "that smarts!", "mother puss-bucket!"];
+
+// repeating faces changes the balance of what gets displayed
+var happyFaces = [":)", ":o", ":^", ":.", ":P", ":D"],
+  sadFaces = [":(", ":(", ":(", ":(", ":(", ":(", ":O"],
+  audio,
+  out,
+  osc,
+  fading = false,
+  inst = document.querySelector("#instructions"),
+  scoreBoxes = document.querySelectorAll(".pointDisplay"),
+  messages = document.querySelectorAll(".endMessage"),
+  scale = 1,
+  fs = [],
+  lt = null,
+  dt = 0,
+  step = 1,
+  lnt = -1,
+  beam,
+  score = 0,
+  kills = 0,
+  repopulateTimer,
+  dystopianTimer;
+
+inst.style.opacity = 1;
+
+if (window.AudioContext) {
+  osc = [];
+  audio = new AudioContext();
+  if (audio.createGain) {
+    out = audio.createGain();
+    out.connect(audio.destination);
+    var base = Math.pow(2, 1 / 12);
+
+    function piano(n) {
+      return 440 * Math.pow(base, n - 49);
+    }
+
+    for (var i = 0; i < 88; ++i) {
+      var gn = audio.createGain();
+      gn.gain.value = 0;
+      var o = audio.createOscillator();
+      o.frequency.value = piano(i + 1);
+      o.type = "sawtooth";
+      o.start();
+      o.connect(gn);
+      gn.connect(out);
+      osc.push(gn);
+    }
+  }
+}
+
+function play(i, volume, duration) {
+  if (osc) {
+    var o = osc[i];
+    if (o) {
+      if (o.timeout) {
+        clearTimeout(o.timeout);
+        o.timeout = null;
+      }
+      o.gain.value = volume;
+      o.timeout = setTimeout(function() {
+        o.gain.value = 0;
+        o.timeout = null;
+      }, duration * 1000);
+    }
+  }
+}
+
+function music(t) {
+  var nt = 0;
+  if (score > 0) {
+    nt = Math.floor((t / 2000) % 4) + Math.floor((t / 1000) % 2) / 2;
+  } else {
+    nt = Math.floor((t / 500) % 4) + Math.floor((t / 250) % 3) / 3;
+  }
+
+  if (lnt !== nt) {
+    var len = 0.2;
+    if (nt >= Math.randomInt(0, 4)) {
+      nt = Math.floor(nt);
+      len /= 2;
+    }
+    if (score > 0) {
+      var n = 25 - Math.floor(nt * 4) + Math.randomInt(-1, 2) * 3;
+      play(n, 0.04, len);
+      play(n + 3, 0.04, len);
+      play(n + 7, 0.04, len);
+    } else {
+      var n = 40 + Math.floor(nt * 3) + Math.randomInt(-1, 2) * 4;
+      play(n, 0.04, 0.05);
+      play(n + Math.randomInt(3, 5), 0.04, 0.05);
+    }
+  }
+  lnt = nt;
+}
+
+function shake(elem) {
+  elem = elem || document.body;
+  elem.style.transform = "translate(" + Math.randomRange(-4, 4) + "px," + Math.randomRange(-4, 4) + "px)";
+}
+
+function add(obj) {
+  fs.push(obj);
+  if (obj.DOMElement) {
+    document.body.appendChild(obj.DOMElement);
+  }
+  return obj;
+}
+
+function Face() {
+  this.alive = true;
+  this.hits = 0;
+  this.onground = false;
+  this.x = Math.randomRange(0, window.innerWidth);
+  this.y = Math.randomRange(0, window.innerHeight / 2);
+  this.z = Math.randomInt(0, 10);
+  this.f = 0;
+  this.dx = Math.randomRange(-1, 1);
+  this.dy = 0;
+  this.df = Math.randomRange(0.05, 0.1);
+  this.DOMElement = document.createElement("div");
+  this.DOMElement.className = "frowny";
+  this.DOMElement.style.backgroundColor = skins.random();
+  this.DOMElement.style.zIndex = this.z;
+  this.DOMElement.addEventListener("mouseover", this.jump.bind(this, "boop"), false);
+  this.DOMElement.addEventListener("touchstart", this.jump.bind(this, "boop"), false);
+  this.width = 5;
+  this.height = 5;
+
+  this.boop = document.createElement("div");
+  this.boop.className = "boop";
+  this.boop.innerHTML = "boop";
+  this.boopFor = 0;
+  this.boopX = 0;
+  this.boopY = 0;
+  this.boopDX = 0;
+  this.boopDY = 0;
+  document.body.appendChild(this.boop);
+
+  this.render();
+}
+
+Face.prototype.jump = function(word) {
+  if (this.onground) {
+    this.boop.innerHTML = word;
+    this.dy = -5;
+    this.onground = false;
+    this.boopX = this.x;
+    this.boopY = this.y - 125;
+    this.boopDX = Math.randomRange(-0.5, 0.5);
+    this.boopDY = Math.randomRange(-0.5, 0);
+    this.boopFor = 100;
+    play(30 + 3 * Math.randomInt(0, 5), 0.125, 0.05);
+    fading = true;
+  }
+};
+
+Face.prototype.render = function() {
+  this.boop.style.display = this.boopFor > 0 ? "block" : "none";
+  this.boop.style.left = this.boopX + "px";
+  this.boop.style.top = this.boopY + "px";
+  this.boop.style.transform = "scale(" + (0.5 + this.boopFor / 200) + ")";
+  this.DOMElement.style.left = this.x + "px";
+  this.DOMElement.style.top = (this.y + 10 * this.z - 120) + "px";
+
+  var sy = Math.sqrt(Math.abs(this.dy)) * 10
+  this.DOMElement.style.paddingLeft = this.DOMElement.style.paddingRight = (this.height + sy) + "px";
+  this.DOMElement.style.paddingTop = this.DOMElement.style.paddingBottom = (this.width - sy) + "px";
+
+  if (this.alive && this.f > 1) {
+    this.DOMElement.innerHTML = (score > 0 ? sadFaces : happyFaces).random();
+    this.f = 0;
+  } else if (!this.alive) {
+    this.DOMElement.innerHTML = "X(";
+  }
+}
+
+Face.prototype.update = function(dt) {
+  this.boopFor -= dt;
+  this.boopX += this.boopDX * dt;
+  this.boopY += this.boopDY * dt;
+
+  this.x += this.dx * dt;
+  this.y += this.dy * dt;
+  this.f += this.df * dt;
+
+  if (!this.onground) {
+    // gravity
+    this.dy = (this.dy + 0.1 * dt);
+  }
+
+  if (this.x <= 0 && this.dx < 0 || (this.x + this.DOMElement.clientWidth) >= window.innerWidth && this.dx > 0) {
+    this.dx *= -1;
+  }
+
+  if (!this.onground && (this.y + this.DOMElement.clientHeight) >= window.innerHeight && this.dy > 0) {
+    if (this.dy > 2) {
+      this.dy *= -0.5;
+    } else {
+      this.onground = true;
+      this.dy = 0;
+      if (!this.alive) {
+        this.dx = 0;
+      }
+    }
+    play((score > 0 ? 10 : 20) + 3 * Math.randomInt(0, 5), 0.125, 0.05);
+    shake();
+  }
+}
+
+function Cloud() {
+  this.DOMElement = document.createElement("div");
+  this.DOMElement.className = "cloud";
+
+  var n = Math.randomInt(4, 7);
+  for (var i = 0; i < n; ++i) {
+    var b = document.createElement("div");
+    b.className = "cloud-bit";
+    b.style.top = Math.randomRange(-25, 25) + "px";
+    b.style.left = Math.randomRange(-50, 50) + "px";
+    this.DOMElement.appendChild(b);
+  }
+
+  this.x = Math.randomRange(0, window.innerWidth);
+  this.y = Math.randomRange(0, window.innerHeight / 4) + 50;
+  this.dx = Math.randomRange(-0.25, 0.25);
+  this.DOMElement.style.zIndex = -this.y;
+  this.render();
+}
+
+Cloud.prototype.render = function() {
+  this.DOMElement.style.left = this.x + "px";
+  this.DOMElement.style.top = this.y + "px";
+};
+
+Cloud.prototype.update = function(dt) {
+  this.x += this.dx * dt;
+  if (this.x <= 0 && this.dx < 0 || (this.x + this.DOMElement.clientWidth) >= window.innerWidth && this.dx > 0) {
+    this.dx *= -1;
+  }
+};
+
+function Beam() {
+  this.x = 0;
+  this.y = 0;
+  this.t = 0;
+  this.charging = false;
+  this.firing = false;
+  this.enabled = true;
+
+  this.DOMElement = document.createElement("div");
+  this.DOMElement.className = "beam";
+
+  this.subBeam = document.createElement("div");
+  this.subBeam.className = "subBeam";
+  this.DOMElement.appendChild(this.subBeam);
+}
+
+Beam.prototype.disable = function(){
+  this.enabled = false;
+}
+
+Beam.prototype.update = function(dt) {
+  if (this.charging && this.t < 100) {
+    this.t += dt;
+    if (this.t >= 100) {
+      this.firing = true;
+      if(goodEndingTimer){
+        clearTimeout(goodEndingTimer);
+      }
+    }
+  } else if (!this.charging && this.t > 0) {
+    this.t -= dt / 4;
+    if (this.t <= 0) {
+      this.firing = false;
+    }
+  }
+
+  if (this.firing) {
+    shake(this.DOMElement);
+    for (var i = 0, l = this.t / 10; i < l; ++i) {
+      play(87 - i, 0.02, dt / 100);
+    }
+
+    for (var i = 0; i < NUM_YABS; ++i) {
+      var yab = fs[i];
+      if (yab.alive && yab.onground) {
+        if (this.x <= yab.x + 50 && this.x + 50 >= yab.x) {
+          if (score === 0) {
+            document.querySelector("#scoreBox").style.display = "block";
+            document.body.style.backgroundImage = "linear-gradient(hsl(0, 50%, 0%), hsl(0, 50%, 50%) 75%, hsl(0, 50%, 15%) 75%, hsl(0, 50%, 33%))";
+            for (var j = 0; j < NUM_CLD; ++j) {
+              var cld = fs[NUM_YABS + j].DOMElement;
+              for (var k = 0; k < cld.children.length; ++k) {
+                var bit = cld.children[k].style;
+                bit.backgroundColor = "black";
+              }
+            }
+          }
+          ++score;
+          for (var j = 0; j < scoreBoxes.length; ++j) {
+            scoreBoxes[j].innerHTML = score;
+          }
+          shake(yab.DOMElement);
+          ++yab.hits;
+          if (yab.hits >= HIT_POINTS) {
+            yab.alive = false;
+            ++kills;
+            score += 10;
+            if(kills === NUM_YABS - 2){
+              repopulateTimer = setTimeout(function(){
+                messages[2].style.display = "block";
+                scoreBox.style.display = "none";
+                this.disable();
+              }.bind(this), MSG_TIMEOUT);
+            }
+            else if(kills === NUM_YABS - 1){
+              clearTimeout(repopulateTimer);
+              dystopianTimer = setTimeout(function(){
+                messages[1].style.display = "block";
+                scoreBox.style.display = "none";
+                this.disable();
+              }.bind(this), MSG_TIMEOUT);
+            }
+            else if(kills === NUM_YABS) {
+              clearTimeout(dystopianTimer);
+              messages[0].style.display = "block";
+              scoreBox.style.display = "none";
+              this.disable();
+            }
+          } else {
+            yab.DOMElement.style.transform += " rotate(90deg)";
+          }
+          yab.jump(curses.random());
+          play(10 + Math.randomInt(-1, 2), 0.1, 0.05);
+        } else if (this.x <= yab.x + 200 && this.x + 200 >= yab.x) {
+          shake(yab.DOMElement);
+          yab.DOMElement.style.transform += " rotate(90deg)";
+        }
+      }
+    }
+  } else if (this.charging) {
+    var n = Math.floor(this.t / 10) + 70;
+    for (var i = 70; i < n; ++i) {
+      play(i, 0.02, dt / 100);
+    }
+  }
+};
+
+Beam.prototype.render = function() {
+
+  this.DOMElement.style.display = (this.charging || this.firing) ? "block" : "none";
+  this.subBeam.style.display = this.firing ? "block" : "none";
+
+  this.DOMElement.style.left = this.x + "px";
+  this.DOMElement.style.top = this.y + "px";
+
+  var c = "hsl(0, 100%, " + this.t + "%)";
+  this.DOMElement.style.backgroundColor = this.subBeam.style.backgroundColor = c;
+  this.DOMElement.style.boxShadow = this.subBeam.style.boxShadow = "0 0 25px " + c;
+
+  this.subBeam.style.width = this.t + "%";
+  this.subBeam.style.left = (100 - this.t) / 2 + "%";
+  this.subBeam.style.opacity = this.t / 100;
+};
+
+Beam.prototype.start = function(evt) {
+  fading = true;
+  this.x = evt.clientX - 10;
+  this.y = evt.clientY - 10;
+  if(this.enabled){
+    this.charging = true;
+  }
+  evt.preventDefault();
+};
+
+Beam.prototype.end = function() {
+  this.DOMElement.style.display = "none";
+  this.charging = false;
+  if (!this.firing) {
+    this.t = 0;
+  }
+};
+
+Beam.prototype.move = function(evt) {
+  this.x = evt.clientX - 10;
+  this.y = evt.clientY - 10;
+  evt.preventDefault();
+};
+
+for (var i = 0; i < NUM_YABS; ++i) {
+  add(new Face());
+}
+
+for (var i = 0; i < NUM_CLD; ++i) {
+  add(new Cloud());
+}
+
+beam = add(new Beam());
+
+document.addEventListener("mousedown", beam.start.bind(beam), false);
+document.addEventListener("mousemove", beam.move.bind(beam), false);
+document.addEventListener("mouseup", beam.end.bind(beam), false);
+document.addEventListener("touchstart", function(evt) {
+  if (evt.touches.length === 1) {
+    evt.touches[0].preventDefault = evt.preventDefault.bind(evt);
+    beam.start(evt.touches[0]);
+  }
+}, false);
+document.addEventListener("touchmove", function(evt) {
+  evt.touches[0].preventDefault = evt.preventDefault.bind(evt);
+  beam.move(evt.touches[0]);
+}, false);
+document.addEventListener("touchend", function(evt) {
+  if (evt.touches.length === 0) {
+    beam.end();
+    evt.preventDefault();
+  }
+}, false);
+
+function animate(t) {
+  requestAnimationFrame(animate);
+
+  music(t);
+
+  if (lt != null) {
+    dt += (t - lt) / 10;
+    while (dt >= step) {
+      for (var i = 0; i < fs.length; ++i) {
+        fs[i].update(step);
+      }
+      dt -= step;
+    }
+    for (var i = 0; i < fs.length; ++i) {
+      fs[i].render();
+    }
+  }
+  lt = t;
+  if (fading && scale > 0) {
+    inst.style.opacity -= 0.05;
+    scale -= 0.05;
+    inst.style.transform = "scale(" + Math.pow(scale, 0.25) + ")";
+  }
+}
+
+setTimeout(function(){
+  fading = true;
+}, 5000);
+
+var goodEndingTimer = setTimeout(function(){
+  messages[messages.length - 1].style.display = "block";
+  beam.disable();
+}, 15000);
+
+requestAnimationFrame(animate);
+      //@ sourceURL=pen.js
+    </script>
+
+    
+    
+    
+  </body>
+</html>
+ 

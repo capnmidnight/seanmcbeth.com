@@ -179,6 +179,11 @@ function Graphics(scrnX, scrnY, scrnWidth, scrnHeight, parentId)
 	
 	//PRIVILEGED
 	
+	this.getElement = function()
+	{
+		return elem;
+	};
+	
 	this.setStroke = function(stroke)
 	{
 		pixSize = stroke;
