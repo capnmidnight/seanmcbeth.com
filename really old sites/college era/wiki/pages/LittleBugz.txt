@@ -1,6 +1,0 @@
-!!!LittleBugz - Defect Tracking for Small Projects
-
-!!Purpose
-LittleBugz is a free (''gratis,'' I do not release ideologically free software), easy to install, easy to administer, easy to use sytem for tracking program defects in small projects. Incidentally, that means LittleBugz could benefit from itself.
-
-Currently, there are no such defect tracking systems. Hobbyist and beginner developers are stuck attempting to wrangle a much larger and complex system (e.g. Bugzilla), and often find the experience discouraging. By providing a simple to use defect tracking system, I hope to encourage and reinforce one aspect of good software development practices in growing developers.

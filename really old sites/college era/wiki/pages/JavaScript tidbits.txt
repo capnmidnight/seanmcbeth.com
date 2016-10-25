@@ -1,8 +1,0 @@
-I need to update my wiki software, it doesn't support curly braces too well. Until then, I will have to use [C-Style Trigraphs] in my snippets
-
-*[Classical Object Inheritance]
-*[Static Function Variables]
-*[More Useful Exception Class]
-*[Closures]
-*[XMLHttpRequest Wrapper]
-*[Variable Scope]
