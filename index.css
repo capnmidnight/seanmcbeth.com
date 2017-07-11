@@ -20,29 +20,38 @@ body {
 main {
   padding: 3em;
 }
-img {
+main img {
   width: 80vw;
 }
-@media (min-width: 750px) {
+#menu {
+  text-align: center;
+}
+#menu ul {
+  padding: 0;
+  margin: 0;
+  list-style-type: none;
+  column-count: 2;
+  font-size: 10pt;
+}
+#menu ul li > a {
+  display: inline-block;
+  padding: 1em;
+  margin: 2px;
+  text-decoration: none;
+  width: 100%;
+  background-color: #fff;
+  border: solid 1px #8dbad3;
+}
+@media (min-width: 640px) {
+  #menu > ul {
+    column-count: 4;
+  }
   #portrait {
     max-width: 50%;
     float: right;
     margin-left: 5em;
   }
 }
-a {
-  display: inline-block;
+a[href] {
   color: #000;
-  border-bottom: solid 1px #000;
-  height: 1.3em;
-  text-decoration: none;
-  text-shadow: -0.03em 0 #e9f7ff, -0.06em 0 #e9f7ff, -0.09em 0 #e9f7ff, -0.12em 0 #e9f7ff, -0.15em 0 #e9f7ff, -0.18em 0 #e9f7ff, 0.03em 0 #e9f7ff, 0.06em 0 #e9f7ff, 0.09em 0 #e9f7ff, 0.12em 0 #e9f7ff, 0.15em 0 #e9f7ff, 0.18em 0 #e9f7ff;
-}
-a.sectionLink {
-  display: block;
-  border: solid 1px #111;
-  padding: 2em;
-  margin: 1em;
-  font-size: 24pt;
-  background-color: #222;
 }
