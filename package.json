@@ -1,0 +1,23 @@
+{
+  "name": "seanmcbeth_com",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/capnmidnight/seanmcbeth.com.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/capnmidnight/seanmcbeth.com/issues"
+  },
+  "homepage": "https://github.com/capnmidnight/seanmcbeth.com#readme",
+  "dependencies": {
+    "marigold-build": "^1.11.1"
+  }
+}

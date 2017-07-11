@@ -1,0 +1,45 @@
+*
+  box-sizing border-box
+
+html, body
+  position absolute
+  margin 0
+  padding 0
+  border 0
+  height 100%
+
+body
+  font-family -apple-system, '.SFNSText-Regular', 'San Francisco', 'Roboto', 'Segoe UI', 'Helvetica Neue', 'Lucida Grande', sans-serif
+  font-size 12pt
+  line-height 1.5
+  background-color #E9F7FF
+  color #625747
+
+main
+  padding 3em
+
+#portrait
+  width 100vw
+
+@media (min-width:750px)
+  #portrait
+    max-width 50%
+    float right
+    margin-left 5em
+
+a
+  display inline-block
+  color black
+  border-bottom solid 1px black
+  height 1.3em
+  text-decoration none
+  text-shadow -0.03em 0 #E9F7FF,-0.06em 0 #E9F7FF,-0.09em 0 #E9F7FF,-0.12em 0 #E9F7FF,-0.15em 0 #E9F7FF,-0.18em 0 #E9F7FF,
+    0.03em 0 #E9F7FF,0.06em 0 #E9F7FF,0.09em 0 #E9F7FF,0.12em 0 #E9F7FF,0.15em 0 #E9F7FF,0.18em 0 #E9F7FF
+
+a.sectionLink
+  display block
+  border solid 1px #111
+  padding 2em
+  margin 1em
+  font-size 24pt
+  background-color #222
