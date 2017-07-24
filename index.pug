@@ -1,3 +1,8 @@
+mixin contactList(links)
+  ul#contact: each link in links
+    li: a(href=link.href, target="_blank")
+      span(class="icon-" + link.type, title=link.desc)
+
 doctype html
 html
   head
@@ -8,11 +13,31 @@ html
     link(type="text/css", rel="stylesheet", href="index" + cssExt)
     != liveReload
   body
+
     main
-      img#portrait(src="img/2015-05.jpg", alt="portrait")
+      .filter
+        img#portrait(src="img/2015-05.jpg", alt="portrait")
 
       section#introduction
-        h1 Sean T. McBeth
+        h1
+          | Sean T. McBeth
+          +contactList([
+            { type: "email",
+              desc: "Email Sean",
+              href: "mailto:sean@seanmcbeth.com?subject=Website contact" },
+            { type: "twitter",
+              desc: "Follow @Sean_McBeth on Twitter",
+              href: "https://twitter.com/Sean_McBeth" },
+            { type: "linkedin",
+              desc: "Follow Sean on LinkedIn",
+              href: "https://www.linkedin.com/pub/sean-mcbeth/6/727/378"},
+            { type: "github",
+              desc: "Follow Sean on Github",
+              href: "https://github.com/capnmidnight" },
+            { type: "telephone",
+              desc: "Call Sean",
+              href: "tel:+17172617689" }
+          ])
 
         p I am a freelance software consultant in virtual reality, augmented reality, games, simulation, graphics, abstract data visualization, audio synthesis and processing, computer vision, peer-to-peer networking, desktop, Web, mobile, real-time communication, hardware prototyping, embedded systems, reporting, GIS, and relational database systems.
 
@@ -20,123 +45,37 @@ html
 
         p My projects usually go from concept to first-version in 1-to-2-month timeframes. I emphasize open communication with stakeholders, frequent issue and user-story tracking and review, correct, normalized relational database design and simple, best-practice-based, DRY, agile software development. I maintain an extremely broad set of skills to bring to bear on your project.
 
-      section#menu
-        ul
-          li: a(href="#contact") Social Media
-          li: a(href="#projects") Projects
-          li: a(href="#volunteer") Volunteer
-          li: a(href="#talks") Talks
-          li: a(href="#art") Art
-          li: a(href="#edu") Education
-          li: a(href="#interviews") Interviews
-          li: a(href="#press") Press
-
       section#bonafides
-        h2: a(name="contact") Social Media
-        ul
-          li: a(href="mailto:sean@seanmcbeth.com?subject=Website contact") Email
-          li: a(href="https://github.com/capnmidnight") Github
-          li: a(href="https://www.npmjs.com/~seanmcbeth") NPM
-          li: a(href="https://twitter.com/Sean_McBeth") Twitter
-          li: a(href="https://mastodon.cloud/@SeanMcBeth") Mastodon
-          li: a(href="https://www.youtube.com/user/moron4hire") YouTube
-          li: a(href="https://codepen.io/SeanMcBeth/") CodePen
-          li: a(href="https://www.linkedin.com/pub/sean-mcbeth/6/727/378") LinkedIn
-          li: a(href="http://sean-mcbeth.tumblr.com") Tumblr blog
-          li: a(href="https://plus.google.com/+SeanMcBeth/posts") Google+
-          li: a(href="https://news.ycombinator.com/user?id=moron4hire") Hacker News
-          li: a(href="https://www.crunchbase.com/person/sean-mcbeth#/entity") CrunchBase
-          li: a(href="http://www.imdb.com/name/nm5111059/") IMDB (yup)
 
         h2: a(name="projects") Projects
         ul
-          li Present
-            ul
-              li: a(href="https://www.primrosevr.com/") Primrose: build VR experiences in your browser
-              li: a(href="https://capnmidnight.github.io/marigold-build/") Marigold: a development environment for JavaScript Single-Page Applications
-              li: a(href="https://github.com/capnmidnight/plume") Plume: a VR teleconferencing system for the Web
-              li: a(href="https://github.com/capnmidnight/pliny") Pliny: a live-documentation system for JavaScript projects
+          li: a(href="https://www.primrosevr.com/") Primrose: build VR experiences in your browser
+          li: a(href="https://capnmidnight.github.io/marigold-build/") Marigold: a development environment for JavaScript Single-Page Applications
+          li: a(href="https://github.com/capnmidnight/plume") Plume: a VR teleconferencing system for the Web
+          li: a(href="https://github.com/capnmidnight/pliny") Pliny: a live-documentation system for JavaScript projects
 
-          li Past
-            ul
-              li #[a(href="https://www.youtube.com/watch?v=PWvPEEpLCT0&feature=youtu.be&t=55") Smart-city VR diorama], with:
-                ul
-                  li #[a(href="https://www.youtube.com/watch?v=gdiIqyTl_Kk") Traffic simulation] with #[a(href="https://www.youtube.com/watch?v=awmEM5jbZAk") night-time dependent effects]
-                  li: a(href="https://www.youtube.com/watch?v=XL__CsW_L7A") Power grid simulation
-                  li: a(href="https://www.youtube.com/watch?v=90hJ4h-rwk0") Day/night cycle for time-series simulation in games
-              li #[a(href="https://www.youtube.com/watch?v=xSSL8WqZT6o") Music beat detection] for #[a(href="https://www.youtube.com/watch?v=K_HJtNlNsmg&feature=youtu.be&t=20") game-play synchronization]
-              li: a(href="https://www.youtube.com/watch?v=CEYDYRBhC2E") AR for business cards
-              li: a(href="https://medium.com/@notiontheory/building-a-haptic-feedback-glove-for-virtual-reality-77232999a2d7") Haptic Glove, v2
-              li: a(href="https://plus.google.com/+SeanMcBeth/posts/gKF7sQ2FAhh") Haptic Glove, v1
-              li: a(href="https://www.bloomberg.com/news/articles/2016-12-06/goldman-sachs-alum-turns-to-virtual-reality-to-sell-57-million-mansion") REX: 360° Real Estate Tours
-              li: a(href="https://www.youtube.com/watch?v=fhvDLiuSYis") AR for Religious Preference
-              li: a(href="https://makeoffices.com/blog/the-east-coasts-first-virtual-reality-arcade-launches-at-makeoffices-dc/") The East Coast's first Virtual Reality Arcade
-              li: a(href="https://www.linkedin.com/pulse/i-just-hacked-my-brain-sean-mcbeth") DIY Galvanic Vestibular Stimulation (virtual balance)
-              li: a(href="https://youtu.be/-oOK6dDr74I?t=61") Live-programmable VR environment
-              li: a(href="http://www.highlandfrs.com") Highland Solutions: a consultancy for helping people wrangle their data
-              li: a(href="https://www.youtube.com/watch?v=5SXsu_MEzmU") Genetic algorithm visualizer
-              li: a(href="https://github.com/capnmidnight/SqlSiphon") SqlSiphon: a database management library for .NET
-              li: a(href="https://www.justwritedammit.com/") Just Write, Dammit! A book writing platform
-              li: a(href="https://www.youtube.com/watch?v=KcDqzLGkre4&feature=youtu.be&t=43") Rieker CARS: DOT-compliant road sign recommendations
-              li: a(href="https://github.com/capnmidnight/small-town") Small Town: interactive fiction + AI Shakespere
-              li: a(href="http://sean-mcbeth.tumblr.com/post/60153233552/a-thing-i-built-a-while-ago-you-can-see-it-in") Speaking Accent Recognition Testing Machine
-              li: a(href="https://www.youtube.com/watch?v=j4eOyNT6JsY") Laser Harp
-              li: a(href="pong/") Mobile-responsive Pong game
-              li: a(href="http://www.hive76.org/the-no-video-game") The No-Video Game
-              li: a(href="http://www.hive76.org/standing-workstations") Standing Workstation
-              li: a(href="synth/") Scratch Live! An HTML 5 synthesizer
-              li: a(href="https://www.youtube.com/watch?v=RPdBk-qXuzg") 2-Player, Competitive, Arm-Wrestling Tetris
-              li: a(href="http://wiki.hive76.org/Burning_Zombie_Dummy") Indie-movie pyrotechnic effects
-
-        h2: a(name="volunteer") Volunteer
+        h2: a(name="community") Community
         ul
-          li Present
-            ul
-              li Organizer for #[a(href="https://www.meetup.com/Alexandria-Code-Coffee/") Alexandria Code &amp; Coffee].
-              li Co-organizer for #[a(href="https://www.meetup.com/DCRealities/") DC Realities].
-              li Organizer for #[a(href="https://www.meetup.com/Alexandria-VR-Meetup/") Alexandria VR Meetup].
-              li Participant in the #[a(href="https://www.w3.org/community/webvr/participants") W3 WebVR Community Group].
-          li Past
-            ul
-              li #[a(href="https://dcacm.org/2016/07/04/announcing-the-2016-2017-dc-acm-executive-board/") VR Program Chair] for #[a(href="https://dcacm.org") the Washington DC chapter] of #[a(href="https://www.acm.org") ACM].
-              li Treasurer, events coordinator, and board member at #[a(href="http://wiki.hive76.org/Elections") Hive76].
-              li Charter President for Shippensburg University's chapter of #[a(href="http://upe.acm.org/") Upsilon Pi Epsilon], the Computer Science honor society.
-              li President for Shippensburg University's student ACM chapter.
-              li Vice-President for Shippensburg University's programming team.
-              li President for Penn State Mont Alto's engineering club.
+          li Organizer for #[a(href="https://www.meetup.com/Alexandria-Code-Coffee/") Alexandria Code &amp; Coffee].
+          li Co-organizer for #[a(href="https://www.meetup.com/DCRealities/") DC Realities].
+          li Organizer for #[a(href="https://www.meetup.com/Alexandria-VR-Meetup/") Alexandria VR Meetup].
+          li Participant in the #[a(href="https://www.w3.org/community/webvr/participants") W3 WebVR Community Group].
 
-        h2: a(name="talks") Talks
+        h2: a(name="talks") Talks &amp; Interviews
         ul
           li #[a(href="https://www.evensi.us/virtual-reality-seminar-hosted-by-sean-mcbeth-northern/208134705") NOVA National Society of Collegiate Scholars']: I was the keynote speaker for their annual event at Northern Virginia Community College's Loudoun campus.
+          li #[a(href="https://soundcloud.com/jon-wilkening/episode-16-sean-mcbeth") The Creative Bar: Episode 16].
+          li #[a(href="http://virtualrealityobserver.com/interview-sean-mcbeth-lead-vr-developer-of-notiontheory/") The Virtual Reality Observer].
           li #[a(href="http://arinaction.org/speakers/sean-mcbeth/") AR In Action 2016]: I spoke on two panels on haptics and content development.
           li #[a(href="https://leanagiledc.com/speaker/sean-mcbeth/") Lean+Agile DC]: I gave a talk on rapid application development for VR.
           li #[a(href="https://www.youtube.com/watch?v=TU1rG_tZp-I") NOVAVR]: I spoke on a panel about the current state and future of Virtual and Augmented Reality.
           li #[a(href="http://vrar.withthebest.com/#speakers") VR/AR With The Best]: I gave a webinar and ran personal Q&amp;A sessions on using Primrose to build VR applications.
           li #[a(href="https://storify.com/ShahnazKamberi/stratfordwbcsit") Stratford University]: I described the essentials of Virtual Reality for Stratford's CS/IT students.
           li #[a(href="https://nvite.com/CodePenDC/ec85") CodePen DC]: I spoke on the emerging WebVR API and how developers can get started.
-          li and #[a(href="https://www.facebook.com/dcvirtualreality/videos/1091494284227423/") several] #[a(href="https://www.facebook.com/dcvirtualreality/videos/1452036654839849/") events] for #[a(href="https://www.meetup.com/DCRealities/events/229971228/") DCVR], our local VR enthusiasts' meetup.
-
-        h2: a(name="art") Art
-        ul
-          li: a(href="https://www.linkedin.com/today/author/sean-mcbeth-3787276") My writings on LinkedIn
-          li: a(href="http://www.amazon.com/dp/B00J3XY6N2") Three Years: an ebook
-          li: a(href="http://sean-mcbeth.tumblr.com/tagged/Galapagos") Photography and writing on the Galapagos Islands
-          li: a(href="http://sean-mcbeth.tumblr.com/tagged/Ireland") Photography from Ireland
-          li: a(href="http://sean-mcbeth.tumblr.com/tagged/Germany") Photography from Germany
-          li: a(href="http://sean-mcbeth.tumblr.com/tagged/abstract") Abstract photography with prisms
-          li: a(href="http://makezine.com/projects/make-35/making-pigments/") MAKE Magazine, Issue 35: Making Pigments
-
-        h2: a(name="edu") Education
-        ul
-          li Bachelors of Science, Computer Science&mdash;#[a(href="http://www.ship.edu/CSE/") Shippensburg University], #[em cum laude] 2005.
-          li Bachelors of Science and Engineering, Computer Science&mdash;#[a(href="http://montalto.psu.edu/") Penn State Mont Alto] (transferred, 2002).
-
-        h2: a(name="interviews") Interviews
-        ul
-          li: a(href="https://soundcloud.com/jon-wilkening/episode-16-sean-mcbeth") The Creative Bar: Episode 16
-          li: a(href="http://virtualrealityobserver.com/interview-sean-mcbeth-lead-vr-developer-of-notiontheory/") The Virtual Reality Observer
-          li: a(href="https://devdiner.com/interviews/sean-mcbeth-on-primrose-webvr") Sean McBeth on Primrose and WebVR development (Dev Diner)
-          li: a(href="http://www.blogtalkradio.com/dc-entrepreneur/2015/11/05/interview-with-sean-mcbeth-future-of-vr") DC Entrepreneur: Episode 2
+          li #[a(href="https://devdiner.com/interviews/sean-mcbeth-on-primrose-webvr") Sean McBeth on Primrose and WebVR development (Dev Diner)].
+          li #[a(href="http://www.blogtalkradio.com/dc-entrepreneur/2015/11/05/interview-with-sean-mcbeth-future-of-vr") DC Entrepreneur: Episode 2].
+          li #[a(href="https://www.facebook.com/dcvirtualreality/videos/1091494284227423/") Several] #[a(href="https://www.facebook.com/dcvirtualreality/videos/1452036654839849/") events] for #[a(href="https://www.meetup.com/DCRealities/events/229971228/") DCVR], our local VR enthusiasts' meetup.
+          li #[a(href="http://makezine.com/projects/make-35/making-pigments/") MAKE Magazine, Issue 35: Making Pigments].
 
         h2: a(name="press") Press
         ul
@@ -149,8 +88,15 @@ html
           li: a(href="https://www.sitepoint.com/build-virtual-reality-with-primrose-and-webvr/") Build Virtual Reality in VR with Primrose and WebVR (SitePoint)
           li: a(href="http://dcinno.streetwise.co/2015/08/14/washington-dc-virtual-reality-vr-tech-startups-hub/") The State of DC Virtual Reality Innovation: Part 1 (DC Inno)
 
-
       h2 Thanks for reading
       img(src="sean.gif", alt="photograph", title="Sean T. McBeth")
 
-    script(src="seanmcbeth_com" + jsExt, async, defer)
+  section#menu
+    ul
+      li: a(href="#projects") .proj
+      li: a(href="#community") .org
+      li: a(href="#talks") .net
+      li: a(href="#press") .tv
+      li: a(href="other.html") etc/
+
+  script(src="seanmcbeth_com" + jsExt, async, defer)

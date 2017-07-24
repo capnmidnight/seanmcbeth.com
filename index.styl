@@ -13,43 +13,106 @@ body
   font-family -apple-system, '.SFNSText-Regular', 'San Francisco', 'Roboto', 'Segoe UI', 'Helvetica Neue', 'Lucida Grande', sans-serif
   font-size 12pt
   line-height 1.5
-  background-color #E9F7FF
-  color #625747
 
 main
   padding 3em
 
+  h1
+    font-size 22pt
+    text-align center
+
   img
-    width 80vw
+    width 100%
+
+.icon-github,
+.icon-twitter,
+.icon-linkedin,
+.icon-email,
+.icon-telephone
+  display inline-block
+  background-image url(img/icons.png)
+  background-repeat no-repeat
+  vertical-align middle
+  background-size 100%
+  width 25px
+  height 25px
+  margin-left 7px
+
+.icon-linkedin
+  background-position 0 -75px
+
+.icon-twitter
+  background-position 0 -100px
+
+.icon-github
+  background-position 0 -125px
+
+.icon-email
+  background-position 0 -150px
+
+.icon-telephone
+  background-position 0px -200px
+
+ul#contact
+  padding 0
+  margin 0
+  display inline-block
+
+  li
+    display inline-block
+    list-style-type none
+
+h2
+  font-family monospace
+
+  a[name]::before
+    content "["
+
+  a[name]::after
+    content "]"
 
 #menu
   text-align center
+  position fixed
+  display block
+  bottom 0
+  width 100%
+  font-family monospace
+  border-top solid 2px #000
+  background-color white
 
   ul
     padding 0
-    margin 0
+    margin auto 0
+    display inline-block
     list-style-type none
-    column-count 2
-    font-size 10pt
+    background-color white
 
-    li > a
+    li
       display inline-block
-      padding 1em
-      margin 2px
-      text-decoration none
-      width 100%
-      background-color white
-      border solid 1px #8DBAD3
 
+      a
+        display inline-block
+        text-decoration none
+        padding .75em .25em
 
 @media(min-width 640px)
-  #menu > ul
-    column-count 4
+
+  #menu
+    bottom initial
+    top 0
+    right 0
+    text-align right
+    border-top none
+    display block
+    background-color initial
+
+    ul
+      border-bottom solid 2px #000
+      display inline-block
+      padding 0 .5em .25em 5em
 
   #portrait
     max-width 50%
     float right
-    margin-left 5em
-
-a[href]
-  color black
+    margin-left 2.5em
