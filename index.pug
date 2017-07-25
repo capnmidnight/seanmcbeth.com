@@ -12,6 +12,7 @@ html(lang="en-us")
     meta(name="keywords", content="software development, software engineering, programming, freelancing, Sean T. McBeth, embedded programming, virtual reality, agumented reality, VR, AR, 3D, graphics programming, game development, simulation, abstract data visualization, audio synthesis, signals processing, computer vision, peer-to-peer, networking, desktop software, Web applications, mobile apps, WebRTC, hardware, embedded systems, reporting, GIS, databases")
     title Sean T. McBeth: engineer, photographer, mad scientist
     != liveReload
+    style(type="text/css")!= readFile("index" + cssExt)
   body
 
     section#menu
@@ -97,5 +98,3 @@ html(lang="en-us")
 
       h2 Thanks for reading
       img(src="sean" + gifExt, alt="animated portrait", title="Sean T. McBeth")
-
-    link(type="text/css", rel="stylesheet", href="index" + cssExt)
