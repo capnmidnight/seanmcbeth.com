@@ -2,7 +2,7 @@ mixin contactList(links)
   ul#contact: each link in links
     li: a(href=link.href, target="_blank")
       span(class="icon icon-" + link.type, title=link.desc)
-        span.accessibility-text= link.desc
+        span.accessibility-text(style="display:none")= link.desc
 
 doctype html
 html(lang="en-us")
@@ -23,7 +23,7 @@ html(lang="en-us")
         li: a(href="other.html") etc/
 
     main
-      img#portrait(src="img/2015-05" + jpgExt, alt="portrait", title="Sean T. McBeth")
+      img#portrait(src="2015-05" + jpgExt, alt="portrait", title="Sean T. McBeth")
 
       section#introduction
         h1
