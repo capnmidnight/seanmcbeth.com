@@ -1,11 +1,10 @@
 doctype html
-html
+html(lang="en-us")
   head
     meta(charset="utf-8")
     meta(name="viewport", content="width=device-width, shrink-to-fit=0, initial-scale=1.0")
-    meta(name="keywords", content="software development, software engineering, programming, freelancing, Sean T. McBeth, embedded programming, virtual reality, agumented reality, VR, AR, 3D, graphics programming, game development, simulation, abstract data visualization, audio synthesis, signals processing, computer vision, peer-to-peer, networking, desktop software, Web applications, mobile apps, WebRTC, hardware, embedded systems, reporting, GIS, databases")
     title Sean T. McBeth: other info
-    link(type="text/css", rel="stylesheet", href="index" + cssExt)
+    style(type="text/css")!= readFile("index" + cssExt)
     != liveReload
   body
 
