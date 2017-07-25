@@ -1,22 +1,29 @@
 mixin contactList(links)
   ul#contact: each link in links
     li: a(href=link.href, target="_blank")
-      span(class="icon-" + link.type, title=link.desc)
+      span(class="icon icon-" + link.type, title=link.desc)
+        span.accessibility-text= link.desc
 
 doctype html
-html
+html(lang="en-us")
   head
     meta(charset="utf-8")
     meta(name="viewport", content="width=device-width, shrink-to-fit=0, initial-scale=1.0")
     meta(name="keywords", content="software development, software engineering, programming, freelancing, Sean T. McBeth, embedded programming, virtual reality, agumented reality, VR, AR, 3D, graphics programming, game development, simulation, abstract data visualization, audio synthesis, signals processing, computer vision, peer-to-peer, networking, desktop software, Web applications, mobile apps, WebRTC, hardware, embedded systems, reporting, GIS, databases")
     title Sean T. McBeth: engineer, photographer, mad scientist
-    link(type="text/css", rel="stylesheet", href="index" + cssExt)
     != liveReload
   body
 
+    section#menu
+      ul
+        li: a(href="#projects") .com
+        li: a(href="#community") .org
+        li: a(href="#talks") .net
+        li: a(href="#press") .tv
+        li: a(href="other.html") etc/
+
     main
-      .filter
-        img#portrait(src="img/2015-05.jpg", alt="portrait")
+      img#portrait(src="img/2015-05" + jpgExt, alt="portrait", title="Sean T. McBeth")
 
       section#introduction
         h1
@@ -89,14 +96,6 @@ html
           li: a(href="http://dcinno.streetwise.co/2015/08/14/washington-dc-virtual-reality-vr-tech-startups-hub/") The State of DC Virtual Reality Innovation: Part 1 (DC Inno)
 
       h2 Thanks for reading
-      img(src="sean.gif", alt="photograph", title="Sean T. McBeth")
+      img(src="sean" + gifExt, alt="animated portrait", title="Sean T. McBeth")
 
-  section#menu
-    ul
-      li: a(href="#projects") .com
-      li: a(href="#community") .org
-      li: a(href="#talks") .net
-      li: a(href="#press") .tv
-      li: a(href="other.html") etc/
-
-  script(src="seanmcbeth_com" + jsExt, async, defer)
+    link(type="text/css", rel="stylesheet", href="index" + cssExt)

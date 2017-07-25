@@ -8,6 +8,15 @@ html
     link(type="text/css", rel="stylesheet", href="index" + cssExt)
     != liveReload
   body
+
+    section#menu
+      ul
+        li: a(href="#edu") .edu
+        li: a(href="#profiles") .net
+        li: a(href="#projects") .com
+        li: a(href="#volunteer") .org
+        li: a(href="index.html") home/
+
     main
 
       section#bonafides
@@ -73,11 +82,3 @@ html
           li President for Shippensburg University's student ACM chapter.
           li Vice-President for Shippensburg University's programming team.
           li President for Penn State Mont Alto's engineering club.
-
-  section#menu
-    ul
-      li: a(href="#edu") .edu
-      li: a(href="#profiles") .net
-      li: a(href="#projects") .com
-      li: a(href="#volunteer") .org
-      li: a(href="index.html") home/

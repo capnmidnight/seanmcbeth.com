@@ -14,6 +14,12 @@ body
   font-size 12pt
   line-height 1.5
 
+.accessibility-text
+  display none
+
+a:visited, a:focus
+  color: #5a5a33
+
 main
   padding 3em
 
@@ -21,22 +27,25 @@ main
     font-size 22pt
     text-align center
 
+  h2
+    margin 1.5em 0 0 0
+
   img
     width 100%
 
-.icon-github,
-.icon-twitter,
-.icon-linkedin,
-.icon-email,
-.icon-telephone
+.icon
   display inline-block
-  background-image url(img/icons.png)
+  background-image url(icons.min.png)
   background-repeat no-repeat
   vertical-align middle
   background-size 100%
   width 25px
   height 25px
   margin-left 7px
+
+.icon:hover
+  margin -1px 1px 1px 6px
+  box-shadow 1px 1px 7px #000
 
 .icon-linkedin
   background-position 0 -75px
@@ -86,7 +95,6 @@ h2
     margin auto 0
     display inline-block
     list-style-type none
-    background-color white
 
     li
       display inline-block
@@ -110,7 +118,8 @@ h2
     ul
       border-bottom solid 2px #000
       display inline-block
-      padding 0 .5em .25em 5em
+      padding 0 0.5em 0 5em
+      background-color white
 
   #portrait
     max-width 50%
