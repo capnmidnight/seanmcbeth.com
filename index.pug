@@ -1,11 +1,11 @@
 mixin contactList(links)
   ul#contact: each link in links
-    li: a(href=link.href, target="_blank")
+    li: a(href=link.href, target="_blank", rel="noopener")
       span(class="icon icon-" + link.type, title=link.desc)
         span.accessibility-text(style="display:none")= link.desc
 
 mixin entry(href, link, desc)
-  li #[a(href=href, target="_blank")= link]: #[= desc].
+  li #[a(href=href, target="_blank", rel="noopener")= link]: #[= desc].
 
 doctype html
 html(lang="en-us")
