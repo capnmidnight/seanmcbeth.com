@@ -2,14 +2,10 @@
   "name": "seanmcbeth_com",
   "version": "1.0.2",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "private": true,
   "engines": {
     "node": ">=8.0.0"
-  },
-  "scripts": {
-    "start": "node server.js",
-    "dev": "gulp"
   },
   "repository": {
     "type": "git",
