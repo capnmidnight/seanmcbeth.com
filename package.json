@@ -4,8 +4,12 @@
   "description": "",
   "main": "index.js",
   "private": true,
+  "engines": {
+    "node": ">=8.0.0"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js",
+    "dev": "gulp"
   },
   "repository": {
     "type": "git",
@@ -18,6 +22,6 @@
   },
   "homepage": "https://github.com/capnmidnight/seanmcbeth.com#readme",
   "dependencies": {
-    "marigold-build": "^1.11.1"
+    "marigold-build": "^1.18.4"
   }
 }
