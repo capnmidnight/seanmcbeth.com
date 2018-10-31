@@ -1,4 +1,7 @@
+obj/
+bin/
+.vs/
 commands.txt
 cur/
-/nbproject/private/
+nbproject/private/
 node_modules/

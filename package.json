@@ -21,9 +21,9 @@
   },
   "homepage": "https://github.com/capnmidnight/seanmcbeth.com#readme",
   "devDependencies": {
-    "marigold": "^1.0.0"
+    "marigold": "^1.0.2"
   },
   "dependencies": {
-    "marigold-server": "^1.0.0"
+    "marigold-server": "^1.0.1"
   }
 }
