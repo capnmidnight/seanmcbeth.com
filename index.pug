@@ -6,7 +6,7 @@ mixin contactList(links)
   ul#contact: each link in links
     li: +offsite(link.href)
       span(class="icon icon-" + link.type, title=link.desc)
-        span.accessibility-text(style="display:none")= link.desc
+        span.accessibility-text= link.desc
 
 mixin entry(href, link)
   li

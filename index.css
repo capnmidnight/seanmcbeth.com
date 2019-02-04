@@ -39,7 +39,6 @@ main img {
   display: inline-block;
   background-image: url("icons.min.png");
   background-repeat: no-repeat;
-  vertical-align: middle;
   background-size: 100%;
   width: 25px;
   height: 25px;
