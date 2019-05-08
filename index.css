@@ -66,6 +66,9 @@ main img {
 .icon-telephone {
   background-position: 0px -200px;
 }
+.icon-resume {
+  background-position: 0px -225px;
+}
 ul#contact {
   padding: 0;
   margin: 0;
