@@ -89,42 +89,33 @@ h2
   text-align center
   position fixed
   display block
-  bottom 0
   width 100%
   font-family monospace
-  border-top solid 2px #000
+  border-bottom solid 2px #000
   background-color white
 
   ul
+    list-style-type none
     padding 0
     margin auto 0
-    display inline-block
-    list-style-type none
+    display flex
+    flex-direction row
 
     li
       display inline-block
+      flex auto
 
       a
         display inline-block
         text-decoration none
-        padding .75em .25em
+        padding .75em .5em
 
 @media(min-width 640px)
 
   #menu
-    bottom initial
-    top 0
+    display inline-block
+    width initial
     right 0
-    text-align right
-    border-top none
-    display block
-    background-color initial
-
-    ul
-      border-bottom solid 2px #000
-      display inline-block
-      padding 0 0.5em 0 5em
-      background-color white
 
   #portrait
     max-width 50%

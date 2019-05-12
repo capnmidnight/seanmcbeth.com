@@ -91,41 +91,32 @@ h2 a[name]::after {
   text-align: center;
   position: fixed;
   display: block;
-  bottom: 0;
   width: 100%;
   font-family: monospace;
-  border-top: solid 2px #000;
+  border-bottom: solid 2px #000;
   background-color: #fff;
 }
 #menu ul {
+  list-style-type: none;
   padding: 0;
   margin: auto 0;
-  display: inline-block;
-  list-style-type: none;
+  display: flex;
+  flex-direction: row;
 }
 #menu ul li {
   display: inline-block;
+  flex: auto;
 }
 #menu ul li a {
   display: inline-block;
   text-decoration: none;
-  padding: 0.75em 0.25em;
+  padding: 0.75em 0.5em;
 }
 @media (min-width: 640px) {
   #menu {
-    bottom: initial;
-    top: 0;
-    right: 0;
-    text-align: right;
-    border-top: none;
-    display: block;
-    background-color: initial;
-  }
-  #menu ul {
-    border-bottom: solid 2px #000;
     display: inline-block;
-    padding: 0 0.5em 0 5em;
-    background-color: #fff;
+    width: initial;
+    right: 0;
   }
   #portrait {
     max-width: 50%;

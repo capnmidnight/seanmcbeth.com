@@ -68,50 +68,66 @@ html(lang="en-us")
 
       section#bonafides
 
-        h2: a(name="projects") Projects
-        ul
-          +entry("https://www.primrosevr.com/", "Primrose") build VR experiences in your browser
-          +entry("https://capnmidnight.github.io/marigold-build/", "Marigold") a development environment for JavaScript Single-Page Applications
-          +entry("https://github.com/capnmidnight/plume", "Plume") a VR teleconferencing system for the Web
+        section#projects
+          h2: a(name="projects") Projects
+          p These are some of my current side-projects.
+          ul
+            +entry("https://capnmidnight.github.io/Juniper/", "Juniper") a Unity3D framework for building cross-platform VR and AR applications.
+            +entry("https://www.primrosevr.com/", "Primrose") build VR experiences in your browser
+            +entry("https://capnmidnight.github.io/marigold-build/", "Marigold") a development environment for JavaScript Single-Page Applications
+            +entry("https://github.com/capnmidnight/plume", "Plume") a VR teleconferencing system for the Web
 
-        h2: a(name="community") Community
-        ul
-          +entry("https://www.meetup.com/Alexandria-Code-Coffee/", "Alexandria Code & Coffee") Organizer
-          +entry("https://www.meetup.com/DCRealities/", "DC Realities") Co-organizer
-          +entry("https://www.meetup.com/Alexandria-VR-Meetup/", "Alexandria VR Meetup") Organizer
-          +entry("http://washington-dc.siggraph.org/", "DC ACM SIGGRAPH") Member
-          +entry("https://www.w3.org/community/webvr/participants", "W3 WebVR Community Group") Participant
+        section#community
+          h2: a(name="community") Community
+          p These are my current volunteer activities.
+          ul
+            +entry("https://www.meetup.com/Alexandria-Code-Coffee/", "Alexandria Code & Coffee") Organizer
+            +entry("http://washington-dc.siggraph.org/", "DC ACM SIGGRAPH") Member
+            
+        section#talks
+          h2: a(name="talks") Talks &amp; Interviews
+          p These are talks and podcasts that I've done in the past.
+          
+          h3 2018
+          ul
+            +entry("https://mavric.umd.edu/Sean%20T.%20McBeth", "UMD MAVRIC Conference 2018") I spoke on my experience at the #[+offsite("https://www.fallingwater.org/education/fallingwater-institute/immersive-design-residency/") Fallingwater Immersive Design Residency]. (Presentation with annotations: #[a(href="presentations/immersive-design.pdf") PDF], #[a(href="presentations/immersive-design.pptx") PPTX])
+          
+          h3 2017
+          ul
+            +entry("http://washington-dc.siggraph.org/2017/11/05/exploring-webvrchapter-board-elections/", "DC ACM SIGGRAPH, November 2017") I spoke on the history and current state of VR on the Web
+            +entry("https://www.facebook.com/dcvirtualreality/videos/1452036654839849/", "DCVR, June 2017") I spoke on getting started with Augmented Reality programming
+            +entry("https://www.evensi.us/virtual-reality-seminar-hosted-by-sean-mcbeth-northern/208134705", "NOVA National Society of Collegiate Scholars'") I was the keynote speaker for their annual event at Northern Virginia Community College's Loudoun campus
+            +entry("https://soundcloud.com/jon-wilkening/episode-16-sean-mcbeth", "The Creative Bar: Episode 16") I was interviewed on a podcast about entrepreneurship
+            +entry("http://arinaction.org/speakers/sean-mcbeth/", "AR In Action 2017") I spoke on two panels on haptics and content development
+            +entry("http://virtualrealityobserver.com/interview-sean-mcbeth-lead-vr-developer-of-notiontheory/", "The Virtual Reality Observer") I was interviewed for a tech blog about the future of VR
+            +entry("https://leanagiledc.com/speaker/sean-mcbeth/", "Lean+Agile DC") I gave a talk on rapid application development for VR
+            +entry("https://www.youtube.com/watch?v=TU1rG_tZp-I", "NOVAVR") I spoke on a panel about the current state and future of Virtual and Augmented Reality
+            +entry("http://vrar.withthebest.com/#speakers", "VR/AR With The Best") I gave a webinar and ran personal Q&amp;A sessions on using Primrose to build VR applications
+            +entry("https://storify.com/ShahnazKamberi/stratfordwbcsit", "Stratford University") I described the essentials of Virtual Reality for Stratford's CS/IT students
+          
+          h3 2016
+          ul
+            +entry("https://www.facebook.com/dcvirtualreality/videos/1091494284227423/", "DCVR Breakout Session #5") I conducted a seminar on getting started with WebVR through Primrose
+            +entry("https://nvite.com/CodePenDC/ec85", "CodePen DC") I spoke on the emerging WebVR API and how developers can get started
+            +entry("https://devdiner.com/interviews/sean-mcbeth-on-primrose-webvr", "Sean McBeth on Primrose and WebVR development (Dev Diner)") I was interviewed for a blog about learning VR programming.
+            +entry("http://www.blogtalkradio.com/dc-entrepreneur/2015/11/05/interview-with-sean-mcbeth-future-of-vr", "DC Entrepreneur: Episode 2") I was interviewed on a podcast about entrepreneurship
+            +entry("https://www.meetup.com/DCRealities/events/229971228/", "2nd Annual DCVR Innovation Panel") I spoke on a panel about the current state and future of VR
+            +entry("http://makezine.com/projects/make-35/making-pigments/", "MAKE Magazine, Issue 35: Making Pigments") I wrote an article about making paint pigments from basic chemicals
 
-        h2: a(name="talks") Talks &amp; Interviews
-        ul
-          +entry("https://mavric.umd.edu/Sean%20T.%20McBeth", "UMD MAVRIC Conference 2018") I spoke on my experience at the #[+offsite("https://www.fallingwater.org/education/fallingwater-institute/immersive-design-residency/") Fallingwater Immersive Design Residency]. (Presentation with annotations: #[a(href="presentations/immersive-design.pdf") PDF], #[a(href="presentations/immersive-design.pptx") PPTX])
-          +entry("http://washington-dc.siggraph.org/2017/11/05/exploring-webvrchapter-board-elections/", "DC ACM SIGGRAPH, November 2017") I spoke on the history and current state of VR on the Web
-          +entry("https://www.facebook.com/dcvirtualreality/videos/1452036654839849/", "DCVR, June 2017") I spoke on getting started with Augmented Reality programming
-          +entry("https://www.evensi.us/virtual-reality-seminar-hosted-by-sean-mcbeth-northern/208134705", "NOVA National Society of Collegiate Scholars'") I was the keynote speaker for their annual event at Northern Virginia Community College's Loudoun campus
-          +entry("https://soundcloud.com/jon-wilkening/episode-16-sean-mcbeth", "The Creative Bar: Episode 16") I was interviewed on a podcast about entrepreneurship
-          +entry("http://arinaction.org/speakers/sean-mcbeth/", "AR In Action 2017") I spoke on two panels on haptics and content development
-          +entry("http://virtualrealityobserver.com/interview-sean-mcbeth-lead-vr-developer-of-notiontheory/", "The Virtual Reality Observer") I was interviewed for a tech blog about the future of VR
-          +entry("https://leanagiledc.com/speaker/sean-mcbeth/", "Lean+Agile DC") I gave a talk on rapid application development for VR
-          +entry("https://www.youtube.com/watch?v=TU1rG_tZp-I", "NOVAVR") I spoke on a panel about the current state and future of Virtual and Augmented Reality
-          +entry("http://vrar.withthebest.com/#speakers", "VR/AR With The Best") I gave a webinar and ran personal Q&amp;A sessions on using Primrose to build VR applications
-          +entry("https://storify.com/ShahnazKamberi/stratfordwbcsit", "Stratford University") I described the essentials of Virtual Reality for Stratford's CS/IT students
-          +entry("https://www.facebook.com/dcvirtualreality/videos/1091494284227423/", "DCVR Breakout Session #5") I conducted a seminar on getting started with WebVR through Primrose
-          +entry("https://nvite.com/CodePenDC/ec85", "CodePen DC") I spoke on the emerging WebVR API and how developers can get started
-          +entry("https://devdiner.com/interviews/sean-mcbeth-on-primrose-webvr", "Sean McBeth on Primrose and WebVR development (Dev Diner)") I was interviewed for a blog about learning VR programming.
-          +entry("http://www.blogtalkradio.com/dc-entrepreneur/2015/11/05/interview-with-sean-mcbeth-future-of-vr", "DC Entrepreneur: Episode 2") I was interviewed on a podcast about entrepreneurship
-          +entry("https://www.meetup.com/DCRealities/events/229971228/", "2nd Annual DCVR Innovation Panel") I spoke on a panel about the current state and future of VR
-          +entry("http://makezine.com/projects/make-35/making-pigments/", "MAKE Magazine, Issue 35: Making Pigments") I wrote an article about making paint pigments from basic chemicals
+        section#press
+          h2: a(name="press") Press
+          p These are articles online that have talked about my work.
+          ul
+            +entry("http://dcinno.streetwise.co/2017/03/06/a-dc-virtual-reality-startup-now-lets-you-feel-in-vr/", "DC Inno") A DC Virtual Reality Startup Now Lets You Feel in VR
+            +entry("http://dailyfreepress.com/2017/01/18/ar-in-action-features-current-and-future-developments-in-technological-field/", "Daily Free Press, Boston University") AR in Action features current and future developments in technological field
+            +entry("https://venturebeat.com/2016/09/17/how-webvr-will-make-virtual-reality-massively-available/", "VentureBeat") How WebVR will make virtual reality massively available
+            +entry("http://www.thehoya.com/first-east-coast-virtual-reality-arcade-opens-in-d-c/", "The Hoya, Georgetown University") First East Coast Virtual Reality Arcade Opens in D.C.
+            +entry("http://www.techradar.com/news/gaming/how-one-of-the-first-vr-arcades-will-bring-us-together-in-our-own-little-worlds-1327005", "TechRadar") How one of the first VR arcades will bring us together in our own little worlds
+            +entry("http://sensics.com/why-webvr/", "Sensics blog") Why WebVR
+            +entry("https://www.sitepoint.com/build-virtual-reality-with-primrose-and-webvr/", "SitePoint") Build Virtual Reality in VR with Primrose and WebVR
+            +entry("http://dcinno.streetwise.co/2015/08/14/washington-dc-virtual-reality-vr-tech-startups-hub/", "DC Inno") The State of DC Virtual Reality Innovation: Part 1
 
-        h2: a(name="press") Press
-        ul
-          +entry("http://dcinno.streetwise.co/2017/03/06/a-dc-virtual-reality-startup-now-lets-you-feel-in-vr/", "DC Inno") A DC Virtual Reality Startup Now Lets You Feel in VR
-          +entry("http://dailyfreepress.com/2017/01/18/ar-in-action-features-current-and-future-developments-in-technological-field/", "Daily Free Press, Boston University") AR in Action features current and future developments in technological field
-          +entry("https://venturebeat.com/2016/09/17/how-webvr-will-make-virtual-reality-massively-available/", "VentureBeat") How WebVR will make virtual reality massively available
-          +entry("http://www.thehoya.com/first-east-coast-virtual-reality-arcade-opens-in-d-c/", "The Hoya, Georgetown University") First East Coast Virtual Reality Arcade Opens in D.C.
-          +entry("http://www.techradar.com/news/gaming/how-one-of-the-first-vr-arcades-will-bring-us-together-in-our-own-little-worlds-1327005", "TechRadar") How one of the first VR arcades will bring us together in our own little worlds
-          +entry("http://sensics.com/why-webvr/", "Sensics blog") Why WebVR
-          +entry("https://www.sitepoint.com/build-virtual-reality-with-primrose-and-webvr/", "SitePoint") Build Virtual Reality in VR with Primrose and WebVR
-          +entry("http://dcinno.streetwise.co/2015/08/14/washington-dc-virtual-reality-vr-tech-startups-hub/", "DC Inno") The State of DC Virtual Reality Innovation: Part 1
-
-      h2 Thanks for reading
-      img(src="sean" + gifExt, alt="animated portrait", title="Sean T. McBeth")
+      section
+        h2 Thanks for reading
+        p Thank you for reading my website. If you have any questions, please feel free to reach out to me. All of my contact information is available at the top of the site.
+        img(src="sean" + gifExt, alt="animated portrait", title="Sean T. McBeth")
