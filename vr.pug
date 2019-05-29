@@ -1,0 +1,67 @@
+mixin offsite(href)
+  a(href=href, target="_blank", rel="noopener")
+    block
+
+mixin entry(href, link)
+  li
+    +offsite(href)= link
+    | #{": "}
+    block
+
+doctype html
+html(lang="en-us")
+  head
+    meta(charset="utf-8")
+    meta(name="viewport", content="width=device-width, shrink-to-fit=0, initial-scale=1.0")
+    title Sean T. McBeth: other info
+    style(type="text/css")!= readFile("index" + cssExt)
+  body
+
+    section#menu
+      ul
+        li: a(href="index.html") home/
+        li: a(href="other.html") etc/
+
+    main
+
+      section
+
+        h2 Virtual and Augmented Reality
+
+        p I am a freelance software consultant, specializing in Virtual and Augmented Reality. Here are a most of the devices I own.
+
+        h3 Available
+        ul
+          +entry("https://www.oculus.com/quest/", "Oculus Quest") Rapidly becoming my favorite headset. Untethered plus boundless tracking is min-spec, in my mind.
+          +entry("https://www.oculus.com/rift-s/", "Oculus Rift S") Just received, I haven't taken it out of the box yet.
+          +entry("https://www.oculus.com/go/", "Oculus Go") A fine 3DOF headset at an incredible price.
+          +entry("https://www.samsung.com/us/computing/hmd/windows-mixed-reality/hmd-odyssey-windows-mixed-reality-headset-xe800zba-hc1us/", "Samsung Odyssey+") Just received, I haven't taken it out of the box yet.
+          +entry("https://www8.hp.com/us/en/campaigns/mixedrealityheadset/overview.html", "HP Windows Mixed Reality Headset") Often my go-to headset, for ergonmics, ease of setup, and quality of visuals.
+          +entry("https://www.magicleap.com/magic-leap-one", "Magic Leap One: Creator Edition") I have my own Magic Leap One, which I consider to be the best AR headset that you can actually buy. Unfortunately, the Microsoft HoloLens devices have become incredibly impossible to acquire.
+          +entry("https://www.lenovo.com/us/en/virtual-reality-and-smart-devices/virtual-and-augmented-reality/lenovo-mirage-solo/Mirage-Solo/p/ZZIRZRHVR01", "Lenovo Mirage Solo") I wish this headset had delayed to include the 6DOF controllers. It's an excellent headset, and I enjoy working in the Daydream ecosystem.
+          +entry("https://en.wikipedia.org/wiki/Pixel_2", "Google Pixel 2") I have a Google Pixel 2 for ARCore projects. It is my daily-driver phone.
+          +entry("https://www.vive.com/us/product/vive-virtual-reality-system/", "HTC Vive") My standard Vive is equipped with the #[+offsite("https://www.vive.com/us/vive-deluxe-audio-strap/") Deluxe Audio Strap] and the #[+offsite("https://www.tpcastvr.com/store/TPCAST-Wireless-Adapter-for-VIVE-p93101456") TPCAST Wireless Adapater]. I also have two #[+offsite("https://www.vive.com/us/vive-tracker/") Vive Trackers] with hand straps.
+          +entry("https://vr.google.com/daydream/", "Daydream") I have a Daydream View 2 with a Google Pixel 2 smartphone. The smartphone is my daily-driver. I have two standard 3DOF controllers for it.
+          +entry("https://www.samsung.com/global/galaxy/gear-vr/", "Samsung Gear VR") I have a SM-R324 version, with the motion controller, of the Gear VR (the last white version they distrubeted) with a Samsung Galaxy S8 to run in it. This was the first mobile VR headset I used on a regular basis, and even bought my father one for his phone.
+          +entry("https://vr.google.com/cardboard/", "Google cardboard") I easily have a dozen different "dumb" slot-in-smartphone headsets, both purchased and of my own creation.
+          +entry("https://developer.oculus.com/blog/open-source-release-of-rift-dk2/", "Oculus Rift DK2") I still have my first "real" VR headset.
+          li #[em Pico Neo DK] I have a Pico Neo dev-kit, which is a 3DOF headset with a gamepad controlller. It's interesting from a historical perspective.
+
+        h3 In process
+        ul
+          +entry("https://store.steampowered.com/valveindex", "Valve Index") Just waiting on my per-order to fulfill.
+          +entry("https://www.microsoft.com/en-us/hololens/", "Microsoft HoloLens 2") Just wating for Microsoft to deem I'm worthy of a pre-order.
+          +entry("https://enterprise.vive.com/us/vivefocus/", "Vive Focus") It's not my favorite headset, but there are some interesting enterprise capabilities around device management that could make it a decent consideration. Just waiting on my order to fulfill.
+          +entry("https://pimaxvr.com/products/5kplus", "Pimax 5K Plus") Just wating on my order to fulfill.
+
+        h3 Wish-list
+        p By order of interest:
+        ul
+          +entry("https://www.microsoft.com/en-us/p/microsoft-hololens-development-edition", "Microsoft HoloLens 1") I'm waiting on an eBay auction for one, as they are currently listed as "out of stock". Again, if you're looking to offload one, please #[a(href="mailto:sean@seanmcbeth.com?Subject=Microsoft\ HoloLens\ 1") email me].
+          +entry("https://www.cnet.com/how-to/these-iphones-and-ipads-work-with-arkit/", "ARKit-capable iOS device") I'm in the market for a cheap, ARKit-capable iOS device. If you have one, please #[a(href="mailto:sean@seanmcbeth.com?Subject=ARKit") email me].
+          +entry("https://www.playstation.com/en-us/explore/playstation-vr/", "PlayStation VR") I don't have a PlayStation 4, but if I had a PSVR, I would buy one. Please #[a(href="mailto:sean@seanmcbeth.com?Subject=Pico\ Neo") email me] if you're looking to sell one.
+          +entry("https://www.oculus.com/rift", "Oculus Rift CV1") I never bought one when it came out because I liked the Vive so much more. But to fill out my VR library, I'd like to have one. Please #[a(href="mailto:sean@seanmcbeth.com?Subject=Oculus\ Rift\ CV1") email me] if you're interested in offloading one.
+          +entry("https://www.vive.com/us/product/vive-pro/", "HTC Vive Pro") Once I get my Valve Index, and given the other headsets I have, I'm not too interested in buying one at full-freight. But if you have one--especially with the #[+offsite("https://enterprise.vive.com/us/product/vive-pro-eye/") Vive Pro Eye upgrade], I'd #[a(href="mailto:sean@seanmcbeth.com?Subject=HTC\ Vive\ Pro") consider buying it] for the right price.
+          +entry("https://www.pico-interactive.com/neo", "Pico Neo") With the Oculus Quest release, these look a tad expensive now. I might pick one up in the near future, but if you have one you're looking to offload, please #[a(href="mailto:sean@seanmcbeth.com?Subject=Pico\ Neo") email me].
+          +entry("https://www.pico-interactive.com/g2-4k", "Pico Goblin 2") Again, these aren't so desirable from a technology standpoint given the other headsets available in the market, but having one would be a good addition to my library. If you have a standard Pico G2 or a Pico G2 4K that you're looking to offload, please #[a(href="mailto:sean@seanmcbeth.com?Subject=Pico\ G2") email me].
+        

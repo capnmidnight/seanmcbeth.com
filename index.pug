@@ -22,7 +22,6 @@ html(lang="en-us")
     meta(name="keywords", content="software development, software engineering, programming, freelancing, Sean T. McBeth, embedded programming, virtual reality, agumented reality, VR, AR, 3D, graphics programming, game development, simulation, abstract data visualization, audio synthesis, signals processing, computer vision, peer-to-peer, networking, desktop software, Web applications, mobile apps, WebRTC, hardware, embedded systems, reporting, GIS, databases")
     title Sean T. McBeth: engineer, photographer, mad scientist
     style(type="text/css")!= readFile("index" + cssExt)
-    != liveReload
   body
 
     section#menu
@@ -31,6 +30,7 @@ html(lang="en-us")
         li: a(href="#community") .org
         li: a(href="#talks") .net
         li: a(href="#press") .tv
+        li: a(href="vr.html") vr/
         li: a(href="other.html") etc/
 
     main
@@ -70,7 +70,7 @@ html(lang="en-us")
 
         section#projects
           h2: a(name="projects") Projects
-          p These are some of my current side-projects.
+          p These are some of my current side-projects. For more information on my VR and AR capabilities, please see #[a(href="vr.html") my XR devices page].
           ul
             +entry("https://capnmidnight.github.io/Juniper/", "Juniper") a Unity3D framework for building cross-platform VR and AR applications.
             +entry("https://www.primrosevr.com/", "Primrose") build VR experiences in your browser
@@ -87,6 +87,11 @@ html(lang="en-us")
         section#talks
           h2: a(name="talks") Talks &amp; Interviews
           p These are talks and podcasts that I've done in the past.
+
+          h3 2019
+          ul
+            +entry("https://www.meetup.com/CDK-Coder-Designer-Keggers/events/261603470/", "CDK: Virtual Reality (VR) vs Augmented Reality (AR) Which Tech Will Win the Battle?") I spoke on the current state of the Augmented Reality market, both of the progress of hardware and on design best-practices, with recommendations on how to get started in AR software development, primarily in the context Enterprise-level software consulting. (Presentation with annotations: #[a(href="presentations/ar-for-fun-and-profit.pdf") PDF], #[a(href="presentations/ar-for-fun-and-profit.pptx") PPTX])
+          
           
           h3 2018
           ul
