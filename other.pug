@@ -1,3 +1,13 @@
+mixin offsite(href)
+  a(href=href, target="_blank", rel="noopener")
+    block
+
+mixin entry(href, link)
+  li
+    +offsite(href)= link
+    | #{": "}
+    block
+
 doctype html
 html(lang="en-us")
   head
@@ -26,60 +36,74 @@ html(lang="en-us")
 
         h2: a(name="profiles") Online Profiles
         ul
-          li: a(href="https://github.com/capnmidnight") Github
-          li: a(href="https://www.npmjs.com/~seanmcbeth") NPM
-          li: a(href="https://www.youtube.com/user/moron4hire") YouTube
-          li: a(href="https://codepen.io/SeanMcBeth/") CodePen
-          li: a(href="https://mastodon.cloud/@SeanMcBeth") Mastodon
-          li: a(href="http://sean-mcbeth.tumblr.com") Tumblr blog
-          li: a(href="https://news.ycombinator.com/user?id=moron4hire") Hacker News
-          li: a(href="https://www.crunchbase.com/person/sean-mcbeth#/entity") CrunchBase
-          li: a(href="http://www.imdb.com/name/nm5111059/") IMDB (yup)
+          +entry("https://github.com/capnmidnight", "Github")
+          +entry("https://www.npmjs.com/~seanmcbeth", "NPM")
+          +entry("https://www.youtube.com/user/moron4hire", "YouTube")
+          +entry("https://codepen.io/SeanMcBeth/", "CodePen")
+          +entry("https://mastodon.cloud/@SeanMcBeth", "Mastodon")
+          +entry("http://sean-mcbeth.tumblr.com", "Tumblr blog")
+          +entry("https://news.ycombinator.com/user?id=moron4hire", "Hacker News")
+          +entry("https://www.crunchbase.com/person/sean-mcbeth#/entity", "CrunchBase")
+          +entry("http://www.imdb.com/name/nm5111059/", "IMDB (yup)")
 
         h2: a(name="projects") Past Projects
+        p Here are some of the projects I had worked on in the past, that are either now finished or defunct.
+        
+        h3 Virtual and Augmented Reality Projects
         ul
-          li: a(href="https://github.com/capnmidnight/pliny") Pliny: a live-documentation system for JavaScript projects
-          li #[a(href="https://www.youtube.com/watch?v=PWvPEEpLCT0&feature=youtu.be&t=55") Smart-city VR diorama], with:
+          +entry("https://www.youtube.com/watch?v=PWvPEEpLCT0&feature=youtu.be&t=55", "Smart-city VR diorama") with:
             ul
-              li #[a(href="https://www.youtube.com/watch?v=gdiIqyTl_Kk") Traffic simulation] with #[a(href="https://www.youtube.com/watch?v=awmEM5jbZAk") night-time dependent effects]
-              li: a(href="https://www.youtube.com/watch?v=XL__CsW_L7A") Power grid simulation
-              li: a(href="https://www.youtube.com/watch?v=90hJ4h-rwk0") Day/night cycle for time-series simulation in games
-          li #[a(href="https://www.youtube.com/watch?v=xSSL8WqZT6o") Music beat detection] for #[a(href="https://www.youtube.com/watch?v=K_HJtNlNsmg&feature=youtu.be&t=20") game-play synchronization]
-          li: a(href="https://www.youtube.com/watch?v=9_6_w-dXVw0") Electron/WebRTC app for screen sharing and web app collaboration
-          li: a(href="https://www.youtube.com/watch?v=CEYDYRBhC2E") AR for business cards
-          li: a(href="https://www.facebook.com/adamzuckerman/posts/10101366098933612") Haptic Glove, v3
-          li: a(href="https://medium.com/@notiontheory/building-a-haptic-feedback-glove-for-virtual-reality-77232999a2d7") Haptic Glove, v2
-          li: a(href="https://plus.google.com/+SeanMcBeth/posts/gKF7sQ2FAhh") Haptic Glove, v1
-          li: a(href="https://www.bloomberg.com/news/articles/2016-12-06/goldman-sachs-alum-turns-to-virtual-reality-to-sell-57-million-mansion") REX: 360° Real Estate Tours
-          li: a(href="https://www.youtube.com/watch?v=fhvDLiuSYis") AR for Religious Preference
-          li: a(href="https://makeoffices.com/blog/the-east-coasts-first-virtual-reality-arcade-launches-at-makeoffices-dc/") The East Coast's first Virtual Reality Arcade
-          li: a(href="https://www.linkedin.com/pulse/i-just-hacked-my-brain-sean-mcbeth") DIY Galvanic Vestibular Stimulation (virtual balance)
-          li: a(href="https://youtu.be/-oOK6dDr74I?t=61") Live-programmable VR environment
-          li: a(href="http://www.highlandfrs.com") Highland Solutions: a consultancy for helping people wrangle their data
-          li: a(href="https://www.youtube.com/watch?v=5SXsu_MEzmU") Genetic algorithm visualizer
-          li: a(href="https://github.com/capnmidnight/SqlSiphon") SqlSiphon: a database management library for .NET
-          li: a(href="https://www.justwritedammit.com/") Just Write, Dammit! A book writing platform
-          li: a(href="https://www.youtube.com/watch?v=KcDqzLGkre4&feature=youtu.be&t=43") Rieker CARS: DOT-compliant road sign recommendations
-          li: a(href="https://github.com/capnmidnight/small-town") Small Town: interactive fiction + AI Shakespere
-          li: a(href="http://sean-mcbeth.tumblr.com/tagged/Germany") Photography from Germany
-          li: a(href="http://sean-mcbeth.tumblr.com/tagged/Ireland") Photography from Ireland
-          li: a(href="http://sean-mcbeth.tumblr.com/tagged/Galapagos") Photography and writing on the Galapagos Islands
-          li: a(href="http://sean-mcbeth.tumblr.com/tagged/abstract") Abstract photography with prisms
-          li: a(href="http://www.amazon.com/dp/B00J3XY6N2") Three Years: an ebook
-          li: a(href="http://sean-mcbeth.tumblr.com/post/60153233552/a-thing-i-built-a-while-ago-you-can-see-it-in") Speaking Accent Recognition Testing Machine
-          li: a(href="https://www.youtube.com/watch?v=j4eOyNT6JsY") Laser Harp
-          li: a(href="pong/") Mobile-responsive Pong game
-          li: a(href="http://www.hive76.org/the-no-video-game") The No-Video Game
-          li: a(href="http://www.hive76.org/standing-workstations") Standing Workstation
-          li: a(href="synth/") Scratch Live! An HTML 5 synthesizer
-          li: a(href="https://www.youtube.com/watch?v=RPdBk-qXuzg") 2-Player, Competitive, Arm-Wrestling Tetris
-          li: a(href="http://wiki.hive76.org/Burning_Zombie_Dummy") Indie-movie pyrotechnic effects
+              +entry("https://www.youtube.com/watch?v=gdiIqyTl_Kk", "Traffic simulation") with #[+offsite("https://www.youtube.com/watch?v=awmEM5jbZAk") night-time dependent effects]
+              +entry("https://www.youtube.com/watch?v=XL__CsW_L7A", "Power grid simulation")
+              +entry("https://www.youtube.com/watch?v=90hJ4h-rwk0", "Day/night cycle for time-series simulation in games")
+          +entry("https://www.youtube.com/watch?v=xSSL8WqZT6o", "Music beat detection") for #[+offsite("https://www.youtube.com/watch?v=K_HJtNlNsmg&feature=youtu.be&t=20") game-play synchronization]
+          +entry("https://www.youtube.com/watch?v=CEYDYRBhC2E", "AR for business cards")
+          +entry("https://www.youtube.com/watch?v=fhvDLiuSYis", "AR for Religious Preference")
+          +entry("https://makeoffices.com/blog/the-east-coasts-first-virtual-reality-arcade-launches-at-makeoffices-dc/", "The East Coast's first Virtual Reality Arcade")
+          +entry("https://www.linkedin.com/pulse/i-just-hacked-my-brain-sean-mcbeth", "DIY Galvanic Vestibular Stimulation (virtual balance)")
+          +entry("https://youtu.be/-oOK6dDr74I?t=61", "Live-programmable VR environment")
+          
+        h3 Hardware Projects
+        ul
+          +entry("https://www.facebook.com/adamzuckerman/posts/10101366098933612", "Haptic Glove, v3")
+          +entry("https://medium.com/@notiontheory/building-a-haptic-feedback-glove-for-virtual-reality-77232999a2d7", "Haptic Glove, v2")
+          +entry("https://plus.google.com/+SeanMcBeth/posts/gKF7sQ2FAhh", "Haptic Glove, v1")
+          +entry("http://sean-mcbeth.tumblr.com/post/60153233552/a-thing-i-built-a-while-ago-you-can-see-it-in", "Speaking Accent Recognition Testing Machine")
+          +entry("https://www.youtube.com/watch?v=j4eOyNT6JsY", "Laser Harp")
+          +entry("http://www.hive76.org/the-no-video-game", "The No-Video Game")
+          +entry("http://www.hive76.org/standing-workstations", "Standing Workstation")
+          +entry("https://www.youtube.com/watch?v=RPdBk-qXuzg", "2-Player, Competitive, Arm-Wrestling Tetris")
+          +entry("http://wiki.hive76.org/Burning_Zombie_Dummy", "Indie-movie pyrotechnic effects")
+
+        h3 Web and Database Projects
+        ul
+          +entry("https://github.com/capnmidnight/pliny", "Pliny: a live-documentation system for JavaScript projects")
+          +entry("https://www.youtube.com/watch?v=9_6_w-dXVw0", "Electron/WebRTC app for screen sharing and web app collaboration")
+          +entry("https://www.bloomberg.com/news/articles/2016-12-06/goldman-sachs-alum-turns-to-virtual-reality-to-sell-57-million-mansion", "REX") : 360° Real Estate Tours
+          +entry("yabs.html", "No More Jabber Yabs") : A game about the consequences of following orders.
+          +entry("http://www.highlandfrs.com", "Highland Solutions") : a consultancy for helping people wrangle their data
+          +entry("https://www.youtube.com/watch?v=5SXsu_MEzmU", "Genetic algorithm visualizer")
+          +entry("https://www.justwritedammit.com/", "Just Write, Dammit!") :  A book writing platform
+          +entry("https://www.youtube.com/watch?v=KcDqzLGkre4&feature=youtu.be&t=43", "Rieker CARS") : DOT-compliant road sign recommendations
+          +entry("https://github.com/capnmidnight/small-town", "Small Town") : interactive fiction + AI Shakespere
+          +entry("https://github.com/capnmidnight/SqlSiphon", "SqlSiphon") : a database management library for .NET
+          +entry("pong/", "Mobile-responsive Pong game")
+          +entry("synth/", "Scratch Live!") : An HTML 5 synthesizer
+
+        h3 Photography and Writing
+        ul
+          +entry("http://sean-mcbeth.tumblr.com/tagged/Germany", "Photography from Germany")
+          +entry("http://sean-mcbeth.tumblr.com/tagged/Ireland", "Photography from Ireland")
+          +entry("http://sean-mcbeth.tumblr.com/tagged/Galapagos", "Photography and writing on the Galapagos Islands")
+          +entry("http://sean-mcbeth.tumblr.com/tagged/abstract", "Abstract photography with prisms")
+          +entry("http://www.amazon.com/dp/B00J3XY6N2", "Three Years: an ebook")
 
         h2: a(name="volunteer") Past Community Work
+        p These are some of the volunteer positions I've held in the past.
         ul
-          li #[a(href="https://dcacm.org/2016/07/04/announcing-the-2016-2017-dc-acm-executive-board/") VR Program Chair] for #[a(href="https://dcacm.org") the Washington DC chapter] of #[a(href="https://www.acm.org") ACM].
-          li Treasurer, events coordinator, and board member at #[a(href="http://wiki.hive76.org/Elections") Hive76].
-          li Charter President for Shippensburg University's chapter of #[a(href="http://upe.acm.org/") Upsilon Pi Epsilon], the Computer Science honor society.
+          +entry("https://dcacm.org/2016/07/04/announcing-the-2016-2017-dc-acm-executive-board/", "VR Program Chair") for #[+offsite("https://dcacm.org") the Washington DC chapter] of #[+offsite("https://www.acm.org") ACM].
+          +entry("http://wiki.hive76.org/Elections", "Treasurer, events coordinator, and board member") at #[+offsite("https://www.hive76.org") Hive76].
+          li Charter President for Shippensburg University's chapter of #[+offsite("http://upe.acm.org/") Upsilon Pi Epsilon], the Computer Science honor society.
           li President for Shippensburg University's student ACM chapter.
           li Vice-President for Shippensburg University's programming team.
           li President for Penn State Mont Alto's engineering club.
