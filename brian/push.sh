@@ -1,1 +1,0 @@
-ftp -in seanmcbeth.com < commands.txt
