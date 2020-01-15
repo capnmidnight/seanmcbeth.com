@@ -28,6 +28,6 @@
   "dependencies": {
     "readline": "0.0.3",
     "socket.io": "~0.9.16",
-    "mime": "~1.2.11"
+    "mime": "~2.4.4"
   }
 }
