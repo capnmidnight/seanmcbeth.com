@@ -22,14 +22,14 @@ a:visited,
 a:focus {
   color: #5a5a33;
 }
-main {
+main, footer {
   padding: 3em;
 }
-main h1 {
+h1 {
   font-size: 22pt;
   text-align: center;
 }
-main h2 {
+h2 {
   margin: 1.5em 0 0 0;
 }
 main img {
