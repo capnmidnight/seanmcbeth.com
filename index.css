@@ -15,9 +15,6 @@ body {
   font-size: 12pt;
   line-height: 1.5;
 }
-.accessibility-text {
-  display: none;
-}
 a:visited,
 a:focus {
   color: #5a5a33;
@@ -32,8 +29,14 @@ h1 {
 h2 {
   margin: 1.5em 0 0 0;
 }
-main img {
-  width: 100%;
+h2 {
+  font-family: monospace;
+}
+h2::before {
+  content: "[";
+}
+h2::after {
+  content: "]";
 }
 .icon {
   display: inline-block;
@@ -69,24 +72,7 @@ main img {
 .icon-resume {
   background-position: 0px -225px;
 }
-ul#contact {
-  padding: 0;
-  margin: 0;
-  display: inline-block;
-}
-ul#contact li {
-  display: inline-block;
-  list-style-type: none;
-}
-h2 {
-  font-family: monospace;
-}
-h2 a[name]::before {
-  content: "[";
-}
-h2 a[name]::after {
-  content: "]";
-}
+
 #menu {
   text-align: center;
   position: fixed;
@@ -112,14 +98,58 @@ h2 a[name]::after {
   text-decoration: none;
   padding: 0.75em 0.5em;
 }
-@media (min-width: 640px) {
-  #menu {
+
+#portrait {
+  width: 100%;
+}
+
+@media screen{
+  .print-only {
+    display: none;
+  }
+
+  #contact, #contact ul {
+    padding: 0;
+    margin: 0;
+    display: block;
+    text-align: center;
+  }
+  #contact ul li {
     display: inline-block;
-    width: initial;
+    list-style-type: none;
+  }
+
+  @media (min-width: 640px) {
+    #menu {
+      display: inline-block;
+      width: initial;
+    }
+    #portrait {
+      max-width: 50%;
+      float: right;
+      margin-left: 2.5em;
+    }    
+    #menu ul li a {
+      display: inline-block;
+      text-decoration: none;
+    }
+  }
+}
+
+@media print{
+  a[href]:after{
+    content:" (" attr(href) ") ";
+    font-size:0.8em;
+    font-weight:normal;
+  }
+  .print-only {
+    display: initial;
+  }
+  #menu{
+    display: none;
   }
   #portrait {
-    max-width: 50%;
-    float: right;
-    margin-left: 2.5em;
+    width: 80%;
+    margin-left:10%;
   }
 }
