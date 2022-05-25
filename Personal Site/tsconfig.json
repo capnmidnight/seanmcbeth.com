@@ -54,6 +54,11 @@
     "strictBindCallApply": true,
     "strictFunctionTypes": true,
     "strictNullChecks": false,
-    "strictPropertyInitialization": false
+    "strictPropertyInitialization": false,
+
+    "typeRoots": [
+      "./node_modules/@types",
+      "./node_modules/@juniper-types"
+    ]
   }
 }
