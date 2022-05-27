@@ -4976,7 +4976,6 @@ var Attr = class {
     this.key = key;
     this.value = value2;
     this.bySetAttribute = bySetAttribute;
-    __publicField(this, "tags");
     this.tags = tags.map((t2) => t2.toLocaleUpperCase());
     Object.freeze(this);
   }

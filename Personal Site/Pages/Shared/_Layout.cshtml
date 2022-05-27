@@ -1,51 +1,55 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="en-us">
+
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Personal_Site</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/Personal_Site.styles.css" asp-append-version="true" />
+    <title>@ViewData["Title"]</title>
+    <meta name="viewport" content="width=device-width, shrink-to-fit=0, initial-scale=1.0" />
+    @if (ViewData["Keywords"] is not null)
+    {
+        <meta name="keywords" content="@ViewData["Keywords"]" />
+    }
+    <link rel="stylesheet" type="text/css" href="~/css/index.css">
+    @RenderSection("Head", required: false);
 </head>
+
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container">
-                <a class="navbar-brand" asp-area="" asp-page="/Index">Personal_Site</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
+        <nav id="menu">
+            <ul>
+                @RenderSection("Menu", required: false)
+                <li>
+                    <a href="~/"
+                       role="menuitem"
+                       aria-label="Home"
+                       title="Home">home/</a>
+                </li>
+                <li>
+                    <a href="~/vr"
+                       role="menuitem"
+                       aria-label="Virtual Reality"
+                       title="VR"><abbr>vr</abbr>/</a>
+                </li>
+                <li>
+                    <a href="~/other"
+                       role="menuitem"
+                       aria-label="Other info"
+                       title="Other">etc/</a>
+                </li>
+            </ul>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2022 - Personal_Site - <a asp-area="" asp-page="/Privacy">Privacy</a>
-        </div>
-    </footer>
+    <main>
+        @RenderBody()
+    </main>
 
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-
-    @await RenderSectionAsync("Scripts", required: false)
+    @if (IsSectionDefined("Footer"))
+    {
+        <footer>
+            @RenderSection("Footer")
+        </footer>
+    }
 </body>
+
 </html>

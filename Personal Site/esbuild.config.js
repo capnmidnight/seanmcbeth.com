@@ -1,20 +1,7 @@
 import { Build } from "@juniper-lib/esbuild";
 import { glsl } from "esbuild-plugin-glsl";
 
-const args = process.argv.slice(2);
-
-const juniper = new Build(args)
-    .plugin((minify) => glsl({ minify }))
-    .external("three")
-    .rootDir("../Juniper/src/Juniper.TypeScript")
-    .outBase("../Juniper/src/Juniper.TypeScript")
-    .entryName("[name]")
-    .outDir("wwwroot/js")
-
-    .bundle("environment/src")
-    .run();
-
-const site = new Build(args)
+await new Build(process.argv.slice(2))
     .plugin((minify) => glsl({ minify }))
     .external("three")
     .rootDir("src")
@@ -24,8 +11,3 @@ const site = new Build(args)
 
     .bundle("junk")
     .run();
-
-await Promise.all([
-    juniper,
-    site
-]);

@@ -816,6 +816,9 @@ function isBoolean(obj) {
 function isNumber(obj) {
   return t(obj, "number", Number);
 }
+function isObject(obj) {
+  return isDefined(obj) && t(obj, "object", Object);
+}
 function isArray(obj) {
   return obj instanceof Array;
 }
@@ -1308,6 +1311,51 @@ var RODS_PER_MILE = RODS_PER_FURLONG * FURLONGS_PER_MILE;
 var FURLONGS_PER_KILOMETER = METERS_PER_KILOMETER / METERS_PER_FURLONG;
 var KILOMETERS_PER_MILE = FURLONGS_PER_MILE / FURLONGS_PER_KILOMETER;
 
+// ../tslib/using.ts
+function interfaceSigCheck(obj, ...funcNames) {
+  if (!isObject(obj)) {
+    return false;
+  }
+  obj = obj;
+  for (const funcName of funcNames) {
+    if (!(funcName in obj)) {
+      return false;
+    }
+    const func = obj[funcName];
+    if (!isFunction(func)) {
+      return false;
+    }
+  }
+  return true;
+}
+function isDisposable(obj) {
+  return interfaceSigCheck(obj, "dispose");
+}
+function isDestroyable(obj) {
+  return interfaceSigCheck(obj, "destroy");
+}
+function isClosable(obj) {
+  return interfaceSigCheck(obj, "close");
+}
+function dispose(val) {
+  if (isDisposable(val)) {
+    val.dispose();
+  }
+  if (isClosable(val)) {
+    val.close();
+  }
+  if (isDestroyable(val)) {
+    val.destroy();
+  }
+}
+function using(val, thunk) {
+  try {
+    return thunk(val);
+  } finally {
+    dispose(val);
+  }
+}
+
 // ../fetcher-base/ResponseTranslator.ts
 async function translateResponse(response, translate) {
   const {
@@ -1413,6 +1461,19 @@ var FetchingServiceImplXHR = class {
     this.store = null;
     this.tasks = new PriorityMap();
     this.cacheReady = this.openCache();
+  }
+  async drawImageToCanvas(request, canvas, progress) {
+    const response = await this.sendNothingGetSomething("blob", request, progress);
+    const blob = response.content;
+    return using(await createImageBitmap(blob, {
+      imageOrientation: "none"
+    }), (img) => {
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const g = canvas.getContext("2d");
+      g.drawImage(img, 0, 0);
+      return translateResponse(response, () => null);
+    });
   }
   async openCache() {
     this.cache = await IDexDB.open(DB_NAME, {
@@ -1643,6 +1704,9 @@ var FetchingService = class {
   sendObjectGetNothing(request, progress) {
     return this.impl.sendSomethingGetSomething("", request, this.defaultPostHeaders, progress);
   }
+  drawImageToCanvas(request, canvas, progress) {
+    return this.impl.drawImageToCanvas(request, canvas, progress);
+  }
   async sendNothingGetFile(request, progress) {
     return translateResponse(await this.sendNothingGetBlob(request, progress), URL.createObjectURL);
   }
@@ -1823,6 +1887,7 @@ function addFetcherMethods(server, fetcher) {
   server.addMethod(fetcher, "sendObjectGetObject", fetcher.sendObjectGetObject);
   server.addMethod(fetcher, "sendObjectGetFile", fetcher.sendObjectGetFile);
   server.addMethod(fetcher, "sendObjectGetText", fetcher.sendObjectGetText);
+  server.addMethod(fetcher, "drawImageToCanvas", fetcher.drawImageToCanvas);
 }
 
 // src/index.ts

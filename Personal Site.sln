@@ -21,7 +21,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Build", "Build\Build.csproj
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Juniper", "Juniper", "{1A1CC9DD-8A9A-4C5A-A3ED-E338AFD42D44}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuildConfig", "BuildConfig\BuildConfig.csproj", "{6327495C-06AA-46B1-A91B-F5065D96E391}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BuildConfig", "BuildConfig\BuildConfig.csproj", "{6327495C-06AA-46B1-A91B-F5065D96E391}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
