@@ -1,0 +1,12 @@
+@page "{name}"
+@model AppModel
+@{
+    ViewData["Title"] = Model.Name;
+}
+
+@section Head {
+<bundle-js name="three" versioned />
+<bundle-js name="@(Model.Name + "-app")" versioned />
+}
+
+@Html.AntiForgeryToken()

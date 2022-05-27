@@ -7159,9 +7159,10 @@ var DeviceManager = class extends TypedEventBase {
     super();
     this.element = element;
     this.needsVideoDevice = needsVideoDevice;
-    this._hasAudioPermission = false;
-    this._hasVideoPermission = false;
-    this._currentStream = null;
+    __publicField(this, "_hasAudioPermission", false);
+    __publicField(this, "_hasVideoPermission", false);
+    __publicField(this, "_currentStream", null);
+    __publicField(this, "ready");
     this.ready = this.start();
     Object.seal(this);
   }
