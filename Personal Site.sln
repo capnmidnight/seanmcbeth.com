@@ -5,8 +5,6 @@ VisualStudioVersion = 17.1.32421.90
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Personal Site", "Personal Site\Personal Site.csproj", "{01DE1BEA-3484-4147-B70D-BD635CB7A874}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Juniper.Emoji", "Juniper\src\Juniper.Emoji\Juniper.Emoji.csproj", "{A9BC0B3D-2F4A-4660-9558-01EA18BE1653}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Juniper.Processes", "Juniper\src\Juniper.Processes\Juniper.Processes.csproj", "{405162A2-F5A4-4B54-BE07-289B44BA4362}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Juniper.ProcessManager", "Juniper\src\Juniper.ProcessManager\Juniper.ProcessManager.csproj", "{4BA33CDC-C0CE-46BC-9A31-65E2321FC1F6}"
@@ -23,6 +21,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Build", "Build\Build.csproj
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Juniper", "Juniper", "{1A1CC9DD-8A9A-4C5A-A3ED-E338AFD42D44}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuildConfig", "BuildConfig\BuildConfig.csproj", "{6327495C-06AA-46B1-A91B-F5065D96E391}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,10 +33,6 @@ Global
 		{01DE1BEA-3484-4147-B70D-BD635CB7A874}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{01DE1BEA-3484-4147-B70D-BD635CB7A874}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{01DE1BEA-3484-4147-B70D-BD635CB7A874}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A9BC0B3D-2F4A-4660-9558-01EA18BE1653}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A9BC0B3D-2F4A-4660-9558-01EA18BE1653}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A9BC0B3D-2F4A-4660-9558-01EA18BE1653}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A9BC0B3D-2F4A-4660-9558-01EA18BE1653}.Release|Any CPU.Build.0 = Release|Any CPU
 		{405162A2-F5A4-4B54-BE07-289B44BA4362}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{405162A2-F5A4-4B54-BE07-289B44BA4362}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{405162A2-F5A4-4B54-BE07-289B44BA4362}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -65,12 +61,15 @@ Global
 		{4E2B0A20-5AAF-40BE-B4F1-F626F4158DF9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4E2B0A20-5AAF-40BE-B4F1-F626F4158DF9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4E2B0A20-5AAF-40BE-B4F1-F626F4158DF9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6327495C-06AA-46B1-A91B-F5065D96E391}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6327495C-06AA-46B1-A91B-F5065D96E391}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6327495C-06AA-46B1-A91B-F5065D96E391}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6327495C-06AA-46B1-A91B-F5065D96E391}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{A9BC0B3D-2F4A-4660-9558-01EA18BE1653} = {1A1CC9DD-8A9A-4C5A-A3ED-E338AFD42D44}
 		{405162A2-F5A4-4B54-BE07-289B44BA4362} = {1A1CC9DD-8A9A-4C5A-A3ED-E338AFD42D44}
 		{4BA33CDC-C0CE-46BC-9A31-65E2321FC1F6} = {1A1CC9DD-8A9A-4C5A-A3ED-E338AFD42D44}
 		{493C82A6-C05A-4478-8D43-F6175934A457} = {1A1CC9DD-8A9A-4C5A-A3ED-E338AFD42D44}

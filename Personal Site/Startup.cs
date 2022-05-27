@@ -1,4 +1,3 @@
-using Juniper.Processes;
 using Juniper.Services;
 using Juniper.TSBuild;
 
@@ -11,6 +10,7 @@ namespace SeanMcBeth
     {
         private readonly IWebHostEnvironment env;
         private readonly IConfiguration config;
+        private BuildSystem? build;
 
         public Startup(IConfiguration configuration, IWebHostEnvironment environment)
         {
@@ -29,14 +29,12 @@ namespace SeanMcBeth
             {
                 try
                 {
-                    var opts = new Options(Environment.GetCommandLineArgs());
-                    var build = new BuildSystem("Personal Site", new BuildSystemOptions
-                    {
-                        IncludEnvironment = true,
-                        IncludePDFJS = true,
-                        IncludeThreeJS = true
-                    });
-                    build.Watch().Wait();
+                    build = new BuildSystem(
+                        BuildConfig.ProjectName,
+                        BuildConfig.BuildSystemOptions,
+                        true,
+                        null);
+                    build.Watch();
                 }
                 catch (BuildSystemProjectRootNotFoundException exp)
                 {
