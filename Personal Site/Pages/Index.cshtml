@@ -318,7 +318,10 @@
     </p>
 
     <ul>
-        <li><a href="~/app/junk">Junk</a></li>
+        @foreach (var appName in AppModel.AppNames)
+        {
+            <li><a href="~/app/@appName">@appName.ToTitleCase().Replace('-', ' ')</a></li>
+        }
     </ul>
 
 </section>

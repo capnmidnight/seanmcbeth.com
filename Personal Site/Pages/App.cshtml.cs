@@ -7,18 +7,21 @@ namespace SeanMcBeth.Pages
 {
     public class AppModel : PageModel
     {
+        public static readonly IEnumerable<string> AppNames =
+            new DirectoryInfo("wwwroot")
+                .CD("js")
+                .EnumerateDirectories()
+                .Where(d => d.Name.EndsWith("-app"))
+                .Select(d => d.Name[0..^4]);
+
         [BindProperty(SupportsGet = true), FromRoute]
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         public string ScriptPath => string.Join('/', "js", Name + "-app", "index.js");
 
-        private static readonly Regex namePattern = new(@"\w+(?:-\w+)*", RegexOptions.Compiled);
-
         public IActionResult OnGet()
         {
-            if (Name is null
-                || !namePattern.IsMatch(Name)
-                || !System.IO.File.Exists("wwwroot/" + ScriptPath))
+            if (!AppNames.Contains(Name))
             {
                 return NotFound();
             }
