@@ -6,5 +6,6 @@ await new Build(process.argv.slice(2))
     .external("three")
 
     .bundle("junk-app")
+    .bundle("yabs-app")
 
     .run();
