@@ -23,6 +23,39 @@ var __privateSet = (obj, member, value, setter) => {
   return value;
 };
 
+// ../Juniper/src/Juniper.TypeScript/tslib/collections/arrayBinarySearch.ts
+function defaultKeySelector(obj) {
+  return obj;
+}
+function arrayBinarySearchByKey(arr, itemKey, keySelector) {
+  let left2 = 0;
+  let right = arr.length;
+  let idx = Math.floor((left2 + right) / 2);
+  let found = false;
+  while (left2 < right && idx < arr.length) {
+    const compareTo = arr[idx];
+    const compareToKey = isNullOrUndefined(compareTo) ? null : keySelector(compareTo);
+    if (isDefined(compareToKey) && itemKey < compareToKey) {
+      right = idx;
+    } else {
+      if (itemKey === compareToKey) {
+        found = true;
+      }
+      left2 = idx + 1;
+    }
+    idx = Math.floor((left2 + right) / 2);
+  }
+  if (!found) {
+    idx += 0.5;
+  }
+  return idx;
+}
+function arrayBinarySearch(arr, item, keySelector) {
+  keySelector = keySelector || defaultKeySelector;
+  const itemKey = keySelector(item);
+  return arrayBinarySearchByKey(arr, itemKey, keySelector);
+}
+
 // ../Juniper/src/Juniper.TypeScript/tslib/collections/arrayRemoveAt.ts
 function arrayRemoveAt(arr, idx) {
   return arr.splice(idx, 1)[0];
@@ -31,6 +64,11 @@ function arrayRemoveAt(arr, idx) {
 // ../Juniper/src/Juniper.TypeScript/tslib/collections/arrayClear.ts
 function arrayClear(arr) {
   return arr.splice(0);
+}
+
+// ../Juniper/src/Juniper.TypeScript/tslib/collections/arrayInsertAt.ts
+function arrayInsertAt(arr, item, idx) {
+  arr.splice(idx, 0, item);
 }
 
 // ../Juniper/src/Juniper.TypeScript/tslib/collections/arrayRemove.ts
@@ -42,6 +80,121 @@ function arrayRemove(arr, value) {
   }
   return false;
 }
+
+// ../Juniper/src/Juniper.TypeScript/tslib/collections/arraySortedInsert.ts
+function arraySortedInsert(arr, item, keySelector, allowDuplicates) {
+  let ks;
+  if (isFunction(keySelector)) {
+    ks = keySelector;
+  } else if (isBoolean(keySelector)) {
+    allowDuplicates = keySelector;
+  }
+  if (isNullOrUndefined(allowDuplicates)) {
+    allowDuplicates = true;
+  }
+  return arraySortedInsertInternal(arr, item, ks, allowDuplicates);
+}
+function arraySortedInsertInternal(arr, item, ks, allowDuplicates) {
+  let idx = arrayBinarySearch(arr, item, ks);
+  const found = idx % 1 === 0;
+  idx = idx | 0;
+  if (!found || allowDuplicates) {
+    arrayInsertAt(arr, item, idx);
+  }
+  return idx;
+}
+
+// ../Juniper/src/Juniper.TypeScript/tslib/collections/BaseGraphNode.ts
+var BaseGraphNode = class {
+  constructor(value) {
+    this.value = value;
+    __publicField(this, "_forward", new Array());
+    __publicField(this, "_reverse", new Array());
+  }
+  connectSorted(child, keySelector) {
+    if (isDefined(keySelector)) {
+      arraySortedInsert(this._forward, child, (n3) => keySelector(n3.value));
+      child._reverse.push(this);
+    } else {
+      this.connectTo(child);
+    }
+  }
+  connectTo(child) {
+    this.connectAt(child, this._forward.length);
+  }
+  connectAt(child, index) {
+    arrayInsertAt(this._forward, child, index);
+    child._reverse.push(this);
+  }
+  disconnectFrom(child) {
+    arrayRemove(this._forward, child);
+    arrayRemove(child._reverse, this);
+  }
+  isConnectedTo(node) {
+    return this._forward.indexOf(node) >= 0 || this._reverse.indexOf(node) >= 0;
+  }
+  flatten() {
+    const nodes = /* @__PURE__ */ new Set();
+    const queue = [this];
+    while (queue.length > 0) {
+      const here = queue.shift();
+      if (!nodes.has(here)) {
+        nodes.add(here);
+        queue.push(...here._forward);
+      }
+    }
+    return Array.from(nodes);
+  }
+  get _isEntryPoint() {
+    return this._reverse.length === 0;
+  }
+  get _isExitPoint() {
+    return this._forward.length === 0;
+  }
+  get isDisconnected() {
+    return this._isEntryPoint && this._isExitPoint;
+  }
+  get isConnected() {
+    return !this._isExitPoint || !this._isEntryPoint;
+  }
+  get isTerminus() {
+    return this._isEntryPoint || this._isExitPoint;
+  }
+  get isInternal() {
+    return !this._isEntryPoint && !this._isExitPoint;
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/tslib/collections/GraphNode.ts
+var GraphNode = class extends BaseGraphNode {
+  connectTo(node) {
+    super.connectTo(node);
+  }
+  connectAt(child, index) {
+    super.connectAt(child, index);
+  }
+  connectSorted(child, sortKey) {
+    super.connectSorted(child, sortKey);
+  }
+  disconnectFrom(node) {
+    super.disconnectFrom(node);
+  }
+  isConnectedTo(node) {
+    return super.isConnectedTo(node);
+  }
+  flatten() {
+    return super.flatten();
+  }
+  get connections() {
+    return this._forward;
+  }
+  get isEntryPoint() {
+    return this._isEntryPoint;
+  }
+  get isExitPoint() {
+    return this._isExitPoint;
+  }
+};
 
 // ../Juniper/src/Juniper.TypeScript/tslib/collections/PriorityList.ts
 var PriorityList = class {
@@ -141,6 +294,70 @@ var PriorityList = class {
   }
 };
 
+// ../Juniper/src/Juniper.TypeScript/tslib/events/EventBase.ts
+var EventBase = class {
+  constructor() {
+    __publicField(this, "listeners", /* @__PURE__ */ new Map());
+    __publicField(this, "listenerOptions", /* @__PURE__ */ new Map());
+  }
+  addEventListener(type2, callback, options) {
+    if (isFunction(callback)) {
+      let listeners = this.listeners.get(type2);
+      if (!listeners) {
+        listeners = new Array();
+        this.listeners.set(type2, listeners);
+      }
+      if (!listeners.find((c) => c === callback)) {
+        listeners.push(callback);
+        if (options) {
+          this.listenerOptions.set(callback, options);
+        }
+      }
+    }
+  }
+  removeEventListener(type2, callback) {
+    if (isFunction(callback)) {
+      const listeners = this.listeners.get(type2);
+      if (listeners) {
+        this.removeListener(listeners, callback);
+      }
+    }
+  }
+  clearEventListeners(type2) {
+    for (const [evtName, handlers] of this.listeners) {
+      if (isNullOrUndefined(type2) || type2 === evtName) {
+        for (const handler of handlers) {
+          this.removeEventListener(type2, handler);
+        }
+        arrayClear(handlers);
+        this.listeners.delete(evtName);
+      }
+    }
+  }
+  removeListener(listeners, callback) {
+    const idx = listeners.findIndex((c) => c === callback);
+    if (idx >= 0) {
+      arrayRemoveAt(listeners, idx);
+      if (this.listenerOptions.has(callback)) {
+        this.listenerOptions.delete(callback);
+      }
+    }
+  }
+  dispatchEvent(evt) {
+    const listeners = this.listeners.get(evt.type);
+    if (listeners) {
+      for (const callback of listeners) {
+        const options = this.listenerOptions.get(callback);
+        if (isDefined(options) && !isBoolean(options) && options.once) {
+          this.removeListener(listeners, callback);
+        }
+        callback.call(this, evt);
+      }
+    }
+    return !evt.defaultPrevented;
+  }
+};
+
 // ../Juniper/src/Juniper.TypeScript/tslib/events/Task.ts
 var Task = class {
   constructor(resolveTestOrAutoStart, rejectTestOrAutoStart, autoStart = true) {
@@ -228,6 +445,48 @@ var Task = class {
   }
 };
 
+// ../Juniper/src/Juniper.TypeScript/tslib/events/once.ts
+function targetValidateEvent(target, type2) {
+  return "on" + type2 in target;
+}
+function once(target, resolveEvt, rejectEvtOrTimeout, ...rejectEvts) {
+  if (isNullOrUndefined(rejectEvts)) {
+    rejectEvts = [];
+  }
+  let timeout = void 0;
+  if (isString(rejectEvtOrTimeout)) {
+    rejectEvts.unshift(rejectEvtOrTimeout);
+  } else if (isNumber(rejectEvtOrTimeout)) {
+    timeout = rejectEvtOrTimeout;
+  }
+  if (!(target instanceof EventBase)) {
+    if (!targetValidateEvent(target, resolveEvt)) {
+      throw new Exception(`Target does not have a ${resolveEvt} rejection event`);
+    }
+    for (const evt of rejectEvts) {
+      if (!targetValidateEvent(target, evt)) {
+        throw new Exception(`Target does not have a ${evt} rejection event`);
+      }
+    }
+  }
+  const task = new Task();
+  if (isNumber(timeout)) {
+    const timeoutHandle = setTimeout(task.reject, timeout, `'${resolveEvt}' has timed out.`);
+    task.finally(clearTimeout.bind(globalThis, timeoutHandle));
+  }
+  const register = (evt, callback) => {
+    target.addEventListener(evt, callback);
+    task.finally(() => target.removeEventListener(evt, callback));
+  };
+  const onResolve = (evt) => task.resolve(evt);
+  const onReject = (evt) => task.reject(evt);
+  register(resolveEvt, onResolve);
+  for (const rejectEvt of rejectEvts) {
+    register(rejectEvt, onReject);
+  }
+  return task;
+}
+
 // ../Juniper/src/Juniper.TypeScript/tslib/events/Promisifier.ts
 var Promisifier = class {
   constructor(resolveRejectTest, selectValue, selectRejectionReason) {
@@ -254,6 +513,14 @@ var Promisifier = class {
   }
   finally(onfinally) {
     return this.promise.finally(onfinally);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/tslib/Exception.ts
+var Exception = class extends Error {
+  constructor(message, innerError = null) {
+    super(message);
+    this.innerError = innerError;
   }
 };
 
@@ -316,6 +583,9 @@ function t(o, s, c) {
 function isFunction(obj) {
   return t(obj, "function", Function);
 }
+function isString(obj) {
+  return t(obj, "string", String);
+}
 function isBoolean(obj) {
   return t(obj, "boolean", Boolean);
 }
@@ -325,11 +595,28 @@ function isNumber(obj) {
 function isObject(obj) {
   return isDefined(obj) && t(obj, "object", Object);
 }
+function assertNever(x, msg) {
+  throw new Error((msg || "Unexpected object: ") + x);
+}
 function isNullOrUndefined(obj) {
   return obj === null || obj === void 0;
 }
 function isDefined(obj) {
   return !isNullOrUndefined(obj);
+}
+
+// ../Juniper/src/Juniper.TypeScript/tslib/singleton.ts
+function singleton(name, create) {
+  const box = globalThis;
+  let value = box[name];
+  if (isNullOrUndefined(value)) {
+    if (isNullOrUndefined(create)) {
+      throw new Error(`No value ${name} found`);
+    }
+    value = create();
+    box[name] = value;
+  }
+  return value;
 }
 
 // ../Juniper/src/Juniper.TypeScript/tslib/timers/ITimer.ts
@@ -726,12 +1013,19 @@ function className(value) {
 function id(value) {
   return new Attr("id", value, false);
 }
+function type(value) {
+  if (!isString(value)) {
+    value = value.value;
+  }
+  return new Attr("type", value, false, "button", "input", "command", "embed", "link", "object", "script", "source", "style", "menu");
+}
 
 // ../Juniper/src/Juniper.TypeScript/dom/css.ts
 var CssProp = class {
   constructor(key, value) {
     this.key = key;
     this.value = value;
+    __publicField(this, "name");
     this.name = key.replace(/[A-Z]/g, (m) => `-${m.toLocaleLowerCase()}`);
   }
   applyToElement(elem) {
@@ -740,6 +1034,7 @@ var CssProp = class {
 };
 var CssPropSet = class {
   constructor(...rest) {
+    __publicField(this, "rest");
     this.rest = rest;
   }
   applyToElement(elem) {
@@ -908,6 +1203,12 @@ function tag(name, ...rest) {
   elementApply(elem, ...rest);
   return elem;
 }
+function ButtonRaw(...rest) {
+  return tag("button", ...rest);
+}
+function Button(...rest) {
+  return ButtonRaw(...rest, type("button"));
+}
 function Div(...rest) {
   return tag("div", ...rest);
 }
@@ -947,6 +1248,9 @@ var HtmlEvt = class {
     elem.removeEventListener(this.name, this.callback);
   }
 };
+function onClick(callback, opts) {
+  return new HtmlEvt("click", callback, opts);
+}
 function onMouseOut(callback, opts) {
   return new HtmlEvt("mouseout", callback, opts);
 }
@@ -1635,13 +1939,93 @@ var RODS_PER_MILE2 = RODS_PER_FURLONG2 * FURLONGS_PER_MILE2;
 var FURLONGS_PER_KILOMETER2 = METERS_PER_KILOMETER2 / METERS_PER_FURLONG2;
 var KILOMETERS_PER_MILE2 = FURLONGS_PER_MILE2 / FURLONGS_PER_KILOMETER2;
 
+// ../Juniper/src/Juniper.TypeScript/dom/onUserGesture.ts
+var gestures = [
+  "change",
+  "click",
+  "contextmenu",
+  "dblclick",
+  "mouseup",
+  "pointerup",
+  "reset",
+  "submit",
+  "touchend"
+];
+function onUserGesture(callback, test) {
+  const realTest = test || (async () => true);
+  const check = async (evt) => {
+    if (evt.isTrusted && await realTest()) {
+      for (const gesture of gestures) {
+        window.removeEventListener(gesture, check);
+      }
+      await callback();
+    }
+  };
+  for (const gesture of gestures) {
+    window.addEventListener(gesture, check);
+  }
+}
+
+// ../Juniper/src/Juniper.TypeScript/audio/nodes.ts
+var hasAudioContext = "AudioContext" in globalThis;
+var hasAudioListener = hasAudioContext && "AudioListener" in globalThis;
+var hasOldAudioListener = hasAudioListener && "setPosition" in AudioListener.prototype;
+var hasNewAudioListener = hasAudioListener && "positionX" in AudioListener.prototype;
+var canCaptureStream = isFunction(HTMLMediaElement.prototype.captureStream) || isFunction(HTMLMediaElement.prototype.mozCaptureStream);
+var connections = singleton("Juniper:Audio:connections", () => /* @__PURE__ */ new Map());
+var names = singleton("Juniper:Audio:names", () => /* @__PURE__ */ new Map());
+function nameVertex(name, v) {
+  names.set(v, name);
+}
+function getAudioGraph() {
+  const nodes = /* @__PURE__ */ new Map();
+  function maybeAdd(node) {
+    if (!nodes.has(node)) {
+      nodes.set(node, new GraphNode(node));
+    }
+  }
+  for (const node of names.keys()) {
+    maybeAdd(node);
+  }
+  for (const [parent, children] of connections) {
+    maybeAdd(parent);
+    for (const child of children) {
+      maybeAdd(child);
+    }
+  }
+  for (const [parent, children] of connections) {
+    const branch = nodes.get(parent);
+    for (const child of children) {
+      if (nodes.has(child)) {
+        branch.connectTo(nodes.get(child));
+      }
+    }
+  }
+  return Array.from(nodes.values());
+}
+globalThis.getAudioGraph = getAudioGraph;
+async function audioReady(audioCtx) {
+  nameVertex("speakers", audioCtx.destination);
+  if (audioCtx.state !== "running") {
+    if (audioCtx.state === "closed") {
+      await audioCtx.resume();
+    } else if (audioCtx.state === "suspended") {
+      const stateChange = once(audioCtx, "statechange");
+      onUserGesture(() => audioCtx.resume());
+      await stateChange;
+    } else {
+      assertNever(audioCtx.state);
+    }
+  }
+}
+
 // src/yabs-app/index.ts
 document.title = "No More Jabber Yabs: The Game";
-Style(rule("html, body, .cloud, .cloud-bit, .frowny, .shadow, .boop, .beam, .subBeam, .endMessage, #scoreBox", position("absolute")), rule("html, body", height("100%"), width("100%"), padding(0), margin(0), border(0), overflow("hidden")), rule("body", fontFamily("sans-serif"), backgroundColor("hsl(200, 50%, 75%)"), backgroundImage("linear-gradient(hsl(200, 50%, 50%), hsl(200, 20%, 75%) 75%, hsl(100, 75%, 50%) 75%, hsl(100, 100%, 20%))")), rule("#scoreBox, .endMessage, .frowny, #instructions", fontSize("24pt")), rule("#scoreBox", display("none"), color("white"), top(0), left(0), padding("1em")), rule(".endMessage", display("none"), padding("1em"), top(0), zIndex(9001), pointerEvents("none"), color("white")), rule(".cloud-bit", backgroundColor("white"), width("100px"), height("50px"), borderBottomRightRadius("25px"), borderBottomLeftRadius("50px"), borderTopRightRadius("12.5px"), borderTopLeftRadius("6.25px")), rule(".frowny", fontFamily("fixedsys, monospace"), padding("5px"), border("solid 2px black"), borderRadius("10px"), transform("rotate(90deg)"), width("50px"), height("50px"), overflow("hidden")), rule(".shadow", width("45px"), height("10px"), borderRadius("5px"), backgroundImage("radial-gradient(black, transparent)"), backgroundColor("grey")), rule(".boop", display("none"), color("white"), textTransform("uppercase"), fontFamily("sans-serif"), fontWeight("bold"), fontSize("10pt"), zIndex(9001)), rule(".beam, .subBeam", display("none"), backgroundColor("red"), boxShadow("0 0 25px red"), left("0")), rule(".beam", top("0"), width("50px"), height("50px"), borderRadius("50%")), rule(".subBeam", top("50%"), height("2000px")), rule("#instructions", position("relative"), fontWeight("bold"), marginLeft("auto"), marginRight("auto"), marginTop("3em"), width("20em"), zIndex(9001)));
+Style(rule("html, body, .cloud, .cloud-bit, .frowny, .shadow, .boop, .beam, .subBeam, .endMessage, #scoreBox", position("absolute")), rule("html, body", height("100%"), width("100%"), padding(0), margin(0), border(0), overflow("hidden")), rule("body", fontFamily("sans-serif"), backgroundColor("hsl(200, 50%, 75%)"), backgroundImage("linear-gradient(hsl(200, 50%, 50%), hsl(200, 20%, 75%) 75%, hsl(100, 75%, 50%) 75%, hsl(100, 100%, 20%))")), rule("#scoreBox, .endMessage, .frowny, #instructions, #starter", fontSize("24pt")), rule("#scoreBox", display("none"), color("white"), top(0), left(0), padding("1em")), rule(".endMessage", display("none"), padding("1em"), top(0), zIndex(9001), pointerEvents("none"), color("white")), rule(".cloud-bit", backgroundColor("white"), width("100px"), height("50px"), borderBottomRightRadius("25px"), borderBottomLeftRadius("50px"), borderTopRightRadius("12.5px"), borderTopLeftRadius("6.25px")), rule(".frowny", fontFamily("fixedsys, monospace"), padding("5px"), border("solid 2px black"), borderRadius("10px"), transform("rotate(90deg)"), width("50px"), height("50px"), overflow("hidden")), rule(".shadow", width("45px"), height("10px"), borderRadius("5px"), backgroundImage("radial-gradient(black, transparent)"), backgroundColor("grey")), rule(".boop", display("none"), color("white"), textTransform("uppercase"), fontFamily("sans-serif"), fontWeight("bold"), fontSize("10pt"), zIndex(9001)), rule(".beam, .subBeam", display("none"), backgroundColor("red"), boxShadow("0 0 25px red"), left("0")), rule(".beam", top("0"), width("50px"), height("50px"), borderRadius("50%")), rule(".subBeam", top("50%"), height("2000px")), rule("#instructions, #starter", position("relative"), display("none"), fontWeight("bold"), marginLeft("auto"), marginRight("auto"), marginTop("3em"), width("20em"), zIndex(9001)));
 function PointDisplay() {
   return Span(className("pointDisplay"), 0);
 }
-elementApply(document.body, Div(id("instructions"), "Go ahead, click and hold the mouse"), Div(id("scoreBox"), "GET EM: ", PointDisplay()), Div(id("message0"), className("endMessage"), P("You have killed everyone. You did it. Just you. Noone else."), P("And why have you done this? Because you were ordered to? The pursuit of points?"), P("You got your points. All ", PointDisplay(), " of them. What will you do with them? There's noone left. And it's not like they took them as currency, anyway."), P("For no reason whatsoever, you have committed genocide against another race of people. Congratulations."), P("Hitler.")), Div(id("message1"), className("endMessage"), P("You have killed almost everyone. Their bodies are strewn about on the ground they once called their home."), P("There is but one person left. Did you spare them out of mercy? Or have you left them, devoid of personal contact, alone, surrounded by the burned and rotting bodies of their former loved ones, to serve as witness to your terrible deeds?"), P("And why have you done this? Because you were ordered to? The pursuit of points?"), P("You got your points. All ", PointDisplay(), "  of them. What will you do with them? There's noone left. And it's not like they took them as currency, anyway."), P("You are sick.")), Div(id("message2"), className("endMessage"), P("You have killed almost everyone. Their bodies are strewn about on the ground they once called their home."), P("There are only two people left. Did you spare them out of mercy? Or have you left them, surrounded by the burned and rotting bodies of their former loved ones, to repopulate their world together, to serve as witness to your terrible deeds to future generations?"), P("And why have you done this? Because you were ordered to? The pursuit of points?"), P("You got your points. All ", PointDisplay(), "  of them. What will you do with them? There's noone left. And it's not like they took them as currency, anyway."), P("I...I don't understand you.")), Div(id("messageN"), className("endMessage"), styles(color("black")), P('"Hi there!"'), P("You blink. Did someone speak?"), P('"Down here!"'), P("It's the people below."), P('"We noticed you up there. What are you doing?"'), P("You reply, haltingly, that you do not know."), P('"Oh, well, okay. Cool beans. Later!"')));
+elementApply(document.body, Button(id("starter"), "Start", onClick(() => audio.resume())), Div(id("instructions"), "Go ahead, click and hold the mouse"), Div(id("scoreBox"), "GET EM: ", PointDisplay()), Div(id("message0"), className("endMessage"), P("You have killed everyone. You did it. Just you. Noone else."), P("And why have you done this? Because you were ordered to? The pursuit of points?"), P("You got your points. All ", PointDisplay(), " of them. What will you do with them? There's noone left. And it's not like they took them as currency, anyway."), P("For no reason whatsoever, you have committed genocide against another race of people. Congratulations."), P("Hitler.")), Div(id("message1"), className("endMessage"), P("You have killed almost everyone. Their bodies are strewn about on the ground they once called their home."), P("There is but one person left. Did you spare them out of mercy? Or have you left them, devoid of personal contact, alone, surrounded by the burned and rotting bodies of their former loved ones, to serve as witness to your terrible deeds?"), P("And why have you done this? Because you were ordered to? The pursuit of points?"), P("You got your points. All ", PointDisplay(), "  of them. What will you do with them? There's noone left. And it's not like they took them as currency, anyway."), P("You are sick.")), Div(id("message2"), className("endMessage"), P("You have killed almost everyone. Their bodies are strewn about on the ground they once called their home."), P("There are only two people left. Did you spare them out of mercy? Or have you left them, surrounded by the burned and rotting bodies of their former loved ones, to repopulate their world together, to serve as witness to your terrible deeds to future generations?"), P("And why have you done this? Because you were ordered to? The pursuit of points?"), P("You got your points. All ", PointDisplay(), "  of them. What will you do with them? There's noone left. And it's not like they took them as currency, anyway."), P("I...I don't understand you.")), Div(id("messageN"), className("endMessage"), styles(color("black")), P('"Hi there!"'), P("You blink. Did someone speak?"), P('"Down here!"'), P("It's the people below."), P('"We noticed you up there. What are you doing?"'), P("You reply, haltingly, that you do not know."), P('"Oh, well, okay. Cool beans. Later!"')));
 var NUM_YABS = Math.round(window.innerWidth / 30);
 var NUM_CLD = Math.round(window.innerWidth / 200);
 var HIT_POINTS = 2;
@@ -1698,6 +2082,7 @@ var curses = [
 var happyFaces = [":)", ":o", ":^", ":.", ":P", ":D"];
 var sadFaces = [":(", ":(", ":(", ":(", ":(", ":(", ":O"];
 var inst = getElement("#instructions");
+var starter = getElement("#starter");
 var scoreBox = getElement("#scoreBox");
 var scoreBoxes = document.querySelectorAll(".pointDisplay");
 var messages = document.querySelectorAll(".endMessage");
@@ -1706,7 +2091,7 @@ var out = audio.createGain();
 var fs = new Array();
 var osc = new Array();
 var timers = /* @__PURE__ */ new Map();
-out.connect(audio.destination);
+var base = Math.pow(2, 1 / 12);
 var fading = false;
 var scale = 1;
 var lt = null;
@@ -1717,27 +2102,11 @@ var score = 0;
 var kills = 0;
 var repopulateTimer;
 var dystopianTimer;
-inst.style.opacity = "1";
-var base = Math.pow(2, 1 / 12);
 function piano(n3) {
   return 440 * Math.pow(base, n3 - 49);
 }
-for (i = 0; i < 88; ++i) {
-  gn = audio.createGain();
-  gn.gain.value = 0;
-  o = audio.createOscillator();
-  o.frequency.value = piano(i + 1);
-  o.type = "sawtooth";
-  o.start();
-  o.connect(gn);
-  gn.connect(out);
-  osc.push(gn);
-}
-var gn;
-var o;
-var i;
 function play(i, volume, duration) {
-  var o = osc[i];
+  const o = osc[i];
   if (o) {
     if (timers.has(o)) {
       clearTimeout(timers.get(o));
@@ -1757,26 +2126,26 @@ function randomInt(min, max) {
   return Math.floor(randomRange(min, max));
 }
 function music(t3) {
-  var nt = 0;
+  let nt = 0;
   if (score > 0) {
     nt = Math.floor(t3 / 2e3 % 4) + Math.floor(t3 / 1e3 % 2) / 2;
   } else {
     nt = Math.floor(t3 / 500 % 4) + Math.floor(t3 / 250 % 3) / 3;
   }
   if (lnt !== nt) {
-    var len = 0.2;
+    let len = 0.2;
     stringRandom;
     if (nt >= randomInt(0, 4)) {
       nt = Math.floor(nt);
       len /= 2;
     }
     if (score > 0) {
-      var n3 = 25 - Math.floor(nt * 4) + randomInt(-1, 2) * 3;
+      const n3 = 25 - Math.floor(nt * 4) + randomInt(-1, 2) * 3;
       play(n3, 0.04, len);
       play(n3 + 3, 0.04, len);
       play(n3 + 7, 0.04, len);
     } else {
-      var n3 = 40 + Math.floor(nt * 3) + randomInt(-1, 2) * 4;
+      const n3 = 40 + Math.floor(nt * 3) + randomInt(-1, 2) * 4;
       play(n3, 0.04, 0.05);
       play(n3 + randomInt(3, 5), 0.04, 0.05);
     }
@@ -1786,11 +2155,6 @@ function music(t3) {
 function shake(elem) {
   elem = elem || document.body;
   elem.style.transform = "translate(" + randomRange(-4, 4) + "px," + randomRange(-4, 4) + "px)";
-}
-function add(obj) {
-  fs.push(obj);
-  elementApply(document.body, obj);
-  return obj;
 }
 function isFace(obj) {
   return obj instanceof Face;
@@ -1862,7 +2226,7 @@ var Face = class {
     this.shadow.style.left = this.element.style.left = this.x + "px";
     this.element.style.top = this.y + 10 * this.z - 120 + "px";
     this.shadow.style.top = 10 * this.z + window.innerHeight - 120 + "px";
-    var sy = Math.sqrt(Math.abs(this.dy)) * 10;
+    const sy = Math.sqrt(Math.abs(this.dy)) * 10;
     this.element.style.paddingLeft = this.element.style.paddingRight = this.height + sy + "px";
     this.element.style.paddingTop = this.element.style.paddingBottom = this.width - sy + "px";
     if (this.alive && this.f > 1) {
@@ -1908,9 +2272,9 @@ var Cloud = class {
     __publicField(this, "dx");
     this.element = document.createElement("div");
     this.element.className = "cloud";
-    var n3 = randomInt(4, 7);
-    for (var i = 0; i < n3; ++i) {
-      var b = document.createElement("div");
+    const n3 = randomInt(4, 7);
+    for (let i = 0; i < n3; ++i) {
+      const b = document.createElement("div");
       b.className = "cloud-bit";
       b.style.top = randomRange(-25, 25) + "px";
       b.style.left = randomRange(-50, 50) + "px";
@@ -1975,26 +2339,26 @@ var Beam = class {
     }
     if (this.firing) {
       shake(this.element);
-      for (var i = 0, l = this.t / 10; i < l; ++i) {
+      for (let i = 0, l = this.t / 10; i < l; ++i) {
         play(87 - i, 0.02, dt2 / 100);
       }
-      for (var i = 0; i < NUM_YABS; ++i) {
-        var yab = fs[i];
+      for (let i = 0; i < NUM_YABS; ++i) {
+        const yab = fs[i];
         if (isFace(yab) && yab.alive && yab.onground) {
           if (this.x <= yab.x + 50 && this.x + 50 >= yab.x) {
             if (score === 0) {
               scoreBox.style.display = "block";
               document.body.style.backgroundImage = "linear-gradient(hsl(0, 50%, 0%), hsl(0, 50%, 50%) 75%, hsl(0, 50%, 15%) 75%, hsl(0, 50%, 33%))";
-              for (var j = 0; j < NUM_CLD; ++j) {
-                var cld = fs[NUM_YABS + j].element;
-                for (var k = 0; k < cld.children.length; ++k) {
-                  var bit = cld.children[k].style;
+              for (let j = 0; j < NUM_CLD; ++j) {
+                const cld = fs[NUM_YABS + j].element;
+                for (let k = 0; k < cld.children.length; ++k) {
+                  const bit = cld.children[k].style;
                   bit.backgroundColor = "black";
                 }
               }
             }
             ++score;
-            for (var j = 0; j < scoreBoxes.length; ++j) {
+            for (let j = 0; j < scoreBoxes.length; ++j) {
               scoreBoxes[j].innerHTML = score.toFixed(0);
             }
             shake(yab.element);
@@ -2034,8 +2398,8 @@ var Beam = class {
         }
       }
     } else if (this.charging) {
-      var n3 = Math.floor(this.t / 10) + 70;
-      for (var i = 70; i < n3; ++i) {
+      const n3 = Math.floor(this.t / 10) + 70;
+      for (let i = 70; i < n3; ++i) {
         play(i, 0.02, dt2 / 100);
       }
     }
@@ -2045,7 +2409,7 @@ var Beam = class {
     this.subBeam.style.display = this.firing ? "block" : "none";
     this.element.style.left = this.x + "px";
     this.element.style.top = this.y + "px";
-    var c = "hsl(0, 100%, " + this.t + "%)";
+    const c = "hsl(0, 100%, " + this.t + "%)";
     this.element.style.backgroundColor = this.subBeam.style.backgroundColor = c;
     this.element.style.boxShadow = this.subBeam.style.boxShadow = "0 0 25px " + c;
     this.subBeam.style.width = this.t + "%";
@@ -2073,14 +2437,28 @@ var Beam = class {
     this.y = evt.clientY - 10;
   }
 };
-for (i = 0; i < NUM_YABS; ++i) {
+function add(obj) {
+  fs.push(obj);
+  elementApply(document.body, obj);
+  return obj;
+}
+for (let i = 0; i < 88; ++i) {
+  const gn = audio.createGain();
+  gn.gain.value = 0;
+  const o = audio.createOscillator();
+  o.frequency.value = piano(i + 1);
+  o.type = "sawtooth";
+  o.start();
+  o.connect(gn);
+  gn.connect(out);
+  osc.push(gn);
+}
+for (let i = 0; i < NUM_YABS; ++i) {
   add(new Face());
 }
-var i;
-for (i = 0; i < NUM_CLD; ++i) {
+for (let i = 0; i < NUM_CLD; ++i) {
   add(new Cloud());
 }
-var i;
 var beam = add(new Beam());
 document.addEventListener("mousedown", beam.start.bind(beam), false);
 document.addEventListener("mousemove", (evt) => {
@@ -2110,12 +2488,12 @@ function animate(t3) {
   if (lt != null) {
     dt += (t3 - lt) / 10;
     while (dt >= step) {
-      for (var i = 0; i < fs.length; ++i) {
+      for (let i = 0; i < fs.length; ++i) {
         fs[i].update(step);
       }
       dt -= step;
     }
-    for (var i = 0; i < fs.length; ++i) {
+    for (let i = 0; i < fs.length; ++i) {
       fs[i].render();
     }
   }
@@ -2133,5 +2511,13 @@ var goodEndingTimer = setTimeout(function() {
   messages[messages.length - 1].style.display = "block";
   beam.disable();
 }, 15e3);
-requestAnimationFrame(animate);
+(async function() {
+  out.connect(audio.destination);
+  inst.style.opacity = "1";
+  starter.style.display = "block";
+  await audioReady(audio);
+  starter.style.display = "none";
+  inst.style.display = "block";
+  requestAnimationFrame(animate);
+})();
 //# sourceMappingURL=index.js.map

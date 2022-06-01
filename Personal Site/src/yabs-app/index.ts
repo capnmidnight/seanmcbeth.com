@@ -1,8 +1,9 @@
 ﻿import { className, id } from "@juniper-lib/dom/attrs";
 import { backgroundColor, backgroundImage, border, borderBottomLeftRadius, borderBottomRightRadius, borderRadius, borderTopLeftRadius, borderTopRightRadius, boxShadow, color, display, fontFamily, fontSize, fontWeight, height, left, margin, marginLeft, marginRight, marginTop, overflow, padding, pointerEvents, position, rule, styles, textTransform, top, transform, width, zIndex } from "@juniper-lib/dom/css";
-import { onMouseOut, onTouchStart } from "@juniper-lib/dom/evts";
-import { Div, elementApply, ErsatzElement, getElement, P, Span, Style } from "@juniper-lib/dom/tags";
+import { onClick, onMouseOut, onTouchStart } from "@juniper-lib/dom/evts";
+import { Button, Div, elementApply, ErsatzElement, getElement, P, Span, Style } from "@juniper-lib/dom/tags";
 import { arrayRandom, stringRandom } from "@juniper-lib/tslib";
+import { audioReady } from "@juniper-lib/audio/nodes";
 
 document.title = "No More Jabber Yabs: The Game";
 
@@ -26,7 +27,7 @@ Style(
         backgroundImage("linear-gradient(hsl(200, 50%, 50%), hsl(200, 20%, 75%) 75%, hsl(100, 75%, 50%) 75%, hsl(100, 100%, 20%))")
     ),
 
-    rule("#scoreBox, .endMessage, .frowny, #instructions",
+    rule("#scoreBox, .endMessage, .frowny, #instructions, #starter",
         fontSize("24pt")
     ),
 
@@ -106,8 +107,9 @@ Style(
         height("2000px")
     ),
 
-    rule("#instructions",
+    rule("#instructions, #starter",
         position("relative"),
+        display("none"),
         fontWeight("bold"),
         marginLeft("auto"),
         marginRight("auto"),
@@ -117,11 +119,22 @@ Style(
     )
 );
 
+interface GameObject extends ErsatzElement {
+    update(dt: number): void;
+    render(): void;
+    x: number;
+}
+
 function PointDisplay() {
     return Span(className("pointDisplay"), 0);
 }
 
 elementApply(document.body,
+    Button(
+        id("starter"),
+        "Start",
+        onClick(() => audio.resume())
+    ),
     Div(id("instructions"), "Go ahead, click and hold the mouse"),
     Div(id("scoreBox"), "GET EM: ", PointDisplay()),
     Div(id("message0"), className("endMessage"),
@@ -156,33 +169,22 @@ elementApply(document.body,
     )
 );
 
-
 const NUM_YABS = Math.round(window.innerWidth / 30),
     NUM_CLD = Math.round(window.innerWidth / 200),
     HIT_POINTS = 2,
-    MSG_TIMEOUT = 5000;
-
-const skins = ["#FFDFC4", "#F0D5BE", "#EECEB3", "#E1B899", "#E5C298",
-    "#FFDCB2", "#E5B887", "#E5A073", "#E79E6D", "#DB9065", "#CE967C",
-    "#C67856", "#BA6C49", "#A57257", "#F0C8C9", "#DDA8A0", "#B97C6D",
-    "#A8756C", "#AD6452", "#5C3836", "#CB8442", "#BD723C", "#704139",
-    "#A3866A", "#870400", "#710101", "#430000", "#5B0001", "#302E2E"];
-
-const curses = ["ow!", "yikes!", "holy cow!", "ouch!", "that smarts!",
-    "ow!", "yikes!", "holy cow!", "ouch!", "that smarts!", "ow!", "yikes!",
-    "holy cow!", "ouch!", "that smarts!", "mother puss-bucket!"];
-
-// repeating faces changes the balance of what gets displayed
-const happyFaces = [":)", ":o", ":^", ":.", ":P", ":D"];
-const sadFaces = [":(", ":(", ":(", ":(", ":(", ":(", ":O"];
-
-interface GameObject extends ErsatzElement {
-    update(dt: number): void;
-    render(): void;
-    x: number;
-}
-
-const inst = getElement("#instructions"),
+    MSG_TIMEOUT = 5000,
+    skins = ["#FFDFC4", "#F0D5BE", "#EECEB3", "#E1B899", "#E5C298",
+        "#FFDCB2", "#E5B887", "#E5A073", "#E79E6D", "#DB9065", "#CE967C",
+        "#C67856", "#BA6C49", "#A57257", "#F0C8C9", "#DDA8A0", "#B97C6D",
+        "#A8756C", "#AD6452", "#5C3836", "#CB8442", "#BD723C", "#704139",
+        "#A3866A", "#870400", "#710101", "#430000", "#5B0001", "#302E2E"],
+    curses = ["ow!", "yikes!", "holy cow!", "ouch!", "that smarts!",
+        "ow!", "yikes!", "holy cow!", "ouch!", "that smarts!", "ow!", "yikes!",
+        "holy cow!", "ouch!", "that smarts!", "mother puss-bucket!"],
+    happyFaces = [":)", ":o", ":^", ":.", ":P", ":D"],
+    sadFaces = [":(", ":(", ":(", ":(", ":(", ":(", ":O"],
+    inst = getElement("#instructions"),
+    starter = getElement("#starter"),
     scoreBox = getElement("#scoreBox"),
     scoreBoxes = document.querySelectorAll<HTMLElement>(".pointDisplay"),
     messages = document.querySelectorAll<HTMLElement>(".endMessage"),
@@ -190,9 +192,8 @@ const inst = getElement("#instructions"),
     out = audio.createGain(),
     fs = new Array<GameObject>(),
     osc = new Array<GainNode>(),
-    timers = new Map<GainNode, number>;
-
-out.connect(audio.destination);
+    timers = new Map<GainNode, number>,
+    base = Math.pow(2, 1 / 12);
 
 let fading = false,
     scale = 1,
@@ -205,28 +206,12 @@ let fading = false,
     repopulateTimer: number,
     dystopianTimer: number;
 
-inst.style.opacity = "1";
-
-var base = Math.pow(2, 1 / 12);
-
 function piano(n: number) {
     return 440 * Math.pow(base, n - 49);
 }
 
-for (var i = 0; i < 88; ++i) {
-    var gn = audio.createGain();
-    gn.gain.value = 0;
-    var o = audio.createOscillator();
-    o.frequency.value = piano(i + 1);
-    o.type = "sawtooth";
-    o.start();
-    o.connect(gn);
-    gn.connect(out);
-    osc.push(gn);
-}
-
 function play(i: number, volume: number, duration: number) {
-    var o = osc[i];
+    const o = osc[i];
     if (o) {
         if (timers.has(o)) {
             clearTimeout(timers.get(o));
@@ -249,7 +234,7 @@ function randomInt(min: number, max: number): number {
 }
 
 function music(t: number) {
-    var nt = 0;
+    let nt = 0;
     if (score > 0) {
         nt = Math.floor((t / 2000) % 4) + Math.floor((t / 1000) %
             2) / 2;
@@ -259,19 +244,19 @@ function music(t: number) {
     }
 
     if (lnt !== nt) {
-        var len = 0.2;
+        let len = 0.2;
         stringRandom
         if (nt >= randomInt(0, 4)) {
             nt = Math.floor(nt);
             len /= 2;
         }
         if (score > 0) {
-            var n = 25 - Math.floor(nt * 4) + randomInt(-1, 2) * 3;
+            const n = 25 - Math.floor(nt * 4) + randomInt(-1, 2) * 3;
             play(n, 0.04, len);
             play(n + 3, 0.04, len);
             play(n + 7, 0.04, len);
         } else {
-            var n = 40 + Math.floor(nt * 3) + randomInt(-1, 2) * 4;
+            const n = 40 + Math.floor(nt * 3) + randomInt(-1, 2) * 4;
             play(n, 0.04, 0.05);
             play(n + randomInt(3, 5), 0.04, 0.05);
         }
@@ -283,12 +268,6 @@ function shake(elem?: HTMLElement) {
     elem = elem || document.body;
     elem.style.transform = "translate(" + randomRange(-4, 4) +
         "px," + randomRange(-4, 4) + "px)";
-}
-
-function add<T extends GameObject>(obj: T): T {
-    fs.push(obj);
-    elementApply(document.body, obj);
-    return obj;
 }
 
 function isFace(obj: GameObject): obj is Face {
@@ -341,7 +320,7 @@ class Face implements GameObject {
         this.width = 5;
         this.height = 5;
 
-        this.boop = Div(className("boop"), "boop"); 
+        this.boop = Div(className("boop"), "boop");
         this.boopFor = 0;
         this.boopX = 0;
         this.boopY = 0;
@@ -379,9 +358,9 @@ class Face implements GameObject {
         this.shadow.style.left = this.element.style.left = this.x + "px";
         this.element.style.top = (this.y + 10 * this.z - 120) + "px";
         this.shadow.style.top = (10 * this.z + window.innerHeight - 120) + "px";
-        
 
-        var sy = Math.sqrt(Math.abs(this.dy)) * 10
+
+        const sy = Math.sqrt(Math.abs(this.dy)) * 10
         this.element.style.paddingLeft =
             this.element.style.paddingRight = (this.height + sy) + "px";
         this.element.style.paddingTop =
@@ -443,9 +422,9 @@ class Cloud implements GameObject {
         this.element = document.createElement("div");
         this.element.className = "cloud";
 
-        var n = randomInt(4, 7);
-        for (var i = 0; i < n; ++i) {
-            var b = document.createElement("div");
+        const n = randomInt(4, 7);
+        for (let i = 0; i < n; ++i) {
+            const b = document.createElement("div");
             b.className = "cloud-bit";
             b.style.top = randomRange(-25, 25) + "px";
             b.style.left = randomRange(-50, 50) + "px";
@@ -522,18 +501,12 @@ class Beam implements GameObject {
 
         if (this.firing) {
             shake(this.element);
-            for (var i = 0,
-                l =
-                    this.t /
-                    10;
-                i <
-                l;
-                ++i) {
+            for (let i = 0, l = this.t / 10; i < l; ++i) {
                 play(87 - i, 0.02, dt / 100);
             }
 
-            for (var i = 0; i < NUM_YABS; ++i) {
-                var yab = fs[i];
+            for (let i = 0; i < NUM_YABS; ++i) {
+                const yab = fs[i];
                 if (isFace(yab) && yab.alive && yab.onground) {
                     if (this.x <= yab.x + 50 && this.x + 50 >= yab.x) {
                         if (score === 0) {
@@ -541,16 +514,16 @@ class Beam implements GameObject {
                                 "block";
                             document.body.style.backgroundImage =
                                 "linear-gradient(hsl(0, 50%, 0%), hsl(0, 50%, 50%) 75%, hsl(0, 50%, 15%) 75%, hsl(0, 50%, 33%))";
-                            for (var j = 0; j < NUM_CLD; ++j) {
-                                var cld = fs[NUM_YABS + j].element;
-                                for (var k = 0; k < cld.children.length; ++k) {
-                                    var bit = (cld.children[k] as HTMLElement).style;
+                            for (let j = 0; j < NUM_CLD; ++j) {
+                                const cld = fs[NUM_YABS + j].element;
+                                for (let k = 0; k < cld.children.length; ++k) {
+                                    const bit = (cld.children[k] as HTMLElement).style;
                                     bit.backgroundColor = "black";
                                 }
                             }
                         }
                         ++score;
-                        for (var j = 0; j < scoreBoxes.length; ++j) {
+                        for (let j = 0; j < scoreBoxes.length; ++j) {
                             scoreBoxes[j].innerHTML = score.toFixed(0);
                         }
                         shake(yab.element);
@@ -592,8 +565,8 @@ class Beam implements GameObject {
                 }
             }
         } else if (this.charging) {
-            var n = Math.floor(this.t / 10) + 70;
-            for (var i = 70; i < n; ++i) {
+            const n = Math.floor(this.t / 10) + 70;
+            for (let i = 70; i < n; ++i) {
                 play(i, 0.02, dt / 100);
             }
         }
@@ -608,7 +581,7 @@ class Beam implements GameObject {
         this.element.style.left = this.x + "px";
         this.element.style.top = this.y + "px";
 
-        var c = "hsl(0, 100%, " + this.t + "%)";
+        const c = "hsl(0, 100%, " + this.t + "%)";
         this.element.style.backgroundColor =
             this.subBeam.style.backgroundColor = c;
         this.element.style.boxShadow = this.subBeam.style.boxShadow =
@@ -643,11 +616,29 @@ class Beam implements GameObject {
     }
 }
 
-for (var i = 0; i < NUM_YABS; ++i) {
+function add<T extends GameObject>(obj: T): T {
+    fs.push(obj);
+    elementApply(document.body, obj);
+    return obj;
+}
+
+for (let i = 0; i < 88; ++i) {
+    const gn = audio.createGain();
+    gn.gain.value = 0;
+    const o = audio.createOscillator();
+    o.frequency.value = piano(i + 1);
+    o.type = "sawtooth";
+    o.start();
+    o.connect(gn);
+    gn.connect(out);
+    osc.push(gn);
+}
+
+for (let i = 0; i < NUM_YABS; ++i) {
     add(new Face());
 }
 
-for (var i = 0; i < NUM_CLD; ++i) {
+for (let i = 0; i < NUM_CLD; ++i) {
     add(new Cloud());
 }
 
@@ -684,12 +675,12 @@ function animate(t: number) {
     if (lt != null) {
         dt += (t - lt) / 10;
         while (dt >= step) {
-            for (var i = 0; i < fs.length; ++i) {
+            for (let i = 0; i < fs.length; ++i) {
                 fs[i].update(step);
             }
             dt -= step;
         }
-        for (var i = 0; i < fs.length; ++i) {
+        for (let i = 0; i < fs.length; ++i) {
             fs[i].render();
         }
     }
@@ -705,9 +696,20 @@ setTimeout(function () {
     fading = true;
 }, 5000);
 
-var goodEndingTimer = setTimeout(function () {
+const goodEndingTimer = setTimeout(function () {
     messages[messages.length - 1].style.display = "block";
     beam.disable();
 }, 15000);
 
-requestAnimationFrame(animate);
+
+(async function () {
+    out.connect(audio.destination);
+    inst.style.opacity = "1";
+    starter.style.display = "block";
+    await audioReady(audio);
+    starter.style.display = "none";
+    inst.style.display = "block";
+    requestAnimationFrame(animate);
+})();
+
+
