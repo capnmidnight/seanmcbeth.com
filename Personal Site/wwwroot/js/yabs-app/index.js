@@ -71,6 +71,16 @@ function arrayInsertAt(arr, item, idx) {
   arr.splice(idx, 0, item);
 }
 
+// ../Juniper/src/Juniper.TypeScript/tslib/collections/arrayRandom.ts
+function arrayRandom(arr, defaultValue) {
+  const offset = defaultValue != null ? 1 : 0, idx = Math.floor(Math.random() * (arr.length + offset)) - offset;
+  if (idx < 0) {
+    return defaultValue;
+  } else {
+    return arr[idx];
+  }
+}
+
 // ../Juniper/src/Juniper.TypeScript/tslib/collections/arrayRemove.ts
 function arrayRemove(arr, value) {
   const idx = arr.indexOf(value);
@@ -113,7 +123,7 @@ var BaseGraphNode = class {
   }
   connectSorted(child, keySelector) {
     if (isDefined(keySelector)) {
-      arraySortedInsert(this._forward, child, (n3) => keySelector(n3.value));
+      arraySortedInsert(this._forward, child, (n2) => keySelector(n2.value));
       child._reverse.push(this);
     } else {
       this.connectTo(child);
@@ -138,7 +148,7 @@ var BaseGraphNode = class {
     const queue = [this];
     while (queue.length > 0) {
       const here = queue.shift();
-      if (!nodes.has(here)) {
+      if (isDefined(here) && !nodes.has(here)) {
         nodes.add(here);
         queue.push(...here._forward);
       }
@@ -259,7 +269,7 @@ var PriorityList = class {
     if (isDefined(list)) {
       return list.length;
     }
-    return null;
+    return 0;
   }
   get size() {
     let size = this.defaultItems.length;
@@ -619,6 +629,23 @@ function singleton(name, create) {
   return value;
 }
 
+// ../Juniper/src/Juniper.TypeScript/tslib/strings/stringRandom.ts
+var DEFAULT_CHAR_SET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZ";
+function stringRandom(length, charSet) {
+  if (length < 0) {
+    throw new Error("Length must be greater than 0");
+  }
+  if (isNullOrUndefined(charSet)) {
+    charSet = DEFAULT_CHAR_SET;
+  }
+  let str = "";
+  for (let i = 0; i < length; ++i) {
+    const idx = Math.floor(Math.random() * charSet.length);
+    str += charSet[idx];
+  }
+  return str;
+}
+
 // ../Juniper/src/Juniper.TypeScript/tslib/timers/ITimer.ts
 var BaseTimerTickEvent = class {
   constructor() {
@@ -627,8 +654,8 @@ var BaseTimerTickEvent = class {
     __publicField(this, "sdt", 0);
     __publicField(this, "fps", 0);
   }
-  set(t3, dt2) {
-    this.t = t3;
+  set(t2, dt2) {
+    this.t = t2;
     this.dt = dt2;
     this.sdt = lerp(this.sdt, dt2, 0.01);
     if (dt2 > 0) {
@@ -655,13 +682,13 @@ var BaseTimer = class {
     this.targetFPS = targetFrameRate;
     const tickEvt = new TimerTickEvent();
     let dt2 = 0;
-    this.onTick = (t3) => {
+    this.onTick = (t2) => {
       if (this.lt >= 0) {
-        dt2 = t3 - this.lt;
-        tickEvt.set(t3, dt2);
+        dt2 = t2 - this.lt;
+        tickEvt.set(t2, dt2);
         this.tick(tickEvt);
       }
-      this.lt = t3;
+      this.lt = t2;
     };
   }
   get targetFPS() {
@@ -979,7 +1006,7 @@ var Attr = class {
     this.key = key;
     this.value = value;
     this.bySetAttribute = bySetAttribute;
-    this.tags = tags.map((t3) => t3.toLocaleUpperCase());
+    this.tags = tags.map((t2) => t2.toLocaleUpperCase());
     Object.freeze(this);
   }
   applyToElement(elem) {
@@ -1025,7 +1052,6 @@ var CssProp = class {
   constructor(key, value) {
     this.key = key;
     this.value = value;
-    __publicField(this, "name");
     this.name = key.replace(/[A-Z]/g, (m) => `-${m.toLocaleLowerCase()}`);
   }
   applyToElement(elem) {
@@ -1034,7 +1060,6 @@ var CssProp = class {
 };
 var CssPropSet = class {
   constructor(...rest) {
-    __publicField(this, "rest");
     this.rest = rest;
   }
   applyToElement(elem) {
@@ -1258,687 +1283,6 @@ function onTouchStart(callback, opts) {
   return new HtmlEvt("touchstart", callback, opts);
 }
 
-// node_modules/@juniper-lib/tslib/collections/arrayRemoveAt.ts
-function arrayRemoveAt2(arr, idx) {
-  return arr.splice(idx, 1)[0];
-}
-
-// node_modules/@juniper-lib/tslib/collections/arrayClear.ts
-function arrayClear2(arr) {
-  return arr.splice(0);
-}
-
-// node_modules/@juniper-lib/tslib/collections/arrayRandom.ts
-function arrayRandom(arr, defaultValue) {
-  const offset = defaultValue != null ? 1 : 0, idx = Math.floor(Math.random() * (arr.length + offset)) - offset;
-  if (idx < 0) {
-    return defaultValue;
-  } else {
-    return arr[idx];
-  }
-}
-
-// node_modules/@juniper-lib/tslib/collections/arrayRemove.ts
-function arrayRemove2(arr, value) {
-  const idx = arr.indexOf(value);
-  if (idx > -1) {
-    arrayRemoveAt2(arr, idx);
-    return true;
-  }
-  return false;
-}
-
-// node_modules/@juniper-lib/tslib/collections/PriorityList.ts
-var PriorityList2 = class {
-  constructor(init) {
-    this.items = /* @__PURE__ */ new Map();
-    this.defaultItems = new Array();
-    if (isDefined2(init)) {
-      for (const [key, value] of init) {
-        this.add(key, value);
-      }
-    }
-  }
-  add(key, value) {
-    if (isNullOrUndefined2(key)) {
-      this.defaultItems.push(value);
-    } else {
-      let list = this.items.get(key);
-      if (isNullOrUndefined2(list)) {
-        this.items.set(key, list = []);
-      }
-      list.push(value);
-    }
-    return this;
-  }
-  entries() {
-    return this.items.entries();
-  }
-  [Symbol.iterator]() {
-    return this.entries();
-  }
-  keys() {
-    return this.items.keys();
-  }
-  *values() {
-    for (const item of this.defaultItems) {
-      yield item;
-    }
-    for (const list of this.items.values()) {
-      for (const item of list) {
-        yield item;
-      }
-    }
-  }
-  has(key) {
-    if (isDefined2(key)) {
-      return this.items.has(key);
-    } else {
-      return this.defaultItems.length > 0;
-    }
-  }
-  get(key) {
-    if (isNullOrUndefined2(key)) {
-      return this.defaultItems;
-    }
-    return this.items.get(key) || [];
-  }
-  count(key) {
-    if (isNullOrUndefined2(key)) {
-      return this.defaultItems.length;
-    }
-    const list = this.get(key);
-    if (isDefined2(list)) {
-      return list.length;
-    }
-    return null;
-  }
-  get size() {
-    let size = this.defaultItems.length;
-    for (const list of this.items.values()) {
-      size += list.length;
-    }
-    return size;
-  }
-  delete(key) {
-    if (isNullOrUndefined2(key)) {
-      return arrayClear2(this.defaultItems).length > 0;
-    } else {
-      return this.items.delete(key);
-    }
-  }
-  remove(key, value) {
-    if (isNullOrUndefined2(key)) {
-      arrayRemove2(this.defaultItems, value);
-    } else {
-      const list = this.items.get(key);
-      if (isDefined2(list)) {
-        arrayRemove2(list, value);
-        if (list.length === 0) {
-          this.items.delete(key);
-        }
-      }
-    }
-  }
-  clear() {
-    this.items.clear();
-    arrayClear2(this.defaultItems);
-  }
-};
-
-// node_modules/@juniper-lib/tslib/events/Task.ts
-var Task2 = class {
-  constructor(resolveTestOrAutoStart, rejectTestOrAutoStart, autoStart = true) {
-    this._resolve = null;
-    this._reject = null;
-    this._result = null;
-    this._error = null;
-    this._started = false;
-    this._finished = false;
-    this.resolve = null;
-    this.reject = null;
-    let resolveTest = alwaysTrue2;
-    let rejectTest = alwaysTrue2;
-    if (isFunction2(resolveTestOrAutoStart)) {
-      resolveTest = resolveTestOrAutoStart;
-    }
-    if (isFunction2(rejectTestOrAutoStart)) {
-      rejectTest = rejectTestOrAutoStart;
-    }
-    if (isBoolean2(resolveTestOrAutoStart)) {
-      autoStart = resolveTestOrAutoStart;
-    } else if (isBoolean2(rejectTestOrAutoStart)) {
-      autoStart = rejectTestOrAutoStart;
-    }
-    this.resolve = (value) => {
-      if (isDefined2(this._resolve)) {
-        this._resolve(value);
-      }
-    };
-    this.reject = (reason) => {
-      if (isDefined2(this._reject)) {
-        this._reject(reason);
-      }
-    };
-    this.promise = new Promise((resolve, reject) => {
-      this._resolve = (value) => {
-        if (resolveTest(value)) {
-          this._result = value;
-          this._finished = true;
-          resolve(value);
-        }
-      };
-      this._reject = (reason) => {
-        if (rejectTest(reason)) {
-          this._error = reason;
-          this._finished = true;
-          reject(reason);
-        }
-      };
-    });
-    if (autoStart) {
-      this.start();
-    }
-  }
-  get result() {
-    if (isDefined2(this.error)) {
-      throw this.error;
-    }
-    return this._result;
-  }
-  get error() {
-    return this._error;
-  }
-  get started() {
-    return this._started;
-  }
-  get finished() {
-    return this._finished;
-  }
-  start() {
-    this._started = true;
-  }
-  get [Symbol.toStringTag]() {
-    return this.promise.toString();
-  }
-  then(onfulfilled, onrejected) {
-    return this.promise.then(onfulfilled, onrejected);
-  }
-  catch(onrejected) {
-    return this.promise.catch(onrejected);
-  }
-  finally(onfinally) {
-    return this.promise.finally(onfinally);
-  }
-};
-
-// node_modules/@juniper-lib/tslib/events/Promisifier.ts
-var Promisifier2 = class {
-  constructor(resolveRejectTest, selectValue, selectRejectionReason) {
-    this.callback = null;
-    this.promise = new Promise((resolve, reject) => {
-      this.callback = (...args) => {
-        if (resolveRejectTest(...args)) {
-          resolve(selectValue(...args));
-        } else {
-          reject(selectRejectionReason(...args));
-        }
-      };
-    });
-  }
-  get [Symbol.toStringTag]() {
-    return this.promise.toString();
-  }
-  then(onfulfilled, onrejected) {
-    return this.promise.then(onfulfilled, onrejected);
-  }
-  catch(onrejected) {
-    return this.promise.catch(onrejected);
-  }
-  finally(onfinally) {
-    return this.promise.finally(onfinally);
-  }
-};
-
-// node_modules/@juniper-lib/tslib/flags.ts
-var oculusBrowserPattern2 = /OculusBrowser\/(\d+)\.(\d+)\.(\d+)/i;
-var oculusMatch2 = navigator.userAgent.match(oculusBrowserPattern2);
-var isOculusBrowser2 = !!oculusMatch2;
-var oculusBrowserVersion2 = isOculusBrowser2 && {
-  major: parseFloat(oculusMatch2[1]),
-  minor: parseFloat(oculusMatch2[2]),
-  patch: parseFloat(oculusMatch2[3])
-};
-var isOculusGo2 = isOculusBrowser2 && /pacific/i.test(navigator.userAgent);
-var isOculusQuest3 = isOculusBrowser2 && /quest/i.test(navigator.userAgent);
-var isOculusQuest22 = isOculusBrowser2 && /quest 2/i.test(navigator.userAgent);
-var isWorker2 = !("Document" in globalThis);
-
-// node_modules/@juniper-lib/tslib/gis/Datum.ts
-var invF2 = 298.257223563;
-var equatorialRadius2 = 6378137;
-var flattening2 = 1 / invF2;
-var flatteningComp2 = 1 - flattening2;
-var n2 = flattening2 / (2 - flattening2);
-var A2 = equatorialRadius2 / (1 + n2) * (1 + n2 * n2 / 4 + n2 * n2 * n2 * n2 / 64);
-var e2 = Math.sqrt(1 - flatteningComp2 * flatteningComp2);
-var esq2 = 1 - flatteningComp2 * flatteningComp2;
-var e0sq2 = e2 * e2 / (1 - e2 * e2);
-var alpha12 = 1 - esq2 * (0.25 + esq2 * (3 / 64 + 5 * esq2 / 256));
-var alpha22 = esq2 * (3 / 8 + esq2 * (3 / 32 + 45 * esq2 / 1024));
-var alpha32 = esq2 * esq2 * (15 / 256 + esq2 * 45 / 1024);
-var alpha42 = esq2 * esq2 * esq2 * (35 / 3072);
-var beta2 = [
-  n2 / 2 - 2 * n2 * n2 / 3 + 37 * n2 * n2 * n2 / 96,
-  n2 * n2 / 48 + n2 * n2 * n2 / 15,
-  17 * n2 * n2 * n2 / 480
-];
-var delta2 = [
-  2 * n2 - 2 * n2 * n2 / 3,
-  7 * n2 * n2 / 3 - 8 * n2 * n2 * n2 / 5,
-  56 * n2 * n2 * n2 / 15
-];
-
-// node_modules/@juniper-lib/tslib/identity.ts
-function alwaysTrue2() {
-  return true;
-}
-
-// node_modules/@juniper-lib/tslib/math/angleClamp.ts
-var Tau2 = 2 * Math.PI;
-
-// node_modules/@juniper-lib/tslib/math/lerp.ts
-function lerp2(a, b, p) {
-  return (1 - p) * a + p * b;
-}
-
-// node_modules/@juniper-lib/tslib/typeChecks.ts
-function t2(o, s, c) {
-  return typeof o === s || o instanceof c;
-}
-function isFunction2(obj) {
-  return t2(obj, "function", Function);
-}
-function isBoolean2(obj) {
-  return t2(obj, "boolean", Boolean);
-}
-function isNullOrUndefined2(obj) {
-  return obj === null || obj === void 0;
-}
-function isDefined2(obj) {
-  return !isNullOrUndefined2(obj);
-}
-
-// node_modules/@juniper-lib/tslib/strings/stringRandom.ts
-var DEFAULT_CHAR_SET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZ";
-function stringRandom(length, charSet) {
-  if (length < 0) {
-    throw new Error("Length must be greater than 0");
-  }
-  if (isNullOrUndefined2(charSet)) {
-    charSet = DEFAULT_CHAR_SET;
-  }
-  let str = "";
-  for (let i = 0; i < length; ++i) {
-    const idx = Math.floor(Math.random() * charSet.length);
-    str += charSet[idx];
-  }
-  return str;
-}
-
-// node_modules/@juniper-lib/tslib/timers/ITimer.ts
-var BaseTimerTickEvent2 = class {
-  constructor() {
-    this.t = 0;
-    this.dt = 0;
-    this.sdt = 0;
-    this.fps = 0;
-  }
-  set(t3, dt2) {
-    this.t = t3;
-    this.dt = dt2;
-    this.sdt = lerp2(this.sdt, dt2, 0.01);
-    if (dt2 > 0) {
-      this.fps = 1e3 / dt2;
-    }
-  }
-};
-var TimerTickEvent2 = class extends BaseTimerTickEvent2 {
-  constructor() {
-    super();
-    Object.seal(this);
-  }
-};
-
-// node_modules/@juniper-lib/tslib/timers/BaseTimer.ts
-var _targetFPS2;
-var BaseTimer2 = class {
-  constructor(targetFrameRate) {
-    this.timer = null;
-    this.lt = -1;
-    this.tickHandlers = new Array();
-    __privateAdd(this, _targetFPS2, null);
-    this.targetFPS = targetFrameRate;
-    const tickEvt = new TimerTickEvent2();
-    let dt2 = 0;
-    this.onTick = (t3) => {
-      if (this.lt >= 0) {
-        dt2 = t3 - this.lt;
-        tickEvt.set(t3, dt2);
-        this.tick(tickEvt);
-      }
-      this.lt = t3;
-    };
-  }
-  get targetFPS() {
-    return __privateGet(this, _targetFPS2);
-  }
-  set targetFPS(v) {
-    __privateSet(this, _targetFPS2, v);
-  }
-  addTickHandler(onTick) {
-    this.tickHandlers.push(onTick);
-  }
-  removeTickHandler(onTick) {
-    arrayRemove2(this.tickHandlers, onTick);
-  }
-  tick(evt) {
-    for (const handler of this.tickHandlers) {
-      handler(evt);
-    }
-  }
-  restart() {
-    this.stop();
-    this.start();
-  }
-  get isRunning() {
-    return this.timer != null;
-  }
-  stop() {
-    this.timer = null;
-    this.lt = -1;
-  }
-  get targetFrameTime() {
-    return 1e3 / this.targetFPS;
-  }
-};
-_targetFPS2 = new WeakMap();
-
-// node_modules/@juniper-lib/tslib/URLBuilder.ts
-function parsePort2(portString) {
-  if (isDefined2(portString) && portString.length > 0) {
-    return parseFloat(portString);
-  }
-  return null;
-}
-var URLBuilder2 = class {
-  constructor(url, base2) {
-    this._url = null;
-    this._base = void 0;
-    this._protocol = null;
-    this._host = null;
-    this._hostName = null;
-    this._userName = null;
-    this._password = null;
-    this._port = null;
-    this._pathName = null;
-    this._hash = null;
-    this._query = /* @__PURE__ */ new Map();
-    if (url !== void 0) {
-      this._url = new URL(url, base2);
-      this.rehydrate();
-    }
-  }
-  rehydrate() {
-    if (isDefined2(this._protocol) && this._protocol !== this._url.protocol) {
-      this._url.protocol = this._protocol;
-    }
-    if (isDefined2(this._host) && this._host !== this._url.host) {
-      this._url.host = this._host;
-    }
-    if (isDefined2(this._hostName) && this._hostName !== this._url.hostname) {
-      this._url.hostname = this._hostName;
-    }
-    if (isDefined2(this._userName) && this._userName !== this._url.username) {
-      this._url.username = this._userName;
-    }
-    if (isDefined2(this._password) && this._password !== this._url.password) {
-      this._url.password = this._password;
-    }
-    if (isDefined2(this._port) && this._port.toFixed(0) !== this._url.port) {
-      this._url.port = this._port.toFixed(0);
-    }
-    if (isDefined2(this._pathName) && this._pathName !== this._url.pathname) {
-      this._url.pathname = this._pathName;
-    }
-    if (isDefined2(this._hash) && this._hash !== this._url.hash) {
-      this._url.hash = this._hash;
-    }
-    for (const [k, v] of this._query) {
-      this._url.searchParams.set(k, v);
-    }
-    this._protocol = this._url.protocol;
-    this._host = this._url.host;
-    this._hostName = this._url.hostname;
-    this._userName = this._url.username;
-    this._password = this._url.password;
-    this._port = parsePort2(this._url.port);
-    this._pathName = this._url.pathname;
-    this._hash = this._url.hash;
-    this._url.searchParams.forEach((v, k) => this._query.set(k, v));
-  }
-  refresh() {
-    if (this._url === null) {
-      if (isDefined2(this._protocol) && (isDefined2(this._host) || isDefined2(this._hostName))) {
-        if (isDefined2(this._host)) {
-          this._url = new URL(`${this._protocol}//${this._host}`, this._base);
-          this._port = parsePort2(this._url.port);
-          this.rehydrate();
-          return false;
-        } else if (isDefined2(this._hostName)) {
-          this._url = new URL(`${this._protocol}//${this._hostName}`, this._base);
-          this.rehydrate();
-          return false;
-        }
-      } else if (isDefined2(this._pathName) && isDefined2(this._base)) {
-        this._url = new URL(this._pathName, this._base);
-        this.rehydrate();
-        return false;
-      }
-    }
-    return isDefined2(this._url);
-  }
-  base(base2) {
-    if (this._url !== null) {
-      throw new Error("Cannot redefine base after defining the protocol and domain");
-    }
-    this._base = base2;
-    this.refresh();
-    return this;
-  }
-  protocol(protocol) {
-    this._protocol = protocol;
-    if (this.refresh()) {
-      this._url.protocol = protocol;
-    }
-    return this;
-  }
-  host(host) {
-    this._host = host;
-    if (this.refresh()) {
-      this._url.host = host;
-      this._hostName = this._url.hostname;
-      this._port = parsePort2(this._url.port);
-    }
-    return this;
-  }
-  hostName(hostName) {
-    this._hostName = hostName;
-    if (this.refresh()) {
-      this._url.hostname = hostName;
-      this._host = `${this._url.hostname}:${this._url.port}`;
-    }
-    return this;
-  }
-  port(port) {
-    this._port = port;
-    if (this.refresh()) {
-      this._url.port = port.toFixed(0);
-      this._host = `${this._url.hostname}:${this._url.port}`;
-    }
-    return this;
-  }
-  userName(userName) {
-    this._userName = userName;
-    if (this.refresh()) {
-      this._url.username = userName;
-    }
-    return this;
-  }
-  password(password) {
-    this._password = password;
-    if (this.refresh()) {
-      this._url.password = password;
-    }
-    return this;
-  }
-  path(path) {
-    this._pathName = path;
-    if (this.refresh()) {
-      this._url.pathname = path;
-    }
-    return this;
-  }
-  pathPop(pattern) {
-    pattern = pattern || /\/[^\/]+\/?$/;
-    return this.path(this._pathName.replace(pattern, ""));
-  }
-  pathPush(part) {
-    let path = this._pathName;
-    if (!path.endsWith("/")) {
-      path += "/";
-    }
-    path += part;
-    return this.path(path);
-  }
-  query(name, value) {
-    this._query.set(name, value);
-    if (this.refresh()) {
-      this._url.searchParams.set(name, value);
-    }
-    return this;
-  }
-  hash(hash) {
-    this._hash = hash;
-    if (this.refresh()) {
-      this._url.hash = hash;
-    }
-    return this;
-  }
-  toURL() {
-    return this._url;
-  }
-  toString() {
-    return this._url.href;
-  }
-  [Symbol.toStringTag]() {
-    return this.toString();
-  }
-};
-
-// node_modules/@juniper-lib/tslib/collections/mapInvert.ts
-function mapInvert2(map) {
-  const mapOut = /* @__PURE__ */ new Map();
-  for (const [key, value] of map) {
-    mapOut.set(value, key);
-  }
-  return mapOut;
-}
-
-// node_modules/@juniper-lib/tslib/units/fileSize.ts
-var base2Labels2 = /* @__PURE__ */ new Map([
-  [1, "KiB"],
-  [2, "MiB"],
-  [3, "GiB"],
-  [4, "TiB"]
-]);
-var base10Labels2 = /* @__PURE__ */ new Map([
-  [1, "KB"],
-  [2, "MB"],
-  [3, "GB"],
-  [4, "TB"]
-]);
-var base2Sizes2 = mapInvert2(base2Labels2);
-var base10Sizes2 = mapInvert2(base10Labels2);
-
-// node_modules/@juniper-lib/tslib/units/length.ts
-var MICROMETERS_PER_MILLIMETER2 = 1e3;
-var MILLIMETERS_PER_CENTIMETER2 = 10;
-var CENTIMETERS_PER_INCH2 = 2.54;
-var CENTIMETERS_PER_METER2 = 100;
-var INCHES_PER_HAND2 = 4;
-var HANDS_PER_FOOT2 = 3;
-var FEET_PER_YARD2 = 3;
-var FEET_PER_ROD2 = 16.5;
-var METERS_PER_KILOMETER2 = 1e3;
-var RODS_PER_FURLONG2 = 40;
-var FURLONGS_PER_MILE2 = 8;
-var MICROMETERS_PER_CENTIMETER2 = MICROMETERS_PER_MILLIMETER2 * MILLIMETERS_PER_CENTIMETER2;
-var MICROMETERS_PER_INCH2 = MICROMETERS_PER_CENTIMETER2 * CENTIMETERS_PER_INCH2;
-var MICROMETERS_PER_HAND2 = MICROMETERS_PER_INCH2 * INCHES_PER_HAND2;
-var MICROMETERS_PER_FOOT2 = MICROMETERS_PER_HAND2 * HANDS_PER_FOOT2;
-var MICROMETERS_PER_YARD2 = MICROMETERS_PER_FOOT2 * FEET_PER_YARD2;
-var MICROMETERS_PER_METER2 = MICROMETERS_PER_CENTIMETER2 * CENTIMETERS_PER_METER2;
-var MICROMETERS_PER_ROD2 = MICROMETERS_PER_FOOT2 * FEET_PER_ROD2;
-var MICROMETERS_PER_FURLONG2 = MICROMETERS_PER_ROD2 * RODS_PER_FURLONG2;
-var MICROMETERS_PER_KILOMETER2 = MICROMETERS_PER_METER2 * METERS_PER_KILOMETER2;
-var MICROMETERS_PER_MILE2 = MICROMETERS_PER_FURLONG2 * FURLONGS_PER_MILE2;
-var MILLIMETERS_PER_INCH2 = MILLIMETERS_PER_CENTIMETER2 * CENTIMETERS_PER_INCH2;
-var MILLIMETERS_PER_HAND2 = MILLIMETERS_PER_INCH2 * INCHES_PER_HAND2;
-var MILLIMETERS_PER_FOOT2 = MILLIMETERS_PER_HAND2 * HANDS_PER_FOOT2;
-var MILLIMETERS_PER_YARD2 = MILLIMETERS_PER_FOOT2 * FEET_PER_YARD2;
-var MILLIMETERS_PER_METER2 = MILLIMETERS_PER_CENTIMETER2 * CENTIMETERS_PER_METER2;
-var MILLIMETERS_PER_ROD2 = MILLIMETERS_PER_FOOT2 * FEET_PER_ROD2;
-var MILLIMETERS_PER_FURLONG2 = MILLIMETERS_PER_ROD2 * RODS_PER_FURLONG2;
-var MILLIMETERS_PER_KILOMETER2 = MILLIMETERS_PER_METER2 * METERS_PER_KILOMETER2;
-var MILLIMETERS_PER_MILE2 = MILLIMETERS_PER_FURLONG2 * FURLONGS_PER_MILE2;
-var CENTIMETERS_PER_HAND2 = CENTIMETERS_PER_INCH2 * INCHES_PER_HAND2;
-var CENTIMETERS_PER_FOOT2 = CENTIMETERS_PER_HAND2 * HANDS_PER_FOOT2;
-var CENTIMETERS_PER_YARD2 = CENTIMETERS_PER_FOOT2 * FEET_PER_YARD2;
-var CENTIMETERS_PER_ROD2 = CENTIMETERS_PER_FOOT2 * FEET_PER_ROD2;
-var CENTIMETERS_PER_FURLONG2 = CENTIMETERS_PER_ROD2 * RODS_PER_FURLONG2;
-var CENTIMETERS_PER_KILOMETER2 = CENTIMETERS_PER_METER2 * METERS_PER_KILOMETER2;
-var CENTIMETERS_PER_MILE2 = CENTIMETERS_PER_FURLONG2 * FURLONGS_PER_MILE2;
-var INCHES_PER_FOOT2 = INCHES_PER_HAND2 * HANDS_PER_FOOT2;
-var INCHES_PER_YARD2 = INCHES_PER_FOOT2 * FEET_PER_YARD2;
-var INCHES_PER_METER2 = CENTIMETERS_PER_METER2 / CENTIMETERS_PER_INCH2;
-var INCHES_PER_ROD2 = INCHES_PER_FOOT2 * FEET_PER_ROD2;
-var INCHES_PER_FURLONG2 = INCHES_PER_ROD2 * RODS_PER_FURLONG2;
-var INCHES_PER_KILOMETER2 = INCHES_PER_METER2 * METERS_PER_KILOMETER2;
-var INCHES_PER_MILE2 = INCHES_PER_FURLONG2 * FURLONGS_PER_MILE2;
-var HANDS_PER_YARD2 = HANDS_PER_FOOT2 * FEET_PER_YARD2;
-var HANDS_PER_METER2 = CENTIMETERS_PER_METER2 / CENTIMETERS_PER_HAND2;
-var HANDS_PER_ROD2 = HANDS_PER_FOOT2 * FEET_PER_ROD2;
-var HANDS_PER_FURLONG2 = HANDS_PER_ROD2 * RODS_PER_FURLONG2;
-var HANDS_PER_KILOMETER2 = HANDS_PER_METER2 * METERS_PER_KILOMETER2;
-var HANDS_PER_MILE2 = HANDS_PER_FURLONG2 * FURLONGS_PER_MILE2;
-var FEET_PER_METER2 = INCHES_PER_METER2 / INCHES_PER_FOOT2;
-var FEET_PER_FURLONG2 = FEET_PER_ROD2 * RODS_PER_FURLONG2;
-var FEET_PER_KILOMETER2 = FEET_PER_METER2 * METERS_PER_KILOMETER2;
-var FEET_PER_MILE2 = FEET_PER_FURLONG2 * FURLONGS_PER_MILE2;
-var YARDS_PER_METER2 = INCHES_PER_METER2 / INCHES_PER_YARD2;
-var YARDS_PER_ROD2 = FEET_PER_ROD2 / FEET_PER_YARD2;
-var YARDS_PER_FURLONG2 = YARDS_PER_ROD2 * RODS_PER_FURLONG2;
-var YARDS_PER_KILOMETER2 = YARDS_PER_METER2 * METERS_PER_KILOMETER2;
-var YARDS_PER_MILE2 = YARDS_PER_FURLONG2 * FURLONGS_PER_MILE2;
-var METERS_PER_ROD2 = FEET_PER_ROD2 / FEET_PER_METER2;
-var METERS_PER_FURLONG2 = METERS_PER_ROD2 * RODS_PER_FURLONG2;
-var METERS_PER_MILE2 = METERS_PER_FURLONG2 * FURLONGS_PER_MILE2;
-var RODS_PER_KILOMETER2 = METERS_PER_KILOMETER2 / METERS_PER_ROD2;
-var RODS_PER_MILE2 = RODS_PER_FURLONG2 * FURLONGS_PER_MILE2;
-var FURLONGS_PER_KILOMETER2 = METERS_PER_KILOMETER2 / METERS_PER_FURLONG2;
-var KILOMETERS_PER_MILE2 = FURLONGS_PER_MILE2 / FURLONGS_PER_KILOMETER2;
-
 // ../Juniper/src/Juniper.TypeScript/dom/onUserGesture.ts
 var gestures = [
   "change",
@@ -2102,8 +1446,8 @@ var score = 0;
 var kills = 0;
 var repopulateTimer;
 var dystopianTimer;
-function piano(n3) {
-  return 440 * Math.pow(base, n3 - 49);
+function piano(n2) {
+  return 440 * Math.pow(base, n2 - 49);
 }
 function play(i, volume, duration) {
   const o = osc[i];
@@ -2125,12 +1469,12 @@ function randomRange(min, max) {
 function randomInt(min, max) {
   return Math.floor(randomRange(min, max));
 }
-function music(t3) {
+function music(t2) {
   let nt = 0;
   if (score > 0) {
-    nt = Math.floor(t3 / 2e3 % 4) + Math.floor(t3 / 1e3 % 2) / 2;
+    nt = Math.floor(t2 / 2e3 % 4) + Math.floor(t2 / 1e3 % 2) / 2;
   } else {
-    nt = Math.floor(t3 / 500 % 4) + Math.floor(t3 / 250 % 3) / 3;
+    nt = Math.floor(t2 / 500 % 4) + Math.floor(t2 / 250 % 3) / 3;
   }
   if (lnt !== nt) {
     let len = 0.2;
@@ -2140,14 +1484,14 @@ function music(t3) {
       len /= 2;
     }
     if (score > 0) {
-      const n3 = 25 - Math.floor(nt * 4) + randomInt(-1, 2) * 3;
-      play(n3, 0.04, len);
-      play(n3 + 3, 0.04, len);
-      play(n3 + 7, 0.04, len);
+      const n2 = 25 - Math.floor(nt * 4) + randomInt(-1, 2) * 3;
+      play(n2, 0.04, len);
+      play(n2 + 3, 0.04, len);
+      play(n2 + 7, 0.04, len);
     } else {
-      const n3 = 40 + Math.floor(nt * 3) + randomInt(-1, 2) * 4;
-      play(n3, 0.04, 0.05);
-      play(n3 + randomInt(3, 5), 0.04, 0.05);
+      const n2 = 40 + Math.floor(nt * 3) + randomInt(-1, 2) * 4;
+      play(n2, 0.04, 0.05);
+      play(n2 + randomInt(3, 5), 0.04, 0.05);
     }
   }
   lnt = nt;
@@ -2272,8 +1616,8 @@ var Cloud = class {
     __publicField(this, "dx");
     this.element = document.createElement("div");
     this.element.className = "cloud";
-    const n3 = randomInt(4, 7);
-    for (let i = 0; i < n3; ++i) {
+    const n2 = randomInt(4, 7);
+    for (let i = 0; i < n2; ++i) {
       const b = document.createElement("div");
       b.className = "cloud-bit";
       b.style.top = randomRange(-25, 25) + "px";
@@ -2398,8 +1742,8 @@ var Beam = class {
         }
       }
     } else if (this.charging) {
-      const n3 = Math.floor(this.t / 10) + 70;
-      for (let i = 70; i < n3; ++i) {
+      const n2 = Math.floor(this.t / 10) + 70;
+      for (let i = 70; i < n2; ++i) {
         play(i, 0.02, dt2 / 100);
       }
     }
@@ -2482,11 +1826,11 @@ document.addEventListener("touchend", function(evt) {
     evt.preventDefault();
   }
 }, false);
-function animate(t3) {
+function animate(t2) {
   requestAnimationFrame(animate);
-  music(t3);
+  music(t2);
   if (lt != null) {
-    dt += (t3 - lt) / 10;
+    dt += (t2 - lt) / 10;
     while (dt >= step) {
       for (let i = 0; i < fs.length; ++i) {
         fs[i].update(step);
@@ -2497,7 +1841,7 @@ function animate(t3) {
       fs[i].render();
     }
   }
-  lt = t3;
+  lt = t2;
   if (fading && scale > 0) {
     inst.style.opacity = (parseFloat(inst.style.opacity) - 0.05).toFixed(3);
     scale -= 0.05;
