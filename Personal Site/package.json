@@ -10,14 +10,14 @@
   "devDependencies": {
     "@juniper-lib/esbuild": "file:../Juniper/src/Juniper.TypeScript/esbuild",
     "@juniper-lib/tdd": "file:../Juniper/src/Juniper.TypeScript/testing",
-    "@types/dom-mediacapture-record": "1.0.11",
-    "@juniper-types/dom-types": "1.0.0",
+    "@juniper-types/dom-types": "1.1.0",
     "@juniper-types/extra-types": "1.2.0",
-    "@types/three": "0.140.0",
+    "@types/dom-mediacapture-record": "1.0.11",
+    "@types/three": "0.141.0",
     "@types/web-bluetooth": "0.0.14",
     "@types/webxr": "0.4.0",
     "@typescript/analyze-trace": "0.9.0",
-    "esbuild": "0.14.39",
+    "esbuild": "0.14.42",
     "esbuild-plugin-glsl": "1.1.0",
     "typescript": "4.7.2"
   },
@@ -29,16 +29,19 @@
     "@juniper-lib/emoji": "file:../Juniper/src/Juniper.TypeScript/emoji",
     "@juniper-lib/fetcher": "file:../Juniper/src/Juniper.TypeScript/fetcher",
     "@juniper-lib/fetcher-worker": "file:../Juniper/src/Juniper.TypeScript/fetcher-worker",
+    "@juniper-lib/mediatypes": "file:../Juniper/src/Juniper.TypeScript/mediatypes",
     "@juniper-lib/physics": "file:../Juniper/src/Juniper.TypeScript/physics",
     "@juniper-lib/physics-worker": "file:../Juniper/src/Juniper.TypeScript/physics-worker",
     "@juniper-lib/tests": "file:../Juniper/src/Juniper.TypeScript/tests",
     "@juniper-lib/threejs": "file:../Juniper/src/Juniper.TypeScript/threejs",
-    "@juniper-lib/tslib": "1.1.0",
+    "@juniper-lib/tslib": "1.2.0",
     "@juniper-lib/webrtc": "file:../Juniper/src/Juniper.TypeScript/webrtc",
     "@juniper-lib/worker-client": "file:../Juniper/src/Juniper.TypeScript/worker-client",
     "@juniper-lib/worker-server": "file:../Juniper/src/Juniper.TypeScript/worker-server",
+    "@juniper-types/indexdb": "file:../Juniper/src/Juniper.TypeScript/indexdb-types",
+    "@types/offscreencanvas": "2019.7.0",
     "gl-matrix": "3.4.3",
     "pdfjs-dist": "2.14.305",
-    "three": "0.140.2"
+    "three": "0.141.0"
   }
 }
