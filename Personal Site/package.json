@@ -9,7 +9,7 @@
   },
   "devDependencies": {
     "@juniper-lib/esbuild": "file:../Juniper/src/Juniper.TypeScript/@juniper-lib/esbuild",
-    "@juniper-lib/tdd": "file:../Juniper/src/Juniper.TypeScript/@juniper-lib/tdd",
+    "@juniper-lib/testing": "file:../Juniper/src/Juniper.TypeScript/@juniper-lib/testing",
     "@juniper-types/dom-types": "file:../Juniper/src/Juniper.TypeScript/@juniper-types/dom-types",
     "@juniper-types/extra-types": "file:../Juniper/src/Juniper.TypeScript/@juniper-types/extra-types",
     "@types/dom-mediacapture-record": "1.0.11",
