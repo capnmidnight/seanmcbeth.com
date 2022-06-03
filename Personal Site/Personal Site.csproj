@@ -12,6 +12,10 @@
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
 
+	<PropertyGroup Label="Configuration">
+		<TypeScriptTarget>ESNext</TypeScriptTarget>
+	</PropertyGroup>
+
 	<ItemGroup>
 		<PackageReference Include="Microsoft.ASPNetCore.Hosting.Abstractions" Version="2.2.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="6.0.5" />

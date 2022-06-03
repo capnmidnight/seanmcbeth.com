@@ -23,17 +23,27 @@ var __privateSet = (obj, member, value, setter) => {
   return value;
 };
 
-// ../Juniper/src/Juniper.TypeScript/tslib/collections/arrayRemoveAt.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/arrayRemoveAt.ts
 function arrayRemoveAt(arr, idx) {
   return arr.splice(idx, 1)[0];
 }
 
-// ../Juniper/src/Juniper.TypeScript/tslib/collections/arrayClear.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/arrayClear.ts
 function arrayClear(arr) {
   return arr.splice(0);
 }
 
-// ../Juniper/src/Juniper.TypeScript/tslib/collections/arrayRemove.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/arrayCompare.ts
+function arrayCompare(arr1, arr2) {
+  for (let i = 0; i < arr1.length; ++i) {
+    if (arr1[i] !== arr2[i]) {
+      return i;
+    }
+  }
+  return -1;
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/arrayRemove.ts
 function arrayRemove(arr, value) {
   const idx = arr.indexOf(value);
   if (idx > -1) {
@@ -43,7 +53,12 @@ function arrayRemove(arr, value) {
   return false;
 }
 
-// ../Juniper/src/Juniper.TypeScript/tslib/collections/mapJoin.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/mapMap.ts
+function mapMap(items, makeID, makeValue) {
+  return new Map(items.map((item) => [makeID(item), makeValue(item)]));
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/mapJoin.ts
 function mapJoin(dest, ...sources) {
   for (const source of sources) {
     if (isDefined(source)) {
@@ -55,7 +70,7 @@ function mapJoin(dest, ...sources) {
   return dest;
 }
 
-// ../Juniper/src/Juniper.TypeScript/tslib/collections/PriorityList.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/PriorityList.ts
 var PriorityList = class {
   constructor(init) {
     __publicField(this, "items", /* @__PURE__ */ new Map());
@@ -153,7 +168,7 @@ var PriorityList = class {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/tslib/collections/PriorityMap.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/PriorityMap.ts
 var PriorityMap = class {
   constructor(init) {
     __publicField(this, "items", /* @__PURE__ */ new Map());
@@ -231,7 +246,7 @@ var PriorityMap = class {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/tslib/events/EventBase.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/events/EventBase.ts
 var EventBase = class {
   constructor() {
     __publicField(this, "listeners", /* @__PURE__ */ new Map());
@@ -352,7 +367,7 @@ var TypedEventBase = class extends EventBase {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/tslib/events/Task.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/events/Task.ts
 var Task = class {
   constructor(resolveTestOrAutoStart, rejectTestOrAutoStart, autoStart = true) {
     __publicField(this, "promise");
@@ -439,7 +454,7 @@ var Task = class {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/tslib/events/once.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/events/once.ts
 function targetValidateEvent(target, type2) {
   return "on" + type2 in target;
 }
@@ -480,8 +495,11 @@ function once(target, resolveEvt, rejectEvtOrTimeout, ...rejectEvts) {
   }
   return task;
 }
+function success(task) {
+  return task.then(alwaysTrue).catch(alwaysFalse);
+}
 
-// ../Juniper/src/Juniper.TypeScript/tslib/events/Promisifier.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/events/Promisifier.ts
 var Promisifier = class {
   constructor(resolveRejectTest, selectValue, selectRejectionReason) {
     __publicField(this, "promise");
@@ -510,7 +528,7 @@ var Promisifier = class {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/tslib/events/waitFor.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/events/waitFor.ts
 function waitFor(test) {
   const task = new Task(test);
   const handle = setInterval(() => {
@@ -522,7 +540,7 @@ function waitFor(test) {
   return task;
 }
 
-// ../Juniper/src/Juniper.TypeScript/tslib/Exception.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/Exception.ts
 var Exception = class extends Error {
   constructor(message, innerError = null) {
     super(message);
@@ -530,7 +548,7 @@ var Exception = class extends Error {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/tslib/flags.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/flags.ts
 var oculusBrowserPattern = /OculusBrowser\/(\d+)\.(\d+)\.(\d+)/i;
 var oculusMatch = navigator.userAgent.match(oculusBrowserPattern);
 var isOculusBrowser = !!oculusMatch;
@@ -544,7 +562,7 @@ var isOculusQuest = isOculusBrowser && /quest/i.test(navigator.userAgent);
 var isOculusQuest2 = isOculusBrowser && /quest 2/i.test(navigator.userAgent);
 var isWorker = !("Document" in globalThis);
 
-// ../Juniper/src/Juniper.TypeScript/tslib/gis/Datum.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/gis/Datum.ts
 var invF = 298.257223563;
 var equatorialRadius = 6378137;
 var flattening = 1 / invF;
@@ -569,23 +587,26 @@ var delta = [
   56 * n * n * n / 15
 ];
 
-// ../Juniper/src/Juniper.TypeScript/tslib/identity.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/identity.ts
 function identity(item) {
   return item;
 }
 function alwaysTrue() {
   return true;
 }
+function alwaysFalse() {
+  return false;
+}
 
-// ../Juniper/src/Juniper.TypeScript/tslib/math/angleClamp.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math/angleClamp.ts
 var Tau = 2 * Math.PI;
 
-// ../Juniper/src/Juniper.TypeScript/tslib/math/lerp.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math/lerp.ts
 function lerp(a, b, p) {
   return (1 - p) * a + p * b;
 }
 
-// ../Juniper/src/Juniper.TypeScript/tslib/progress/BaseProgress.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/progress/BaseProgress.ts
 var BaseProgress = class extends TypedEventBase {
   constructor() {
     super(...arguments);
@@ -631,7 +652,7 @@ var BaseProgress = class extends TypedEventBase {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/tslib/progress/ChildProgressCallback.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/progress/ChildProgressCallback.ts
 var ChildProgressCallback = class extends BaseProgress {
   constructor(i, prog) {
     super();
@@ -644,7 +665,7 @@ var ChildProgressCallback = class extends BaseProgress {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/tslib/progress/BaseParentProgressCallback.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/progress/BaseParentProgressCallback.ts
 var BaseParentProgressCallback = class {
   constructor(prog) {
     this.prog = prog;
@@ -676,19 +697,19 @@ var BaseParentProgressCallback = class {
         soFar += this.subProgressValues[j] * this.subProgressWeights[j];
       }
       const end = performance.now();
-      const delta4 = end - this.start;
-      const est = this.start - end + delta4 * this.weightTotal / soFar;
+      const delta2 = end - this.start;
+      const est = this.start - end + delta2 * this.weightTotal / soFar;
       this.prog.report(soFar, this.weightTotal, msg, est);
     }
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/tslib/progress/IProgress.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/progress/IProgress.ts
 function isProgressCallback(obj) {
   return isDefined(obj) && isFunction(obj.report) && isFunction(obj.attach) && isFunction(obj.end);
 }
 
-// ../Juniper/src/Juniper.TypeScript/tslib/progress/progressSplit.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/progress/progressSplit.ts
 function progressSplitWeighted(prog, subProgressWeights) {
   const subProg = new WeightedParentProgressCallback(subProgressWeights, prog);
   return subProg.subProgressCallbacks;
@@ -709,7 +730,7 @@ var WeightedParentProgressCallback = class extends BaseParentProgressCallback {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/tslib/typeChecks.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/typeChecks.ts
 function t(o, s, c) {
   return typeof o === s || o instanceof c;
 }
@@ -747,7 +768,24 @@ function isArrayBuffer(val) {
   return val && typeof ArrayBuffer !== "undefined" && (val instanceof ArrayBuffer || val.constructor && val.constructor.name === "ArrayBuffer");
 }
 
-// ../Juniper/src/Juniper.TypeScript/tslib/timers/ITimer.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/strings/stringRandom.ts
+var DEFAULT_CHAR_SET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZ";
+function stringRandom(length, charSet) {
+  if (length < 0) {
+    throw new Error("Length must be greater than 0");
+  }
+  if (isNullOrUndefined(charSet)) {
+    charSet = DEFAULT_CHAR_SET;
+  }
+  let str = "";
+  for (let i = 0; i < length; ++i) {
+    const idx = Math.floor(Math.random() * charSet.length);
+    str += charSet[idx];
+  }
+  return str;
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/timers/ITimer.ts
 var BaseTimerTickEvent = class {
   constructor() {
     __publicField(this, "t", 0);
@@ -755,8 +793,8 @@ var BaseTimerTickEvent = class {
     __publicField(this, "sdt", 0);
     __publicField(this, "fps", 0);
   }
-  set(t4, dt) {
-    this.t = t4;
+  set(t2, dt) {
+    this.t = t2;
     this.dt = dt;
     this.sdt = lerp(this.sdt, dt, 0.01);
     if (dt > 0) {
@@ -771,7 +809,7 @@ var TimerTickEvent = class extends BaseTimerTickEvent {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/tslib/timers/BaseTimer.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/timers/BaseTimer.ts
 var _targetFPS;
 var BaseTimer = class {
   constructor(targetFrameRate) {
@@ -783,13 +821,13 @@ var BaseTimer = class {
     this.targetFPS = targetFrameRate;
     const tickEvt = new TimerTickEvent();
     let dt = 0;
-    this.onTick = (t4) => {
+    this.onTick = (t2) => {
       if (this.lt >= 0) {
-        dt = t4 - this.lt;
-        tickEvt.set(t4, dt);
+        dt = t2 - this.lt;
+        tickEvt.set(t2, dt);
         this.tick(tickEvt);
       }
-      this.lt = t4;
+      this.lt = t2;
     };
   }
   get targetFPS() {
@@ -826,7 +864,7 @@ var BaseTimer = class {
 };
 _targetFPS = new WeakMap();
 
-// ../Juniper/src/Juniper.TypeScript/tslib/URLBuilder.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/URLBuilder.ts
 function parsePort(portString) {
   if (isDefined(portString) && portString.length > 0) {
     return parseFloat(portString);
@@ -1008,7 +1046,7 @@ var URLBuilder = class {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/tslib/collections/mapInvert.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/mapInvert.ts
 function mapInvert(map) {
   const mapOut = /* @__PURE__ */ new Map();
   for (const [key, value] of map) {
@@ -1017,7 +1055,7 @@ function mapInvert(map) {
   return mapOut;
 }
 
-// ../Juniper/src/Juniper.TypeScript/tslib/units/fileSize.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/units/fileSize.ts
 var base2Labels = /* @__PURE__ */ new Map([
   [1, "KiB"],
   [2, "MiB"],
@@ -1033,7 +1071,7 @@ var base10Labels = /* @__PURE__ */ new Map([
 var base2Sizes = mapInvert(base2Labels);
 var base10Sizes = mapInvert(base10Labels);
 
-// ../Juniper/src/Juniper.TypeScript/tslib/units/length.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/units/length.ts
 var MICROMETERS_PER_MILLIMETER = 1e3;
 var MILLIMETERS_PER_CENTIMETER = 10;
 var CENTIMETERS_PER_INCH = 2.54;
@@ -1101,7 +1139,7 @@ var RODS_PER_MILE = RODS_PER_FURLONG * FURLONGS_PER_MILE;
 var FURLONGS_PER_KILOMETER = METERS_PER_KILOMETER / METERS_PER_FURLONG;
 var KILOMETERS_PER_MILE = FURLONGS_PER_MILE / FURLONGS_PER_KILOMETER;
 
-// ../Juniper/src/Juniper.TypeScript/tslib/using.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/using.ts
 function interfaceSigCheck(obj, ...funcNames) {
   if (!isObject(obj)) {
     return false;
@@ -1146,7 +1184,7 @@ function using(val, thunk) {
   }
 }
 
-// ../Juniper/src/Juniper.TypeScript/mediatypes/util.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/util.ts
 var typePattern = /([^\/]+)\/(.+)/;
 var subTypePattern = /(?:([^\.]+)\.)?([^\+;]+)(?:\+([^;]+))?((?:; *([^=]+)=([^;]+))*)/;
 var MediaType = class {
@@ -1312,27 +1350,27 @@ function specialize(group) {
   return create.bind(null, group);
 }
 
-// ../Juniper/src/Juniper.TypeScript/mediatypes/application.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/application.ts
 var application = /* @__PURE__ */ specialize("application");
 var Application_Javascript = /* @__PURE__ */ application("javascript", "js");
 var Application_Json = /* @__PURE__ */ application("json", "json");
 var Application_Wasm = /* @__PURE__ */ application("wasm", "wasm");
 
-// ../Juniper/src/Juniper.TypeScript/mediatypes/image.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/image.ts
 var image = /* @__PURE__ */ specialize("image");
 var Image_Png = /* @__PURE__ */ image("png", "png");
 var Image_Vendor_Google_StreetView_Pano = image("vnd.google.streetview.pano");
 
-// ../Juniper/src/Juniper.TypeScript/mediatypes/text.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/text.ts
 var text = /* @__PURE__ */ specialize("text");
 var Text_Plain = /* @__PURE__ */ text("plain", "txt", "text", "conf", "def", "list", "log", "in");
 var Text_Xml = /* @__PURE__ */ text("xml");
 
-// ../Juniper/src/Juniper.TypeScript/mediatypes/video.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/video.ts
 var video = /* @__PURE__ */ specialize("video");
 var Video_Vendor_Mpeg_Dash_Mpd = video("vnd.mpeg.dash.mpd", "mpd");
 
-// ../Juniper/src/Juniper.TypeScript/fetcher-base/ResponseTranslator.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher-base/ResponseTranslator.ts
 async function translateResponse(response, translate) {
   const {
     status,
@@ -1356,7 +1394,7 @@ async function translateResponse(response, translate) {
   };
 }
 
-// ../Juniper/src/Juniper.TypeScript/fetcher-base/FetchingService.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher-base/FetchingService.ts
 var FetchingService = class {
   constructor(impl) {
     this.impl = impl;
@@ -1423,892 +1461,13 @@ var FetchingService = class {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/indexdb/node_modules/@juniper-lib/tslib/collections/arrayRemoveAt.ts
-function arrayRemoveAt2(arr, idx) {
-  return arr.splice(idx, 1)[0];
-}
-
-// ../Juniper/src/Juniper.TypeScript/indexdb/node_modules/@juniper-lib/tslib/collections/arrayClear.ts
-function arrayClear2(arr) {
-  return arr.splice(0);
-}
-
-// ../Juniper/src/Juniper.TypeScript/indexdb/node_modules/@juniper-lib/tslib/collections/arrayCompare.ts
-function arrayCompare(arr1, arr2) {
-  for (let i = 0; i < arr1.length; ++i) {
-    if (arr1[i] !== arr2[i]) {
-      return i;
-    }
-  }
-  return -1;
-}
-
-// ../Juniper/src/Juniper.TypeScript/indexdb/node_modules/@juniper-lib/tslib/collections/arrayRemove.ts
-function arrayRemove2(arr, value) {
-  const idx = arr.indexOf(value);
-  if (idx > -1) {
-    arrayRemoveAt2(arr, idx);
-    return true;
-  }
-  return false;
-}
-
-// ../Juniper/src/Juniper.TypeScript/indexdb/node_modules/@juniper-lib/tslib/collections/mapMap.ts
-function mapMap2(items, makeID, makeValue) {
-  return new Map(items.map((item) => [makeID(item), makeValue(item)]));
-}
-
-// ../Juniper/src/Juniper.TypeScript/indexdb/node_modules/@juniper-lib/tslib/collections/PriorityList.ts
-var PriorityList2 = class {
-  constructor(init) {
-    this.items = /* @__PURE__ */ new Map();
-    this.defaultItems = new Array();
-    if (isDefined2(init)) {
-      for (const [key, value] of init) {
-        this.add(key, value);
-      }
-    }
-  }
-  add(key, value) {
-    if (isNullOrUndefined2(key)) {
-      this.defaultItems.push(value);
-    } else {
-      let list = this.items.get(key);
-      if (isNullOrUndefined2(list)) {
-        this.items.set(key, list = []);
-      }
-      list.push(value);
-    }
-    return this;
-  }
-  entries() {
-    return this.items.entries();
-  }
-  [Symbol.iterator]() {
-    return this.entries();
-  }
-  keys() {
-    return this.items.keys();
-  }
-  *values() {
-    for (const item of this.defaultItems) {
-      yield item;
-    }
-    for (const list of this.items.values()) {
-      for (const item of list) {
-        yield item;
-      }
-    }
-  }
-  has(key) {
-    if (isDefined2(key)) {
-      return this.items.has(key);
-    } else {
-      return this.defaultItems.length > 0;
-    }
-  }
-  get(key) {
-    if (isNullOrUndefined2(key)) {
-      return this.defaultItems;
-    }
-    return this.items.get(key) || [];
-  }
-  count(key) {
-    if (isNullOrUndefined2(key)) {
-      return this.defaultItems.length;
-    }
-    const list = this.get(key);
-    if (isDefined2(list)) {
-      return list.length;
-    }
-    return null;
-  }
-  get size() {
-    let size = this.defaultItems.length;
-    for (const list of this.items.values()) {
-      size += list.length;
-    }
-    return size;
-  }
-  delete(key) {
-    if (isNullOrUndefined2(key)) {
-      return arrayClear2(this.defaultItems).length > 0;
-    } else {
-      return this.items.delete(key);
-    }
-  }
-  remove(key, value) {
-    if (isNullOrUndefined2(key)) {
-      arrayRemove2(this.defaultItems, value);
-    } else {
-      const list = this.items.get(key);
-      if (isDefined2(list)) {
-        arrayRemove2(list, value);
-        if (list.length === 0) {
-          this.items.delete(key);
-        }
-      }
-    }
-  }
-  clear() {
-    this.items.clear();
-    arrayClear2(this.defaultItems);
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/indexdb/node_modules/@juniper-lib/tslib/collections/PriorityMap.ts
-var PriorityMap2 = class {
-  constructor(init) {
-    this.items = /* @__PURE__ */ new Map();
-    if (isDefined2(init)) {
-      for (const [key1, key2, value] of init) {
-        this.add(key1, key2, value);
-      }
-    }
-  }
-  add(key1, key2, value) {
-    let level1 = this.items.get(key1);
-    if (isNullOrUndefined2(level1)) {
-      this.items.set(key1, level1 = /* @__PURE__ */ new Map());
-    }
-    level1.set(key2, value);
-    return this;
-  }
-  *entries() {
-    for (const [key1, level1] of this.items) {
-      for (const [key2, value] of level1) {
-        yield [key1, key2, value];
-      }
-    }
-  }
-  keys(key1) {
-    if (isNullOrUndefined2(key1)) {
-      return this.items.keys();
-    } else {
-      return this.items.get(key1).keys();
-    }
-  }
-  *values() {
-    for (const level1 of this.items.values()) {
-      for (const value of level1.values()) {
-        yield value;
-      }
-    }
-  }
-  has(key1, key2) {
-    return this.items.has(key1) && (isNullOrUndefined2(key2) || this.items.get(key1).has(key2));
-  }
-  get(key1, key2) {
-    if (isNullOrUndefined2(key2)) {
-      return this.items.get(key1);
-    } else if (this.items.has(key1)) {
-      return this.items.get(key1).get(key2);
-    } else {
-      return null;
-    }
-  }
-  count(key1) {
-    if (this.items.has(key1)) {
-      return this.items.get(key1).size;
-    }
-    return null;
-  }
-  get size() {
-    let size = 0;
-    for (const list of this.items.values()) {
-      size += list.size;
-    }
-    return size;
-  }
-  delete(key1, key2) {
-    if (isNullOrUndefined2(key2)) {
-      return this.items.delete(key1);
-    } else if (this.items.has(key1)) {
-      return this.items.get(key1).delete(key2);
-    } else {
-      return false;
-    }
-  }
-  clear() {
-    this.items.clear();
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/indexdb/node_modules/@juniper-lib/tslib/events/EventBase.ts
-var EventBase2 = class {
-  constructor() {
-    this.listeners = /* @__PURE__ */ new Map();
-    this.listenerOptions = /* @__PURE__ */ new Map();
-  }
-  addEventListener(type2, callback, options) {
-    if (isFunction2(callback)) {
-      let listeners = this.listeners.get(type2);
-      if (!listeners) {
-        listeners = new Array();
-        this.listeners.set(type2, listeners);
-      }
-      if (!listeners.find((c) => c === callback)) {
-        listeners.push(callback);
-        if (options) {
-          this.listenerOptions.set(callback, options);
-        }
-      }
-    }
-  }
-  removeEventListener(type2, callback) {
-    if (isFunction2(callback)) {
-      const listeners = this.listeners.get(type2);
-      if (listeners) {
-        this.removeListener(listeners, callback);
-      }
-    }
-  }
-  clearEventListeners(type2) {
-    for (const [evtName, handlers] of this.listeners) {
-      if (isNullOrUndefined2(type2) || type2 === evtName) {
-        for (const handler of handlers) {
-          this.removeEventListener(type2, handler);
-        }
-        arrayClear2(handlers);
-        this.listeners.delete(evtName);
-      }
-    }
-  }
-  removeListener(listeners, callback) {
-    const idx = listeners.findIndex((c) => c === callback);
-    if (idx >= 0) {
-      arrayRemoveAt2(listeners, idx);
-      if (this.listenerOptions.has(callback)) {
-        this.listenerOptions.delete(callback);
-      }
-    }
-  }
-  dispatchEvent(evt) {
-    const listeners = this.listeners.get(evt.type);
-    if (listeners) {
-      for (const callback of listeners) {
-        const options = this.listenerOptions.get(callback);
-        if (isDefined2(options) && !isBoolean2(options) && options.once) {
-          this.removeListener(listeners, callback);
-        }
-        callback.call(this, evt);
-      }
-    }
-    return !evt.defaultPrevented;
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/indexdb/node_modules/@juniper-lib/tslib/events/Task.ts
-var Task2 = class {
-  constructor(resolveTestOrAutoStart, rejectTestOrAutoStart, autoStart = true) {
-    this._resolve = null;
-    this._reject = null;
-    this._result = null;
-    this._error = null;
-    this._started = false;
-    this._finished = false;
-    this.resolve = null;
-    this.reject = null;
-    let resolveTest = alwaysTrue2;
-    let rejectTest = alwaysTrue2;
-    if (isFunction2(resolveTestOrAutoStart)) {
-      resolveTest = resolveTestOrAutoStart;
-    }
-    if (isFunction2(rejectTestOrAutoStart)) {
-      rejectTest = rejectTestOrAutoStart;
-    }
-    if (isBoolean2(resolveTestOrAutoStart)) {
-      autoStart = resolveTestOrAutoStart;
-    } else if (isBoolean2(rejectTestOrAutoStart)) {
-      autoStart = rejectTestOrAutoStart;
-    }
-    this.resolve = (value) => {
-      if (isDefined2(this._resolve)) {
-        this._resolve(value);
-      }
-    };
-    this.reject = (reason) => {
-      if (isDefined2(this._reject)) {
-        this._reject(reason);
-      }
-    };
-    this.promise = new Promise((resolve, reject) => {
-      this._resolve = (value) => {
-        if (resolveTest(value)) {
-          this._result = value;
-          this._finished = true;
-          resolve(value);
-        }
-      };
-      this._reject = (reason) => {
-        if (rejectTest(reason)) {
-          this._error = reason;
-          this._finished = true;
-          reject(reason);
-        }
-      };
-    });
-    if (autoStart) {
-      this.start();
-    }
-  }
-  get result() {
-    if (isDefined2(this.error)) {
-      throw this.error;
-    }
-    return this._result;
-  }
-  get error() {
-    return this._error;
-  }
-  get started() {
-    return this._started;
-  }
-  get finished() {
-    return this._finished;
-  }
-  start() {
-    this._started = true;
-  }
-  get [Symbol.toStringTag]() {
-    return this.promise.toString();
-  }
-  then(onfulfilled, onrejected) {
-    return this.promise.then(onfulfilled, onrejected);
-  }
-  catch(onrejected) {
-    return this.promise.catch(onrejected);
-  }
-  finally(onfinally) {
-    return this.promise.finally(onfinally);
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/indexdb/node_modules/@juniper-lib/tslib/events/once.ts
-function targetValidateEvent2(target, type2) {
-  return "on" + type2 in target;
-}
-function once2(target, resolveEvt, rejectEvtOrTimeout, ...rejectEvts) {
-  if (isNullOrUndefined2(rejectEvts)) {
-    rejectEvts = [];
-  }
-  let timeout = void 0;
-  if (isString2(rejectEvtOrTimeout)) {
-    rejectEvts.unshift(rejectEvtOrTimeout);
-  } else if (isNumber2(rejectEvtOrTimeout)) {
-    timeout = rejectEvtOrTimeout;
-  }
-  if (!(target instanceof EventBase2)) {
-    if (!targetValidateEvent2(target, resolveEvt)) {
-      throw new Exception2(`Target does not have a ${resolveEvt} rejection event`);
-    }
-    for (const evt of rejectEvts) {
-      if (!targetValidateEvent2(target, evt)) {
-        throw new Exception2(`Target does not have a ${evt} rejection event`);
-      }
-    }
-  }
-  const task = new Task2();
-  if (isNumber2(timeout)) {
-    const timeoutHandle = setTimeout(task.reject, timeout, `'${resolveEvt}' has timed out.`);
-    task.finally(clearTimeout.bind(globalThis, timeoutHandle));
-  }
-  const register = (evt, callback) => {
-    target.addEventListener(evt, callback);
-    task.finally(() => target.removeEventListener(evt, callback));
-  };
-  const onResolve = (evt) => task.resolve(evt);
-  const onReject = (evt) => task.reject(evt);
-  register(resolveEvt, onResolve);
-  for (const rejectEvt of rejectEvts) {
-    register(rejectEvt, onReject);
-  }
-  return task;
-}
-function success(task) {
-  return task.then(alwaysTrue2).catch(alwaysFalse2);
-}
-
-// ../Juniper/src/Juniper.TypeScript/indexdb/node_modules/@juniper-lib/tslib/events/Promisifier.ts
-var Promisifier2 = class {
-  constructor(resolveRejectTest, selectValue, selectRejectionReason) {
-    this.callback = null;
-    this.promise = new Promise((resolve, reject) => {
-      this.callback = (...args) => {
-        if (resolveRejectTest(...args)) {
-          resolve(selectValue(...args));
-        } else {
-          reject(selectRejectionReason(...args));
-        }
-      };
-    });
-  }
-  get [Symbol.toStringTag]() {
-    return this.promise.toString();
-  }
-  then(onfulfilled, onrejected) {
-    return this.promise.then(onfulfilled, onrejected);
-  }
-  catch(onrejected) {
-    return this.promise.catch(onrejected);
-  }
-  finally(onfinally) {
-    return this.promise.finally(onfinally);
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/indexdb/node_modules/@juniper-lib/tslib/Exception.ts
-var Exception2 = class extends Error {
-  constructor(message, innerError = null) {
-    super(message);
-    this.innerError = innerError;
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/indexdb/node_modules/@juniper-lib/tslib/flags.ts
-var oculusBrowserPattern2 = /OculusBrowser\/(\d+)\.(\d+)\.(\d+)/i;
-var oculusMatch2 = navigator.userAgent.match(oculusBrowserPattern2);
-var isOculusBrowser2 = !!oculusMatch2;
-var oculusBrowserVersion2 = isOculusBrowser2 && {
-  major: parseFloat(oculusMatch2[1]),
-  minor: parseFloat(oculusMatch2[2]),
-  patch: parseFloat(oculusMatch2[3])
-};
-var isOculusGo2 = isOculusBrowser2 && /pacific/i.test(navigator.userAgent);
-var isOculusQuest3 = isOculusBrowser2 && /quest/i.test(navigator.userAgent);
-var isOculusQuest22 = isOculusBrowser2 && /quest 2/i.test(navigator.userAgent);
-var isWorker2 = !("Document" in globalThis);
-
-// ../Juniper/src/Juniper.TypeScript/indexdb/node_modules/@juniper-lib/tslib/gis/Datum.ts
-var invF2 = 298.257223563;
-var equatorialRadius2 = 6378137;
-var flattening2 = 1 / invF2;
-var flatteningComp2 = 1 - flattening2;
-var n2 = flattening2 / (2 - flattening2);
-var A2 = equatorialRadius2 / (1 + n2) * (1 + n2 * n2 / 4 + n2 * n2 * n2 * n2 / 64);
-var e2 = Math.sqrt(1 - flatteningComp2 * flatteningComp2);
-var esq2 = 1 - flatteningComp2 * flatteningComp2;
-var e0sq2 = e2 * e2 / (1 - e2 * e2);
-var alpha12 = 1 - esq2 * (0.25 + esq2 * (3 / 64 + 5 * esq2 / 256));
-var alpha22 = esq2 * (3 / 8 + esq2 * (3 / 32 + 45 * esq2 / 1024));
-var alpha32 = esq2 * esq2 * (15 / 256 + esq2 * 45 / 1024);
-var alpha42 = esq2 * esq2 * esq2 * (35 / 3072);
-var beta2 = [
-  n2 / 2 - 2 * n2 * n2 / 3 + 37 * n2 * n2 * n2 / 96,
-  n2 * n2 / 48 + n2 * n2 * n2 / 15,
-  17 * n2 * n2 * n2 / 480
-];
-var delta2 = [
-  2 * n2 - 2 * n2 * n2 / 3,
-  7 * n2 * n2 / 3 - 8 * n2 * n2 * n2 / 5,
-  56 * n2 * n2 * n2 / 15
-];
-
-// ../Juniper/src/Juniper.TypeScript/indexdb/node_modules/@juniper-lib/tslib/identity.ts
-function identity2(item) {
-  return item;
-}
-function alwaysTrue2() {
-  return true;
-}
-function alwaysFalse2() {
-  return false;
-}
-
-// ../Juniper/src/Juniper.TypeScript/indexdb/node_modules/@juniper-lib/tslib/math/angleClamp.ts
-var Tau2 = 2 * Math.PI;
-
-// ../Juniper/src/Juniper.TypeScript/indexdb/node_modules/@juniper-lib/tslib/math/lerp.ts
-function lerp2(a, b, p) {
-  return (1 - p) * a + p * b;
-}
-
-// ../Juniper/src/Juniper.TypeScript/indexdb/node_modules/@juniper-lib/tslib/typeChecks.ts
-function t2(o, s, c) {
-  return typeof o === s || o instanceof c;
-}
-function isFunction2(obj) {
-  return t2(obj, "function", Function);
-}
-function isString2(obj) {
-  return t2(obj, "string", String);
-}
-function isBoolean2(obj) {
-  return t2(obj, "boolean", Boolean);
-}
-function isNumber2(obj) {
-  return t2(obj, "number", Number);
-}
-function isArray2(obj) {
-  return obj instanceof Array;
-}
-function isNullOrUndefined2(obj) {
-  return obj === null || obj === void 0;
-}
-function isDefined2(obj) {
-  return !isNullOrUndefined2(obj);
-}
-
-// ../Juniper/src/Juniper.TypeScript/indexdb/node_modules/@juniper-lib/tslib/timers/ITimer.ts
-var BaseTimerTickEvent2 = class {
-  constructor() {
-    this.t = 0;
-    this.dt = 0;
-    this.sdt = 0;
-    this.fps = 0;
-  }
-  set(t4, dt) {
-    this.t = t4;
-    this.dt = dt;
-    this.sdt = lerp2(this.sdt, dt, 0.01);
-    if (dt > 0) {
-      this.fps = 1e3 / dt;
-    }
-  }
-};
-var TimerTickEvent2 = class extends BaseTimerTickEvent2 {
-  constructor() {
-    super();
-    Object.seal(this);
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/indexdb/node_modules/@juniper-lib/tslib/timers/BaseTimer.ts
-var _targetFPS2;
-var BaseTimer2 = class {
-  constructor(targetFrameRate) {
-    this.timer = null;
-    this.lt = -1;
-    this.tickHandlers = new Array();
-    __privateAdd(this, _targetFPS2, null);
-    this.targetFPS = targetFrameRate;
-    const tickEvt = new TimerTickEvent2();
-    let dt = 0;
-    this.onTick = (t4) => {
-      if (this.lt >= 0) {
-        dt = t4 - this.lt;
-        tickEvt.set(t4, dt);
-        this.tick(tickEvt);
-      }
-      this.lt = t4;
-    };
-  }
-  get targetFPS() {
-    return __privateGet(this, _targetFPS2);
-  }
-  set targetFPS(v) {
-    __privateSet(this, _targetFPS2, v);
-  }
-  addTickHandler(onTick) {
-    this.tickHandlers.push(onTick);
-  }
-  removeTickHandler(onTick) {
-    arrayRemove2(this.tickHandlers, onTick);
-  }
-  tick(evt) {
-    for (const handler of this.tickHandlers) {
-      handler(evt);
-    }
-  }
-  restart() {
-    this.stop();
-    this.start();
-  }
-  get isRunning() {
-    return this.timer != null;
-  }
-  stop() {
-    this.timer = null;
-    this.lt = -1;
-  }
-  get targetFrameTime() {
-    return 1e3 / this.targetFPS;
-  }
-};
-_targetFPS2 = new WeakMap();
-
-// ../Juniper/src/Juniper.TypeScript/indexdb/node_modules/@juniper-lib/tslib/URLBuilder.ts
-function parsePort2(portString) {
-  if (isDefined2(portString) && portString.length > 0) {
-    return parseFloat(portString);
-  }
-  return null;
-}
-var URLBuilder2 = class {
-  constructor(url, base) {
-    this._url = null;
-    this._base = void 0;
-    this._protocol = null;
-    this._host = null;
-    this._hostName = null;
-    this._userName = null;
-    this._password = null;
-    this._port = null;
-    this._pathName = null;
-    this._hash = null;
-    this._query = /* @__PURE__ */ new Map();
-    if (url !== void 0) {
-      this._url = new URL(url, base);
-      this.rehydrate();
-    }
-  }
-  rehydrate() {
-    if (isDefined2(this._protocol) && this._protocol !== this._url.protocol) {
-      this._url.protocol = this._protocol;
-    }
-    if (isDefined2(this._host) && this._host !== this._url.host) {
-      this._url.host = this._host;
-    }
-    if (isDefined2(this._hostName) && this._hostName !== this._url.hostname) {
-      this._url.hostname = this._hostName;
-    }
-    if (isDefined2(this._userName) && this._userName !== this._url.username) {
-      this._url.username = this._userName;
-    }
-    if (isDefined2(this._password) && this._password !== this._url.password) {
-      this._url.password = this._password;
-    }
-    if (isDefined2(this._port) && this._port.toFixed(0) !== this._url.port) {
-      this._url.port = this._port.toFixed(0);
-    }
-    if (isDefined2(this._pathName) && this._pathName !== this._url.pathname) {
-      this._url.pathname = this._pathName;
-    }
-    if (isDefined2(this._hash) && this._hash !== this._url.hash) {
-      this._url.hash = this._hash;
-    }
-    for (const [k, v] of this._query) {
-      this._url.searchParams.set(k, v);
-    }
-    this._protocol = this._url.protocol;
-    this._host = this._url.host;
-    this._hostName = this._url.hostname;
-    this._userName = this._url.username;
-    this._password = this._url.password;
-    this._port = parsePort2(this._url.port);
-    this._pathName = this._url.pathname;
-    this._hash = this._url.hash;
-    this._url.searchParams.forEach((v, k) => this._query.set(k, v));
-  }
-  refresh() {
-    if (this._url === null) {
-      if (isDefined2(this._protocol) && (isDefined2(this._host) || isDefined2(this._hostName))) {
-        if (isDefined2(this._host)) {
-          this._url = new URL(`${this._protocol}//${this._host}`, this._base);
-          this._port = parsePort2(this._url.port);
-          this.rehydrate();
-          return false;
-        } else if (isDefined2(this._hostName)) {
-          this._url = new URL(`${this._protocol}//${this._hostName}`, this._base);
-          this.rehydrate();
-          return false;
-        }
-      } else if (isDefined2(this._pathName) && isDefined2(this._base)) {
-        this._url = new URL(this._pathName, this._base);
-        this.rehydrate();
-        return false;
-      }
-    }
-    return isDefined2(this._url);
-  }
-  base(base) {
-    if (this._url !== null) {
-      throw new Error("Cannot redefine base after defining the protocol and domain");
-    }
-    this._base = base;
-    this.refresh();
-    return this;
-  }
-  protocol(protocol) {
-    this._protocol = protocol;
-    if (this.refresh()) {
-      this._url.protocol = protocol;
-    }
-    return this;
-  }
-  host(host) {
-    this._host = host;
-    if (this.refresh()) {
-      this._url.host = host;
-      this._hostName = this._url.hostname;
-      this._port = parsePort2(this._url.port);
-    }
-    return this;
-  }
-  hostName(hostName) {
-    this._hostName = hostName;
-    if (this.refresh()) {
-      this._url.hostname = hostName;
-      this._host = `${this._url.hostname}:${this._url.port}`;
-    }
-    return this;
-  }
-  port(port) {
-    this._port = port;
-    if (this.refresh()) {
-      this._url.port = port.toFixed(0);
-      this._host = `${this._url.hostname}:${this._url.port}`;
-    }
-    return this;
-  }
-  userName(userName) {
-    this._userName = userName;
-    if (this.refresh()) {
-      this._url.username = userName;
-    }
-    return this;
-  }
-  password(password) {
-    this._password = password;
-    if (this.refresh()) {
-      this._url.password = password;
-    }
-    return this;
-  }
-  path(path) {
-    this._pathName = path;
-    if (this.refresh()) {
-      this._url.pathname = path;
-    }
-    return this;
-  }
-  pathPop(pattern) {
-    pattern = pattern || /\/[^\/]+\/?$/;
-    return this.path(this._pathName.replace(pattern, ""));
-  }
-  pathPush(part) {
-    let path = this._pathName;
-    if (!path.endsWith("/")) {
-      path += "/";
-    }
-    path += part;
-    return this.path(path);
-  }
-  query(name, value) {
-    this._query.set(name, value);
-    if (this.refresh()) {
-      this._url.searchParams.set(name, value);
-    }
-    return this;
-  }
-  hash(hash) {
-    this._hash = hash;
-    if (this.refresh()) {
-      this._url.hash = hash;
-    }
-    return this;
-  }
-  toURL() {
-    return this._url;
-  }
-  toString() {
-    return this._url.href;
-  }
-  [Symbol.toStringTag]() {
-    return this.toString();
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/indexdb/node_modules/@juniper-lib/tslib/collections/mapInvert.ts
-function mapInvert2(map) {
-  const mapOut = /* @__PURE__ */ new Map();
-  for (const [key, value] of map) {
-    mapOut.set(value, key);
-  }
-  return mapOut;
-}
-
-// ../Juniper/src/Juniper.TypeScript/indexdb/node_modules/@juniper-lib/tslib/units/fileSize.ts
-var base2Labels2 = /* @__PURE__ */ new Map([
-  [1, "KiB"],
-  [2, "MiB"],
-  [3, "GiB"],
-  [4, "TiB"]
-]);
-var base10Labels2 = /* @__PURE__ */ new Map([
-  [1, "KB"],
-  [2, "MB"],
-  [3, "GB"],
-  [4, "TB"]
-]);
-var base2Sizes2 = mapInvert2(base2Labels2);
-var base10Sizes2 = mapInvert2(base10Labels2);
-
-// ../Juniper/src/Juniper.TypeScript/indexdb/node_modules/@juniper-lib/tslib/units/length.ts
-var MICROMETERS_PER_MILLIMETER2 = 1e3;
-var MILLIMETERS_PER_CENTIMETER2 = 10;
-var CENTIMETERS_PER_INCH2 = 2.54;
-var CENTIMETERS_PER_METER2 = 100;
-var INCHES_PER_HAND2 = 4;
-var HANDS_PER_FOOT2 = 3;
-var FEET_PER_YARD2 = 3;
-var FEET_PER_ROD2 = 16.5;
-var METERS_PER_KILOMETER2 = 1e3;
-var RODS_PER_FURLONG2 = 40;
-var FURLONGS_PER_MILE2 = 8;
-var MICROMETERS_PER_CENTIMETER2 = MICROMETERS_PER_MILLIMETER2 * MILLIMETERS_PER_CENTIMETER2;
-var MICROMETERS_PER_INCH2 = MICROMETERS_PER_CENTIMETER2 * CENTIMETERS_PER_INCH2;
-var MICROMETERS_PER_HAND2 = MICROMETERS_PER_INCH2 * INCHES_PER_HAND2;
-var MICROMETERS_PER_FOOT2 = MICROMETERS_PER_HAND2 * HANDS_PER_FOOT2;
-var MICROMETERS_PER_YARD2 = MICROMETERS_PER_FOOT2 * FEET_PER_YARD2;
-var MICROMETERS_PER_METER2 = MICROMETERS_PER_CENTIMETER2 * CENTIMETERS_PER_METER2;
-var MICROMETERS_PER_ROD2 = MICROMETERS_PER_FOOT2 * FEET_PER_ROD2;
-var MICROMETERS_PER_FURLONG2 = MICROMETERS_PER_ROD2 * RODS_PER_FURLONG2;
-var MICROMETERS_PER_KILOMETER2 = MICROMETERS_PER_METER2 * METERS_PER_KILOMETER2;
-var MICROMETERS_PER_MILE2 = MICROMETERS_PER_FURLONG2 * FURLONGS_PER_MILE2;
-var MILLIMETERS_PER_INCH2 = MILLIMETERS_PER_CENTIMETER2 * CENTIMETERS_PER_INCH2;
-var MILLIMETERS_PER_HAND2 = MILLIMETERS_PER_INCH2 * INCHES_PER_HAND2;
-var MILLIMETERS_PER_FOOT2 = MILLIMETERS_PER_HAND2 * HANDS_PER_FOOT2;
-var MILLIMETERS_PER_YARD2 = MILLIMETERS_PER_FOOT2 * FEET_PER_YARD2;
-var MILLIMETERS_PER_METER2 = MILLIMETERS_PER_CENTIMETER2 * CENTIMETERS_PER_METER2;
-var MILLIMETERS_PER_ROD2 = MILLIMETERS_PER_FOOT2 * FEET_PER_ROD2;
-var MILLIMETERS_PER_FURLONG2 = MILLIMETERS_PER_ROD2 * RODS_PER_FURLONG2;
-var MILLIMETERS_PER_KILOMETER2 = MILLIMETERS_PER_METER2 * METERS_PER_KILOMETER2;
-var MILLIMETERS_PER_MILE2 = MILLIMETERS_PER_FURLONG2 * FURLONGS_PER_MILE2;
-var CENTIMETERS_PER_HAND2 = CENTIMETERS_PER_INCH2 * INCHES_PER_HAND2;
-var CENTIMETERS_PER_FOOT2 = CENTIMETERS_PER_HAND2 * HANDS_PER_FOOT2;
-var CENTIMETERS_PER_YARD2 = CENTIMETERS_PER_FOOT2 * FEET_PER_YARD2;
-var CENTIMETERS_PER_ROD2 = CENTIMETERS_PER_FOOT2 * FEET_PER_ROD2;
-var CENTIMETERS_PER_FURLONG2 = CENTIMETERS_PER_ROD2 * RODS_PER_FURLONG2;
-var CENTIMETERS_PER_KILOMETER2 = CENTIMETERS_PER_METER2 * METERS_PER_KILOMETER2;
-var CENTIMETERS_PER_MILE2 = CENTIMETERS_PER_FURLONG2 * FURLONGS_PER_MILE2;
-var INCHES_PER_FOOT2 = INCHES_PER_HAND2 * HANDS_PER_FOOT2;
-var INCHES_PER_YARD2 = INCHES_PER_FOOT2 * FEET_PER_YARD2;
-var INCHES_PER_METER2 = CENTIMETERS_PER_METER2 / CENTIMETERS_PER_INCH2;
-var INCHES_PER_ROD2 = INCHES_PER_FOOT2 * FEET_PER_ROD2;
-var INCHES_PER_FURLONG2 = INCHES_PER_ROD2 * RODS_PER_FURLONG2;
-var INCHES_PER_KILOMETER2 = INCHES_PER_METER2 * METERS_PER_KILOMETER2;
-var INCHES_PER_MILE2 = INCHES_PER_FURLONG2 * FURLONGS_PER_MILE2;
-var HANDS_PER_YARD2 = HANDS_PER_FOOT2 * FEET_PER_YARD2;
-var HANDS_PER_METER2 = CENTIMETERS_PER_METER2 / CENTIMETERS_PER_HAND2;
-var HANDS_PER_ROD2 = HANDS_PER_FOOT2 * FEET_PER_ROD2;
-var HANDS_PER_FURLONG2 = HANDS_PER_ROD2 * RODS_PER_FURLONG2;
-var HANDS_PER_KILOMETER2 = HANDS_PER_METER2 * METERS_PER_KILOMETER2;
-var HANDS_PER_MILE2 = HANDS_PER_FURLONG2 * FURLONGS_PER_MILE2;
-var FEET_PER_METER2 = INCHES_PER_METER2 / INCHES_PER_FOOT2;
-var FEET_PER_FURLONG2 = FEET_PER_ROD2 * RODS_PER_FURLONG2;
-var FEET_PER_KILOMETER2 = FEET_PER_METER2 * METERS_PER_KILOMETER2;
-var FEET_PER_MILE2 = FEET_PER_FURLONG2 * FURLONGS_PER_MILE2;
-var YARDS_PER_METER2 = INCHES_PER_METER2 / INCHES_PER_YARD2;
-var YARDS_PER_ROD2 = FEET_PER_ROD2 / FEET_PER_YARD2;
-var YARDS_PER_FURLONG2 = YARDS_PER_ROD2 * RODS_PER_FURLONG2;
-var YARDS_PER_KILOMETER2 = YARDS_PER_METER2 * METERS_PER_KILOMETER2;
-var YARDS_PER_MILE2 = YARDS_PER_FURLONG2 * FURLONGS_PER_MILE2;
-var METERS_PER_ROD2 = FEET_PER_ROD2 / FEET_PER_METER2;
-var METERS_PER_FURLONG2 = METERS_PER_ROD2 * RODS_PER_FURLONG2;
-var METERS_PER_MILE2 = METERS_PER_FURLONG2 * FURLONGS_PER_MILE2;
-var RODS_PER_KILOMETER2 = METERS_PER_KILOMETER2 / METERS_PER_ROD2;
-var RODS_PER_MILE2 = RODS_PER_FURLONG2 * FURLONGS_PER_MILE2;
-var FURLONGS_PER_KILOMETER2 = METERS_PER_KILOMETER2 / METERS_PER_FURLONG2;
-var KILOMETERS_PER_MILE2 = FURLONGS_PER_MILE2 / FURLONGS_PER_KILOMETER2;
-
-// ../Juniper/src/Juniper.TypeScript/indexdb/index.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/indexdb/index.ts
 var IDexDB = class {
   constructor(db) {
     this.db = db;
   }
   static async getCurrentVersion(dbName) {
-    if (isDefined2(indexedDB.databases)) {
+    if (isDefined(indexedDB.databases)) {
       const databases = await indexedDB.databases();
       for (const { name, version: version2 } of databases) {
         if (name === dbName) {
@@ -2320,22 +1479,22 @@ var IDexDB = class {
   }
   static delete(dbName) {
     const deleteRequest = indexedDB.deleteDatabase(dbName);
-    const task = once2(deleteRequest, "success", "error", "blocked");
+    const task = once(deleteRequest, "success", "error", "blocked");
     return success(task);
   }
   static async open(name, ...storeDefs) {
-    const storesByName = mapMap2(storeDefs, (v) => v.name, identity2);
-    const indexesByName = new PriorityMap2(storeDefs.filter((storeDef) => isDefined2(storeDef.indexes)).flatMap((storeDef) => storeDef.indexes.map((indexDef) => [storeDef.name, indexDef.name, indexDef])));
+    const storesByName = mapMap(storeDefs, (v) => v.name, identity);
+    const indexesByName = new PriorityMap(storeDefs.filter((storeDef) => isDefined(storeDef.indexes)).flatMap((storeDef) => storeDef.indexes.map((indexDef) => [storeDef.name, indexDef.name, indexDef])));
     const storesToAdd = new Array();
     const storesToRemove = new Array();
     const storesToChange = new Array();
-    const indexesToAdd = new PriorityList2();
-    const indexesToRemove = new PriorityList2();
+    const indexesToAdd = new PriorityList();
+    const indexesToRemove = new PriorityList();
     let version2 = await this.getCurrentVersion(name);
-    if (isNullOrUndefined2(version2)) {
+    if (isNullOrUndefined(version2)) {
       storesToAdd.push(...storesByName.keys());
       for (const storeDef of storeDefs) {
-        if (isDefined2(storeDef.indexes)) {
+        if (isDefined(storeDef.indexes)) {
           for (const indexDef of storeDef.indexes) {
             indexesToAdd.add(storeDef.name, indexDef.name);
           }
@@ -2343,7 +1502,7 @@ var IDexDB = class {
       }
     } else {
       const D = indexedDB.open(name);
-      if (await success(once2(D, "success", "error", "blocked"))) {
+      if (await success(once(D, "success", "error", "blocked"))) {
         const db = D.result;
         const storesToScrutinize = new Array();
         for (const storeName of Array.from(db.objectStoreNames)) {
@@ -2360,7 +1519,7 @@ var IDexDB = class {
         }
         if (storesToScrutinize.length > 0) {
           const transaction = db.transaction(storesToScrutinize);
-          const transacting = once2(transaction, "complete", "error", "abort");
+          const transacting = once(transaction, "complete", "error", "abort");
           const transacted = success(transacting);
           for (const storeName of storesToScrutinize) {
             const store = transaction.objectStore(storeName);
@@ -2382,7 +1541,7 @@ var IDexDB = class {
                 } else {
                   const indexDef = indexesByName.get(storeName, indexName);
                   const index = store.index(indexName);
-                  if (isString2(indexDef.keyPath) !== isString2(index.keyPath) || isString2(indexDef.keyPath) && isString2(index.keyPath) && indexDef.keyPath !== index.keyPath || isArray2(indexDef.keyPath) && isArray2(index.keyPath) && arrayCompare(indexDef.keyPath, index.keyPath)) {
+                  if (isString(indexDef.keyPath) !== isString(index.keyPath) || isString(indexDef.keyPath) && isString(index.keyPath) && indexDef.keyPath !== index.keyPath || isArray(indexDef.keyPath) && isArray(index.keyPath) && arrayCompare(indexDef.keyPath, index.keyPath)) {
                     if (storesToChange.indexOf(storeName) === -1) {
                       storesToChange.push(storeName);
                     }
@@ -2402,15 +1561,15 @@ var IDexDB = class {
         ++version2;
       }
     }
-    const upgrading = new Task2();
-    const openRequest = isDefined2(version2) ? indexedDB.open(name, version2) : indexedDB.open(name);
-    const opening = once2(openRequest, "success", "error", "blocked");
+    const upgrading = new Task();
+    const openRequest = isDefined(version2) ? indexedDB.open(name, version2) : indexedDB.open(name);
+    const opening = once(openRequest, "success", "error", "blocked");
     const upgraded = success(upgrading);
     const opened = success(opening);
     const noUpgrade = () => upgrading.resolve(false);
     openRequest.addEventListener("success", noUpgrade);
     openRequest.addEventListener("upgradeneeded", () => {
-      const transacting = once2(openRequest.transaction, "complete", "error", "abort");
+      const transacting = once(openRequest.transaction, "complete", "error", "abort");
       const db = openRequest.result;
       for (const storeName of storesToRemove) {
         db.deleteObjectStore(storeName);
@@ -2467,10 +1626,10 @@ var IDexStore = class {
   }
   async request(makeRequest, mode) {
     const transaction = this.db.transaction(this.storeName, mode);
-    const transacting = once2(transaction, "complete", "error");
+    const transacting = once(transaction, "complete", "error");
     const store = transaction.objectStore(this.storeName);
     const request = makeRequest(store);
-    const requesting = once2(request, "success", "error");
+    const requesting = once(request, "success", "error");
     if (!await success(requesting)) {
       transaction.abort();
       throw requesting.error;
@@ -2516,7 +1675,7 @@ var IDexStore = class {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/fetcher-base/FetchingServiceImplXHR.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher-base/FetchingServiceImplXHR.ts
 function isXHRBodyInit(obj) {
   return isString(obj) || isArrayBufferView(obj) || obj instanceof Blob || obj instanceof FormData || isArrayBuffer(obj) || obj instanceof ReadableStream || "Document" in globalThis && obj instanceof Document;
 }
@@ -2797,13 +1956,13 @@ var FetchingServiceImplXHR = class {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/dom/attrs.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/attrs.ts
 var Attr = class {
   constructor(key, value, bySetAttribute, ...tags) {
     this.key = key;
     this.value = value;
     this.bySetAttribute = bySetAttribute;
-    this.tags = tags.map((t4) => t4.toLocaleUpperCase());
+    this.tags = tags.map((t2) => t2.toLocaleUpperCase());
     Object.freeze(this);
   }
   applyToElement(elem) {
@@ -2859,7 +2018,7 @@ function htmlWidth(value) {
   return new Attr("width", value, false, "canvas", "embed", "iframe", "img", "input", "object", "video");
 }
 
-// ../Juniper/src/Juniper.TypeScript/dom/css.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/css.ts
 var CssProp = class {
   constructor(key, value) {
     this.key = key;
@@ -2887,7 +2046,7 @@ function display(v) {
   return new CssProp("display", v);
 }
 
-// ../Juniper/src/Juniper.TypeScript/dom/tags.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/tags.ts
 function isErsatzElement(obj) {
   if (!isObject(obj)) {
     return false;
@@ -2968,7 +2127,7 @@ function BackgroundVideo(autoplay, mute, looping, ...rest) {
   return Video(playsInline(true), controls(false), muted(mute), autoPlay(autoplay), loop(looping), styles(display("none")), ...rest);
 }
 
-// ../Juniper/src/Juniper.TypeScript/dom/canvas.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/canvas.ts
 var hasHTMLCanvas = "HTMLCanvasElement" in globalThis;
 var hasHTMLImage = "HTMLImageElement" in globalThis;
 var disableAdvancedSettings = false;
@@ -3022,7 +2181,7 @@ function drawImageToCanvas(canv, img) {
   g.drawImage(img, 0, 0);
 }
 
-// ../Juniper/src/Juniper.TypeScript/fetcher/RequestBuilder.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/RequestBuilder.ts
 var testAudio = null;
 function canPlay(type2) {
   if (testAudio === null) {
@@ -3218,21 +2377,51 @@ var RequestBuilder = class {
   image(acceptType) {
     return this.htmlElement(Img(), "load", acceptType);
   }
-  async canvas(acceptType) {
+  async htmlCanvas(acceptType) {
+    if (isWorker) {
+      throw new Error("HTMLCanvasElement not supported in Workers.");
+    }
     const canvas = createCanvas(1, 1);
+    if (this.method === "GET") {
+      if (hasOffscreenCanvas) {
+        this.accept(acceptType);
+        const response = await this.fetcher.drawImageToCanvas(this.request, canvas.transferControlToOffscreen(), this.prog);
+        return await translateResponse(response, () => canvas);
+      } else {
+        const response = await (isWorker ? this.imageBitmap(acceptType) : this.image(acceptType));
+        return await translateResponse(response, (img) => {
+          canvas.width = img.width;
+          canvas.height = img.height;
+          drawImageToCanvas(canvas, img);
+          dispose(img);
+          return canvas;
+        });
+      }
+    } else if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE" || this.method === "HEAD" || this.method === "OPTIONS") {
+      throw new Error(`${this.method} responses do not contain bodies`);
+    } else {
+      assertNever(this.method);
+    }
+  }
+  canvas(acceptType) {
+    if (hasOffscreenCanvas) {
+      return this.offscreenCanvas(acceptType);
+    } else {
+      return this.htmlCanvas(acceptType);
+    }
+  }
+  async offscreenCanvas(acceptType) {
     if (!hasOffscreenCanvas) {
+      throw new Error("This system does not support OffscreenCanvas");
+    }
+    if (this.method === "GET") {
       const response = await (isWorker ? this.imageBitmap(acceptType) : this.image(acceptType));
       return await translateResponse(response, (img) => {
-        canvas.width = img.width;
-        canvas.height = img.height;
+        const canvas = createOffscreenCanvas(img.width, img.height);
         drawImageToCanvas(canvas, img);
         dispose(img);
         return canvas;
       });
-    } else if (this.method === "GET") {
-      this.accept(acceptType);
-      const response = await this.fetcher.drawImageToCanvas(this.request, canvas.transferControlToOffscreen(), this.prog);
-      return await translateResponse(response, () => canvas);
     } else if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE" || this.method === "HEAD" || this.method === "OPTIONS") {
       throw new Error(`${this.method} responses do not contain bodies`);
     } else {
@@ -3285,7 +2474,7 @@ var RequestBuilder = class {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/fetcher/Fetcher.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/Fetcher.ts
 var Fetcher = class {
   constructor(service) {
     this.service = service;
@@ -3325,7 +2514,7 @@ var Fetcher = class {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/worker-client/WorkerClient.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/worker-client/WorkerClient.ts
 var _WorkerClient = class extends TypedEventBase {
   constructor(worker) {
     super();
@@ -3446,7 +2635,7 @@ var _WorkerClient = class extends TypedEventBase {
 var WorkerClient = _WorkerClient;
 __publicField(WorkerClient, "isSupported", "Worker" in globalThis);
 
-// ../Juniper/src/Juniper.TypeScript/worker-client/WorkerPool.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/worker-client/WorkerPool.ts
 var WorkerPool = class extends TypedEventBase {
   constructor(options, WorkerClientClass) {
     super();
@@ -3501,7 +2690,7 @@ var WorkerPool = class extends TypedEventBase {
 };
 __publicField(WorkerPool, "isSupported", "Worker" in globalThis);
 
-// ../Juniper/src/Juniper.TypeScript/fetcher/FetchingServiceClient.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/FetchingServiceClient.ts
 function isDOMParsersSupportedType(type2) {
   return type2 === "application/xhtml+xml" || type2 === "application/xml" || type2 === "image/svg+xml" || type2 === "text/html" || type2 === "text/xml";
 }
@@ -3652,7 +2841,7 @@ var FetchingServiceClient = class extends WorkerClient {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/fetcher/FetchingServicerPool.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/FetchingServicerPool.ts
 var BaseFetchingServicePool = class extends WorkerPool {
   constructor(options, WorkerClientClass, fetcher2) {
     super(options, WorkerClientClass);
@@ -3729,684 +2918,13 @@ var BaseFetchingServicePool = class extends WorkerPool {
 var FetchingServicePool = class extends BaseFetchingServicePool {
 };
 
-// node_modules/@juniper-lib/tslib/collections/arrayRemoveAt.ts
-function arrayRemoveAt3(arr, idx) {
-  return arr.splice(idx, 1)[0];
-}
-
-// node_modules/@juniper-lib/tslib/collections/arrayClear.ts
-function arrayClear3(arr) {
-  return arr.splice(0);
-}
-
-// node_modules/@juniper-lib/tslib/collections/arrayRemove.ts
-function arrayRemove3(arr, value) {
-  const idx = arr.indexOf(value);
-  if (idx > -1) {
-    arrayRemoveAt3(arr, idx);
-    return true;
-  }
-  return false;
-}
-
-// node_modules/@juniper-lib/tslib/collections/PriorityList.ts
-var PriorityList3 = class {
-  constructor(init) {
-    this.items = /* @__PURE__ */ new Map();
-    this.defaultItems = new Array();
-    if (isDefined3(init)) {
-      for (const [key, value] of init) {
-        this.add(key, value);
-      }
-    }
-  }
-  add(key, value) {
-    if (isNullOrUndefined3(key)) {
-      this.defaultItems.push(value);
-    } else {
-      let list = this.items.get(key);
-      if (isNullOrUndefined3(list)) {
-        this.items.set(key, list = []);
-      }
-      list.push(value);
-    }
-    return this;
-  }
-  entries() {
-    return this.items.entries();
-  }
-  [Symbol.iterator]() {
-    return this.entries();
-  }
-  keys() {
-    return this.items.keys();
-  }
-  *values() {
-    for (const item of this.defaultItems) {
-      yield item;
-    }
-    for (const list of this.items.values()) {
-      for (const item of list) {
-        yield item;
-      }
-    }
-  }
-  has(key) {
-    if (isDefined3(key)) {
-      return this.items.has(key);
-    } else {
-      return this.defaultItems.length > 0;
-    }
-  }
-  get(key) {
-    if (isNullOrUndefined3(key)) {
-      return this.defaultItems;
-    }
-    return this.items.get(key) || [];
-  }
-  count(key) {
-    if (isNullOrUndefined3(key)) {
-      return this.defaultItems.length;
-    }
-    const list = this.get(key);
-    if (isDefined3(list)) {
-      return list.length;
-    }
-    return 0;
-  }
-  get size() {
-    let size = this.defaultItems.length;
-    for (const list of this.items.values()) {
-      size += list.length;
-    }
-    return size;
-  }
-  delete(key) {
-    if (isNullOrUndefined3(key)) {
-      return arrayClear3(this.defaultItems).length > 0;
-    } else {
-      return this.items.delete(key);
-    }
-  }
-  remove(key, value) {
-    if (isNullOrUndefined3(key)) {
-      arrayRemove3(this.defaultItems, value);
-    } else {
-      const list = this.items.get(key);
-      if (isDefined3(list)) {
-        arrayRemove3(list, value);
-        if (list.length === 0) {
-          this.items.delete(key);
-        }
-      }
-    }
-  }
-  clear() {
-    this.items.clear();
-    arrayClear3(this.defaultItems);
-  }
-};
-
-// node_modules/@juniper-lib/tslib/events/Task.ts
-var Task3 = class {
-  constructor(resolveTestOrAutoStart, rejectTestOrAutoStart, autoStart = true) {
-    this._resolve = null;
-    this._reject = null;
-    this._result = null;
-    this._error = null;
-    this._started = false;
-    this._finished = false;
-    this.resolve = null;
-    this.reject = null;
-    let resolveTest = alwaysTrue3;
-    let rejectTest = alwaysTrue3;
-    if (isFunction3(resolveTestOrAutoStart)) {
-      resolveTest = resolveTestOrAutoStart;
-    }
-    if (isFunction3(rejectTestOrAutoStart)) {
-      rejectTest = rejectTestOrAutoStart;
-    }
-    if (isBoolean3(resolveTestOrAutoStart)) {
-      autoStart = resolveTestOrAutoStart;
-    } else if (isBoolean3(rejectTestOrAutoStart)) {
-      autoStart = rejectTestOrAutoStart;
-    }
-    this.resolve = (value) => {
-      if (isDefined3(this._resolve)) {
-        this._resolve(value);
-      }
-    };
-    this.reject = (reason) => {
-      if (isDefined3(this._reject)) {
-        this._reject(reason);
-      }
-    };
-    this.promise = new Promise((resolve, reject) => {
-      this._resolve = (value) => {
-        if (resolveTest(value)) {
-          this._result = value;
-          this._finished = true;
-          resolve(value);
-        }
-      };
-      this._reject = (reason) => {
-        if (rejectTest(reason)) {
-          this._error = reason;
-          this._finished = true;
-          reject(reason);
-        }
-      };
-    });
-    if (autoStart) {
-      this.start();
-    }
-  }
-  get result() {
-    if (isDefined3(this.error)) {
-      throw this.error;
-    }
-    return this._result;
-  }
-  get error() {
-    return this._error;
-  }
-  get started() {
-    return this._started;
-  }
-  get finished() {
-    return this._finished;
-  }
-  start() {
-    this._started = true;
-  }
-  get [Symbol.toStringTag]() {
-    return this.promise.toString();
-  }
-  then(onfulfilled, onrejected) {
-    return this.promise.then(onfulfilled, onrejected);
-  }
-  catch(onrejected) {
-    return this.promise.catch(onrejected);
-  }
-  finally(onfinally) {
-    return this.promise.finally(onfinally);
-  }
-};
-
-// node_modules/@juniper-lib/tslib/events/Promisifier.ts
-var Promisifier3 = class {
-  constructor(resolveRejectTest, selectValue, selectRejectionReason) {
-    this.callback = null;
-    this.promise = new Promise((resolve, reject) => {
-      this.callback = (...args) => {
-        if (resolveRejectTest(...args)) {
-          resolve(selectValue(...args));
-        } else {
-          reject(selectRejectionReason(...args));
-        }
-      };
-    });
-  }
-  get [Symbol.toStringTag]() {
-    return this.promise.toString();
-  }
-  then(onfulfilled, onrejected) {
-    return this.promise.then(onfulfilled, onrejected);
-  }
-  catch(onrejected) {
-    return this.promise.catch(onrejected);
-  }
-  finally(onfinally) {
-    return this.promise.finally(onfinally);
-  }
-};
-
-// node_modules/@juniper-lib/tslib/flags.ts
-var oculusBrowserPattern3 = /OculusBrowser\/(\d+)\.(\d+)\.(\d+)/i;
-var oculusMatch3 = navigator.userAgent.match(oculusBrowserPattern3);
-var isOculusBrowser3 = !!oculusMatch3;
-var oculusBrowserVersion3 = isOculusBrowser3 && {
-  major: parseFloat(oculusMatch3[1]),
-  minor: parseFloat(oculusMatch3[2]),
-  patch: parseFloat(oculusMatch3[3])
-};
-var isOculusGo3 = isOculusBrowser3 && /pacific/i.test(navigator.userAgent);
-var isOculusQuest4 = isOculusBrowser3 && /quest/i.test(navigator.userAgent);
-var isOculusQuest23 = isOculusBrowser3 && /quest 2/i.test(navigator.userAgent);
-var isWorker3 = !("Document" in globalThis);
-
-// node_modules/@juniper-lib/tslib/gis/Datum.ts
-var invF3 = 298.257223563;
-var equatorialRadius3 = 6378137;
-var flattening3 = 1 / invF3;
-var flatteningComp3 = 1 - flattening3;
-var n3 = flattening3 / (2 - flattening3);
-var A3 = equatorialRadius3 / (1 + n3) * (1 + n3 * n3 / 4 + n3 * n3 * n3 * n3 / 64);
-var e3 = Math.sqrt(1 - flatteningComp3 * flatteningComp3);
-var esq3 = 1 - flatteningComp3 * flatteningComp3;
-var e0sq3 = e3 * e3 / (1 - e3 * e3);
-var alpha13 = 1 - esq3 * (0.25 + esq3 * (3 / 64 + 5 * esq3 / 256));
-var alpha23 = esq3 * (3 / 8 + esq3 * (3 / 32 + 45 * esq3 / 1024));
-var alpha33 = esq3 * esq3 * (15 / 256 + esq3 * 45 / 1024);
-var alpha43 = esq3 * esq3 * esq3 * (35 / 3072);
-var beta3 = [
-  n3 / 2 - 2 * n3 * n3 / 3 + 37 * n3 * n3 * n3 / 96,
-  n3 * n3 / 48 + n3 * n3 * n3 / 15,
-  17 * n3 * n3 * n3 / 480
-];
-var delta3 = [
-  2 * n3 - 2 * n3 * n3 / 3,
-  7 * n3 * n3 / 3 - 8 * n3 * n3 * n3 / 5,
-  56 * n3 * n3 * n3 / 15
-];
-
-// node_modules/@juniper-lib/tslib/identity.ts
-function alwaysTrue3() {
-  return true;
-}
-
-// node_modules/@juniper-lib/tslib/math/angleClamp.ts
-var Tau3 = 2 * Math.PI;
-
-// node_modules/@juniper-lib/tslib/math/lerp.ts
-function lerp3(a, b, p) {
-  return (1 - p) * a + p * b;
-}
-
-// node_modules/@juniper-lib/tslib/typeChecks.ts
-function t3(o, s, c) {
-  return typeof o === s || o instanceof c;
-}
-function isFunction3(obj) {
-  return t3(obj, "function", Function);
-}
-function isBoolean3(obj) {
-  return t3(obj, "boolean", Boolean);
-}
-function isNullOrUndefined3(obj) {
-  return obj === null || obj === void 0;
-}
-function isDefined3(obj) {
-  return !isNullOrUndefined3(obj);
-}
-
-// node_modules/@juniper-lib/tslib/strings/stringRandom.ts
-var DEFAULT_CHAR_SET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZ";
-function stringRandom(length, charSet) {
-  if (length < 0) {
-    throw new Error("Length must be greater than 0");
-  }
-  if (isNullOrUndefined3(charSet)) {
-    charSet = DEFAULT_CHAR_SET;
-  }
-  let str = "";
-  for (let i = 0; i < length; ++i) {
-    const idx = Math.floor(Math.random() * charSet.length);
-    str += charSet[idx];
-  }
-  return str;
-}
-
-// node_modules/@juniper-lib/tslib/timers/ITimer.ts
-var BaseTimerTickEvent3 = class {
-  constructor() {
-    this.t = 0;
-    this.dt = 0;
-    this.sdt = 0;
-    this.fps = 0;
-  }
-  set(t4, dt) {
-    this.t = t4;
-    this.dt = dt;
-    this.sdt = lerp3(this.sdt, dt, 0.01);
-    if (dt > 0) {
-      this.fps = 1e3 / dt;
-    }
-  }
-};
-var TimerTickEvent3 = class extends BaseTimerTickEvent3 {
-  constructor() {
-    super();
-    Object.seal(this);
-  }
-};
-
-// node_modules/@juniper-lib/tslib/timers/BaseTimer.ts
-var _targetFPS3;
-var BaseTimer3 = class {
-  constructor(targetFrameRate) {
-    this.timer = null;
-    this.lt = -1;
-    this.tickHandlers = new Array();
-    __privateAdd(this, _targetFPS3, null);
-    this.targetFPS = targetFrameRate;
-    const tickEvt = new TimerTickEvent3();
-    let dt = 0;
-    this.onTick = (t4) => {
-      if (this.lt >= 0) {
-        dt = t4 - this.lt;
-        tickEvt.set(t4, dt);
-        this.tick(tickEvt);
-      }
-      this.lt = t4;
-    };
-  }
-  get targetFPS() {
-    return __privateGet(this, _targetFPS3);
-  }
-  set targetFPS(v) {
-    __privateSet(this, _targetFPS3, v);
-  }
-  addTickHandler(onTick) {
-    this.tickHandlers.push(onTick);
-  }
-  removeTickHandler(onTick) {
-    arrayRemove3(this.tickHandlers, onTick);
-  }
-  tick(evt) {
-    for (const handler of this.tickHandlers) {
-      handler(evt);
-    }
-  }
-  restart() {
-    this.stop();
-    this.start();
-  }
-  get isRunning() {
-    return this.timer != null;
-  }
-  stop() {
-    this.timer = null;
-    this.lt = -1;
-  }
-  get targetFrameTime() {
-    return 1e3 / this.targetFPS;
-  }
-};
-_targetFPS3 = new WeakMap();
-
-// node_modules/@juniper-lib/tslib/URLBuilder.ts
-function parsePort3(portString) {
-  if (isDefined3(portString) && portString.length > 0) {
-    return parseFloat(portString);
-  }
-  return null;
-}
-var URLBuilder3 = class {
-  constructor(url, base) {
-    this._url = null;
-    this._base = void 0;
-    this._protocol = null;
-    this._host = null;
-    this._hostName = null;
-    this._userName = null;
-    this._password = null;
-    this._port = null;
-    this._pathName = null;
-    this._hash = null;
-    this._query = /* @__PURE__ */ new Map();
-    if (url !== void 0) {
-      this._url = new URL(url, base);
-      this.rehydrate();
-    }
-  }
-  rehydrate() {
-    if (isDefined3(this._protocol) && this._protocol !== this._url.protocol) {
-      this._url.protocol = this._protocol;
-    }
-    if (isDefined3(this._host) && this._host !== this._url.host) {
-      this._url.host = this._host;
-    }
-    if (isDefined3(this._hostName) && this._hostName !== this._url.hostname) {
-      this._url.hostname = this._hostName;
-    }
-    if (isDefined3(this._userName) && this._userName !== this._url.username) {
-      this._url.username = this._userName;
-    }
-    if (isDefined3(this._password) && this._password !== this._url.password) {
-      this._url.password = this._password;
-    }
-    if (isDefined3(this._port) && this._port.toFixed(0) !== this._url.port) {
-      this._url.port = this._port.toFixed(0);
-    }
-    if (isDefined3(this._pathName) && this._pathName !== this._url.pathname) {
-      this._url.pathname = this._pathName;
-    }
-    if (isDefined3(this._hash) && this._hash !== this._url.hash) {
-      this._url.hash = this._hash;
-    }
-    for (const [k, v] of this._query) {
-      this._url.searchParams.set(k, v);
-    }
-    this._protocol = this._url.protocol;
-    this._host = this._url.host;
-    this._hostName = this._url.hostname;
-    this._userName = this._url.username;
-    this._password = this._url.password;
-    this._port = parsePort3(this._url.port);
-    this._pathName = this._url.pathname;
-    this._hash = this._url.hash;
-    this._url.searchParams.forEach((v, k) => this._query.set(k, v));
-  }
-  refresh() {
-    if (this._url === null) {
-      if (isDefined3(this._protocol) && (isDefined3(this._host) || isDefined3(this._hostName))) {
-        if (isDefined3(this._host)) {
-          this._url = new URL(`${this._protocol}//${this._host}`, this._base);
-          this._port = parsePort3(this._url.port);
-          this.rehydrate();
-          return false;
-        } else if (isDefined3(this._hostName)) {
-          this._url = new URL(`${this._protocol}//${this._hostName}`, this._base);
-          this.rehydrate();
-          return false;
-        }
-      } else if (isDefined3(this._pathName) && isDefined3(this._base)) {
-        this._url = new URL(this._pathName, this._base);
-        this.rehydrate();
-        return false;
-      }
-    }
-    return isDefined3(this._url);
-  }
-  base(base) {
-    if (this._url !== null) {
-      throw new Error("Cannot redefine base after defining the protocol and domain");
-    }
-    this._base = base;
-    this.refresh();
-    return this;
-  }
-  protocol(protocol) {
-    this._protocol = protocol;
-    if (this.refresh()) {
-      this._url.protocol = protocol;
-    }
-    return this;
-  }
-  host(host) {
-    this._host = host;
-    if (this.refresh()) {
-      this._url.host = host;
-      this._hostName = this._url.hostname;
-      this._port = parsePort3(this._url.port);
-    }
-    return this;
-  }
-  hostName(hostName) {
-    this._hostName = hostName;
-    if (this.refresh()) {
-      this._url.hostname = hostName;
-      this._host = `${this._url.hostname}:${this._url.port}`;
-    }
-    return this;
-  }
-  port(port) {
-    this._port = port;
-    if (this.refresh()) {
-      this._url.port = port.toFixed(0);
-      this._host = `${this._url.hostname}:${this._url.port}`;
-    }
-    return this;
-  }
-  userName(userName) {
-    this._userName = userName;
-    if (this.refresh()) {
-      this._url.username = userName;
-    }
-    return this;
-  }
-  password(password) {
-    this._password = password;
-    if (this.refresh()) {
-      this._url.password = password;
-    }
-    return this;
-  }
-  path(path) {
-    this._pathName = path;
-    if (this.refresh()) {
-      this._url.pathname = path;
-    }
-    return this;
-  }
-  pathPop(pattern) {
-    pattern = pattern || /\/[^\/]+\/?$/;
-    return this.path(this._pathName.replace(pattern, ""));
-  }
-  pathPush(part) {
-    let path = this._pathName;
-    if (!path.endsWith("/")) {
-      path += "/";
-    }
-    path += part;
-    return this.path(path);
-  }
-  query(name, value) {
-    this._query.set(name, value);
-    if (this.refresh()) {
-      this._url.searchParams.set(name, value);
-    }
-    return this;
-  }
-  hash(hash) {
-    this._hash = hash;
-    if (this.refresh()) {
-      this._url.hash = hash;
-    }
-    return this;
-  }
-  toURL() {
-    return this._url;
-  }
-  toString() {
-    return this._url.href;
-  }
-  [Symbol.toStringTag]() {
-    return this.toString();
-  }
-};
-
-// node_modules/@juniper-lib/tslib/collections/mapInvert.ts
-function mapInvert3(map) {
-  const mapOut = /* @__PURE__ */ new Map();
-  for (const [key, value] of map) {
-    mapOut.set(value, key);
-  }
-  return mapOut;
-}
-
-// node_modules/@juniper-lib/tslib/units/fileSize.ts
-var base2Labels3 = /* @__PURE__ */ new Map([
-  [1, "KiB"],
-  [2, "MiB"],
-  [3, "GiB"],
-  [4, "TiB"]
-]);
-var base10Labels3 = /* @__PURE__ */ new Map([
-  [1, "KB"],
-  [2, "MB"],
-  [3, "GB"],
-  [4, "TB"]
-]);
-var base2Sizes3 = mapInvert3(base2Labels3);
-var base10Sizes3 = mapInvert3(base10Labels3);
-
-// node_modules/@juniper-lib/tslib/units/length.ts
-var MICROMETERS_PER_MILLIMETER3 = 1e3;
-var MILLIMETERS_PER_CENTIMETER3 = 10;
-var CENTIMETERS_PER_INCH3 = 2.54;
-var CENTIMETERS_PER_METER3 = 100;
-var INCHES_PER_HAND3 = 4;
-var HANDS_PER_FOOT3 = 3;
-var FEET_PER_YARD3 = 3;
-var FEET_PER_ROD3 = 16.5;
-var METERS_PER_KILOMETER3 = 1e3;
-var RODS_PER_FURLONG3 = 40;
-var FURLONGS_PER_MILE3 = 8;
-var MICROMETERS_PER_CENTIMETER3 = MICROMETERS_PER_MILLIMETER3 * MILLIMETERS_PER_CENTIMETER3;
-var MICROMETERS_PER_INCH3 = MICROMETERS_PER_CENTIMETER3 * CENTIMETERS_PER_INCH3;
-var MICROMETERS_PER_HAND3 = MICROMETERS_PER_INCH3 * INCHES_PER_HAND3;
-var MICROMETERS_PER_FOOT3 = MICROMETERS_PER_HAND3 * HANDS_PER_FOOT3;
-var MICROMETERS_PER_YARD3 = MICROMETERS_PER_FOOT3 * FEET_PER_YARD3;
-var MICROMETERS_PER_METER3 = MICROMETERS_PER_CENTIMETER3 * CENTIMETERS_PER_METER3;
-var MICROMETERS_PER_ROD3 = MICROMETERS_PER_FOOT3 * FEET_PER_ROD3;
-var MICROMETERS_PER_FURLONG3 = MICROMETERS_PER_ROD3 * RODS_PER_FURLONG3;
-var MICROMETERS_PER_KILOMETER3 = MICROMETERS_PER_METER3 * METERS_PER_KILOMETER3;
-var MICROMETERS_PER_MILE3 = MICROMETERS_PER_FURLONG3 * FURLONGS_PER_MILE3;
-var MILLIMETERS_PER_INCH3 = MILLIMETERS_PER_CENTIMETER3 * CENTIMETERS_PER_INCH3;
-var MILLIMETERS_PER_HAND3 = MILLIMETERS_PER_INCH3 * INCHES_PER_HAND3;
-var MILLIMETERS_PER_FOOT3 = MILLIMETERS_PER_HAND3 * HANDS_PER_FOOT3;
-var MILLIMETERS_PER_YARD3 = MILLIMETERS_PER_FOOT3 * FEET_PER_YARD3;
-var MILLIMETERS_PER_METER3 = MILLIMETERS_PER_CENTIMETER3 * CENTIMETERS_PER_METER3;
-var MILLIMETERS_PER_ROD3 = MILLIMETERS_PER_FOOT3 * FEET_PER_ROD3;
-var MILLIMETERS_PER_FURLONG3 = MILLIMETERS_PER_ROD3 * RODS_PER_FURLONG3;
-var MILLIMETERS_PER_KILOMETER3 = MILLIMETERS_PER_METER3 * METERS_PER_KILOMETER3;
-var MILLIMETERS_PER_MILE3 = MILLIMETERS_PER_FURLONG3 * FURLONGS_PER_MILE3;
-var CENTIMETERS_PER_HAND3 = CENTIMETERS_PER_INCH3 * INCHES_PER_HAND3;
-var CENTIMETERS_PER_FOOT3 = CENTIMETERS_PER_HAND3 * HANDS_PER_FOOT3;
-var CENTIMETERS_PER_YARD3 = CENTIMETERS_PER_FOOT3 * FEET_PER_YARD3;
-var CENTIMETERS_PER_ROD3 = CENTIMETERS_PER_FOOT3 * FEET_PER_ROD3;
-var CENTIMETERS_PER_FURLONG3 = CENTIMETERS_PER_ROD3 * RODS_PER_FURLONG3;
-var CENTIMETERS_PER_KILOMETER3 = CENTIMETERS_PER_METER3 * METERS_PER_KILOMETER3;
-var CENTIMETERS_PER_MILE3 = CENTIMETERS_PER_FURLONG3 * FURLONGS_PER_MILE3;
-var INCHES_PER_FOOT3 = INCHES_PER_HAND3 * HANDS_PER_FOOT3;
-var INCHES_PER_YARD3 = INCHES_PER_FOOT3 * FEET_PER_YARD3;
-var INCHES_PER_METER3 = CENTIMETERS_PER_METER3 / CENTIMETERS_PER_INCH3;
-var INCHES_PER_ROD3 = INCHES_PER_FOOT3 * FEET_PER_ROD3;
-var INCHES_PER_FURLONG3 = INCHES_PER_ROD3 * RODS_PER_FURLONG3;
-var INCHES_PER_KILOMETER3 = INCHES_PER_METER3 * METERS_PER_KILOMETER3;
-var INCHES_PER_MILE3 = INCHES_PER_FURLONG3 * FURLONGS_PER_MILE3;
-var HANDS_PER_YARD3 = HANDS_PER_FOOT3 * FEET_PER_YARD3;
-var HANDS_PER_METER3 = CENTIMETERS_PER_METER3 / CENTIMETERS_PER_HAND3;
-var HANDS_PER_ROD3 = HANDS_PER_FOOT3 * FEET_PER_ROD3;
-var HANDS_PER_FURLONG3 = HANDS_PER_ROD3 * RODS_PER_FURLONG3;
-var HANDS_PER_KILOMETER3 = HANDS_PER_METER3 * METERS_PER_KILOMETER3;
-var HANDS_PER_MILE3 = HANDS_PER_FURLONG3 * FURLONGS_PER_MILE3;
-var FEET_PER_METER3 = INCHES_PER_METER3 / INCHES_PER_FOOT3;
-var FEET_PER_FURLONG3 = FEET_PER_ROD3 * RODS_PER_FURLONG3;
-var FEET_PER_KILOMETER3 = FEET_PER_METER3 * METERS_PER_KILOMETER3;
-var FEET_PER_MILE3 = FEET_PER_FURLONG3 * FURLONGS_PER_MILE3;
-var YARDS_PER_METER3 = INCHES_PER_METER3 / INCHES_PER_YARD3;
-var YARDS_PER_ROD3 = FEET_PER_ROD3 / FEET_PER_YARD3;
-var YARDS_PER_FURLONG3 = YARDS_PER_ROD3 * RODS_PER_FURLONG3;
-var YARDS_PER_KILOMETER3 = YARDS_PER_METER3 * METERS_PER_KILOMETER3;
-var YARDS_PER_MILE3 = YARDS_PER_FURLONG3 * FURLONGS_PER_MILE3;
-var METERS_PER_ROD3 = FEET_PER_ROD3 / FEET_PER_METER3;
-var METERS_PER_FURLONG3 = METERS_PER_ROD3 * RODS_PER_FURLONG3;
-var METERS_PER_MILE3 = METERS_PER_FURLONG3 * FURLONGS_PER_MILE3;
-var RODS_PER_KILOMETER3 = METERS_PER_KILOMETER3 / METERS_PER_ROD3;
-var RODS_PER_MILE3 = RODS_PER_FURLONG3 * FURLONGS_PER_MILE3;
-var FURLONGS_PER_KILOMETER3 = METERS_PER_KILOMETER3 / METERS_PER_FURLONG3;
-var KILOMETERS_PER_MILE3 = FURLONGS_PER_MILE3 / FURLONGS_PER_KILOMETER3;
-
 // src/settings.ts
 var version = true ? stringRandom(10) : pkgVersion;
 
 // src/createFetcher.ts
 function createFetcher(enableWorkers = true) {
   let fallback = new FetchingService(new FetchingServiceImplXHR());
-  if (!isWorker3 && enableWorkers) {
+  if (!isWorker && enableWorkers) {
     fallback = new FetchingServicePool({
       scriptPath: `/js/fetcher-worker/index${".js"}?${version}`
     }, FetchingServiceClient, fallback);
