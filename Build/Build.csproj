@@ -11,8 +11,11 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\BuildConfig\BuildConfig.csproj" />
-		<ProjectReference Include="..\Juniper\src\Juniper.Root\Juniper.Root.csproj" />
 		<ProjectReference Include="..\Juniper\src\Juniper.TSBuild\Juniper.TSBuild.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="SeanMcBeth.Juniper" Version="1.0.0" />
 	</ItemGroup>
 
 </Project>

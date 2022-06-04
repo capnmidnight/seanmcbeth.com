@@ -17,6 +17,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="SeanMcBeth.Juniper" Version="1.0.0" />
 		<PackageReference Include="Microsoft.ASPNetCore.Hosting.Abstractions" Version="2.2.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="6.0.5" />
 		<PackageReference Include="Microsoft.Extensions.Hosting.Systemd" Version="6.0.0" />
@@ -25,7 +26,6 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\BuildConfig\BuildConfig.csproj" />
-		<ProjectReference Include="..\Juniper\src\Juniper.Root\Juniper.Root.csproj" />
 		<ProjectReference Include="..\Juniper\src\Juniper.Server\Juniper.Server.csproj" />
 		<ProjectReference Include="..\Juniper\src\Juniper.TSBuild\Juniper.TSBuild.csproj" />
 	</ItemGroup>
