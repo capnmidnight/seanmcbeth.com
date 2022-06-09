@@ -4,24 +4,6 @@ var __publicField = (obj, key, value) => {
   __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   return value;
 };
-var __accessCheck = (obj, member, msg) => {
-  if (!member.has(obj))
-    throw TypeError("Cannot " + msg);
-};
-var __privateGet = (obj, member, getter) => {
-  __accessCheck(obj, member, "read from private field");
-  return getter ? getter.call(obj) : member.get(obj);
-};
-var __privateAdd = (obj, member, value) => {
-  if (member.has(obj))
-    throw TypeError("Cannot add the same private member more than once");
-  member instanceof WeakSet ? member.add(obj) : member.set(obj, value);
-};
-var __privateSet = (obj, member, value, setter) => {
-  __accessCheck(obj, member, "write to private field");
-  setter ? setter.call(obj, value) : member.set(obj, value);
-  return value;
-};
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/arrayBinarySearch.ts
 function defaultKeySelector(obj) {
@@ -118,8 +100,8 @@ function arraySortedInsertInternal(arr, item, ks, allowDuplicates) {
 var BaseGraphNode = class {
   constructor(value) {
     this.value = value;
-    __publicField(this, "_forward", new Array());
-    __publicField(this, "_reverse", new Array());
+    this._forward = new Array();
+    this._reverse = new Array();
   }
   connectSorted(child, keySelector) {
     if (isDefined(keySelector)) {
@@ -209,8 +191,8 @@ var GraphNode = class extends BaseGraphNode {
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/PriorityList.ts
 var PriorityList = class {
   constructor(init) {
-    __publicField(this, "items", /* @__PURE__ */ new Map());
-    __publicField(this, "defaultItems", new Array());
+    this.items = /* @__PURE__ */ new Map();
+    this.defaultItems = new Array();
     if (isDefined(init)) {
       for (const [key, value] of init) {
         this.add(key, value);
@@ -307,8 +289,8 @@ var PriorityList = class {
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/events/EventBase.ts
 var EventBase = class {
   constructor() {
-    __publicField(this, "listeners", /* @__PURE__ */ new Map());
-    __publicField(this, "listenerOptions", /* @__PURE__ */ new Map());
+    this.listeners = /* @__PURE__ */ new Map();
+    this.listenerOptions = /* @__PURE__ */ new Map();
   }
   addEventListener(type2, callback, options) {
     if (isFunction(callback)) {
@@ -371,15 +353,14 @@ var EventBase = class {
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/events/Task.ts
 var Task = class {
   constructor(resolveTestOrAutoStart, rejectTestOrAutoStart, autoStart = true) {
-    __publicField(this, "promise");
-    __publicField(this, "_resolve", null);
-    __publicField(this, "_reject", null);
-    __publicField(this, "_result", null);
-    __publicField(this, "_error", null);
-    __publicField(this, "_started", false);
-    __publicField(this, "_finished", false);
-    __publicField(this, "resolve", null);
-    __publicField(this, "reject", null);
+    this._resolve = null;
+    this._reject = null;
+    this._result = null;
+    this._error = null;
+    this._started = false;
+    this._finished = false;
+    this.resolve = null;
+    this.reject = null;
     let resolveTest = alwaysTrue;
     let rejectTest = alwaysTrue;
     if (isFunction(resolveTestOrAutoStart)) {
@@ -500,8 +481,7 @@ function once(target, resolveEvt, rejectEvtOrTimeout, ...rejectEvts) {
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/events/Promisifier.ts
 var Promisifier = class {
   constructor(resolveRejectTest, selectValue, selectRejectionReason) {
-    __publicField(this, "promise");
-    __publicField(this, "callback", null);
+    this.callback = null;
     this.promise = new Promise((resolve, reject) => {
       this.callback = (...args) => {
         if (resolveRejectTest(...args)) {
@@ -581,11 +561,6 @@ function alwaysTrue() {
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math/angleClamp.ts
 var Tau = 2 * Math.PI;
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math/lerp.ts
-function lerp(a, b, p) {
-  return (1 - p) * a + p * b;
-}
-
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/typeChecks.ts
 function t(o, s, c) {
   return typeof o === s || o instanceof c;
@@ -646,85 +621,6 @@ function stringRandom(length, charSet) {
   return str;
 }
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/timers/ITimer.ts
-var BaseTimerTickEvent = class {
-  constructor() {
-    __publicField(this, "t", 0);
-    __publicField(this, "dt", 0);
-    __publicField(this, "sdt", 0);
-    __publicField(this, "fps", 0);
-  }
-  set(t2, dt2) {
-    this.t = t2;
-    this.dt = dt2;
-    this.sdt = lerp(this.sdt, dt2, 0.01);
-    if (dt2 > 0) {
-      this.fps = 1e3 / dt2;
-    }
-  }
-};
-var TimerTickEvent = class extends BaseTimerTickEvent {
-  constructor() {
-    super();
-    Object.seal(this);
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/timers/BaseTimer.ts
-var _targetFPS;
-var BaseTimer = class {
-  constructor(targetFrameRate) {
-    __publicField(this, "timer", null);
-    __publicField(this, "onTick");
-    __publicField(this, "lt", -1);
-    __publicField(this, "tickHandlers", new Array());
-    __privateAdd(this, _targetFPS, null);
-    this.targetFPS = targetFrameRate;
-    const tickEvt = new TimerTickEvent();
-    let dt2 = 0;
-    this.onTick = (t2) => {
-      if (this.lt >= 0) {
-        dt2 = t2 - this.lt;
-        tickEvt.set(t2, dt2);
-        this.tick(tickEvt);
-      }
-      this.lt = t2;
-    };
-  }
-  get targetFPS() {
-    return __privateGet(this, _targetFPS);
-  }
-  set targetFPS(v) {
-    __privateSet(this, _targetFPS, v);
-  }
-  addTickHandler(onTick) {
-    this.tickHandlers.push(onTick);
-  }
-  removeTickHandler(onTick) {
-    arrayRemove(this.tickHandlers, onTick);
-  }
-  tick(evt) {
-    for (const handler of this.tickHandlers) {
-      handler(evt);
-    }
-  }
-  restart() {
-    this.stop();
-    this.start();
-  }
-  get isRunning() {
-    return this.timer != null;
-  }
-  stop() {
-    this.timer = null;
-    this.lt = -1;
-  }
-  get targetFrameTime() {
-    return 1e3 / this.targetFPS;
-  }
-};
-_targetFPS = new WeakMap();
-
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/URLBuilder.ts
 function parsePort(portString) {
   if (isDefined(portString) && portString.length > 0) {
@@ -734,17 +630,17 @@ function parsePort(portString) {
 }
 var URLBuilder = class {
   constructor(url, base2) {
-    __publicField(this, "_url", null);
-    __publicField(this, "_base");
-    __publicField(this, "_protocol", null);
-    __publicField(this, "_host", null);
-    __publicField(this, "_hostName", null);
-    __publicField(this, "_userName", null);
-    __publicField(this, "_password", null);
-    __publicField(this, "_port", null);
-    __publicField(this, "_pathName", null);
-    __publicField(this, "_hash", null);
-    __publicField(this, "_query", /* @__PURE__ */ new Map());
+    this._url = null;
+    this._base = void 0;
+    this._protocol = null;
+    this._host = null;
+    this._hostName = null;
+    this._userName = null;
+    this._password = null;
+    this._port = null;
+    this._pathName = null;
+    this._hash = null;
+    this._query = /* @__PURE__ */ new Map();
     if (url !== void 0) {
       this._url = new URL(url, base2);
       this.rehydrate();
