@@ -11,8 +11,8 @@ const logos = [
     "wormwood"
 ]
 
-Promise.all(logos.map(logo =>
+const responses = await Promise.all(logos.map(logo =>
     fetcher.get(`/img/logo_${logo}.min.png`)
-        .image(Image_Png)))
-    .then(responses => responses.map(response => response.content))
-    .then(images => document.body.append(...images));
+        .image(Image_Png)));
+const images = responses.map(response => response.content);
+document.body.append(...images);

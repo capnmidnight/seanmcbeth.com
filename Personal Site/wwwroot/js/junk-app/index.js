@@ -1279,8 +1279,8 @@ async function translateResponse(response, translate) {
 var FetchingService = class {
   constructor(impl) {
     this.impl = impl;
-    this.defaultPostHeaders = /* @__PURE__ */ new Map();
   }
+  defaultPostHeaders = /* @__PURE__ */ new Map();
   setRequestVerificationToken(value) {
     this.defaultPostHeaders.set("RequestVerificationToken", value);
   }
@@ -1632,10 +1632,10 @@ function readResponseHeader(headers, key, translate) {
 var FILE_NAME_PATTERN = /filename=\"(.+)\"(;|$)/;
 var DB_NAME = "Juniper:Fetcher:Cache";
 var FetchingServiceImplXHR = class {
+  cacheReady;
+  cache = null;
+  store = null;
   constructor() {
-    this.cache = null;
-    this.store = null;
-    this.tasks = new PriorityMap();
     this.cacheReady = this.openCache();
   }
   async drawImageToCanvas(request, canvas, progress) {
@@ -1758,6 +1758,7 @@ var FetchingServiceImplXHR = class {
       }
     });
   }
+  tasks = new PriorityMap();
   async withCachedTask(request, action) {
     if (request.method !== "GET" && request.method !== "HEAD" && request.method !== "OPTIONS") {
       return await action();
@@ -1846,6 +1847,7 @@ var Attr = class {
     this.tags = tags.map((t2) => t2.toLocaleUpperCase());
     Object.freeze(this);
   }
+  tags;
   applyToElement(elem) {
     const isDataSet = this.key.startsWith("data-");
     const isValid = this.tags.length === 0 || this.tags.indexOf(elem.tagName) > -1 || isDataSet;
@@ -1906,11 +1908,13 @@ var CssProp = class {
     this.value = value;
     this.name = key.replace(/[A-Z]/g, (m) => `-${m.toLocaleLowerCase()}`);
   }
+  name;
   applyToElement(elem) {
     elem.style[this.key] = this.value;
   }
 };
 var CssPropSet = class {
+  rest;
   constructor(...rest) {
     this.rest = rest;
   }
@@ -2818,5 +2822,7 @@ var logos = [
   "primrose",
   "wormwood"
 ];
-Promise.all(logos.map((logo) => fetcher.get(`/img/logo_${logo}.min.png`).image(Image_Png))).then((responses) => responses.map((response) => response.content)).then((images) => document.body.append(...images));
+var responses = await Promise.all(logos.map((logo) => fetcher.get(`/img/logo_${logo}.min.png`).image(Image_Png)));
+var images = responses.map((response) => response.content);
+document.body.append(...images);
 //# sourceMappingURL=index.js.map

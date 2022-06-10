@@ -1,10 +1,3 @@
-var __defProp = Object.defineProperty;
-var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __publicField = (obj, key, value) => {
-  __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
-  return value;
-};
-
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/arrayBinarySearch.ts
 function defaultKeySelector(obj) {
   return obj;
@@ -905,6 +898,7 @@ var Attr = class {
     this.tags = tags.map((t2) => t2.toLocaleUpperCase());
     Object.freeze(this);
   }
+  tags;
   applyToElement(elem) {
     const isDataSet = this.key.startsWith("data-");
     const isValid = this.tags.length === 0 || this.tags.indexOf(elem.tagName) > -1 || isDataSet;
@@ -950,11 +944,13 @@ var CssProp = class {
     this.value = value;
     this.name = key.replace(/[A-Z]/g, (m) => `-${m.toLocaleLowerCase()}`);
   }
+  name;
   applyToElement(elem) {
     elem.style[this.key] = this.value;
   }
 };
 var CssPropSet = class {
+  rest;
   constructor(...rest) {
     this.rest = rest;
   }
@@ -1159,6 +1155,7 @@ var HtmlEvt = class {
     this.opts = opts;
     Object.freeze(this);
   }
+  opts;
   applyToElement(elem) {
     this.add(elem);
   }
@@ -1400,27 +1397,27 @@ function isFace(obj) {
   return obj instanceof Face;
 }
 var Face = class {
+  element;
+  boop;
+  shadow;
+  alive;
+  hits;
+  onground;
+  x;
+  y;
+  z;
+  f;
+  dx;
+  dy;
+  df;
+  width;
+  height;
+  boopFor;
+  boopX;
+  boopY;
+  boopDX;
+  boopDY;
   constructor() {
-    __publicField(this, "element");
-    __publicField(this, "boop");
-    __publicField(this, "shadow");
-    __publicField(this, "alive");
-    __publicField(this, "hits");
-    __publicField(this, "onground");
-    __publicField(this, "x");
-    __publicField(this, "y");
-    __publicField(this, "z");
-    __publicField(this, "f");
-    __publicField(this, "dx");
-    __publicField(this, "dy");
-    __publicField(this, "df");
-    __publicField(this, "width");
-    __publicField(this, "height");
-    __publicField(this, "boopFor");
-    __publicField(this, "boopX");
-    __publicField(this, "boopY");
-    __publicField(this, "boopDX");
-    __publicField(this, "boopDY");
     this.alive = true;
     this.hits = 0;
     this.onground = false;
@@ -1505,11 +1502,11 @@ var Face = class {
   }
 };
 var Cloud = class {
+  element;
+  x;
+  y;
+  dx;
   constructor() {
-    __publicField(this, "element");
-    __publicField(this, "x");
-    __publicField(this, "y");
-    __publicField(this, "dx");
     this.element = document.createElement("div");
     this.element.className = "cloud";
     const n2 = randomInt(4, 7);
@@ -1538,15 +1535,15 @@ var Cloud = class {
   }
 };
 var Beam = class {
+  element;
+  subBeam;
+  x;
+  y;
+  t;
+  charging;
+  firing;
+  enabled;
   constructor() {
-    __publicField(this, "element");
-    __publicField(this, "subBeam");
-    __publicField(this, "x");
-    __publicField(this, "y");
-    __publicField(this, "t");
-    __publicField(this, "charging");
-    __publicField(this, "firing");
-    __publicField(this, "enabled");
     this.x = 0;
     this.y = 0;
     this.t = 0;
@@ -1744,6 +1741,13 @@ function animate(t2) {
     inst.style.transform = "scale(" + Math.pow(scale, 0.25) + ")";
   }
 }
+out.connect(audio.destination);
+inst.style.opacity = "1";
+starter.style.display = "block";
+await audioReady(audio);
+starter.style.display = "none";
+inst.style.display = "block";
+requestAnimationFrame(animate);
 setTimeout(function() {
   fading = true;
 }, 5e3);
@@ -1751,13 +1755,4 @@ var goodEndingTimer = setTimeout(function() {
   messages[messages.length - 1].style.display = "block";
   beam.disable();
 }, 15e3);
-(async function() {
-  out.connect(audio.destination);
-  inst.style.opacity = "1";
-  starter.style.display = "block";
-  await audioReady(audio);
-  starter.style.display = "none";
-  inst.style.display = "block";
-  requestAnimationFrame(animate);
-})();
 //# sourceMappingURL=index.js.map
