@@ -735,6 +735,20 @@ function isArrayBuffer(val) {
   return val && typeof ArrayBuffer !== "undefined" && (val instanceof ArrayBuffer || val.constructor && val.constructor.name === "ArrayBuffer");
 }
 
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/singleton.ts
+function singleton(name, create2) {
+  const box = globalThis;
+  let value = box[name];
+  if (isNullOrUndefined(value)) {
+    if (isNullOrUndefined(create2)) {
+      throw new Error(`No value ${name} found`);
+    }
+    value = create2();
+    box[name] = value;
+  }
+  return value;
+}
+
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/strings/stringRandom.ts
 var DEFAULT_CHAR_SET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZ";
 function stringRandom(length, charSet) {
@@ -2797,6 +2811,9 @@ var BaseFetchingServicePool = class extends WorkerPool {
 };
 var FetchingServicePool = class extends BaseFetchingServicePool {
 };
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/fonts.ts
+var loadedFonts = singleton("juniper::loadedFonts", () => []);
 
 // src/settings.ts
 var version = true ? stringRandom(10) : pkgVersion;

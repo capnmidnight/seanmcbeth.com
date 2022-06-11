@@ -25,6 +25,7 @@
     "@juniper-lib/audio": "file:../Juniper/src/Juniper.TypeScript/@juniper-lib/audio",
     "@juniper-lib/dom": "file:../Juniper/src/Juniper.TypeScript/@juniper-lib/dom",
     "@juniper-lib/emoji": "file:../Juniper/src/Juniper.TypeScript/@juniper-lib/emoji",
+    "@juniper-lib/environment": "file:../Juniper/src/Juniper.TypeScript/@juniper-lib/environment",
     "@juniper-lib/fetcher": "file:../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher",
     "@juniper-lib/fetcher-worker": "file:../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher-worker",
     "@juniper-lib/mediatypes": "file:../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes",

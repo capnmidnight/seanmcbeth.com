@@ -5,7 +5,10 @@
         public static readonly string ProjectName = "Personal Site";
         public static readonly Juniper.TSBuild.BuildSystemOptions BuildSystemOptions = new()
         {
-            IncludeFetcher = true
+            IncludeFetcher = true,
+            IncludeEnvironment = true,
+            IncludeThreeJS = true,
+            SourceBuildJuniperTS = true,
         };
     }
 }
