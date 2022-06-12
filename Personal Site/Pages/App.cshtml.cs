@@ -1,18 +1,19 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-using System.Text.RegularExpressions;
-
 namespace SeanMcBeth.Pages
 {
     public class AppModel : PageModel
     {
-        public static readonly IEnumerable<string> AppNames =
+        public static readonly string[] AppNames =
             new DirectoryInfo("wwwroot")
                 .CD("js")
                 .EnumerateDirectories()
-                .Where(d => d.Name.EndsWith("-app"))
-                .Select(d => d.Name[0..^4]);
+                .Where(d => d.Name.EndsWith("-app")
+                    && d.Name.ToLowerInvariant() != "junk-app"
+                    && d.Touch("index.js").Exists)
+                .Select(d => d.Name[0..^4])
+                .ToArray();
 
         [BindProperty(SupportsGet = true), FromRoute]
         public string? Name { get; set; }

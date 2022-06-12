@@ -34,7 +34,7 @@ Style(
     rule("#scoreBox",
         display("none"),
         color("white"),
-        top(0),
+        top("5em"),
         left(0),
         padding("1em")
     ),

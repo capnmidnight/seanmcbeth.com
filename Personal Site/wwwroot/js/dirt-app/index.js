@@ -6975,33 +6975,32 @@ __publicField(BatteryImage, "isAvailable", isBatteryNavigator(navigator));
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/graphics2d/TextImage.ts
 var TextImage = class extends CanvasImage {
-  trueWidth = null;
-  trueHeight = null;
-  trueFontSize = null;
-  dx = null;
-  _minWidth = null;
-  _maxWidth = null;
-  _minHeight = null;
-  _maxHeight = null;
-  _freezeDimensions = false;
-  _dimensionsFrozen = false;
-  _bgFillColor = null;
-  _bgStrokeColor = null;
-  _bgStrokeSize = null;
-  _textStrokeColor = null;
-  _textStrokeSize = null;
-  _textFillColor = "black";
-  _textDirection = "horizontal";
-  _wrapWords = true;
-  _fontStyle = "normal";
-  _fontVariant = "normal";
-  _fontWeight = "normal";
-  _fontFamily = "sans-serif";
-  _fontSize = 20;
-  _padding;
-  _value = null;
   constructor(options) {
     super(10, 10, options);
+    this.trueWidth = null;
+    this.trueHeight = null;
+    this.trueFontSize = null;
+    this.dx = null;
+    this._minWidth = null;
+    this._maxWidth = null;
+    this._minHeight = null;
+    this._maxHeight = null;
+    this._freezeDimensions = false;
+    this._dimensionsFrozen = false;
+    this._bgFillColor = null;
+    this._bgStrokeColor = null;
+    this._bgStrokeSize = null;
+    this._textStrokeColor = null;
+    this._textStrokeSize = null;
+    this._textFillColor = "black";
+    this._textDirection = "horizontal";
+    this._wrapWords = true;
+    this._fontStyle = "normal";
+    this._fontVariant = "normal";
+    this._fontWeight = "normal";
+    this._fontFamily = "sans-serif";
+    this._fontSize = 20;
+    this._value = null;
     if (isDefined(options)) {
       if (isDefined(options.minWidth)) {
         this._minWidth = options.minWidth;
@@ -22604,7 +22603,7 @@ dirt.addEventListener("update", () => bumpMap.needsUpdate = true);
 var mat = lit({
   map,
   bumpMap,
-  bumpScale: 0.05,
+  bumpScale: 4e-3,
   side: THREE.DoubleSide
 });
 mat.needsUpdate = true;

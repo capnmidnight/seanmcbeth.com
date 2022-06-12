@@ -29,7 +29,7 @@ dirt.addEventListener("update", () => bumpMap.needsUpdate = true);
 const mat = lit({
     map,
     bumpMap,
-    bumpScale: 0.05,
+    bumpScale: 0.004,
     side: THREE.DoubleSide
 });
 mat.needsUpdate = true;
@@ -48,16 +48,7 @@ quad.addEventListener("dragstart", onDragEvt);
 
 await env.fadeIn();
 
-//env.timer.addTickHandler((evt) => {
-//    quad.rotation.y += evt.dt / 5000;
-//});
-
-type DragEvents = "drag"
-    | "dragcancel"
-    | "dragend"
-    | "dragstart";
-
-function checkPointer(evt: EventSystemThreeJSEvent<DragEvents>) {
+function checkPointer(evt: EventSystemThreeJSEvent<string>) {
     dirt.checkPointerUV(evt.pointer.name,
         evt.hit.uv.x,
         1 - evt.hit.uv.y,
