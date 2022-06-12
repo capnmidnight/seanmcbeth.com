@@ -8,13 +8,16 @@ import { createTestEnvironment } from "../createTestEnvironment";
 
 const env = await createTestEnvironment();
 await env.fadeOut();
-const { content: sky } = await env.fetcher
-    .get("/img/dls-waiting-area-cube.jpg")
-    .image(Image_Jpeg);
-const { content: img } = await env.fetcher
-    .get("/img/2021-03.min.jpg")
-    .image(Image_Jpeg);
 const dirt = new Dirt(1024, 1024);
+const [sky, img] = (await Promise.all([
+    "/img/dls-waiting-area-cube.jpg",
+    "/img/2021-03.min.jpg"
+].map((src) => env.fetcher
+    .get(src)
+    .image(Image_Jpeg))))
+    .map((response) => response.content);
+
+env.skybox.setImage("dls", sky);
 
 const map = new THREE.Texture(img);
 const bumpMap = new THREE.Texture(dirt.element);
@@ -35,7 +38,6 @@ env.foreground.add(quad);
 
 quad.position.set(0, 1.5, -2);
 
-await env.skybox.setImage("dls", sky);
 await env.fadeIn();
 
 dirt.addEventListener("update", () => bumpMap.needsUpdate = true);
