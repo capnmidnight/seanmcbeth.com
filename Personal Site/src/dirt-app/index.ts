@@ -33,7 +33,7 @@ for (let i = 0; i < matrices.length; ++i) {
 
 env.foreground.add(trees);
 
-const dirt = new Dirt(4096, 4096, 0.5);
+const dirt = new Dirt(2048, 2048, 0.25);
 const dirtMap = new THREE.Texture(dirt.element);
 dirtMap.needsUpdate = true;
 dirt.addEventListener("update", () => dirtMap.needsUpdate = true);
