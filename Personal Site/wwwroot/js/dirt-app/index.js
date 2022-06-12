@@ -5677,62 +5677,6 @@ function BackgroundVideo(autoplay, mute, looping, ...rest) {
   return Video(playsInline(true), controls(false), muted(mute), autoPlay(autoplay), loop(looping), styles(display("none")), ...rest);
 }
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/evts.ts
-function isModifierless(evt) {
-  return !(evt.shiftKey || evt.altKey || evt.ctrlKey || evt.metaKey);
-}
-var HtmlEvt = class {
-  constructor(name2, callback, opts) {
-    this.name = name2;
-    this.callback = callback;
-    if (!isFunction(callback)) {
-      throw new Error("A function instance is required for this parameter");
-    }
-    this.opts = opts;
-    Object.freeze(this);
-  }
-  opts;
-  applyToElement(elem) {
-    this.add(elem);
-  }
-  add(elem) {
-    elem.addEventListener(this.name, this.callback, this.opts);
-  }
-  remove(elem) {
-    elem.removeEventListener(this.name, this.callback);
-  }
-};
-function onClick(callback, opts) {
-  return new HtmlEvt("click", callback, opts);
-}
-function onInput(callback, opts) {
-  return new HtmlEvt("input", callback, opts);
-}
-function onPointerCancel(callback, opts) {
-  return new HtmlEvt("pointercancel", callback, opts);
-}
-function onPointerDown(callback, opts) {
-  return new HtmlEvt("pointerdown", callback, opts);
-}
-function onPointerEnter(callback, opts) {
-  return new HtmlEvt("pointerenter", callback, opts);
-}
-function onPointerLeave(callback, opts) {
-  return new HtmlEvt("pointerleave", callback, opts);
-}
-function onPointerMove(callback, opts) {
-  return new HtmlEvt("pointermove", callback, opts);
-}
-function onPointerOut(callback, opts) {
-  return new HtmlEvt("pointerout", callback, opts);
-}
-function onPointerOver(callback, opts) {
-  return new HtmlEvt("pointerover", callback, opts);
-}
-function onPointerUp(callback, opts) {
-  return new HtmlEvt("pointerup", callback, opts);
-}
-
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/canvas.ts
 var hasHTMLCanvas = "HTMLCanvasElement" in globalThis;
 var hasHTMLImage = "HTMLImageElement" in globalThis;
@@ -5841,6 +5785,10 @@ function setContextSize(ctx, w, h, superscale = 1) {
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/graphics2d/Dirt.ts
 var actionTypes = singleton("Juniper:Graphics2D:Dirt:StopTypes", () => /* @__PURE__ */ new Map([
+  ["drag", "move"],
+  ["dragcancel", "up"],
+  ["dragend", "up"],
+  ["dragstart", "down"],
   ["mousedown", "down"],
   ["mouseenter", "move"],
   ["mouseleave", "up"],
@@ -5868,13 +5816,13 @@ var Dirt = class extends TypedEventBase {
   bg;
   _update;
   updateEvt = new TypedEvent("update");
-  pointerId;
-  x;
-  y;
-  lx;
-  ly;
-  pressed;
-  timer;
+  pressed = false;
+  pointerId = null;
+  x = null;
+  y = null;
+  lx = null;
+  ly = null;
+  timer = null;
   constructor(width2, height2) {
     super();
     this.element = createCanvas(width2, height2);
@@ -7027,32 +6975,33 @@ __publicField(BatteryImage, "isAvailable", isBatteryNavigator(navigator));
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/graphics2d/TextImage.ts
 var TextImage = class extends CanvasImage {
+  trueWidth = null;
+  trueHeight = null;
+  trueFontSize = null;
+  dx = null;
+  _minWidth = null;
+  _maxWidth = null;
+  _minHeight = null;
+  _maxHeight = null;
+  _freezeDimensions = false;
+  _dimensionsFrozen = false;
+  _bgFillColor = null;
+  _bgStrokeColor = null;
+  _bgStrokeSize = null;
+  _textStrokeColor = null;
+  _textStrokeSize = null;
+  _textFillColor = "black";
+  _textDirection = "horizontal";
+  _wrapWords = true;
+  _fontStyle = "normal";
+  _fontVariant = "normal";
+  _fontWeight = "normal";
+  _fontFamily = "sans-serif";
+  _fontSize = 20;
+  _padding;
+  _value = null;
   constructor(options) {
     super(10, 10, options);
-    this.trueWidth = null;
-    this.trueHeight = null;
-    this.trueFontSize = null;
-    this.dx = null;
-    this._minWidth = null;
-    this._maxWidth = null;
-    this._minHeight = null;
-    this._maxHeight = null;
-    this._freezeDimensions = false;
-    this._dimensionsFrozen = false;
-    this._bgFillColor = null;
-    this._bgStrokeColor = null;
-    this._bgStrokeSize = null;
-    this._textStrokeColor = null;
-    this._textStrokeSize = null;
-    this._textFillColor = "black";
-    this._textDirection = "horizontal";
-    this._wrapWords = true;
-    this._fontStyle = "normal";
-    this._fontVariant = "normal";
-    this._fontWeight = "normal";
-    this._fontFamily = "sans-serif";
-    this._fontSize = 20;
-    this._value = null;
     if (isDefined(options)) {
       if (isDefined(options.minWidth)) {
         this._minWidth = options.minWidth;
@@ -7991,18 +7940,18 @@ var DeviceManager = class extends TypedEventBase {
     super();
     this.element = element;
     this.needsVideoDevice = needsVideoDevice;
-    this._hasAudioPermission = false;
-    this._hasVideoPermission = false;
-    this._currentStream = null;
     this.ready = this.start();
     Object.seal(this);
   }
+  _hasAudioPermission = false;
   get hasAudioPermission() {
     return this._hasAudioPermission;
   }
+  _hasVideoPermission = false;
   get hasVideoPermission() {
     return this._hasVideoPermission;
   }
+  _currentStream = null;
   get currentStream() {
     return this._currentStream;
   }
@@ -8016,6 +7965,7 @@ var DeviceManager = class extends TypedEventBase {
       this._currentStream = v;
     }
   }
+  ready;
   async start() {
     if (canChangeAudioOutput) {
       const device = await this.getPreferredAudioOutput();
@@ -8312,11 +8262,10 @@ var AudioSourceAddedEvent = class extends TypedEvent {
   }
 };
 var BaseAudioSource = class extends BaseAudioElement {
+  source = null;
+  effects = new Array();
   constructor(id2, audioCtx, spatializer, ...effectNames) {
     super(id2, audioCtx, spatializer);
-    this.source = null;
-    this.effects = new Array();
-    this._connected = false;
     this.setEffects(...effectNames);
   }
   onDisposing() {
@@ -8352,6 +8301,7 @@ var BaseAudioSource = class extends BaseAudioElement {
   get input() {
     return this.source;
   }
+  _connected = false;
   get connected() {
     return this._connected;
   }
@@ -8416,10 +8366,10 @@ var MediaElementSourceStoppedEvent = class extends MediaElementSourceEvent {
   }
 };
 var MediaElementSourceProgressEvent = class extends MediaElementSourceEvent {
+  value = 0;
+  total = 0;
   constructor(source) {
     super("progress", source);
-    this.value = 0;
-    this.total = 0;
   }
 };
 
@@ -11564,6 +11514,38 @@ var BodyFollower = class extends THREE.Object3D {
   }
 };
 
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/evts.ts
+function isModifierless(evt) {
+  return !(evt.shiftKey || evt.altKey || evt.ctrlKey || evt.metaKey);
+}
+var HtmlEvt = class {
+  constructor(name2, callback, opts) {
+    this.name = name2;
+    this.callback = callback;
+    if (!isFunction(callback)) {
+      throw new Error("A function instance is required for this parameter");
+    }
+    this.opts = opts;
+    Object.freeze(this);
+  }
+  opts;
+  applyToElement(elem) {
+    this.add(elem);
+  }
+  add(elem) {
+    elem.addEventListener(this.name, this.callback, this.opts);
+  }
+  remove(elem) {
+    elem.removeEventListener(this.name, this.callback);
+  }
+};
+function onClick(callback, opts) {
+  return new HtmlEvt("click", callback, opts);
+}
+function onInput(callback, opts) {
+  return new HtmlEvt("input", callback, opts);
+}
+
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/event-system/AvatarMovedEvent.ts
 var AvatarMovedEvent = class extends TypedEvent {
   px = 0;
@@ -12271,12 +12253,13 @@ var EventSystemEvent = class extends TypedEvent {
     return this._distance;
   }
   to3(altHit) {
-    return new EventSystemThreeJSEvent(this.type, altHit, this.pointer.state.buttons);
+    return new EventSystemThreeJSEvent(this.type, this.pointer, altHit, this.pointer.state.buttons);
   }
 };
 var EventSystemThreeJSEvent = class {
-  constructor(type2, hit, buttons) {
+  constructor(type2, pointer, hit, buttons) {
     this.type = type2;
+    this.pointer = pointer;
     this.hit = hit;
     this.buttons = buttons;
     this._point = this.hit && this.hit.point;
@@ -16284,28 +16267,28 @@ var BaseScreenPointer = class extends BasePointer {
     this.camera = camera;
     this.id = null;
     this.moveOnUpdate = false;
-    const onPointerDown2 = (evt) => {
+    const onPointerDown = (evt) => {
       if (this.checkEvent(evt)) {
         this.readEvent(evt);
         this.onPointerDown();
       }
     };
     this.element = this.renderer.domElement;
-    this.element.addEventListener("pointerdown", onPointerDown2);
-    const onPointerMove2 = (evt) => {
+    this.element.addEventListener("pointerdown", onPointerDown);
+    const onPointerMove = (evt) => {
       if (this.checkEvent(evt)) {
         this.readEvent(evt);
         this.onPointerMove();
       }
     };
-    this.element.addEventListener("pointermove", onPointerMove2);
-    const onPointerUp2 = (evt) => {
+    this.element.addEventListener("pointermove", onPointerMove);
+    const onPointerUp = (evt) => {
       if (this.checkEvent(evt)) {
         this.readEvent(evt);
         this.onPointerUp();
       }
     };
-    this.element.addEventListener("pointerup", onPointerUp2);
+    this.element.addEventListener("pointerup", onPointerUp);
   }
   get isTracking() {
     return this.id != null;
@@ -16788,7 +16771,7 @@ var EventSystem = class extends TypedEventBase {
         break;
       case "dragstart":
         {
-          const dragStartEvt = this.getEvent(pointer, "dragstart", pressedHit || curHit);
+          const dragStartEvt = this.getEvent(pointer, "dragstart", pressedHit, curHit);
           this.dispatchEvent(dragStartEvt);
           if (isDefined(pressedHit)) {
             pointer.draggedHit = pressedHit;
@@ -16798,7 +16781,7 @@ var EventSystem = class extends TypedEventBase {
         break;
       case "drag":
         {
-          const dragEvt = this.getEvent(pointer, "drag", draggedHit || curHit);
+          const dragEvt = this.getEvent(pointer, "drag", draggedHit, curHit);
           this.dispatchEvent(dragEvt);
           if (isDefined(draggedHit)) {
             draggedObj.dispatchEvent(dragEvt.to3(draggedHit));
@@ -16807,7 +16790,7 @@ var EventSystem = class extends TypedEventBase {
         break;
       case "dragcancel":
         {
-          const dragCancelEvt = this.getEvent(pointer, "dragcancel", draggedHit || curHit);
+          const dragCancelEvt = this.getEvent(pointer, "dragcancel", draggedHit, curHit);
           this.dispatchEvent(dragCancelEvt);
           if (isDefined(draggedHit)) {
             pointer.draggedHit = null;
@@ -16817,7 +16800,7 @@ var EventSystem = class extends TypedEventBase {
         break;
       case "dragend":
         {
-          const dragEndEvt = this.getEvent(pointer, "dragend", draggedHit || curHit);
+          const dragEndEvt = this.getEvent(pointer, "dragend", draggedHit, curHit);
           this.dispatchEvent(dragEndEvt);
           if (isDefined(draggedHit)) {
             pointer.draggedHit = null;
@@ -16830,7 +16813,7 @@ var EventSystem = class extends TypedEventBase {
     }
     pointer.updateCursor(this.env.avatar.worldPos, draggedHit || pressedHit || hoveredHit || curHit, 2);
   }
-  getEvent(pointer, type2, hit) {
+  getEvent(pointer, type2, ...hits) {
     if (!this.pointerEvents.has(pointer)) {
       const evts = /* @__PURE__ */ new Map([
         ["move", new EventSystemEvent("move", pointer)],
@@ -16847,7 +16830,13 @@ var EventSystem = class extends TypedEventBase {
     }
     const pointerEvents2 = this.pointerEvents.get(pointer);
     const evt = pointerEvents2.get(type2);
-    evt.hit = hit;
+    if (hits.length > 0) {
+      evt.hit = arrayScan(hits, isDefined);
+      const lastHit = arrayScan(hits, (h) => isDefined(h) && h !== evt.hit);
+      if (isDefined(lastHit)) {
+        evt.hit.uv = lastHit.uv;
+      }
+    }
     return evt;
   }
   checkExit(curHit, hoveredHit, pointer) {
@@ -22601,38 +22590,36 @@ async function createTestEnvironment(debug = true) {
 // src/dirt-app/index.ts
 var env = await createTestEnvironment();
 await env.fadeOut();
-var { content: sky } = await env.fetcher.get("/img/dls-waiting-area-cube.jpg").image(Image_Jpeg);
-var { content: img } = await env.fetcher.get("/img/2021-03.min.jpg").image(Image_Jpeg);
-var dirt = new Dirt(1024, 1024);
+var [sky, img] = (await Promise.all([
+  "/img/dls-waiting-area-cube.jpg",
+  "/img/2021-03.min.jpg"
+].map((src2) => env.fetcher.get(src2).image(Image_Jpeg)))).map((response) => response.content);
+env.skybox.setImage("dls", sky);
 var map = new THREE.Texture(img);
+map.needsUpdate = true;
+var dirt = new Dirt(1024, 1024);
 var bumpMap = new THREE.Texture(dirt.element);
+bumpMap.needsUpdate = true;
+dirt.addEventListener("update", () => bumpMap.needsUpdate = true);
 var mat = lit({
   map,
   bumpMap,
   bumpScale: 0.05,
   side: THREE.DoubleSide
 });
-map.needsUpdate = true;
 mat.needsUpdate = true;
 var quad = new Plane(1, 1, mat);
-env.foreground.add(quad);
+quad.isCollider = true;
+quad.isDraggable = true;
 quad.position.set(0, 1.5, -2);
-await env.skybox.setImage("dls", sky);
+env.foreground.add(quad);
+var onDragEvt = (ev) => checkPointer(ev);
+quad.addEventListener("drag", onDragEvt);
+quad.addEventListener("dragcancel", onDragEvt);
+quad.addEventListener("dragend", onDragEvt);
+quad.addEventListener("dragstart", onDragEvt);
 await env.fadeIn();
-dirt.addEventListener("update", () => bumpMap.needsUpdate = true);
-elementApply(document.body, onPointerMove(checkPointer), onPointerDown(checkPointer), onPointerCancel(checkPointer), onPointerUp(checkPointer), onPointerLeave(checkPointer), onPointerEnter(checkPointer), onPointerOut(checkPointer), onPointerOver(checkPointer));
-env.timer.addTickHandler((evt) => {
-  quad.rotation.y += evt.dt / 5e3;
-});
 function checkPointer(evt) {
-  if (!isModifierless(evt)) {
-    dirt.stop();
-  } else {
-    let type2 = evt.type;
-    if (type2 === "pointerenter" && evt.pointerType === "mouse" && evt.buttons === 1) {
-      type2 = "pointerdown";
-    }
-    dirt.checkPointerUV(evt.pointerId, evt.offsetX / document.body.clientWidth, evt.offsetY / document.body.clientHeight, type2);
-  }
+  dirt.checkPointerUV(evt.pointer.name, evt.hit.uv.x, 1 - evt.hit.uv.y, evt.type);
 }
 //# sourceMappingURL=index.js.map

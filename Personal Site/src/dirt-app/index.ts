@@ -1,13 +1,13 @@
-﻿import { isModifierless, onPointerCancel, onPointerDown, onPointerEnter, onPointerLeave, onPointerMove, onPointerOut, onPointerOver, onPointerUp } from "@juniper-lib/dom/evts";
-import { elementApply } from "@juniper-lib/dom/tags";
-import { Dirt } from "@juniper-lib/graphics2d/Dirt";
+﻿import { Dirt } from "@juniper-lib/graphics2d/Dirt";
 import { Image_Jpeg } from "@juniper-lib/mediatypes";
+import { EventSystemThreeJSEvent } from "@juniper-lib/threejs/eventSystem/EventSystemEvent";
 import { lit } from "@juniper-lib/threejs/materials";
 import { Plane } from "@juniper-lib/threejs/Plane";
 import { createTestEnvironment } from "../createTestEnvironment";
 
 const env = await createTestEnvironment();
 await env.fadeOut();
+
 const [sky, img] = (await Promise.all([
     "/img/dls-waiting-area-cube.jpg",
     "/img/2021-03.min.jpg"
@@ -35,42 +35,31 @@ const mat = lit({
 mat.needsUpdate = true;
 
 const quad = new Plane(1, 1, mat);
+quad.isCollider = true;
+quad.isDraggable = true;
 quad.position.set(0, 1.5, -2);
 env.foreground.add(quad);
 
+const onDragEvt = (ev: THREE.Event) => checkPointer(ev as any as EventSystemThreeJSEvent<"drag">);
+quad.addEventListener("drag", onDragEvt);
+quad.addEventListener("dragcancel", onDragEvt);
+quad.addEventListener("dragend", onDragEvt);
+quad.addEventListener("dragstart", onDragEvt);
+
 await env.fadeIn();
 
-dirt.addEventListener("update", () => bumpMap.needsUpdate = true);
-elementApply(
-    document.body,
-    onPointerMove(checkPointer),
-    onPointerDown(checkPointer),
-    onPointerCancel(checkPointer),
-    onPointerUp(checkPointer),
-    onPointerLeave(checkPointer),
-    onPointerEnter(checkPointer),
-    onPointerOut(checkPointer),
-    onPointerOver(checkPointer)
-);
+//env.timer.addTickHandler((evt) => {
+//    quad.rotation.y += evt.dt / 5000;
+//});
 
-env.timer.addTickHandler((evt) => {
-    quad.rotation.y += evt.dt / 5000;
-})
+type DragEvents = "drag"
+    | "dragcancel"
+    | "dragend"
+    | "dragstart";
 
-function checkPointer(evt: PointerEvent) {
-    if (!isModifierless(evt)) {
-        dirt.stop();
-    }
-    else {
-        let type = evt.type;
-        if (type === "pointerenter"
-            && evt.pointerType === "mouse"
-            && evt.buttons === 1) {
-            type = "pointerdown";
-        }
-        dirt.checkPointerUV(evt.pointerId,
-            evt.offsetX / document.body.clientWidth,
-            evt.offsetY / document.body.clientHeight,
-            type);
-    }
+function checkPointer(evt: EventSystemThreeJSEvent<DragEvents>) {
+    dirt.checkPointerUV(evt.pointer.name,
+        evt.hit.uv.x,
+        1 - evt.hit.uv.y,
+        evt.type);
 }
