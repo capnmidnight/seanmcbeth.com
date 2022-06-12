@@ -697,6 +697,23 @@ var WeightedParentProgressCallback = class extends BaseParentProgressCallback {
   }
 };
 
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/progress/progressTasks.ts
+async function progressTasksWeighted(prog, taskDefs) {
+  const weights = new Array(taskDefs.length);
+  const callbacks = new Array(taskDefs.length);
+  for (let i = 0; i < taskDefs.length; ++i) {
+    const taskDef = taskDefs[i];
+    weights[i] = taskDef[0];
+    callbacks[i] = taskDef[1];
+  }
+  const progs = progressSplitWeighted(prog, weights);
+  const tasks = new Array(taskDefs.length);
+  for (let i = 0; i < taskDefs.length; ++i) {
+    tasks[i] = callbacks[i](progs[i]);
+  }
+  return await Promise.all(tasks);
+}
+
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/typeChecks.ts
 function t(o, s, c) {
   return typeof o === s || o instanceof c;
@@ -2408,6 +2425,10 @@ var Fetcher = class {
   }
   delete(path, base) {
     return this.createRequest("DELETE", path, base);
+  }
+  async assets(progress, ...assets) {
+    const assetSizes = new Map(await Promise.all(assets.map((asset) => asset.getSize(this))));
+    await progressTasksWeighted(progress, assets.map((asset) => [assetSizes.get(asset), (prog) => asset.getContent(prog)]));
   }
 };
 

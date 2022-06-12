@@ -2325,13 +2325,13 @@ var require_cardboard_vr_display = __commonJS({
         s.backgroundColor = "gray";
         s.fontFamily = "sans-serif";
         s.zIndex = 1e6;
-        var img2 = document.createElement("img");
-        img2.src = this.icon;
-        var s = img2.style;
+        var img = document.createElement("img");
+        img.src = this.icon;
+        var s = img.style;
         s.marginLeft = "25%";
         s.marginTop = "25%";
         s.width = "50%";
-        overlay.appendChild(img2);
+        overlay.appendChild(img);
         var text2 = document.createElement("div");
         var s = text2.style;
         s.textAlign = "center";
@@ -2382,8 +2382,8 @@ var require_cardboard_vr_display = __commonJS({
           parent.appendChild(this.overlay);
         }
         this.overlay.style.display = "block";
-        var img2 = this.overlay.querySelector("img");
-        var s = img2.style;
+        var img = this.overlay.querySelector("img");
+        var s = img.style;
         if (isLandscapeMode()) {
           s.width = "20%";
           s.marginLeft = "40%";
@@ -4013,6 +4013,13 @@ var Promisifier = class {
   }
 };
 
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/events/sleep.ts
+function sleep(milliseconds) {
+  const task = new Task();
+  setTimeout(task.resolve, milliseconds);
+  return task;
+}
+
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/events/waitFor.ts
 function waitFor(test) {
   const task = new Task(test);
@@ -5087,9 +5094,9 @@ var URLBuilder = class {
 };
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/mapInvert.ts
-function mapInvert(map2) {
+function mapInvert(map) {
   const mapOut = /* @__PURE__ */ new Map();
-  for (const [key, value2] of map2) {
+  for (const [key, value2] of map) {
     mapOut.set(value2, key);
   }
   return mapOut;
@@ -5226,6 +5233,71 @@ function using(val, thunk) {
     dispose(val);
   }
 }
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher-base/Asset.ts
+var Asset = class {
+  constructor(path, getter) {
+    this.path = path;
+    this.getter = getter;
+    this.promise = new Promise((resolve, reject) => {
+      this.resolve = (value2) => {
+        this._result = value2;
+        this._finished = true;
+        resolve(value2);
+      };
+      this.reject = (reason) => {
+        this._error = reason;
+        this._finished = true;
+        reject(reason);
+      };
+    });
+  }
+  promise;
+  _result = null;
+  _error = null;
+  _started = false;
+  _finished = false;
+  get result() {
+    if (isDefined(this.error)) {
+      throw this.error;
+    }
+    return this._result;
+  }
+  get error() {
+    return this._error;
+  }
+  get started() {
+    return this._started;
+  }
+  get finished() {
+    return this._finished;
+  }
+  resolve = null;
+  reject = null;
+  getSize(fetcher) {
+    return fetcher.head(this.path).exec().then((response) => [this, response.contentLength]);
+  }
+  async getContent(prog) {
+    try {
+      const response = await this.getter(this.path, prog);
+      this.resolve(response);
+    } catch (err) {
+      this.reject(err);
+    }
+  }
+  get [Symbol.toStringTag]() {
+    return this.promise.toString();
+  }
+  then(onfulfilled, onrejected) {
+    return this.promise.then(onfulfilled, onrejected);
+  }
+  catch(onrejected) {
+    return this.promise.catch(onrejected);
+  }
+  finally(onfinally) {
+    return this.promise.finally(onfinally);
+  }
+};
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/attrs.ts
 var Attr = class {
@@ -5689,15 +5761,15 @@ function isHTMLCanvas(obj2) {
 function isOffscreenCanvas(obj2) {
   return hasOffscreenCanvas && obj2 instanceof OffscreenCanvas;
 }
-function isImageBitmap(img2) {
-  return hasImageBitmap && img2 instanceof ImageBitmap;
+function isImageBitmap(img) {
+  return hasImageBitmap && img instanceof ImageBitmap;
 }
-function drawImageBitmapToCanvas2D(canv, img2) {
+function drawImageBitmapToCanvas2D(canv, img) {
   const g = canv.getContext("2d");
   if (isNullOrUndefined(g)) {
     throw new Error("Could not create 2d context for canvas");
   }
-  g.drawImage(img2, 0, 0);
+  g.drawImage(img, 0, 0);
 }
 function testOffscreen2D() {
   try {
@@ -5740,17 +5812,17 @@ function createOffscreenCanvas(width2, height2) {
 function createCanvas(w, h) {
   return Canvas(htmlWidth(w), htmlHeight(h));
 }
-function createCanvasFromImageBitmap(img2) {
-  const canv = createCanvas(img2.width, img2.height);
-  drawImageBitmapToCanvas2D(canv, img2);
+function createCanvasFromImageBitmap(img) {
+  const canv = createCanvas(img.width, img.height);
+  drawImageBitmapToCanvas2D(canv, img);
   return canv;
 }
-function drawImageToCanvas(canv, img2) {
+function drawImageToCanvas(canv, img) {
   const g = canv.getContext("2d");
   if (isNullOrUndefined(g)) {
     throw new Error("Could not create 2d context for canvas");
   }
-  g.drawImage(img2, 0, 0);
+  g.drawImage(img, 0, 0);
 }
 function setCanvasSize(canv, w, h, superscale = 1) {
   w = Math.floor(w * superscale);
@@ -5809,6 +5881,19 @@ var actionTypes = singleton("Juniper:Graphics2D:Dirt:StopTypes", () => /* @__PUR
   ["touchstart", "down"]
 ]));
 var Dirt = class extends TypedEventBase {
+  constructor(width2, height2, fingerScale = 1) {
+    super();
+    this.fingerScale = fingerScale;
+    this.element = createCanvas(width2, height2);
+    this.bcanvas = createUICanvas(this.element.width, this.element.height);
+    this.fg = this.element.getContext("2d");
+    this.bg = this.bcanvas.getContext("2d");
+    this.bg.fillStyle = "rgb(50%, 50%, 50%)";
+    this.bg.fillRect(0, 0, this.bcanvas.width, this.bcanvas.height);
+    this.fg.drawImage(this.bcanvas, 0, 0);
+    this._update = this.update.bind(this);
+    this.finger = Img(src("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAAXNSR0IArs4c6QAAAqhJREFUOE+VVE1PE1EUPbfvDdOZUiwtdAr9pqQhZBIJQoCwYGX8SlgIaUgIEqb8AxQ2JP0Nuta1rtS4UH6CmBDcGqP+gS4waV3YwDP32akdLAl9yc3M3HnvvPt1DuGKpZSyARQBlAGU2s9oe/tXAK+J6PPl43TZoZQSAJK1Wq1Sr9cfSClnR0dH47lc7rxYLP5mcxwnZBgGg78F8JiIvvs4AUAG29nZmT89PX0WDofnk8kkxsbGkE6nkc1mkclk9HsqlUI8HvcxfgLYIKIjdnQAlVLkuu6der3+MhqNxhKJBCzLghBCG7/zBeVyGYuLi1heXgZR5/g5gIdE9K7jcRzHbTabx7Zt25FIBFJKTE9Po1QqIRr9W7pWq6UtFAphYmIC6+vr3ZE2ANzyAckwjGPTNOc5EgZYXV1FLBbr2TKllI6OL97d3e3ed+QD3hVCfAiHwzBNE1tbWxgeHr5qAAL+8fFxDeqn7wM+F0JUGWxhYQErKyvXAvM3ra2twXVd/ekD/hBCFAzDgOd5uvj9rMnJSWxubv4DJKKWEEJyN/f393VX+1mDg4PY29sLRPhLSmlx9w4ODvoG5AAODw8DgF+EEGX+wQXuN+VeEb6QUno8e0tLS3035b8aArgnpXw/MDAAtu3t7WuPDefZq8s82J9M05zjeRoZGdGDfdUsXlxcaLbw6jmHzONUKuU2Go2PTD1mAtdlZmZGU6wX9ZhRzJRqtdp9cYcpYKWZmpq6fXZ29ioSidxgUE6fgYeGhgLGPr6oUql0064JYDagNgBsz/NunpycPLUsa862bZ0aD7yvNtyAa6kN10MpJQEwiWO1Wu1+t8Dm83ktsIVCgQVWtAWWj7HKPCKiNwE99JnhKzaAHCs3171tWQAZAGkADoAEAAZ5QkTf/PN/ACV4rJ9AdCf3AAAAAElFTkSuQmCC"));
+  }
   element;
   finger;
   bcanvas;
@@ -5823,18 +5908,6 @@ var Dirt = class extends TypedEventBase {
   lx = null;
   ly = null;
   timer = null;
-  constructor(width2, height2) {
-    super();
-    this.element = createCanvas(width2, height2);
-    this.bcanvas = createUICanvas(this.element.width, this.element.height);
-    this.fg = this.element.getContext("2d");
-    this.bg = this.bcanvas.getContext("2d");
-    this.bg.fillStyle = "rgb(50%, 50%, 50%)";
-    this.bg.fillRect(0, 0, this.bcanvas.width, this.bcanvas.height);
-    this.fg.drawImage(this.bcanvas, 0, 0);
-    this._update = this.update.bind(this);
-    this.finger = Img(src("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAAXNSR0IArs4c6QAAAqhJREFUOE+VVE1PE1EUPbfvDdOZUiwtdAr9pqQhZBIJQoCwYGX8SlgIaUgIEqb8AxQ2JP0Nuta1rtS4UH6CmBDcGqP+gS4waV3YwDP32akdLAl9yc3M3HnvvPt1DuGKpZSyARQBlAGU2s9oe/tXAK+J6PPl43TZoZQSAJK1Wq1Sr9cfSClnR0dH47lc7rxYLP5mcxwnZBgGg78F8JiIvvs4AUAG29nZmT89PX0WDofnk8kkxsbGkE6nkc1mkclk9HsqlUI8HvcxfgLYIKIjdnQAlVLkuu6der3+MhqNxhKJBCzLghBCG7/zBeVyGYuLi1heXgZR5/g5gIdE9K7jcRzHbTabx7Zt25FIBFJKTE9Po1QqIRr9W7pWq6UtFAphYmIC6+vr3ZE2ANzyAckwjGPTNOc5EgZYXV1FLBbr2TKllI6OL97d3e3ed+QD3hVCfAiHwzBNE1tbWxgeHr5qAAL+8fFxDeqn7wM+F0JUGWxhYQErKyvXAvM3ra2twXVd/ekD/hBCFAzDgOd5uvj9rMnJSWxubv4DJKKWEEJyN/f393VX+1mDg4PY29sLRPhLSmlx9w4ODvoG5AAODw8DgF+EEGX+wQXuN+VeEb6QUno8e0tLS3035b8aArgnpXw/MDAAtu3t7WuPDefZq8s82J9M05zjeRoZGdGDfdUsXlxcaLbw6jmHzONUKuU2Go2PTD1mAtdlZmZGU6wX9ZhRzJRqtdp9cYcpYKWZmpq6fXZ29ioSidxgUE6fgYeGhgLGPr6oUql0064JYDagNgBsz/NunpycPLUsa862bZ0aD7yvNtyAa6kN10MpJQEwiWO1Wu1+t8Dm83ktsIVCgQVWtAWWj7HKPCKiNwE99JnhKzaAHCs3171tWQAZAGkADoAEAAZ5QkTf/PN/ACV4rJ9AdCf3AAAAAElFTkSuQmCC"));
-  }
   update() {
     const dx = this.lx - this.x;
     const dy = this.ly - this.y;
@@ -5846,7 +5919,7 @@ var Dirt = class extends TypedEventBase {
       this.bg.rotate(a);
       this.bg.translate(-0.5 * this.finger.width, -0.5 * this.finger.height);
       for (let i = 0; i <= d; ++i) {
-        this.bg.drawImage(this.finger, i, 0);
+        this.bg.drawImage(this.finger, 0, 0, this.finger.width, this.finger.height, i, 0, this.finger.width * this.fingerScale, this.finger.height * this.fingerScale);
       }
       this.bg.restore();
     }
@@ -6065,610 +6138,45 @@ var Text_Xml = /* @__PURE__ */ text("xml");
 var video = /* @__PURE__ */ specialize("video");
 var Video_Vendor_Mpeg_Dash_Mpd = video("vnd.mpeg.dash.mpd", "mpd");
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/examples/lines/LineMaterial.js
-THREE.UniformsLib.line = {
-  worldUnits: { value: 1 },
-  linewidth: { value: 1 },
-  resolution: { value: new THREE.Vector2(1, 1) },
-  dashOffset: { value: 0 },
-  dashScale: { value: 1 },
-  dashSize: { value: 1 },
-  gapSize: { value: 1 }
-};
-THREE.ShaderLib["line"] = {
-  uniforms: THREE.UniformsUtils.merge([
-    THREE.UniformsLib.common,
-    THREE.UniformsLib.fog,
-    THREE.UniformsLib.line
-  ]),
-  vertexShader: `
-		#include <common>
-		#include <color_pars_vertex>
-		#include <fog_pars_vertex>
-		#include <logdepthbuf_pars_vertex>
-		#include <clipping_planes_pars_vertex>
-
-		uniform float linewidth;
-		uniform vec2 resolution;
-
-		attribute vec3 instanceStart;
-		attribute vec3 instanceEnd;
-
-		attribute vec3 instanceColorStart;
-		attribute vec3 instanceColorEnd;
-
-		#ifdef WORLD_UNITS
-
-			varying vec4 worldPos;
-			varying vec3 worldStart;
-			varying vec3 worldEnd;
-
-			#ifdef USE_DASH
-
-				varying vec2 vUv;
-
-			#endif
-
-		#else
-
-			varying vec2 vUv;
-
-		#endif
-
-		#ifdef USE_DASH
-
-			uniform float dashScale;
-			attribute float instanceDistanceStart;
-			attribute float instanceDistanceEnd;
-			varying float vLineDistance;
-
-		#endif
-
-		void trimSegment( const in vec4 start, inout vec4 end ) {
-
-			// trim end segment so it terminates between the camera plane and the near plane
-
-			// conservative estimate of the near plane
-			float a = projectionMatrix[ 2 ][ 2 ]; // 3nd entry in 3th column
-			float b = projectionMatrix[ 3 ][ 2 ]; // 3nd entry in 4th column
-			float nearEstimate = - 0.5 * b / a;
-
-			float alpha = ( nearEstimate - start.z ) / ( end.z - start.z );
-
-			end.xyz = mix( start.xyz, end.xyz, alpha );
-
-		}
-
-		void main() {
-
-			#ifdef USE_COLOR
-
-				vColor.xyz = ( position.y < 0.5 ) ? instanceColorStart : instanceColorEnd;
-
-			#endif
-
-			#ifdef USE_DASH
-
-				vLineDistance = ( position.y < 0.5 ) ? dashScale * instanceDistanceStart : dashScale * instanceDistanceEnd;
-				vUv = uv;
-
-			#endif
-
-			float aspect = resolution.x / resolution.y;
-
-			// camera space
-			vec4 start = modelViewMatrix * vec4( instanceStart, 1.0 );
-			vec4 end = modelViewMatrix * vec4( instanceEnd, 1.0 );
-
-			#ifdef WORLD_UNITS
-
-				worldStart = start.xyz;
-				worldEnd = end.xyz;
-
-			#else
-
-				vUv = uv;
-
-			#endif
-
-			// special case for perspective projection, and segments that terminate either in, or behind, the camera plane
-			// clearly the gpu firmware has a way of addressing this issue when projecting into ndc space
-			// but we need to perform ndc-space calculations in the shader, so we must address this issue directly
-			// perhaps there is a more elegant solution -- WestLangley
-
-			bool perspective = ( projectionMatrix[ 2 ][ 3 ] == - 1.0 ); // 4th entry in the 3rd column
-
-			if ( perspective ) {
-
-				if ( start.z < 0.0 && end.z >= 0.0 ) {
-
-					trimSegment( start, end );
-
-				} else if ( end.z < 0.0 && start.z >= 0.0 ) {
-
-					trimSegment( end, start );
-
-				}
-
-			}
-
-			// clip space
-			vec4 clipStart = projectionMatrix * start;
-			vec4 clipEnd = projectionMatrix * end;
-
-			// ndc space
-			vec3 ndcStart = clipStart.xyz / clipStart.w;
-			vec3 ndcEnd = clipEnd.xyz / clipEnd.w;
-
-			// direction
-			vec2 dir = ndcEnd.xy - ndcStart.xy;
-
-			// account for clip-space aspect ratio
-			dir.x *= aspect;
-			dir = normalize( dir );
-
-			#ifdef WORLD_UNITS
-
-				// get the offset direction as perpendicular to the view vector
-				vec3 worldDir = normalize( end.xyz - start.xyz );
-				vec3 offset;
-				if ( position.y < 0.5 ) {
-
-					offset = normalize( cross( start.xyz, worldDir ) );
-
-				} else {
-
-					offset = normalize( cross( end.xyz, worldDir ) );
-
-				}
-
-				// sign flip
-				if ( position.x < 0.0 ) offset *= - 1.0;
-
-				float forwardOffset = dot( worldDir, vec3( 0.0, 0.0, 1.0 ) );
-
-				// don't extend the line if we're rendering dashes because we
-				// won't be rendering the endcaps
-				#ifndef USE_DASH
-
-					// extend the line bounds to encompass  endcaps
-					start.xyz += - worldDir * linewidth * 0.5;
-					end.xyz += worldDir * linewidth * 0.5;
-
-					// shift the position of the quad so it hugs the forward edge of the line
-					offset.xy -= dir * forwardOffset;
-					offset.z += 0.5;
-
-				#endif
-
-				// endcaps
-				if ( position.y > 1.0 || position.y < 0.0 ) {
-
-					offset.xy += dir * 2.0 * forwardOffset;
-
-				}
-
-				// adjust for linewidth
-				offset *= linewidth * 0.5;
-
-				// set the world position
-				worldPos = ( position.y < 0.5 ) ? start : end;
-				worldPos.xyz += offset;
-
-				// project the worldpos
-				vec4 clip = projectionMatrix * worldPos;
-
-				// shift the depth of the projected points so the line
-				// segements overlap neatly
-				vec3 clipPose = ( position.y < 0.5 ) ? ndcStart : ndcEnd;
-				clip.z = clipPose.z * clip.w;
-
-			#else
-
-				vec2 offset = vec2( dir.y, - dir.x );
-				// undo aspect ratio adjustment
-				dir.x /= aspect;
-				offset.x /= aspect;
-
-				// sign flip
-				if ( position.x < 0.0 ) offset *= - 1.0;
-
-				// endcaps
-				if ( position.y < 0.0 ) {
-
-					offset += - dir;
-
-				} else if ( position.y > 1.0 ) {
-
-					offset += dir;
-
-				}
-
-				// adjust for linewidth
-				offset *= linewidth;
-
-				// adjust for clip-space to screen-space conversion // maybe resolution should be based on viewport ...
-				offset /= resolution.y;
-
-				// select end
-				vec4 clip = ( position.y < 0.5 ) ? clipStart : clipEnd;
-
-				// back to clip space
-				offset *= clip.w;
-
-				clip.xy += offset;
-
-			#endif
-
-			gl_Position = clip;
-
-			vec4 mvPosition = ( position.y < 0.5 ) ? start : end; // this is an approximation
-
-			#include <logdepthbuf_vertex>
-			#include <clipping_planes_vertex>
-			#include <fog_vertex>
-
-		}
-		`,
-  fragmentShader: `
-		uniform vec3 diffuse;
-		uniform float opacity;
-		uniform float linewidth;
-
-		#ifdef USE_DASH
-
-			uniform float dashOffset;
-			uniform float dashSize;
-			uniform float gapSize;
-
-		#endif
-
-		varying float vLineDistance;
-
-		#ifdef WORLD_UNITS
-
-			varying vec4 worldPos;
-			varying vec3 worldStart;
-			varying vec3 worldEnd;
-
-			#ifdef USE_DASH
-
-				varying vec2 vUv;
-
-			#endif
-
-		#else
-
-			varying vec2 vUv;
-
-		#endif
-
-		#include <common>
-		#include <color_pars_fragment>
-		#include <fog_pars_fragment>
-		#include <logdepthbuf_pars_fragment>
-		#include <clipping_planes_pars_fragment>
-
-		vec2 closestLineToLine(vec3 p1, vec3 p2, vec3 p3, vec3 p4) {
-
-			float mua;
-			float mub;
-
-			vec3 p13 = p1 - p3;
-			vec3 p43 = p4 - p3;
-
-			vec3 p21 = p2 - p1;
-
-			float d1343 = dot( p13, p43 );
-			float d4321 = dot( p43, p21 );
-			float d1321 = dot( p13, p21 );
-			float d4343 = dot( p43, p43 );
-			float d2121 = dot( p21, p21 );
-
-			float denom = d2121 * d4343 - d4321 * d4321;
-
-			float numer = d1343 * d4321 - d1321 * d4343;
-
-			mua = numer / denom;
-			mua = clamp( mua, 0.0, 1.0 );
-			mub = ( d1343 + d4321 * ( mua ) ) / d4343;
-			mub = clamp( mub, 0.0, 1.0 );
-
-			return vec2( mua, mub );
-
-		}
-
-		void main() {
-
-			#include <clipping_planes_fragment>
-
-			#ifdef USE_DASH
-
-				if ( vUv.y < - 1.0 || vUv.y > 1.0 ) discard; // discard endcaps
-
-				if ( mod( vLineDistance + dashOffset, dashSize + gapSize ) > dashSize ) discard; // todo - FIX
-
-			#endif
-
-			float alpha = opacity;
-
-			#ifdef WORLD_UNITS
-
-				// Find the closest points on the view ray and the line segment
-				vec3 rayEnd = normalize( worldPos.xyz ) * 1e5;
-				vec3 lineDir = worldEnd - worldStart;
-				vec2 params = closestLineToLine( worldStart, worldEnd, vec3( 0.0, 0.0, 0.0 ), rayEnd );
-
-				vec3 p1 = worldStart + lineDir * params.x;
-				vec3 p2 = rayEnd * params.y;
-				vec3 delta = p1 - p2;
-				float len = length( delta );
-				float norm = len / linewidth;
-
-				#ifndef USE_DASH
-
-					#ifdef USE_ALPHA_TO_COVERAGE
-
-						float dnorm = fwidth( norm );
-						alpha = 1.0 - smoothstep( 0.5 - dnorm, 0.5 + dnorm, norm );
-
-					#else
-
-						if ( norm > 0.5 ) {
-
-							discard;
-
-						}
-
-					#endif
-
-				#endif
-
-			#else
-
-				#ifdef USE_ALPHA_TO_COVERAGE
-
-					// artifacts appear on some hardware if a derivative is taken within a conditional
-					float a = vUv.x;
-					float b = ( vUv.y > 0.0 ) ? vUv.y - 1.0 : vUv.y + 1.0;
-					float len2 = a * a + b * b;
-					float dlen = fwidth( len2 );
-
-					if ( abs( vUv.y ) > 1.0 ) {
-
-						alpha = 1.0 - smoothstep( 1.0 - dlen, 1.0 + dlen, len2 );
-
-					}
-
-				#else
-
-					if ( abs( vUv.y ) > 1.0 ) {
-
-						float a = vUv.x;
-						float b = ( vUv.y > 0.0 ) ? vUv.y - 1.0 : vUv.y + 1.0;
-						float len2 = a * a + b * b;
-
-						if ( len2 > 1.0 ) discard;
-
-					}
-
-				#endif
-
-			#endif
-
-			vec4 diffuseColor = vec4( diffuse, alpha );
-
-			#include <logdepthbuf_fragment>
-			#include <color_fragment>
-
-			gl_FragColor = vec4( diffuseColor.rgb, alpha );
-
-			#include <tonemapping_fragment>
-			#include <encodings_fragment>
-			#include <fog_fragment>
-			#include <premultiplied_alpha_fragment>
-
-		}
-		`
-};
-var LineMaterial = class extends THREE.ShaderMaterial {
-  constructor(parameters) {
-    super({
-      type: "LineMaterial",
-      uniforms: THREE.UniformsUtils.clone(THREE.ShaderLib["line"].uniforms),
-      vertexShader: THREE.ShaderLib["line"].vertexShader,
-      fragmentShader: THREE.ShaderLib["line"].fragmentShader,
-      clipping: true
-    });
-    Object.defineProperties(this, {
-      color: {
-        enumerable: true,
-        get: function() {
-          return this.uniforms.diffuse.value;
-        },
-        set: function(value2) {
-          this.uniforms.diffuse.value = value2;
-        }
-      },
-      worldUnits: {
-        enumerable: true,
-        get: function() {
-          return "WORLD_UNITS" in this.defines;
-        },
-        set: function(value2) {
-          if (value2 === true) {
-            this.defines.WORLD_UNITS = "";
-          } else {
-            delete this.defines.WORLD_UNITS;
-          }
-        }
-      },
-      linewidth: {
-        enumerable: true,
-        get: function() {
-          return this.uniforms.linewidth.value;
-        },
-        set: function(value2) {
-          this.uniforms.linewidth.value = value2;
-        }
-      },
-      dashed: {
-        enumerable: true,
-        get: function() {
-          return Boolean("USE_DASH" in this.defines);
-        },
-        set(value2) {
-          if (Boolean(value2) !== Boolean("USE_DASH" in this.defines)) {
-            this.needsUpdate = true;
-          }
-          if (value2 === true) {
-            this.defines.USE_DASH = "";
-          } else {
-            delete this.defines.USE_DASH;
-          }
-        }
-      },
-      dashScale: {
-        enumerable: true,
-        get: function() {
-          return this.uniforms.dashScale.value;
-        },
-        set: function(value2) {
-          this.uniforms.dashScale.value = value2;
-        }
-      },
-      dashSize: {
-        enumerable: true,
-        get: function() {
-          return this.uniforms.dashSize.value;
-        },
-        set: function(value2) {
-          this.uniforms.dashSize.value = value2;
-        }
-      },
-      dashOffset: {
-        enumerable: true,
-        get: function() {
-          return this.uniforms.dashOffset.value;
-        },
-        set: function(value2) {
-          this.uniforms.dashOffset.value = value2;
-        }
-      },
-      gapSize: {
-        enumerable: true,
-        get: function() {
-          return this.uniforms.gapSize.value;
-        },
-        set: function(value2) {
-          this.uniforms.gapSize.value = value2;
-        }
-      },
-      opacity: {
-        enumerable: true,
-        get: function() {
-          return this.uniforms.opacity.value;
-        },
-        set: function(value2) {
-          this.uniforms.opacity.value = value2;
-        }
-      },
-      resolution: {
-        enumerable: true,
-        get: function() {
-          return this.uniforms.resolution.value;
-        },
-        set: function(value2) {
-          this.uniforms.resolution.value.copy(value2);
-        }
-      },
-      alphaToCoverage: {
-        enumerable: true,
-        get: function() {
-          return Boolean("USE_ALPHA_TO_COVERAGE" in this.defines);
-        },
-        set: function(value2) {
-          if (Boolean(value2) !== Boolean("USE_ALPHA_TO_COVERAGE" in this.defines)) {
-            this.needsUpdate = true;
-          }
-          if (value2 === true) {
-            this.defines.USE_ALPHA_TO_COVERAGE = "";
-            this.extensions.derivatives = true;
-          } else {
-            delete this.defines.USE_ALPHA_TO_COVERAGE;
-            this.extensions.derivatives = false;
-          }
-        }
-      }
-    });
-    this.setValues(parameters);
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/meshToInstancedMesh.ts
+function meshToInstancedMesh(count2, mesh) {
+  return new THREE.InstancedMesh(mesh.geometry, mesh.material, count2);
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/objectScan.ts
+function objectScan(obj2, test) {
+  const queue = [obj2];
+  while (queue.length > 0) {
+    const here = queue.shift();
+    if (test(here)) {
+      return here;
+    }
+    if (here.children.length > 0) {
+      queue.push(...here.children);
+    }
   }
-};
-LineMaterial.prototype.isLineMaterial = true;
+  return null;
+}
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/materials.ts
-var materials = singleton("Juniper:Three:Materials", () => /* @__PURE__ */ new Map());
-function del(obj2, name2) {
-  if (name2 in obj2) {
-    delete obj2[name2];
-  }
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/typeChecks.ts
+function isMesh(obj2) {
+  return isDefined(obj2) && obj2.isMesh;
 }
-function makeMaterial(slug, material, options) {
-  const key = `${slug}_${Object.keys(options).map((k) => `${k}:${options[k]}`).join(",")}`;
-  if (!materials.has(key)) {
-    del(options, "name");
-    materials.set(key, new material(options));
-  }
-  return materials.get(key);
+function isMaterial(obj2) {
+  return isDefined(obj2) && obj2.isMaterial;
 }
-function trans(options) {
-  return Object.assign(options, {
-    transparent: true
-  });
+function isMeshBasicMaterial(obj2) {
+  return isMaterial(obj2) && obj2.type === "MeshBasicMaterial";
 }
-function solid(options) {
-  return makeMaterial("solid", THREE.MeshBasicMaterial, options);
+function isObject3D(obj2) {
+  return isDefined(obj2) && obj2.isObject3D;
 }
-function solidTransparent(options) {
-  return makeMaterial("solidTransparent", THREE.MeshBasicMaterial, trans(options));
+function isQuaternion(obj2) {
+  return isDefined(obj2) && obj2.isQuaternion;
 }
-function lit(options) {
-  return makeMaterial("lit", THREE.MeshStandardMaterial, options);
+function isEuler(obj2) {
+  return isDefined(obj2) && obj2.isEuler;
 }
-function line2(options) {
-  return makeMaterial("line2", LineMaterial, options);
-}
-var black = 0;
-var grey = 12632256;
-var white = 16777215;
-function solidTransparentBlack(opacity) {
-  return solidTransparent({ color: black, opacity });
-}
-var litGrey = /* @__PURE__ */ lit({ color: grey });
-var litWhite = /* @__PURE__ */ lit({ color: white });
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/Plane.ts
-var plane = new THREE.PlaneBufferGeometry(1, 1, 1, 1);
-plane.name = "PlaneGeom";
-var BasePlane = class extends THREE.Mesh {
-  constructor(sx, sy, material, isCollider2) {
-    super(plane, material);
-    this.isCollider = isCollider2;
-    this.scale.set(sx, sy, 1);
-  }
-};
-var Plane = class extends BasePlane {
-  isDraggable = false;
-  constructor(sx, sy, material) {
-    super(sx, sy, material, false);
-  }
-};
-var PlaneCollider = class extends BasePlane {
-  constructor(sx, sy) {
-    super(sx, sy, solidTransparentBlack(0), true);
-    this.visible = false;
-  }
-};
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/graphics2d/CanvasImage.ts
 var CanvasImage = class extends TypedEventBase {
@@ -9210,8 +8718,8 @@ var ButtonFactory = class {
     const popper = progressPopper(prog);
     const imageSets = new PriorityMap(await Promise.all(Array.from(this.imagePaths.entries()).map(([setName, iconName, path]) => loadIcon(this.fetcher, setName, iconName, path, popper))));
     const images = Array.from(imageSets.values());
-    const iconWidth = Math.max(...images.map((img2) => img2.width));
-    const iconHeight = Math.max(...images.map((img2) => img2.height));
+    const iconWidth = Math.max(...images.map((img) => img.width));
+    const iconHeight = Math.max(...images.map((img) => img.height));
     const area = iconWidth * iconHeight * images.length;
     const squareDim = Math.sqrt(area);
     const cols = Math.floor(squareDim / iconWidth);
@@ -9229,7 +8737,7 @@ var ButtonFactory = class {
     g.fillStyle = "#1e4388";
     g.fillRect(0, 0, canvWidth, canvHeight);
     let i = 0;
-    for (const [setName, imgName, img2] of imageSets.entries()) {
+    for (const [setName, imgName, img] of imageSets.entries()) {
       const c = i % cols;
       const r = (i - c) / cols;
       const u = widthRatio * (c * iconWidth / width2);
@@ -9238,7 +8746,7 @@ var ButtonFactory = class {
       const y = r * iconHeight + canvHeight - height2;
       const w = iconWidth - 2 * this.padding;
       const h = iconHeight - 2 * this.padding;
-      g.drawImage(img2, 0, 0, img2.width, img2.height, x + this.padding, y + this.padding, w, h);
+      g.drawImage(img, 0, 0, img.width, img.height, x + this.padding, y + this.padding, w, h);
       this.uvDescrips.add(setName, imgName, { u, v, du, dv });
       ++i;
     }
@@ -9419,26 +8927,6 @@ var DialogBox = class {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/typeChecks.ts
-function isMesh(obj2) {
-  return isDefined(obj2) && obj2.isMesh;
-}
-function isMaterial(obj2) {
-  return isDefined(obj2) && obj2.isMaterial;
-}
-function isMeshBasicMaterial(obj2) {
-  return isMaterial(obj2) && obj2.type === "MeshBasicMaterial";
-}
-function isObject3D(obj2) {
-  return isDefined(obj2) && obj2.isObject3D;
-}
-function isQuaternion(obj2) {
-  return isDefined(obj2) && obj2.isQuaternion;
-}
-function isEuler(obj2) {
-  return isDefined(obj2) && obj2.isEuler;
-}
-
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/objects.ts
 function isErsatzObject(obj2) {
   return isDefined(obj2) && isObject3D(obj2.object);
@@ -9557,6 +9045,605 @@ function scaleOnHover(obj2) {
   scaledItems.set(obj2, new ScaleState(obj2));
 }
 
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/examples/lines/LineMaterial.js
+THREE.UniformsLib.line = {
+  worldUnits: { value: 1 },
+  linewidth: { value: 1 },
+  resolution: { value: new THREE.Vector2(1, 1) },
+  dashOffset: { value: 0 },
+  dashScale: { value: 1 },
+  dashSize: { value: 1 },
+  gapSize: { value: 1 }
+};
+THREE.ShaderLib["line"] = {
+  uniforms: THREE.UniformsUtils.merge([
+    THREE.UniformsLib.common,
+    THREE.UniformsLib.fog,
+    THREE.UniformsLib.line
+  ]),
+  vertexShader: `
+		#include <common>
+		#include <color_pars_vertex>
+		#include <fog_pars_vertex>
+		#include <logdepthbuf_pars_vertex>
+		#include <clipping_planes_pars_vertex>
+
+		uniform float linewidth;
+		uniform vec2 resolution;
+
+		attribute vec3 instanceStart;
+		attribute vec3 instanceEnd;
+
+		attribute vec3 instanceColorStart;
+		attribute vec3 instanceColorEnd;
+
+		#ifdef WORLD_UNITS
+
+			varying vec4 worldPos;
+			varying vec3 worldStart;
+			varying vec3 worldEnd;
+
+			#ifdef USE_DASH
+
+				varying vec2 vUv;
+
+			#endif
+
+		#else
+
+			varying vec2 vUv;
+
+		#endif
+
+		#ifdef USE_DASH
+
+			uniform float dashScale;
+			attribute float instanceDistanceStart;
+			attribute float instanceDistanceEnd;
+			varying float vLineDistance;
+
+		#endif
+
+		void trimSegment( const in vec4 start, inout vec4 end ) {
+
+			// trim end segment so it terminates between the camera plane and the near plane
+
+			// conservative estimate of the near plane
+			float a = projectionMatrix[ 2 ][ 2 ]; // 3nd entry in 3th column
+			float b = projectionMatrix[ 3 ][ 2 ]; // 3nd entry in 4th column
+			float nearEstimate = - 0.5 * b / a;
+
+			float alpha = ( nearEstimate - start.z ) / ( end.z - start.z );
+
+			end.xyz = mix( start.xyz, end.xyz, alpha );
+
+		}
+
+		void main() {
+
+			#ifdef USE_COLOR
+
+				vColor.xyz = ( position.y < 0.5 ) ? instanceColorStart : instanceColorEnd;
+
+			#endif
+
+			#ifdef USE_DASH
+
+				vLineDistance = ( position.y < 0.5 ) ? dashScale * instanceDistanceStart : dashScale * instanceDistanceEnd;
+				vUv = uv;
+
+			#endif
+
+			float aspect = resolution.x / resolution.y;
+
+			// camera space
+			vec4 start = modelViewMatrix * vec4( instanceStart, 1.0 );
+			vec4 end = modelViewMatrix * vec4( instanceEnd, 1.0 );
+
+			#ifdef WORLD_UNITS
+
+				worldStart = start.xyz;
+				worldEnd = end.xyz;
+
+			#else
+
+				vUv = uv;
+
+			#endif
+
+			// special case for perspective projection, and segments that terminate either in, or behind, the camera plane
+			// clearly the gpu firmware has a way of addressing this issue when projecting into ndc space
+			// but we need to perform ndc-space calculations in the shader, so we must address this issue directly
+			// perhaps there is a more elegant solution -- WestLangley
+
+			bool perspective = ( projectionMatrix[ 2 ][ 3 ] == - 1.0 ); // 4th entry in the 3rd column
+
+			if ( perspective ) {
+
+				if ( start.z < 0.0 && end.z >= 0.0 ) {
+
+					trimSegment( start, end );
+
+				} else if ( end.z < 0.0 && start.z >= 0.0 ) {
+
+					trimSegment( end, start );
+
+				}
+
+			}
+
+			// clip space
+			vec4 clipStart = projectionMatrix * start;
+			vec4 clipEnd = projectionMatrix * end;
+
+			// ndc space
+			vec3 ndcStart = clipStart.xyz / clipStart.w;
+			vec3 ndcEnd = clipEnd.xyz / clipEnd.w;
+
+			// direction
+			vec2 dir = ndcEnd.xy - ndcStart.xy;
+
+			// account for clip-space aspect ratio
+			dir.x *= aspect;
+			dir = normalize( dir );
+
+			#ifdef WORLD_UNITS
+
+				// get the offset direction as perpendicular to the view vector
+				vec3 worldDir = normalize( end.xyz - start.xyz );
+				vec3 offset;
+				if ( position.y < 0.5 ) {
+
+					offset = normalize( cross( start.xyz, worldDir ) );
+
+				} else {
+
+					offset = normalize( cross( end.xyz, worldDir ) );
+
+				}
+
+				// sign flip
+				if ( position.x < 0.0 ) offset *= - 1.0;
+
+				float forwardOffset = dot( worldDir, vec3( 0.0, 0.0, 1.0 ) );
+
+				// don't extend the line if we're rendering dashes because we
+				// won't be rendering the endcaps
+				#ifndef USE_DASH
+
+					// extend the line bounds to encompass  endcaps
+					start.xyz += - worldDir * linewidth * 0.5;
+					end.xyz += worldDir * linewidth * 0.5;
+
+					// shift the position of the quad so it hugs the forward edge of the line
+					offset.xy -= dir * forwardOffset;
+					offset.z += 0.5;
+
+				#endif
+
+				// endcaps
+				if ( position.y > 1.0 || position.y < 0.0 ) {
+
+					offset.xy += dir * 2.0 * forwardOffset;
+
+				}
+
+				// adjust for linewidth
+				offset *= linewidth * 0.5;
+
+				// set the world position
+				worldPos = ( position.y < 0.5 ) ? start : end;
+				worldPos.xyz += offset;
+
+				// project the worldpos
+				vec4 clip = projectionMatrix * worldPos;
+
+				// shift the depth of the projected points so the line
+				// segements overlap neatly
+				vec3 clipPose = ( position.y < 0.5 ) ? ndcStart : ndcEnd;
+				clip.z = clipPose.z * clip.w;
+
+			#else
+
+				vec2 offset = vec2( dir.y, - dir.x );
+				// undo aspect ratio adjustment
+				dir.x /= aspect;
+				offset.x /= aspect;
+
+				// sign flip
+				if ( position.x < 0.0 ) offset *= - 1.0;
+
+				// endcaps
+				if ( position.y < 0.0 ) {
+
+					offset += - dir;
+
+				} else if ( position.y > 1.0 ) {
+
+					offset += dir;
+
+				}
+
+				// adjust for linewidth
+				offset *= linewidth;
+
+				// adjust for clip-space to screen-space conversion // maybe resolution should be based on viewport ...
+				offset /= resolution.y;
+
+				// select end
+				vec4 clip = ( position.y < 0.5 ) ? clipStart : clipEnd;
+
+				// back to clip space
+				offset *= clip.w;
+
+				clip.xy += offset;
+
+			#endif
+
+			gl_Position = clip;
+
+			vec4 mvPosition = ( position.y < 0.5 ) ? start : end; // this is an approximation
+
+			#include <logdepthbuf_vertex>
+			#include <clipping_planes_vertex>
+			#include <fog_vertex>
+
+		}
+		`,
+  fragmentShader: `
+		uniform vec3 diffuse;
+		uniform float opacity;
+		uniform float linewidth;
+
+		#ifdef USE_DASH
+
+			uniform float dashOffset;
+			uniform float dashSize;
+			uniform float gapSize;
+
+		#endif
+
+		varying float vLineDistance;
+
+		#ifdef WORLD_UNITS
+
+			varying vec4 worldPos;
+			varying vec3 worldStart;
+			varying vec3 worldEnd;
+
+			#ifdef USE_DASH
+
+				varying vec2 vUv;
+
+			#endif
+
+		#else
+
+			varying vec2 vUv;
+
+		#endif
+
+		#include <common>
+		#include <color_pars_fragment>
+		#include <fog_pars_fragment>
+		#include <logdepthbuf_pars_fragment>
+		#include <clipping_planes_pars_fragment>
+
+		vec2 closestLineToLine(vec3 p1, vec3 p2, vec3 p3, vec3 p4) {
+
+			float mua;
+			float mub;
+
+			vec3 p13 = p1 - p3;
+			vec3 p43 = p4 - p3;
+
+			vec3 p21 = p2 - p1;
+
+			float d1343 = dot( p13, p43 );
+			float d4321 = dot( p43, p21 );
+			float d1321 = dot( p13, p21 );
+			float d4343 = dot( p43, p43 );
+			float d2121 = dot( p21, p21 );
+
+			float denom = d2121 * d4343 - d4321 * d4321;
+
+			float numer = d1343 * d4321 - d1321 * d4343;
+
+			mua = numer / denom;
+			mua = clamp( mua, 0.0, 1.0 );
+			mub = ( d1343 + d4321 * ( mua ) ) / d4343;
+			mub = clamp( mub, 0.0, 1.0 );
+
+			return vec2( mua, mub );
+
+		}
+
+		void main() {
+
+			#include <clipping_planes_fragment>
+
+			#ifdef USE_DASH
+
+				if ( vUv.y < - 1.0 || vUv.y > 1.0 ) discard; // discard endcaps
+
+				if ( mod( vLineDistance + dashOffset, dashSize + gapSize ) > dashSize ) discard; // todo - FIX
+
+			#endif
+
+			float alpha = opacity;
+
+			#ifdef WORLD_UNITS
+
+				// Find the closest points on the view ray and the line segment
+				vec3 rayEnd = normalize( worldPos.xyz ) * 1e5;
+				vec3 lineDir = worldEnd - worldStart;
+				vec2 params = closestLineToLine( worldStart, worldEnd, vec3( 0.0, 0.0, 0.0 ), rayEnd );
+
+				vec3 p1 = worldStart + lineDir * params.x;
+				vec3 p2 = rayEnd * params.y;
+				vec3 delta = p1 - p2;
+				float len = length( delta );
+				float norm = len / linewidth;
+
+				#ifndef USE_DASH
+
+					#ifdef USE_ALPHA_TO_COVERAGE
+
+						float dnorm = fwidth( norm );
+						alpha = 1.0 - smoothstep( 0.5 - dnorm, 0.5 + dnorm, norm );
+
+					#else
+
+						if ( norm > 0.5 ) {
+
+							discard;
+
+						}
+
+					#endif
+
+				#endif
+
+			#else
+
+				#ifdef USE_ALPHA_TO_COVERAGE
+
+					// artifacts appear on some hardware if a derivative is taken within a conditional
+					float a = vUv.x;
+					float b = ( vUv.y > 0.0 ) ? vUv.y - 1.0 : vUv.y + 1.0;
+					float len2 = a * a + b * b;
+					float dlen = fwidth( len2 );
+
+					if ( abs( vUv.y ) > 1.0 ) {
+
+						alpha = 1.0 - smoothstep( 1.0 - dlen, 1.0 + dlen, len2 );
+
+					}
+
+				#else
+
+					if ( abs( vUv.y ) > 1.0 ) {
+
+						float a = vUv.x;
+						float b = ( vUv.y > 0.0 ) ? vUv.y - 1.0 : vUv.y + 1.0;
+						float len2 = a * a + b * b;
+
+						if ( len2 > 1.0 ) discard;
+
+					}
+
+				#endif
+
+			#endif
+
+			vec4 diffuseColor = vec4( diffuse, alpha );
+
+			#include <logdepthbuf_fragment>
+			#include <color_fragment>
+
+			gl_FragColor = vec4( diffuseColor.rgb, alpha );
+
+			#include <tonemapping_fragment>
+			#include <encodings_fragment>
+			#include <fog_fragment>
+			#include <premultiplied_alpha_fragment>
+
+		}
+		`
+};
+var LineMaterial = class extends THREE.ShaderMaterial {
+  constructor(parameters) {
+    super({
+      type: "LineMaterial",
+      uniforms: THREE.UniformsUtils.clone(THREE.ShaderLib["line"].uniforms),
+      vertexShader: THREE.ShaderLib["line"].vertexShader,
+      fragmentShader: THREE.ShaderLib["line"].fragmentShader,
+      clipping: true
+    });
+    Object.defineProperties(this, {
+      color: {
+        enumerable: true,
+        get: function() {
+          return this.uniforms.diffuse.value;
+        },
+        set: function(value2) {
+          this.uniforms.diffuse.value = value2;
+        }
+      },
+      worldUnits: {
+        enumerable: true,
+        get: function() {
+          return "WORLD_UNITS" in this.defines;
+        },
+        set: function(value2) {
+          if (value2 === true) {
+            this.defines.WORLD_UNITS = "";
+          } else {
+            delete this.defines.WORLD_UNITS;
+          }
+        }
+      },
+      linewidth: {
+        enumerable: true,
+        get: function() {
+          return this.uniforms.linewidth.value;
+        },
+        set: function(value2) {
+          this.uniforms.linewidth.value = value2;
+        }
+      },
+      dashed: {
+        enumerable: true,
+        get: function() {
+          return Boolean("USE_DASH" in this.defines);
+        },
+        set(value2) {
+          if (Boolean(value2) !== Boolean("USE_DASH" in this.defines)) {
+            this.needsUpdate = true;
+          }
+          if (value2 === true) {
+            this.defines.USE_DASH = "";
+          } else {
+            delete this.defines.USE_DASH;
+          }
+        }
+      },
+      dashScale: {
+        enumerable: true,
+        get: function() {
+          return this.uniforms.dashScale.value;
+        },
+        set: function(value2) {
+          this.uniforms.dashScale.value = value2;
+        }
+      },
+      dashSize: {
+        enumerable: true,
+        get: function() {
+          return this.uniforms.dashSize.value;
+        },
+        set: function(value2) {
+          this.uniforms.dashSize.value = value2;
+        }
+      },
+      dashOffset: {
+        enumerable: true,
+        get: function() {
+          return this.uniforms.dashOffset.value;
+        },
+        set: function(value2) {
+          this.uniforms.dashOffset.value = value2;
+        }
+      },
+      gapSize: {
+        enumerable: true,
+        get: function() {
+          return this.uniforms.gapSize.value;
+        },
+        set: function(value2) {
+          this.uniforms.gapSize.value = value2;
+        }
+      },
+      opacity: {
+        enumerable: true,
+        get: function() {
+          return this.uniforms.opacity.value;
+        },
+        set: function(value2) {
+          this.uniforms.opacity.value = value2;
+        }
+      },
+      resolution: {
+        enumerable: true,
+        get: function() {
+          return this.uniforms.resolution.value;
+        },
+        set: function(value2) {
+          this.uniforms.resolution.value.copy(value2);
+        }
+      },
+      alphaToCoverage: {
+        enumerable: true,
+        get: function() {
+          return Boolean("USE_ALPHA_TO_COVERAGE" in this.defines);
+        },
+        set: function(value2) {
+          if (Boolean(value2) !== Boolean("USE_ALPHA_TO_COVERAGE" in this.defines)) {
+            this.needsUpdate = true;
+          }
+          if (value2 === true) {
+            this.defines.USE_ALPHA_TO_COVERAGE = "";
+            this.extensions.derivatives = true;
+          } else {
+            delete this.defines.USE_ALPHA_TO_COVERAGE;
+            this.extensions.derivatives = false;
+          }
+        }
+      }
+    });
+    this.setValues(parameters);
+  }
+};
+LineMaterial.prototype.isLineMaterial = true;
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/materials.ts
+var materials = singleton("Juniper:Three:Materials", () => /* @__PURE__ */ new Map());
+function del(obj2, name2) {
+  if (name2 in obj2) {
+    delete obj2[name2];
+  }
+}
+function makeMaterial(slug, material, options) {
+  const key = `${slug}_${Object.keys(options).map((k) => `${k}:${options[k]}`).join(",")}`;
+  if (!materials.has(key)) {
+    del(options, "name");
+    materials.set(key, new material(options));
+  }
+  return materials.get(key);
+}
+function trans(options) {
+  return Object.assign(options, {
+    transparent: true
+  });
+}
+function solid(options) {
+  return makeMaterial("solid", THREE.MeshBasicMaterial, options);
+}
+function solidTransparent(options) {
+  return makeMaterial("solidTransparent", THREE.MeshBasicMaterial, trans(options));
+}
+function lit(options) {
+  return makeMaterial("lit", THREE.MeshStandardMaterial, options);
+}
+function line2(options) {
+  return makeMaterial("line2", LineMaterial, options);
+}
+var black = 0;
+var grey = 12632256;
+var white = 16777215;
+function solidTransparentBlack(opacity) {
+  return solidTransparent({ color: black, opacity });
+}
+var litGrey = /* @__PURE__ */ lit({ color: grey });
+var litWhite = /* @__PURE__ */ lit({ color: white });
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/Plane.ts
+var plane = new THREE.PlaneBufferGeometry(1, 1, 1, 1);
+plane.name = "PlaneGeom";
+var BasePlane = class extends THREE.Mesh {
+  constructor(sx, sy, material, isCollider2) {
+    super(plane, material);
+    this.isCollider = isCollider2;
+    this.scale.set(sx, sy, 1);
+  }
+};
+var PlaneCollider = class extends BasePlane {
+  constructor(sx, sy) {
+    super(sx, sy, solidTransparentBlack(0), true);
+    this.visible = false;
+  }
+};
+
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/cleanup.ts
 function cleanup(obj2) {
   const cleanupQ = new Array();
@@ -9597,8 +9684,8 @@ function objectGetRelativePose(ref, obj2, position2, quaternion, scale4) {
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/TexturedMesh.ts
 var inchesPerMeter = 39.3701;
 var TexturedMesh = class extends THREE.Mesh {
-  constructor(geom2, mat2) {
-    super(geom2, mat2);
+  constructor(geom2, mat) {
+    super(geom2, mat);
     this._imageWidth = 0;
     this._imageHeight = 0;
   }
@@ -9640,38 +9727,38 @@ var TexturedMesh = class extends THREE.Mesh {
     const ppm = ppi * inchesPerMeter;
     this.objectWidth = this.imageWidth / ppm;
   }
-  setImage(img2) {
-    if (isImageBitmap(img2)) {
-      img2 = createCanvasFromImageBitmap(img2);
+  setImage(img) {
+    if (isImageBitmap(img)) {
+      img = createCanvasFromImageBitmap(img);
     }
-    if (isOffscreenCanvas(img2)) {
-      img2 = img2;
+    if (isOffscreenCanvas(img)) {
+      img = img;
     }
-    if (img2 instanceof HTMLVideoElement) {
-      this.material.map = new THREE.VideoTexture(img2);
-      this._imageWidth = img2.videoWidth;
-      this._imageHeight = img2.videoHeight;
+    if (img instanceof HTMLVideoElement) {
+      this.material.map = new THREE.VideoTexture(img);
+      this._imageWidth = img.videoWidth;
+      this._imageHeight = img.videoHeight;
     } else {
-      this.material.map = new THREE.Texture(img2);
-      this._imageWidth = img2.width;
-      this._imageHeight = img2.height;
+      this.material.map = new THREE.Texture(img);
+      this._imageWidth = img.width;
+      this._imageHeight = img.height;
       this.material.map.needsUpdate = true;
     }
     this.material.needsUpdate = true;
     return this.material.map;
   }
   async loadImage(fetcher, path, prog) {
-    let { content: img2 } = await fetcher.get(path).progress(prog).image();
-    const texture = this.setImage(img2);
+    let { content: img } = await fetcher.get(path).progress(prog).image();
+    const texture = this.setImage(img);
     texture.name = path;
   }
   updateTexture() {
-    const img2 = this.material.map.image;
-    if (isNumber(img2.width) && isNumber(img2.height) && (this.imageWidth !== img2.width || this.imageHeight !== img2.height)) {
-      this._imageWidth = img2.width;
-      this._imageHeight = img2.height;
+    const img = this.material.map.image;
+    if (isNumber(img.width) && isNumber(img.height) && (this.imageWidth !== img.width || this.imageHeight !== img.height)) {
+      this._imageWidth = img.width;
+      this._imageHeight = img.height;
       this.material.map.dispose();
-      this.material.map = new THREE.Texture(img2);
+      this.material.map = new THREE.Texture(img);
       this.material.needsUpdate = true;
     }
     this.material.map.needsUpdate = true;
@@ -9733,11 +9820,11 @@ var Image2DMesh = class extends THREE.Object3D {
     if (!objectIsFullyVisible(this) || isNullOrUndefined(this.mesh.material.map) || isNullOrUndefined(this.mesh.material.map.image)) {
       return false;
     }
-    const img2 = this.mesh.material.map.image;
-    if (!(img2 instanceof HTMLVideoElement)) {
+    const img = this.mesh.material.map.image;
+    if (!(img instanceof HTMLVideoElement)) {
       return true;
     }
-    return !img2.paused || img2.currentTime > 0;
+    return !img.paused || img.currentTime > 0;
   }
   removeWebXRLayer() {
     if (isDefined(this.layer)) {
@@ -10584,10 +10671,10 @@ var BaseVideoPlayer = class extends BaseAudioSource {
 };
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/CustomGeometry.ts
-function normalizeQuad(quad2) {
+function normalizeQuad(quad) {
   return [
-    normalizeTriangle([quad2[1], quad2[0], quad2[2]]),
-    normalizeTriangle([quad2[2], quad2[0], quad2[3]])
+    normalizeTriangle([quad[1], quad[0], quad[2]]),
+    normalizeTriangle([quad[2], quad[0], quad[3]])
   ];
 }
 function normalizeQuads(quads) {
@@ -10643,12 +10730,12 @@ function createEACGeometry(subDivs, ...quads) {
   return createGeometry(faces);
 }
 function mapEACSubdivision(quads) {
-  return quads.map((quad2) => {
+  return quads.map((quad) => {
     let minU = Number.MAX_VALUE;
     let maxU = Number.MIN_VALUE;
     let minV = Number.MAX_VALUE;
     let maxV = Number.MIN_VALUE;
-    for (const vert of quad2) {
+    for (const vert of quad) {
       const u = vert[3];
       const v = vert[4];
       minU = Math.min(minU, u);
@@ -10662,10 +10749,10 @@ function mapEACSubdivision(quads) {
       minUV,
       deltaUV,
       verts: [
-        mapEACSubdivVert(minUV, deltaUV, quad2[0]),
-        mapEACSubdivVert(minUV, deltaUV, quad2[1]),
-        mapEACSubdivVert(minUV, deltaUV, quad2[2]),
-        mapEACSubdivVert(minUV, deltaUV, quad2[3])
+        mapEACSubdivVert(minUV, deltaUV, quad[0]),
+        mapEACSubdivVert(minUV, deltaUV, quad[1]),
+        mapEACSubdivVert(minUV, deltaUV, quad[2]),
+        mapEACSubdivVert(minUV, deltaUV, quad[3])
       ]
     };
   });
@@ -10971,12 +11058,12 @@ var GeomPacks = new PriorityMap([
 function rotVert(vert) {
   return [vert[0], vert[1], vert[2], vert[4], 1 - vert[3]];
 }
-function rotQuad(quad2) {
+function rotQuad(quad) {
   return [
-    rotVert(quad2[0]),
-    rotVert(quad2[1]),
-    rotVert(quad2[2]),
-    rotVert(quad2[3])
+    rotVert(quad[0]),
+    rotVert(quad[1]),
+    rotVert(quad[2]),
+    rotVert(quad[3])
   ];
 }
 function rot(def) {
@@ -14516,11 +14603,11 @@ function buildNodeHierarchy(nodeId, parentObject, json, parser) {
           const jointNode = jointNodes[j];
           if (jointNode) {
             bones.push(jointNode);
-            const mat2 = new THREE.Matrix4();
+            const mat = new THREE.Matrix4();
             if (skinEntry.inverseBindMatrices !== void 0) {
-              mat2.fromArray(skinEntry.inverseBindMatrices.array, j * 16);
+              mat.fromArray(skinEntry.inverseBindMatrices.array, j * 16);
             }
-            boneInverses.push(mat2);
+            boneInverses.push(mat);
           } else {
             console.warn('THREE.GLTFLoader: Joint "%s" could not be found.', skinEntry.joints[j]);
           }
@@ -17279,38 +17366,38 @@ function fromRotationTranslation(out, q, v) {
   out[15] = 1;
   return out;
 }
-function getTranslation(out, mat2) {
-  out[0] = mat2[12];
-  out[1] = mat2[13];
-  out[2] = mat2[14];
+function getTranslation(out, mat) {
+  out[0] = mat[12];
+  out[1] = mat[13];
+  out[2] = mat[14];
   return out;
 }
-function getRotation(out, mat2) {
-  let trace = mat2[0] + mat2[5] + mat2[10];
+function getRotation(out, mat) {
+  let trace = mat[0] + mat[5] + mat[10];
   let S2 = 0;
   if (trace > 0) {
     S2 = Math.sqrt(trace + 1) * 2;
     out[3] = 0.25 * S2;
-    out[0] = (mat2[6] - mat2[9]) / S2;
-    out[1] = (mat2[8] - mat2[2]) / S2;
-    out[2] = (mat2[1] - mat2[4]) / S2;
-  } else if (mat2[0] > mat2[5] && mat2[0] > mat2[10]) {
-    S2 = Math.sqrt(1 + mat2[0] - mat2[5] - mat2[10]) * 2;
-    out[3] = (mat2[6] - mat2[9]) / S2;
+    out[0] = (mat[6] - mat[9]) / S2;
+    out[1] = (mat[8] - mat[2]) / S2;
+    out[2] = (mat[1] - mat[4]) / S2;
+  } else if (mat[0] > mat[5] && mat[0] > mat[10]) {
+    S2 = Math.sqrt(1 + mat[0] - mat[5] - mat[10]) * 2;
+    out[3] = (mat[6] - mat[9]) / S2;
     out[0] = 0.25 * S2;
-    out[1] = (mat2[1] + mat2[4]) / S2;
-    out[2] = (mat2[8] + mat2[2]) / S2;
-  } else if (mat2[5] > mat2[10]) {
-    S2 = Math.sqrt(1 + mat2[5] - mat2[0] - mat2[10]) * 2;
-    out[3] = (mat2[8] - mat2[2]) / S2;
-    out[0] = (mat2[1] + mat2[4]) / S2;
+    out[1] = (mat[1] + mat[4]) / S2;
+    out[2] = (mat[8] + mat[2]) / S2;
+  } else if (mat[5] > mat[10]) {
+    S2 = Math.sqrt(1 + mat[5] - mat[0] - mat[10]) * 2;
+    out[3] = (mat[8] - mat[2]) / S2;
+    out[0] = (mat[1] + mat[4]) / S2;
     out[1] = 0.25 * S2;
-    out[2] = (mat2[6] + mat2[9]) / S2;
+    out[2] = (mat[6] + mat[9]) / S2;
   } else {
-    S2 = Math.sqrt(1 + mat2[10] - mat2[0] - mat2[5]) * 2;
-    out[3] = (mat2[1] - mat2[4]) / S2;
-    out[0] = (mat2[8] + mat2[2]) / S2;
-    out[1] = (mat2[6] + mat2[9]) / S2;
+    S2 = Math.sqrt(1 + mat[10] - mat[0] - mat[5]) * 2;
+    out[3] = (mat[1] - mat[4]) / S2;
+    out[0] = (mat[8] + mat[2]) / S2;
+    out[1] = (mat[6] + mat[9]) / S2;
     out[2] = 0.25 * S2;
   }
   return out;
@@ -19137,50 +19224,50 @@ var PRIVATE19 = Symbol("@@webxr-polyfill/XRRemappedGamepad");
 var PLACEHOLDER_BUTTON = { pressed: false, touched: false, value: 0 };
 Object.freeze(PLACEHOLDER_BUTTON);
 var XRRemappedGamepad = class {
-  constructor(gamepad, display2, map2) {
-    if (!map2) {
-      map2 = {};
+  constructor(gamepad, display2, map) {
+    if (!map) {
+      map = {};
     }
-    if (map2.userAgentOverrides) {
-      for (let agent in map2.userAgentOverrides) {
+    if (map.userAgentOverrides) {
+      for (let agent in map.userAgentOverrides) {
         if (navigator.userAgent.includes(agent)) {
-          let override = map2.userAgentOverrides[agent];
+          let override = map.userAgentOverrides[agent];
           for (let key in override) {
-            if (key in map2) {
-              Object.assign(map2[key], override[key]);
+            if (key in map) {
+              Object.assign(map[key], override[key]);
             } else {
-              map2[key] = override[key];
+              map[key] = override[key];
             }
           }
           break;
         }
       }
     }
-    let axes = new Array(map2.axes && map2.axes.length ? map2.axes.length : gamepad.axes.length);
-    let buttons = new Array(map2.buttons && map2.buttons.length ? map2.buttons.length : gamepad.buttons.length);
+    let axes = new Array(map.axes && map.axes.length ? map.axes.length : gamepad.axes.length);
+    let buttons = new Array(map.buttons && map.buttons.length ? map.buttons.length : gamepad.buttons.length);
     let gripTransform = null;
-    if (map2.gripTransform) {
-      let orientation = map2.gripTransform.orientation || [0, 0, 0, 1];
+    if (map.gripTransform) {
+      let orientation = map.gripTransform.orientation || [0, 0, 0, 1];
       gripTransform = create3();
-      fromRotationTranslation(gripTransform, normalize4(orientation, orientation), map2.gripTransform.position || [0, 0, 0]);
+      fromRotationTranslation(gripTransform, normalize4(orientation, orientation), map.gripTransform.position || [0, 0, 0]);
     }
     let targetRayTransform = null;
-    if (map2.targetRayTransform) {
-      let orientation = map2.targetRayTransform.orientation || [0, 0, 0, 1];
+    if (map.targetRayTransform) {
+      let orientation = map.targetRayTransform.orientation || [0, 0, 0, 1];
       targetRayTransform = create3();
-      fromRotationTranslation(targetRayTransform, normalize4(orientation, orientation), map2.targetRayTransform.position || [0, 0, 0]);
+      fromRotationTranslation(targetRayTransform, normalize4(orientation, orientation), map.targetRayTransform.position || [0, 0, 0]);
     }
-    let profiles = map2.profiles;
-    if (map2.displayProfiles) {
-      if (display2.displayName in map2.displayProfiles) {
-        profiles = map2.displayProfiles[display2.displayName];
+    let profiles = map.profiles;
+    if (map.displayProfiles) {
+      if (display2.displayName in map.displayProfiles) {
+        profiles = map.displayProfiles[display2.displayName];
       }
     }
     this[PRIVATE19] = {
       gamepad,
-      map: map2,
+      map,
       profiles: profiles || [gamepad.id],
-      mapping: map2.mapping || gamepad.mapping,
+      mapping: map.mapping || gamepad.mapping,
       axes,
       buttons,
       gripTransform,
@@ -19190,21 +19277,21 @@ var XRRemappedGamepad = class {
   }
   _update() {
     let gamepad = this[PRIVATE19].gamepad;
-    let map2 = this[PRIVATE19].map;
+    let map = this[PRIVATE19].map;
     let axes = this[PRIVATE19].axes;
     for (let i = 0; i < axes.length; ++i) {
-      if (map2.axes && i in map2.axes) {
-        if (map2.axes[i] === null) {
+      if (map.axes && i in map.axes) {
+        if (map.axes[i] === null) {
           axes[i] = 0;
         } else {
-          axes[i] = gamepad.axes[map2.axes[i]];
+          axes[i] = gamepad.axes[map.axes[i]];
         }
       } else {
         axes[i] = gamepad.axes[i];
       }
     }
-    if (map2.axes && map2.axes.invert) {
-      for (let axis of map2.axes.invert) {
+    if (map.axes && map.axes.invert) {
+      for (let axis of map.axes.invert) {
         if (axis < axes.length) {
           axes[axis] *= -1;
         }
@@ -19212,11 +19299,11 @@ var XRRemappedGamepad = class {
     }
     let buttons = this[PRIVATE19].buttons;
     for (let i = 0; i < buttons.length; ++i) {
-      if (map2.buttons && i in map2.buttons) {
-        if (map2.buttons[i] === null) {
+      if (map.buttons && i in map.buttons) {
+        if (map.buttons[i] === null) {
           buttons[i] = PLACEHOLDER_BUTTON;
         } else {
-          buttons[i] = gamepad.buttons[map2.buttons[i]];
+          buttons[i] = gamepad.buttons[map.buttons[i]];
         }
       } else {
         buttons[i] = gamepad.buttons[i];
@@ -20383,8 +20470,8 @@ var Skybox = class {
           gl.bindTexture(gl.TEXTURE_CUBE_MAP, gLayer.colorTexture);
           for (let i = 0; i < imgs.length; ++i) {
             if (this.visible) {
-              const img2 = imgs[FACES[i]];
-              this.flipper.drawImage(img2, 0, 0, img2.width, img2.height, 0, 0, FACE_SIZE, FACE_SIZE);
+              const img = imgs[FACES[i]];
+              this.flipper.drawImage(img, 0, 0, img.width, img.height, 0, 0, FACE_SIZE, FACE_SIZE);
             }
             gl.texSubImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, 0, 0, gl.RGBA, gl.UNSIGNED_BYTE, this.flipped);
           }
@@ -21576,11 +21663,11 @@ var FetchingServiceImplXHR = class {
     const blob = response.content;
     return using(await createImageBitmap(blob, {
       imageOrientation: "none"
-    }), (img2) => {
-      canvas.width = img2.width;
-      canvas.height = img2.height;
+    }), (img) => {
+      canvas.width = img.width;
+      canvas.height = img.height;
       const g = canvas.getContext("2d");
-      g.drawImage(img2, 0, 0);
+      g.drawImage(img, 0, 0);
       return translateResponse(response, () => null);
     });
   }
@@ -21977,11 +22064,11 @@ var RequestBuilder = class {
         return await translateResponse(response, () => canvas);
       } else {
         const response = await (isWorker ? this.imageBitmap(acceptType) : this.image(acceptType));
-        return await translateResponse(response, (img2) => {
-          canvas.width = img2.width;
-          canvas.height = img2.height;
-          drawImageToCanvas(canvas, img2);
-          dispose(img2);
+        return await translateResponse(response, (img) => {
+          canvas.width = img.width;
+          canvas.height = img.height;
+          drawImageToCanvas(canvas, img);
+          dispose(img);
           return canvas;
         });
       }
@@ -22004,10 +22091,10 @@ var RequestBuilder = class {
     }
     if (this.method === "GET") {
       const response = await (isWorker ? this.imageBitmap(acceptType) : this.image(acceptType));
-      return await translateResponse(response, (img2) => {
-        const canvas = createOffscreenCanvas(img2.width, img2.height);
-        drawImageToCanvas(canvas, img2);
-        dispose(img2);
+      return await translateResponse(response, (img) => {
+        const canvas = createOffscreenCanvas(img.width, img.height);
+        drawImageToCanvas(canvas, img);
+        dispose(img);
         return canvas;
       });
     } else if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE" || this.method === "HEAD" || this.method === "OPTIONS") {
@@ -22099,6 +22186,10 @@ var Fetcher = class {
   }
   delete(path, base) {
     return this.createRequest("DELETE", path, base);
+  }
+  async assets(progress, ...assets) {
+    const assetSizes = new Map(await Promise.all(assets.map((asset) => asset.getSize(this))));
+    await progressTasksWeighted(progress, assets.map((asset) => [assetSizes.get(asset), (prog) => asset.getContent(prog)]));
   }
 };
 
@@ -22589,36 +22680,80 @@ async function createTestEnvironment(debug = true) {
 // src/dirt-app/index.ts
 var env = await createTestEnvironment();
 await env.fadeOut();
-var [sky, img] = (await Promise.all([
-  "/img/dls-waiting-area-cube.jpg",
-  "/img/2021-03.min.jpg"
-].map((src2) => env.fetcher.get(src2).image(Image_Jpeg)))).map((response) => response.content);
-env.skybox.setImage("dls", sky);
-var map = new THREE.Texture(img);
-map.needsUpdate = true;
-var dirt = new Dirt(1024, 1024);
-var bumpMap = new THREE.Texture(dirt.element);
-bumpMap.needsUpdate = true;
-dirt.addEventListener("update", () => bumpMap.needsUpdate = true);
-var mat = lit({
-  map,
-  bumpMap,
-  bumpScale: 4e-3,
-  side: THREE.DoubleSide
-});
-mat.needsUpdate = true;
-var quad = new Plane(1, 1, mat);
-quad.isCollider = true;
-quad.isDraggable = true;
-quad.position.set(0, 1.5, -2);
-env.foreground.add(quad);
+var skybox = new Asset("/skyboxes/BearfenceMountain.jpeg", getJpeg);
+var ground = new Asset("/models/Forest-Ground.glb", getModel);
+var tree = new Asset("/models/Forest-Tree.glb", getModel);
+await progressTasksWeighted(env.loadingBar, [
+  [1, (prog) => env.load(prog)],
+  [10, (prog) => env.fetcher.assets(prog, skybox, ground, tree)]
+]);
+env.skybox.setImage("dls", skybox.result);
+env.foreground.add(ground.result);
+await sleep(10);
+var matrices = makeTrees();
+var treeMesh = objectScan(tree.result, (obj2) => isMesh(obj2));
+var trees = meshToInstancedMesh(matrices.length, treeMesh);
+for (let i = 0; i < matrices.length; ++i) {
+  trees.setMatrixAt(i, matrices[i]);
+}
+env.foreground.add(trees);
+var dirt = new Dirt(4096, 4096, 0.5);
+var dirtMap = new THREE.Texture(dirt.element);
+dirtMap.needsUpdate = true;
+dirt.addEventListener("update", () => dirtMap.needsUpdate = true);
+var playable = objectScan(ground.result, (obj2) => isMesh(obj2) && obj2.name === "Ground");
+playable.material.bumpMap = dirtMap;
+playable.material.bumpScale = 0.05;
+playable.material.needsUpdate = true;
+playable.isCollider = true;
+playable.isDraggable = true;
 var onDragEvt = (ev) => checkPointer(ev);
-quad.addEventListener("drag", onDragEvt);
-quad.addEventListener("dragcancel", onDragEvt);
-quad.addEventListener("dragend", onDragEvt);
-quad.addEventListener("dragstart", onDragEvt);
+playable.addEventListener("drag", onDragEvt);
+playable.addEventListener("dragcancel", onDragEvt);
+playable.addEventListener("dragend", onDragEvt);
+playable.addEventListener("dragstart", onDragEvt);
 await env.fadeIn();
 function checkPointer(evt) {
   dirt.checkPointerUV(evt.pointer.name, evt.hit.uv.x, 1 - evt.hit.uv.y, evt.type);
+}
+function getJpeg(path, prog) {
+  return env.fetcher.get(path).useCache(false).progress(prog).image(Image_Jpeg).then((response) => response.content);
+}
+function getModel(path, prog) {
+  return env.loadModel(path, prog);
+}
+function makeTrees() {
+  const raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0), 0.1, 100);
+  raycaster.camera = env.camera;
+  const tests = new Array();
+  const matrices2 = new Array();
+  const q = new THREE.Quaternion();
+  const right = new THREE.Vector3(1, 0, 0);
+  const q2 = new THREE.Quaternion().setFromAxisAngle(right, Math.PI / 2);
+  const up = new THREE.Vector3(0, 1, 0);
+  const s = new THREE.Vector3();
+  for (let dz = -20; dz <= 20; ++dz) {
+    for (let dx = -20; dx <= 20; ++dx) {
+      if (Math.random() <= 0.1) {
+        const x = Math.random() * 0.1 + dx;
+        const z = Math.random() * 0.1 + dz;
+        raycaster.ray.origin.set(x, 10, z);
+        raycaster.ray.direction.set(0, -1, 0);
+        raycaster.intersectObject(ground.result, true, tests);
+        const groundHit = arrayScan(tests, (hit) => hit && hit.object && hit.object.name === "Ground");
+        const waterHit = arrayScan(tests, (hit) => hit && hit.object && hit.object.name === "Water");
+        arrayClear(tests);
+        if (groundHit && !waterHit) {
+          const w = THREE.MathUtils.randFloat(0.6, 1.3);
+          const h = THREE.MathUtils.randFloat(0.6, 1.3);
+          s.set(w, h, w);
+          const a = THREE.MathUtils.randFloat(0, 2 * Math.PI);
+          const m = new THREE.Matrix4().compose(groundHit.point, q.setFromAxisAngle(up, a).multiply(q2), s);
+          matrices2.push(m);
+        }
+      }
+    }
+  }
+  return matrices2;
 }
 //# sourceMappingURL=index.js.map

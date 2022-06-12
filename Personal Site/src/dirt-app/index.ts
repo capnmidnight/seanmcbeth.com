@@ -1,50 +1,55 @@
-﻿import { Dirt } from "@juniper-lib/graphics2d/Dirt";
+﻿import { Asset } from "@juniper-lib/fetcher";
+import { Dirt } from "@juniper-lib/graphics2d/Dirt";
 import { Image_Jpeg } from "@juniper-lib/mediatypes";
 import { EventSystemThreeJSEvent } from "@juniper-lib/threejs/eventSystem/EventSystemEvent";
-import { lit } from "@juniper-lib/threejs/materials";
-import { Plane } from "@juniper-lib/threejs/Plane";
+import { meshToInstancedMesh } from "@juniper-lib/threejs/meshToInstancedMesh";
+import { objectScan } from "@juniper-lib/threejs/objectScan";
+import { isMesh } from "@juniper-lib/threejs/typeChecks";
+import { arrayClear, arrayScan, IProgress, progressTasksWeighted, sleep } from "@juniper-lib/tslib";
 import { createTestEnvironment } from "../createTestEnvironment";
 
 const env = await createTestEnvironment();
 await env.fadeOut();
 
-const [sky, img] = (await Promise.all([
-    "/img/dls-waiting-area-cube.jpg",
-    "/img/2021-03.min.jpg"
-].map((src) => env.fetcher
-    .get(src)
-    .image(Image_Jpeg))))
-    .map((response) => response.content);
+const skybox = new Asset("/skyboxes/BearfenceMountain.jpeg", getJpeg);
+const ground = new Asset("/models/Forest-Ground.glb", getModel);
+const tree = new Asset("/models/Forest-Tree.glb", getModel);
 
-env.skybox.setImage("dls", sky);
+await progressTasksWeighted(env.loadingBar, [
+    [1, (prog) => env.load(prog)],
+    [10, (prog) => env.fetcher.assets(prog, skybox, ground, tree)]
+]);
 
-const map = new THREE.Texture(img);
-map.needsUpdate = true;
+env.skybox.setImage("dls", skybox.result);
+env.foreground.add(ground.result);
 
-const dirt = new Dirt(1024, 1024);
-const bumpMap = new THREE.Texture(dirt.element);
-bumpMap.needsUpdate = true;
-dirt.addEventListener("update", () => bumpMap.needsUpdate = true);
+await sleep(10); // this doesn't seem to work right if we don't give the renderer a beat
+const matrices = makeTrees();
+const treeMesh = objectScan<THREE.Mesh>(tree.result, (obj) => isMesh(obj));
+const trees = meshToInstancedMesh(matrices.length, treeMesh);
+for (let i = 0; i < matrices.length; ++i) {
+    trees.setMatrixAt(i, matrices[i]);
+}
 
-const mat = lit({
-    map,
-    bumpMap,
-    bumpScale: 0.004,
-    side: THREE.DoubleSide
-});
-mat.needsUpdate = true;
+env.foreground.add(trees);
 
-const quad = new Plane(1, 1, mat);
-quad.isCollider = true;
-quad.isDraggable = true;
-quad.position.set(0, 1.5, -2);
-env.foreground.add(quad);
+const dirt = new Dirt(4096, 4096, 0.5);
+const dirtMap = new THREE.Texture(dirt.element);
+dirtMap.needsUpdate = true;
+dirt.addEventListener("update", () => dirtMap.needsUpdate = true);
+
+const playable = objectScan<THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>>(ground.result, obj => isMesh(obj) && obj.name === "Ground");
+playable.material.bumpMap = dirtMap;
+playable.material.bumpScale = 0.05;
+playable.material.needsUpdate = true;
+(playable as any).isCollider = true;
+(playable as any).isDraggable = true;
 
 const onDragEvt = (ev: THREE.Event) => checkPointer(ev as any as EventSystemThreeJSEvent<"drag">);
-quad.addEventListener("drag", onDragEvt);
-quad.addEventListener("dragcancel", onDragEvt);
-quad.addEventListener("dragend", onDragEvt);
-quad.addEventListener("dragstart", onDragEvt);
+playable.addEventListener("drag", onDragEvt);
+playable.addEventListener("dragcancel", onDragEvt);
+playable.addEventListener("dragend", onDragEvt);
+playable.addEventListener("dragstart", onDragEvt);
 
 await env.fadeIn();
 
@@ -53,4 +58,57 @@ function checkPointer(evt: EventSystemThreeJSEvent<string>) {
         evt.hit.uv.x,
         1 - evt.hit.uv.y,
         evt.type);
+}
+
+function getJpeg(path: string | URL, prog?: IProgress) {
+    return env.fetcher
+        .get(path)
+        .useCache(false)
+        .progress(prog)
+        .image(Image_Jpeg)
+        .then(response => response.content);
+}
+
+function getModel(path: string, prog?: IProgress) {
+    return env.loadModel(path, prog);
+}
+
+function makeTrees() {
+    const raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0), 0.1, 100);
+    raycaster.camera = env.camera;
+    const tests = new Array<THREE.Intersection>();
+    const matrices = new Array<THREE.Matrix4>();
+    const q = new THREE.Quaternion();
+    const right = new THREE.Vector3(1, 0, 0);
+    const q2 = new THREE.Quaternion().setFromAxisAngle(right, Math.PI / 2);
+    const up = new THREE.Vector3(0, 1, 0);
+    const s = new THREE.Vector3();
+    for (let dz = -20; dz <= 20; ++dz) {
+        for (let dx = -20; dx <= 20; ++dx) {
+            if (Math.random() <= 0.1) {
+                const x = Math.random() * 0.1 + dx;
+                const z = Math.random() * 0.1 + dz;
+                raycaster.ray.origin.set(x, 10, z);
+                raycaster.ray.direction.set(0, -1, 0);
+                raycaster.intersectObject(ground.result, true, tests);
+                const groundHit = arrayScan(tests, (hit) => hit && hit.object && hit.object.name === "Ground");
+                const waterHit = arrayScan(tests, (hit) => hit && hit.object && hit.object.name === "Water");
+                arrayClear(tests);
+                if (groundHit && !waterHit) {
+                    const w = THREE.MathUtils.randFloat(0.6, 1.3);
+                    const h = THREE.MathUtils.randFloat(0.6, 1.3);
+                    s.set(w, h, w);
+                    const a = THREE.MathUtils.randFloat(0, 2 * Math.PI);
+                    const m = new THREE.Matrix4()
+                        .compose(
+                            groundHit.point,
+                            q.setFromAxisAngle(up, a).multiply(q2),
+                            s
+                        );
+                    matrices.push(m);
+                }
+            }
+        }
+    }
+    return matrices;
 }
