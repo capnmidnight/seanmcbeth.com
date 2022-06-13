@@ -4013,13 +4013,6 @@ var Promisifier = class {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/events/sleep.ts
-function sleep(milliseconds) {
-  const task = new Task();
-  setTimeout(task.resolve, milliseconds);
-  return task;
-}
-
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/events/waitFor.ts
 function waitFor(test) {
   const task = new Task(test);
@@ -5232,290 +5225,6 @@ function using(val, thunk) {
   } finally {
     dispose(val);
   }
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher-base/Asset.ts
-var Asset = class {
-  constructor(path, getter) {
-    this.path = path;
-    this.getter = getter;
-    this.promise = new Promise((resolve, reject) => {
-      this.resolve = (value2) => {
-        this._result = value2;
-        this._finished = true;
-        resolve(value2);
-      };
-      this.reject = (reason) => {
-        this._error = reason;
-        this._finished = true;
-        reject(reason);
-      };
-    });
-  }
-  promise;
-  _result = null;
-  _error = null;
-  _started = false;
-  _finished = false;
-  get result() {
-    if (isDefined(this.error)) {
-      throw this.error;
-    }
-    return this._result;
-  }
-  get error() {
-    return this._error;
-  }
-  get started() {
-    return this._started;
-  }
-  get finished() {
-    return this._finished;
-  }
-  resolve = null;
-  reject = null;
-  getSize(fetcher) {
-    return fetcher.head(this.path).exec().then((response) => [this, response.contentLength]);
-  }
-  async getContent(prog) {
-    try {
-      const response = await this.getter(this.path, prog);
-      this.resolve(response);
-    } catch (err) {
-      this.reject(err);
-    }
-  }
-  get [Symbol.toStringTag]() {
-    return this.promise.toString();
-  }
-  then(onfulfilled, onrejected) {
-    return this.promise.then(onfulfilled, onrejected);
-  }
-  catch(onrejected) {
-    return this.promise.catch(onrejected);
-  }
-  finally(onfinally) {
-    return this.promise.finally(onfinally);
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/util.ts
-var typePattern = /([^\/]+)\/(.+)/;
-var subTypePattern = /(?:([^\.]+)\.)?([^\+;]+)(?:\+([^;]+))?((?:; *([^=]+)=([^;]+))*)/;
-var MediaType = class {
-  constructor(_type, _fullSubType, extensions) {
-    this._type = _type;
-    this._fullSubType = _fullSubType;
-    this._primaryExtension = null;
-    this.depMessage = null;
-    const parameters = /* @__PURE__ */ new Map();
-    this._parameters = parameters;
-    const subTypeParts = this._fullSubType.match(subTypePattern);
-    this._tree = subTypeParts[1];
-    this._subType = subTypeParts[2];
-    this._suffix = subTypeParts[3];
-    const paramStr = subTypeParts[4];
-    this._value = this._fullValue = this._type + "/";
-    if (isDefined(this._tree)) {
-      this._value = this._fullValue += this._tree + ".";
-    }
-    this._value = this._fullValue += this._subType;
-    if (isDefined(this._suffix)) {
-      this._value = this._fullValue += "+" + this._suffix;
-    }
-    if (isDefined(paramStr)) {
-      const pairs = paramStr.split(";").map((p) => p.trim()).filter((p) => p.length > 0).map((p) => p.split("="));
-      for (const [key, ...values] of pairs) {
-        const value2 = values.join("=");
-        parameters.set(key, value2);
-        const slug = `; ${key}=${value2}`;
-        this._fullValue += slug;
-        if (key !== "q") {
-          this._value += slug;
-        }
-      }
-    }
-    this._extensions = extensions || [];
-    this._primaryExtension = this._extensions[0] || null;
-  }
-  static parse(value2) {
-    if (!value2) {
-      return null;
-    }
-    const match = value2.match(typePattern);
-    if (!match) {
-      return null;
-    }
-    const type2 = match[1];
-    const subType = match[2];
-    return new MediaType(type2, subType);
-  }
-  deprecate(message) {
-    this.depMessage = message;
-    return this;
-  }
-  check() {
-    if (isDefined(this.depMessage)) {
-      console.warn(`${this._value} is deprecated ${this.depMessage}`);
-    }
-  }
-  matches(value2) {
-    if (isNullOrUndefined(value2)) {
-      return false;
-    }
-    if (this.typeName === "*" && this.subTypeName === "*") {
-      return true;
-    }
-    let typeName = null;
-    let subTypeName = null;
-    if (isString(value2)) {
-      const match = value2.match(typePattern);
-      if (!match) {
-        return false;
-      }
-      typeName = match[1];
-      subTypeName = match[2];
-    } else {
-      typeName = value2.typeName;
-      subTypeName = value2._fullSubType;
-    }
-    return this.typeName === typeName && (this._fullSubType === "*" || this._fullSubType === subTypeName);
-  }
-  withParameter(key, value2) {
-    const newSubType = `${this._fullSubType}; ${key}=${value2}`;
-    return new MediaType(this.typeName, newSubType, this.extensions);
-  }
-  get typeName() {
-    this.check();
-    return this._type;
-  }
-  get tree() {
-    this.check();
-    return this._tree;
-  }
-  get suffix() {
-    return this._suffix;
-  }
-  get subTypeName() {
-    this.check();
-    return this._subType;
-  }
-  get value() {
-    this.check();
-    return this._value;
-  }
-  __getValueUnsafe() {
-    return this._value;
-  }
-  get fullValue() {
-    this.check();
-    return this._fullValue;
-  }
-  get parameters() {
-    this.check();
-    return this._parameters;
-  }
-  get extensions() {
-    this.check();
-    return this._extensions;
-  }
-  __getExtensionsUnsafe() {
-    return this._extensions;
-  }
-  get primaryExtension() {
-    this.check();
-    return this._primaryExtension;
-  }
-  toString() {
-    if (this.parameters.get("q") === "1") {
-      return this.value;
-    } else {
-      return this.fullValue;
-    }
-  }
-  addExtension(fileName) {
-    if (!fileName) {
-      throw new Error("File name is not defined");
-    }
-    if (this.primaryExtension) {
-      const idx = fileName.lastIndexOf(".");
-      if (idx > -1) {
-        const currentExtension = fileName.substring(idx + 1);
-        ;
-        if (this.extensions.indexOf(currentExtension) > -1) {
-          fileName = fileName.substring(0, idx);
-        }
-      }
-      fileName = `${fileName}.${this.primaryExtension}`;
-    }
-    return fileName;
-  }
-};
-function create2(group2, value2, ...extensions) {
-  return new MediaType(group2, value2, extensions);
-}
-function specialize(group2) {
-  return create2.bind(null, group2);
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/application.ts
-var application = /* @__PURE__ */ specialize("application");
-var Application_Javascript = /* @__PURE__ */ application("javascript", "js");
-var Application_Json = /* @__PURE__ */ application("json", "json");
-var Application_Wasm = /* @__PURE__ */ application("wasm", "wasm");
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/image.ts
-var image = /* @__PURE__ */ specialize("image");
-var Image_Jpeg = /* @__PURE__ */ image("jpeg", "jpeg", "jpg", "jpe");
-var Image_Vendor_Google_StreetView_Pano = image("vnd.google.streetview.pano");
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/text.ts
-var text = /* @__PURE__ */ specialize("text");
-var Text_Plain = /* @__PURE__ */ text("plain", "txt", "text", "conf", "def", "list", "log", "in");
-var Text_Xml = /* @__PURE__ */ text("xml");
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/video.ts
-var video = /* @__PURE__ */ specialize("video");
-var Video_Vendor_Mpeg_Dash_Mpd = video("vnd.mpeg.dash.mpd", "mpd");
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/meshToInstancedMesh.ts
-function meshToInstancedMesh(count2, mesh) {
-  return new THREE.InstancedMesh(mesh.geometry, mesh.material, count2);
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/objectScan.ts
-function objectScan(obj2, test) {
-  const queue = [obj2];
-  while (queue.length > 0) {
-    const here = queue.shift();
-    if (test(here)) {
-      return here;
-    }
-    if (here.children.length > 0) {
-      queue.push(...here.children);
-    }
-  }
-  return null;
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/typeChecks.ts
-function isMesh(obj2) {
-  return isDefined(obj2) && obj2.isMesh;
-}
-function isMaterial(obj2) {
-  return isDefined(obj2) && obj2.isMaterial;
-}
-function isMeshBasicMaterial(obj2) {
-  return isMaterial(obj2) && obj2.type === "MeshBasicMaterial";
-}
-function isObject3D(obj2) {
-  return isDefined(obj2) && obj2.isObject3D;
-}
-function isQuaternion(obj2) {
-  return isDefined(obj2) && obj2.isQuaternion;
-}
-function isEuler(obj2) {
-  return isDefined(obj2) && obj2.isEuler;
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/attrs.ts
@@ -7324,9 +7033,9 @@ var DeviceManagerAudioOutputChangedEvent = class extends TypedEvent {
   }
 };
 var DeviceManagerAudioInputChangedEvent = class extends TypedEvent {
-  constructor(audio) {
+  constructor(audio2) {
     super("audioinputchanged");
-    this.audio = audio;
+    this.audio = audio2;
   }
 };
 var DeviceManagerVideoInputChangedEvent = class extends TypedEvent {
@@ -7852,8 +7561,9 @@ var AudioElementSource = class extends BaseAudioSource {
     }
     return "playing";
   }
-  play() {
-    return this.audio.play();
+  async play() {
+    await audioReady(this.audioCtx);
+    await this.audio.play();
   }
   async playThrough() {
     const endTask = once(this, "stopped");
@@ -8473,8 +8183,8 @@ var AudioPlayer = class extends BaseAudioSource {
       arraySortByKeyInPlace(data.audios, (f) => -f.resolution);
       arrayReplace(this.sources, ...data.audios);
     }
-    for (const audio of this.sources) {
-      this.sourcesByURL.set(audio.url, audio);
+    for (const audio2 of this.sources) {
+      this.sourcesByURL.set(audio2.url, audio2);
     }
     if (!this.hasSources) {
       throw new Error("No audio sources");
@@ -8564,8 +8274,9 @@ var AudioPlayer = class extends BaseAudioSource {
     }
     return "playing";
   }
-  play() {
-    return this.element.play();
+  async play() {
+    await audioReady(this.audioCtx);
+    await this.element.play();
   }
   async playThrough() {
     const endTask = once(this, "stopped");
@@ -8822,6 +8533,26 @@ var DialogBox = class {
     return confirmed;
   }
 };
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/typeChecks.ts
+function isMesh(obj2) {
+  return isDefined(obj2) && obj2.isMesh;
+}
+function isMaterial(obj2) {
+  return isDefined(obj2) && obj2.isMaterial;
+}
+function isMeshBasicMaterial(obj2) {
+  return isMaterial(obj2) && obj2.type === "MeshBasicMaterial";
+}
+function isObject3D(obj2) {
+  return isDefined(obj2) && obj2.isObject3D;
+}
+function isQuaternion(obj2) {
+  return isDefined(obj2) && obj2.isQuaternion;
+}
+function isEuler(obj2) {
+  return isDefined(obj2) && obj2.isEuler;
+}
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/objects.ts
 function isErsatzObject(obj2) {
@@ -10182,8 +9913,8 @@ function makeClipName(type2, isDisabled2) {
   return `InteractionAudio-${type2}`;
 }
 var InteractionAudio = class {
-  constructor(audio, eventSys) {
-    this.audio = audio;
+  constructor(audio2, eventSys) {
+    this.audio = audio2;
     this.eventSys = eventSys;
     this.enabled = true;
     const playClip = (evt) => {
@@ -10250,6 +9981,189 @@ var SpaceUI = class extends THREE.Object3D {
     }
   }
 };
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/util.ts
+var typePattern = /([^\/]+)\/(.+)/;
+var subTypePattern = /(?:([^\.]+)\.)?([^\+;]+)(?:\+([^;]+))?((?:; *([^=]+)=([^;]+))*)/;
+var MediaType = class {
+  constructor(_type, _fullSubType, extensions) {
+    this._type = _type;
+    this._fullSubType = _fullSubType;
+    this._primaryExtension = null;
+    this.depMessage = null;
+    const parameters = /* @__PURE__ */ new Map();
+    this._parameters = parameters;
+    const subTypeParts = this._fullSubType.match(subTypePattern);
+    this._tree = subTypeParts[1];
+    this._subType = subTypeParts[2];
+    this._suffix = subTypeParts[3];
+    const paramStr = subTypeParts[4];
+    this._value = this._fullValue = this._type + "/";
+    if (isDefined(this._tree)) {
+      this._value = this._fullValue += this._tree + ".";
+    }
+    this._value = this._fullValue += this._subType;
+    if (isDefined(this._suffix)) {
+      this._value = this._fullValue += "+" + this._suffix;
+    }
+    if (isDefined(paramStr)) {
+      const pairs = paramStr.split(";").map((p) => p.trim()).filter((p) => p.length > 0).map((p) => p.split("="));
+      for (const [key, ...values] of pairs) {
+        const value2 = values.join("=");
+        parameters.set(key, value2);
+        const slug = `; ${key}=${value2}`;
+        this._fullValue += slug;
+        if (key !== "q") {
+          this._value += slug;
+        }
+      }
+    }
+    this._extensions = extensions || [];
+    this._primaryExtension = this._extensions[0] || null;
+  }
+  static parse(value2) {
+    if (!value2) {
+      return null;
+    }
+    const match = value2.match(typePattern);
+    if (!match) {
+      return null;
+    }
+    const type2 = match[1];
+    const subType = match[2];
+    return new MediaType(type2, subType);
+  }
+  deprecate(message) {
+    this.depMessage = message;
+    return this;
+  }
+  check() {
+    if (isDefined(this.depMessage)) {
+      console.warn(`${this._value} is deprecated ${this.depMessage}`);
+    }
+  }
+  matches(value2) {
+    if (isNullOrUndefined(value2)) {
+      return false;
+    }
+    if (this.typeName === "*" && this.subTypeName === "*") {
+      return true;
+    }
+    let typeName = null;
+    let subTypeName = null;
+    if (isString(value2)) {
+      const match = value2.match(typePattern);
+      if (!match) {
+        return false;
+      }
+      typeName = match[1];
+      subTypeName = match[2];
+    } else {
+      typeName = value2.typeName;
+      subTypeName = value2._fullSubType;
+    }
+    return this.typeName === typeName && (this._fullSubType === "*" || this._fullSubType === subTypeName);
+  }
+  withParameter(key, value2) {
+    const newSubType = `${this._fullSubType}; ${key}=${value2}`;
+    return new MediaType(this.typeName, newSubType, this.extensions);
+  }
+  get typeName() {
+    this.check();
+    return this._type;
+  }
+  get tree() {
+    this.check();
+    return this._tree;
+  }
+  get suffix() {
+    return this._suffix;
+  }
+  get subTypeName() {
+    this.check();
+    return this._subType;
+  }
+  get value() {
+    this.check();
+    return this._value;
+  }
+  __getValueUnsafe() {
+    return this._value;
+  }
+  get fullValue() {
+    this.check();
+    return this._fullValue;
+  }
+  get parameters() {
+    this.check();
+    return this._parameters;
+  }
+  get extensions() {
+    this.check();
+    return this._extensions;
+  }
+  __getExtensionsUnsafe() {
+    return this._extensions;
+  }
+  get primaryExtension() {
+    this.check();
+    return this._primaryExtension;
+  }
+  toString() {
+    if (this.parameters.get("q") === "1") {
+      return this.value;
+    } else {
+      return this.fullValue;
+    }
+  }
+  addExtension(fileName) {
+    if (!fileName) {
+      throw new Error("File name is not defined");
+    }
+    if (this.primaryExtension) {
+      const idx = fileName.lastIndexOf(".");
+      if (idx > -1) {
+        const currentExtension = fileName.substring(idx + 1);
+        ;
+        if (this.extensions.indexOf(currentExtension) > -1) {
+          fileName = fileName.substring(0, idx);
+        }
+      }
+      fileName = `${fileName}.${this.primaryExtension}`;
+    }
+    return fileName;
+  }
+};
+function create2(group2, value2, ...extensions) {
+  return new MediaType(group2, value2, extensions);
+}
+function specialize(group2) {
+  return create2.bind(null, group2);
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/application.ts
+var application = /* @__PURE__ */ specialize("application");
+var Application_Javascript = /* @__PURE__ */ application("javascript", "js");
+var Application_Json = /* @__PURE__ */ application("json", "json");
+var Application_Wasm = /* @__PURE__ */ application("wasm", "wasm");
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/audio.ts
+var audio = /* @__PURE__ */ specialize("audio");
+var Audio_Mpeg = /* @__PURE__ */ audio("mpeg", "mp3", "mp2", "mp2a", "mpga", "m2a", "m3a");
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/image.ts
+var image = /* @__PURE__ */ specialize("image");
+var Image_Jpeg = /* @__PURE__ */ image("jpeg", "jpeg", "jpg", "jpe");
+var Image_Vendor_Google_StreetView_Pano = image("vnd.google.streetview.pano");
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/text.ts
+var text = /* @__PURE__ */ specialize("text");
+var Text_Plain = /* @__PURE__ */ text("plain", "txt", "text", "conf", "def", "list", "log", "in");
+var Text_Xml = /* @__PURE__ */ text("xml");
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/video.ts
+var video = /* @__PURE__ */ specialize("video");
+var Video_Vendor_Mpeg_Dash_Mpd = video("vnd.mpeg.dash.mpd", "mpd");
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/video/data.ts
 function isVideoRecord(obj2) {
@@ -22573,63 +22487,191 @@ async function createTestEnvironment(debug = true) {
   });
 }
 
-// src/forest-app/index.ts
-var env = await createTestEnvironment();
-await env.fadeOut();
-function getJpeg(path, prog) {
-  return env.fetcher.get(path).useCache(false).progress(prog).image(Image_Jpeg).then((response) => response.content);
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher-base/Asset.ts
+var Asset = class {
+  constructor(path, getter) {
+    this.path = path;
+    this.getter = getter;
+    this.promise = new Promise((resolve, reject) => {
+      this.resolve = (value2) => {
+        this._result = value2;
+        this._finished = true;
+        resolve(value2);
+      };
+      this.reject = (reason) => {
+        this._error = reason;
+        this._finished = true;
+        reject(reason);
+      };
+    });
+  }
+  promise;
+  _result = null;
+  _error = null;
+  _started = false;
+  _finished = false;
+  get result() {
+    if (isDefined(this.error)) {
+      throw this.error;
+    }
+    return this._result;
+  }
+  get error() {
+    return this._error;
+  }
+  get started() {
+    return this._started;
+  }
+  get finished() {
+    return this._finished;
+  }
+  resolve = null;
+  reject = null;
+  getSize(fetcher) {
+    return fetcher.head(this.path).exec().then((response) => [this, response.contentLength]);
+  }
+  async getContent(prog) {
+    try {
+      const response = await this.getter(this.path, prog);
+      this.resolve(response);
+    } catch (err) {
+      this.reject(err);
+    }
+  }
+  get [Symbol.toStringTag]() {
+    return this.promise.toString();
+  }
+  then(onfulfilled, onrejected) {
+    return this.promise.then(onfulfilled, onrejected);
+  }
+  catch(onrejected) {
+    return this.promise.catch(onrejected);
+  }
+  finally(onfinally) {
+    return this.promise.finally(onfinally);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/meshToInstancedMesh.ts
+function meshToInstancedMesh(count2, mesh) {
+  return new THREE.InstancedMesh(mesh.geometry, mesh.material, count2);
 }
-function getModel(path, prog) {
-  return env.loadModel(path, prog);
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/objectScan.ts
+function objectScan(obj2, test) {
+  const queue = [obj2];
+  while (queue.length > 0) {
+    const here = queue.shift();
+    if (test(here)) {
+      return here;
+    }
+    if (here.children.length > 0) {
+      queue.push(...here.children);
+    }
+  }
+  return null;
 }
-var skybox = new Asset("/skyboxes/BearfenceMountain.jpeg", getJpeg);
-var ground = new Asset("/models/Forest-Ground.glb", getModel);
-var tree = new Asset("/models/Forest-Tree.glb", getModel);
-await progressTasksWeighted(env.loadingBar, [
-  [1, (prog) => env.load(prog)],
-  [10, (prog) => env.fetcher.assets(prog, skybox, ground, tree)]
-]);
-env.skybox.setImage("dls", skybox.result);
-env.foreground.add(ground.result);
-await sleep(10);
-var matrices = function() {
-  const raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0), 0.1, 100);
-  raycaster.camera = env.camera;
-  const tests = new Array();
-  const matrices2 = new Array();
-  const q = new THREE.Quaternion();
-  const right = new THREE.Vector3(1, 0, 0);
-  const q2 = new THREE.Quaternion().setFromAxisAngle(right, Math.PI / 2);
-  const up = new THREE.Vector3(0, 1, 0);
-  const s = new THREE.Vector3();
-  for (let dz = -20; dz <= 20; ++dz) {
-    for (let dx = -20; dx <= 20; ++dx) {
-      if (Math.random() <= 0.1) {
-        const x = Math.random() * 0.1 + dx;
-        const z = Math.random() * 0.1 + dz;
-        raycaster.ray.origin.set(x, 10, z);
-        raycaster.ray.direction.set(0, -1, 0);
-        raycaster.intersectObject(env.scene, true, tests);
-        const groundHit = arrayScan(tests, (hit) => hit && hit.object && hit.object.name === "Ground");
-        const waterHit = arrayScan(tests, (hit) => hit && hit.object && hit.object.name === "Water");
-        arrayClear(tests);
-        if (groundHit && !waterHit) {
-          const w = THREE.MathUtils.randFloat(0.6, 1.3);
-          const h = THREE.MathUtils.randFloat(0.6, 1.3);
-          s.set(w, h, w);
-          const a = THREE.MathUtils.randFloat(0, 2 * Math.PI);
-          const m = new THREE.Matrix4().compose(groundHit.point, q.setFromAxisAngle(up, a).multiply(q2), s);
-          matrices2.push(m);
+
+// src/forest-app/Forest.ts
+var Forest = class {
+  constructor(env2) {
+    this.env = env2;
+    this.getJpeg = this.getJpeg.bind(this);
+    this.getModel = this.getModel.bind(this);
+    this.getAudio = this.getAudio.bind(this);
+    this.skybox = new Asset("/skyboxes/BearfenceMountain.jpeg", this.getJpeg);
+    this.ground = new Asset("/models/Forest-Ground.glb", this.getModel);
+    this.tree = new Asset("/models/Forest-Tree.glb", this.getModel);
+    this.bgAudio = new Asset("/audio/forest.mp3", this.getAudio);
+    this.raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0), 0.1, 100);
+    this.hits = new Array();
+  }
+  skybox;
+  ground;
+  tree;
+  bgAudio;
+  raycaster;
+  hits;
+  async load() {
+    await progressTasksWeighted(this.env.loadingBar, [
+      [1, (prog) => this.env.load(prog)],
+      [10, (prog) => this.env.fetcher.assets(prog, this.skybox, this.ground, this.tree, this.bgAudio)]
+    ]);
+    this.env.skybox.setImage("forest", this.skybox.result);
+    this.env.audio.createClip("forest", this.bgAudio.result, true, true, true, 1, []);
+    this.env.audio.setClipPosition("forest", 25, 5, 25);
+    this.env.foreground.add(this.ground.result);
+    this.ground.result.updateMatrixWorld();
+    this.raycaster.camera = this.env.camera;
+    const matrices = this.makeTrees();
+    const treeMesh = objectScan(this.tree.result, (obj2) => isMesh(obj2));
+    const trees = meshToInstancedMesh(matrices.length, treeMesh);
+    for (let i = 0; i < matrices.length; ++i) {
+      trees.setMatrixAt(i, matrices[i]);
+    }
+    this.env.foreground.add(trees);
+    this.env.timer.addTickHandler(() => {
+      const groundHit = this.groundTest(this.env.avatar.worldPos);
+      if (groundHit) {
+        this.env.avatar.stage.position.y = groundHit.point.y;
+      }
+    });
+  }
+  getJpeg(path, prog) {
+    return this.env.fetcher.get(path).progress(prog).image(Image_Jpeg).then((response) => response.content);
+  }
+  getAudio(path, prog) {
+    return this.env.fetcher.get(path).progress(prog).audio(true, true, Audio_Mpeg).then((response) => response.content);
+  }
+  getModel(path, prog) {
+    return this.env.loadModel(path, prog);
+  }
+  makeTrees() {
+    const matrices = new Array();
+    const q = new THREE.Quaternion();
+    const right = new THREE.Vector3(1, 0, 0);
+    const p = new THREE.Vector3();
+    const q2 = new THREE.Quaternion().setFromAxisAngle(right, Math.PI / 2);
+    const up = new THREE.Vector3(0, 1, 0);
+    const s = new THREE.Vector3();
+    for (let dz = -25; dz <= 25; ++dz) {
+      for (let dx = -25; dx <= 25; ++dx) {
+        if (Math.random() <= 0.1) {
+          const x = Math.random() * 0.1 + dx;
+          const z = Math.random() * 0.1 + dz;
+          p.set(x, 0, z);
+          const groundHit = this.groundTest(p);
+          if (groundHit) {
+            const w = THREE.MathUtils.randFloat(0.6, 1.3);
+            const h = THREE.MathUtils.randFloat(0.6, 1.3);
+            s.set(w, h, w);
+            const a = THREE.MathUtils.randFloat(0, 2 * Math.PI);
+            const m = new THREE.Matrix4().compose(groundHit.point, q.setFromAxisAngle(up, a).multiply(q2), s);
+            matrices.push(m);
+          }
         }
       }
     }
+    return matrices;
   }
-  return matrices2;
-}();
-var trees = meshToInstancedMesh(matrices.length, objectScan(tree.result, (obj2) => isMesh(obj2)));
-for (let i = 0; i < matrices.length; ++i) {
-  trees.setMatrixAt(i, matrices[i]);
-}
-env.foreground.add(trees);
+  groundTest(p) {
+    this.raycaster.ray.origin.copy(p);
+    this.raycaster.ray.origin.y += 10;
+    this.raycaster.intersectObject(this.ground.result, true, this.hits);
+    const groundHit = arrayScan(this.hits, (hit) => hit && hit.object && hit.object.name === "Ground");
+    const waterHit = arrayScan(this.hits, (hit) => hit && hit.object && hit.object.name === "Water");
+    arrayClear(this.hits);
+    if (waterHit) {
+      return null;
+    }
+    return groundHit;
+  }
+};
+
+// src/forest-app/index.ts
+var env = await createTestEnvironment();
+await env.fadeOut();
+var forest = new Forest(env);
+await forest.load();
 await env.fadeIn();
 //# sourceMappingURL=index.js.map

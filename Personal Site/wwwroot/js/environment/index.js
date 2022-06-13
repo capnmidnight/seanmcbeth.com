@@ -7471,8 +7471,9 @@ var AudioElementSource = class extends BaseAudioSource {
     }
     return "playing";
   }
-  play() {
-    return this.audio.play();
+  async play() {
+    await audioReady(this.audioCtx);
+    await this.audio.play();
   }
   async playThrough() {
     const endTask = once(this, "stopped");
@@ -8183,8 +8184,9 @@ var AudioPlayer = class extends BaseAudioSource {
     }
     return "playing";
   }
-  play() {
-    return this.element.play();
+  async play() {
+    await audioReady(this.audioCtx);
+    await this.element.play();
   }
   async playThrough() {
     const endTask = once(this, "stopped");
