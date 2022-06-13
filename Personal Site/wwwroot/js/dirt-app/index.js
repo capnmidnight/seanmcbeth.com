@@ -7513,11 +7513,10 @@ var AudioSourceAddedEvent = class extends TypedEvent {
   }
 };
 var BaseAudioSource = class extends BaseAudioElement {
+  source = null;
+  effects = new Array();
   constructor(id2, audioCtx, spatializer, ...effectNames) {
     super(id2, audioCtx, spatializer);
-    this.source = null;
-    this.effects = new Array();
-    this._connected = false;
     this.setEffects(...effectNames);
   }
   onDisposing() {
@@ -7553,6 +7552,7 @@ var BaseAudioSource = class extends BaseAudioElement {
   get input() {
     return this.source;
   }
+  _connected = false;
   get connected() {
     return this._connected;
   }
@@ -7617,10 +7617,10 @@ var MediaElementSourceStoppedEvent = class extends MediaElementSourceEvent {
   }
 };
 var MediaElementSourceProgressEvent = class extends MediaElementSourceEvent {
+  value = 0;
+  total = 0;
   constructor(source) {
     super("progress", source);
-    this.value = 0;
-    this.total = 0;
   }
 };
 
