@@ -15,6 +15,8 @@ export class Forest {
     private readonly hits: Array<THREE.Intersection>;
 
     constructor(private readonly env: Environment) {
+        //this.env.eventSystem.mouse.allowPointerLock = true;
+
         this.getJpeg = this.getJpeg.bind(this);
         this.getModel = this.getModel.bind(this);
         this.getAudio = this.getAudio.bind(this);
