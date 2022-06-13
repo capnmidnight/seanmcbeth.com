@@ -3,7 +3,7 @@ import { onPointerCancel, onPointerDown, onPointerEnter, onPointerLeave, onPoint
 import { elementApply } from "@juniper-lib/dom/tags";
 import { Dirt } from "@juniper-lib/graphics2d/Dirt";
 
-const dirt = new Dirt(1024, 1024, 1);
+const dirt = new Dirt(640, 480, 1);
 elementApply(document.body,
     elementApply(dirt,
         styles(

@@ -999,7 +999,7 @@ var Dirt = class extends TypedEventBase {
       this.bg.save();
       this.bg.translate(this.lx, this.ly);
       this.bg.rotate(a);
-      this.bg.translate(-0.5 * this.finger.width, -0.5 * this.finger.height);
+      this.bg.translate(-0.5 * this.finger.width * this.fingerScale, -0.5 * this.finger.height * this.fingerScale);
       for (let i = 0; i <= d; ++i) {
         this.bg.drawImage(this.finger, 0, 0, this.finger.width, this.finger.height, i, 0, this.finger.width * this.fingerScale, this.finger.height * this.fingerScale);
       }
@@ -1042,7 +1042,7 @@ var Dirt = class extends TypedEventBase {
 };
 
 // src/dirt-canvas-app/index.ts
-var dirt = new Dirt(1024, 1024, 1);
+var dirt = new Dirt(640, 480, 1);
 elementApply(document.body, elementApply(dirt, styles(touchAction("none")), onPointerCancel(checkPointer), onPointerDown(checkPointer), onPointerEnter(checkPointer), onPointerLeave(checkPointer), onPointerMove(checkPointer), onPointerUp(checkPointer)));
 function checkPointer(evt) {
   dirt.checkPointer(evt.pointerId, evt.offsetX, evt.offsetY, evt.type);

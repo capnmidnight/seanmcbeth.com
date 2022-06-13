@@ -1,18 +1,22 @@
 ﻿import { Asset } from "@juniper-lib/fetcher";
-import { Audio_Mpeg, Image_Jpeg } from "@juniper-lib/mediatypes";
+import { Audio_Mpeg, Image_Jpeg, Model_Gltf_Binary } from "@juniper-lib/mediatypes";
 import { Environment } from "@juniper-lib/threejs/environment/Environment";
-import { meshToInstancedMesh } from "@juniper-lib/threejs/meshToInstancedMesh";
+import { InteractiveObject3D } from "@juniper-lib/threejs/eventSystem/InteractiveObject3D";
 import { objectScan } from "@juniper-lib/threejs/objectScan";
 import { isMesh } from "@juniper-lib/threejs/typeChecks";
 import { arrayClear, arrayScan, IProgress, progressTasksWeighted } from "@juniper-lib/tslib";
 
 export class Forest {
     private readonly skybox: Asset<HTMLImageElement>;
-    public readonly ground: Asset<THREE.Group>;
+    private readonly _ground: Asset<THREE.Group>;
     private readonly tree: Asset<THREE.Group>;
     private readonly bgAudio: Asset<HTMLAudioElement>;
     private readonly raycaster: THREE.Raycaster;
     private readonly hits: Array<THREE.Intersection>;
+
+    get ground() {
+        return this._ground.result;
+    }
 
     constructor(private readonly env: Environment) {
         //this.env.eventSystem.mouse.allowPointerLock = true;
@@ -22,7 +26,7 @@ export class Forest {
         this.getAudio = this.getAudio.bind(this);
 
         this.skybox = new Asset("/skyboxes/BearfenceMountain.jpeg", this.getJpeg);
-        this.ground = new Asset("/models/Forest-Ground.glb", this.getModel);
+        this._ground = new Asset("/models/Forest-Ground.glb", this.getModel);
         this.tree = new Asset("/models/Forest-Tree.glb", this.getModel);
         this.bgAudio = new Asset("/audio/forest.mp3", this.getAudio);
         this.raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0), 0.1, 100);
@@ -34,7 +38,7 @@ export class Forest {
             [1, (prog) => this.env.load(prog)],
             [10, (prog) => this.env.fetcher.assets(prog,
                 this.skybox,
-                this.ground,
+                this._ground,
                 this.tree,
                 this.bgAudio
             )]
@@ -43,13 +47,19 @@ export class Forest {
         this.env.skybox.setImage("forest", this.skybox.result);
         this.env.audio.createClip("forest", this.bgAudio.result, true, true, true, 1, []);
         this.env.audio.setClipPosition("forest", 25, 5, 25);
-        this.env.foreground.add(this.ground.result);
-        this.ground.result.updateMatrixWorld();
+        this.env.foreground.add(this.ground);
+        this.ground.updateMatrixWorld();
         this.raycaster.camera = this.env.camera;
 
+        const groundMesh = objectScan<THREE.Mesh & InteractiveObject3D>(this.ground, isMesh);
+        groundMesh.isClickable = true;
+
         const matrices = this.makeTrees();
-        const treeMesh = objectScan<THREE.Mesh>(this.tree.result, (obj) => isMesh(obj));
-        const trees = meshToInstancedMesh(matrices.length, treeMesh);
+        const treeMesh = objectScan<THREE.Mesh & InteractiveObject3D>(this.tree.result, isMesh);
+        const treeGeom = treeMesh.geometry;
+        const treeMat = treeMesh.material;
+        const trees: THREE.InstancedMesh & InteractiveObject3D = new THREE.InstancedMesh(treeGeom, treeMat, matrices.length);
+        trees.isCollider = true;
         for (let i = 0; i < matrices.length; ++i) {
             trees.setMatrixAt(i, matrices[i]);
         }
@@ -67,6 +77,7 @@ export class Forest {
     private getJpeg(path: string, prog?: IProgress) {
         return this.env.fetcher
             .get(path)
+            .useCache(true)
             .progress(prog)
             .image(Image_Jpeg)
             .then(response => response.content);
@@ -75,13 +86,19 @@ export class Forest {
     private getAudio(path: string, prog?: IProgress) {
         return this.env.fetcher
             .get(path)
+            .useCache(true)
             .progress(prog)
             .audio(true, true, Audio_Mpeg)
             .then(response => response.content);
     }
 
     private getModel(path: string, prog?: IProgress) {
-        return this.env.loadModel(path, prog);
+        return this.env.fetcher
+            .get(path)
+            .useCache(true)
+            .progress(prog)
+            .file(Model_Gltf_Binary)
+            .then(response => this.env.loadModel(response.content));
     }
 
     private makeTrees() {
@@ -121,7 +138,7 @@ export class Forest {
     private groundTest(p: THREE.Vector3): THREE.Intersection {
         this.raycaster.ray.origin.copy(p);
         this.raycaster.ray.origin.y += 10;
-        this.raycaster.intersectObject(this.ground.result, true, this.hits);
+        this.raycaster.intersectObject(this.ground, true, this.hits);
         const groundHit = arrayScan(this.hits, (hit) => hit && hit.object && hit.object.name === "Ground");
         const waterHit = arrayScan(this.hits, (hit) => hit && hit.object && hit.object.name === "Water");
         arrayClear(this.hits);
