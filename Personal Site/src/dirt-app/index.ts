@@ -3,6 +3,7 @@ import { EventSystemThreeJSEvent } from "@juniper-lib/threejs/eventSystem/EventS
 import { InteractiveObject3D } from "@juniper-lib/threejs/eventSystem/InteractiveObject3D";
 import { objectScan } from "@juniper-lib/threejs/objectScan";
 import { isMesh } from "@juniper-lib/threejs/typeChecks";
+import { isMobile } from "@juniper-lib/tslib";
 import { createTestEnvironment } from "../createTestEnvironment";
 import { Forest } from "../forest-app/Forest";
 
@@ -12,7 +13,8 @@ await env.fadeOut();
 const forest = new Forest(env);
 await forest.load();
 
-const dirt = new Dirt(2048, 2048, 0.25);
+const S = isMobile() ? 2048 : 4096;
+const dirt = new Dirt(S, S, S / 8192);
 const dirtMap = new THREE.Texture(dirt.element);
 dirtMap.minFilter = THREE.LinearMipmapLinearFilter;
 dirtMap.magFilter = THREE.LinearFilter;

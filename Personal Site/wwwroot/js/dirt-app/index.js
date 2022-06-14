@@ -5236,7 +5236,6 @@ var Attr = class {
     this.tags = tags.map((t2) => t2.toLocaleUpperCase());
     Object.freeze(this);
   }
-  tags;
   applyToElement(elem) {
     const isDataSet = this.key.startsWith("data-");
     const isValid = this.tags.length === 0 || this.tags.indexOf(elem.tagName) > -1 || isDataSet;
@@ -7191,18 +7190,18 @@ var DeviceManager = class extends TypedEventBase {
     super();
     this.element = element;
     this.needsVideoDevice = needsVideoDevice;
+    this._hasAudioPermission = false;
+    this._hasVideoPermission = false;
+    this._currentStream = null;
     this.ready = this.start();
     Object.seal(this);
   }
-  _hasAudioPermission = false;
   get hasAudioPermission() {
     return this._hasAudioPermission;
   }
-  _hasVideoPermission = false;
   get hasVideoPermission() {
     return this._hasVideoPermission;
   }
-  _currentStream = null;
   get currentStream() {
     return this._currentStream;
   }
@@ -7216,7 +7215,6 @@ var DeviceManager = class extends TypedEventBase {
       this._currentStream = v;
     }
   }
-  ready;
   async start() {
     if (canChangeAudioOutput) {
       const device = await this.getPreferredAudioOutput();
@@ -17127,31 +17125,31 @@ function getTranslation(out, mat) {
 }
 function getRotation(out, mat) {
   let trace = mat[0] + mat[5] + mat[10];
-  let S2 = 0;
+  let S3 = 0;
   if (trace > 0) {
-    S2 = Math.sqrt(trace + 1) * 2;
-    out[3] = 0.25 * S2;
-    out[0] = (mat[6] - mat[9]) / S2;
-    out[1] = (mat[8] - mat[2]) / S2;
-    out[2] = (mat[1] - mat[4]) / S2;
+    S3 = Math.sqrt(trace + 1) * 2;
+    out[3] = 0.25 * S3;
+    out[0] = (mat[6] - mat[9]) / S3;
+    out[1] = (mat[8] - mat[2]) / S3;
+    out[2] = (mat[1] - mat[4]) / S3;
   } else if (mat[0] > mat[5] && mat[0] > mat[10]) {
-    S2 = Math.sqrt(1 + mat[0] - mat[5] - mat[10]) * 2;
-    out[3] = (mat[6] - mat[9]) / S2;
-    out[0] = 0.25 * S2;
-    out[1] = (mat[1] + mat[4]) / S2;
-    out[2] = (mat[8] + mat[2]) / S2;
+    S3 = Math.sqrt(1 + mat[0] - mat[5] - mat[10]) * 2;
+    out[3] = (mat[6] - mat[9]) / S3;
+    out[0] = 0.25 * S3;
+    out[1] = (mat[1] + mat[4]) / S3;
+    out[2] = (mat[8] + mat[2]) / S3;
   } else if (mat[5] > mat[10]) {
-    S2 = Math.sqrt(1 + mat[5] - mat[0] - mat[10]) * 2;
-    out[3] = (mat[8] - mat[2]) / S2;
-    out[0] = (mat[1] + mat[4]) / S2;
-    out[1] = 0.25 * S2;
-    out[2] = (mat[6] + mat[9]) / S2;
+    S3 = Math.sqrt(1 + mat[5] - mat[0] - mat[10]) * 2;
+    out[3] = (mat[8] - mat[2]) / S3;
+    out[0] = (mat[1] + mat[4]) / S3;
+    out[1] = 0.25 * S3;
+    out[2] = (mat[6] + mat[9]) / S3;
   } else {
-    S2 = Math.sqrt(1 + mat[10] - mat[0] - mat[5]) * 2;
-    out[3] = (mat[1] - mat[4]) / S2;
-    out[0] = (mat[8] + mat[2]) / S2;
-    out[1] = (mat[6] + mat[9]) / S2;
-    out[2] = 0.25 * S2;
+    S3 = Math.sqrt(1 + mat[10] - mat[0] - mat[5]) * 2;
+    out[3] = (mat[1] - mat[4]) / S3;
+    out[0] = (mat[8] + mat[2]) / S3;
+    out[1] = (mat[6] + mat[9]) / S3;
+    out[2] = 0.25 * S3;
   }
   return out;
 }
@@ -22606,7 +22604,8 @@ var env = await createTestEnvironment();
 await env.fadeOut();
 var forest = new Forest(env);
 await forest.load();
-var dirt = new Dirt(2048, 2048, 0.25);
+var S2 = isMobile() ? 2048 : 4096;
+var dirt = new Dirt(S2, S2, S2 / 8192);
 var dirtMap = new THREE.Texture(dirt.element);
 dirtMap.minFilter = THREE.LinearMipmapLinearFilter;
 dirtMap.magFilter = THREE.LinearFilter;
