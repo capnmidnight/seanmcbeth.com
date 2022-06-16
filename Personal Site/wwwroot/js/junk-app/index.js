@@ -1878,6 +1878,7 @@ var Attr = class {
     this.tags = tags.map((t2) => t2.toLocaleUpperCase());
     Object.freeze(this);
   }
+  tags;
   applyToElement(elem) {
     const isDataSet = this.key.startsWith("data-");
     const isValid = this.tags.length === 0 || this.tags.indexOf(elem.tagName) > -1 || isDataSet;

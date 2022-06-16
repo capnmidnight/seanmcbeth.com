@@ -22515,34 +22515,31 @@ var env = await createTestEnvironment();
 await env.fadeOut();
 var forest = new Forest(env);
 var [spatter] = await forest.load(new Asset("/img/spatter.png", forest.getPng));
+forest.water.renderOrder = 0;
+forest.ground.renderOrder = 1;
+forest.trees.removeFromParent();
 var grassGeom = new THREE.PlaneBufferGeometry(5, 5, 1, 1);
-var grassTex = new THREE.Texture(spatter.result);
-grassTex.needsUpdate = true;
-var grassMat = new THREE.MeshStandardMaterial({
-  map: grassTex,
-  transparent: true,
-  opacity: 0.9,
-  side: THREE.DoubleSide
-});
-var grass = new THREE.InstancedMesh(grassGeom, grassMat, 25);
-var dummy = new THREE.Object3D();
-dummy.rotation.set(Math.PI / 2, 0, 0);
-for (let i = 0; i < grass.count; ++i) {
-  dummy.position.set(0, i / (5 * grass.count), 0);
-  dummy.updateMatrix();
-  grass.setMatrixAt(i, dummy.matrix);
-  grass.setColorAt(i, new THREE.Color(0.25, 0.25 + i / (2 * grass.count), 0));
+var grassTex = new THREE.CanvasTexture(spatter.result);
+var grass = new Array(25);
+for (let i = 0; i < grass.length; ++i) {
+  const grassMat = new THREE.MeshStandardMaterial({
+    map: grassTex,
+    transparent: true,
+    opacity: 0.9,
+    side: THREE.DoubleSide,
+    color: new THREE.Color(0.25, 0.25 + i / (2 * grass.length), 0)
+  });
+  grass[i] = new THREE.Mesh(grassGeom, grassMat);
+  grass[i].position.set(0, i / (5 * grass.length), 0);
+  grass[i].rotation.set(Math.PI / 2, 0, 0);
+  grass[i].updateMatrix();
+  grass[i].renderOrder = 3 + i;
+  env.foreground.add(grass[i]);
 }
-env.foreground.add(grass);
-forest.ground.renderOrder = 0;
-grass.renderOrder = 1;
 env.timer.addTickHandler((evt) => {
-  for (let i = 0; i < grass.count; ++i) {
-    dummy.position.set(0.08 + 0.05 * Math.cos(evt.t / 1e3) * i / grass.count, i / (5 * grass.count), 0);
-    dummy.updateMatrix();
-    grass.setMatrixAt(i, dummy.matrix);
+  for (let i = 0; i < grass.length; ++i) {
+    grass[i].position.set(0.08 + 0.05 * Math.cos(evt.t / 1e3) * i / grass.length, i / (5 * grass.length), 0);
   }
-  grass.instanceMatrix.needsUpdate = true;
 });
 await env.fadeIn();
 //# sourceMappingURL=index.js.map

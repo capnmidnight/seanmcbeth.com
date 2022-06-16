@@ -26,9 +26,9 @@ var __publicField = (obj2, key, value2) => {
   return value2;
 };
 
-// ../../node_modules/cardboard-vr-display/dist/cardboard-vr-display.js
+// ../Juniper/src/Juniper.TypeScript/node_modules/cardboard-vr-display/dist/cardboard-vr-display.js
 var require_cardboard_vr_display = __commonJS({
-  "../../node_modules/cardboard-vr-display/dist/cardboard-vr-display.js"(exports, module) {
+  "../Juniper/src/Juniper.TypeScript/node_modules/cardboard-vr-display/dist/cardboard-vr-display.js"(exports, module) {
     (function(global2, factory) {
       typeof exports === "object" && typeof module !== "undefined" ? module.exports = factory() : typeof define === "function" && define.amd ? define(factory) : global2.CardboardVRDisplay = factory();
     })(exports, function() {
@@ -2332,15 +2332,15 @@ var require_cardboard_vr_display = __commonJS({
         s.marginTop = "25%";
         s.width = "50%";
         overlay.appendChild(img);
-        var text = document.createElement("div");
-        var s = text.style;
+        var text2 = document.createElement("div");
+        var s = text2.style;
         s.textAlign = "center";
         s.fontSize = "16px";
         s.lineHeight = "24px";
         s.margin = "24px 25%";
         s.width = "50%";
-        text.innerHTML = "Place your phone into your Cardboard viewer.";
-        overlay.appendChild(text);
+        text2.innerHTML = "Place your phone into your Cardboard viewer.";
+        overlay.appendChild(text2);
         var snackbar = document.createElement("div");
         var s = snackbar.style;
         s.backgroundColor = "#CFD8DC";
@@ -2370,7 +2370,7 @@ var require_cardboard_vr_display = __commonJS({
         snackbar.appendChild(snackbarText);
         snackbar.appendChild(snackbarButton);
         this.overlay = overlay;
-        this.text = text;
+        this.text = text2;
         this.hide();
       }
       RotateInstructions.prototype.show = function(parent) {
@@ -3317,7 +3317,7 @@ var require_cardboard_vr_display = __commonJS({
   }
 });
 
-// ../tslib/collections/arrayBinarySearch.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/arrayBinarySearch.ts
 function defaultKeySelector(obj2) {
   return obj2;
 }
@@ -3350,17 +3350,17 @@ function arrayBinarySearch(arr, item, keySelector) {
   return arrayBinarySearchByKey(arr, itemKey, keySelector);
 }
 
-// ../tslib/collections/arrayRemoveAt.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/arrayRemoveAt.ts
 function arrayRemoveAt(arr, idx) {
   return arr.splice(idx, 1)[0];
 }
 
-// ../tslib/collections/arrayClear.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/arrayClear.ts
 function arrayClear(arr) {
   return arr.splice(0);
 }
 
-// ../tslib/collections/arrayCompare.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/arrayCompare.ts
 function arrayCompare(arr1, arr2) {
   for (let i = 0; i < arr1.length; ++i) {
     if (arr1[i] !== arr2[i]) {
@@ -3370,12 +3370,12 @@ function arrayCompare(arr1, arr2) {
   return -1;
 }
 
-// ../tslib/collections/arrayInsertAt.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/arrayInsertAt.ts
 function arrayInsertAt(arr, item, idx) {
   arr.splice(idx, 0, item);
 }
 
-// ../tslib/collections/arrayRemove.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/arrayRemove.ts
 function arrayRemove(arr, value2) {
   const idx = arr.indexOf(value2);
   if (idx > -1) {
@@ -3385,12 +3385,12 @@ function arrayRemove(arr, value2) {
   return false;
 }
 
-// ../tslib/collections/arrayReplace.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/arrayReplace.ts
 function arrayReplace(arr, ...items) {
   arr.splice(0, arr.length, ...items);
 }
 
-// ../tslib/collections/arrayScan.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/arrayScan.ts
 function arrayScan(arr, ...tests) {
   for (const test of tests) {
     for (const item of arr) {
@@ -3402,7 +3402,7 @@ function arrayScan(arr, ...tests) {
   return null;
 }
 
-// ../tslib/collections/arraySortedInsert.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/arraySortedInsert.ts
 function arraySortedInsert(arr, item, keySelector, allowDuplicates) {
   let ks;
   if (isFunction(keySelector)) {
@@ -3443,7 +3443,7 @@ function arraySortByKeyInPlace(newArr, keySelector) {
   });
 }
 
-// ../tslib/collections/BaseGraphNode.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/BaseGraphNode.ts
 var BaseGraphNode = class {
   constructor(value2) {
     this.value = value2;
@@ -3504,7 +3504,7 @@ var BaseGraphNode = class {
   }
 };
 
-// ../tslib/collections/GraphNode.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/GraphNode.ts
 var GraphNode = class extends BaseGraphNode {
   connectTo(node) {
     super.connectTo(node);
@@ -3535,17 +3535,29 @@ var GraphNode = class extends BaseGraphNode {
   }
 };
 
-// ../tslib/collections/mapMap.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/mapMap.ts
 function mapMap(items, makeID, makeValue) {
   return new Map(items.map((item) => [makeID(item), makeValue(item)]));
 }
 
-// ../tslib/collections/makeLookup.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/makeLookup.ts
 function makeLookup(items, makeID) {
   return mapMap(items, makeID, identity);
 }
 
-// ../tslib/collections/PriorityList.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/mapJoin.ts
+function mapJoin(dest, ...sources) {
+  for (const source of sources) {
+    if (isDefined(source)) {
+      for (const [key, value2] of source) {
+        dest.set(key, value2);
+      }
+    }
+  }
+  return dest;
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/PriorityList.ts
 var PriorityList = class {
   constructor(init) {
     this.items = /* @__PURE__ */ new Map();
@@ -3643,7 +3655,7 @@ var PriorityList = class {
   }
 };
 
-// ../tslib/collections/PriorityMap.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/PriorityMap.ts
 var PriorityMap = class {
   constructor(init) {
     this.items = /* @__PURE__ */ new Map();
@@ -3721,7 +3733,7 @@ var PriorityMap = class {
   }
 };
 
-// ../tslib/events/EventBase.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/events/EventBase.ts
 var EventBase = class {
   constructor() {
     this.listeners = /* @__PURE__ */ new Map();
@@ -3842,7 +3854,7 @@ var TypedEventBase = class extends EventBase {
   }
 };
 
-// ../tslib/events/Task.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/events/Task.ts
 var Task = class {
   constructor(resolveTestOrAutoStart, rejectTestOrAutoStart, autoStart = true) {
     this._resolve = null;
@@ -3928,7 +3940,7 @@ var Task = class {
   }
 };
 
-// ../tslib/events/once.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/events/once.ts
 function targetValidateEvent(target, type2) {
   return "on" + type2 in target;
 }
@@ -3973,7 +3985,7 @@ function success(task) {
   return task.then(alwaysTrue).catch(alwaysFalse);
 }
 
-// ../tslib/events/Promisifier.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/events/Promisifier.ts
 var Promisifier = class {
   constructor(resolveRejectTest, selectValue, selectRejectionReason) {
     this.callback = null;
@@ -4001,7 +4013,19 @@ var Promisifier = class {
   }
 };
 
-// ../tslib/Exception.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/events/waitFor.ts
+function waitFor(test) {
+  const task = new Task(test);
+  const handle = setInterval(() => {
+    if (test()) {
+      clearInterval(handle);
+      task.resolve();
+    }
+  }, 100);
+  return task;
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/Exception.ts
 var Exception = class extends Error {
   constructor(message, innerError = null) {
     super(message);
@@ -4009,7 +4033,7 @@ var Exception = class extends Error {
   }
 };
 
-// ../tslib/flags.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/flags.ts
 function isChrome() {
   return "chrome" in globalThis && !navigator.userAgent.match("CriOS");
 }
@@ -4053,7 +4077,7 @@ var isOculusQuest = isOculusBrowser && /quest/i.test(navigator.userAgent);
 var isOculusQuest2 = isOculusBrowser && /quest 2/i.test(navigator.userAgent);
 var isWorker = !("Document" in globalThis);
 
-// ../tslib/gis/Datum.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/gis/Datum.ts
 var invF = 298.257223563;
 var equatorialRadius = 6378137;
 var flattening = 1 / invF;
@@ -4078,7 +4102,7 @@ var delta = [
   56 * n * n * n / 15
 ];
 
-// ../../node_modules/gl-matrix/esm/common.js
+// ../Juniper/src/Juniper.TypeScript/node_modules/gl-matrix/esm/common.js
 var EPSILON = 1e-6;
 var ARRAY_TYPE = typeof Float32Array !== "undefined" ? Float32Array : Array;
 var RANDOM = Math.random;
@@ -4092,7 +4116,7 @@ if (!Math.hypot)
     return Math.sqrt(y);
   };
 
-// ../../node_modules/gl-matrix/esm/vec3.js
+// ../Juniper/src/Juniper.TypeScript/node_modules/gl-matrix/esm/vec3.js
 var vec3_exports = {};
 __export(vec3_exports, {
   add: () => add,
@@ -4476,7 +4500,7 @@ var forEach = function() {
   };
 }();
 
-// ../tslib/identity.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/identity.ts
 function identity(item) {
   return item;
 }
@@ -4490,23 +4514,23 @@ function and(a, b) {
   return a && b;
 }
 
-// ../tslib/math/angleClamp.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math/angleClamp.ts
 var Tau = 2 * Math.PI;
 function angleClamp(v) {
   return (v % Tau + Tau) % Tau;
 }
 
-// ../tslib/math/clamp.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math/clamp.ts
 function clamp(v, min3, max3) {
   return Math.min(max3, Math.max(min3, v));
 }
 
-// ../tslib/math/deg2rad.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math/deg2rad.ts
 function deg2rad(deg) {
   return deg * Math.PI / 180;
 }
 
-// ../tslib/math/project.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math/project.ts
 function project(v, min3, max3) {
   const delta3 = max3 - min3;
   if (delta3 === 0) {
@@ -4516,27 +4540,27 @@ function project(v, min3, max3) {
   }
 }
 
-// ../tslib/math/unproject.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math/unproject.ts
 function unproject(v, min3, max3) {
   return v * (max3 - min3) + min3;
 }
 
-// ../tslib/math/lerp.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math/lerp.ts
 function lerp2(a, b, p) {
   return (1 - p) * a + p * b;
 }
 
-// ../tslib/math/powerOf2.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math/powerOf2.ts
 function nextPowerOf2(v) {
   return Math.pow(2, Math.ceil(Math.log2(v)));
 }
 
-// ../tslib/math/rad2deg.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math/rad2deg.ts
 function rad2deg(rad) {
   return rad * 180 / Math.PI;
 }
 
-// ../tslib/math/truncate.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math/truncate.ts
 function truncate(v) {
   if (Math.abs(v) > 1e-4) {
     return v;
@@ -4544,7 +4568,7 @@ function truncate(v) {
   return 0;
 }
 
-// ../tslib/progress/BaseProgress.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/progress/BaseProgress.ts
 var BaseProgress = class extends TypedEventBase {
   constructor() {
     super(...arguments);
@@ -4590,7 +4614,7 @@ var BaseProgress = class extends TypedEventBase {
   }
 };
 
-// ../tslib/progress/ChildProgressCallback.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/progress/ChildProgressCallback.ts
 var ChildProgressCallback = class extends BaseProgress {
   constructor(i, prog) {
     super();
@@ -4603,7 +4627,7 @@ var ChildProgressCallback = class extends BaseProgress {
   }
 };
 
-// ../tslib/progress/BaseParentProgressCallback.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/progress/BaseParentProgressCallback.ts
 var BaseParentProgressCallback = class {
   constructor(prog) {
     this.prog = prog;
@@ -4641,10 +4665,22 @@ var BaseParentProgressCallback = class {
   }
 };
 
-// ../tslib/progress/progressSplit.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/progress/IProgress.ts
+function isProgressCallback(obj2) {
+  return isDefined(obj2) && isFunction(obj2.report) && isFunction(obj2.attach) && isFunction(obj2.end);
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/progress/progressSplit.ts
 function progressSplitWeighted(prog, subProgressWeights) {
   const subProg = new WeightedParentProgressCallback(subProgressWeights, prog);
   return subProg.subProgressCallbacks;
+}
+function progressSplit(prog, taskCount) {
+  const subProgressWeights = new Array(taskCount);
+  for (let i = 0; i < taskCount; ++i) {
+    subProgressWeights[i] = 1;
+  }
+  return progressSplitWeighted(prog, subProgressWeights);
 }
 var WeightedParentProgressCallback = class extends BaseParentProgressCallback {
   constructor(subProgressWeights, prog) {
@@ -4655,7 +4691,7 @@ var WeightedParentProgressCallback = class extends BaseParentProgressCallback {
   }
 };
 
-// ../tslib/progress/progressPopper.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/progress/progressPopper.ts
 function progressPopper(progress) {
   return new PoppableParentProgressCallback(progress);
 }
@@ -4665,7 +4701,7 @@ var PoppableParentProgressCallback = class extends BaseParentProgressCallback {
   }
 };
 
-// ../tslib/progress/progressTasks.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/progress/progressTasks.ts
 async function progressTasksWeighted(prog, taskDefs) {
   const weights = new Array(taskDefs.length);
   const callbacks = new Array(taskDefs.length);
@@ -4686,7 +4722,7 @@ function progressTasks(prog, ...subTaskDef) {
   return progressTasksWeighted(prog, taskDefs);
 }
 
-// ../tslib/typeChecks.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/typeChecks.ts
 function t(o, s, c) {
   return typeof o === s || o instanceof c;
 }
@@ -4723,8 +4759,14 @@ function isNullOrUndefined(obj2) {
 function isDefined(obj2) {
   return !isNullOrUndefined(obj2);
 }
+function isArrayBufferView(obj2) {
+  return obj2 instanceof Uint8Array || obj2 instanceof Uint8ClampedArray || obj2 instanceof Int8Array || obj2 instanceof Uint16Array || obj2 instanceof Int16Array || obj2 instanceof Uint32Array || obj2 instanceof Int32Array || obj2 instanceof Float32Array || obj2 instanceof Float64Array || "BigUint64Array" in globalThis && obj2 instanceof globalThis["BigUint64Array"] || "BigInt64Array" in globalThis && obj2 instanceof globalThis["BigInt64Array"];
+}
+function isArrayBuffer(val) {
+  return val && typeof ArrayBuffer !== "undefined" && (val instanceof ArrayBuffer || val.constructor && val.constructor.name === "ArrayBuffer");
+}
 
-// ../tslib/singleton.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/singleton.ts
 function singleton(name2, create8) {
   const box = globalThis;
   let value2 = box[name2];
@@ -4738,7 +4780,7 @@ function singleton(name2, create8) {
   return value2;
 }
 
-// ../tslib/strings/stringRandom.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/strings/stringRandom.ts
 var DEFAULT_CHAR_SET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZ";
 function stringRandom(length4, charSet) {
   if (length4 < 0) {
@@ -4755,7 +4797,7 @@ function stringRandom(length4, charSet) {
   return str2;
 }
 
-// ../tslib/strings/stringToName.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/strings/stringToName.ts
 function stringToName(...parts) {
   const goodParts = [];
   for (const part of parts) {
@@ -4766,7 +4808,7 @@ function stringToName(...parts) {
   return goodParts.join("-");
 }
 
-// ../tslib/timers/ITimer.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/timers/ITimer.ts
 var BaseTimerTickEvent = class {
   constructor() {
     this.t = 0;
@@ -4790,7 +4832,7 @@ var TimerTickEvent = class extends BaseTimerTickEvent {
   }
 };
 
-// ../tslib/timers/BaseTimer.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/timers/BaseTimer.ts
 var BaseTimer = class {
   constructor(targetFrameRate) {
     this.timer = null;
@@ -4842,7 +4884,7 @@ var BaseTimer = class {
   }
 };
 
-// ../tslib/timers/SetTimeoutTimer.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/timers/SetTimeoutTimer.ts
 var SetTimeoutTimer = class extends BaseTimer {
   constructor(targetFrameRate) {
     super(targetFrameRate);
@@ -4862,7 +4904,7 @@ var SetTimeoutTimer = class extends BaseTimer {
   }
 };
 
-// ../tslib/URLBuilder.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/URLBuilder.ts
 function parsePort(portString) {
   if (isDefined(portString) && portString.length > 0) {
     return parseFloat(portString);
@@ -5044,7 +5086,7 @@ var URLBuilder = class {
   }
 };
 
-// ../tslib/collections/mapInvert.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/mapInvert.ts
 function mapInvert(map) {
   const mapOut = /* @__PURE__ */ new Map();
   for (const [key, value2] of map) {
@@ -5053,7 +5095,7 @@ function mapInvert(map) {
   return mapOut;
 }
 
-// ../tslib/units/fileSize.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/units/fileSize.ts
 var base2Labels = /* @__PURE__ */ new Map([
   [1, "KiB"],
   [2, "MiB"],
@@ -5069,7 +5111,7 @@ var base10Labels = /* @__PURE__ */ new Map([
 var base2Sizes = mapInvert(base2Labels);
 var base10Sizes = mapInvert(base10Labels);
 
-// ../tslib/units/length.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/units/length.ts
 var MICROMETERS_PER_MILLIMETER = 1e3;
 var MILLIMETERS_PER_CENTIMETER = 10;
 var CENTIMETERS_PER_INCH = 2.54;
@@ -5140,7 +5182,7 @@ function feet2Meters(feet) {
   return feet / FEET_PER_METER;
 }
 
-// ../tslib/using.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/using.ts
 function interfaceSigCheck(obj2, ...funcNames) {
   if (!isObject(obj2)) {
     return false;
@@ -5177,8 +5219,80 @@ function dispose(val) {
     val.destroy();
   }
 }
+function using(val, thunk) {
+  try {
+    return thunk(val);
+  } finally {
+    dispose(val);
+  }
+}
 
-// ../dom/attrs.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher-base/Asset.ts
+var Asset = class {
+  constructor(path, getter) {
+    this.path = path;
+    this.getter = getter;
+    this.promise = new Promise((resolve, reject) => {
+      this.resolve = (value2) => {
+        this._result = value2;
+        this._finished = true;
+        resolve(value2);
+      };
+      this.reject = (reason) => {
+        this._error = reason;
+        this._finished = true;
+        reject(reason);
+      };
+    });
+  }
+  promise;
+  _result = null;
+  _error = null;
+  _started = false;
+  _finished = false;
+  get result() {
+    if (isDefined(this.error)) {
+      throw this.error;
+    }
+    return this._result;
+  }
+  get error() {
+    return this._error;
+  }
+  get started() {
+    return this._started;
+  }
+  get finished() {
+    return this._finished;
+  }
+  resolve = null;
+  reject = null;
+  getSize(fetcher) {
+    return fetcher.head(this.path).exec().then((response) => [this, response.contentLength]);
+  }
+  async getContent(prog) {
+    try {
+      const response = await this.getter(this.path, prog);
+      this.resolve(response);
+    } catch (err) {
+      this.reject(err);
+    }
+  }
+  get [Symbol.toStringTag]() {
+    return this.promise.toString();
+  }
+  then(onfulfilled, onrejected) {
+    return this.promise.then(onfulfilled, onrejected);
+  }
+  catch(onrejected) {
+    return this.promise.catch(onrejected);
+  }
+  finally(onfinally) {
+    return this.promise.finally(onfinally);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/attrs.ts
 var Attr = class {
   constructor(key, value2, bySetAttribute, ...tags) {
     this.key = key;
@@ -5280,7 +5394,7 @@ function htmlWidth(value2) {
   return new Attr("width", value2, false, "canvas", "embed", "iframe", "img", "input", "object", "video");
 }
 
-// ../dom/css.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/css.ts
 var CssProp = class {
   constructor(key, value2) {
     this.key = key;
@@ -5434,7 +5548,7 @@ function rule(selector, ...props) {
   return new CSSInJSRule(selector, props);
 }
 
-// ../dom/tags.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/tags.ts
 function isErsatzElement(obj2) {
   if (!isObject(obj2)) {
     return false;
@@ -5481,6 +5595,12 @@ function elementApply(elem, ...children) {
   }
   return elem;
 }
+function getElement(selector) {
+  return document.querySelector(selector);
+}
+function getInput(selector) {
+  return getElement(selector);
+}
 function tag(name2, ...rest) {
   let elem = null;
   for (const attr of rest) {
@@ -5504,10 +5624,10 @@ function elementClearChildren(elem) {
     elem.lastChild.remove();
   }
 }
-function elementSetText(elem, text) {
+function elementSetText(elem, text2) {
   elem = resolveElement(elem);
   elementClearChildren(elem);
-  elem.append(TextNode(text));
+  elem.append(TextNode(text2));
 }
 async function mediaElementCan(type2, elem, prog) {
   if (isDefined(prog)) {
@@ -5535,7 +5655,7 @@ function mediaElementCanPlay(elem, prog) {
 function mediaElementCanPlayThrough(elem, prog) {
   return mediaElementCan("canplaythrough", elem, prog);
 }
-function Audio(...rest) {
+function Audio2(...rest) {
   return tag("audio", ...rest);
 }
 function ButtonRaw(...rest) {
@@ -5586,6 +5706,9 @@ function Meter(...rest) {
 function Option(...rest) {
   return tag("option", ...rest);
 }
+function Script(...rest) {
+  return tag("script", ...rest);
+}
 function Select(...rest) {
   return tag("select", ...rest);
 }
@@ -5613,10 +5736,13 @@ function Style(...rest) {
   return elem;
 }
 function BackgroundAudio(autoplay, mute, looping, ...rest) {
-  return Audio(playsInline(true), controls(false), muted(mute), autoPlay(autoplay), loop(looping), styles(display("none")), ...rest);
+  return Audio2(playsInline(true), controls(false), muted(mute), autoPlay(autoplay), loop(looping), styles(display("none")), ...rest);
+}
+function BackgroundVideo(autoplay, mute, looping, ...rest) {
+  return Video(playsInline(true), controls(false), muted(mute), autoPlay(autoplay), loop(looping), styles(display("none")), ...rest);
 }
 
-// ../dom/canvas.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/canvas.ts
 var hasHTMLCanvas = "HTMLCanvasElement" in globalThis;
 var hasHTMLImage = "HTMLImageElement" in globalThis;
 var disableAdvancedSettings = false;
@@ -5684,6 +5810,13 @@ function createCanvasFromImageBitmap(img) {
   drawImageBitmapToCanvas2D(canv, img);
   return canv;
 }
+function drawImageToCanvas(canv, img) {
+  const g = canv.getContext("2d");
+  if (isNullOrUndefined(g)) {
+    throw new Error("Could not create 2d context for canvas");
+  }
+  g.drawImage(img, 0, 0);
+}
 function setCanvasSize(canv, w, h, superscale = 1) {
   w = Math.floor(w * superscale);
   h = Math.floor(h * superscale);
@@ -5715,7 +5848,7 @@ function setContextSize(ctx, w, h, superscale = 1) {
   }
 }
 
-// ../graphics2d/CanvasImage.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/graphics2d/CanvasImage.ts
 var CanvasImage = class extends TypedEventBase {
   constructor(width2, height2, options) {
     super();
@@ -5739,10 +5872,10 @@ var CanvasImage = class extends TypedEventBase {
     this.g.fillStyle = color;
     this.g.fillRect(x + margin2, y + margin2, width2 - 2 * margin2, height2 - 2 * margin2);
   }
-  drawText(text, x, y, align) {
+  drawText(text2, x, y, align) {
     this.g.textAlign = align;
-    this.g.strokeText(text, x, y);
-    this.g.fillText(text, x, y);
+    this.g.strokeText(text2, x, y);
+    this.g.fillText(text2, x, y);
   }
   redraw() {
     if ((this.visible || this.wasVisible) && this.onRedraw()) {
@@ -5792,7 +5925,7 @@ var CanvasImage = class extends TypedEventBase {
   }
 };
 
-// ../graphics2d/ArtificialHorizon.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/graphics2d/ArtificialHorizon.ts
 var ArtificialHorizon = class extends CanvasImage {
   _pitch = 0;
   _heading = 0;
@@ -5894,7 +6027,8 @@ var ArtificialHorizon = class extends CanvasImage {
   }
 };
 
-// ../dom/fonts.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/fonts.ts
+var DEFAULT_TEST_TEXT = "The quick brown fox jumps over the lazy dog";
 var loadedFonts = singleton("juniper::loadedFonts", () => []);
 function makeFont(style) {
   const fontParts = [];
@@ -5911,8 +6045,28 @@ function makeFont(style) {
   fontParts.push(style.fontFamily);
   return fontParts.join(" ");
 }
+async function loadFont(font, testString = null, prog) {
+  if (!isString(font)) {
+    font = makeFont(font);
+  }
+  if (loadedFonts.indexOf(font) === -1) {
+    testString = testString || DEFAULT_TEST_TEXT;
+    if (prog) {
+      prog.start(font);
+    }
+    const fonts = await document.fonts.load(font, testString);
+    if (prog) {
+      prog.end(font);
+    }
+    if (fonts.length === 0) {
+      console.warn(`Failed to load font "${font}". If this is a system font, just set the object's \`value\` property, instead of calling \`loadFontAndSetText\`.`);
+    } else {
+      loadedFonts.push(font);
+    }
+  }
+}
 
-// ../graphics2d/BatteryImage.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/graphics2d/BatteryImage.ts
 function isBatteryNavigator(nav) {
   return "getBattery" in nav;
 }
@@ -5997,7 +6151,7 @@ var BatteryImage = class extends CanvasImage {
 };
 __publicField(BatteryImage, "isAvailable", isBatteryNavigator(navigator));
 
-// ../graphics2d/TextImage.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/graphics2d/TextImage.ts
 var TextImage = class extends CanvasImage {
   constructor(options) {
     super(10, 10, options);
@@ -6449,7 +6603,7 @@ var TextImage = class extends CanvasImage {
   }
 };
 
-// ../graphics2d/ClockImage.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/graphics2d/ClockImage.ts
 var ClockImage = class extends TextImage {
   constructor() {
     super({
@@ -6493,7 +6647,7 @@ var ClockImage = class extends TextImage {
   }
 };
 
-// ../dom/onUserGesture.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/onUserGesture.ts
 var gestures = [
   "change",
   "click",
@@ -6520,7 +6674,7 @@ function onUserGesture(callback, test) {
   }
 }
 
-// ../audio/nodes.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/nodes.ts
 var hasAudioContext = "AudioContext" in globalThis;
 var hasAudioListener = hasAudioContext && "AudioListener" in globalThis;
 var hasOldAudioListener = hasAudioListener && "setPosition" in AudioListener.prototype;
@@ -6723,7 +6877,7 @@ function Panner(name2, audioCtx, options, ...rest) {
   return initAudio(name2, new PannerNode(audioCtx, options), ...rest);
 }
 
-// ../audio/Pose.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/Pose.ts
 var Pose = class {
   constructor() {
     this.t = 0;
@@ -6755,7 +6909,7 @@ var Pose = class {
   }
 };
 
-// ../audio/BaseAudioElement.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/BaseAudioElement.ts
 var BaseAudioElement = class extends TypedEventBase {
   constructor(id2, audioCtx, spatializer) {
     super();
@@ -6789,7 +6943,7 @@ var BaseAudioElement = class extends TypedEventBase {
   }
 };
 
-// ../audio/BaseSpatializer.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/BaseSpatializer.ts
 var BaseSpatializer = class {
   constructor(id2) {
     this.id = id2;
@@ -6804,7 +6958,7 @@ var BaseSpatializer = class {
   }
 };
 
-// ../audio/sources/spatializers/BaseEmitter.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/sources/spatializers/BaseEmitter.ts
 var BaseEmitter = class extends BaseSpatializer {
   constructor() {
     super(...arguments);
@@ -6821,7 +6975,7 @@ var BaseEmitter = class extends BaseSpatializer {
   }
 };
 
-// ../audio/sources/spatializers/NoSpatializationNode.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/sources/spatializers/NoSpatializationNode.ts
 var nodes = singleton("Juniper:Audio:Destinations:Spatializers:NoSpatializationNode:nodes", () => /* @__PURE__ */ new WeakMap());
 var NoSpatializationNode = class extends BaseEmitter {
   static instance(audioCtx) {
@@ -6840,7 +6994,7 @@ var NoSpatializationNode = class extends BaseEmitter {
   }
 };
 
-// ../audio/destinations/AudioDestination.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/destinations/AudioDestination.ts
 var AudioDestination = class extends BaseAudioElement {
   constructor(audioCtx, _trueDestination, listener) {
     super("final", audioCtx, listener);
@@ -6870,7 +7024,7 @@ var AudioDestination = class extends BaseAudioElement {
   }
 };
 
-// ../audio/destinations/spatializers/BaseListener.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/destinations/spatializers/BaseListener.ts
 var BaseListener = class extends BaseSpatializer {
   constructor(audioCtx) {
     super("listener");
@@ -6881,7 +7035,7 @@ var BaseListener = class extends BaseSpatializer {
   }
 };
 
-// ../audio/destinations/spatializers/WebAudioListenerNew.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/destinations/spatializers/WebAudioListenerNew.ts
 var WebAudioListenerNew = class extends BaseListener {
   constructor(audioCtx) {
     super(audioCtx);
@@ -6904,7 +7058,7 @@ var WebAudioListenerNew = class extends BaseListener {
   }
 };
 
-// ../audio/destinations/spatializers/WebAudioListenerOld.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/destinations/spatializers/WebAudioListenerOld.ts
 var WebAudioListenerOld = class extends BaseListener {
   constructor(audioCtx) {
     super(audioCtx);
@@ -6920,7 +7074,7 @@ var WebAudioListenerOld = class extends BaseListener {
   }
 };
 
-// ../audio/DeviceManager.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/DeviceManager.ts
 var canChangeAudioOutput = isFunction(HTMLAudioElement.prototype.setSinkId);
 function filterDeviceDuplicates(devices) {
   const filtered = [];
@@ -6944,9 +7098,9 @@ var DeviceManagerAudioOutputChangedEvent = class extends TypedEvent {
   }
 };
 var DeviceManagerAudioInputChangedEvent = class extends TypedEvent {
-  constructor(audio) {
+  constructor(audio2) {
     super("audioinputchanged");
-    this.audio = audio;
+    this.audio = audio2;
   }
 };
 var DeviceManagerVideoInputChangedEvent = class extends TypedEvent {
@@ -6963,18 +7117,18 @@ var DeviceManager = class extends TypedEventBase {
     super();
     this.element = element;
     this.needsVideoDevice = needsVideoDevice;
-    this._hasAudioPermission = false;
-    this._hasVideoPermission = false;
-    this._currentStream = null;
     this.ready = this.start();
     Object.seal(this);
   }
+  _hasAudioPermission = false;
   get hasAudioPermission() {
     return this._hasAudioPermission;
   }
+  _hasVideoPermission = false;
   get hasVideoPermission() {
     return this._hasVideoPermission;
   }
+  _currentStream = null;
   get currentStream() {
     return this._currentStream;
   }
@@ -6988,6 +7142,7 @@ var DeviceManager = class extends TypedEventBase {
       this._currentStream = v;
     }
   }
+  ready;
   async start() {
     if (canChangeAudioOutput) {
       const device = await this.getPreferredAudioOutput();
@@ -7190,7 +7345,7 @@ var DeviceManager = class extends TypedEventBase {
   }
 };
 
-// ../audio/effects/EchoEffect.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/effects/EchoEffect.ts
 function* fibGen(a, b, count2 = -1) {
   let i = 0;
   while (count2 < 0 || i < count2) {
@@ -7235,7 +7390,7 @@ var EchoEffectNode = class {
   }
 };
 
-// ../audio/effects/RadioEffect.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/effects/RadioEffect.ts
 function RadioEffect(name2, audioCtx, connectTo) {
   return new RadioEffectNode(name2, audioCtx, connectTo);
 }
@@ -7252,7 +7407,7 @@ var RadioEffectNode = class {
   }
 };
 
-// ../audio/effects/WallEffect.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/effects/WallEffect.ts
 function WallEffect(name2, audioCtx, connectTo) {
   return new WallEffectNode(name2, audioCtx, connectTo);
 }
@@ -7269,14 +7424,14 @@ var WallEffectNode = class {
   }
 };
 
-// ../audio/effects/index.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/effects/index.ts
 var effectStore = /* @__PURE__ */ new Map([
   ["Radio", RadioEffect],
   ["Wall", WallEffect],
   ["Echo", EchoEffect]
 ]);
 
-// ../audio/sources/BaseAudioSource.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/sources/BaseAudioSource.ts
 var AudioSourceAddedEvent = class extends TypedEvent {
   constructor(source) {
     super("sourceadded");
@@ -7354,7 +7509,7 @@ var BaseAudioSource = class extends BaseAudioElement {
   }
 };
 
-// ../audio/sources/IPlayable.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/sources/IPlayable.ts
 var MediaElementSourceEvent = class extends TypedEvent {
   constructor(type2, source) {
     super(type2);
@@ -7395,7 +7550,7 @@ var MediaElementSourceProgressEvent = class extends MediaElementSourceEvent {
   }
 };
 
-// ../audio/sources/AudioElementSource.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/sources/AudioElementSource.ts
 var elementRefCounts = /* @__PURE__ */ new WeakMap();
 var nodeRefCounts = /* @__PURE__ */ new WeakMap();
 function count(source, delta3) {
@@ -7498,14 +7653,14 @@ var AudioElementSource = class extends BaseAudioSource {
   }
 };
 
-// ../audio/sources/AudioStreamSource.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/sources/AudioStreamSource.ts
 var AudioStreamSource = class extends BaseAudioSource {
   constructor(id2, audioCtx, spatializer, ...effectNames) {
     super(id2, audioCtx, spatializer, ...effectNames);
   }
 };
 
-// ../audio/sources/spatializers/BaseWebAudioPanner.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/sources/spatializers/BaseWebAudioPanner.ts
 var BaseWebAudioPanner = class extends BaseEmitter {
   constructor(id2, audioCtx) {
     super(id2);
@@ -7552,7 +7707,7 @@ var BaseWebAudioPanner = class extends BaseEmitter {
   }
 };
 
-// ../audio/sources/spatializers/WebAudioPannerNew.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/sources/spatializers/WebAudioPannerNew.ts
 var WebAudioPannerNew = class extends BaseWebAudioPanner {
   constructor(id2, audioCtx) {
     super(id2, audioCtx);
@@ -7570,7 +7725,7 @@ var WebAudioPannerNew = class extends BaseWebAudioPanner {
   }
 };
 
-// ../audio/sources/spatializers/WebAudioPannerOld.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/sources/spatializers/WebAudioPannerOld.ts
 var WebAudioPannerOld = class extends BaseWebAudioPanner {
   constructor(id2, audioCtx) {
     super(id2, audioCtx);
@@ -7584,7 +7739,7 @@ var WebAudioPannerOld = class extends BaseWebAudioPanner {
   }
 };
 
-// ../audio/AudioManager.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/AudioManager.ts
 if (!("AudioContext" in globalThis) && "webkitAudioContext" in globalThis) {
   globalThis.AudioContext = globalThis.webkitAudioContext;
 }
@@ -7627,7 +7782,7 @@ var AudioManager = class extends TypedEventBase {
     let destination = null;
     if (canChangeAudioOutput) {
       destination = MediaStreamDestination("final-destination", this.audioCtx);
-      this.element = Audio(id("Audio-Device-Manager"), playsInline(true), autoPlay(true), srcObject(destination.stream), styles(display("none")));
+      this.element = Audio2(id("Audio-Device-Manager"), playsInline(true), autoPlay(true), srcObject(destination.stream), styles(display("none")));
       elementApply(document.body, this);
     } else {
       destination = this.audioCtx.destination;
@@ -7974,7 +8129,7 @@ var AudioManager = class extends TypedEventBase {
   }
 };
 
-// ../audio/sources/IPlayer.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/sources/IPlayer.ts
 var MediaPlayerEvent = class extends MediaElementSourceEvent {
   constructor(type2, source) {
     super(type2, source);
@@ -7986,7 +8141,7 @@ var MediaPlayerLoadingEvent = class extends MediaPlayerEvent {
   }
 };
 
-// ../audio/sources/AudioPlayer.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/sources/AudioPlayer.ts
 var AudioPlayer = class extends BaseAudioSource {
   loadingEvt;
   loadEvt;
@@ -8021,7 +8176,7 @@ var AudioPlayer = class extends BaseAudioSource {
   potatoes = new Array();
   constructor(audioCtx) {
     super("JuniperAudioPlayer", audioCtx, NoSpatializationNode.instance(audioCtx));
-    this.element = Audio(playsInline(true), autoPlay(false), loop(false), controls(true));
+    this.element = Audio2(playsInline(true), autoPlay(false), loop(false), controls(true));
     this.input = MediaElementSource("JuniperAudioPlayer-Input", audioCtx, this.element);
     this.loadingEvt = new MediaPlayerLoadingEvent(this);
     this.loadEvt = new MediaElementSourceLoadedEvent(this);
@@ -8093,8 +8248,8 @@ var AudioPlayer = class extends BaseAudioSource {
       arraySortByKeyInPlace(data.audios, (f) => -f.resolution);
       arrayReplace(this.sources, ...data.audios);
     }
-    for (const audio of this.sources) {
-      this.sourcesByURL.set(audio.url, audio);
+    for (const audio2 of this.sources) {
+      this.sourcesByURL.set(audio2.url, audio2);
     }
     if (!this.hasSources) {
       throw new Error("No audio sources");
@@ -8206,10 +8361,10 @@ var AudioPlayer = class extends BaseAudioSource {
   }
 };
 
-// ../webrtc/constants.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/webrtc/constants.ts
 var DEFAULT_LOCAL_USER_ID = "local-user";
 
-// ../threejs/ButtonFactory.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/ButtonFactory.ts
 async function loadIcon(fetcher, setName, iconName, iconPath, popper) {
   const { content } = await fetcher.get(iconPath).progress(popper.pop()).image();
   return [
@@ -8346,7 +8501,7 @@ var ButtonFactory = class {
   }
 };
 
-// ../graphics2d/animation/Animator.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/graphics2d/animation/Animator.ts
 var Animator = class {
   animations = new Array();
   update(dt) {
@@ -8375,7 +8530,7 @@ var Animator = class {
   }
 };
 
-// ../graphics2d/animation/tween.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/graphics2d/animation/tween.ts
 function bump(t2, k) {
   const a = t2 * Math.PI;
   return 0.5 * (1 - Math.cos(a)) - k * Math.sin(2 * a);
@@ -8385,7 +8540,7 @@ function jump(t2, k) {
   return t2 * t2 + k * Math.cos(a);
 }
 
-// ../widgets/DialogBox.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/widgets/DialogBox.ts
 Style(rule(".dialog, .dialog-container", position("fixed")), rule(".dialog", top(0), left(0), width("100%"), height("100%"), backgroundColor("rgba(0, 0, 0, 0.5)"), zIndex(100)), rule(".dialog-container", top("50%"), left("50%"), maxWidth("100%"), maxHeight("100%"), transform("translateX(-50%) translateY(-50%)"), backgroundColor("white"), boxShadow("rgba(0,0,0,0.5) 0px 5px 30px"), display("grid"), gridTemplateColumns("2em auto 2em"), gridTemplateRows("auto 1fr auto 2em")), rule(".dialog .title-bar", gridArea(1, 1, 2, -1), padding("0.25em")), rule(".dialog-content", gridArea(2, 2, -4, -2), overflow("auto")), rule(".dialog-controls", gridArea(-2, 2, -3, -2)), rule(".dialog .confirm-button", float("right")), rule(".dialog h1, .dialog h2, .dialog h3, .dialog h4, .dialog h5, .dialog h6", textAlign("left")), rule(".dialog select", maxWidth("10em")));
 var DialogBox = class {
   element;
@@ -8444,7 +8599,7 @@ var DialogBox = class {
   }
 };
 
-// ../threejs/typeChecks.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/typeChecks.ts
 function isMesh(obj2) {
   return isDefined(obj2) && obj2.isMesh;
 }
@@ -8464,7 +8619,7 @@ function isEuler(obj2) {
   return isDefined(obj2) && obj2.isEuler;
 }
 
-// ../threejs/objects.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/objects.ts
 function isErsatzObject(obj2) {
   return isDefined(obj2) && isObject3D(obj2.object);
 }
@@ -8513,7 +8668,7 @@ function objectSetEnabled(obj2, enabled) {
   }
 }
 
-// ../threejs/animation/scaleOnHover.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/animation/scaleOnHover.ts
 var scaledItems = singleton("Juniper:ScaledItems", () => /* @__PURE__ */ new Map());
 var start = 1;
 var end = 1.1;
@@ -8582,7 +8737,7 @@ function scaleOnHover(obj2) {
   scaledItems.set(obj2, new ScaleState(obj2));
 }
 
-// ../threejs/examples/lines/LineMaterial.js
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/examples/lines/LineMaterial.js
 THREE.UniformsLib.line = {
   worldUnits: { value: 1 },
   linewidth: { value: 1 },
@@ -9123,7 +9278,7 @@ var LineMaterial = class extends THREE.ShaderMaterial {
 };
 LineMaterial.prototype.isLineMaterial = true;
 
-// ../threejs/materials.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/materials.ts
 var materials = singleton("Juniper:Three:Materials", () => /* @__PURE__ */ new Map());
 function del(obj2, name2) {
   if (name2 in obj2) {
@@ -9164,7 +9319,7 @@ function solidTransparentBlack(opacity) {
 var litGrey = /* @__PURE__ */ lit({ color: grey });
 var litWhite = /* @__PURE__ */ lit({ color: white });
 
-// ../threejs/Plane.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/Plane.ts
 var plane = new THREE.PlaneBufferGeometry(1, 1, 1, 1);
 plane.name = "PlaneGeom";
 var BasePlane = class extends THREE.Mesh {
@@ -9181,7 +9336,7 @@ var PlaneCollider = class extends BasePlane {
   }
 };
 
-// ../threejs/cleanup.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/cleanup.ts
 function cleanup(obj2) {
   const cleanupQ = new Array();
   const cleanupSeen = /* @__PURE__ */ new Set();
@@ -9210,7 +9365,7 @@ function cleanup(obj2) {
   cleanupSeen.clear();
 }
 
-// ../threejs/objectGetRelativePose.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/objectGetRelativePose.ts
 var M = new THREE.Matrix4();
 var P = new THREE.Vector3();
 function objectGetRelativePose(ref, obj2, position2, quaternion, scale4) {
@@ -9218,7 +9373,7 @@ function objectGetRelativePose(ref, obj2, position2, quaternion, scale4) {
   position2.set(P.x, P.y, P.z, 1);
 }
 
-// ../threejs/TexturedMesh.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/TexturedMesh.ts
 var inchesPerMeter = 39.3701;
 var TexturedMesh = class extends THREE.Mesh {
   constructor(geom2, mat) {
@@ -9302,13 +9457,13 @@ var TexturedMesh = class extends THREE.Mesh {
   }
 };
 
-// ../threejs/Image2DMesh.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/Image2DMesh.ts
 var P2 = new THREE.Vector4();
 var Q = new THREE.Quaternion();
 var S = new THREE.Vector3();
 var copyCounter = 0;
 var Image2DMesh = class extends THREE.Object3D {
-  constructor(env, name2, isStatic, materialOrOptions = null) {
+  constructor(env2, name2, isStatic, materialOrOptions = null) {
     super();
     this.isStatic = isStatic;
     this.lastMatrixWorld = new THREE.Matrix4();
@@ -9322,8 +9477,8 @@ var Image2DMesh = class extends THREE.Object3D {
     this.env = null;
     this.mesh = null;
     this.webXRLayersEnabled = true;
-    if (env) {
-      this.setEnvAndName(env, name2);
+    if (env2) {
+      this.setEnvAndName(env2, name2);
       let material = isMeshBasicMaterial(materialOrOptions) ? materialOrOptions : solidTransparent(Object.assign({}, materialOrOptions, { name: this.name }));
       this.mesh = new TexturedMesh(plane, material);
       this.add(this.mesh);
@@ -9332,8 +9487,8 @@ var Image2DMesh = class extends THREE.Object3D {
   dispose() {
     cleanup(this.layer);
   }
-  setEnvAndName(env, name2) {
-    this.env = env;
+  setEnvAndName(env2, name2) {
+    this.env = env2;
     this.name = name2;
     this.tryWebXRLayers &&= this.env && this.env.hasXRCompositionLayers;
   }
@@ -9448,11 +9603,11 @@ var Image2DMesh = class extends THREE.Object3D {
   }
 };
 
-// ../threejs/TextMesh.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/TextMesh.ts
 var redrawnEvt = { type: "redrawn" };
 var TextMesh = class extends Image2DMesh {
-  constructor(env, name2, materialOptions) {
-    super(env, name2, false, materialOptions);
+  constructor(env2, name2, materialOptions) {
+    super(env2, name2, false, materialOptions);
     this._textImage = null;
     this._onRedrawn = this.onRedrawn.bind(this);
   }
@@ -9596,12 +9751,12 @@ var TextMesh = class extends Image2DMesh {
   }
 };
 
-// ../threejs/TextMeshLabel.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/TextMeshLabel.ts
 var TextMeshLabel = class extends THREE.Object3D {
-  constructor(fetcher, env, name2, value2, textImageOptions) {
+  constructor(fetcher, env2, name2, value2, textImageOptions) {
     super();
     this.fetcher = fetcher;
-    this.env = env;
+    this.env = env2;
     this._disabled = false;
     if (isDefined(value2)) {
       this.name = name2;
@@ -9642,10 +9797,10 @@ var TextMeshLabel = class extends THREE.Object3D {
   }
 };
 
-// ../threejs/TextMeshButton.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/TextMeshButton.ts
 var TextMeshButton = class extends TextMeshLabel {
-  constructor(fetcher, env, name2, value2, textImageOptions) {
-    super(fetcher, env, name2, value2, textImageOptions);
+  constructor(fetcher, env2, name2, value2, textImageOptions) {
+    super(fetcher, env2, name2, value2, textImageOptions);
     this.collider = null;
     this.isClickable = true;
     if (isDefined(value2)) {
@@ -9661,7 +9816,7 @@ var TextMeshButton = class extends TextMeshLabel {
   }
 };
 
-// ../threejs/ConfirmationDialog.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/ConfirmationDialog.ts
 var baseTextStyle = {
   bgStrokeColor: "#000000",
   bgStrokeSize: 0.04,
@@ -9704,9 +9859,9 @@ function newStyle(baseStyle, fontFamily) {
   return Object.assign({}, baseStyle, { fontFamily });
 }
 var ConfirmationDialog = class extends DialogBox {
-  constructor(env, fontFamily) {
+  constructor(env2, fontFamily) {
     super("Confirm action");
-    this.env = env;
+    this.env = env2;
     this.object = new THREE.Object3D();
     this.name = "ConfirmationDialog";
     this.root = new THREE.Object3D();
@@ -9772,7 +9927,7 @@ var ConfirmationDialog = class extends DialogBox {
   }
 };
 
-// ../threejs/isVisible.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/isVisible.ts
 function isVisible(obj2) {
   while (obj2 != null) {
     if (!obj2.visible) {
@@ -9783,7 +9938,7 @@ function isVisible(obj2) {
   return true;
 }
 
-// ../threejs/eventSystem/InteractiveObject3D.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/InteractiveObject3D.ts
 function isCollider(obj2) {
   return isObject3D(obj2) && isBoolean(obj2.isCollider) && isDefined(obj2.parent);
 }
@@ -9815,7 +9970,7 @@ function isDisabled(hit) {
   return isInteractiveHit(hit) && isCollider(hit.object) && (checkDisabled(hit.object) || checkDisabled(hit.object.parent));
 }
 
-// ../threejs/eventSystem/InteractionAudio.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/InteractionAudio.ts
 function makeClipName(type2, isDisabled2) {
   if (type2 === "click" && isDisabled2) {
     type2 = "error";
@@ -9823,8 +9978,8 @@ function makeClipName(type2, isDisabled2) {
   return `InteractionAudio-${type2}`;
 }
 var InteractionAudio = class {
-  constructor(audio, eventSys) {
-    this.audio = audio;
+  constructor(audio2, eventSys) {
+    this.audio = audio2;
     this.eventSys = eventSys;
     this.enabled = true;
     const playClip = (evt) => {
@@ -9847,7 +10002,7 @@ var InteractionAudio = class {
   }
 };
 
-// ../threejs/ScreenMode.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/ScreenMode.ts
 var ScreenMode = /* @__PURE__ */ ((ScreenMode2) => {
   ScreenMode2["None"] = "None";
   ScreenMode2["Fullscreen"] = "Fullscreen";
@@ -9856,7 +10011,7 @@ var ScreenMode = /* @__PURE__ */ ((ScreenMode2) => {
   return ScreenMode2;
 })(ScreenMode || {});
 
-// ../threejs/ScreenUI.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/ScreenUI.ts
 Style(rule("#controls", position("absolute"), left(0), top(0), width("100%"), height("100%")), rule("#controls", display("grid"), fontSize("20pt"), gridTemplateRows("auto 1fr auto")), rule("#controls, #controls *", pointerEvents("none")), rule("#controls canvas", height("58px")), rule("#controls > .row", display("grid"), margin("10px 5px"), gridTemplateColumns("repeat(2, auto)")), rule("#controls > .row.top", gridRow(1)), rule("#controls > .row.middle", gridRow(2, -2)), rule("#controls > .row.bottom", gridRow(-2)), rule("#controls > .row > .cell", display("flex")), rule("#controls > .row > .cell.left", gridColumn(1)), rule("#controls > .row > .cell.right", gridColumn(-2), flexFlow("row-reverse")), rule("#controls > .row > .cell > .btn", borderRadius(0), backgroundColor("#1e4388"), height("58px !important"), width("58px"), padding("0.25em"), margin("0 5px"), pointerEvents("initial")), rule("#controls .btn-primary img", height("calc(100% - 0.5em)")));
 var ScreenUI = class {
   constructor() {
@@ -9869,7 +10024,7 @@ var ScreenUI = class {
   }
 };
 
-// ../threejs/SpaceUI.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/SpaceUI.ts
 var radius = 1.25;
 var dAngleH = deg2rad(30);
 var dAngleV = deg2rad(32);
@@ -9892,7 +10047,7 @@ var SpaceUI = class extends THREE.Object3D {
   }
 };
 
-// ../mediatypes/util.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/util.ts
 var typePattern = /([^\/]+)\/(.+)/;
 var subTypePattern = /(?:([^\.]+)\.)?([^\+;]+)(?:\+([^;]+))?((?:; *([^=]+)=([^;]+))*)/;
 var MediaType = class {
@@ -10051,20 +10206,41 @@ function specialize(group2) {
   return create2.bind(null, group2);
 }
 
-// ../mediatypes/image.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/application.ts
+var application = /* @__PURE__ */ specialize("application");
+var Application_Javascript = /* @__PURE__ */ application("javascript", "js");
+var Application_Json = /* @__PURE__ */ application("json", "json");
+var Application_Wasm = /* @__PURE__ */ application("wasm", "wasm");
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/audio.ts
+var audio = /* @__PURE__ */ specialize("audio");
+var Audio_Mpeg = /* @__PURE__ */ audio("mpeg", "mp3", "mp2", "mp2a", "mpga", "m2a", "m3a");
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/image.ts
 var image = /* @__PURE__ */ specialize("image");
+var Image_Jpeg = /* @__PURE__ */ image("jpeg", "jpeg", "jpg", "jpe");
+var Image_Png = /* @__PURE__ */ image("png", "png");
 var Image_Vendor_Google_StreetView_Pano = image("vnd.google.streetview.pano");
 
-// ../mediatypes/video.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/model.ts
+var model = /* @__PURE__ */ specialize("model");
+var Model_Gltf_Binary = /* @__PURE__ */ model("gltf-binary", "glb");
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/text.ts
+var text = /* @__PURE__ */ specialize("text");
+var Text_Plain = /* @__PURE__ */ text("plain", "txt", "text", "conf", "def", "list", "log", "in");
+var Text_Xml = /* @__PURE__ */ text("xml");
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/video.ts
 var video = /* @__PURE__ */ specialize("video");
 var Video_Vendor_Mpeg_Dash_Mpd = video("vnd.mpeg.dash.mpd", "mpd");
 
-// ../video/data.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/video/data.ts
 function isVideoRecord(obj2) {
   return isString(obj2.vcodec);
 }
 
-// ../video/BaseVideoPlayer.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/video/BaseVideoPlayer.ts
 var BaseVideoPlayer = class extends BaseAudioSource {
   loadingEvt;
   loadEvt;
@@ -10105,7 +10281,7 @@ var BaseVideoPlayer = class extends BaseAudioSource {
   constructor(audioCtx) {
     super("JuniperVideoPlayer", audioCtx, NoSpatializationNode.instance(audioCtx));
     this.video = this.createMediaElement(Video, controls(true));
-    this.audio = this.createMediaElement(Audio, controls(false));
+    this.audio = this.createMediaElement(Audio2, controls(false));
     this.input = Gain("JuniperVideoPlayer-combiner", audioCtx);
     this.videoSource = MediaElementSource("JuniperVideoPlayer-VideoNode", audioCtx, this.video, this.input);
     this.audioSource = MediaElementSource("JuniperVideoPlayer-AudioNode", audioCtx, this.audio, this.input);
@@ -10374,7 +10550,7 @@ var BaseVideoPlayer = class extends BaseAudioSource {
   }
 };
 
-// ../threejs/CustomGeometry.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/CustomGeometry.ts
 function normalizeQuad(quad) {
   return [
     normalizeTriangle([quad[1], quad[0], quad[2]]),
@@ -10540,7 +10716,7 @@ function mapEACUV(uv) {
   return 2 * Math.atan(2 * uv) / Math.PI;
 }
 
-// ../threejs/VideoPlayer3D.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/VideoPlayer3D.ts
 var VideoPlayer3D = class extends BaseVideoPlayer {
   constructor(layerMgr, audioCtx) {
     super(audioCtx);
@@ -10774,7 +10950,7 @@ function rot(def) {
   return def.map(rotQuad);
 }
 
-// ../threejs/Collider.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/Collider.ts
 var Collider = class extends THREE.Mesh {
   constructor(geometry) {
     super(geometry, solidTransparentBlack(0));
@@ -10783,7 +10959,7 @@ var Collider = class extends THREE.Mesh {
   }
 };
 
-// ../threejs/MeshLabel.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/MeshLabel.ts
 var MeshLabel = class extends THREE.Object3D {
   constructor(name2, geometry, enabledMaterial, disabledMaterial, size) {
     super();
@@ -10820,7 +10996,7 @@ var MeshLabel = class extends THREE.Object3D {
   }
 };
 
-// ../threejs/MeshButton.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/MeshButton.ts
 var MeshButton = class extends MeshLabel {
   constructor(name2, geometry, enabledMaterial, disabledMaterial, size) {
     super(name2, geometry, enabledMaterial, disabledMaterial, size);
@@ -10840,7 +11016,7 @@ var MeshButton = class extends MeshLabel {
   }
 };
 
-// ../threejs/widgets/ButtonImageWidget.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/widgets/ButtonImageWidget.ts
 var ButtonImageWidget = class {
   constructor(buttons, setName, iconName) {
     this.mesh = null;
@@ -10883,10 +11059,10 @@ var ButtonImageWidget = class {
   }
 };
 
-// ../threejs/widgets/CanvasImageMesh.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/widgets/CanvasImageMesh.ts
 var CanvasImageMesh = class extends Image2DMesh {
-  constructor(env, name2, image2) {
-    super(env, name2, false);
+  constructor(env2, name2, image2) {
+    super(env2, name2, false);
     this.image = image2;
     if (this.mesh) {
       this.setImage(image2);
@@ -10924,7 +11100,7 @@ var CanvasImageMesh = class extends Image2DMesh {
   }
 };
 
-// ../dom/elementSetClass.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/elementSetClass.ts
 function elementSetClass(elem, enabled, className2) {
   const canEnable = isDefined(className2);
   const hasEnabled = canEnable && elem.classList.contains(className2);
@@ -10937,7 +11113,7 @@ function elementSetClass(elem, enabled, className2) {
   }
 }
 
-// ../dom/buttonSetEnabled.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/buttonSetEnabled.ts
 var types = [
   "danger",
   "dark",
@@ -10966,7 +11142,7 @@ function buttonSetEnabled(button, enabled, btnType, label) {
   }
 }
 
-// ../threejs/widgets/ToggleButton.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/widgets/ToggleButton.ts
 var ToggleButton = class {
   constructor(buttons, setName, activeName, inactiveName) {
     this.buttons = buttons;
@@ -11041,8 +11217,8 @@ var ToggleButton = class {
   }
   refreshState() {
     const type2 = this.active ? this.inactiveName : this.activeName;
-    const text = `${type2} ${this.setName}`;
-    this.element.title = this.btnImage.title = text;
+    const text2 = `${type2} ${this.setName}`;
+    this.element.title = this.btnImage.title = text2;
     this.btnImage.src = this.buttons.getImageSrc(this.setName, type2);
     buttonSetEnabled(this, this.available && this.visible && this.enabled, "primary");
     elementSetDisplay(this, this.available && this.visible, "inline-block");
@@ -11055,7 +11231,7 @@ var ToggleButton = class {
   }
 };
 
-// ../threejs/widgets/ScreenModeToggleButton.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/widgets/ScreenModeToggleButton.ts
 var ScreenModeToggleButton = class extends ToggleButton {
   constructor(buttons, mode) {
     const name2 = ScreenMode[mode];
@@ -11064,7 +11240,7 @@ var ScreenModeToggleButton = class extends ToggleButton {
   }
 };
 
-// ../threejs/widgets/widgets.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/widgets/widgets.ts
 function widgetSetEnabled(obj2, enabled, buttonType) {
   if (obj2.element instanceof HTMLButtonElement) {
     buttonSetEnabled(obj2, enabled, buttonType);
@@ -11072,7 +11248,7 @@ function widgetSetEnabled(obj2, enabled, buttonType) {
   objectSetEnabled(obj2, enabled);
 }
 
-// ../threejs/environment/ApplicationLoader.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/environment/ApplicationLoader.ts
 var ApplicationLoaderEvent = class extends TypedEvent {
   constructor(type2, appName) {
     super(type2);
@@ -11113,10 +11289,10 @@ var ApplicationLoadRequest = class {
   }
 };
 var ApplicationLoader = class extends TypedEventBase {
-  constructor(env, JS_EXT) {
+  constructor(env2, JS_EXT2) {
     super();
-    this.env = env;
-    this.JS_EXT = JS_EXT;
+    this.env = env2;
+    this.JS_EXT = JS_EXT2;
     this.loadedModules = /* @__PURE__ */ new Map();
     this.loadingApps = /* @__PURE__ */ new Map();
     this.currentApps = /* @__PURE__ */ new Map();
@@ -11172,11 +11348,11 @@ var ApplicationLoader = class extends TypedEventBase {
       return app;
     });
   }
-  async loadAppInstance(env, name2, params, prog) {
+  async loadAppInstance(env2, name2, params, prog) {
     if (!this.currentApps.has(name2)) {
       const [appLoad, assetLoad] = progressSplitWeighted(prog, [1, 10]);
       const App = await this.loadAppConstructor(name2, appLoad);
-      const app = new App(env);
+      const app = new App(env2);
       app.addEventListener("quit", () => this.unloadApp(name2));
       if (isDefined(params)) {
         await app.init(params);
@@ -11199,7 +11375,7 @@ var ApplicationLoader = class extends TypedEventBase {
   }
 };
 
-// ../threejs/animation/lookAngles.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/animation/lookAngles.ts
 var D = new THREE.Vector3();
 function getLookHeading(dir) {
   D.copy(dir);
@@ -11211,7 +11387,7 @@ function getLookPitch(dir) {
   return angleClamp(Math.asin(dir.y));
 }
 
-// ../threejs/animation/BodyFollower.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/animation/BodyFollower.ts
 var targetPos = new THREE.Vector3();
 var targetAngle = 0;
 var dPos = new THREE.Vector3();
@@ -11304,7 +11480,7 @@ var BodyFollower = class extends THREE.Object3D {
   }
 };
 
-// ../dom/evts.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/evts.ts
 function isModifierless(evt) {
   return !(evt.shiftKey || evt.altKey || evt.ctrlKey || evt.metaKey);
 }
@@ -11336,7 +11512,7 @@ function onInput(callback, opts) {
   return new HtmlEvt("input", callback, opts);
 }
 
-// ../event-system/AvatarMovedEvent.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/event-system/AvatarMovedEvent.ts
 var AvatarMovedEvent = class extends TypedEvent {
   px = 0;
   py = 0;
@@ -11366,7 +11542,7 @@ var AvatarMovedEvent = class extends TypedEvent {
   }
 };
 
-// ../threejs/resolveCamera.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/resolveCamera.ts
 function resolveCamera(renderer, camera) {
   if (renderer.xr.isPresenting) {
     return renderer.xr.getCamera();
@@ -11375,7 +11551,7 @@ function resolveCamera(renderer, camera) {
   }
 }
 
-// ../threejs/setRightUpFwdPosFromMatrix.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/setRightUpFwdPosFromMatrix.ts
 function setRightUpFwdPosFromMatrix(matrix, R2, U3, F2, P4) {
   const m = matrix.elements;
   R2.set(m[0], m[1], m[2]);
@@ -11387,7 +11563,7 @@ function setRightUpFwdPosFromMatrix(matrix, R2, U3, F2, P4) {
   F2.normalize();
 }
 
-// ../threejs/AvatarLocal.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/AvatarLocal.ts
 var MOUSE_SENSITIVITY_SCALE = 100;
 var TOUCH_SENSITIVITY_SCALE = 50;
 var GAMEPAD_SENSITIVITY_SCALE = 1;
@@ -11411,7 +11587,7 @@ function isPermissionedDeviceOrientationEvent(obj2) {
   return obj2 === DeviceOrientationEvent && "requestPermission" in obj2 && isFunction(obj2.requestPermission);
 }
 var AvatarLocal = class extends TypedEventBase {
-  constructor(renderer, camera, fader, defaultAvatarHeight) {
+  constructor(renderer, camera, fader, defaultAvatarHeight2) {
     super();
     this.renderer = renderer;
     this.camera = camera;
@@ -11464,7 +11640,7 @@ var AvatarLocal = class extends TypedEventBase {
     this.onDeviceOrientationChangeEvent = null;
     this.onScreenOrientationChangeEvent = null;
     this.motionEnabled = false;
-    this._height = defaultAvatarHeight;
+    this._height = defaultAvatarHeight2;
     this.head = obj("Head", fader);
     this.onKeyDown = (evt) => {
       const ok = isModifierless(evt);
@@ -11799,7 +11975,7 @@ var AvatarLocal = class extends TypedEventBase {
   }
 };
 
-// ../threejs/CameraFOVControl.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/CameraFOVControl.ts
 var CameraControl = class {
   constructor(camera) {
     this.camera = camera;
@@ -11831,7 +12007,7 @@ var CameraControl = class {
   }
 };
 
-// ../threejs/layers.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/layers.ts
 var FOREGROUND = 0;
 var PURGATORY = 3;
 function deepSetLayer(obj2, level) {
@@ -11843,7 +12019,7 @@ function deepEnableLayer(obj2, level) {
   obj2.traverse((o) => o.layers.enable(level));
 }
 
-// ../threejs/eventSystem/BaseCursor.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/BaseCursor.ts
 var T = new THREE.Vector3();
 var V = new THREE.Vector3();
 var Q4 = new THREE.Quaternion();
@@ -11891,7 +12067,7 @@ var BaseCursor = class {
   }
 };
 
-// ../threejs/eventSystem/Cursor3D.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/Cursor3D.ts
 var Cursor3D = class extends BaseCursor {
   constructor(cursorSystem) {
     super();
@@ -11947,7 +12123,7 @@ var Cursor3D = class extends BaseCursor {
   }
 };
 
-// ../event-system/ObjectMovedEvent.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/event-system/ObjectMovedEvent.ts
 var ObjectMovedEvent = class extends TypedEvent {
   constructor(name2 = null) {
     super("objectMoved");
@@ -11975,7 +12151,7 @@ var ObjectMovedEvent = class extends TypedEvent {
   }
 };
 
-// ../threejs/eventSystem/resolveObj.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/resolveObj.ts
 function resolveObj(hit) {
   if (!hit || !isCollider(hit.object)) {
     return null;
@@ -11987,7 +12163,7 @@ function resolveObj(hit) {
   return obj2;
 }
 
-// ../threejs/eventSystem/EventSystemEvent.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/EventSystemEvent.ts
 var EventSystemEvent = class extends TypedEvent {
   constructor(type2, pointer) {
     super(type2);
@@ -12048,7 +12224,7 @@ var EventSystemThreeJSEvent = class {
   }
 };
 
-// ../widgets/EventedGamepad.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/widgets/EventedGamepad.ts
 var GamepadButtonEvent = class extends TypedEvent {
   constructor(type2, button) {
     super(type2);
@@ -12173,7 +12349,7 @@ var EventedGamepad = class extends TypedEventBase {
   }
 };
 
-// ../threejs/examples/loaders/GLTFLoader.js
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/examples/loaders/GLTFLoader.js
 var GLTFLoader = class extends THREE.Loader {
   constructor(manager) {
     super(manager);
@@ -14438,7 +14614,7 @@ function toTrianglesDrawMode(geometry, drawMode) {
   return newGeometry;
 }
 
-// ../threejs/examples/webxr/motion-controllers.module.js
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/examples/webxr/motion-controllers.module.js
 var Constants = {
   Handedness: Object.freeze({
     NONE: "none",
@@ -14700,7 +14876,7 @@ var MotionController = class {
   }
 };
 
-// ../threejs/examples/webxr/XRControllerModelFactory.js
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/examples/webxr/XRControllerModelFactory.js
 var DEFAULT_PROFILES_PATH = "https://cdn.jsdelivr.net/npm/@webxr-input-profiles/assets@1.0/dist/profiles";
 var DEFAULT_PROFILE = "generic-trigger";
 var XRControllerModel = class extends THREE.Object3D {
@@ -14837,7 +15013,7 @@ var XRControllerModelFactory = class {
   }
 };
 
-// ../threejs/examples/webxr/XRHandPrimitiveModel.js
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/examples/webxr/XRHandPrimitiveModel.js
 var _matrix = new THREE.Matrix4();
 var _vector = new THREE.Vector3();
 var _oculusBrowserV14CorrectionRight = new THREE.Matrix4().identity();
@@ -14913,7 +15089,7 @@ var XRHandPrimitiveModel = class {
   }
 };
 
-// ../threejs/examples/webxr/XRHandMeshModel.js
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/examples/webxr/XRHandMeshModel.js
 var _oculusBrowserV14CorrectionRight2 = new THREE.Quaternion().identity();
 var _oculusBrowserV14CorrectionLeft2 = new THREE.Quaternion().identity();
 if (/OculusBrowser\/14\./.test(navigator.userAgent)) {
@@ -14992,7 +15168,7 @@ var XRHandMeshModel = class {
   }
 };
 
-// ../threejs/examples/webxr/XRHandModelFactory.js
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/examples/webxr/XRHandModelFactory.js
 var XRHandModel = class extends THREE.Object3D {
   constructor(controller) {
     super();
@@ -15039,7 +15215,7 @@ var XRHandModelFactory = class {
   }
 };
 
-// ../event-system/PointerState.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/event-system/PointerState.ts
 var PointerState = class {
   buttons = 0;
   moveDistance = 0;
@@ -15084,7 +15260,7 @@ var PointerState = class {
   }
 };
 
-// ../threejs/setGeometryUVsForCubemaps.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/setGeometryUVsForCubemaps.ts
 function setGeometryUVsForCubemaps(geom2) {
   const positions = geom2.attributes.position;
   const normals = geom2.attributes.normal;
@@ -15160,7 +15336,7 @@ function setGeometryUVsForCubemaps(geom2) {
   }
 }
 
-// ../threejs/Cube.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/Cube.ts
 var cube = new THREE.BoxBufferGeometry(1, 1, 1, 1, 1, 1);
 cube.name = "CubeGeom";
 var invCube = cube.clone();
@@ -15180,7 +15356,7 @@ var Cube = class extends BaseCube {
   }
 };
 
-// ../threejs/eventSystem/CursorColor.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/CursorColor.ts
 var CursorColor = class extends BaseCursor {
   constructor() {
     super();
@@ -15236,7 +15412,7 @@ var CursorColor = class extends BaseCursor {
   }
 };
 
-// ../threejs/eventSystem/CursorSystem.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/CursorSystem.ts
 var CursorSystem = class extends BaseCursor {
   constructor(element) {
     super();
@@ -15271,7 +15447,7 @@ var CursorSystem = class extends BaseCursor {
   }
 };
 
-// ../threejs/eventSystem/CursorXRMouse.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/CursorXRMouse.ts
 var CursorXRMouse = class extends BaseCursor {
   constructor(renderer) {
     super();
@@ -15316,7 +15492,7 @@ var CursorXRMouse = class extends BaseCursor {
   }
 };
 
-// ../threejs/eventSystem/BasePointer.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/BasePointer.ts
 var MAX_DRAG_DISTANCE = 5;
 var BasePointer = class {
   constructor(type2, name2, evtSys, cursor) {
@@ -15468,7 +15644,7 @@ var BasePointer = class {
   }
 };
 
-// ../threejs/examples/lines/LineSegmentsGeometry.js
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/examples/lines/LineSegmentsGeometry.js
 var _box = new THREE.Box3();
 var _vector2 = new THREE.Vector3();
 var LineSegmentsGeometry = class extends THREE.InstancedBufferGeometry {
@@ -15592,7 +15768,7 @@ var LineSegmentsGeometry = class extends THREE.InstancedBufferGeometry {
 };
 LineSegmentsGeometry.prototype.isLineSegmentsGeometry = true;
 
-// ../threejs/examples/lines/LineSegments2.js
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/examples/lines/LineSegments2.js
 var _start = new THREE.Vector3();
 var _end = new THREE.Vector3();
 var _start4 = new THREE.Vector4();
@@ -15747,7 +15923,7 @@ var LineSegments2 = class extends THREE.Mesh {
 };
 LineSegments2.prototype.isLineSegments2 = true;
 
-// ../threejs/examples/lines/LineGeometry.js
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/examples/lines/LineGeometry.js
 var LineGeometry = class extends LineSegmentsGeometry {
   constructor() {
     super();
@@ -15794,7 +15970,7 @@ var LineGeometry = class extends LineSegmentsGeometry {
 };
 LineGeometry.prototype.isLineGeometry = true;
 
-// ../threejs/examples/lines/Line2.js
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/examples/lines/Line2.js
 var Line2 = class extends LineSegments2 {
   constructor(geometry = new LineGeometry(), material = new LineMaterial({ color: Math.random() * 16777215 })) {
     super(geometry, material);
@@ -15803,7 +15979,7 @@ var Line2 = class extends LineSegments2 {
 };
 Line2.prototype.isLine2 = true;
 
-// ../threejs/eventSystem/Laser.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/Laser.ts
 var geom = new LineGeometry();
 geom.setPositions([
   0,
@@ -15833,7 +16009,7 @@ var Laser = class extends THREE.Object3D {
   }
 };
 
-// ../threejs/eventSystem/PointerHand.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/PointerHand.ts
 var mcModelFactory = new XRControllerModelFactory();
 var handModelFactory = new XRHandModelFactory();
 var riftSCorrection = new THREE.Matrix4().makeRotationX(-7 * Math.PI / 9);
@@ -16012,7 +16188,7 @@ var PointerHand = class extends BasePointer {
   }
 };
 
-// ../threejs/eventSystem/BaseScreenPointer.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/BaseScreenPointer.ts
 var BaseScreenPointer = class extends BasePointer {
   constructor(type2, name2, evtSys, renderer, camera, cursor) {
     super(type2, name2, evtSys, cursor);
@@ -16108,7 +16284,7 @@ var BaseScreenPointer = class extends BasePointer {
   }
 };
 
-// ../threejs/eventSystem/PointerMouse.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/PointerMouse.ts
 var PointerMouse = class extends BaseScreenPointer {
   constructor(evtSys, renderer, camera) {
     const onPrep = (evt) => {
@@ -16155,7 +16331,7 @@ var PointerMouse = class extends BaseScreenPointer {
   }
 };
 
-// ../threejs/eventSystem/PointerMultiTouch.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/PointerMultiTouch.ts
 function dist2(a, b) {
   const dx = b.offsetX - a.offsetY;
   const dy = b.offsetY - a.offsetY;
@@ -16217,7 +16393,7 @@ var PointerMultiTouch = class extends BaseScreenPointer {
   }
 };
 
-// ../threejs/eventSystem/PointerPen.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/PointerPen.ts
 var PointerPen = class extends BaseScreenPointer {
   constructor(evtSys, renderer, camera) {
     const onPrep = (evt) => {
@@ -16241,16 +16417,16 @@ var PointerPen = class extends BaseScreenPointer {
   }
 };
 
-// ../threejs/eventSystem/EventSystem.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/EventSystem.ts
 function correctHit(hit, pointer) {
   if (isDefined(hit)) {
     hit.point.copy(pointer.direction).multiplyScalar(hit.distance).add(pointer.origin);
   }
 }
 var EventSystem = class extends TypedEventBase {
-  constructor(env) {
+  constructor(env2) {
     super();
-    this.env = env;
+    this.env = env2;
     this.raycaster = new THREE.Raycaster();
     this.hands = new Array();
     this.localPointerMovedEvt = new ObjectMovedEvent();
@@ -16517,7 +16693,7 @@ var EventSystem = class extends TypedEventBase {
   }
 };
 
-// ../threejs/Fader.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/Fader.ts
 var completeEvt = new TypedEvent("fadecomplete");
 var Fader = class extends TypedEventBase {
   constructor(name2, t2 = 0.15) {
@@ -16565,7 +16741,7 @@ var Fader = class extends TypedEventBase {
   }
 };
 
-// ../threejs/LoadingBar.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/LoadingBar.ts
 function chrome(x, y, z, w, h, d) {
   const chromeMesh = new Cube(w, h, d, litWhite);
   chromeMesh.position.set(x, y, z);
@@ -16609,7 +16785,7 @@ var LoadingBar = class extends BaseProgress {
   }
 };
 
-// ../dom/fullscreen.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/fullscreen.ts
 if (!hasFullscreenAPI()) {
   const Elm = Element.prototype;
   const Doc = Document.prototype;
@@ -16664,11 +16840,11 @@ function hasFullscreenAPI() {
   return "requestFullscreen" in HTMLElement.prototype;
 }
 
-// ../../node_modules/webxr-polyfill/src/lib/global.js
+// ../Juniper/src/Juniper.TypeScript/node_modules/webxr-polyfill/src/lib/global.js
 var _global = typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};
 var global_default = _global;
 
-// ../../node_modules/webxr-polyfill/src/lib/EventTarget.js
+// ../Juniper/src/Juniper.TypeScript/node_modules/webxr-polyfill/src/lib/EventTarget.js
 var PRIVATE = Symbol("@@webxr-polyfill/EventTarget");
 var EventTarget = class {
   constructor() {
@@ -16716,12 +16892,12 @@ var EventTarget = class {
   }
 };
 
-// ../../node_modules/webxr-polyfill/node_modules/gl-matrix/src/gl-matrix/common.js
+// ../Juniper/src/Juniper.TypeScript/node_modules/webxr-polyfill/node_modules/gl-matrix/src/gl-matrix/common.js
 var EPSILON2 = 1e-6;
 var ARRAY_TYPE2 = typeof Float32Array !== "undefined" ? Float32Array : Array;
 var degree2 = Math.PI / 180;
 
-// ../../node_modules/webxr-polyfill/node_modules/gl-matrix/src/gl-matrix/mat4.js
+// ../Juniper/src/Juniper.TypeScript/node_modules/webxr-polyfill/node_modules/gl-matrix/src/gl-matrix/mat4.js
 function create3() {
   let out = new ARRAY_TYPE2(16);
   if (ARRAY_TYPE2 != Float32Array) {
@@ -16953,7 +17129,7 @@ function perspective(out, fovy, aspect, near, far) {
   return out;
 }
 
-// ../../node_modules/webxr-polyfill/node_modules/gl-matrix/src/gl-matrix/vec3.js
+// ../Juniper/src/Juniper.TypeScript/node_modules/webxr-polyfill/node_modules/gl-matrix/src/gl-matrix/vec3.js
 function create4() {
   let out = new ARRAY_TYPE2(3);
   if (ARRAY_TYPE2 != Float32Array) {
@@ -17085,7 +17261,7 @@ var forEach2 = function() {
   };
 }();
 
-// ../../node_modules/webxr-polyfill/node_modules/gl-matrix/src/gl-matrix/mat3.js
+// ../Juniper/src/Juniper.TypeScript/node_modules/webxr-polyfill/node_modules/gl-matrix/src/gl-matrix/mat3.js
 function create5() {
   let out = new ARRAY_TYPE2(9);
   if (ARRAY_TYPE2 != Float32Array) {
@@ -17102,7 +17278,7 @@ function create5() {
   return out;
 }
 
-// ../../node_modules/webxr-polyfill/node_modules/gl-matrix/src/gl-matrix/vec4.js
+// ../Juniper/src/Juniper.TypeScript/node_modules/webxr-polyfill/node_modules/gl-matrix/src/gl-matrix/vec4.js
 function create6() {
   let out = new ARRAY_TYPE2(4);
   if (ARRAY_TYPE2 != Float32Array) {
@@ -17181,7 +17357,7 @@ var forEach3 = function() {
   };
 }();
 
-// ../../node_modules/webxr-polyfill/node_modules/gl-matrix/src/gl-matrix/quat.js
+// ../Juniper/src/Juniper.TypeScript/node_modules/webxr-polyfill/node_modules/gl-matrix/src/gl-matrix/quat.js
 function create7() {
   let out = new ARRAY_TYPE2(4);
   if (ARRAY_TYPE2 != Float32Array) {
@@ -17350,7 +17526,7 @@ var setAxes = function() {
   };
 }();
 
-// ../../node_modules/webxr-polyfill/src/api/XRRigidTransform.js
+// ../Juniper/src/Juniper.TypeScript/node_modules/webxr-polyfill/src/api/XRRigidTransform.js
 var PRIVATE2 = Symbol("@@webxr-polyfill/XRRigidTransform");
 var XRRigidTransform2 = class {
   constructor() {
@@ -17427,7 +17603,7 @@ var XRRigidTransform2 = class {
   }
 };
 
-// ../../node_modules/webxr-polyfill/src/api/XRSpace.js
+// ../Juniper/src/Juniper.TypeScript/node_modules/webxr-polyfill/src/api/XRSpace.js
 var PRIVATE3 = Symbol("@@webxr-polyfill/XRSpace");
 var XRSpace = class {
   constructor(specialType = null, inputSource = null) {
@@ -17492,7 +17668,7 @@ var XRSpace = class {
   }
 };
 
-// ../../node_modules/webxr-polyfill/src/api/XRReferenceSpace.js
+// ../Juniper/src/Juniper.TypeScript/node_modules/webxr-polyfill/src/api/XRReferenceSpace.js
 var DEFAULT_EMULATION_HEIGHT = 1.6;
 var PRIVATE4 = Symbol("@@webxr-polyfill/XRReferenceSpace");
 var XRReferenceSpaceTypes = [
@@ -17548,7 +17724,7 @@ var XRReferenceSpace = class extends XRSpace {
   }
 };
 
-// ../../node_modules/webxr-polyfill/src/api/XRSystem.js
+// ../Juniper/src/Juniper.TypeScript/node_modules/webxr-polyfill/src/api/XRSystem.js
 var PRIVATE5 = Symbol("@@webxr-polyfill/XR");
 var XRSessionModes = ["inline", "immersive-vr", "immersive-ar"];
 var DEFAULT_SESSION_OPTIONS = {
@@ -17645,7 +17821,7 @@ var XRSystem = class extends EventTarget {
   }
 };
 
-// ../../node_modules/webxr-polyfill/src/lib/now.js
+// ../Juniper/src/Juniper.TypeScript/node_modules/webxr-polyfill/src/lib/now.js
 var now;
 if ("performance" in global_default === false) {
   let startTime = Date.now();
@@ -17655,7 +17831,7 @@ if ("performance" in global_default === false) {
 }
 var now_default = now;
 
-// ../../node_modules/webxr-polyfill/src/api/XRPose.js
+// ../Juniper/src/Juniper.TypeScript/node_modules/webxr-polyfill/src/api/XRPose.js
 var PRIVATE6 = Symbol("@@webxr-polyfill/XRPose");
 var XRPose2 = class {
   constructor(transform2, emulatedPosition) {
@@ -17672,7 +17848,7 @@ var XRPose2 = class {
   }
 };
 
-// ../../node_modules/webxr-polyfill/src/api/XRViewerPose.js
+// ../Juniper/src/Juniper.TypeScript/node_modules/webxr-polyfill/src/api/XRViewerPose.js
 var PRIVATE7 = Symbol("@@webxr-polyfill/XRViewerPose");
 var XRViewerPose = class extends XRPose2 {
   constructor(transform2, views, emulatedPosition = false) {
@@ -17686,7 +17862,7 @@ var XRViewerPose = class extends XRPose2 {
   }
 };
 
-// ../../node_modules/webxr-polyfill/src/api/XRViewport.js
+// ../Juniper/src/Juniper.TypeScript/node_modules/webxr-polyfill/src/api/XRViewport.js
 var PRIVATE8 = Symbol("@@webxr-polyfill/XRViewport");
 var XRViewport = class {
   constructor(target) {
@@ -17706,7 +17882,7 @@ var XRViewport = class {
   }
 };
 
-// ../../node_modules/webxr-polyfill/src/api/XRView.js
+// ../Juniper/src/Juniper.TypeScript/node_modules/webxr-polyfill/src/api/XRView.js
 var XREyes = ["left", "right", "none"];
 var PRIVATE9 = Symbol("@@webxr-polyfill/XRView");
 var XRView = class {
@@ -17742,7 +17918,7 @@ var XRView = class {
   }
 };
 
-// ../../node_modules/webxr-polyfill/src/api/XRFrame.js
+// ../Juniper/src/Juniper.TypeScript/node_modules/webxr-polyfill/src/api/XRFrame.js
 var PRIVATE11 = Symbol("@@webxr-polyfill/XRFrame");
 var NON_ACTIVE_MSG = "XRFrame access outside the callback that produced it is invalid.";
 var NON_ANIMFRAME_MSG = "getViewerPose can only be called on XRFrame objects passed to XRSession.requestAnimationFrame callbacks.";
@@ -17803,7 +17979,7 @@ var XRFrame = class {
   }
 };
 
-// ../../node_modules/webxr-polyfill/src/api/XRRenderState.js
+// ../Juniper/src/Juniper.TypeScript/node_modules/webxr-polyfill/src/api/XRRenderState.js
 var PRIVATE12 = Symbol("@@webxr-polyfill/XRRenderState");
 var XRRenderStateInit = Object.freeze({
   depthNear: 0.1,
@@ -17830,11 +18006,11 @@ var XRRenderState = class {
   }
 };
 
-// ../../node_modules/webxr-polyfill/src/constants.js
+// ../Juniper/src/Juniper.TypeScript/node_modules/webxr-polyfill/src/constants.js
 var POLYFILLED_XR_COMPATIBLE = Symbol("@@webxr-polyfill/polyfilled-xr-compatible");
 var XR_COMPATIBLE = Symbol("@@webxr-polyfill/xr-compatible");
 
-// ../../node_modules/webxr-polyfill/src/api/XRWebGLLayer.js
+// ../Juniper/src/Juniper.TypeScript/node_modules/webxr-polyfill/src/api/XRWebGLLayer.js
 var PRIVATE13 = Symbol("@@webxr-polyfill/XRWebGLLayer");
 var XRWebGLLayerInit = Object.freeze({
   antialias: true,
@@ -17902,7 +18078,7 @@ var XRWebGLLayer2 = class {
   }
 };
 
-// ../../node_modules/webxr-polyfill/src/api/XRInputSourceEvent.js
+// ../Juniper/src/Juniper.TypeScript/node_modules/webxr-polyfill/src/api/XRInputSourceEvent.js
 var PRIVATE14 = Symbol("@@webxr-polyfill/XRInputSourceEvent");
 var XRInputSourceEvent = class extends Event {
   constructor(type2, eventInitDict) {
@@ -17921,7 +18097,7 @@ var XRInputSourceEvent = class extends Event {
   }
 };
 
-// ../../node_modules/webxr-polyfill/src/api/XRSessionEvent.js
+// ../Juniper/src/Juniper.TypeScript/node_modules/webxr-polyfill/src/api/XRSessionEvent.js
 var PRIVATE15 = Symbol("@@webxr-polyfill/XRSessionEvent");
 var XRSessionEvent = class extends Event {
   constructor(type2, eventInitDict) {
@@ -17936,7 +18112,7 @@ var XRSessionEvent = class extends Event {
   }
 };
 
-// ../../node_modules/webxr-polyfill/src/api/XRInputSourcesChangeEvent.js
+// ../Juniper/src/Juniper.TypeScript/node_modules/webxr-polyfill/src/api/XRInputSourcesChangeEvent.js
 var PRIVATE16 = Symbol("@@webxr-polyfill/XRInputSourcesChangeEvent");
 var XRInputSourcesChangeEvent = class extends Event {
   constructor(type2, eventInitDict) {
@@ -17959,7 +18135,7 @@ var XRInputSourcesChangeEvent = class extends Event {
   }
 };
 
-// ../../node_modules/webxr-polyfill/src/api/XRSession.js
+// ../Juniper/src/Juniper.TypeScript/node_modules/webxr-polyfill/src/api/XRSession.js
 var PRIVATE10 = Symbol("@@webxr-polyfill/XRSession");
 var XRViewSpace = class extends XRSpace {
   constructor(eye) {
@@ -18256,7 +18432,7 @@ var XRSession2 = class extends EventTarget {
   }
 };
 
-// ../../node_modules/webxr-polyfill/src/api/XRInputSource.js
+// ../Juniper/src/Juniper.TypeScript/node_modules/webxr-polyfill/src/api/XRInputSource.js
 var PRIVATE17 = Symbol("@@webxr-polyfill/XRInputSource");
 var XRInputSource = class {
   constructor(impl) {
@@ -18290,7 +18466,7 @@ var XRInputSource = class {
   }
 };
 
-// ../../node_modules/webxr-polyfill/src/api/XRReferenceSpaceEvent.js
+// ../Juniper/src/Juniper.TypeScript/node_modules/webxr-polyfill/src/api/XRReferenceSpaceEvent.js
 var PRIVATE18 = Symbol("@@webxr-polyfill/XRReferenceSpaceEvent");
 var XRReferenceSpaceEvent = class extends Event {
   constructor(type2, eventInitDict) {
@@ -18309,7 +18485,7 @@ var XRReferenceSpaceEvent = class extends Event {
   }
 };
 
-// ../../node_modules/webxr-polyfill/src/api/index.js
+// ../Juniper/src/Juniper.TypeScript/node_modules/webxr-polyfill/src/api/index.js
 var api_default = {
   XRSystem,
   XRSession: XRSession2,
@@ -18330,7 +18506,7 @@ var api_default = {
   XRPose: XRPose2
 };
 
-// ../../node_modules/webxr-polyfill/src/polyfill-globals.js
+// ../Juniper/src/Juniper.TypeScript/node_modules/webxr-polyfill/src/polyfill-globals.js
 var polyfillMakeXRCompatible = (Context) => {
   if (typeof Context.prototype.makeXRCompatible === "function") {
     return false;
@@ -18355,7 +18531,7 @@ var polyfillGetContext = (Canvas2) => {
   };
 };
 
-// ../../node_modules/webxr-polyfill/src/utils.js
+// ../Juniper/src/Juniper.TypeScript/node_modules/webxr-polyfill/src/utils.js
 var isImageBitmapSupported = (global2) => !!(global2.ImageBitmapRenderingContext && global2.createImageBitmap);
 var isMobile2 = (global2) => {
   var check = false;
@@ -18372,10 +18548,10 @@ var applyCanvasStylesForMinimalRendering = (canvas) => {
   canvas.style.top = canvas.style.left = "0px";
 };
 
-// ../../node_modules/webxr-polyfill/src/devices/CardboardXRDevice.js
+// ../Juniper/src/Juniper.TypeScript/node_modules/webxr-polyfill/src/devices/CardboardXRDevice.js
 var import_cardboard_vr_display = __toESM(require_cardboard_vr_display());
 
-// ../../node_modules/webxr-polyfill/src/devices/XRDevice.js
+// ../Juniper/src/Juniper.TypeScript/node_modules/webxr-polyfill/src/devices/XRDevice.js
 var XRDevice = class extends EventTarget {
   constructor(global2) {
     super();
@@ -18443,7 +18619,7 @@ var XRDevice = class extends EventTarget {
   }
 };
 
-// ../../node_modules/webxr-polyfill/src/devices/GamepadMappings.js
+// ../Juniper/src/Juniper.TypeScript/node_modules/webxr-polyfill/src/devices/GamepadMappings.js
 var daydream = {
   mapping: "",
   profiles: ["google-daydream", "generic-trigger-touchpad"],
@@ -18591,7 +18767,7 @@ var GamepadMappings = {
 };
 var GamepadMappings_default = GamepadMappings;
 
-// ../../node_modules/webxr-polyfill/src/lib/OrientationArmModel.js
+// ../Juniper/src/Juniper.TypeScript/node_modules/webxr-polyfill/src/lib/OrientationArmModel.js
 var HEAD_ELBOW_OFFSET_RIGHTHANDED = fromValues2(0.155, -0.465, -0.15);
 var HEAD_ELBOW_OFFSET_LEFTHANDED = fromValues2(-0.155, -0.465, -0.15);
 var ELBOW_WRIST_OFFSET = fromValues2(0, 0, -0.25);
@@ -18743,7 +18919,7 @@ var OrientationArmModel = class {
   }
 };
 
-// ../../node_modules/webxr-polyfill/src/devices/GamepadXRInputSource.js
+// ../Juniper/src/Juniper.TypeScript/node_modules/webxr-polyfill/src/devices/GamepadXRInputSource.js
 var PRIVATE19 = Symbol("@@webxr-polyfill/XRRemappedGamepad");
 var PLACEHOLDER_BUTTON = { pressed: false, touched: false, value: 0 };
 Object.freeze(PLACEHOLDER_BUTTON);
@@ -18961,7 +19137,7 @@ var GamepadXRInputSource = class {
   }
 };
 
-// ../../node_modules/webxr-polyfill/src/devices/WebVRDevice.js
+// ../Juniper/src/Juniper.TypeScript/node_modules/webxr-polyfill/src/devices/WebVRDevice.js
 var PRIVATE20 = Symbol("@@webxr-polyfill/WebVRDevice");
 var TEST_ENV = false;
 var EXTRA_PRESENTATION_ATTRIBUTES = {
@@ -19322,7 +19498,7 @@ var WebVRDevice = class extends XRDevice {
   }
 };
 
-// ../../node_modules/webxr-polyfill/src/devices/CardboardXRDevice.js
+// ../Juniper/src/Juniper.TypeScript/node_modules/webxr-polyfill/src/devices/CardboardXRDevice.js
 var CardboardXRDevice = class extends WebVRDevice {
   constructor(global2, cardboardConfig) {
     const display2 = new import_cardboard_vr_display.default(cardboardConfig || {});
@@ -19339,7 +19515,7 @@ var CardboardXRDevice = class extends WebVRDevice {
   }
 };
 
-// ../../node_modules/webxr-polyfill/src/devices/InlineDevice.js
+// ../Juniper/src/Juniper.TypeScript/node_modules/webxr-polyfill/src/devices/InlineDevice.js
 var TEST_ENV2 = false;
 var SESSION_ID2 = 0;
 var Session2 = class {
@@ -19443,7 +19619,7 @@ var InlineDevice = class extends XRDevice {
   }
 };
 
-// ../../node_modules/webxr-polyfill/src/devices.js
+// ../Juniper/src/Juniper.TypeScript/node_modules/webxr-polyfill/src/devices.js
 var getWebVRDevice = async function(global2) {
   let device = null;
   if ("getVRDisplays" in global2.navigator) {
@@ -19480,7 +19656,7 @@ var requestXRDevice = async function(global2, config) {
   return new InlineDevice(global2);
 };
 
-// ../../node_modules/webxr-polyfill/src/WebXRPolyfill.js
+// ../Juniper/src/Juniper.TypeScript/node_modules/webxr-polyfill/src/WebXRPolyfill.js
 var CONFIG_DEFAULTS = {
   global: global_default,
   webvr: true,
@@ -19566,7 +19742,7 @@ host this content on a secure origin for the best user experience.
   }
 };
 
-// ../threejs/ScreenControl.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/ScreenControl.ts
 if (!navigator.xr) {
   console.info("Polyfilling WebXR API");
   new WebXRPolyfill();
@@ -19601,12 +19777,12 @@ var xrModes = /* @__PURE__ */ new Map([
   }]
 ]);
 var ScreenControl = class extends TypedEventBase {
-  constructor(renderer, camera, fullscreenElement, enableFullResolution) {
+  constructor(renderer, camera, fullscreenElement, enableFullResolution2) {
     super();
     this.renderer = renderer;
     this.camera = camera;
     this.fullscreenElement = fullscreenElement;
-    this.enableFullResolution = enableFullResolution;
+    this.enableFullResolution = enableFullResolution2;
     this._currentMode = "None" /* None */;
     this.buttons = /* @__PURE__ */ new Map();
     this.currentSession = null;
@@ -19797,7 +19973,7 @@ var ScreenControl = class extends TypedEventBase {
   }
 };
 
-// ../threejs/Skybox.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/Skybox.ts
 var U2 = new THREE.Vector3(0, 1, 0);
 var FACE_SIZE = 2048;
 var FACE_SIZE_HALF = FACE_SIZE / 2;
@@ -19825,8 +20001,8 @@ var CUBEMAP_PATTERN = {
 };
 var black2 = new THREE.Color(0);
 var Skybox = class {
-  constructor(env) {
-    this.env = env;
+  constructor(env2) {
+    this.env = env2;
     this.rt = new THREE.WebGLCubeRenderTarget(FACE_SIZE);
     this.rtScene = new THREE.Scene();
     this.rtCamera = new THREE.CubeCamera(0.01, 10, this.rt);
@@ -20012,7 +20188,7 @@ var Skybox = class {
   }
 };
 
-// ../threejs/environment/XRTimer.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/environment/XRTimer.ts
 var XRTimerTickEvent = class extends BaseTimerTickEvent {
   constructor() {
     super();
@@ -20076,7 +20252,7 @@ var XRTimer = class {
   }
 };
 
-// ../threejs/environment/BaseEnvironment.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/environment/BaseEnvironment.ts
 var spectator = new THREE.PerspectiveCamera();
 var lastViewport = new THREE.Vector4();
 var curViewport = new THREE.Vector4();
@@ -20084,10 +20260,10 @@ var gridWidth = 15;
 var gridSize = feet2Meters(gridWidth);
 Style(rule("#frontBuffer", position("absolute"), left(0), top(0), width("100%"), height("100%"), margin(0), padding(0), border(0), touchAction("none")));
 var BaseEnvironment = class extends TypedEventBase {
-  constructor(canvas, fetcher, defaultAvatarHeight, enableFullResolution) {
+  constructor(canvas, fetcher, defaultAvatarHeight2, enableFullResolution2) {
     super();
     this.fetcher = fetcher;
-    this.defaultAvatarHeight = defaultAvatarHeight;
+    this.defaultAvatarHeight = defaultAvatarHeight2;
     this.layers = new Array();
     this.layerSortOrder = /* @__PURE__ */ new Map();
     this.fadeDepth = 0;
@@ -20121,10 +20297,10 @@ var BaseEnvironment = class extends TypedEventBase {
     });
     this.renderer.domElement.tabIndex = 1;
     this.fovControl = new CameraControl(this.camera);
-    this.screenControl = new ScreenControl(this.renderer, this.camera, this.renderer.domElement.parentElement, enableFullResolution);
+    this.screenControl = new ScreenControl(this.renderer, this.camera, this.renderer.domElement.parentElement, enableFullResolution2);
     this.fader = new Fader("ViewFader");
     this.worldUISpace = new BodyFollower("WorldUISpace", 0.2, 20, 0.125);
-    this.avatar = new AvatarLocal(this.renderer, this.camera, this.fader, defaultAvatarHeight);
+    this.avatar = new AvatarLocal(this.renderer, this.camera, this.fader, defaultAvatarHeight2);
     this.eventSystem = new EventSystem(this);
     this.skybox = new Skybox(this);
     this.timer = new XRTimer(this.renderer);
@@ -20299,12 +20475,12 @@ var BaseEnvironment = class extends TypedEventBase {
   }
   async loadModel(path, prog) {
     const loader = new GLTFLoader();
-    const model = await loader.loadAsync(path, (evt) => {
+    const model2 = await loader.loadAsync(path, (evt) => {
       if (isDefined(prog)) {
         prog.report(evt.loaded, evt.total, path);
       }
     });
-    model.scene.traverse((m) => {
+    model2.scene.traverse((m) => {
       if (isMesh(m)) {
         m.isCollider = true;
         const material = m.material;
@@ -20312,11 +20488,11 @@ var BaseEnvironment = class extends TypedEventBase {
         material.needsUpdate = true;
       }
     });
-    return model.scene;
+    return model2.scene;
   }
   async load3DCursor(path, prog) {
-    const model = await this.loadModel(path, prog);
-    const children = model.children.slice(0);
+    const model2 = await this.loadModel(path, prog);
+    const children = model2.children.slice(0);
     for (const child of children) {
       this.cursor3D.add(child.name, child);
     }
@@ -20328,7 +20504,7 @@ var BaseEnvironment = class extends TypedEventBase {
   }
 };
 
-// ../webrtc/ActivityDetector.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/webrtc/ActivityDetector.ts
 var ActivityDetector = class {
   constructor(name2, audioCtx) {
     this.name = name2;
@@ -20364,7 +20540,7 @@ var ActivityDetector = class {
   }
 };
 
-// ../widgets/InputRangeWithNumber.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/widgets/InputRangeWithNumber.ts
 Style(rule(".input-range-with-number", display("grid"), gridAutoFlow("column"), columnGap("5px"), gridTemplateColumns("1fr auto")));
 var InputRangeWithNumberElement = class extends TypedEventBase {
   element;
@@ -20411,7 +20587,7 @@ function InputRangeWithNumber(...rest) {
   return new InputRangeWithNumberElement(...rest);
 }
 
-// ../widgets/PropertyList.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/widgets/PropertyList.ts
 var PropertyGroup = class {
   constructor(name2, ...properties) {
     this.name = name2;
@@ -20496,12 +20672,12 @@ var PropertyList = class {
   }
 };
 
-// ../threejs/environment/DeviceDialog.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/environment/DeviceDialog.ts
 var MIC_GROUP = "micFields" + stringRandom(8);
 var DeviceDialog = class extends DialogBox {
-  constructor(env) {
+  constructor(env2) {
     super("Configure devices");
-    this.env = env;
+    this.env = env2;
     this.micLookup = null;
     this.spkrLookup = null;
     this.spkrVolumeControl = null;
@@ -20523,7 +20699,7 @@ var DeviceDialog = class extends DialogBox {
       "Input level",
       this.micScenario = Meter()
     ], ["Volume", this.micVolumeControl = InputRangeWithNumber(min2(0), max2(100), step(1), value(0), onInput(() => {
-      env.audio.input.gain.setValueAtTime(this.micVolumeControl.valueAsNumber / 100, 0);
+      env2.audio.input.gain.setValueAtTime(this.micVolumeControl.valueAsNumber / 100, 0);
     }))], "Output")));
     this.env.audio.devices.addEventListener("audioinputchanged", (evt) => {
       this.microphones.value = evt.audio && evt.audio.deviceId || "";
@@ -20555,7 +20731,7 @@ var DeviceDialog = class extends DialogBox {
       }))
     ], this.headphoneWarning = Div(className("alert alert-warning"), "\u{1F3A7}\u{1F399}\uFE0F This site has a voice chat feature. Voice chat is best experienced using headphones."), [
       "Volume",
-      this.spkrVolumeControl = InputRangeWithNumber(min2(0), max2(100), step(1), value(0), onInput(() => env.audio.audioDestination.volume = this.spkrVolumeControl.valueAsNumber / 100))
+      this.spkrVolumeControl = InputRangeWithNumber(min2(0), max2(100), step(1), value(0), onInput(() => env2.audio.audioDestination.volume = this.spkrVolumeControl.valueAsNumber / 100))
     ]);
     this.activity = new ActivityDetector("device-settings-dialog-activity", this.env.audio.audioCtx);
     this.timer.addTickHandler(() => {
@@ -20608,7 +20784,7 @@ var DeviceDialog = class extends DialogBox {
   }
 };
 
-// ../threejs/environment/Environment.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/environment/Environment.ts
 var EnvironmentRoomJoinedEvent = class extends TypedEvent {
   constructor(roomName) {
     super("roomjoined");
@@ -20642,16 +20818,16 @@ var Environment = class extends BaseEnvironment {
     return this._currentRoom;
   }
   DEBUG;
-  constructor(canvas, fetcher, dialogFontFamily, uiImagePaths, defaultAvatarHeight, enableFullResolution, options) {
-    super(canvas, fetcher, defaultAvatarHeight, enableFullResolution);
+  constructor(canvas, fetcher, dialogFontFamily, uiImagePaths, defaultAvatarHeight2, enableFullResolution2, options) {
+    super(canvas, fetcher, defaultAvatarHeight2, enableFullResolution2);
     this.compassImage = new CanvasImageMesh(this, "Horizon", new ArtificialHorizon());
     this.compassImage.mesh.renderOrder = 5;
     this.clockImage = new CanvasImageMesh(this, "Clock", new ClockImage());
     this.clockImage.mesh.renderOrder = 5;
     options = options || {};
-    const JS_EXT = options.JS_EXT || ".js";
+    const JS_EXT2 = options.JS_EXT || ".js";
     this.DEBUG = options.DEBUG || false;
-    this.apps = new ApplicationLoader(this, JS_EXT);
+    this.apps = new ApplicationLoader(this, JS_EXT2);
     this.apps.addEventListener("apploading", (evt) => {
       evt.preLoadTask = this.fadeOut().then(() => {
         this.clearScene();
@@ -20797,9 +20973,1577 @@ var Environment = class extends BaseEnvironment {
   }
 };
 
-// src/index.ts
-var src_default = Environment;
-export {
-  src_default as default
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher-base/ResponseTranslator.ts
+async function translateResponse(response, translate) {
+  const {
+    status,
+    path,
+    content,
+    contentType,
+    contentLength,
+    fileName,
+    headers,
+    date
+  } = response;
+  return {
+    status,
+    path,
+    content: await translate(content),
+    contentType,
+    contentLength,
+    fileName,
+    headers,
+    date
+  };
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher-base/FetchingService.ts
+var FetchingService = class {
+  constructor(impl) {
+    this.impl = impl;
+  }
+  defaultPostHeaders = /* @__PURE__ */ new Map();
+  setRequestVerificationToken(value2) {
+    this.defaultPostHeaders.set("RequestVerificationToken", value2);
+  }
+  clearCache() {
+    return this.impl.clearCache();
+  }
+  sendNothingGetNothing(request) {
+    return this.impl.sendNothingGetNothing(request);
+  }
+  sendNothingGetBlob(request, progress) {
+    return this.impl.sendNothingGetSomething("blob", request, progress);
+  }
+  sendObjectGetBlob(request, progress) {
+    return this.impl.sendSomethingGetSomething("blob", request, this.defaultPostHeaders, progress);
+  }
+  sendNothingGetBuffer(request, progress) {
+    return this.impl.sendNothingGetSomething("arraybuffer", request, progress);
+  }
+  sendObjectGetBuffer(request, progress) {
+    return this.impl.sendSomethingGetSomething("arraybuffer", request, this.defaultPostHeaders, progress);
+  }
+  sendNothingGetText(request, progress) {
+    return this.impl.sendNothingGetSomething("text", request, progress);
+  }
+  sendObjectGetText(request, progress) {
+    return this.impl.sendSomethingGetSomething("text", request, this.defaultPostHeaders, progress);
+  }
+  async sendNothingGetObject(request, progress) {
+    const response = await this.impl.sendNothingGetSomething("json", request, progress);
+    return response.content;
+  }
+  async sendObjectGetObject(request, progress) {
+    const response = await this.impl.sendSomethingGetSomething("json", request, this.defaultPostHeaders, progress);
+    return response.content;
+  }
+  sendObjectGetNothing(request, progress) {
+    return this.impl.sendSomethingGetSomething("", request, this.defaultPostHeaders, progress);
+  }
+  drawImageToCanvas(request, canvas, progress) {
+    return this.impl.drawImageToCanvas(request, canvas, progress);
+  }
+  async sendNothingGetFile(request, progress) {
+    return translateResponse(await this.sendNothingGetBlob(request, progress), URL.createObjectURL);
+  }
+  async sendObjectGetFile(request, progress) {
+    return translateResponse(await this.sendObjectGetBlob(request, progress), URL.createObjectURL);
+  }
+  async sendNothingGetXml(request, progress) {
+    return translateResponse(await this.impl.sendNothingGetSomething("document", request, progress), (doc) => doc.documentElement);
+  }
+  async sendObjectGetXml(request, progress) {
+    return translateResponse(await this.impl.sendSomethingGetSomething("document", request, this.defaultPostHeaders, progress), (doc) => doc.documentElement);
+  }
+  async sendNothingGetImageBitmap(request, progress) {
+    return translateResponse(await this.sendNothingGetBlob(request, progress), createImageBitmap);
+  }
+  async sendObjectGetImageBitmap(request, progress) {
+    return translateResponse(await this.sendObjectGetBlob(request, progress), createImageBitmap);
+  }
 };
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/indexdb/index.ts
+var IDexDB = class {
+  constructor(db) {
+    this.db = db;
+  }
+  static async getCurrentVersion(dbName) {
+    if (isDefined(indexedDB.databases)) {
+      const databases = await indexedDB.databases();
+      for (const { name: name2, version: version2 } of databases) {
+        if (name2 === dbName) {
+          return version2;
+        }
+      }
+    }
+    return null;
+  }
+  static delete(dbName) {
+    const deleteRequest = indexedDB.deleteDatabase(dbName);
+    const task = once(deleteRequest, "success", "error", "blocked");
+    return success(task);
+  }
+  static async open(name2, ...storeDefs) {
+    const storesByName = mapMap(storeDefs, (v) => v.name, identity);
+    const indexesByName = new PriorityMap(storeDefs.filter((storeDef) => isDefined(storeDef.indexes)).flatMap((storeDef) => storeDef.indexes.map((indexDef) => [storeDef.name, indexDef.name, indexDef])));
+    const storesToAdd = new Array();
+    const storesToRemove = new Array();
+    const storesToChange = new Array();
+    const indexesToAdd = new PriorityList();
+    const indexesToRemove = new PriorityList();
+    let version2 = await this.getCurrentVersion(name2);
+    if (isNullOrUndefined(version2)) {
+      storesToAdd.push(...storesByName.keys());
+      for (const storeDef of storeDefs) {
+        if (isDefined(storeDef.indexes)) {
+          for (const indexDef of storeDef.indexes) {
+            indexesToAdd.add(storeDef.name, indexDef.name);
+          }
+        }
+      }
+    } else {
+      const D2 = indexedDB.open(name2);
+      if (await success(once(D2, "success", "error", "blocked"))) {
+        const db = D2.result;
+        const storesToScrutinize = new Array();
+        for (const storeName of Array.from(db.objectStoreNames)) {
+          if (!storesByName.has(storeName)) {
+            storesToRemove.push(storeName);
+          }
+        }
+        for (const storeName of storesByName.keys()) {
+          if (!db.objectStoreNames.contains(storeName)) {
+            storesToAdd.push(storeName);
+          } else {
+            storesToScrutinize.push(storeName);
+          }
+        }
+        if (storesToScrutinize.length > 0) {
+          const transaction = db.transaction(storesToScrutinize);
+          const transacting = once(transaction, "complete", "error", "abort");
+          const transacted = success(transacting);
+          for (const storeName of storesToScrutinize) {
+            const store = transaction.objectStore(storeName);
+            for (const indexName of Array.from(store.indexNames)) {
+              if (!indexesByName.has(storeName, indexName)) {
+                if (storesToChange.indexOf(storeName) === -1) {
+                  storesToChange.push(storeName);
+                }
+                indexesToRemove.add(storeName, indexName);
+              }
+            }
+            if (indexesByName.has(storeName)) {
+              for (const indexName of indexesByName.get(storeName).keys()) {
+                if (!store.indexNames.contains(indexName)) {
+                  if (storesToChange.indexOf(storeName) === -1) {
+                    storesToChange.push(storeName);
+                  }
+                  indexesToAdd.add(storeName, indexName);
+                } else {
+                  const indexDef = indexesByName.get(storeName, indexName);
+                  const index = store.index(indexName);
+                  if (isString(indexDef.keyPath) !== isString(index.keyPath) || isString(indexDef.keyPath) && isString(index.keyPath) && indexDef.keyPath !== index.keyPath || isArray(indexDef.keyPath) && isArray(index.keyPath) && arrayCompare(indexDef.keyPath, index.keyPath)) {
+                    if (storesToChange.indexOf(storeName) === -1) {
+                      storesToChange.push(storeName);
+                    }
+                    indexesToRemove.add(storeName, indexName);
+                    indexesToAdd.add(storeName, indexName);
+                  }
+                }
+              }
+            }
+          }
+          transaction.commit();
+          await transacted;
+        }
+        db.close();
+      }
+      if (storesToAdd.length > 0 || storesToRemove.length > 0 || indexesToAdd.size > 0 || indexesToRemove.size > 0) {
+        ++version2;
+      }
+    }
+    const upgrading = new Task();
+    const openRequest = isDefined(version2) ? indexedDB.open(name2, version2) : indexedDB.open(name2);
+    const opening = once(openRequest, "success", "error", "blocked");
+    const upgraded = success(upgrading);
+    const opened = success(opening);
+    const noUpgrade = () => upgrading.resolve(false);
+    openRequest.addEventListener("success", noUpgrade);
+    openRequest.addEventListener("upgradeneeded", () => {
+      const transacting = once(openRequest.transaction, "complete", "error", "abort");
+      const db = openRequest.result;
+      for (const storeName of storesToRemove) {
+        db.deleteObjectStore(storeName);
+      }
+      const stores = /* @__PURE__ */ new Map();
+      for (const storeName of storesToAdd) {
+        const storeDef = storesByName.get(storeName);
+        const store = db.createObjectStore(storeName, storeDef.options);
+        stores.set(storeName, store);
+      }
+      for (const storeName of storesToChange) {
+        const store = openRequest.transaction.objectStore(storeName);
+        stores.set(storeName, store);
+      }
+      for (const [storeName, store] of stores) {
+        for (const indexName of indexesToRemove.get(storeName)) {
+          store.deleteIndex(indexName);
+        }
+        for (const indexName of indexesToAdd.get(storeName)) {
+          const indexDef = indexesByName.get(storeName, indexName);
+          store.createIndex(indexName, indexDef.keyPath, indexDef.options);
+        }
+      }
+      success(transacting).then(upgrading.resolve).catch(upgrading.reject).finally(() => openRequest.removeEventListener("success", noUpgrade));
+    });
+    if (!await upgraded) {
+      throw upgrading.error;
+    }
+    if (!await opened) {
+      throw opening.error;
+    }
+    return new IDexDB(openRequest.result);
+  }
+  dispose() {
+    this.db.close();
+  }
+  get name() {
+    return this.db.name;
+  }
+  get version() {
+    return this.db.version;
+  }
+  get storeNames() {
+    return Array.from(this.db.objectStoreNames);
+  }
+  getStore(storeName) {
+    return new IDexStore(this.db, storeName);
+  }
+};
+var IDexStore = class {
+  constructor(db, storeName) {
+    this.db = db;
+    this.storeName = storeName;
+  }
+  async request(makeRequest, mode) {
+    const transaction = this.db.transaction(this.storeName, mode);
+    const transacting = once(transaction, "complete", "error");
+    const store = transaction.objectStore(this.storeName);
+    const request = makeRequest(store);
+    const requesting = once(request, "success", "error");
+    if (!await success(requesting)) {
+      transaction.abort();
+      throw requesting.error;
+    }
+    transaction.commit();
+    if (!await success(transacting)) {
+      throw transacting.error;
+    }
+    return request.result;
+  }
+  add(value2, key) {
+    return this.request((store) => store.add(value2, key), "readwrite");
+  }
+  clear() {
+    return this.request((store) => store.clear(), "readwrite");
+  }
+  getCount(query) {
+    return this.request((store) => store.count(query), "readonly");
+  }
+  delete(query) {
+    return this.request((store) => store.delete(query), "readwrite");
+  }
+  get(key) {
+    return this.request((store) => store.get(key), "readonly");
+  }
+  getAll() {
+    return this.request((store) => store.getAll(), "readonly");
+  }
+  getAllKeys() {
+    return this.request((store) => store.getAllKeys(), "readonly");
+  }
+  getKey(query) {
+    return this.request((store) => store.getKey(query), "readonly");
+  }
+  openCursor(query, direction) {
+    return this.request((store) => store.openCursor(query, direction), "readonly");
+  }
+  openKeyCursor(query, direction) {
+    return this.request((store) => store.openKeyCursor(query, direction), "readonly");
+  }
+  put(value2, key) {
+    return this.request((store) => store.put(value2, key), "readwrite");
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher-base/FetchingServiceImplXHR.ts
+function isXHRBodyInit(obj2) {
+  return isString(obj2) || isArrayBufferView(obj2) || obj2 instanceof Blob || obj2 instanceof FormData || isArrayBuffer(obj2) || obj2 instanceof ReadableStream || "Document" in globalThis && obj2 instanceof Document;
+}
+function trackProgress(name2, xhr, target, prog, skipLoading, prevTask) {
+  let prevDone = !prevTask;
+  if (prevTask) {
+    prevTask.then(() => prevDone = true);
+  }
+  let done = false;
+  let loaded = skipLoading;
+  const requestComplete = new Task(() => loaded && done, () => prevDone);
+  target.addEventListener("loadstart", () => {
+    if (prevDone && !done && prog) {
+      prog.start(name2);
+    }
+  });
+  target.addEventListener("progress", (ev) => {
+    if (prevDone && !done) {
+      const evt = ev;
+      if (prog) {
+        prog.report(evt.loaded, Math.max(evt.loaded, evt.total), name2);
+      }
+      if (evt.loaded === evt.total) {
+        loaded = true;
+        requestComplete.resolve();
+      }
+    }
+  });
+  target.addEventListener("load", () => {
+    if (prevDone && !done) {
+      if (prog) {
+        prog.end(name2);
+      }
+      done = true;
+      requestComplete.resolve();
+    }
+  });
+  const onError = (msg) => () => requestComplete.reject(`${msg} (${xhr.status})`);
+  target.addEventListener("error", onError("error"));
+  target.addEventListener("abort", onError("abort"));
+  target.addEventListener("timeout", onError("timeout"));
+  return requestComplete;
+}
+function sendRequest(xhr, method, path, timeout, headers, body) {
+  xhr.open(method, path);
+  xhr.responseType = "blob";
+  xhr.timeout = timeout;
+  if (headers) {
+    for (const [key, value2] of headers) {
+      xhr.setRequestHeader(key, value2);
+    }
+  }
+  if (isDefined(body)) {
+    xhr.send(body);
+  } else {
+    xhr.send();
+  }
+}
+function readResponseHeader(headers, key, translate) {
+  if (!headers.has(key)) {
+    return null;
+  }
+  const value2 = headers.get(key);
+  try {
+    const translated = translate(value2);
+    headers.delete(key);
+    return translated;
+  } catch (exp) {
+    console.warn(key, exp);
+  }
+  return null;
+}
+var FILE_NAME_PATTERN = /filename=\"(.+)\"(;|$)/;
+var DB_NAME = "Juniper:Fetcher:Cache";
+var FetchingServiceImplXHR = class {
+  cacheReady;
+  cache = null;
+  store = null;
+  constructor() {
+    this.cacheReady = this.openCache();
+  }
+  async drawImageToCanvas(request, canvas, progress) {
+    const response = await this.sendNothingGetSomething("blob", request, progress);
+    const blob = response.content;
+    return using(await createImageBitmap(blob, {
+      imageOrientation: "none"
+    }), (img) => {
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const g = canvas.getContext("2d");
+      g.drawImage(img, 0, 0);
+      return translateResponse(response, () => null);
+    });
+  }
+  async openCache() {
+    this.cache = await IDexDB.open(DB_NAME, {
+      name: "files",
+      options: {
+        keyPath: "path"
+      }
+    });
+    this.store = await this.cache.getStore("files");
+  }
+  async clearCache() {
+    await this.cacheReady;
+    await this.store.clear();
+  }
+  async readResponseHeaders(path, xhr) {
+    const headerParts = xhr.getAllResponseHeaders().split(/[\r\n]+/).map((v) => v.trim()).filter((v) => v.length > 0).map((line) => {
+      const parts = line.split(": ");
+      const key = parts.shift().toLowerCase();
+      const value2 = parts.join(": ");
+      return [key, value2];
+    });
+    const pList = new PriorityList(headerParts);
+    const normalizedHeaderParts = Array.from(pList.keys()).map((key) => [
+      key,
+      pList.get(key).join(", ")
+    ]);
+    const headers = new Map(normalizedHeaderParts);
+    const contentType = readResponseHeader(headers, "content-type", identity);
+    const contentLength = readResponseHeader(headers, "content-length", parseFloat);
+    const date = readResponseHeader(headers, "date", (v) => new Date(v));
+    const fileName = readResponseHeader(headers, "content-disposition", (v) => {
+      if (isDefined(v)) {
+        const match = v.match(FILE_NAME_PATTERN);
+        if (isDefined(match)) {
+          return match[1];
+        }
+      }
+      return null;
+    });
+    const response = {
+      status: xhr.status,
+      path,
+      content: void 0,
+      contentType,
+      contentLength,
+      fileName,
+      date,
+      headers
+    };
+    return response;
+  }
+  async readResponse(path, xhr) {
+    const {
+      status,
+      contentType,
+      contentLength,
+      fileName,
+      date,
+      headers
+    } = await this.readResponseHeaders(path, xhr);
+    const response = {
+      path,
+      status,
+      contentType,
+      contentLength,
+      fileName,
+      date,
+      headers,
+      content: xhr.response
+    };
+    if (isDefined(response.content)) {
+      response.contentType = response.contentType || response.content.type;
+      response.contentLength = response.contentLength || response.content.size;
+    }
+    return response;
+  }
+  async decodeContent(xhrType, response) {
+    return translateResponse(response, async (contentBlob) => {
+      if (xhrType === "") {
+        return null;
+      } else if (isNullOrUndefined(response.contentType)) {
+        const headerBlock = Array.from(response.headers.entries()).map((kv) => kv.join(": ")).join("\n  ");
+        throw new Error("No content type found in headers: \n  " + headerBlock);
+      } else if (xhrType === "blob") {
+        return contentBlob;
+      } else if (xhrType === "arraybuffer") {
+        return await contentBlob.arrayBuffer();
+      } else if (xhrType === "json") {
+        const text2 = await contentBlob.text();
+        if (text2.length > 0) {
+          return JSON.parse(text2);
+        } else {
+          return null;
+        }
+      } else if (xhrType === "document") {
+        const parser = new DOMParser();
+        if (response.contentType === "application/xhtml+xml" || response.contentType === "text/html" || response.contentType === "application/xml" || response.contentType === "image/svg+xml" || response.contentType === "text/xml") {
+          return parser.parseFromString(await contentBlob.text(), response.contentType);
+        } else {
+          throw new Error("Couldn't parse document");
+        }
+      } else if (xhrType === "text") {
+        return await contentBlob.text();
+      } else {
+        assertNever(xhrType);
+      }
+    });
+  }
+  tasks = new PriorityMap();
+  async withCachedTask(request, action) {
+    if (request.method !== "GET" && request.method !== "HEAD" && request.method !== "OPTIONS") {
+      return await action();
+    }
+    if (!this.tasks.has(request.method, request.path)) {
+      this.tasks.add(request.method, request.path, action().finally(() => this.tasks.delete(request.method, request.path)));
+    }
+    return this.tasks.get(request.method, request.path);
+  }
+  sendNothingGetNothing(request) {
+    return this.withCachedTask(request, async () => {
+      const xhr = new XMLHttpRequest();
+      const download = trackProgress(`requesting: ${request.path}`, xhr, xhr, null, true);
+      sendRequest(xhr, request.method, request.path, request.timeout, request.headers);
+      await download;
+      return await this.readResponseHeaders(request.path, xhr);
+    });
+  }
+  sendNothingGetSomething(xhrType, request, progress) {
+    return this.withCachedTask(request, async () => {
+      let response = null;
+      const useCache = request.useCache && request.method === "GET";
+      if (useCache) {
+        if (isDefined(progress)) {
+          progress.start();
+        }
+        await this.cacheReady;
+        response = await this.store.get(request.path);
+      }
+      const hadCachedResponse = isNullOrUndefined(response);
+      if (hadCachedResponse) {
+        const xhr = new XMLHttpRequest();
+        const download = trackProgress(`requesting: ${request.path}`, xhr, xhr, progress, true);
+        sendRequest(xhr, request.method, request.path, request.timeout, request.headers);
+        await download;
+        response = await this.readResponse(request.path, xhr);
+        if (useCache) {
+          await this.store.add(response);
+        }
+      }
+      const value2 = await this.decodeContent(xhrType, response);
+      if (hadCachedResponse && isDefined(progress)) {
+        progress.end();
+      }
+      return value2;
+    });
+  }
+  async sendSomethingGetSomething(xhrType, request, defaultPostHeaders, progress) {
+    let body = null;
+    const headers = mapJoin(/* @__PURE__ */ new Map(), defaultPostHeaders, request.headers);
+    if (request.body instanceof FormData && isDefined(headers)) {
+      const toDelete = new Array();
+      for (const key of headers.keys()) {
+        if (key.toLowerCase() === "content-type") {
+          toDelete.push(key);
+        }
+      }
+      for (const key of toDelete) {
+        headers.delete(key);
+      }
+    }
+    if (isXHRBodyInit(request.body) && !isString(request.body)) {
+      body = request.body;
+    } else if (isDefined(request.body)) {
+      body = JSON.stringify(request.body);
+    }
+    const progs = progressSplit(progress, 2);
+    const xhr = new XMLHttpRequest();
+    const upload = isDefined(body) ? trackProgress("uploading", xhr, xhr.upload, progs.shift(), false) : Promise.resolve();
+    const downloadProg = progs.shift();
+    const download = trackProgress("saving", xhr, xhr, downloadProg, true, upload);
+    sendRequest(xhr, request.method, request.path, request.timeout, headers, body);
+    await upload;
+    await download;
+    const response = await this.readResponse(request.path, xhr);
+    return await this.decodeContent(xhrType, response);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/RequestBuilder.ts
+var testAudio = null;
+function canPlay(type2) {
+  if (testAudio === null) {
+    testAudio = new Audio();
+  }
+  return testAudio.canPlayType(type2) !== "";
+}
+var RequestBuilder = class {
+  constructor(fetcher, method, path) {
+    this.fetcher = fetcher;
+    this.method = method;
+    this.prog = null;
+    this.path = path;
+    this.request = {
+      method,
+      path: this.path.href,
+      body: null,
+      headers: null,
+      timeout: null,
+      withCredentials: false,
+      useCache: false
+    };
+  }
+  query(name2, value2) {
+    this.path.searchParams.set(name2, value2);
+    this.request.path = this.path.href;
+    return this;
+  }
+  header(name2, value2) {
+    if (this.request.headers === null) {
+      this.request.headers = /* @__PURE__ */ new Map();
+    }
+    this.request.headers.set(name2.toLowerCase(), value2);
+    return this;
+  }
+  timeout(value2) {
+    this.request.timeout = value2;
+    return this;
+  }
+  progress(prog) {
+    this.prog = prog;
+    return this;
+  }
+  body(body, contentType) {
+    this.request.body = body;
+    this.content(contentType);
+    return this;
+  }
+  withCredentials() {
+    this.request.withCredentials = true;
+    return this;
+  }
+  useCache(enabled = true) {
+    this.request.useCache = enabled;
+    return this;
+  }
+  media(key, mediaType) {
+    if (isDefined(mediaType)) {
+      if (!isString(mediaType)) {
+        mediaType = mediaType.value;
+      }
+      this.header(key, mediaType);
+    }
+  }
+  content(contentType) {
+    this.media("content-type", contentType);
+  }
+  accept(acceptType) {
+    this.media("accept", acceptType);
+  }
+  blob(acceptType) {
+    this.accept(acceptType);
+    if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE") {
+      return this.fetcher.sendObjectGetBlob(this.request, this.prog);
+    } else if (this.method === "GET") {
+      return this.fetcher.sendNothingGetBlob(this.request, this.prog);
+    } else if (this.method === "HEAD" || this.method === "OPTIONS") {
+      throw new Error(`${this.method} responses do not contain bodies`);
+    } else {
+      assertNever(this.method);
+    }
+  }
+  buffer(acceptType) {
+    this.accept(acceptType);
+    if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE") {
+      return this.fetcher.sendObjectGetBuffer(this.request, this.prog);
+    } else if (this.method === "GET") {
+      return this.fetcher.sendNothingGetBuffer(this.request, this.prog);
+    } else if (this.method === "HEAD" || this.method === "OPTIONS") {
+      throw new Error(`${this.method} responses do not contain bodies`);
+    } else {
+      assertNever(this.method);
+    }
+  }
+  file(acceptType) {
+    this.accept(acceptType);
+    if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE") {
+      return this.fetcher.sendObjectGetFile(this.request, this.prog);
+    } else if (this.method === "GET") {
+      return this.fetcher.sendNothingGetFile(this.request, this.prog);
+    } else if (this.method === "HEAD" || this.method === "OPTIONS") {
+      throw new Error(`${this.method} responses do not contain bodies`);
+    } else {
+      assertNever(this.method);
+    }
+  }
+  text(acceptType) {
+    this.accept(acceptType || Text_Plain);
+    if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE") {
+      return this.fetcher.sendObjectGetText(this.request, this.prog);
+    } else if (this.method === "GET") {
+      return this.fetcher.sendNothingGetText(this.request, this.prog);
+    } else if (this.method === "HEAD" || this.method === "OPTIONS") {
+      throw new Error(`${this.method} responses do not contain bodies`);
+    } else {
+      assertNever(this.method);
+    }
+  }
+  object(acceptType) {
+    this.accept(acceptType || Application_Json);
+    if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE") {
+      return this.fetcher.sendObjectGetObject(this.request, this.prog);
+    } else if (this.method === "GET") {
+      return this.fetcher.sendNothingGetObject(this.request, this.prog);
+    } else if (this.method === "HEAD" || this.method === "OPTIONS") {
+      throw new Error(`${this.method} responses do not contain bodies`);
+    } else {
+      assertNever(this.method);
+    }
+  }
+  xml(acceptType) {
+    this.accept(acceptType || Text_Xml);
+    if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE") {
+      return this.fetcher.sendObjectGetXml(this.request, this.prog);
+    } else if (this.method === "GET") {
+      return this.fetcher.sendNothingGetXml(this.request, this.prog);
+    } else if (this.method === "HEAD" || this.method === "OPTIONS") {
+      throw new Error(`${this.method} responses do not contain bodies`);
+    } else {
+      assertNever(this.method);
+    }
+  }
+  imageBitmap(acceptType) {
+    this.accept(acceptType);
+    if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE") {
+      return this.fetcher.sendObjectGetImageBitmap(this.request, this.prog);
+    } else if (this.method === "GET") {
+      return this.fetcher.sendNothingGetImageBitmap(this.request, this.prog);
+    } else if (this.method === "HEAD" || this.method === "OPTIONS") {
+      throw new Error(`${this.method} responses do not contain bodies`);
+    } else {
+      assertNever(this.method);
+    }
+  }
+  exec() {
+    if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE") {
+      return this.fetcher.sendObjectGetNothing(this.request, this.prog);
+    } else if (this.method === "GET") {
+      throw new Exception("GET requests should expect a response type");
+    } else if (this.method === "HEAD" || this.method === "OPTIONS") {
+      return this.fetcher.sendNothingGetNothing(this.request);
+    } else {
+      assertNever(this.method);
+    }
+  }
+  async audioBlob(acceptType) {
+    if (isDefined(acceptType)) {
+      if (!isString(acceptType)) {
+        acceptType = acceptType.value;
+      }
+      if (!canPlay(acceptType)) {
+        throw new Error(`Probably can't play file of type "${acceptType}" at path: ${this.request.path}`);
+      }
+    }
+    const response = await this.blob(acceptType);
+    if (canPlay(response.contentType)) {
+      return response;
+    }
+    throw new Error(`Cannot play file of type "${response.contentType}" at path: ${this.request.path}`);
+  }
+  async audioBuffer(audioCtx, acceptType) {
+    return translateResponse(await this.audioBlob(acceptType), async (blob) => await audioCtx.decodeAudioData(await blob.arrayBuffer()));
+  }
+  async htmlElement(element, resolveEvt, acceptType) {
+    const response = await this.file(acceptType);
+    const task = once(element, resolveEvt, "error");
+    element.src = response.content;
+    await task;
+    return await translateResponse(response, () => element);
+  }
+  image(acceptType) {
+    return this.htmlElement(Img(), "load", acceptType);
+  }
+  async htmlCanvas(acceptType) {
+    if (isWorker) {
+      throw new Error("HTMLCanvasElement not supported in Workers.");
+    }
+    const canvas = createCanvas(1, 1);
+    if (this.method === "GET") {
+      if (hasOffscreenCanvas) {
+        this.accept(acceptType);
+        const response = await this.fetcher.drawImageToCanvas(this.request, canvas.transferControlToOffscreen(), this.prog);
+        return await translateResponse(response, () => canvas);
+      } else {
+        const response = await (isWorker ? this.imageBitmap(acceptType) : this.image(acceptType));
+        return await translateResponse(response, (img) => {
+          canvas.width = img.width;
+          canvas.height = img.height;
+          drawImageToCanvas(canvas, img);
+          dispose(img);
+          return canvas;
+        });
+      }
+    } else if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE" || this.method === "HEAD" || this.method === "OPTIONS") {
+      throw new Error(`${this.method} responses do not contain bodies`);
+    } else {
+      assertNever(this.method);
+    }
+  }
+  canvas(acceptType) {
+    if (hasOffscreenCanvas) {
+      return this.offscreenCanvas(acceptType);
+    } else {
+      return this.htmlCanvas(acceptType);
+    }
+  }
+  async offscreenCanvas(acceptType) {
+    if (!hasOffscreenCanvas) {
+      throw new Error("This system does not support OffscreenCanvas");
+    }
+    if (this.method === "GET") {
+      const response = await (isWorker ? this.imageBitmap(acceptType) : this.image(acceptType));
+      return await translateResponse(response, (img) => {
+        const canvas = createOffscreenCanvas(img.width, img.height);
+        drawImageToCanvas(canvas, img);
+        dispose(img);
+        return canvas;
+      });
+    } else if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE" || this.method === "HEAD" || this.method === "OPTIONS") {
+      throw new Error(`${this.method} responses do not contain bodies`);
+    } else {
+      assertNever(this.method);
+    }
+  }
+  audio(autoPlaying, looping, acceptType) {
+    return this.htmlElement(BackgroundAudio(autoPlaying, false, looping), "canplay", acceptType);
+  }
+  video(autoPlaying, looping, acceptType) {
+    return this.htmlElement(BackgroundVideo(autoPlaying, false, looping), "canplay", acceptType);
+  }
+  async getScript() {
+    const tag2 = Script(type(Application_Javascript));
+    document.body.append(tag2);
+    await this.htmlElement(tag2, "load", Application_Javascript);
+  }
+  async script(test) {
+    if (!test) {
+      await this.getScript();
+    } else if (!test()) {
+      const scriptLoadTask = waitFor(test);
+      await this.getScript();
+      await scriptLoadTask;
+    }
+  }
+  async module() {
+    const scriptPath = this.request.path;
+    const { content: file } = await this.file(Application_Javascript);
+    const value2 = await import(file);
+    if (this.prog) {
+      this.prog.end(scriptPath);
+    }
+    return value2;
+  }
+  async wasm(imports) {
+    const { content: buffer, contentType } = await this.buffer(Application_Wasm);
+    if (!Application_Wasm.matches(contentType)) {
+      throw new Error(`Server did not respond with WASM file. Was: ${contentType}`);
+    }
+    const module = await WebAssembly.compile(buffer);
+    const instance = await WebAssembly.instantiate(module, imports);
+    return instance.exports;
+  }
+  async worker(type2 = "module") {
+    const { content } = await this.file(Application_Javascript);
+    this.prog = null;
+    this.request.timeout = null;
+    return new Worker(content, { type: type2 });
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/Fetcher.ts
+var Fetcher = class {
+  constructor(service) {
+    this.service = service;
+    if (!isWorker) {
+      const antiforgeryToken = getInput("input[name=__RequestVerificationToken]");
+      if (antiforgeryToken) {
+        this.service.setRequestVerificationToken(antiforgeryToken.value);
+      }
+    }
+  }
+  createRequest(method, path, base) {
+    return new RequestBuilder(this.service, method, new URL(path, base || location.href));
+  }
+  clearCache() {
+    return this.service.clearCache();
+  }
+  head(path, base) {
+    return this.createRequest("HEAD", path, base);
+  }
+  options(path, base) {
+    return this.createRequest("OPTIONS", path, base);
+  }
+  get(path, base) {
+    return this.createRequest("GET", path, base);
+  }
+  post(path, base) {
+    return this.createRequest("POST", path, base);
+  }
+  put(path, base) {
+    return this.createRequest("PUT", path, base);
+  }
+  patch(path, base) {
+    return this.createRequest("PATCH", path, base);
+  }
+  delete(path, base) {
+    return this.createRequest("DELETE", path, base);
+  }
+  async assets(progress, ...assets) {
+    const assetSizes = new Map(await Promise.all(assets.map((asset) => asset.getSize(this))));
+    await progressTasksWeighted(progress, assets.map((asset) => [assetSizes.get(asset), (prog) => asset.getContent(prog)]));
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/worker-client/WorkerClient.ts
+var _WorkerClient = class extends TypedEventBase {
+  constructor(worker) {
+    super();
+    this.worker = worker;
+    this.taskCounter = 0;
+    this.invocations = /* @__PURE__ */ new Map();
+    if (!_WorkerClient.isSupported) {
+      console.warn("Workers are not supported on this system.");
+    }
+    this.worker.addEventListener("message", (evt) => {
+      const data = evt.data;
+      switch (data.type) {
+        case "event":
+          this.propogateEvent(data);
+          break;
+        case "progress":
+          this.progressReport(data);
+          break;
+        case "return":
+          this.methodReturned(data);
+          break;
+        case "error":
+          this.invocationError(data);
+          break;
+        default:
+          assertNever(data);
+      }
+    });
+  }
+  postMessage(message, transferables) {
+    if (message.type !== "methodCall") {
+      assertNever(message.type);
+    }
+    if (transferables) {
+      this.worker.postMessage(message, transferables);
+    } else {
+      this.worker.postMessage(message);
+    }
+  }
+  dispose() {
+    this.worker.terminate();
+  }
+  propogateEvent(data) {
+    const evt = new TypedEvent(data.eventName);
+    this.dispatchEvent(Object.assign(evt, data.data));
+  }
+  progressReport(data) {
+    const invocation = this.invocations.get(data.taskID);
+    const { prog } = invocation;
+    if (prog) {
+      prog.report(data.soFar, data.total, data.msg, data.est);
+    }
+  }
+  methodReturned(data) {
+    const messageHandler = this.removeInvocation(data.taskID);
+    const { resolve } = messageHandler;
+    resolve(data.returnValue);
+  }
+  invocationError(data) {
+    const messageHandler = this.removeInvocation(data.taskID);
+    const { reject, methodName } = messageHandler;
+    reject(new Error(`${methodName} failed. Reason: ${data.errorMessage}`));
+  }
+  removeInvocation(taskID) {
+    const invocation = this.invocations.get(taskID);
+    this.invocations.delete(taskID);
+    return invocation;
+  }
+  callMethod(methodName, parameters, transferables, prog) {
+    if (!_WorkerClient.isSupported) {
+      return Promise.reject(new Error("Workers are not supported on this system."));
+    }
+    let params = null;
+    let tfers = null;
+    if (isProgressCallback(parameters)) {
+      prog = parameters;
+      parameters = null;
+      transferables = null;
+    }
+    if (isProgressCallback(transferables) && !prog) {
+      prog = transferables;
+      transferables = null;
+    }
+    if (isArray(parameters)) {
+      params = parameters;
+    }
+    if (isArray(transferables)) {
+      tfers = transferables;
+    }
+    const taskID = this.taskCounter++;
+    const task = new Task();
+    const invocation = {
+      prog,
+      resolve: task.resolve,
+      reject: task.reject,
+      methodName
+    };
+    this.invocations.set(taskID, invocation);
+    let message = null;
+    if (isDefined(parameters)) {
+      message = {
+        type: "methodCall",
+        taskID,
+        methodName,
+        params
+      };
+    } else {
+      message = {
+        type: "methodCall",
+        taskID,
+        methodName
+      };
+    }
+    this.postMessage(message, tfers);
+    return task;
+  }
+};
+var WorkerClient = _WorkerClient;
+WorkerClient.isSupported = "Worker" in globalThis;
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/worker-client/WorkerPool.ts
+var WorkerPool = class extends TypedEventBase {
+  constructor(options, WorkerClientClass) {
+    super();
+    this.scriptPath = options.scriptPath;
+    let workerPoolSize = -1;
+    const workersDef = options.workers;
+    let workers = null;
+    if (isNumber(workersDef)) {
+      workerPoolSize = workersDef;
+    } else if (isDefined(workersDef)) {
+      this.taskCounter = workersDef.curTaskCounter;
+      workers = workersDef.workers;
+      workerPoolSize = workers.length;
+    } else {
+      workerPoolSize = navigator.hardwareConcurrency || 4;
+    }
+    if (workerPoolSize < 1) {
+      throw new Error("Worker pool size must be a postive integer greater than 0");
+    }
+    this.workers = new Array(workerPoolSize);
+    if (isNullOrUndefined(workers)) {
+      this.taskCounter = 0;
+      for (let i = 0; i < workerPoolSize; ++i) {
+        this.workers[i] = new WorkerClientClass(new Worker(this.scriptPath, { type: "module" }));
+      }
+    } else {
+      for (let i = 0; i < workerPoolSize; ++i) {
+        this.workers[i] = new WorkerClientClass(workers[i]);
+      }
+    }
+    for (const worker of this.workers) {
+      worker.addBubbler(this);
+    }
+  }
+  dispose() {
+    for (const worker of this.workers) {
+      worker.dispose();
+    }
+    arrayClear(this.workers);
+  }
+  nextWorker() {
+    const worker = this.peekWorker();
+    this.taskCounter++;
+    return worker;
+  }
+  peekWorker() {
+    return this.workers[this.taskCounter % this.workers.length];
+  }
+};
+WorkerPool.isSupported = "Worker" in globalThis;
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/FetchingServiceClient.ts
+function isDOMParsersSupportedType(type2) {
+  return type2 === "application/xhtml+xml" || type2 === "application/xml" || type2 === "image/svg+xml" || type2 === "text/html" || type2 === "text/xml";
+}
+function bufferToXml(response) {
+  const {
+    status,
+    path,
+    content: buffer,
+    contentType,
+    contentLength,
+    fileName,
+    headers,
+    date
+  } = response;
+  if (!isDOMParsersSupportedType(contentType)) {
+    throw new Error(`Content-Type ${contentType} is not one supported by the DOM parser.`);
+  }
+  const decoder = new TextDecoder();
+  const text2 = decoder.decode(buffer);
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(text2, contentType);
+  return {
+    status,
+    path,
+    content: doc.documentElement,
+    contentType,
+    contentLength,
+    fileName,
+    date,
+    headers
+  };
+}
+function bufferToBlob(response) {
+  const {
+    status,
+    path,
+    content: buffer,
+    contentType,
+    contentLength,
+    fileName,
+    headers,
+    date
+  } = response;
+  const blob = new Blob([buffer], {
+    type: contentType
+  });
+  return {
+    status,
+    path,
+    content: blob,
+    contentType,
+    contentLength,
+    fileName,
+    date,
+    headers
+  };
+}
+function cloneRequest(request) {
+  request = {
+    method: request.method,
+    path: request.path,
+    timeout: request.timeout,
+    headers: request.headers,
+    withCredentials: request.withCredentials,
+    useCache: request.useCache
+  };
+  return request;
+}
+function cloneRequestWithBody(request) {
+  request = {
+    method: request.method,
+    path: request.path,
+    body: request.body,
+    timeout: request.timeout,
+    headers: request.headers,
+    withCredentials: request.withCredentials,
+    useCache: request.useCache
+  };
+  return request;
+}
+var FetchingServiceClient = class extends WorkerClient {
+  setRequestVerificationToken(value2) {
+    this.callMethod("setRequestVerificationToken", [value2]);
+  }
+  clearCache() {
+    return this.callMethod("clearCache");
+  }
+  makeRequest(methodName, request, progress) {
+    return this.callMethod(methodName, [cloneRequest(request)], progress);
+  }
+  makeRequestWithBody(methodName, request, progress) {
+    return this.callMethod(methodName, [cloneRequestWithBody(request)], progress);
+  }
+  sendNothingGetNothing(request) {
+    return this.makeRequest("sendNothingGetNothing", request, null);
+  }
+  sendNothingGetBuffer(request, progress) {
+    return this.makeRequest("sendNothingGetBuffer", request, progress);
+  }
+  sendNothingGetText(request, progress) {
+    return this.makeRequest("sendNothingGetText", request, progress);
+  }
+  sendNothingGetObject(request, progress) {
+    return this.makeRequest("sendNothingGetObject", request, progress);
+  }
+  sendNothingGetFile(request, progress) {
+    return this.makeRequest("sendNothingGetFile", request, progress);
+  }
+  sendNothingGetImageBitmap(request, progress) {
+    return this.makeRequest("sendNothingGetImageBitmap", request, progress);
+  }
+  sendObjectGetNothing(request, progress) {
+    return this.makeRequestWithBody("sendObjectGetNothing", request, progress);
+  }
+  sendObjectGetBuffer(request, progress) {
+    return this.makeRequestWithBody("sendObjectGetBuffer", request, progress);
+  }
+  sendObjectGetText(request, progress) {
+    return this.makeRequestWithBody("sendObjectGetText", request, progress);
+  }
+  sendObjectGetObject(request, progress) {
+    return this.makeRequestWithBody("sendObjectGetObject", request, progress);
+  }
+  sendObjectGetFile(request, progress) {
+    return this.makeRequestWithBody("sendObjectGetFile", request, progress);
+  }
+  sendObjectGetImageBitmap(request, progress) {
+    return this.makeRequestWithBody("sendObjectGetImageBitmap", request, progress);
+  }
+  drawImageToCanvas(request, canvas, progress) {
+    return this.callMethod("drawImageToCanvas", [cloneRequest(request), canvas], [canvas], progress);
+  }
+  async sendNothingGetBlob(request, progress) {
+    const response = await this.sendNothingGetBuffer(request, progress);
+    return bufferToBlob(response);
+  }
+  async sendNothingGetXml(request, progress) {
+    const response = await this.sendNothingGetBuffer(request, progress);
+    return bufferToXml(response);
+  }
+  async sendObjectGetBlob(request, progress) {
+    const response = await this.sendObjectGetBuffer(request, progress);
+    return bufferToBlob(response);
+  }
+  async sendObjectGetXml(request, progress) {
+    const response = await this.sendObjectGetBuffer(request, progress);
+    return bufferToXml(response);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/FetchingServicerPool.ts
+var BaseFetchingServicePool = class extends WorkerPool {
+  constructor(options, WorkerClientClass, fetcher) {
+    super(options, WorkerClientClass);
+    this.fetcher = fetcher;
+  }
+  getFetcher(obj2) {
+    if (obj2 instanceof FormData) {
+      return this.fetcher;
+    } else {
+      return this.nextWorker();
+    }
+  }
+  setRequestVerificationToken(value2) {
+    this.fetcher.setRequestVerificationToken(value2);
+    for (const worker of this.workers) {
+      worker.setRequestVerificationToken(value2);
+    }
+  }
+  async clearCache() {
+    await Promise.all(this.workers.map((w) => w.clearCache()));
+  }
+  sendNothingGetNothing(request) {
+    return this.nextWorker().sendNothingGetNothing(request);
+  }
+  sendNothingGetBlob(request, progress) {
+    return this.nextWorker().sendNothingGetBlob(request, progress);
+  }
+  sendNothingGetBuffer(request, progress) {
+    return this.nextWorker().sendNothingGetBuffer(request, progress);
+  }
+  sendNothingGetFile(request, progress) {
+    return this.nextWorker().sendNothingGetFile(request, progress);
+  }
+  sendNothingGetText(request, progress) {
+    return this.nextWorker().sendNothingGetText(request, progress);
+  }
+  sendNothingGetObject(request, progress) {
+    return this.nextWorker().sendNothingGetObject(request, progress);
+  }
+  sendNothingGetXml(request, progress) {
+    return this.nextWorker().sendNothingGetXml(request, progress);
+  }
+  sendNothingGetImageBitmap(request, progress) {
+    return this.nextWorker().sendNothingGetImageBitmap(request, progress);
+  }
+  drawImageToCanvas(request, canvas, progress) {
+    return this.nextWorker().drawImageToCanvas(request, canvas, progress);
+  }
+  sendObjectGetBlob(request, progress) {
+    return this.getFetcher(request.body).sendObjectGetBlob(request, progress);
+  }
+  sendObjectGetBuffer(request, progress) {
+    return this.getFetcher(request.body).sendObjectGetBuffer(request, progress);
+  }
+  sendObjectGetFile(request, progress) {
+    return this.getFetcher(request.body).sendObjectGetFile(request, progress);
+  }
+  sendObjectGetText(request, progress) {
+    return this.getFetcher(request.body).sendObjectGetText(request, progress);
+  }
+  sendObjectGetNothing(request, progress) {
+    return this.getFetcher(request.body).sendObjectGetNothing(request, progress);
+  }
+  sendObjectGetObject(request, progress) {
+    return this.getFetcher(request.body).sendObjectGetObject(request, progress);
+  }
+  sendObjectGetXml(request, progress) {
+    return this.getFetcher(request.body).sendObjectGetXml(request, progress);
+  }
+  sendObjectGetImageBitmap(request, progress) {
+    return this.getFetcher(request.body).sendObjectGetImageBitmap(request, progress);
+  }
+};
+var FetchingServicePool = class extends BaseFetchingServicePool {
+};
+
+// src/settings.ts
+var version = true ? stringRandom(10) : pkgVersion;
+var defaultAvatarHeight = 1.75;
+var enableFullResolution = false;
+var defaultFont = {
+  fontFamily: "Segoe UI",
+  fontSize: 20
+};
+var emojiFont = {
+  fontFamily: "Segoe UI Emoji",
+  fontSize: 20
+};
+async function loadFonts() {
+  await Promise.all([
+    loadFont(emojiFont)
+  ]);
+}
+function getUIImagePaths() {
+  const imageNames = new PriorityList([
+    ["arrow", "arrow-up"],
+    ["arrow", "arrow-down"],
+    ["arrow", "arrow-left"],
+    ["arrow", "arrow-right"],
+    ["chat", "user"],
+    ["chat", "chat"],
+    ["ui", "menu"],
+    ["ui", "settings"],
+    ["ui", "quit"],
+    ["ui", "lobby"],
+    ["zoom", "zoom-in"],
+    ["zoom", "zoom-out"],
+    ["environment-audio", "environment-audio-mute"],
+    ["environment-audio", "environment-audio-unmute"],
+    ["headphones", "headphones-unmuted"],
+    ["headphones", "headphones-muted"],
+    ["microphone", "microphone-mute"],
+    ["microphone", "microphone-unmute"],
+    ["volume", "volume-muted"],
+    ["volume", "volume-low"],
+    ["volume", "volume-medium"],
+    ["volume", "volume-high"],
+    ["media", "media-pause"],
+    ["media", "media-play"],
+    ["media", "media-stop"],
+    ["media", "media-replay"],
+    ["ar", "ar-enter"],
+    ["ar", "ar-exit"],
+    ["vr", "vr-enter"],
+    ["vr", "vr-exit"],
+    ["fullscreen", "fullscreen-enter"],
+    ["fullscreen", "fullscreen-exit"]
+  ]);
+  const uiImagePaths = new PriorityMap();
+  for (const [setName, iconNames] of imageNames.entries()) {
+    for (const iconName of iconNames) {
+      uiImagePaths.add(setName, iconName.replace(setName + "-", ""), `/img/ui/${iconName}.png`);
+    }
+  }
+  return uiImagePaths;
+}
+
+// src/createFetcher.ts
+function createFetcher(enableWorkers = true) {
+  let fallback = new FetchingService(new FetchingServiceImplXHR());
+  if (!isWorker && enableWorkers) {
+    fallback = new FetchingServicePool({
+      scriptPath: `/js/fetcher-worker/index${".js"}?${version}`
+    }, FetchingServiceClient, fallback);
+  }
+  return new Fetcher(fallback);
+}
+
+// src/createTestEnvironment.ts
+async function createTestEnvironment(debug = true) {
+  const canvas = Canvas(id("frontBuffer"));
+  document.body.append(Div(id("appContainer"), canvas));
+  await loadFonts();
+  const fetcher = createFetcher(!debug);
+  return new Environment(canvas, fetcher, defaultFont.fontFamily, getUIImagePaths(), defaultAvatarHeight, enableFullResolution, {
+    DEBUG: debug
+  });
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/objectScan.ts
+function objectScan(obj2, test) {
+  const queue = [obj2];
+  while (queue.length > 0) {
+    const here = queue.shift();
+    if (test(here)) {
+      return here;
+    }
+    if (here.children.length > 0) {
+      queue.push(...here.children);
+    }
+  }
+  return null;
+}
+
+// src/forest-app/Forest.ts
+function isMeshNamed(name2) {
+  return (obj2) => isMesh(obj2) && obj2.name === name2;
+}
+var Forest = class {
+  constructor(env2) {
+    this.env = env2;
+    this.getJpeg = this.getJpeg.bind(this);
+    this.getPng = this.getPng.bind(this);
+    this.getModel = this.getModel.bind(this);
+    this.getAudio = this.getAudio.bind(this);
+    this.skybox = new Asset("/skyboxes/BearfenceMountain.jpeg", this.getJpeg);
+    this.forest = new Asset("/models/Forest-Ground.glb", this.getModel);
+    this.tree = new Asset("/models/Forest-Tree.glb", this.getModel);
+    this.bgAudio = new Asset("/audio/forest.mp3", this.getAudio);
+    this.raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0), 0.1, 100);
+    this.hits = new Array();
+  }
+  skybox;
+  forest;
+  tree;
+  bgAudio;
+  raycaster;
+  hits;
+  _ground;
+  _water;
+  _trees;
+  get ground() {
+    return this._ground;
+  }
+  get water() {
+    return this._water;
+  }
+  get trees() {
+    return this._trees;
+  }
+  async load(...assets) {
+    await progressTasksWeighted(this.env.loadingBar, [
+      [1, (prog) => this.env.load(prog)],
+      [10, (prog) => this.env.fetcher.assets(prog, this.skybox, this.forest, this.tree, this.bgAudio, ...assets)]
+    ]);
+    this.env.skybox.setImage("forest", this.skybox.result);
+    this.env.audio.createClip("forest", this.bgAudio.result, true, true, true, 1, []);
+    this.env.audio.setClipPosition("forest", 25, 5, 25);
+    this.env.foreground.add(this.forest.result);
+    this.forest.result.updateMatrixWorld();
+    this.raycaster.camera = this.env.camera;
+    this._ground = objectScan(this.forest.result, isMeshNamed("Ground"));
+    this._water = objectScan(this.forest.result, isMeshNamed("Water"));
+    const matrices = this.makeTrees();
+    const treeMesh = objectScan(this.tree.result, isMesh);
+    const treeGeom = treeMesh.geometry;
+    const treeMat = treeMesh.material;
+    this._trees = new THREE.InstancedMesh(treeGeom, treeMat, matrices.length);
+    for (let i = 0; i < matrices.length; ++i) {
+      this._trees.setMatrixAt(i, matrices[i]);
+    }
+    this.env.foreground.add(this._trees);
+    this.env.timer.addTickHandler(() => {
+      const groundHit = this.groundTest(this.env.avatar.worldPos);
+      if (groundHit) {
+        this.env.avatar.stage.position.y = groundHit.point.y;
+      }
+    });
+    return assets;
+  }
+  getJpeg(path, prog) {
+    return this.env.fetcher.get(path).useCache(true).progress(prog).image(Image_Jpeg).then((response) => response.content);
+  }
+  getPng(path, prog) {
+    return this.env.fetcher.get(path).useCache(false).progress(prog).image(Image_Png).then((response) => response.content);
+  }
+  getAudio(path, prog) {
+    return this.env.fetcher.get(path).useCache(true).progress(prog).audio(true, true, Audio_Mpeg).then((response) => response.content);
+  }
+  getModel(path, prog) {
+    return this.env.fetcher.get(path).useCache(true).progress(prog).file(Model_Gltf_Binary).then((response) => this.env.loadModel(response.content));
+  }
+  makeTrees() {
+    const matrices = new Array();
+    const q = new THREE.Quaternion();
+    const right = new THREE.Vector3(1, 0, 0);
+    const p = new THREE.Vector3();
+    const q2 = new THREE.Quaternion().setFromAxisAngle(right, Math.PI / 2);
+    const up = new THREE.Vector3(0, 1, 0);
+    const s = new THREE.Vector3();
+    for (let dz = -25; dz <= 25; ++dz) {
+      for (let dx = -25; dx <= 25; ++dx) {
+        if (Math.random() <= 0.1) {
+          const x = Math.random() * 0.1 + dx;
+          const z = Math.random() * 0.1 + dz;
+          p.set(x, 0, z);
+          const groundHit = this.groundTest(p);
+          if (groundHit) {
+            const w = THREE.MathUtils.randFloat(0.6, 1.3);
+            const h = THREE.MathUtils.randFloat(0.6, 1.3);
+            s.set(w, h, w);
+            const a = THREE.MathUtils.randFloat(0, 2 * Math.PI);
+            const m = new THREE.Matrix4().compose(groundHit.point, q.setFromAxisAngle(up, a).multiply(q2), s);
+            matrices.push(m);
+          }
+        }
+      }
+    }
+    return matrices;
+  }
+  groundTest(p) {
+    this.raycaster.ray.origin.copy(p);
+    this.raycaster.ray.origin.y += 10;
+    this.raycaster.intersectObject(this.ground, true, this.hits);
+    const groundHit = arrayScan(this.hits, isDefined);
+    arrayClear(this.hits);
+    return groundHit;
+  }
+};
+
+// src/instanced-grass-app/index.ts
+var env = await createTestEnvironment();
+await env.fadeOut();
+var forest = new Forest(env);
+var [spatter] = await forest.load(new Asset("/img/spatter.png", forest.getPng));
+forest.water.renderOrder = 0;
+forest.ground.renderOrder = 1;
+forest.trees.removeFromParent();
+var grassGeom = new THREE.PlaneBufferGeometry(5, 5, 1, 1);
+var grassTex = new THREE.CanvasTexture(spatter.result);
+var grassMat = new THREE.MeshStandardMaterial({
+  map: grassTex,
+  transparent: true,
+  opacity: 0.9,
+  side: THREE.DoubleSide
+});
+var grass = new THREE.InstancedMesh(grassGeom, grassMat, 25);
+var dummy = new THREE.Object3D();
+dummy.rotation.set(Math.PI / 2, 0, 0);
+for (let i = 0; i < grass.count; ++i) {
+  dummy.position.set(0, i / (5 * grass.count), 0);
+  dummy.updateMatrix();
+  grass.setMatrixAt(i, dummy.matrix);
+  grass.setColorAt(i, new THREE.Color(0.25, 0.25 + i / (2 * grass.count), 0));
+}
+env.foreground.add(grass);
+grass.renderOrder = 3;
+env.timer.addTickHandler((evt) => {
+  for (let i = 0; i < grass.count; ++i) {
+    dummy.position.set(0.08 + 0.05 * Math.cos(evt.t / 1e3) * i / grass.count, i / (5 * grass.count), 0);
+    dummy.updateMatrix();
+    grass.setMatrixAt(i, dummy.matrix);
+  }
+  grass.instanceMatrix.needsUpdate = true;
+});
+await env.fadeIn();
 //# sourceMappingURL=index.js.map
