@@ -1,80 +1,101 @@
 ﻿import { Asset } from "@juniper-lib/fetcher";
-import { Audio_Mpeg, Image_Jpeg, Model_Gltf_Binary } from "@juniper-lib/mediatypes";
+import { Audio_Mpeg, Image_Jpeg, Image_Png, Model_Gltf_Binary } from "@juniper-lib/mediatypes";
 import { Environment } from "@juniper-lib/threejs/environment/Environment";
 import { InteractiveObject3D } from "@juniper-lib/threejs/eventSystem/InteractiveObject3D";
 import { objectScan } from "@juniper-lib/threejs/objectScan";
 import { isMesh } from "@juniper-lib/threejs/typeChecks";
-import { arrayClear, arrayScan, IProgress, progressTasksWeighted } from "@juniper-lib/tslib";
+import { arrayClear, arrayScan, IProgress, isDefined, progressTasksWeighted } from "@juniper-lib/tslib";
+
+function isMeshNamed(name: string) {
+    return (obj: THREE.Object3D) => isMesh(obj) && obj.name === name;
+}
 
 export class Forest {
     private readonly skybox: Asset<HTMLImageElement>;
-    private readonly _ground: Asset<THREE.Group>;
+    private readonly forest: Asset<THREE.Group>;
     private readonly tree: Asset<THREE.Group>;
     private readonly bgAudio: Asset<HTMLAudioElement>;
     private readonly raycaster: THREE.Raycaster;
     private readonly hits: Array<THREE.Intersection>;
 
+    private _ground: THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial> & InteractiveObject3D;
+    private _water: THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial> & InteractiveObject3D;
+    private _trees: THREE.InstancedMesh & InteractiveObject3D;
+
     get ground() {
-        return this._ground.result;
+        return this._ground;
+    }
+
+    get water() {
+        return this._water;
+    }
+
+    get trees() {
+        return this._trees;
     }
 
     constructor(private readonly env: Environment) {
         //this.env.eventSystem.mouse.allowPointerLock = true;
 
         this.getJpeg = this.getJpeg.bind(this);
+        this.getPng = this.getPng.bind(this);
         this.getModel = this.getModel.bind(this);
         this.getAudio = this.getAudio.bind(this);
 
         this.skybox = new Asset("/skyboxes/BearfenceMountain.jpeg", this.getJpeg);
-        this._ground = new Asset("/models/Forest-Ground.glb", this.getModel);
+        this.forest = new Asset("/models/Forest-Ground.glb", this.getModel);
         this.tree = new Asset("/models/Forest-Tree.glb", this.getModel);
         this.bgAudio = new Asset("/audio/forest.mp3", this.getAudio);
         this.raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0), 0.1, 100);
         this.hits = new Array<THREE.Intersection>();
     }
 
-    async load() {
+    async load<T extends Asset<any>[]>(...assets: T): Promise<T> {
         await progressTasksWeighted(this.env.loadingBar, [
             [1, (prog) => this.env.load(prog)],
             [10, (prog) => this.env.fetcher.assets(prog,
                 this.skybox,
-                this._ground,
+                this.forest,
                 this.tree,
-                this.bgAudio
+                this.bgAudio,
+                ...assets
             )]
         ]);
 
         this.env.skybox.setImage("forest", this.skybox.result);
         this.env.audio.createClip("forest", this.bgAudio.result, true, true, true, 1, []);
         this.env.audio.setClipPosition("forest", 25, 5, 25);
-        this.env.foreground.add(this.ground);
-        this.ground.updateMatrixWorld();
+        this.env.foreground.add(this.forest.result);
+        this.forest.result.updateMatrixWorld();
         this.raycaster.camera = this.env.camera;
 
-        const groundMesh = objectScan<THREE.Mesh & InteractiveObject3D>(this.ground, isMesh);
-        groundMesh.isClickable = true;
+        this._ground = objectScan<THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial> & InteractiveObject3D>(this.forest.result, isMeshNamed("Ground"));
+        this._water = objectScan<THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial> & InteractiveObject3D>(this.forest.result, isMeshNamed("Water"));
 
         const matrices = this.makeTrees();
         const treeMesh = objectScan<THREE.Mesh & InteractiveObject3D>(this.tree.result, isMesh);
         const treeGeom = treeMesh.geometry;
         const treeMat = treeMesh.material;
-        const trees: THREE.InstancedMesh & InteractiveObject3D = new THREE.InstancedMesh(treeGeom, treeMat, matrices.length);
-        trees.isCollider = true;
+
+        this._trees = new THREE.InstancedMesh(treeGeom, treeMat, matrices.length);
+
         for (let i = 0; i < matrices.length; ++i) {
-            trees.setMatrixAt(i, matrices[i]);
+            this._trees.setMatrixAt(i, matrices[i]);
         }
 
-        this.env.foreground.add(trees);
+        this.env.foreground.add(this._trees);
         this.env.timer.addTickHandler(() => {
             const groundHit = this.groundTest(this.env.avatar.worldPos);
             if (groundHit) {
                 this.env.avatar.stage.position.y = groundHit.point.y;
             }
         });
+
+        return assets;
     }
 
 
-    private getJpeg(path: string, prog?: IProgress) {
+    getJpeg(path: string, prog?: IProgress) {
         return this.env.fetcher
             .get(path)
             .useCache(true)
@@ -83,7 +104,16 @@ export class Forest {
             .then(response => response.content);
     }
 
-    private getAudio(path: string, prog?: IProgress) {
+    getPng(path: string, prog?: IProgress) {
+        return this.env.fetcher
+            .get(path)
+            .useCache(false)
+            .progress(prog)
+            .image(Image_Png)
+            .then(response => response.content);
+    }
+
+    getAudio(path: string, prog?: IProgress) {
         return this.env.fetcher
             .get(path)
             .useCache(true)
@@ -92,7 +122,7 @@ export class Forest {
             .then(response => response.content);
     }
 
-    private getModel(path: string, prog?: IProgress) {
+    getModel(path: string, prog?: IProgress) {
         return this.env.fetcher
             .get(path)
             .useCache(true)
@@ -135,17 +165,12 @@ export class Forest {
         return matrices;
     }
 
-    private groundTest(p: THREE.Vector3): THREE.Intersection {
+    groundTest(p: THREE.Vector3): THREE.Intersection {
         this.raycaster.ray.origin.copy(p);
         this.raycaster.ray.origin.y += 10;
         this.raycaster.intersectObject(this.ground, true, this.hits);
-        const groundHit = arrayScan(this.hits, (hit) => hit && hit.object && hit.object.name === "Ground");
-        const waterHit = arrayScan(this.hits, (hit) => hit && hit.object && hit.object.name === "Water");
+        const groundHit = arrayScan(this.hits, isDefined);
         arrayClear(this.hits);
-        if (waterHit) {
-            return null;
-        }
-
         return groundHit;
     }
 }
