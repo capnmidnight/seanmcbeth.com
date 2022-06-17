@@ -4,7 +4,7 @@ var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __defNormalProp = (obj2, key, value2) => key in obj2 ? __defProp(obj2, key, { enumerable: true, configurable: true, writable: true, value: value2 }) : obj2[key] = value2;
+var __defNormalProp = (obj3, key, value2) => key in obj3 ? __defProp(obj3, key, { enumerable: true, configurable: true, writable: true, value: value2 }) : obj3[key] = value2;
 var __commonJS = (cb, mod) => function __require() {
   return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
 };
@@ -21,8 +21,8 @@ var __copyProps = (to, from, except, desc) => {
   return to;
 };
 var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target, mod));
-var __publicField = (obj2, key, value2) => {
-  __defNormalProp(obj2, typeof key !== "symbol" ? key + "" : key, value2);
+var __publicField = (obj3, key, value2) => {
+  __defNormalProp(obj3, typeof key !== "symbol" ? key + "" : key, value2);
   return value2;
 };
 
@@ -873,20 +873,20 @@ var require_cardboard_vr_display = __commonJS({
           self2.realDisable.call(gl, pname);
         };
         this.colorMask = gl.getParameter(gl.COLOR_WRITEMASK);
-        gl.colorMask = function(r, g2, b, a) {
+        gl.colorMask = function(r, g, b, a) {
           self2.colorMask[0] = r;
-          self2.colorMask[1] = g2;
+          self2.colorMask[1] = g;
           self2.colorMask[2] = b;
           self2.colorMask[3] = a;
-          self2.realColorMask.call(gl, r, g2, b, a);
+          self2.realColorMask.call(gl, r, g, b, a);
         };
         this.clearColor = gl.getParameter(gl.COLOR_CLEAR_VALUE);
-        gl.clearColor = function(r, g2, b, a) {
+        gl.clearColor = function(r, g, b, a) {
           self2.clearColor[0] = r;
-          self2.clearColor[1] = g2;
+          self2.clearColor[1] = g;
           self2.clearColor[2] = b;
           self2.clearColor[3] = a;
-          self2.realClearColor.call(gl, r, g2, b, a);
+          self2.realClearColor.call(gl, r, g, b, a);
         };
         this.viewport = gl.getParameter(gl.VIEWPORT);
         gl.viewport = function(x, y, w, h) {
@@ -1788,13 +1788,13 @@ var require_cardboard_vr_display = __commonJS({
         if (url) {
           this.onDeviceParamsUpdated = onDeviceParamsUpdated;
           var xhr = new XMLHttpRequest();
-          var obj2 = this;
+          var obj3 = this;
           xhr.open("GET", url, true);
           xhr.addEventListener("load", function() {
-            obj2.loading = false;
+            obj3.loading = false;
             if (xhr.status >= 200 && xhr.status <= 299) {
-              obj2.dpdb = JSON.parse(xhr.response);
-              obj2.recalculateDeviceParams_();
+              obj3.dpdb = JSON.parse(xhr.response);
+              obj3.recalculateDeviceParams_();
             } else {
               console.error("Error loading online DPDB!");
             }
@@ -3317,9 +3317,19 @@ var require_cardboard_vr_display = __commonJS({
   }
 });
 
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/graphics2d/animation/tween.ts
+function bump(t2, k) {
+  const a = t2 * Math.PI;
+  return 0.5 * (1 - Math.cos(a)) - k * Math.sin(2 * a);
+}
+function jump(t2, k) {
+  const a = (t2 - 0.5) * Math.PI;
+  return t2 * t2 + k * Math.cos(a);
+}
+
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/arrayBinarySearch.ts
-function defaultKeySelector(obj2) {
-  return obj2;
+function defaultKeySelector(obj3) {
+  return obj3;
 }
 function arrayBinarySearchByKey(arr, itemKey, keySelector) {
   let left2 = 0;
@@ -4651,8 +4661,8 @@ var BaseParentProgressCallback = class {
 };
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/progress/IProgress.ts
-function isProgressCallback(obj2) {
-  return isDefined(obj2) && isFunction(obj2.report) && isFunction(obj2.attach) && isFunction(obj2.end);
+function isProgressCallback(obj3) {
+  return isDefined(obj3) && isFunction(obj3.report) && isFunction(obj3.attach) && isFunction(obj3.end);
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/progress/progressSplit.ts
@@ -4711,41 +4721,41 @@ function progressTasks(prog, ...subTaskDef) {
 function t(o, s, c) {
   return typeof o === s || o instanceof c;
 }
-function isFunction(obj2) {
-  return t(obj2, "function", Function);
+function isFunction(obj3) {
+  return t(obj3, "function", Function);
 }
-function isString(obj2) {
-  return t(obj2, "string", String);
+function isString(obj3) {
+  return t(obj3, "string", String);
 }
-function isBoolean(obj2) {
-  return t(obj2, "boolean", Boolean);
+function isBoolean(obj3) {
+  return t(obj3, "boolean", Boolean);
 }
-function isNumber(obj2) {
-  return t(obj2, "number", Number);
+function isNumber(obj3) {
+  return t(obj3, "number", Number);
 }
-function isGoodNumber(obj2) {
-  return isNumber(obj2) && !Number.isNaN(obj2);
+function isGoodNumber(obj3) {
+  return isNumber(obj3) && !Number.isNaN(obj3);
 }
-function isObject(obj2) {
-  return isDefined(obj2) && t(obj2, "object", Object);
+function isObject(obj3) {
+  return isDefined(obj3) && t(obj3, "object", Object);
 }
-function isDate(obj2) {
-  return obj2 instanceof Date;
+function isDate(obj3) {
+  return obj3 instanceof Date;
 }
-function isArray(obj2) {
-  return obj2 instanceof Array;
+function isArray(obj3) {
+  return obj3 instanceof Array;
 }
 function assertNever(x, msg) {
   throw new Error((msg || "Unexpected object: ") + x);
 }
-function isNullOrUndefined(obj2) {
-  return obj2 === null || obj2 === void 0;
+function isNullOrUndefined(obj3) {
+  return obj3 === null || obj3 === void 0;
 }
-function isDefined(obj2) {
-  return !isNullOrUndefined(obj2);
+function isDefined(obj3) {
+  return !isNullOrUndefined(obj3);
 }
-function isArrayBufferView(obj2) {
-  return obj2 instanceof Uint8Array || obj2 instanceof Uint8ClampedArray || obj2 instanceof Int8Array || obj2 instanceof Uint16Array || obj2 instanceof Int16Array || obj2 instanceof Uint32Array || obj2 instanceof Int32Array || obj2 instanceof Float32Array || obj2 instanceof Float64Array || "BigUint64Array" in globalThis && obj2 instanceof globalThis["BigUint64Array"] || "BigInt64Array" in globalThis && obj2 instanceof globalThis["BigInt64Array"];
+function isArrayBufferView(obj3) {
+  return obj3 instanceof Uint8Array || obj3 instanceof Uint8ClampedArray || obj3 instanceof Int8Array || obj3 instanceof Uint16Array || obj3 instanceof Int16Array || obj3 instanceof Uint32Array || obj3 instanceof Int32Array || obj3 instanceof Float32Array || obj3 instanceof Float64Array || "BigUint64Array" in globalThis && obj3 instanceof globalThis["BigUint64Array"] || "BigInt64Array" in globalThis && obj3 instanceof globalThis["BigInt64Array"];
 }
 function isArrayBuffer(val) {
   return val && typeof ArrayBuffer !== "undefined" && (val instanceof ArrayBuffer || val.constructor && val.constructor.name === "ArrayBuffer");
@@ -5168,30 +5178,30 @@ var URLBuilder = class {
 };
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/using.ts
-function interfaceSigCheck(obj2, ...funcNames) {
-  if (!isObject(obj2)) {
+function interfaceSigCheck(obj3, ...funcNames) {
+  if (!isObject(obj3)) {
     return false;
   }
-  obj2 = obj2;
+  obj3 = obj3;
   for (const funcName of funcNames) {
-    if (!(funcName in obj2)) {
+    if (!(funcName in obj3)) {
       return false;
     }
-    const func = obj2[funcName];
+    const func = obj3[funcName];
     if (!isFunction(func)) {
       return false;
     }
   }
   return true;
 }
-function isDisposable(obj2) {
-  return interfaceSigCheck(obj2, "dispose");
+function isDisposable(obj3) {
+  return interfaceSigCheck(obj3, "dispose");
 }
-function isDestroyable(obj2) {
-  return interfaceSigCheck(obj2, "destroy");
+function isDestroyable(obj3) {
+  return interfaceSigCheck(obj3, "destroy");
 }
-function isClosable(obj2) {
-  return interfaceSigCheck(obj2, "close");
+function isClosable(obj3) {
+  return interfaceSigCheck(obj3, "close");
 }
 function dispose(val) {
   if (isDisposable(val)) {
@@ -5211,6 +5221,856 @@ function using(val, thunk) {
     dispose(val);
   }
 }
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/examples/lines/LineMaterial.js
+THREE.UniformsLib.line = {
+  worldUnits: { value: 1 },
+  linewidth: { value: 1 },
+  resolution: { value: new THREE.Vector2(1, 1) },
+  dashOffset: { value: 0 },
+  dashScale: { value: 1 },
+  dashSize: { value: 1 },
+  gapSize: { value: 1 }
+};
+THREE.ShaderLib["line"] = {
+  uniforms: THREE.UniformsUtils.merge([
+    THREE.UniformsLib.common,
+    THREE.UniformsLib.fog,
+    THREE.UniformsLib.line
+  ]),
+  vertexShader: `
+		#include <common>
+		#include <color_pars_vertex>
+		#include <fog_pars_vertex>
+		#include <logdepthbuf_pars_vertex>
+		#include <clipping_planes_pars_vertex>
+
+		uniform float linewidth;
+		uniform vec2 resolution;
+
+		attribute vec3 instanceStart;
+		attribute vec3 instanceEnd;
+
+		attribute vec3 instanceColorStart;
+		attribute vec3 instanceColorEnd;
+
+		#ifdef WORLD_UNITS
+
+			varying vec4 worldPos;
+			varying vec3 worldStart;
+			varying vec3 worldEnd;
+
+			#ifdef USE_DASH
+
+				varying vec2 vUv;
+
+			#endif
+
+		#else
+
+			varying vec2 vUv;
+
+		#endif
+
+		#ifdef USE_DASH
+
+			uniform float dashScale;
+			attribute float instanceDistanceStart;
+			attribute float instanceDistanceEnd;
+			varying float vLineDistance;
+
+		#endif
+
+		void trimSegment( const in vec4 start, inout vec4 end ) {
+
+			// trim end segment so it terminates between the camera plane and the near plane
+
+			// conservative estimate of the near plane
+			float a = projectionMatrix[ 2 ][ 2 ]; // 3nd entry in 3th column
+			float b = projectionMatrix[ 3 ][ 2 ]; // 3nd entry in 4th column
+			float nearEstimate = - 0.5 * b / a;
+
+			float alpha = ( nearEstimate - start.z ) / ( end.z - start.z );
+
+			end.xyz = mix( start.xyz, end.xyz, alpha );
+
+		}
+
+		void main() {
+
+			#ifdef USE_COLOR
+
+				vColor.xyz = ( position.y < 0.5 ) ? instanceColorStart : instanceColorEnd;
+
+			#endif
+
+			#ifdef USE_DASH
+
+				vLineDistance = ( position.y < 0.5 ) ? dashScale * instanceDistanceStart : dashScale * instanceDistanceEnd;
+				vUv = uv;
+
+			#endif
+
+			float aspect = resolution.x / resolution.y;
+
+			// camera space
+			vec4 start = modelViewMatrix * vec4( instanceStart, 1.0 );
+			vec4 end = modelViewMatrix * vec4( instanceEnd, 1.0 );
+
+			#ifdef WORLD_UNITS
+
+				worldStart = start.xyz;
+				worldEnd = end.xyz;
+
+			#else
+
+				vUv = uv;
+
+			#endif
+
+			// special case for perspective projection, and segments that terminate either in, or behind, the camera plane
+			// clearly the gpu firmware has a way of addressing this issue when projecting into ndc space
+			// but we need to perform ndc-space calculations in the shader, so we must address this issue directly
+			// perhaps there is a more elegant solution -- WestLangley
+
+			bool perspective = ( projectionMatrix[ 2 ][ 3 ] == - 1.0 ); // 4th entry in the 3rd column
+
+			if ( perspective ) {
+
+				if ( start.z < 0.0 && end.z >= 0.0 ) {
+
+					trimSegment( start, end );
+
+				} else if ( end.z < 0.0 && start.z >= 0.0 ) {
+
+					trimSegment( end, start );
+
+				}
+
+			}
+
+			// clip space
+			vec4 clipStart = projectionMatrix * start;
+			vec4 clipEnd = projectionMatrix * end;
+
+			// ndc space
+			vec3 ndcStart = clipStart.xyz / clipStart.w;
+			vec3 ndcEnd = clipEnd.xyz / clipEnd.w;
+
+			// direction
+			vec2 dir = ndcEnd.xy - ndcStart.xy;
+
+			// account for clip-space aspect ratio
+			dir.x *= aspect;
+			dir = normalize( dir );
+
+			#ifdef WORLD_UNITS
+
+				// get the offset direction as perpendicular to the view vector
+				vec3 worldDir = normalize( end.xyz - start.xyz );
+				vec3 offset;
+				if ( position.y < 0.5 ) {
+
+					offset = normalize( cross( start.xyz, worldDir ) );
+
+				} else {
+
+					offset = normalize( cross( end.xyz, worldDir ) );
+
+				}
+
+				// sign flip
+				if ( position.x < 0.0 ) offset *= - 1.0;
+
+				float forwardOffset = dot( worldDir, vec3( 0.0, 0.0, 1.0 ) );
+
+				// don't extend the line if we're rendering dashes because we
+				// won't be rendering the endcaps
+				#ifndef USE_DASH
+
+					// extend the line bounds to encompass  endcaps
+					start.xyz += - worldDir * linewidth * 0.5;
+					end.xyz += worldDir * linewidth * 0.5;
+
+					// shift the position of the quad so it hugs the forward edge of the line
+					offset.xy -= dir * forwardOffset;
+					offset.z += 0.5;
+
+				#endif
+
+				// endcaps
+				if ( position.y > 1.0 || position.y < 0.0 ) {
+
+					offset.xy += dir * 2.0 * forwardOffset;
+
+				}
+
+				// adjust for linewidth
+				offset *= linewidth * 0.5;
+
+				// set the world position
+				worldPos = ( position.y < 0.5 ) ? start : end;
+				worldPos.xyz += offset;
+
+				// project the worldpos
+				vec4 clip = projectionMatrix * worldPos;
+
+				// shift the depth of the projected points so the line
+				// segements overlap neatly
+				vec3 clipPose = ( position.y < 0.5 ) ? ndcStart : ndcEnd;
+				clip.z = clipPose.z * clip.w;
+
+			#else
+
+				vec2 offset = vec2( dir.y, - dir.x );
+				// undo aspect ratio adjustment
+				dir.x /= aspect;
+				offset.x /= aspect;
+
+				// sign flip
+				if ( position.x < 0.0 ) offset *= - 1.0;
+
+				// endcaps
+				if ( position.y < 0.0 ) {
+
+					offset += - dir;
+
+				} else if ( position.y > 1.0 ) {
+
+					offset += dir;
+
+				}
+
+				// adjust for linewidth
+				offset *= linewidth;
+
+				// adjust for clip-space to screen-space conversion // maybe resolution should be based on viewport ...
+				offset /= resolution.y;
+
+				// select end
+				vec4 clip = ( position.y < 0.5 ) ? clipStart : clipEnd;
+
+				// back to clip space
+				offset *= clip.w;
+
+				clip.xy += offset;
+
+			#endif
+
+			gl_Position = clip;
+
+			vec4 mvPosition = ( position.y < 0.5 ) ? start : end; // this is an approximation
+
+			#include <logdepthbuf_vertex>
+			#include <clipping_planes_vertex>
+			#include <fog_vertex>
+
+		}
+		`,
+  fragmentShader: `
+		uniform vec3 diffuse;
+		uniform float opacity;
+		uniform float linewidth;
+
+		#ifdef USE_DASH
+
+			uniform float dashOffset;
+			uniform float dashSize;
+			uniform float gapSize;
+
+		#endif
+
+		varying float vLineDistance;
+
+		#ifdef WORLD_UNITS
+
+			varying vec4 worldPos;
+			varying vec3 worldStart;
+			varying vec3 worldEnd;
+
+			#ifdef USE_DASH
+
+				varying vec2 vUv;
+
+			#endif
+
+		#else
+
+			varying vec2 vUv;
+
+		#endif
+
+		#include <common>
+		#include <color_pars_fragment>
+		#include <fog_pars_fragment>
+		#include <logdepthbuf_pars_fragment>
+		#include <clipping_planes_pars_fragment>
+
+		vec2 closestLineToLine(vec3 p1, vec3 p2, vec3 p3, vec3 p4) {
+
+			float mua;
+			float mub;
+
+			vec3 p13 = p1 - p3;
+			vec3 p43 = p4 - p3;
+
+			vec3 p21 = p2 - p1;
+
+			float d1343 = dot( p13, p43 );
+			float d4321 = dot( p43, p21 );
+			float d1321 = dot( p13, p21 );
+			float d4343 = dot( p43, p43 );
+			float d2121 = dot( p21, p21 );
+
+			float denom = d2121 * d4343 - d4321 * d4321;
+
+			float numer = d1343 * d4321 - d1321 * d4343;
+
+			mua = numer / denom;
+			mua = clamp( mua, 0.0, 1.0 );
+			mub = ( d1343 + d4321 * ( mua ) ) / d4343;
+			mub = clamp( mub, 0.0, 1.0 );
+
+			return vec2( mua, mub );
+
+		}
+
+		void main() {
+
+			#include <clipping_planes_fragment>
+
+			#ifdef USE_DASH
+
+				if ( vUv.y < - 1.0 || vUv.y > 1.0 ) discard; // discard endcaps
+
+				if ( mod( vLineDistance + dashOffset, dashSize + gapSize ) > dashSize ) discard; // todo - FIX
+
+			#endif
+
+			float alpha = opacity;
+
+			#ifdef WORLD_UNITS
+
+				// Find the closest points on the view ray and the line segment
+				vec3 rayEnd = normalize( worldPos.xyz ) * 1e5;
+				vec3 lineDir = worldEnd - worldStart;
+				vec2 params = closestLineToLine( worldStart, worldEnd, vec3( 0.0, 0.0, 0.0 ), rayEnd );
+
+				vec3 p1 = worldStart + lineDir * params.x;
+				vec3 p2 = rayEnd * params.y;
+				vec3 delta = p1 - p2;
+				float len = length( delta );
+				float norm = len / linewidth;
+
+				#ifndef USE_DASH
+
+					#ifdef USE_ALPHA_TO_COVERAGE
+
+						float dnorm = fwidth( norm );
+						alpha = 1.0 - smoothstep( 0.5 - dnorm, 0.5 + dnorm, norm );
+
+					#else
+
+						if ( norm > 0.5 ) {
+
+							discard;
+
+						}
+
+					#endif
+
+				#endif
+
+			#else
+
+				#ifdef USE_ALPHA_TO_COVERAGE
+
+					// artifacts appear on some hardware if a derivative is taken within a conditional
+					float a = vUv.x;
+					float b = ( vUv.y > 0.0 ) ? vUv.y - 1.0 : vUv.y + 1.0;
+					float len2 = a * a + b * b;
+					float dlen = fwidth( len2 );
+
+					if ( abs( vUv.y ) > 1.0 ) {
+
+						alpha = 1.0 - smoothstep( 1.0 - dlen, 1.0 + dlen, len2 );
+
+					}
+
+				#else
+
+					if ( abs( vUv.y ) > 1.0 ) {
+
+						float a = vUv.x;
+						float b = ( vUv.y > 0.0 ) ? vUv.y - 1.0 : vUv.y + 1.0;
+						float len2 = a * a + b * b;
+
+						if ( len2 > 1.0 ) discard;
+
+					}
+
+				#endif
+
+			#endif
+
+			vec4 diffuseColor = vec4( diffuse, alpha );
+
+			#include <logdepthbuf_fragment>
+			#include <color_fragment>
+
+			gl_FragColor = vec4( diffuseColor.rgb, alpha );
+
+			#include <tonemapping_fragment>
+			#include <encodings_fragment>
+			#include <fog_fragment>
+			#include <premultiplied_alpha_fragment>
+
+		}
+		`
+};
+var LineMaterial = class extends THREE.ShaderMaterial {
+  constructor(parameters) {
+    super({
+      type: "LineMaterial",
+      uniforms: THREE.UniformsUtils.clone(THREE.ShaderLib["line"].uniforms),
+      vertexShader: THREE.ShaderLib["line"].vertexShader,
+      fragmentShader: THREE.ShaderLib["line"].fragmentShader,
+      clipping: true
+    });
+    Object.defineProperties(this, {
+      color: {
+        enumerable: true,
+        get: function() {
+          return this.uniforms.diffuse.value;
+        },
+        set: function(value2) {
+          this.uniforms.diffuse.value = value2;
+        }
+      },
+      worldUnits: {
+        enumerable: true,
+        get: function() {
+          return "WORLD_UNITS" in this.defines;
+        },
+        set: function(value2) {
+          if (value2 === true) {
+            this.defines.WORLD_UNITS = "";
+          } else {
+            delete this.defines.WORLD_UNITS;
+          }
+        }
+      },
+      linewidth: {
+        enumerable: true,
+        get: function() {
+          return this.uniforms.linewidth.value;
+        },
+        set: function(value2) {
+          this.uniforms.linewidth.value = value2;
+        }
+      },
+      dashed: {
+        enumerable: true,
+        get: function() {
+          return Boolean("USE_DASH" in this.defines);
+        },
+        set(value2) {
+          if (Boolean(value2) !== Boolean("USE_DASH" in this.defines)) {
+            this.needsUpdate = true;
+          }
+          if (value2 === true) {
+            this.defines.USE_DASH = "";
+          } else {
+            delete this.defines.USE_DASH;
+          }
+        }
+      },
+      dashScale: {
+        enumerable: true,
+        get: function() {
+          return this.uniforms.dashScale.value;
+        },
+        set: function(value2) {
+          this.uniforms.dashScale.value = value2;
+        }
+      },
+      dashSize: {
+        enumerable: true,
+        get: function() {
+          return this.uniforms.dashSize.value;
+        },
+        set: function(value2) {
+          this.uniforms.dashSize.value = value2;
+        }
+      },
+      dashOffset: {
+        enumerable: true,
+        get: function() {
+          return this.uniforms.dashOffset.value;
+        },
+        set: function(value2) {
+          this.uniforms.dashOffset.value = value2;
+        }
+      },
+      gapSize: {
+        enumerable: true,
+        get: function() {
+          return this.uniforms.gapSize.value;
+        },
+        set: function(value2) {
+          this.uniforms.gapSize.value = value2;
+        }
+      },
+      opacity: {
+        enumerable: true,
+        get: function() {
+          return this.uniforms.opacity.value;
+        },
+        set: function(value2) {
+          this.uniforms.opacity.value = value2;
+        }
+      },
+      resolution: {
+        enumerable: true,
+        get: function() {
+          return this.uniforms.resolution.value;
+        },
+        set: function(value2) {
+          this.uniforms.resolution.value.copy(value2);
+        }
+      },
+      alphaToCoverage: {
+        enumerable: true,
+        get: function() {
+          return Boolean("USE_ALPHA_TO_COVERAGE" in this.defines);
+        },
+        set: function(value2) {
+          if (Boolean(value2) !== Boolean("USE_ALPHA_TO_COVERAGE" in this.defines)) {
+            this.needsUpdate = true;
+          }
+          if (value2 === true) {
+            this.defines.USE_ALPHA_TO_COVERAGE = "";
+            this.extensions.derivatives = true;
+          } else {
+            delete this.defines.USE_ALPHA_TO_COVERAGE;
+            this.extensions.derivatives = false;
+          }
+        }
+      }
+    });
+    this.setValues(parameters);
+  }
+};
+LineMaterial.prototype.isLineMaterial = true;
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/materials.ts
+var materials = singleton("Juniper:Three:Materials", () => /* @__PURE__ */ new Map());
+function del(obj3, name2) {
+  if (name2 in obj3) {
+    delete obj3[name2];
+  }
+}
+function makeMaterial(slug, material, options) {
+  const key = `${slug}_${Object.keys(options).map((k) => `${k}:${options[k]}`).join(",")}`;
+  if (!materials.has(key)) {
+    del(options, "name");
+    materials.set(key, new material(options));
+  }
+  return materials.get(key);
+}
+function trans(options) {
+  return Object.assign(options, {
+    transparent: true
+  });
+}
+function solid(options) {
+  return makeMaterial("solid", THREE.MeshBasicMaterial, options);
+}
+function solidTransparent(options) {
+  return makeMaterial("solidTransparent", THREE.MeshBasicMaterial, trans(options));
+}
+function lit(options) {
+  return makeMaterial("lit", THREE.MeshStandardMaterial, options);
+}
+function line2(options) {
+  return makeMaterial("line2", LineMaterial, options);
+}
+var blue = 255;
+var green = 65280;
+var red = 16711680;
+var grey = 12632256;
+var white = 16777215;
+var solidBlue = /* @__PURE__ */ solid({ color: blue });
+var solidGreen = /* @__PURE__ */ solid({ color: green });
+var solidRed = /* @__PURE__ */ solid({ color: red });
+var litGrey = /* @__PURE__ */ lit({ color: grey });
+var litWhite = /* @__PURE__ */ lit({ color: white });
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/typeChecks.ts
+function isMesh(obj3) {
+  return isDefined(obj3) && obj3.isMesh;
+}
+function isMaterial(obj3) {
+  return isDefined(obj3) && obj3.isMaterial;
+}
+function isMeshBasicMaterial(obj3) {
+  return isMaterial(obj3) && obj3.type === "MeshBasicMaterial";
+}
+function isObject3D(obj3) {
+  return isDefined(obj3) && obj3.isObject3D;
+}
+function isQuaternion(obj3) {
+  return isDefined(obj3) && obj3.isQuaternion;
+}
+function isEuler(obj3) {
+  return isDefined(obj3) && obj3.isEuler;
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/RayTarget.ts
+var RAY_TARGET_KEY = "Juniper:ThreeJS:EventSystem:RayTarget";
+var RAY_TARGETS_KEY = "Juniper:ThreeJS:EventSystem:RayTargets";
+var RAY_TARGET_DISABLED_KEY = "Juniper:ThreeJS:EventSystem:RayTarget:Disabled";
+var RAY_TARGET_CLICKABLE_KEY = "Juniper:ThreeJS:EventSystem:RayTarget:Clickable";
+var RAY_TARGET_DRAGGABLE_KEY = "Juniper:ThreeJS:EventSystem:RayTarget:Draggable";
+var RayTarget = class extends TypedEventBase {
+  constructor(object, mesh) {
+    super();
+    this.object = object;
+    this.mesh = mesh;
+    this.mesh.userData[RAY_TARGET_KEY] = this;
+    let targets = this.object.userData[RAY_TARGETS_KEY];
+    if (!targets) {
+      this.object.userData[RAY_TARGETS_KEY] = targets = new Array();
+    }
+    targets.push(this);
+  }
+  get disabled() {
+    return this.object.userData[RAY_TARGET_DISABLED_KEY];
+  }
+  set disabled(v) {
+    this.object.userData[RAY_TARGET_DISABLED_KEY] = v;
+  }
+  get enabled() {
+    return !this.disabled;
+  }
+  set enabled(v) {
+    this.disabled = !v;
+  }
+  get clickable() {
+    return this.object.userData[RAY_TARGET_CLICKABLE_KEY];
+  }
+  set clickable(v) {
+    this.object.userData[RAY_TARGET_CLICKABLE_KEY] = v;
+  }
+  get draggable() {
+    return this.object.userData[RAY_TARGET_DRAGGABLE_KEY];
+  }
+  set draggable(v) {
+    this.object.userData[RAY_TARGET_DRAGGABLE_KEY] = v;
+  }
+};
+function getMeshTarget(objectOrHit) {
+  if (!objectOrHit) {
+    return null;
+  }
+  const obj3 = isObject3D(objectOrHit) ? objectOrHit : objectOrHit.object;
+  return obj3 && obj3.userData[RAY_TARGET_KEY];
+}
+function getObjectTargets(obj3) {
+  if (!obj3) {
+    return null;
+  }
+  return obj3.userData[RAY_TARGETS_KEY];
+}
+function makeRayTarget(mesh, obj3) {
+  obj3 = obj3 || mesh;
+  return new RayTarget(obj3, mesh);
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/animation/scaleOnHover.ts
+var scaledItems = singleton("Juniper:ScaledItems", () => /* @__PURE__ */ new Map());
+var start = 1;
+var end = 1.1;
+var timeScale = 5e-3;
+var ScaleState = class {
+  constructor(obj3) {
+    this.obj = obj3;
+    this.base = obj3.scale.clone();
+    this.p = 0;
+    this.dir = 0;
+    this.running = false;
+    this.wasDisabled = this.disabled;
+    this.onEnter = () => this.run(1);
+    this.onExit = () => this.run(-1);
+    this.obj.traverse((child) => {
+      if (isMesh(child)) {
+        const target = makeRayTarget(child, this.obj);
+        target.addEventListener("enter", this.onEnter);
+        target.addEventListener("exit", this.onExit);
+      }
+    });
+  }
+  base;
+  onEnter;
+  onExit;
+  p;
+  dir;
+  running;
+  wasDisabled;
+  get enabled() {
+    const targets = getObjectTargets(this.obj);
+    if (!targets || targets.length === 0) {
+      return false;
+    }
+    for (const target of targets) {
+      if (!target.enabled) {
+        return false;
+      }
+    }
+    return true;
+  }
+  get disabled() {
+    return !this.enabled;
+  }
+  run(d) {
+    if (!this.disabled || (d === -1 || this.p > 0)) {
+      this.dir = d;
+      this.running = true;
+    }
+  }
+  updateScaling(dt) {
+    if (this.disabled !== this.wasDisabled) {
+      this.wasDisabled = this.disabled;
+      if (this.disabled) {
+        this.onExit();
+      }
+    }
+    if (this.running) {
+      this.p += this.dir * dt;
+      if (this.dir > 0 && this.p >= 1 || this.dir < 0 && this.p < 0) {
+        this.p = Math.max(0, Math.min(1, this.p));
+        this.running = false;
+      }
+      const q = bump(this.p, 1.1);
+      this.obj.scale.copy(this.base).multiplyScalar(q * (end - start) + start);
+    }
+  }
+  dispose() {
+    this.obj.removeEventListener("enter", this.onEnter);
+    this.obj.removeEventListener("exit", this.onExit);
+  }
+};
+function updateScalings(dt) {
+  dt *= timeScale;
+  for (const state of scaledItems.values()) {
+    state.updateScaling(dt);
+  }
+}
+function removeScaledObj(obj3) {
+  const state = scaledItems.get(obj3);
+  if (state) {
+    scaledItems.delete(obj3);
+    state.dispose();
+  }
+}
+function scaleOnHover(obj3) {
+  scaledItems.set(obj3, new ScaleState(obj3));
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/setGeometryUVsForCubemaps.ts
+function setGeometryUVsForCubemaps(geom2) {
+  const positions = geom2.attributes.position;
+  const normals = geom2.attributes.normal;
+  const uvs = geom2.attributes.uv;
+  for (let n2 = 0; n2 < normals.count; ++n2) {
+    const _x = n2 * normals.itemSize, _y = n2 * normals.itemSize + 1, _z = n2 * normals.itemSize + 2, nx = normals.array[_x], ny = normals.array[_y], nz = normals.array[_z], _nx_ = Math.abs(nx), _ny_ = Math.abs(ny), _nz_ = Math.abs(nz), px = positions.array[_x], py = positions.array[_y], pz = positions.array[_z], _px_ = Math.abs(px), _py_ = Math.abs(py), _pz_ = Math.abs(pz), _u = n2 * uvs.itemSize, _v = n2 * uvs.itemSize + 1;
+    let u = uvs.array[_u], v = uvs.array[_v], largest = 0, mx = _nx_, max3 = _px_;
+    if (_ny_ > mx) {
+      largest = 1;
+      mx = _ny_;
+      max3 = _py_;
+    }
+    if (_nz_ > mx) {
+      largest = 2;
+      mx = _nz_;
+      max3 = _pz_;
+    }
+    if (largest === 0) {
+      if (px < 0) {
+        u = -pz;
+        v = py;
+      } else {
+        u = pz;
+        v = py;
+      }
+    } else if (largest === 1) {
+      if (py < 0) {
+        u = px;
+        v = -pz;
+      } else {
+        u = px;
+        v = pz;
+      }
+    } else {
+      if (pz < 0) {
+        u = px;
+        v = py;
+      } else {
+        u = -px;
+        v = py;
+      }
+    }
+    u = (u / max3 + 1) / 8;
+    v = (v / max3 + 1) / 6;
+    if (largest === 0) {
+      if (px < 0) {
+        u += 0;
+        v += 1 / 3;
+      } else {
+        u += 0.5;
+        v += 1 / 3;
+      }
+    } else if (largest === 1) {
+      if (py < 0) {
+        u += 0.25;
+        v += 0;
+      } else {
+        u += 0.25;
+        v += 2 / 3;
+      }
+    } else {
+      if (pz < 0) {
+        u += 0.25;
+        v += 1 / 3;
+      } else {
+        u += 0.75;
+        v += 1 / 3;
+      }
+    }
+    const arr = uvs.array;
+    arr[_u] = u;
+    arr[_v] = v;
+  }
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/Cube.ts
+var cube = new THREE.BoxBufferGeometry(1, 1, 1, 1, 1, 1);
+cube.name = "CubeGeom";
+var invCube = cube.clone();
+invCube.name = "InvertedCubeGeom";
+setGeometryUVsForCubemaps(invCube);
+var Cube = class extends THREE.Mesh {
+  constructor(sx, sy, sz, material) {
+    super(cube, material);
+    this.scale.set(sx, sy, sz);
+  }
+};
+var InvCube = class extends THREE.Mesh {
+  constructor(sx, sy, sz, material) {
+    super(invCube, material);
+    this.scale.set(sx, sy, sz);
+  }
+};
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/attrs.ts
 var Attr = class {
@@ -5469,15 +6329,15 @@ function rule(selector, ...props) {
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/tags.ts
-function isErsatzElement(obj2) {
-  if (!isObject(obj2)) {
+function isErsatzElement(obj3) {
+  if (!isObject(obj3)) {
     return false;
   }
-  const elem = obj2;
+  const elem = obj3;
   return elem.element instanceof Node;
 }
-function isErsatzElements(obj2) {
-  return isObject(obj2) && "elements" in obj2 && obj2.elements instanceof Array;
+function isErsatzElements(obj3) {
+  return isObject(obj3) && "elements" in obj3 && obj3.elements instanceof Array;
 }
 function resolveElement(elem) {
   if (isErsatzElement(elem)) {
@@ -5485,8 +6345,8 @@ function resolveElement(elem) {
   }
   return elem;
 }
-function isIElementAppliable(obj2) {
-  return isObject(obj2) && "applyToElement" in obj2 && isFunction(obj2.applyToElement);
+function isIElementAppliable(obj3) {
+  return isObject(obj3) && "applyToElement" in obj3 && isFunction(obj3.applyToElement);
 }
 function elementSetDisplay(elem, visible, visibleDisplayType = "block") {
   elem = resolveElement(elem);
@@ -5535,8 +6395,8 @@ function tag(name2, ...rest) {
   elementApply(elem, ...rest);
   return elem;
 }
-function isDisableable(obj2) {
-  return "disabled" in obj2 && isBoolean(obj2.disabled);
+function isDisableable(obj3) {
+  return "disabled" in obj3 && isBoolean(obj3.disabled);
 }
 function elementClearChildren(elem) {
   elem = resolveElement(elem);
@@ -5662,33 +6522,210 @@ function BackgroundVideo(autoplay, mute, looping, ...rest) {
   return Video(playsInline(true), controls(false), muted(mute), autoPlay(autoplay), loop(looping), styles(display("none")), ...rest);
 }
 
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/objects.ts
+function isErsatzObject(obj3) {
+  return isDefined(obj3) && isObject3D(obj3.object);
+}
+function objectResolve(obj3) {
+  if (isErsatzObject(obj3)) {
+    return obj3.object;
+  }
+  return obj3;
+}
+function objectSetVisible(obj3, visible) {
+  obj3 = objectResolve(obj3);
+  obj3.visible = visible;
+  return visible;
+}
+function objectIsVisible(obj3) {
+  obj3 = objectResolve(obj3);
+  return obj3.visible;
+}
+function objectIsFullyVisible(obj3) {
+  obj3 = objectResolve(obj3);
+  while (obj3) {
+    if (!obj3.visible) {
+      return false;
+    }
+    obj3 = obj3.parent;
+  }
+  return true;
+}
+function objGraph(obj3, ...children) {
+  const toAdd = children.filter(isDefined).map(objectResolve);
+  if (toAdd.length > 0) {
+    objectResolve(obj3).add(...toAdd);
+  }
+  return obj3;
+}
+function obj(name2, ...rest) {
+  const obj3 = new THREE.Object3D();
+  obj3.name = name2;
+  objGraph(obj3, ...rest);
+  return obj3;
+}
+function objectSetEnabled(obj3, enabled) {
+  obj3 = objectResolve(obj3);
+  if (isDisableable(obj3)) {
+    obj3.disabled = !enabled;
+  }
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/Translator.ts
+var TranslatorDragDirEvent = class extends TypedEvent {
+  constructor() {
+    super("dragdir");
+    this.delta = new THREE.Vector3();
+  }
+};
+var _Translator = class extends Cube {
+  constructor(name2, sx, sy, sz, color) {
+    super(1, 1, 1, color);
+    this.sx = sx;
+    this.sy = sy;
+    this.sz = sz;
+    this._size = 1;
+    this.name = "Translator " + name2;
+    const sel = new THREE.Vector3(sx, sy, sz);
+    const start2 = new THREE.Vector3();
+    const deltaIn = new THREE.Vector3();
+    const dragEvt = new TranslatorDragDirEvent();
+    let dragging = false;
+    this.target = makeRayTarget(this);
+    this.target.draggable = true;
+    this.target.addEventListener("dragstart", (evt) => {
+      dragging = true;
+      start2.copy(evt.point);
+    });
+    this.target.addEventListener("dragend", () => {
+      dragging = false;
+    });
+    this.target.addEventListener("drag", (evt) => {
+      if (dragging) {
+        deltaIn.copy(evt.point).sub(start2);
+        start2.copy(evt.point);
+        if (deltaIn.manhattanLength() > 0) {
+          dragEvt.delta.copy(sel).applyQuaternion(this.parent.parent.quaternion).multiplyScalar(deltaIn.dot(dragEvt.delta));
+          console.log("sel", ...sel.toArray(), "\ndrag", ...dragEvt.delta.toArray());
+          this.target.dispatchEvent(dragEvt);
+        }
+      }
+    });
+  }
+  get size() {
+    return this._size;
+  }
+  set size(v) {
+    this._size = v;
+    this.scale.set(this.sx, this.sy, this.sz).multiplyScalar(0.9).add(_Translator.small).multiplyScalar(this.size);
+    this.position.set(this.sx, this.sy, this.sz).multiplyScalar(this.size);
+  }
+};
+var Translator = _Translator;
+Translator.small = new THREE.Vector3(0.1, 0.1, 0.1);
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/TransformEditor.ts
+var P = new THREE.Vector3();
+var TransformEditorMovingEvent = class extends TypedEvent {
+  constructor() {
+    super("moving");
+  }
+};
+var TransformEditorMovedEvent = class extends TypedEvent {
+  constructor() {
+    super("moved");
+  }
+};
+var TransformEditor = class extends TypedEventBase {
+  object = new THREE.Object3D();
+  translators;
+  _size = 1;
+  movingEvt = new TransformEditorMovingEvent();
+  movedEvt = new TransformEditorMovedEvent();
+  constructor(orbitTranslate, defaultAvatarHeight2) {
+    super();
+    this.translators = [
+      this.setTranslator("+X", 1, 0, 0, solidRed, defaultAvatarHeight2),
+      this.setTranslator("-X", -1, 0, 0, solidRed, defaultAvatarHeight2),
+      this.setTranslator("+Y", 0, 1, 0, solidGreen, defaultAvatarHeight2),
+      this.setTranslator("-Y", 0, -1, 0, solidGreen, defaultAvatarHeight2),
+      this.setTranslator("+Z", 0, 0, 1, solidBlue, defaultAvatarHeight2),
+      this.setTranslator("-Z", 0, 0, -1, solidBlue, defaultAvatarHeight2)
+    ];
+    this.orbit = orbitTranslate;
+    this.object.name = "Translator";
+    objGraph(this, ...this.translators);
+  }
+  get orbit() {
+    return !this.translators[4].visible;
+  }
+  set orbit(v) {
+    if (v !== this.orbit) {
+      this.translators[4].visible = this.translators[5].visible = !v;
+    }
+  }
+  get size() {
+    return this._size;
+  }
+  set size(v) {
+    this._size = v;
+    for (const translator of this.translators) {
+      translator.size = this.size * 0.5;
+    }
+  }
+  setTranslator(name2, sx, sy, sz, color, defaultAvatarHeight2) {
+    const translator = new Translator(name2, sx, sy, sz, color);
+    translator.size = this.size * 0.5;
+    translator.target.addEventListener("dragdir", (evt) => {
+      this.object.parent.position.y -= defaultAvatarHeight2;
+      const dist3 = this.object.parent.position.length();
+      this.object.parent.position.add(evt.delta);
+      if (this.orbit) {
+        this.object.parent.position.normalize().multiplyScalar(dist3);
+        this.object.parent.parent.getWorldPosition(P);
+        this.object.parent.lookAt(P);
+      }
+      this.object.parent.position.y += defaultAvatarHeight2;
+      this.dispatchEvent(this.movingEvt);
+    });
+    translator.target.addEventListener("dragend", () => this.dispatchEvent(this.movedEvt));
+    return translator;
+  }
+  get visible() {
+    return objectIsVisible(this);
+  }
+  set visible(v) {
+    objectSetVisible(this, v);
+  }
+};
+
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/canvas.ts
 var hasHTMLCanvas = "HTMLCanvasElement" in globalThis;
 var hasHTMLImage = "HTMLImageElement" in globalThis;
 var disableAdvancedSettings = false;
 var hasOffscreenCanvas = !disableAdvancedSettings && "OffscreenCanvas" in globalThis;
 var hasImageBitmap = !disableAdvancedSettings && "createImageBitmap" in globalThis;
-function isHTMLCanvas(obj2) {
-  return hasHTMLCanvas && obj2 instanceof HTMLCanvasElement;
+function isHTMLCanvas(obj3) {
+  return hasHTMLCanvas && obj3 instanceof HTMLCanvasElement;
 }
-function isOffscreenCanvas(obj2) {
-  return hasOffscreenCanvas && obj2 instanceof OffscreenCanvas;
+function isOffscreenCanvas(obj3) {
+  return hasOffscreenCanvas && obj3 instanceof OffscreenCanvas;
 }
 function isImageBitmap(img) {
   return hasImageBitmap && img instanceof ImageBitmap;
 }
-function drawImageBitmapToCanvas2D(canv2, img) {
-  const g2 = canv2.getContext("2d");
-  if (isNullOrUndefined(g2)) {
+function drawImageBitmapToCanvas2D(canv, img) {
+  const g = canv.getContext("2d");
+  if (isNullOrUndefined(g)) {
     throw new Error("Could not create 2d context for canvas");
   }
-  g2.drawImage(img, 0, 0);
+  g.drawImage(img, 0, 0);
 }
 function testOffscreen2D() {
   try {
-    const canv2 = new OffscreenCanvas(1, 1);
-    const g2 = canv2.getContext("2d");
-    return g2 != null;
+    const canv = new OffscreenCanvas(1, 1);
+    const g = canv.getContext("2d");
+    return g != null;
   } catch (exp) {
     return false;
   }
@@ -5698,9 +6735,9 @@ var createUtilityCanvas = hasOffscreenCanvasRenderingContext2D && createOffscree
 var createUICanvas = hasHTMLCanvas ? createCanvas : createUtilityCanvas;
 function testOffscreen3D() {
   try {
-    const canv2 = new OffscreenCanvas(1, 1);
-    const g2 = canv2.getContext("webgl2");
-    return g2 != null;
+    const canv = new OffscreenCanvas(1, 1);
+    const g = canv.getContext("webgl2");
+    return g != null;
   } catch (exp) {
     return false;
   }
@@ -5711,9 +6748,9 @@ function testBitmapRenderer() {
     return false;
   }
   try {
-    const canv2 = createUtilityCanvas(1, 1);
-    const g2 = canv2.getContext("bitmaprenderer");
-    return g2 != null;
+    const canv = createUtilityCanvas(1, 1);
+    const g = canv.getContext("bitmaprenderer");
+    return g != null;
   } catch (exp) {
     return false;
   }
@@ -5726,23 +6763,23 @@ function createCanvas(w, h) {
   return Canvas(htmlWidth(w), htmlHeight(h));
 }
 function createCanvasFromImageBitmap(img) {
-  const canv2 = createCanvas(img.width, img.height);
-  drawImageBitmapToCanvas2D(canv2, img);
-  return canv2;
+  const canv = createCanvas(img.width, img.height);
+  drawImageBitmapToCanvas2D(canv, img);
+  return canv;
 }
-function drawImageToCanvas(canv2, img) {
-  const g2 = canv2.getContext("2d");
-  if (isNullOrUndefined(g2)) {
+function drawImageToCanvas(canv, img) {
+  const g = canv.getContext("2d");
+  if (isNullOrUndefined(g)) {
     throw new Error("Could not create 2d context for canvas");
   }
-  g2.drawImage(img, 0, 0);
+  g.drawImage(img, 0, 0);
 }
-function setCanvasSize(canv2, w, h, superscale = 1) {
+function setCanvasSize(canv, w, h, superscale = 1) {
   w = Math.floor(w * superscale);
   h = Math.floor(h * superscale);
-  if (canv2.width != w || canv2.height != h) {
-    canv2.width = w;
-    canv2.height = h;
+  if (canv.width != w || canv.height != h) {
+    canv.width = w;
+    canv.height = h;
     return true;
   }
   return false;
@@ -5767,71 +6804,6 @@ function setContextSize(ctx, w, h, superscale = 1) {
     return setCanvasSize(ctx.canvas, w, h, superscale);
   }
 }
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher-base/Asset.ts
-var Asset = class {
-  constructor(path, getter) {
-    this.path = path;
-    this.getter = getter;
-    this.promise = new Promise((resolve, reject) => {
-      this.resolve = (value2) => {
-        this._result = value2;
-        this._finished = true;
-        resolve(value2);
-      };
-      this.reject = (reason) => {
-        this._error = reason;
-        this._finished = true;
-        reject(reason);
-      };
-    });
-  }
-  promise;
-  _result = null;
-  _error = null;
-  _started = false;
-  _finished = false;
-  get result() {
-    if (isDefined(this.error)) {
-      throw this.error;
-    }
-    return this._result;
-  }
-  get error() {
-    return this._error;
-  }
-  get started() {
-    return this._started;
-  }
-  get finished() {
-    return this._finished;
-  }
-  resolve = null;
-  reject = null;
-  getSize(fetcher) {
-    return fetcher.head(this.path).exec().then((response) => [this, response.contentLength]);
-  }
-  async getContent(prog) {
-    try {
-      const response = await this.getter(this.path, prog);
-      this.resolve(response);
-    } catch (err) {
-      this.reject(err);
-    }
-  }
-  get [Symbol.toStringTag]() {
-    return this.promise.toString();
-  }
-  then(onfulfilled, onrejected) {
-    return this.promise.then(onfulfilled, onrejected);
-  }
-  catch(onrejected) {
-    return this.promise.catch(onrejected);
-  }
-  finally(onfinally) {
-    return this.promise.finally(onfinally);
-  }
-};
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/graphics2d/CanvasImage.ts
 var CanvasImage = class extends TypedEventBase {
@@ -5952,62 +6924,62 @@ var ArtificialHorizon = class extends CanvasImage {
     const hw = 0.5 * w;
     const hh = 0.5 * h;
     const y = Math.sin(a);
-    const g2 = this.g;
-    g2.save();
+    const g = this.g;
+    g.save();
     {
-      g2.clearRect(0, 0, this.canvas.width, this.canvas.height);
-      g2.translate(p, p);
-      g2.scale(hw, hh);
-      g2.translate(1, 1);
-      g2.fillStyle = "#808080";
-      g2.beginPath();
-      g2.arc(0, 0, 1, 0, 2 * Math.PI);
-      g2.fill();
-      g2.fillStyle = "#d0d0d0";
-      g2.beginPath();
-      g2.arc(0, 0, 1, 0, Math.PI, true);
-      g2.fill();
-      g2.save();
+      g.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      g.translate(p, p);
+      g.scale(hw, hh);
+      g.translate(1, 1);
+      g.fillStyle = "#808080";
+      g.beginPath();
+      g.arc(0, 0, 1, 0, 2 * Math.PI);
+      g.fill();
+      g.fillStyle = "#d0d0d0";
+      g.beginPath();
+      g.arc(0, 0, 1, 0, Math.PI, true);
+      g.fill();
+      g.save();
       {
-        g2.scale(1, Math.abs(y));
+        g.scale(1, Math.abs(y));
         if (y < 0) {
-          g2.fillStyle = "#808080";
+          g.fillStyle = "#808080";
         }
-        g2.beginPath();
-        g2.arc(0, 0, 1, 0, Math.PI, y < 0);
-        g2.fill();
+        g.beginPath();
+        g.arc(0, 0, 1, 0, Math.PI, y < 0);
+        g.fill();
       }
-      g2.restore();
-      g2.save();
+      g.restore();
+      g.save();
       {
-        g2.shadowColor = "#404040";
-        g2.shadowBlur = 4;
-        g2.shadowOffsetX = 3;
-        g2.shadowOffsetY = 3;
-        g2.rotate(b);
-        g2.fillStyle = "#ff0000";
-        g2.beginPath();
-        g2.moveTo(-0.1, 0);
-        g2.lineTo(0, 0.667);
-        g2.lineTo(0.1, 0);
-        g2.closePath();
-        g2.fill();
-        g2.fillStyle = "#ffffff";
-        g2.beginPath();
-        g2.moveTo(-0.1, 0);
-        g2.lineTo(0, -0.667);
-        g2.lineTo(0.1, 0);
-        g2.closePath();
-        g2.fill();
+        g.shadowColor = "#404040";
+        g.shadowBlur = 4;
+        g.shadowOffsetX = 3;
+        g.shadowOffsetY = 3;
+        g.rotate(b);
+        g.fillStyle = "#ff0000";
+        g.beginPath();
+        g.moveTo(-0.1, 0);
+        g.lineTo(0, 0.667);
+        g.lineTo(0.1, 0);
+        g.closePath();
+        g.fill();
+        g.fillStyle = "#ffffff";
+        g.beginPath();
+        g.moveTo(-0.1, 0);
+        g.lineTo(0, -0.667);
+        g.lineTo(0.1, 0);
+        g.closePath();
+        g.fill();
       }
-      g2.restore();
-      g2.beginPath();
-      g2.strokeStyle = "#000000";
-      g2.lineWidth = 0.1;
-      g2.arc(0, 0, 1, 0, 2 * Math.PI);
-      g2.stroke();
+      g.restore();
+      g.beginPath();
+      g.strokeStyle = "#000000";
+      g.lineWidth = 0.1;
+      g.arc(0, 0, 1, 0, 2 * Math.PI);
+      g.stroke();
     }
-    g2.restore();
+    g.restore();
     return true;
   }
 };
@@ -6419,9 +7391,9 @@ var TextImage = class extends CanvasImage {
       this.redraw();
     }
   }
-  draw(g2, x, y) {
+  draw(g, x, y) {
     if (this.canvas.width > 0 && this.canvas.height > 0) {
-      g2.drawImage(this.canvas, x, y, this.width, this.height);
+      g.drawImage(this.canvas, x, y, this.width, this.height);
     }
   }
   split(value2) {
@@ -6564,22 +7536,22 @@ var TextImage = class extends CanvasImage {
         this.g.strokeRect(s, s, this.canvas.width - this.bgStrokeSize, this.canvas.height - this.bgStrokeSize);
       }
       if (isVertical) {
-        const canv2 = createUtilityCanvas(this.canvas.height, this.canvas.width);
-        const g2 = canv2.getContext("2d");
-        if (g2) {
-          g2.translate(canv2.width / 2, canv2.height / 2);
+        const canv = createUtilityCanvas(this.canvas.height, this.canvas.width);
+        const g = canv.getContext("2d");
+        if (g) {
+          g.translate(canv.width / 2, canv.height / 2);
           if (this.textDirection === "vertical" || this.textDirection === "vertical-left") {
-            g2.rotate(Math.PI / 2);
+            g.rotate(Math.PI / 2);
           } else if (this.textDirection === "vertical-right") {
-            g2.rotate(-Math.PI / 2);
+            g.rotate(-Math.PI / 2);
           }
-          g2.translate(-this.canvas.width / 2, -this.canvas.height / 2);
-          g2.drawImage(this.canvas, 0, 0);
-          setContextSize(this.g, canv2.width, canv2.height);
+          g.translate(-this.canvas.width / 2, -this.canvas.height / 2);
+          g.drawImage(this.canvas, 0, 0);
+          setContextSize(this.g, canv.width, canv.height);
         } else {
           console.warn("Couldn't rotate the TextImage");
         }
-        this.g.drawImage(canv2, 0, 0);
+        this.g.drawImage(canv, 0, 0);
       }
       return true;
     } else {
@@ -6745,11 +7717,11 @@ function connect(left2, right) {
   if (!connections.has(a)) {
     connections.set(a, /* @__PURE__ */ new Set());
   }
-  const g2 = connections.get(a);
-  if (g2.has(b)) {
+  const g = connections.get(a);
+  if (g.has(b)) {
     return false;
   }
-  g2.add(b);
+  g.add(b);
   return true;
 }
 function disconnect(left2, right) {
@@ -6768,16 +7740,16 @@ function disconnect(left2, right) {
   if (!connections.has(a)) {
     return false;
   }
-  const g2 = connections.get(a);
+  const g = connections.get(a);
   let removed = false;
   if (isNullOrUndefined(b)) {
-    removed = g2.size > 0;
-    g2.clear();
-  } else if (g2.has(b)) {
+    removed = g.size > 0;
+    g.clear();
+  } else if (g.has(b)) {
     removed = true;
-    g2.delete(b);
+    g.delete(b);
   }
-  if (g2.size === 0) {
+  if (g.size === 0) {
     connections.delete(a);
   }
   return removed;
@@ -7081,9 +8053,9 @@ var DeviceManagerAudioOutputChangedEvent = class extends TypedEvent {
   }
 };
 var DeviceManagerAudioInputChangedEvent = class extends TypedEvent {
-  constructor(audio2) {
+  constructor(audio) {
     super("audioinputchanged");
-    this.audio = audio2;
+    this.audio = audio;
   }
 };
 var DeviceManagerVideoInputChangedEvent = class extends TypedEvent {
@@ -8230,8 +9202,8 @@ var AudioPlayer = class extends BaseAudioSource {
       arraySortByKeyInPlace(data.audios, (f) => -f.resolution);
       arrayReplace(this.sources, ...data.audios);
     }
-    for (const audio2 of this.sources) {
-      this.sourcesByURL.set(audio2.url, audio2);
+    for (const audio of this.sources) {
+      this.sourcesByURL.set(audio.url, audio);
     }
     if (!this.hasSources) {
       throw new Error("No audio sources");
@@ -8387,9 +9359,9 @@ var ButtonFactory = class {
     const du = iconWidth / canvWidth;
     const dv = iconHeight / canvHeight;
     this.canvas = createUICanvas(canvWidth, canvHeight);
-    const g2 = this.canvas.getContext("2d");
-    g2.fillStyle = "#1e4388";
-    g2.fillRect(0, 0, canvWidth, canvHeight);
+    const g = this.canvas.getContext("2d");
+    g.fillStyle = "#1e4388";
+    g.fillRect(0, 0, canvWidth, canvHeight);
     let i = 0;
     for (const [setName, imgName, img] of imageSets.entries()) {
       const c = i % cols;
@@ -8400,7 +9372,7 @@ var ButtonFactory = class {
       const y = r * iconHeight + canvHeight - height2;
       const w = iconWidth - 2 * this.padding;
       const h = iconHeight - 2 * this.padding;
-      g2.drawImage(img, 0, 0, img.width, img.height, x + this.padding, y + this.padding, w, h);
+      g.drawImage(img, 0, 0, img.width, img.height, x + this.padding, y + this.padding, w, h);
       this.uvDescrips.add(setName, imgName, { u, v, du, dv });
       ++i;
     }
@@ -8512,16 +9484,6 @@ var Animator = class {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/graphics2d/animation/tween.ts
-function bump(t2, k) {
-  const a = t2 * Math.PI;
-  return 0.5 * (1 - Math.cos(a)) - k * Math.sin(2 * a);
-}
-function jump(t2, k) {
-  const a = (t2 - 0.5) * Math.PI;
-  return t2 * t2 + k * Math.cos(a);
-}
-
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/widgets/DialogBox.ts
 Style(rule(".dialog, .dialog-container", position("fixed")), rule(".dialog", top(0), left(0), width("100%"), height("100%"), backgroundColor("rgba(0, 0, 0, 0.5)"), zIndex(100)), rule(".dialog-container", top("50%"), left("50%"), maxWidth("100%"), maxHeight("100%"), transform("translateX(-50%) translateY(-50%)"), backgroundColor("white"), boxShadow("rgba(0,0,0,0.5) 0px 5px 30px"), display("grid"), gridTemplateColumns("2em auto 2em"), gridTemplateRows("auto 1fr auto 2em")), rule(".dialog .title-bar", gridArea(1, 1, 2, -1), padding("0.25em")), rule(".dialog-content", gridArea(2, 2, -4, -2), overflow("auto")), rule(".dialog-controls", gridArea(-2, 2, -3, -2)), rule(".dialog .confirm-button", float("right")), rule(".dialog h1, .dialog h2, .dialog h3, .dialog h4, .dialog h5, .dialog h6", textAlign("left")), rule(".dialog select", maxWidth("10em")));
 var DialogBox = class {
@@ -8581,809 +9543,11 @@ var DialogBox = class {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/typeChecks.ts
-function isMesh(obj2) {
-  return isDefined(obj2) && obj2.isMesh;
-}
-function isMaterial(obj2) {
-  return isDefined(obj2) && obj2.isMaterial;
-}
-function isMeshBasicMaterial(obj2) {
-  return isMaterial(obj2) && obj2.type === "MeshBasicMaterial";
-}
-function isObject3D(obj2) {
-  return isDefined(obj2) && obj2.isObject3D;
-}
-function isQuaternion(obj2) {
-  return isDefined(obj2) && obj2.isQuaternion;
-}
-function isEuler(obj2) {
-  return isDefined(obj2) && obj2.isEuler;
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/objects.ts
-function isErsatzObject(obj2) {
-  return isDefined(obj2) && isObject3D(obj2.object);
-}
-function objectResolve(obj2) {
-  if (isErsatzObject(obj2)) {
-    return obj2.object;
-  }
-  return obj2;
-}
-function objectSetVisible(obj2, visible) {
-  obj2 = objectResolve(obj2);
-  obj2.visible = visible;
-  return visible;
-}
-function objectIsVisible(obj2) {
-  obj2 = objectResolve(obj2);
-  return obj2.visible;
-}
-function objectIsFullyVisible(obj2) {
-  obj2 = objectResolve(obj2);
-  while (obj2) {
-    if (!obj2.visible) {
-      return false;
-    }
-    obj2 = obj2.parent;
-  }
-  return true;
-}
-function objGraph(obj2, ...children) {
-  const toAdd = children.filter(isDefined).map(objectResolve);
-  if (toAdd.length > 0) {
-    objectResolve(obj2).add(...toAdd);
-  }
-  return obj2;
-}
-function obj(name2, ...rest) {
-  const obj2 = new THREE.Object3D();
-  obj2.name = name2;
-  objGraph(obj2, ...rest);
-  return obj2;
-}
-function objectSetEnabled(obj2, enabled) {
-  obj2 = objectResolve(obj2);
-  if (isDisableable(obj2)) {
-    obj2.disabled = !enabled;
-  }
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/examples/lines/LineMaterial.js
-THREE.UniformsLib.line = {
-  worldUnits: { value: 1 },
-  linewidth: { value: 1 },
-  resolution: { value: new THREE.Vector2(1, 1) },
-  dashOffset: { value: 0 },
-  dashScale: { value: 1 },
-  dashSize: { value: 1 },
-  gapSize: { value: 1 }
-};
-THREE.ShaderLib["line"] = {
-  uniforms: THREE.UniformsUtils.merge([
-    THREE.UniformsLib.common,
-    THREE.UniformsLib.fog,
-    THREE.UniformsLib.line
-  ]),
-  vertexShader: `
-		#include <common>
-		#include <color_pars_vertex>
-		#include <fog_pars_vertex>
-		#include <logdepthbuf_pars_vertex>
-		#include <clipping_planes_pars_vertex>
-
-		uniform float linewidth;
-		uniform vec2 resolution;
-
-		attribute vec3 instanceStart;
-		attribute vec3 instanceEnd;
-
-		attribute vec3 instanceColorStart;
-		attribute vec3 instanceColorEnd;
-
-		#ifdef WORLD_UNITS
-
-			varying vec4 worldPos;
-			varying vec3 worldStart;
-			varying vec3 worldEnd;
-
-			#ifdef USE_DASH
-
-				varying vec2 vUv;
-
-			#endif
-
-		#else
-
-			varying vec2 vUv;
-
-		#endif
-
-		#ifdef USE_DASH
-
-			uniform float dashScale;
-			attribute float instanceDistanceStart;
-			attribute float instanceDistanceEnd;
-			varying float vLineDistance;
-
-		#endif
-
-		void trimSegment( const in vec4 start, inout vec4 end ) {
-
-			// trim end segment so it terminates between the camera plane and the near plane
-
-			// conservative estimate of the near plane
-			float a = projectionMatrix[ 2 ][ 2 ]; // 3nd entry in 3th column
-			float b = projectionMatrix[ 3 ][ 2 ]; // 3nd entry in 4th column
-			float nearEstimate = - 0.5 * b / a;
-
-			float alpha = ( nearEstimate - start.z ) / ( end.z - start.z );
-
-			end.xyz = mix( start.xyz, end.xyz, alpha );
-
-		}
-
-		void main() {
-
-			#ifdef USE_COLOR
-
-				vColor.xyz = ( position.y < 0.5 ) ? instanceColorStart : instanceColorEnd;
-
-			#endif
-
-			#ifdef USE_DASH
-
-				vLineDistance = ( position.y < 0.5 ) ? dashScale * instanceDistanceStart : dashScale * instanceDistanceEnd;
-				vUv = uv;
-
-			#endif
-
-			float aspect = resolution.x / resolution.y;
-
-			// camera space
-			vec4 start = modelViewMatrix * vec4( instanceStart, 1.0 );
-			vec4 end = modelViewMatrix * vec4( instanceEnd, 1.0 );
-
-			#ifdef WORLD_UNITS
-
-				worldStart = start.xyz;
-				worldEnd = end.xyz;
-
-			#else
-
-				vUv = uv;
-
-			#endif
-
-			// special case for perspective projection, and segments that terminate either in, or behind, the camera plane
-			// clearly the gpu firmware has a way of addressing this issue when projecting into ndc space
-			// but we need to perform ndc-space calculations in the shader, so we must address this issue directly
-			// perhaps there is a more elegant solution -- WestLangley
-
-			bool perspective = ( projectionMatrix[ 2 ][ 3 ] == - 1.0 ); // 4th entry in the 3rd column
-
-			if ( perspective ) {
-
-				if ( start.z < 0.0 && end.z >= 0.0 ) {
-
-					trimSegment( start, end );
-
-				} else if ( end.z < 0.0 && start.z >= 0.0 ) {
-
-					trimSegment( end, start );
-
-				}
-
-			}
-
-			// clip space
-			vec4 clipStart = projectionMatrix * start;
-			vec4 clipEnd = projectionMatrix * end;
-
-			// ndc space
-			vec3 ndcStart = clipStart.xyz / clipStart.w;
-			vec3 ndcEnd = clipEnd.xyz / clipEnd.w;
-
-			// direction
-			vec2 dir = ndcEnd.xy - ndcStart.xy;
-
-			// account for clip-space aspect ratio
-			dir.x *= aspect;
-			dir = normalize( dir );
-
-			#ifdef WORLD_UNITS
-
-				// get the offset direction as perpendicular to the view vector
-				vec3 worldDir = normalize( end.xyz - start.xyz );
-				vec3 offset;
-				if ( position.y < 0.5 ) {
-
-					offset = normalize( cross( start.xyz, worldDir ) );
-
-				} else {
-
-					offset = normalize( cross( end.xyz, worldDir ) );
-
-				}
-
-				// sign flip
-				if ( position.x < 0.0 ) offset *= - 1.0;
-
-				float forwardOffset = dot( worldDir, vec3( 0.0, 0.0, 1.0 ) );
-
-				// don't extend the line if we're rendering dashes because we
-				// won't be rendering the endcaps
-				#ifndef USE_DASH
-
-					// extend the line bounds to encompass  endcaps
-					start.xyz += - worldDir * linewidth * 0.5;
-					end.xyz += worldDir * linewidth * 0.5;
-
-					// shift the position of the quad so it hugs the forward edge of the line
-					offset.xy -= dir * forwardOffset;
-					offset.z += 0.5;
-
-				#endif
-
-				// endcaps
-				if ( position.y > 1.0 || position.y < 0.0 ) {
-
-					offset.xy += dir * 2.0 * forwardOffset;
-
-				}
-
-				// adjust for linewidth
-				offset *= linewidth * 0.5;
-
-				// set the world position
-				worldPos = ( position.y < 0.5 ) ? start : end;
-				worldPos.xyz += offset;
-
-				// project the worldpos
-				vec4 clip = projectionMatrix * worldPos;
-
-				// shift the depth of the projected points so the line
-				// segements overlap neatly
-				vec3 clipPose = ( position.y < 0.5 ) ? ndcStart : ndcEnd;
-				clip.z = clipPose.z * clip.w;
-
-			#else
-
-				vec2 offset = vec2( dir.y, - dir.x );
-				// undo aspect ratio adjustment
-				dir.x /= aspect;
-				offset.x /= aspect;
-
-				// sign flip
-				if ( position.x < 0.0 ) offset *= - 1.0;
-
-				// endcaps
-				if ( position.y < 0.0 ) {
-
-					offset += - dir;
-
-				} else if ( position.y > 1.0 ) {
-
-					offset += dir;
-
-				}
-
-				// adjust for linewidth
-				offset *= linewidth;
-
-				// adjust for clip-space to screen-space conversion // maybe resolution should be based on viewport ...
-				offset /= resolution.y;
-
-				// select end
-				vec4 clip = ( position.y < 0.5 ) ? clipStart : clipEnd;
-
-				// back to clip space
-				offset *= clip.w;
-
-				clip.xy += offset;
-
-			#endif
-
-			gl_Position = clip;
-
-			vec4 mvPosition = ( position.y < 0.5 ) ? start : end; // this is an approximation
-
-			#include <logdepthbuf_vertex>
-			#include <clipping_planes_vertex>
-			#include <fog_vertex>
-
-		}
-		`,
-  fragmentShader: `
-		uniform vec3 diffuse;
-		uniform float opacity;
-		uniform float linewidth;
-
-		#ifdef USE_DASH
-
-			uniform float dashOffset;
-			uniform float dashSize;
-			uniform float gapSize;
-
-		#endif
-
-		varying float vLineDistance;
-
-		#ifdef WORLD_UNITS
-
-			varying vec4 worldPos;
-			varying vec3 worldStart;
-			varying vec3 worldEnd;
-
-			#ifdef USE_DASH
-
-				varying vec2 vUv;
-
-			#endif
-
-		#else
-
-			varying vec2 vUv;
-
-		#endif
-
-		#include <common>
-		#include <color_pars_fragment>
-		#include <fog_pars_fragment>
-		#include <logdepthbuf_pars_fragment>
-		#include <clipping_planes_pars_fragment>
-
-		vec2 closestLineToLine(vec3 p1, vec3 p2, vec3 p3, vec3 p4) {
-
-			float mua;
-			float mub;
-
-			vec3 p13 = p1 - p3;
-			vec3 p43 = p4 - p3;
-
-			vec3 p21 = p2 - p1;
-
-			float d1343 = dot( p13, p43 );
-			float d4321 = dot( p43, p21 );
-			float d1321 = dot( p13, p21 );
-			float d4343 = dot( p43, p43 );
-			float d2121 = dot( p21, p21 );
-
-			float denom = d2121 * d4343 - d4321 * d4321;
-
-			float numer = d1343 * d4321 - d1321 * d4343;
-
-			mua = numer / denom;
-			mua = clamp( mua, 0.0, 1.0 );
-			mub = ( d1343 + d4321 * ( mua ) ) / d4343;
-			mub = clamp( mub, 0.0, 1.0 );
-
-			return vec2( mua, mub );
-
-		}
-
-		void main() {
-
-			#include <clipping_planes_fragment>
-
-			#ifdef USE_DASH
-
-				if ( vUv.y < - 1.0 || vUv.y > 1.0 ) discard; // discard endcaps
-
-				if ( mod( vLineDistance + dashOffset, dashSize + gapSize ) > dashSize ) discard; // todo - FIX
-
-			#endif
-
-			float alpha = opacity;
-
-			#ifdef WORLD_UNITS
-
-				// Find the closest points on the view ray and the line segment
-				vec3 rayEnd = normalize( worldPos.xyz ) * 1e5;
-				vec3 lineDir = worldEnd - worldStart;
-				vec2 params = closestLineToLine( worldStart, worldEnd, vec3( 0.0, 0.0, 0.0 ), rayEnd );
-
-				vec3 p1 = worldStart + lineDir * params.x;
-				vec3 p2 = rayEnd * params.y;
-				vec3 delta = p1 - p2;
-				float len = length( delta );
-				float norm = len / linewidth;
-
-				#ifndef USE_DASH
-
-					#ifdef USE_ALPHA_TO_COVERAGE
-
-						float dnorm = fwidth( norm );
-						alpha = 1.0 - smoothstep( 0.5 - dnorm, 0.5 + dnorm, norm );
-
-					#else
-
-						if ( norm > 0.5 ) {
-
-							discard;
-
-						}
-
-					#endif
-
-				#endif
-
-			#else
-
-				#ifdef USE_ALPHA_TO_COVERAGE
-
-					// artifacts appear on some hardware if a derivative is taken within a conditional
-					float a = vUv.x;
-					float b = ( vUv.y > 0.0 ) ? vUv.y - 1.0 : vUv.y + 1.0;
-					float len2 = a * a + b * b;
-					float dlen = fwidth( len2 );
-
-					if ( abs( vUv.y ) > 1.0 ) {
-
-						alpha = 1.0 - smoothstep( 1.0 - dlen, 1.0 + dlen, len2 );
-
-					}
-
-				#else
-
-					if ( abs( vUv.y ) > 1.0 ) {
-
-						float a = vUv.x;
-						float b = ( vUv.y > 0.0 ) ? vUv.y - 1.0 : vUv.y + 1.0;
-						float len2 = a * a + b * b;
-
-						if ( len2 > 1.0 ) discard;
-
-					}
-
-				#endif
-
-			#endif
-
-			vec4 diffuseColor = vec4( diffuse, alpha );
-
-			#include <logdepthbuf_fragment>
-			#include <color_fragment>
-
-			gl_FragColor = vec4( diffuseColor.rgb, alpha );
-
-			#include <tonemapping_fragment>
-			#include <encodings_fragment>
-			#include <fog_fragment>
-			#include <premultiplied_alpha_fragment>
-
-		}
-		`
-};
-var LineMaterial = class extends THREE.ShaderMaterial {
-  constructor(parameters) {
-    super({
-      type: "LineMaterial",
-      uniforms: THREE.UniformsUtils.clone(THREE.ShaderLib["line"].uniforms),
-      vertexShader: THREE.ShaderLib["line"].vertexShader,
-      fragmentShader: THREE.ShaderLib["line"].fragmentShader,
-      clipping: true
-    });
-    Object.defineProperties(this, {
-      color: {
-        enumerable: true,
-        get: function() {
-          return this.uniforms.diffuse.value;
-        },
-        set: function(value2) {
-          this.uniforms.diffuse.value = value2;
-        }
-      },
-      worldUnits: {
-        enumerable: true,
-        get: function() {
-          return "WORLD_UNITS" in this.defines;
-        },
-        set: function(value2) {
-          if (value2 === true) {
-            this.defines.WORLD_UNITS = "";
-          } else {
-            delete this.defines.WORLD_UNITS;
-          }
-        }
-      },
-      linewidth: {
-        enumerable: true,
-        get: function() {
-          return this.uniforms.linewidth.value;
-        },
-        set: function(value2) {
-          this.uniforms.linewidth.value = value2;
-        }
-      },
-      dashed: {
-        enumerable: true,
-        get: function() {
-          return Boolean("USE_DASH" in this.defines);
-        },
-        set(value2) {
-          if (Boolean(value2) !== Boolean("USE_DASH" in this.defines)) {
-            this.needsUpdate = true;
-          }
-          if (value2 === true) {
-            this.defines.USE_DASH = "";
-          } else {
-            delete this.defines.USE_DASH;
-          }
-        }
-      },
-      dashScale: {
-        enumerable: true,
-        get: function() {
-          return this.uniforms.dashScale.value;
-        },
-        set: function(value2) {
-          this.uniforms.dashScale.value = value2;
-        }
-      },
-      dashSize: {
-        enumerable: true,
-        get: function() {
-          return this.uniforms.dashSize.value;
-        },
-        set: function(value2) {
-          this.uniforms.dashSize.value = value2;
-        }
-      },
-      dashOffset: {
-        enumerable: true,
-        get: function() {
-          return this.uniforms.dashOffset.value;
-        },
-        set: function(value2) {
-          this.uniforms.dashOffset.value = value2;
-        }
-      },
-      gapSize: {
-        enumerable: true,
-        get: function() {
-          return this.uniforms.gapSize.value;
-        },
-        set: function(value2) {
-          this.uniforms.gapSize.value = value2;
-        }
-      },
-      opacity: {
-        enumerable: true,
-        get: function() {
-          return this.uniforms.opacity.value;
-        },
-        set: function(value2) {
-          this.uniforms.opacity.value = value2;
-        }
-      },
-      resolution: {
-        enumerable: true,
-        get: function() {
-          return this.uniforms.resolution.value;
-        },
-        set: function(value2) {
-          this.uniforms.resolution.value.copy(value2);
-        }
-      },
-      alphaToCoverage: {
-        enumerable: true,
-        get: function() {
-          return Boolean("USE_ALPHA_TO_COVERAGE" in this.defines);
-        },
-        set: function(value2) {
-          if (Boolean(value2) !== Boolean("USE_ALPHA_TO_COVERAGE" in this.defines)) {
-            this.needsUpdate = true;
-          }
-          if (value2 === true) {
-            this.defines.USE_ALPHA_TO_COVERAGE = "";
-            this.extensions.derivatives = true;
-          } else {
-            delete this.defines.USE_ALPHA_TO_COVERAGE;
-            this.extensions.derivatives = false;
-          }
-        }
-      }
-    });
-    this.setValues(parameters);
-  }
-};
-LineMaterial.prototype.isLineMaterial = true;
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/materials.ts
-var materials = singleton("Juniper:Three:Materials", () => /* @__PURE__ */ new Map());
-function del(obj2, name2) {
-  if (name2 in obj2) {
-    delete obj2[name2];
-  }
-}
-function makeMaterial(slug, material, options) {
-  const key = `${slug}_${Object.keys(options).map((k) => `${k}:${options[k]}`).join(",")}`;
-  if (!materials.has(key)) {
-    del(options, "name");
-    materials.set(key, new material(options));
-  }
-  return materials.get(key);
-}
-function trans(options) {
-  return Object.assign(options, {
-    transparent: true
-  });
-}
-function solid(options) {
-  return makeMaterial("solid", THREE.MeshBasicMaterial, options);
-}
-function solidTransparent(options) {
-  return makeMaterial("solidTransparent", THREE.MeshBasicMaterial, trans(options));
-}
-function lit(options) {
-  return makeMaterial("lit", THREE.MeshStandardMaterial, options);
-}
-function line2(options) {
-  return makeMaterial("line2", LineMaterial, options);
-}
-var grey = 12632256;
-var white = 16777215;
-var litGrey = /* @__PURE__ */ lit({ color: grey });
-var litWhite = /* @__PURE__ */ lit({ color: white });
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/RayTarget.ts
-var RAY_TARGET_KEY = "Juniper:ThreeJS:EventSystem:RayTarget";
-var RAY_TARGETS_KEY = "Juniper:ThreeJS:EventSystem:RayTargets";
-var RAY_TARGET_DISABLED_KEY = "Juniper:ThreeJS:EventSystem:RayTarget:Disabled";
-var RAY_TARGET_CLICKABLE_KEY = "Juniper:ThreeJS:EventSystem:RayTarget:Clickable";
-var RAY_TARGET_DRAGGABLE_KEY = "Juniper:ThreeJS:EventSystem:RayTarget:Draggable";
-var RayTarget = class extends TypedEventBase {
-  constructor(object, mesh) {
-    super();
-    this.object = object;
-    this.mesh = mesh;
-    this.mesh.userData[RAY_TARGET_KEY] = this;
-    let targets = this.object.userData[RAY_TARGETS_KEY];
-    if (!targets) {
-      this.object.userData[RAY_TARGETS_KEY] = targets = new Array();
-    }
-    targets.push(this);
-  }
-  get disabled() {
-    return this.object.userData[RAY_TARGET_DISABLED_KEY];
-  }
-  set disabled(v) {
-    this.object.userData[RAY_TARGET_DISABLED_KEY] = v;
-  }
-  get enabled() {
-    return !this.disabled;
-  }
-  set enabled(v) {
-    this.disabled = !v;
-  }
-  get clickable() {
-    return this.object.userData[RAY_TARGET_CLICKABLE_KEY];
-  }
-  set clickable(v) {
-    this.object.userData[RAY_TARGET_CLICKABLE_KEY] = v;
-  }
-  get draggable() {
-    return this.object.userData[RAY_TARGET_DRAGGABLE_KEY];
-  }
-  set draggable(v) {
-    this.object.userData[RAY_TARGET_DRAGGABLE_KEY] = v;
-  }
-};
-function getMeshTarget(objectOrHit) {
-  if (!objectOrHit) {
-    return null;
-  }
-  const obj2 = isObject3D(objectOrHit) ? objectOrHit : objectOrHit.object;
-  return obj2 && obj2.userData[RAY_TARGET_KEY];
-}
-function getObjectTargets(obj2) {
-  if (!obj2) {
-    return null;
-  }
-  return obj2.userData[RAY_TARGETS_KEY];
-}
-function makeRayTarget(mesh, obj2) {
-  obj2 = obj2 || mesh;
-  return new RayTarget(obj2, mesh);
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/animation/scaleOnHover.ts
-var scaledItems = singleton("Juniper:ScaledItems", () => /* @__PURE__ */ new Map());
-var start = 1;
-var end = 1.1;
-var timeScale = 5e-3;
-var ScaleState = class {
-  constructor(obj2) {
-    this.obj = obj2;
-    this.base = obj2.scale.clone();
-    this.p = 0;
-    this.dir = 0;
-    this.running = false;
-    this.wasDisabled = this.disabled;
-    this.onEnter = () => this.run(1);
-    this.onExit = () => this.run(-1);
-    this.obj.traverse((child) => {
-      if (isMesh(child)) {
-        const target = makeRayTarget(child, this.obj);
-        target.addEventListener("enter", this.onEnter);
-        target.addEventListener("exit", this.onExit);
-      }
-    });
-  }
-  base;
-  onEnter;
-  onExit;
-  p;
-  dir;
-  running;
-  wasDisabled;
-  get enabled() {
-    const targets = getObjectTargets(this.obj);
-    if (!targets || targets.length === 0) {
-      return false;
-    }
-    for (const target of targets) {
-      if (!target.enabled) {
-        return false;
-      }
-    }
-    return true;
-  }
-  get disabled() {
-    return !this.enabled;
-  }
-  run(d) {
-    if (!this.disabled || (d === -1 || this.p > 0)) {
-      this.dir = d;
-      this.running = true;
-    }
-  }
-  updateScaling(dt) {
-    if (this.disabled !== this.wasDisabled) {
-      this.wasDisabled = this.disabled;
-      if (this.disabled) {
-        this.onExit();
-      }
-    }
-    if (this.running) {
-      this.p += this.dir * dt;
-      if (this.dir > 0 && this.p >= 1 || this.dir < 0 && this.p < 0) {
-        this.p = Math.max(0, Math.min(1, this.p));
-        this.running = false;
-      }
-      const q = bump(this.p, 1.1);
-      this.obj.scale.copy(this.base).multiplyScalar(q * (end - start) + start);
-    }
-  }
-  dispose() {
-    this.obj.removeEventListener("enter", this.onEnter);
-    this.obj.removeEventListener("exit", this.onExit);
-  }
-};
-function updateScalings(dt) {
-  dt *= timeScale;
-  for (const state of scaledItems.values()) {
-    state.updateScaling(dt);
-  }
-}
-function removeScaledObj(obj2) {
-  const state = scaledItems.get(obj2);
-  if (state) {
-    scaledItems.delete(obj2);
-    state.dispose();
-  }
-}
-function scaleOnHover(obj2) {
-  scaledItems.set(obj2, new ScaleState(obj2));
-}
-
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/cleanup.ts
-function cleanup(obj2) {
+function cleanup(obj3) {
   const cleanupQ = new Array();
   const cleanupSeen = /* @__PURE__ */ new Set();
-  cleanupQ.push(obj2);
+  cleanupQ.push(obj3);
   while (cleanupQ.length > 0) {
     const here = cleanupQ.shift();
     if (here && !cleanupSeen.has(here)) {
@@ -9410,10 +9574,10 @@ function cleanup(obj2) {
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/objectGetRelativePose.ts
 var M = new THREE.Matrix4();
-var P = new THREE.Vector3();
-function objectGetRelativePose(ref, obj2, position2, quaternion, scale4) {
-  M.copy(ref.matrixWorld).invert().multiply(obj2.matrixWorld).decompose(P, quaternion, scale4);
-  position2.set(P.x, P.y, P.z, 1);
+var P2 = new THREE.Vector3();
+function objectGetRelativePose(ref, obj3, position2, quaternion, scale4) {
+  M.copy(ref.matrixWorld).invert().multiply(obj3.matrixWorld).decompose(P2, quaternion, scale4);
+  position2.set(P2.x, P2.y, P2.z, 1);
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/Plane.ts
@@ -9511,7 +9675,7 @@ var TexturedMesh = class extends THREE.Mesh {
 };
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/Image2DMesh.ts
-var P2 = new THREE.Vector4();
+var P3 = new THREE.Vector4();
 var Q = new THREE.Quaternion();
 var S = new THREE.Vector3();
 var copyCounter = 0;
@@ -9601,9 +9765,9 @@ var Image2DMesh = class extends THREE.Object3D {
         }
         if (useLayer) {
           const space = this.env.referenceSpace;
-          objectGetRelativePose(this.env.stage, this.mesh, P2, Q, S);
+          objectGetRelativePose(this.env.stage, this.mesh, P3, Q, S);
           this.lastMatrixWorld.copy(this.matrixWorld);
-          const transform2 = new XRRigidTransform(P2, Q);
+          const transform2 = new XRRigidTransform(P3, Q);
           const width2 = S.x / 2;
           const height2 = S.y / 2;
           const layout = this.stereoLayoutName === "mono" ? "mono" : this.stereoLayoutName === "left-right" || this.stereoLayoutName === "right-left" ? "stereo-left-right" : "stereo-top-bottom";
@@ -9645,9 +9809,9 @@ var Image2DMesh = class extends THREE.Object3D {
           gl.bindTexture(gl.TEXTURE_2D, null);
         }
         if (arrayCompare(this.matrixWorld.elements, this.lastMatrixWorld.elements) >= 0) {
-          objectGetRelativePose(this.env.stage, this.mesh, P2, Q, S);
+          objectGetRelativePose(this.env.stage, this.mesh, P3, Q, S);
           this.lastMatrixWorld.copy(this.matrixWorld);
-          this.layer.transform = new XRRigidTransform(P2, Q);
+          this.layer.transform = new XRRigidTransform(P3, Q);
           this.layer.width = S.x / 2;
           this.layer.height = S.y / 2;
         }
@@ -9981,8 +10145,8 @@ function makeClipName(type2, isDisabled) {
   return `InteractionAudio-${type2}`;
 }
 var InteractionAudio = class {
-  constructor(audio2, eventSys) {
-    this.audio = audio2;
+  constructor(audio, eventSys) {
+    this.audio = audio;
     this.eventSys = eventSys;
     this.enabled = true;
     const playClip = (evt) => {
@@ -10214,19 +10378,9 @@ var Application_Javascript = /* @__PURE__ */ application("javascript", "js");
 var Application_Json = /* @__PURE__ */ application("json", "json");
 var Application_Wasm = /* @__PURE__ */ application("wasm", "wasm");
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/audio.ts
-var audio = /* @__PURE__ */ specialize("audio");
-var Audio_Mpeg = /* @__PURE__ */ audio("mpeg", "mp3", "mp2", "mp2a", "mpga", "m2a", "m3a");
-
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/image.ts
 var image = /* @__PURE__ */ specialize("image");
-var Image_Jpeg = /* @__PURE__ */ image("jpeg", "jpeg", "jpg", "jpe");
-var Image_Png = /* @__PURE__ */ image("png", "png");
 var Image_Vendor_Google_StreetView_Pano = image("vnd.google.streetview.pano");
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/model.ts
-var model = /* @__PURE__ */ specialize("model");
-var Model_Gltf_Binary = /* @__PURE__ */ model("gltf-binary", "glb");
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/text.ts
 var text = /* @__PURE__ */ specialize("text");
@@ -10238,8 +10392,8 @@ var video = /* @__PURE__ */ specialize("video");
 var Video_Vendor_Mpeg_Dash_Mpd = video("vnd.mpeg.dash.mpd", "mpd");
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/video/data.ts
-function isVideoRecord(obj2) {
-  return isString(obj2.vcodec);
+function isVideoRecord(obj3) {
+  return isString(obj3.vcodec);
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/video/BaseVideoPlayer.ts
@@ -11231,11 +11385,11 @@ var ScreenModeToggleButton = class extends ToggleButton {
 };
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/widgets/widgets.ts
-function widgetSetEnabled(obj2, enabled, buttonType) {
-  if (obj2.element instanceof HTMLButtonElement) {
-    buttonSetEnabled(obj2, enabled, buttonType);
+function widgetSetEnabled(obj3, enabled, buttonType) {
+  if (obj3.element instanceof HTMLButtonElement) {
+    buttonSetEnabled(obj3, enabled, buttonType);
   }
-  objectSetEnabled(obj2, enabled);
+  objectSetEnabled(obj3, enabled);
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/environment/ApplicationLoader.ts
@@ -11542,12 +11696,12 @@ function resolveCamera(renderer, camera) {
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/setRightUpFwdPosFromMatrix.ts
-function setRightUpFwdPosFromMatrix(matrix, R, U2, F, P3) {
+function setRightUpFwdPosFromMatrix(matrix, R, U2, F, P4) {
   const m = matrix.elements;
   R.set(m[0], m[1], m[2]);
   U2.set(m[4], m[5], m[6]);
   F.set(-m[8], -m[9], -m[10]);
-  P3.set(m[12], m[13], m[14]);
+  P4.set(m[12], m[13], m[14]);
   R.normalize();
   U2.normalize();
   F.normalize();
@@ -11558,8 +11712,8 @@ var MOUSE_SENSITIVITY_SCALE = 100;
 var TOUCH_SENSITIVITY_SCALE = 50;
 var GAMEPAD_SENSITIVITY_SCALE = 1;
 var MOTIONCONTROLLER_STICK_SENSITIVITY_SCALE = Math.PI / 3;
-function isPermissionedDeviceOrientationEvent(obj2) {
-  return obj2 === DeviceOrientationEvent && "requestPermission" in obj2 && isFunction(obj2.requestPermission);
+function isPermissionedDeviceOrientationEvent(obj3) {
+  return obj3 === DeviceOrientationEvent && "requestPermission" in obj3 && isFunction(obj3.requestPermission);
 }
 var AvatarLocal = class extends TypedEventBase {
   constructor(renderer, camera, fader, defaultAvatarHeight2) {
@@ -12004,13 +12158,13 @@ var CameraControl = class {
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/layers.ts
 var FOREGROUND = 0;
 var PURGATORY = 3;
-function deepSetLayer(obj2, level) {
-  obj2 = objectResolve(obj2);
-  obj2.traverse((o) => o.layers.set(level));
+function deepSetLayer(obj3, level) {
+  obj3 = objectResolve(obj3);
+  obj3.traverse((o) => o.layers.set(level));
 }
-function deepEnableLayer(obj2, level) {
-  obj2 = objectResolve(obj2);
-  obj2.traverse((o) => o.layers.enable(level));
+function deepEnableLayer(obj3, level) {
+  obj3 = objectResolve(obj3);
+  obj3.traverse((o) => o.layers.enable(level));
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/BaseCursor.ts
@@ -12070,10 +12224,10 @@ var Cursor3D = class extends BaseCursor {
     this.object = new THREE.Object3D();
     this.cursorSystem = cursorSystem;
   }
-  add(name2, obj2) {
-    this.object.add(obj2);
-    deepEnableLayer(obj2, PURGATORY);
-    obj2.visible = name2 === "default";
+  add(name2, obj3) {
+    this.object.add(obj3);
+    deepEnableLayer(obj3, PURGATORY);
+    obj3.visible = name2 === "default";
   }
   get position() {
     return this.object.position;
@@ -12110,11 +12264,11 @@ var Cursor3D = class extends BaseCursor {
     this.object.lookAt(v);
   }
   clone() {
-    const obj2 = new Cursor3D();
+    const obj3 = new Cursor3D();
     for (const child of this.object.children) {
-      obj2.add(child.name, child.clone());
+      obj3.add(child.name, child.clone());
     }
-    return obj2;
+    return obj3;
   }
 };
 
@@ -15212,101 +15366,6 @@ var PointerState = class {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/setGeometryUVsForCubemaps.ts
-function setGeometryUVsForCubemaps(geom2) {
-  const positions = geom2.attributes.position;
-  const normals = geom2.attributes.normal;
-  const uvs = geom2.attributes.uv;
-  for (let n2 = 0; n2 < normals.count; ++n2) {
-    const _x = n2 * normals.itemSize, _y = n2 * normals.itemSize + 1, _z = n2 * normals.itemSize + 2, nx = normals.array[_x], ny = normals.array[_y], nz = normals.array[_z], _nx_ = Math.abs(nx), _ny_ = Math.abs(ny), _nz_ = Math.abs(nz), px = positions.array[_x], py = positions.array[_y], pz = positions.array[_z], _px_ = Math.abs(px), _py_ = Math.abs(py), _pz_ = Math.abs(pz), _u = n2 * uvs.itemSize, _v = n2 * uvs.itemSize + 1;
-    let u = uvs.array[_u], v = uvs.array[_v], largest = 0, mx = _nx_, max3 = _px_;
-    if (_ny_ > mx) {
-      largest = 1;
-      mx = _ny_;
-      max3 = _py_;
-    }
-    if (_nz_ > mx) {
-      largest = 2;
-      mx = _nz_;
-      max3 = _pz_;
-    }
-    if (largest === 0) {
-      if (px < 0) {
-        u = -pz;
-        v = py;
-      } else {
-        u = pz;
-        v = py;
-      }
-    } else if (largest === 1) {
-      if (py < 0) {
-        u = px;
-        v = -pz;
-      } else {
-        u = px;
-        v = pz;
-      }
-    } else {
-      if (pz < 0) {
-        u = px;
-        v = py;
-      } else {
-        u = -px;
-        v = py;
-      }
-    }
-    u = (u / max3 + 1) / 8;
-    v = (v / max3 + 1) / 6;
-    if (largest === 0) {
-      if (px < 0) {
-        u += 0;
-        v += 1 / 3;
-      } else {
-        u += 0.5;
-        v += 1 / 3;
-      }
-    } else if (largest === 1) {
-      if (py < 0) {
-        u += 0.25;
-        v += 0;
-      } else {
-        u += 0.25;
-        v += 2 / 3;
-      }
-    } else {
-      if (pz < 0) {
-        u += 0.25;
-        v += 1 / 3;
-      } else {
-        u += 0.75;
-        v += 1 / 3;
-      }
-    }
-    const arr = uvs.array;
-    arr[_u] = u;
-    arr[_v] = v;
-  }
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/Cube.ts
-var cube = new THREE.BoxBufferGeometry(1, 1, 1, 1, 1, 1);
-cube.name = "CubeGeom";
-var invCube = cube.clone();
-invCube.name = "InvertedCubeGeom";
-setGeometryUVsForCubemaps(invCube);
-var Cube = class extends THREE.Mesh {
-  constructor(sx, sy, sz, material) {
-    super(cube, material);
-    this.scale.set(sx, sy, sz);
-  }
-};
-var InvCube = class extends THREE.Mesh {
-  constructor(sx, sy, sz, material) {
-    super(invCube, material);
-    this.scale.set(sx, sy, sz);
-  }
-};
-
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/CursorColor.ts
 var CursorColor = class extends BaseCursor {
   constructor() {
@@ -16102,10 +16161,10 @@ var PointerHand = class extends BasePointer {
     this.updateCursorSide();
   }
   updateCursorSide() {
-    const obj2 = this.cursor.object;
-    if (obj2) {
+    const obj3 = this.cursor.object;
+    if (obj3) {
       const sx = this.handedness === "left" ? -1 : 1;
-      obj2.scale.set(sx, 1, 1);
+      obj3.scale.set(sx, 1, 1);
     }
   }
   onUpdate() {
@@ -19931,16 +19990,16 @@ var Skybox = class {
       for (let column = 0; column < CUBEMAP_PATTERN.columns; ++column) {
         const i = indices[column];
         if (i > -1) {
-          const g2 = this.contexts[i];
+          const g = this.contexts[i];
           const rotation = rotations[column];
           if (rotation > 0) {
             if (rotation % 2 === 0) {
-              g2.translate(FACE_SIZE_HALF, FACE_SIZE_HALF);
+              g.translate(FACE_SIZE_HALF, FACE_SIZE_HALF);
             } else {
-              g2.translate(FACE_SIZE_HALF, FACE_SIZE_HALF);
+              g.translate(FACE_SIZE_HALF, FACE_SIZE_HALF);
             }
-            g2.rotate(rotation);
-            g2.translate(-FACE_SIZE_HALF, -FACE_SIZE_HALF);
+            g.rotate(rotation);
+            g.translate(-FACE_SIZE_HALF, -FACE_SIZE_HALF);
           }
         }
       }
@@ -19964,8 +20023,8 @@ var Skybox = class {
         for (let column = 0; column < CUBEMAP_PATTERN.columns; ++column) {
           const i = indices[column];
           if (i > -1) {
-            const g2 = this.contexts[i];
-            g2.drawImage(image2, column * width2, row * height2, width2, height2, 0, 0, FACE_SIZE, FACE_SIZE);
+            const g = this.contexts[i];
+            g.drawImage(image2, column * width2, row * height2, width2, height2, 0, 0, FACE_SIZE, FACE_SIZE);
           }
         }
       }
@@ -20377,16 +20436,16 @@ var BaseEnvironment = class extends TypedEventBase {
   }
   async loadModel(path, prog) {
     const loader = new GLTFLoader();
-    const model2 = await loader.loadAsync(path, (evt) => {
+    const model = await loader.loadAsync(path, (evt) => {
       if (isDefined(prog)) {
         prog.report(evt.loaded, evt.total, path);
       }
     });
-    return model2.scene;
+    return model.scene;
   }
   async load3DCursor(path, prog) {
-    const model2 = await this.loadModel(path, prog);
-    const children = model2.children.slice(0);
+    const model = await this.loadModel(path, prog);
+    const children = model.children.slice(0);
     for (const child of children) {
       this.cursor3D.add(child.name, child);
     }
@@ -21171,8 +21230,8 @@ var IDexStore = class {
 };
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher-base/FetchingServiceImplXHR.ts
-function isXHRBodyInit(obj2) {
-  return isString(obj2) || isArrayBufferView(obj2) || obj2 instanceof Blob || obj2 instanceof FormData || isArrayBuffer(obj2) || obj2 instanceof ReadableStream || "Document" in globalThis && obj2 instanceof Document;
+function isXHRBodyInit(obj3) {
+  return isString(obj3) || isArrayBufferView(obj3) || obj3 instanceof Blob || obj3 instanceof FormData || isArrayBuffer(obj3) || obj3 instanceof ReadableStream || "Document" in globalThis && obj3 instanceof Document;
 }
 function trackProgress(name2, xhr, target, prog, skipLoading, prevTask) {
   let prevDone = !prevTask;
@@ -21260,8 +21319,8 @@ var FetchingServiceImplXHR = class {
     }), (img) => {
       canvas.width = img.width;
       canvas.height = img.height;
-      const g2 = canvas.getContext("2d");
-      g2.drawImage(img, 0, 0);
+      const g = canvas.getContext("2d");
+      g.drawImage(img, 0, 0);
       return translateResponse(response, () => null);
     });
   }
@@ -22118,8 +22177,8 @@ var BaseFetchingServicePool = class extends WorkerPool {
     super(options, WorkerClientClass);
     this.fetcher = fetcher;
   }
-  getFetcher(obj2) {
-    if (obj2 instanceof FormData) {
+  getFetcher(obj3) {
+    if (obj3 instanceof FormData) {
       return this.fetcher;
     } else {
       return this.nextWorker();
@@ -22272,247 +22331,17 @@ async function createTestEnvironment(debug = true) {
   });
 }
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/objectScan.ts
-function objectScan(obj2, test) {
-  const queue = [obj2];
-  while (queue.length > 0) {
-    const here = queue.shift();
-    if (test(here)) {
-      return here;
-    }
-    if (here.children.length > 0) {
-      queue.push(...here.children);
-    }
-  }
-  return null;
-}
-
-// src/forest-app/Forest.ts
-function isMeshNamed(name2) {
-  return (obj2) => isMesh(obj2) && obj2.name === name2;
-}
-function isFalse(v) {
-  return !v;
-}
-function convertMaterial(convert, oldMat, override) {
-  if (isFalse(convert)) {
-    return oldMat;
-  }
-  const params = Object.assign({
-    alphaMap: oldMat.alphaMap,
-    alphaTest: oldMat.alphaTest,
-    alphaToCoverage: oldMat.alphaToCoverage,
-    aoMap: oldMat.aoMap,
-    aoMapIntensity: oldMat.aoMapIntensity,
-    blendDst: oldMat.blendDst,
-    blendDstAlpha: oldMat.blendDstAlpha,
-    blendEquation: oldMat.blendEquation,
-    blendEquationAlpha: oldMat.blendEquationAlpha,
-    blending: oldMat.blending,
-    blendSrc: oldMat.blendSrc,
-    blendSrcAlpha: oldMat.blendSrcAlpha,
-    clipIntersection: oldMat.clipIntersection,
-    clippingPlanes: oldMat.clippingPlanes,
-    clipShadows: oldMat.clipShadows,
-    color: oldMat.color,
-    colorWrite: oldMat.colorWrite,
-    defines: oldMat.defines,
-    depthFunc: oldMat.depthFunc,
-    depthTest: oldMat.depthTest,
-    depthWrite: oldMat.depthWrite,
-    dithering: oldMat.dithering,
-    envMap: oldMat.envMap,
-    fog: oldMat.fog,
-    lightMap: oldMat.lightMap,
-    lightMapIntensity: oldMat.lightMapIntensity,
-    map: oldMat.map,
-    name: oldMat.name + "-Basic",
-    opacity: oldMat.opacity,
-    polygonOffset: oldMat.polygonOffset,
-    polygonOffsetFactor: oldMat.polygonOffsetFactor,
-    polygonOffsetUnits: oldMat.polygonOffsetUnits,
-    precision: oldMat.precision,
-    premultipliedAlpha: oldMat.premultipliedAlpha,
-    shadowSide: oldMat.shadowSide,
-    side: oldMat.side,
-    stencilFail: oldMat.stencilFail,
-    stencilFunc: oldMat.stencilFunc,
-    stencilFuncMask: oldMat.stencilFuncMask,
-    stencilRef: oldMat.stencilRef,
-    stencilWrite: oldMat.stencilWrite,
-    stencilWriteMask: oldMat.stencilWriteMask,
-    stencilZFail: oldMat.stencilZFail,
-    stencilZPass: oldMat.stencilZPass,
-    toneMapped: oldMat.toneMapped,
-    transparent: oldMat.transparent,
-    userData: oldMat.userData,
-    vertexColors: oldMat.vertexColors,
-    visible: oldMat.visible,
-    wireframe: oldMat.wireframe,
-    wireframeLinecap: oldMat.wireframeLinecap,
-    wireframeLinejoin: oldMat.wireframeLinejoin,
-    wireframeLinewidth: oldMat.wireframeLinewidth
-  }, override);
-  for (const [key, value2] of Object.entries(params)) {
-    if (isNullOrUndefined(value2)) {
-      delete params[key];
-    }
-  }
-  return new THREE.MeshBasicMaterial(params);
-}
-var Forest = class {
-  constructor(env2, useBasicMaterial, density = 0.05) {
-    this.env = env2;
-    this.useBasicMaterial = useBasicMaterial;
-    this.density = density;
-    this.getJpeg = this.getJpeg.bind(this);
-    this.getPng = this.getPng.bind(this);
-    this.getModel = this.getModel.bind(this);
-    this.getAudio = this.getAudio.bind(this);
-    this.skybox = new Asset("/skyboxes/BearfenceMountain.jpeg", this.getJpeg);
-    this.forest = new Asset("/models/Forest-Ground.glb", this.getModel);
-    this.bgAudio = new Asset("/audio/forest.mp3", this.getAudio);
-    if (this.density > 0) {
-      this.tree = new Asset("/models/Forest-Tree.glb", this.getModel);
-    }
-    this.raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0), 0.1, 100);
-    this.hits = new Array();
-  }
-  skybox;
-  forest;
-  tree;
-  bgAudio;
-  raycaster;
-  hits;
-  _ground;
-  _water;
-  _trees;
-  get ground() {
-    return this._ground;
-  }
-  get water() {
-    return this._water;
-  }
-  get trees() {
-    return this._trees;
-  }
-  async load(...assets) {
-    await progressTasksWeighted(this.env.loadingBar, [
-      [1, (prog) => this.env.load(prog)],
-      [10, (prog) => this.env.fetcher.assets(prog, this.skybox, this.forest, this.tree, this.bgAudio, ...assets)]
-    ]);
-    this.env.skybox.setImage("forest", this.skybox.result);
-    this.env.audio.createClip("forest", this.bgAudio.result, true, true, true, 1, []);
-    this.env.audio.setClipPosition("forest", 25, 5, 25);
-    this.env.foreground.add(this.forest.result);
-    this.forest.result.updateMatrixWorld();
-    this.raycaster.camera = this.env.camera;
-    this._ground = objectScan(this.forest.result, isMeshNamed("Ground"));
-    this.env.timer.addTickHandler(() => {
-      const groundHit = this.groundTest(this.env.avatar.worldPos);
-      if (groundHit) {
-        this.env.avatar.stage.position.y = groundHit.point.y;
-      }
-    });
-    this._water = objectScan(this.forest.result, isMeshNamed("Water"));
-    this._ground.material = convertMaterial(this.useBasicMaterial, this._ground.material, { transparent: false });
-    this._water.material = convertMaterial(this.useBasicMaterial, this._water.material, { transparent: false });
-    if (this.density > 0) {
-      const matrices = this.makeTrees();
-      const treeMesh = objectScan(this.tree.result, isMesh);
-      const treeGeom = treeMesh.geometry;
-      const treeMat = convertMaterial(this.useBasicMaterial, treeMesh.material, { transparent: false });
-      this._trees = new THREE.InstancedMesh(treeGeom, treeMat, matrices.length);
-      for (let i = 0; i < matrices.length; ++i) {
-        this._trees.setMatrixAt(i, matrices[i]);
-      }
-      this.env.foreground.add(this._trees);
-    }
-    return assets;
-  }
-  getJpeg(path, prog) {
-    return this.env.fetcher.get(path).useCache(true).progress(prog).image(Image_Jpeg).then((response) => response.content);
-  }
-  getPng(path, prog) {
-    return this.env.fetcher.get(path).useCache(false).progress(prog).image(Image_Png).then((response) => response.content);
-  }
-  getAudio(path, prog) {
-    return this.env.fetcher.get(path).useCache(true).progress(prog).audio(true, true, Audio_Mpeg).then((response) => response.content);
-  }
-  getModel(path, prog) {
-    return this.env.fetcher.get(path).useCache(true).progress(prog).file(Model_Gltf_Binary).then((response) => this.env.loadModel(response.content));
-  }
-  makeTrees() {
-    const matrices = new Array();
-    const q = new THREE.Quaternion();
-    const right = new THREE.Vector3(1, 0, 0);
-    const p = new THREE.Vector3();
-    const q2 = new THREE.Quaternion().setFromAxisAngle(right, Math.PI / 2);
-    const up = new THREE.Vector3(0, 1, 0);
-    const s = new THREE.Vector3();
-    for (let dz = -25; dz <= 25; ++dz) {
-      for (let dx = -25; dx <= 25; ++dx) {
-        if (Math.random() <= this.density) {
-          const x = Math.random() * 0.1 + dx;
-          const z = Math.random() * 0.1 + dz;
-          p.set(x, 0, z);
-          const groundHit = this.groundTest(p);
-          if (groundHit) {
-            const w = THREE.MathUtils.randFloat(0.6, 1.3);
-            const h = THREE.MathUtils.randFloat(0.6, 1.3);
-            s.set(w, h, w);
-            const a = THREE.MathUtils.randFloat(0, 2 * Math.PI);
-            const m = new THREE.Matrix4().compose(groundHit.point, q.setFromAxisAngle(up, a).multiply(q2), s);
-            matrices.push(m);
-          }
-        }
-      }
-    }
-    return matrices;
-  }
-  groundTest(p) {
-    this.raycaster.ray.origin.copy(p);
-    this.raycaster.ray.origin.y += 10;
-    this.raycaster.intersectObject(this.ground, true, this.hits);
-    const groundHit = arrayScan(this.hits, isDefined);
-    arrayClear(this.hits);
-    return groundHit;
-  }
-};
-
-// src/grass-and-trees-app/index.ts
+// src/dragging-app/index.ts
 var env = await createTestEnvironment();
 await env.fadeOut();
-var forest = new Forest(env, true, 0.02);
-var [spatter] = await forest.load(new Asset("/img/spatter.png", forest.getPng));
-var canv = createUICanvas(spatter.result.width / 2, spatter.result.height / 2);
-var g = canv.getContext("2d");
-g.drawImage(spatter.result, 0, 0, canv.width, canv.height);
-var grassGeom = new THREE.PlaneBufferGeometry(5, 5, 1, 1);
-var grassTex = new THREE.CanvasTexture(canv);
-var grassMat = new THREE.MeshBasicMaterial({
-  map: grassTex,
-  transparent: true,
-  opacity: 1,
-  side: THREE.DoubleSide
-});
-var grass = new THREE.InstancedMesh(grassGeom, grassMat, 25);
-var dummy = new THREE.Object3D();
-dummy.rotation.set(Math.PI / 2, 0, 0);
-for (let i = 0; i < grass.count; ++i) {
-  dummy.position.set(0, i / (5 * grass.count), 0);
-  dummy.updateMatrix();
-  grass.setMatrixAt(i, dummy.matrix);
-  grass.setColorAt(i, new THREE.Color(0.25, 0.25 + i / (2 * grass.count), 0));
-}
-env.foreground.add(grass);
-env.timer.addTickHandler((evt) => {
-  for (let i = 0; i < grass.count; ++i) {
-    dummy.position.set(0.08 + 0.05 * Math.cos(evt.t / 1e3) * i / grass.count, i / (5 * grass.count), 0);
-    dummy.updateMatrix();
-    grass.setMatrixAt(i, dummy.matrix);
-  }
-  grass.instanceMatrix.needsUpdate = true;
-});
+await env.load(env.loadingBar);
+var obj2 = new Cube(0.25, 0.25, 0.25, lit({
+  color: "red"
+}));
+scaleOnHover(obj2);
+obj2.position.set(0, 1.75, -2);
+var transformer;
+objGraph(env.foreground, objGraph(obj2, transformer = new TransformEditor(false, 1.75)));
+console.log(transformer);
 await env.fadeIn();
 //# sourceMappingURL=index.js.map

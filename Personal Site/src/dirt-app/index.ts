@@ -1,5 +1,6 @@
 ﻿import { Dirt } from "@juniper-lib/graphics2d/Dirt";
-import { EventSystemThreeJSEvent } from "@juniper-lib/threejs/eventSystem/EventSystemEvent";
+import { EventSystemEvent } from "@juniper-lib/threejs/eventSystem/EventSystemEvent";
+import { makeRayTarget } from "@juniper-lib/threejs/eventSystem/RayTarget";
 import { isMobile } from "@juniper-lib/tslib";
 import { createTestEnvironment } from "../createTestEnvironment";
 import { Forest } from "../forest-app/Forest";
@@ -7,7 +8,7 @@ import { Forest } from "../forest-app/Forest";
 const env = await createTestEnvironment();
 await env.fadeOut();
 
-const forest = new Forest(env);
+const forest = new Forest(env, false);
 await forest.load();
 
 const S = isMobile() ? 2048 : 4096;
@@ -20,21 +21,20 @@ dirt.addEventListener("update", () => dirtMap.needsUpdate = true);
 
 const surface = forest.ground;
 surface.material.precision = "highp";
-//surface.material.bumpMap = dirtMap;
-//surface.material.bumpScale = 0.1;
+surface.material.bumpMap = dirtMap;
+surface.material.bumpScale = 0.1;
 surface.material.needsUpdate = true;
-surface.isClickable = true;
-surface.isDraggable = true;
 
-const onDragEvt = (ev: THREE.Event) => checkPointer(ev as any as EventSystemThreeJSEvent<"drag">);
-surface.addEventListener("drag", onDragEvt);
-surface.addEventListener("dragcancel", onDragEvt);
-surface.addEventListener("dragend", onDragEvt);
-surface.addEventListener("dragstart", onDragEvt);
+const surfaceTarget = makeRayTarget(surface);
+surfaceTarget.draggable = true;
+surfaceTarget.addEventListener("drag", checkPointer);
+surfaceTarget.addEventListener("dragcancel", checkPointer);
+surfaceTarget.addEventListener("dragend", checkPointer);
+surfaceTarget.addEventListener("dragstart", checkPointer);
 
 await env.fadeIn();
 
-function checkPointer(evt: EventSystemThreeJSEvent<string>) {
+function checkPointer(evt: EventSystemEvent) {
     dirt.checkPointerUV(evt.pointer.name,
         evt.hit.uv.x,
         1 - evt.hit.uv.y,

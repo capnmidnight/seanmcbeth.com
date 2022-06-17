@@ -1,46 +1,14 @@
-﻿import { createUICanvas } from "@juniper-lib/dom/canvas";
-import { Asset } from "@juniper-lib/fetcher";
+﻿import { Asset } from "@juniper-lib/fetcher";
 import { createTestEnvironment } from "../createTestEnvironment";
 import { Forest } from "../forest-app/Forest";
+import { makeGrass } from "../grass-app/makeGrass";
 
 const env = await createTestEnvironment();
 await env.fadeOut();
 
-const forest = new Forest(env, 0.02);
+const forest = new Forest(env, true, 0.02);
 const [spatter] = await forest.load(new Asset("/img/spatter.png", forest.getPng));
-const canv = createUICanvas(spatter.result.width / 2, spatter.result.height / 2);
-const g = canv.getContext("2d");
-g.drawImage(spatter.result, 0, 0, canv.width, canv.height);
 
-const grassGeom = new THREE.PlaneBufferGeometry(5, 5, 1, 1);
-const grassTex = new THREE.CanvasTexture(canv as HTMLCanvasElement);
-const grassMat = new THREE.MeshBasicMaterial({
-    map: grassTex,
-    transparent: true,
-    opacity: 1,
-    side: THREE.DoubleSide
-});
-
-const grass = new THREE.InstancedMesh(grassGeom, grassMat, 25);
-
-const dummy = new THREE.Object3D();
-dummy.rotation.set(Math.PI / 2, 0, 0);
-for (let i = 0; i < grass.count; ++i) {
-    dummy.position.set(0, i / (5 * grass.count), 0);
-    dummy.updateMatrix();
-    grass.setMatrixAt(i, dummy.matrix);
-    grass.setColorAt(i, new THREE.Color(0.25, 0.25 + i / (2 * grass.count), 0));
-}
-
-env.foreground.add(grass);
-
-env.timer.addTickHandler((evt) => {
-    for (let i = 0; i < grass.count; ++i) {
-        dummy.position.set(0.08 + 0.05 * Math.cos(evt.t / 1000) * i / grass.count, i / (5 * grass.count), 0);
-        dummy.updateMatrix();
-        grass.setMatrixAt(i, dummy.matrix);
-    }
-    grass.instanceMatrix.needsUpdate = true;
-});
+makeGrass(env, spatter.result);
 
 await env.fadeIn();

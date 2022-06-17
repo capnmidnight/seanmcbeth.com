@@ -4530,21 +4530,6 @@ function deg2rad(deg) {
   return deg * Math.PI / 180;
 }
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math/project.ts
-function project(v, min3, max3) {
-  const delta3 = max3 - min3;
-  if (delta3 === 0) {
-    return 0;
-  } else {
-    return (v - min3) / delta3;
-  }
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math/unproject.ts
-function unproject(v, min3, max3) {
-  return v * (max3 - min3) + min3;
-}
-
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math/lerp.ts
 function lerp2(a, b, p) {
   return (1 - p) * a + p * b;
@@ -4904,6 +4889,102 @@ var SetTimeoutTimer = class extends BaseTimer {
   }
 };
 
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/mapInvert.ts
+function mapInvert(map) {
+  const mapOut = /* @__PURE__ */ new Map();
+  for (const [key, value2] of map) {
+    mapOut.set(value2, key);
+  }
+  return mapOut;
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/units/fileSize.ts
+var base2Labels = /* @__PURE__ */ new Map([
+  [1, "KiB"],
+  [2, "MiB"],
+  [3, "GiB"],
+  [4, "TiB"]
+]);
+var base10Labels = /* @__PURE__ */ new Map([
+  [1, "KB"],
+  [2, "MB"],
+  [3, "GB"],
+  [4, "TB"]
+]);
+var base2Sizes = mapInvert(base2Labels);
+var base10Sizes = mapInvert(base10Labels);
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/units/length.ts
+var MICROMETERS_PER_MILLIMETER = 1e3;
+var MILLIMETERS_PER_CENTIMETER = 10;
+var CENTIMETERS_PER_INCH = 2.54;
+var CENTIMETERS_PER_METER = 100;
+var INCHES_PER_HAND = 4;
+var HANDS_PER_FOOT = 3;
+var FEET_PER_YARD = 3;
+var FEET_PER_ROD = 16.5;
+var METERS_PER_KILOMETER = 1e3;
+var RODS_PER_FURLONG = 40;
+var FURLONGS_PER_MILE = 8;
+var MICROMETERS_PER_CENTIMETER = MICROMETERS_PER_MILLIMETER * MILLIMETERS_PER_CENTIMETER;
+var MICROMETERS_PER_INCH = MICROMETERS_PER_CENTIMETER * CENTIMETERS_PER_INCH;
+var MICROMETERS_PER_HAND = MICROMETERS_PER_INCH * INCHES_PER_HAND;
+var MICROMETERS_PER_FOOT = MICROMETERS_PER_HAND * HANDS_PER_FOOT;
+var MICROMETERS_PER_YARD = MICROMETERS_PER_FOOT * FEET_PER_YARD;
+var MICROMETERS_PER_METER = MICROMETERS_PER_CENTIMETER * CENTIMETERS_PER_METER;
+var MICROMETERS_PER_ROD = MICROMETERS_PER_FOOT * FEET_PER_ROD;
+var MICROMETERS_PER_FURLONG = MICROMETERS_PER_ROD * RODS_PER_FURLONG;
+var MICROMETERS_PER_KILOMETER = MICROMETERS_PER_METER * METERS_PER_KILOMETER;
+var MICROMETERS_PER_MILE = MICROMETERS_PER_FURLONG * FURLONGS_PER_MILE;
+var MILLIMETERS_PER_INCH = MILLIMETERS_PER_CENTIMETER * CENTIMETERS_PER_INCH;
+var MILLIMETERS_PER_HAND = MILLIMETERS_PER_INCH * INCHES_PER_HAND;
+var MILLIMETERS_PER_FOOT = MILLIMETERS_PER_HAND * HANDS_PER_FOOT;
+var MILLIMETERS_PER_YARD = MILLIMETERS_PER_FOOT * FEET_PER_YARD;
+var MILLIMETERS_PER_METER = MILLIMETERS_PER_CENTIMETER * CENTIMETERS_PER_METER;
+var MILLIMETERS_PER_ROD = MILLIMETERS_PER_FOOT * FEET_PER_ROD;
+var MILLIMETERS_PER_FURLONG = MILLIMETERS_PER_ROD * RODS_PER_FURLONG;
+var MILLIMETERS_PER_KILOMETER = MILLIMETERS_PER_METER * METERS_PER_KILOMETER;
+var MILLIMETERS_PER_MILE = MILLIMETERS_PER_FURLONG * FURLONGS_PER_MILE;
+var CENTIMETERS_PER_HAND = CENTIMETERS_PER_INCH * INCHES_PER_HAND;
+var CENTIMETERS_PER_FOOT = CENTIMETERS_PER_HAND * HANDS_PER_FOOT;
+var CENTIMETERS_PER_YARD = CENTIMETERS_PER_FOOT * FEET_PER_YARD;
+var CENTIMETERS_PER_ROD = CENTIMETERS_PER_FOOT * FEET_PER_ROD;
+var CENTIMETERS_PER_FURLONG = CENTIMETERS_PER_ROD * RODS_PER_FURLONG;
+var CENTIMETERS_PER_KILOMETER = CENTIMETERS_PER_METER * METERS_PER_KILOMETER;
+var CENTIMETERS_PER_MILE = CENTIMETERS_PER_FURLONG * FURLONGS_PER_MILE;
+var INCHES_PER_FOOT = INCHES_PER_HAND * HANDS_PER_FOOT;
+var INCHES_PER_YARD = INCHES_PER_FOOT * FEET_PER_YARD;
+var INCHES_PER_METER = CENTIMETERS_PER_METER / CENTIMETERS_PER_INCH;
+var INCHES_PER_ROD = INCHES_PER_FOOT * FEET_PER_ROD;
+var INCHES_PER_FURLONG = INCHES_PER_ROD * RODS_PER_FURLONG;
+var INCHES_PER_KILOMETER = INCHES_PER_METER * METERS_PER_KILOMETER;
+var INCHES_PER_MILE = INCHES_PER_FURLONG * FURLONGS_PER_MILE;
+var HANDS_PER_YARD = HANDS_PER_FOOT * FEET_PER_YARD;
+var HANDS_PER_METER = CENTIMETERS_PER_METER / CENTIMETERS_PER_HAND;
+var HANDS_PER_ROD = HANDS_PER_FOOT * FEET_PER_ROD;
+var HANDS_PER_FURLONG = HANDS_PER_ROD * RODS_PER_FURLONG;
+var HANDS_PER_KILOMETER = HANDS_PER_METER * METERS_PER_KILOMETER;
+var HANDS_PER_MILE = HANDS_PER_FURLONG * FURLONGS_PER_MILE;
+var FEET_PER_METER = INCHES_PER_METER / INCHES_PER_FOOT;
+var FEET_PER_FURLONG = FEET_PER_ROD * RODS_PER_FURLONG;
+var FEET_PER_KILOMETER = FEET_PER_METER * METERS_PER_KILOMETER;
+var FEET_PER_MILE = FEET_PER_FURLONG * FURLONGS_PER_MILE;
+var YARDS_PER_METER = INCHES_PER_METER / INCHES_PER_YARD;
+var YARDS_PER_ROD = FEET_PER_ROD / FEET_PER_YARD;
+var YARDS_PER_FURLONG = YARDS_PER_ROD * RODS_PER_FURLONG;
+var YARDS_PER_KILOMETER = YARDS_PER_METER * METERS_PER_KILOMETER;
+var YARDS_PER_MILE = YARDS_PER_FURLONG * FURLONGS_PER_MILE;
+var METERS_PER_ROD = FEET_PER_ROD / FEET_PER_METER;
+var METERS_PER_FURLONG = METERS_PER_ROD * RODS_PER_FURLONG;
+var METERS_PER_MILE = METERS_PER_FURLONG * FURLONGS_PER_MILE;
+var RODS_PER_KILOMETER = METERS_PER_KILOMETER / METERS_PER_ROD;
+var RODS_PER_MILE = RODS_PER_FURLONG * FURLONGS_PER_MILE;
+var FURLONGS_PER_KILOMETER = METERS_PER_KILOMETER / METERS_PER_FURLONG;
+var KILOMETERS_PER_MILE = FURLONGS_PER_MILE / FURLONGS_PER_KILOMETER;
+function feet2Meters(feet) {
+  return feet / FEET_PER_METER;
+}
+
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/URLBuilder.ts
 function parsePort(portString) {
   if (isDefined(portString) && portString.length > 0) {
@@ -5085,102 +5166,6 @@ var URLBuilder = class {
     return this.toString();
   }
 };
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/mapInvert.ts
-function mapInvert(map) {
-  const mapOut = /* @__PURE__ */ new Map();
-  for (const [key, value2] of map) {
-    mapOut.set(value2, key);
-  }
-  return mapOut;
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/units/fileSize.ts
-var base2Labels = /* @__PURE__ */ new Map([
-  [1, "KiB"],
-  [2, "MiB"],
-  [3, "GiB"],
-  [4, "TiB"]
-]);
-var base10Labels = /* @__PURE__ */ new Map([
-  [1, "KB"],
-  [2, "MB"],
-  [3, "GB"],
-  [4, "TB"]
-]);
-var base2Sizes = mapInvert(base2Labels);
-var base10Sizes = mapInvert(base10Labels);
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/units/length.ts
-var MICROMETERS_PER_MILLIMETER = 1e3;
-var MILLIMETERS_PER_CENTIMETER = 10;
-var CENTIMETERS_PER_INCH = 2.54;
-var CENTIMETERS_PER_METER = 100;
-var INCHES_PER_HAND = 4;
-var HANDS_PER_FOOT = 3;
-var FEET_PER_YARD = 3;
-var FEET_PER_ROD = 16.5;
-var METERS_PER_KILOMETER = 1e3;
-var RODS_PER_FURLONG = 40;
-var FURLONGS_PER_MILE = 8;
-var MICROMETERS_PER_CENTIMETER = MICROMETERS_PER_MILLIMETER * MILLIMETERS_PER_CENTIMETER;
-var MICROMETERS_PER_INCH = MICROMETERS_PER_CENTIMETER * CENTIMETERS_PER_INCH;
-var MICROMETERS_PER_HAND = MICROMETERS_PER_INCH * INCHES_PER_HAND;
-var MICROMETERS_PER_FOOT = MICROMETERS_PER_HAND * HANDS_PER_FOOT;
-var MICROMETERS_PER_YARD = MICROMETERS_PER_FOOT * FEET_PER_YARD;
-var MICROMETERS_PER_METER = MICROMETERS_PER_CENTIMETER * CENTIMETERS_PER_METER;
-var MICROMETERS_PER_ROD = MICROMETERS_PER_FOOT * FEET_PER_ROD;
-var MICROMETERS_PER_FURLONG = MICROMETERS_PER_ROD * RODS_PER_FURLONG;
-var MICROMETERS_PER_KILOMETER = MICROMETERS_PER_METER * METERS_PER_KILOMETER;
-var MICROMETERS_PER_MILE = MICROMETERS_PER_FURLONG * FURLONGS_PER_MILE;
-var MILLIMETERS_PER_INCH = MILLIMETERS_PER_CENTIMETER * CENTIMETERS_PER_INCH;
-var MILLIMETERS_PER_HAND = MILLIMETERS_PER_INCH * INCHES_PER_HAND;
-var MILLIMETERS_PER_FOOT = MILLIMETERS_PER_HAND * HANDS_PER_FOOT;
-var MILLIMETERS_PER_YARD = MILLIMETERS_PER_FOOT * FEET_PER_YARD;
-var MILLIMETERS_PER_METER = MILLIMETERS_PER_CENTIMETER * CENTIMETERS_PER_METER;
-var MILLIMETERS_PER_ROD = MILLIMETERS_PER_FOOT * FEET_PER_ROD;
-var MILLIMETERS_PER_FURLONG = MILLIMETERS_PER_ROD * RODS_PER_FURLONG;
-var MILLIMETERS_PER_KILOMETER = MILLIMETERS_PER_METER * METERS_PER_KILOMETER;
-var MILLIMETERS_PER_MILE = MILLIMETERS_PER_FURLONG * FURLONGS_PER_MILE;
-var CENTIMETERS_PER_HAND = CENTIMETERS_PER_INCH * INCHES_PER_HAND;
-var CENTIMETERS_PER_FOOT = CENTIMETERS_PER_HAND * HANDS_PER_FOOT;
-var CENTIMETERS_PER_YARD = CENTIMETERS_PER_FOOT * FEET_PER_YARD;
-var CENTIMETERS_PER_ROD = CENTIMETERS_PER_FOOT * FEET_PER_ROD;
-var CENTIMETERS_PER_FURLONG = CENTIMETERS_PER_ROD * RODS_PER_FURLONG;
-var CENTIMETERS_PER_KILOMETER = CENTIMETERS_PER_METER * METERS_PER_KILOMETER;
-var CENTIMETERS_PER_MILE = CENTIMETERS_PER_FURLONG * FURLONGS_PER_MILE;
-var INCHES_PER_FOOT = INCHES_PER_HAND * HANDS_PER_FOOT;
-var INCHES_PER_YARD = INCHES_PER_FOOT * FEET_PER_YARD;
-var INCHES_PER_METER = CENTIMETERS_PER_METER / CENTIMETERS_PER_INCH;
-var INCHES_PER_ROD = INCHES_PER_FOOT * FEET_PER_ROD;
-var INCHES_PER_FURLONG = INCHES_PER_ROD * RODS_PER_FURLONG;
-var INCHES_PER_KILOMETER = INCHES_PER_METER * METERS_PER_KILOMETER;
-var INCHES_PER_MILE = INCHES_PER_FURLONG * FURLONGS_PER_MILE;
-var HANDS_PER_YARD = HANDS_PER_FOOT * FEET_PER_YARD;
-var HANDS_PER_METER = CENTIMETERS_PER_METER / CENTIMETERS_PER_HAND;
-var HANDS_PER_ROD = HANDS_PER_FOOT * FEET_PER_ROD;
-var HANDS_PER_FURLONG = HANDS_PER_ROD * RODS_PER_FURLONG;
-var HANDS_PER_KILOMETER = HANDS_PER_METER * METERS_PER_KILOMETER;
-var HANDS_PER_MILE = HANDS_PER_FURLONG * FURLONGS_PER_MILE;
-var FEET_PER_METER = INCHES_PER_METER / INCHES_PER_FOOT;
-var FEET_PER_FURLONG = FEET_PER_ROD * RODS_PER_FURLONG;
-var FEET_PER_KILOMETER = FEET_PER_METER * METERS_PER_KILOMETER;
-var FEET_PER_MILE = FEET_PER_FURLONG * FURLONGS_PER_MILE;
-var YARDS_PER_METER = INCHES_PER_METER / INCHES_PER_YARD;
-var YARDS_PER_ROD = FEET_PER_ROD / FEET_PER_YARD;
-var YARDS_PER_FURLONG = YARDS_PER_ROD * RODS_PER_FURLONG;
-var YARDS_PER_KILOMETER = YARDS_PER_METER * METERS_PER_KILOMETER;
-var YARDS_PER_MILE = YARDS_PER_FURLONG * FURLONGS_PER_MILE;
-var METERS_PER_ROD = FEET_PER_ROD / FEET_PER_METER;
-var METERS_PER_FURLONG = METERS_PER_ROD * RODS_PER_FURLONG;
-var METERS_PER_MILE = METERS_PER_FURLONG * FURLONGS_PER_MILE;
-var RODS_PER_KILOMETER = METERS_PER_KILOMETER / METERS_PER_ROD;
-var RODS_PER_MILE = RODS_PER_FURLONG * FURLONGS_PER_MILE;
-var FURLONGS_PER_KILOMETER = METERS_PER_KILOMETER / METERS_PER_FURLONG;
-var KILOMETERS_PER_MILE = FURLONGS_PER_MILE / FURLONGS_PER_KILOMETER;
-function feet2Meters(feet) {
-  return feet / FEET_PER_METER;
-}
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/using.ts
 function interfaceSigCheck(obj2, ...funcNames) {
@@ -7050,18 +7035,18 @@ var DeviceManager = class extends TypedEventBase {
     super();
     this.element = element;
     this.needsVideoDevice = needsVideoDevice;
+    this._hasAudioPermission = false;
+    this._hasVideoPermission = false;
+    this._currentStream = null;
     this.ready = this.start();
     Object.seal(this);
   }
-  _hasAudioPermission = false;
   get hasAudioPermission() {
     return this._hasAudioPermission;
   }
-  _hasVideoPermission = false;
   get hasVideoPermission() {
     return this._hasVideoPermission;
   }
-  _currentStream = null;
   get currentStream() {
     return this._currentStream;
   }
@@ -7075,7 +7060,6 @@ var DeviceManager = class extends TypedEventBase {
       this._currentStream = v;
     }
   }
-  ready;
   async start() {
     if (canChangeAudioOutput) {
       const device = await this.getPreferredAudioOutput();
@@ -8601,75 +8585,6 @@ function objectSetEnabled(obj2, enabled) {
   }
 }
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/animation/scaleOnHover.ts
-var scaledItems = singleton("Juniper:ScaledItems", () => /* @__PURE__ */ new Map());
-var start = 1;
-var end = 1.1;
-var timeScale = 5e-3;
-var ScaleState = class {
-  constructor(obj2) {
-    this.obj = obj2;
-    this.base = obj2.scale.clone();
-    this.p = 0;
-    this.dir = 0;
-    this.running = false;
-    this.wasDisabled = this.disabled;
-    this.onEnter = () => this.run(1);
-    this.onExit = () => this.run(-1);
-    this.obj.addEventListener("enter", this.onEnter);
-    this.obj.addEventListener("exit", this.onExit);
-  }
-  get enabled() {
-    return !this.obj.disabled;
-  }
-  get disabled() {
-    return !this.enabled;
-  }
-  run(d) {
-    if (this.enabled || (d === -1 || this.p > 0)) {
-      this.dir = d;
-      this.running = true;
-    }
-  }
-  updateScaling(dt) {
-    if (this.disabled !== this.wasDisabled) {
-      this.wasDisabled = this.disabled;
-      if (this.disabled) {
-        this.onExit();
-      }
-    }
-    if (this.running) {
-      this.p += this.dir * dt;
-      if (this.dir > 0 && this.p >= 1 || this.dir < 0 && this.p < 0) {
-        this.p = Math.max(0, Math.min(1, this.p));
-        this.running = false;
-      }
-      const q = bump(this.p, 1.1);
-      this.obj.scale.copy(this.base).multiplyScalar(q * (end - start) + start);
-    }
-  }
-  dispose() {
-    this.obj.removeEventListener("enter", this.onEnter);
-    this.obj.removeEventListener("exit", this.onExit);
-  }
-};
-function updateScalings(dt) {
-  dt *= timeScale;
-  for (const state of scaledItems.values()) {
-    state.updateScaling(dt);
-  }
-}
-function removeScaledObj(obj2) {
-  const state = scaledItems.get(obj2);
-  if (state) {
-    scaledItems.delete(obj2);
-    state.dispose();
-  }
-}
-function scaleOnHover(obj2) {
-  scaledItems.set(obj2, new ScaleState(obj2));
-}
-
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/examples/lines/LineMaterial.js
 THREE.UniformsLib.line = {
   worldUnits: { value: 1 },
@@ -9243,31 +9158,161 @@ function lit(options) {
 function line2(options) {
   return makeMaterial("line2", LineMaterial, options);
 }
-var black = 0;
 var grey = 12632256;
 var white = 16777215;
-function solidTransparentBlack(opacity) {
-  return solidTransparent({ color: black, opacity });
-}
 var litGrey = /* @__PURE__ */ lit({ color: grey });
 var litWhite = /* @__PURE__ */ lit({ color: white });
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/Plane.ts
-var plane = new THREE.PlaneBufferGeometry(1, 1, 1, 1);
-plane.name = "PlaneGeom";
-var BasePlane = class extends THREE.Mesh {
-  constructor(sx, sy, material, isCollider2) {
-    super(plane, material);
-    this.isCollider = isCollider2;
-    this.scale.set(sx, sy, 1);
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/RayTarget.ts
+var RAY_TARGET_KEY = "Juniper:ThreeJS:EventSystem:RayTarget";
+var RAY_TARGETS_KEY = "Juniper:ThreeJS:EventSystem:RayTargets";
+var RAY_TARGET_DISABLED_KEY = "Juniper:ThreeJS:EventSystem:RayTarget:Disabled";
+var RAY_TARGET_CLICKABLE_KEY = "Juniper:ThreeJS:EventSystem:RayTarget:Clickable";
+var RAY_TARGET_DRAGGABLE_KEY = "Juniper:ThreeJS:EventSystem:RayTarget:Draggable";
+var RayTarget = class extends TypedEventBase {
+  constructor(object, mesh) {
+    super();
+    this.object = object;
+    this.mesh = mesh;
+    this.mesh.userData[RAY_TARGET_KEY] = this;
+    let targets = this.object.userData[RAY_TARGETS_KEY];
+    if (!targets) {
+      this.object.userData[RAY_TARGETS_KEY] = targets = new Array();
+    }
+    targets.push(this);
+  }
+  get disabled() {
+    return this.object.userData[RAY_TARGET_DISABLED_KEY];
+  }
+  set disabled(v) {
+    this.object.userData[RAY_TARGET_DISABLED_KEY] = v;
+  }
+  get enabled() {
+    return !this.disabled;
+  }
+  set enabled(v) {
+    this.disabled = !v;
+  }
+  get clickable() {
+    return this.object.userData[RAY_TARGET_CLICKABLE_KEY];
+  }
+  set clickable(v) {
+    this.object.userData[RAY_TARGET_CLICKABLE_KEY] = v;
+  }
+  get draggable() {
+    return this.object.userData[RAY_TARGET_DRAGGABLE_KEY];
+  }
+  set draggable(v) {
+    this.object.userData[RAY_TARGET_DRAGGABLE_KEY] = v;
   }
 };
-var PlaneCollider = class extends BasePlane {
-  constructor(sx, sy) {
-    super(sx, sy, solidTransparentBlack(0), true);
-    this.visible = false;
+function getMeshTarget(objectOrHit) {
+  if (!objectOrHit) {
+    return null;
+  }
+  const obj2 = isObject3D(objectOrHit) ? objectOrHit : objectOrHit.object;
+  return obj2 && obj2.userData[RAY_TARGET_KEY];
+}
+function getObjectTargets(obj2) {
+  if (!obj2) {
+    return null;
+  }
+  return obj2.userData[RAY_TARGETS_KEY];
+}
+function makeRayTarget(mesh, obj2) {
+  obj2 = obj2 || mesh;
+  return new RayTarget(obj2, mesh);
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/animation/scaleOnHover.ts
+var scaledItems = singleton("Juniper:ScaledItems", () => /* @__PURE__ */ new Map());
+var start = 1;
+var end = 1.1;
+var timeScale = 5e-3;
+var ScaleState = class {
+  constructor(obj2) {
+    this.obj = obj2;
+    this.base = obj2.scale.clone();
+    this.p = 0;
+    this.dir = 0;
+    this.running = false;
+    this.wasDisabled = this.disabled;
+    this.onEnter = () => this.run(1);
+    this.onExit = () => this.run(-1);
+    this.obj.traverse((child) => {
+      if (isMesh(child)) {
+        const target = makeRayTarget(child, this.obj);
+        target.addEventListener("enter", this.onEnter);
+        target.addEventListener("exit", this.onExit);
+      }
+    });
+  }
+  base;
+  onEnter;
+  onExit;
+  p;
+  dir;
+  running;
+  wasDisabled;
+  get enabled() {
+    const targets = getObjectTargets(this.obj);
+    if (!targets || targets.length === 0) {
+      return false;
+    }
+    for (const target of targets) {
+      if (!target.enabled) {
+        return false;
+      }
+    }
+    return true;
+  }
+  get disabled() {
+    return !this.enabled;
+  }
+  run(d) {
+    if (!this.disabled || (d === -1 || this.p > 0)) {
+      this.dir = d;
+      this.running = true;
+    }
+  }
+  updateScaling(dt) {
+    if (this.disabled !== this.wasDisabled) {
+      this.wasDisabled = this.disabled;
+      if (this.disabled) {
+        this.onExit();
+      }
+    }
+    if (this.running) {
+      this.p += this.dir * dt;
+      if (this.dir > 0 && this.p >= 1 || this.dir < 0 && this.p < 0) {
+        this.p = Math.max(0, Math.min(1, this.p));
+        this.running = false;
+      }
+      const q = bump(this.p, 1.1);
+      this.obj.scale.copy(this.base).multiplyScalar(q * (end - start) + start);
+    }
+  }
+  dispose() {
+    this.obj.removeEventListener("enter", this.onEnter);
+    this.obj.removeEventListener("exit", this.onExit);
   }
 };
+function updateScalings(dt) {
+  dt *= timeScale;
+  for (const state of scaledItems.values()) {
+    state.updateScaling(dt);
+  }
+}
+function removeScaledObj(obj2) {
+  const state = scaledItems.get(obj2);
+  if (state) {
+    scaledItems.delete(obj2);
+    state.dispose();
+  }
+}
+function scaleOnHover(obj2) {
+  scaledItems.set(obj2, new ScaleState(obj2));
+}
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/cleanup.ts
 function cleanup(obj2) {
@@ -9305,6 +9350,16 @@ function objectGetRelativePose(ref, obj2, position2, quaternion, scale4) {
   M.copy(ref.matrixWorld).invert().multiply(obj2.matrixWorld).decompose(P, quaternion, scale4);
   position2.set(P.x, P.y, P.z, 1);
 }
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/Plane.ts
+var plane = new THREE.PlaneBufferGeometry(1, 1, 1, 1);
+plane.name = "PlaneGeom";
+var Plane = class extends THREE.Mesh {
+  constructor(sx, sy, material) {
+    super(plane, material);
+    this.scale.set(sx, sy, 1);
+  }
+};
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/TexturedMesh.ts
 var inchesPerMeter = 39.3701;
@@ -9734,16 +9789,9 @@ var TextMeshLabel = class extends THREE.Object3D {
 var TextMeshButton = class extends TextMeshLabel {
   constructor(fetcher, env2, name2, value2, textImageOptions) {
     super(fetcher, env2, name2, value2, textImageOptions);
-    this.collider = null;
-    this.isClickable = true;
+    this.target = makeRayTarget(this.enabledImage.mesh, this);
+    this.target.clickable = true;
     if (isDefined(value2)) {
-      this.image.addEventListener("redrawn", () => {
-        this.collider.scale.x = this.image.width;
-        this.collider.scale.y = this.image.height;
-      });
-      this.collider = new PlaneCollider(this.image.width, this.image.height);
-      this.collider.name = `collider-${this.name}`;
-      this.add(this.collider);
       scaleOnHover(this);
     }
   }
@@ -9803,10 +9851,10 @@ var ConfirmationDialog = class extends DialogBox {
     this.cancelButton.innerText = "No";
     this.mesh = new TextMeshLabel(this.env.fetcher, this.env, "confirmationDialogLabel", "", newStyle(textLabelStyle, fontFamily));
     this.confirmButton3D = new TextMeshButton(this.env.fetcher, this.env, "confirmationDialogConfirmButton", "Yes", newStyle(confirmButton3DStyle, fontFamily));
-    this.confirmButton3D.addEventListener("click", () => this.confirmButton.click());
+    this.confirmButton3D.target.addEventListener("click", () => this.confirmButton.click());
     this.confirmButton3D.position.set(1, -0.5, 0.5);
     this.cancelButton3D = new TextMeshButton(this.env.fetcher, this.env, "confirmationDialogCancelButton", "No", newStyle(cancelButton3DStyle, fontFamily));
-    this.cancelButton3D.addEventListener("click", () => this.cancelButton.click());
+    this.cancelButton3D.target.addEventListener("click", () => this.cancelButton.click());
     this.cancelButton3D.position.set(2, -0.5, 0.5);
     elementApply(this.container, styles(maxWidth("calc(100% - 2em)"), width("max-content")));
     elementApply(this.contentArea, styles(fontSize("18pt"), textAlign("center"), padding("1em")));
@@ -9860,52 +9908,9 @@ var ConfirmationDialog = class extends DialogBox {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/isVisible.ts
-function isVisible(obj2) {
-  while (obj2 != null) {
-    if (!obj2.visible) {
-      return false;
-    }
-    obj2 = obj2.parent;
-  }
-  return true;
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/InteractiveObject3D.ts
-function isCollider(obj2) {
-  return isObject3D(obj2) && isBoolean(obj2.isCollider) && isDefined(obj2.parent);
-}
-function isInteractiveHit(hit) {
-  return isDefined(hit) && isCollider(hit.object);
-}
-function isObjVisible(hit) {
-  return isDefined(hit) && isCollider(hit.object) && (isInteractiveObject3D(hit.object) && isVisible(hit.object) || isInteractiveObject3D(hit.object.parent) && isVisible(hit.object.parent));
-}
-function isInteractiveObject3D(obj2) {
-  return isObject3D(obj2) && (isBoolean(obj2.disabled) || isBoolean(obj2.isDraggable) || isBoolean(obj2.isClickable));
-}
-function checkClickable(obj2) {
-  return isInteractiveObject3D(obj2) && obj2.isClickable && !obj2.disabled;
-}
-function isClickable(hit) {
-  return isInteractiveHit(hit) && isCollider(hit.object) && (checkClickable(hit.object) || checkClickable(hit.object.parent));
-}
-function checkDraggable(obj2) {
-  return isInteractiveObject3D(obj2) && obj2.isDraggable && !obj2.disabled;
-}
-function isDraggable(hit) {
-  return isInteractiveHit(hit) && isCollider(hit.object) && (checkDraggable(hit.object) || checkDraggable(hit.object.parent));
-}
-function checkDisabled(obj2) {
-  return isInteractiveObject3D(obj2) && obj2.disabled;
-}
-function isDisabled(hit) {
-  return isInteractiveHit(hit) && isCollider(hit.object) && (checkDisabled(hit.object) || checkDisabled(hit.object.parent));
-}
-
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/InteractionAudio.ts
-function makeClipName(type2, isDisabled2) {
-  if (type2 === "click" && isDisabled2) {
+function makeClipName(type2, isDisabled) {
+  if (type2 === "click" && isDisabled) {
     type2 = "error";
   }
   return `InteractionAudio-${type2}`;
@@ -9916,9 +9921,8 @@ var InteractionAudio = class {
     this.eventSys = eventSys;
     this.enabled = true;
     const playClip = (evt) => {
-      const obj2 = evt.object;
-      if (this.enabled && isInteractiveObject3D(obj2) && obj2.isClickable) {
-        const clipName = makeClipName(evt.type, obj2.disabled);
+      if (this.enabled && evt.rayTarget && evt.rayTarget.clickable) {
+        const clipName = makeClipName(evt.type, !evt.rayTarget.enabled);
         if (this.audio.hasClip(clipName)) {
           const { x, y, z } = evt.point;
           this.audio.setClipPosition(clipName, x, y, z);
@@ -10698,7 +10702,7 @@ var VideoPlayer3D = class extends BaseVideoPlayer {
     }
     const aspect = this.height / this.width;
     if (encoding !== "N/A") {
-      this.vidMeshes[0].scale.set(100, 100, 100);
+      this.vidMeshes[0].scale.setScalar(100);
     } else if (layout === "mono") {
       this.vidMeshes[0].scale.set(1, aspect, 1);
     } else if (layout === "left-right" || layout === "right-left") {
@@ -10883,15 +10887,6 @@ function rot(def) {
   return def.map(rotQuad);
 }
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/Collider.ts
-var Collider = class extends THREE.Mesh {
-  constructor(geometry) {
-    super(geometry, solidTransparentBlack(0));
-    this.isCollider = true;
-    this.visible = false;
-  }
-};
-
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/MeshLabel.ts
 var MeshLabel = class extends THREE.Object3D {
   constructor(name2, geometry, enabledMaterial, disabledMaterial, size) {
@@ -10933,19 +10928,16 @@ var MeshLabel = class extends THREE.Object3D {
 var MeshButton = class extends MeshLabel {
   constructor(name2, geometry, enabledMaterial, disabledMaterial, size) {
     super(name2, geometry, enabledMaterial, disabledMaterial, size);
-    this.isDraggable = false;
-    this.isClickable = true;
-    this.collider = new Collider(geometry);
-    this.collider.name = `Collider-${this.name}`;
-    this.size = size;
-    this.add(this.collider);
+    this.target = makeRayTarget(this.enabledMesh);
+    this.target.clickable = true;
+    this.target.disabled = this.disabled;
     scaleOnHover(this);
   }
-  set size(v) {
-    super.size = v;
-    if (this.collider) {
-      this.collider.scale.setScalar(v);
-    }
+  get disabled() {
+    return super.disabled;
+  }
+  set disabled(v) {
+    this.target.disabled = super.disabled = v;
   }
 };
 
@@ -10962,7 +10954,7 @@ var ButtonImageWidget = class {
     this.mesh = new MeshButton(iconName, geometry, enabledMaterial, disabledMaterial, 0.2);
     this.object.add(this.mesh);
     this.mesh.visible = this.visible;
-    this.mesh.addEventListener("click", () => {
+    this.mesh.target.addEventListener("click", () => {
       this.element.click();
     });
   }
@@ -11113,8 +11105,8 @@ var ToggleButton = class {
       this.buttons.getGeometryAndMaterials(this.setName, this.inactiveName)
     ]);
     objGraph(this.object, this.enterButton = new MeshButton(`${this.setName}-activate-button`, activate.geometry, activate.enabledMaterial, activate.disabledMaterial, 0.2), this.exitButton = new MeshButton(`${this.setName}-deactivate-button`, deactivate.geometry, deactivate.enabledMaterial, deactivate.disabledMaterial, 0.2));
-    this.enterButton.addEventListener("click", () => this.element.click());
-    this.exitButton.addEventListener("click", () => this.element.click());
+    this.enterButton.target.addEventListener("click", () => this.element.click());
+    this.exitButton.target.addEventListener("click", () => this.element.click());
     this.refreshState();
   }
   get mesh() {
@@ -11334,11 +11326,11 @@ function minRotAngle(to, from) {
   const b = a + 2 * Math.PI;
   const c = a - 2 * Math.PI;
   const A3 = Math.abs(a);
-  const B3 = Math.abs(b);
+  const B2 = Math.abs(b);
   const C2 = Math.abs(c);
-  if (A3 < B3 && A3 < C2) {
+  if (A3 < B2 && A3 < C2) {
     return a;
-  } else if (B3 < C2) {
+  } else if (B2 < C2) {
     return b;
   } else {
     return c;
@@ -11445,7 +11437,7 @@ function onInput(callback, opts) {
   return new HtmlEvt("input", callback, opts);
 }
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/event-system/AvatarMovedEvent.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/AvatarMovedEvent.ts
 var AvatarMovedEvent = class extends TypedEvent {
   px = 0;
   py = 0;
@@ -11485,15 +11477,15 @@ function resolveCamera(renderer, camera) {
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/setRightUpFwdPosFromMatrix.ts
-function setRightUpFwdPosFromMatrix(matrix, R2, U3, F2, P4) {
+function setRightUpFwdPosFromMatrix(matrix, R, U2, F, P3) {
   const m = matrix.elements;
-  R2.set(m[0], m[1], m[2]);
-  U3.set(m[4], m[5], m[6]);
-  F2.set(-m[8], -m[9], -m[10]);
-  P4.set(m[12], m[13], m[14]);
-  R2.normalize();
-  U3.normalize();
-  F2.normalize();
+  R.set(m[0], m[1], m[2]);
+  U2.set(m[4], m[5], m[6]);
+  F.set(-m[8], -m[9], -m[10]);
+  P3.set(m[12], m[13], m[14]);
+  R.normalize();
+  U2.normalize();
+  F.normalize();
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/AvatarLocal.ts
@@ -11501,21 +11493,6 @@ var MOUSE_SENSITIVITY_SCALE = 100;
 var TOUCH_SENSITIVITY_SCALE = 50;
 var GAMEPAD_SENSITIVITY_SCALE = 1;
 var MOTIONCONTROLLER_STICK_SENSITIVITY_SCALE = Math.PI / 3;
-var B2 = new THREE.Vector3(0, 0, 1);
-var R = new THREE.Vector3();
-var F = new THREE.Vector3();
-var U = new THREE.Vector3();
-var P3 = new THREE.Vector3();
-var M2 = new THREE.Matrix4();
-var E = new THREE.Euler();
-var Q1 = new THREE.Quaternion();
-var Q2 = new THREE.Quaternion();
-var Q3 = new THREE.Quaternion(-Math.sqrt(0.5), 0, 0, Math.sqrt(0.5));
-var motion = new THREE.Vector3();
-var deltaQuat = new THREE.Quaternion();
-var nextFlick = new THREE.Vector3();
-var rotStage = new THREE.Matrix4();
-var userMovedEvt = new AvatarMovedEvent();
 function isPermissionedDeviceOrientationEvent(obj2) {
   return obj2 === DeviceOrientationEvent && "requestPermission" in obj2 && isFunction(obj2.requestPermission);
 }
@@ -11529,19 +11506,39 @@ var AvatarLocal = class extends TypedEventBase {
       ["mousedrag" /* MouseDrag */, 1 /* Mouse0 */],
       ["touchswipe" /* Touch */, 1 /* Mouse0 */]
     ]);
+    this.B = new THREE.Vector3(0, 0, 1);
+    this.R = new THREE.Vector3();
+    this.F = new THREE.Vector3();
+    this.U = new THREE.Vector3();
+    this.P = new THREE.Vector3();
+    this.M = new THREE.Matrix4();
+    this.E = new THREE.Euler();
+    this.Q1 = new THREE.Quaternion();
+    this.Q2 = new THREE.Quaternion();
+    this.Q3 = new THREE.Quaternion(-Math.sqrt(0.5), 0, 0, Math.sqrt(0.5));
+    this.motion = new THREE.Vector2();
+    this.nextFlick = new THREE.Vector2();
+    this.rotStage = new THREE.Matrix4();
+    this.userMovedEvt = new AvatarMovedEvent();
     this._heading = 0;
     this._pitch = 0;
     this._roll = 0;
+    this.headX = 0;
+    this.headZ = 0;
     this.fwrd = false;
     this.back = false;
     this.left = false;
-    this.rgth = false;
+    this.rght = false;
+    this.fwrd2 = false;
+    this.back2 = false;
+    this.left2 = false;
+    this.rght2 = false;
     this.up = false;
     this.down = false;
     this.grow = false;
     this.shrk = false;
-    this.viewEuler = new THREE.Euler();
     this.move = new THREE.Vector3();
+    this.move2 = new THREE.Vector3();
     this.followers = new Array();
     this.worldPos = new THREE.Vector3();
     this._worldHeading = 0;
@@ -11549,23 +11546,16 @@ var AvatarLocal = class extends TypedEventBase {
     this.lastTouchInputTime = Number.MIN_SAFE_INTEGER;
     this.evtSys = null;
     this.requiredTouchCount = 1;
-    this.disableHorizontal = false;
-    this.disableVertical = false;
-    this.invertHorizontal = false;
-    this.invertVertical = true;
+    this.axisControl = new THREE.Vector2(0, 0);
     this.minimumX = -85 * Math.PI / 180;
     this.maximumX = 85 * Math.PI / 180;
     this.target = new THREE.Quaternion(0, 0, 0, 1);
     this.edgeFactor = 1 / 3;
-    this.accelerationX = 2;
-    this.accelerationY = 2;
-    this.speedX = 3;
-    this.speedY = 2;
+    this.acceleration = new THREE.Vector2(2, 2);
+    this.speed = new THREE.Vector2(3, 2);
     this.deviceQ = new THREE.Quaternion().identity();
-    this.u = 0;
-    this.v = 0;
-    this.du = 0;
-    this.dv = 0;
+    this.uv = new THREE.Vector2();
+    this.duv = new THREE.Vector2();
     this._keyboardControlEnabled = false;
     this.deviceOrientation = null;
     this.screenOrientation = 0;
@@ -11573,45 +11563,40 @@ var AvatarLocal = class extends TypedEventBase {
     this.onDeviceOrientationChangeEvent = null;
     this.onScreenOrientationChangeEvent = null;
     this.motionEnabled = false;
+    this.disableHorizontal = false;
+    this.disableVertical = false;
+    this.invertHorizontal = false;
+    this.invertVertical = true;
     this._height = defaultAvatarHeight2;
     this.head = obj("Head", fader);
-    this.onKeyDown = (evt) => {
-      const ok = isModifierless(evt);
-      if (evt.key === "w")
+    const setKey = (key, ok) => {
+      if (key === "w")
         this.fwrd = ok;
-      if (evt.key === "s")
+      if (key === "s")
         this.back = ok;
-      if (evt.key === "a")
+      if (key === "a")
         this.left = ok;
-      if (evt.key === "d")
-        this.rgth = ok;
-      if (evt.key === "e")
+      if (key === "d")
+        this.rght = ok;
+      if (key === "e")
         this.up = ok;
-      if (evt.key === "q")
+      if (key === "q")
         this.down = ok;
-      if (evt.key === "r")
+      if (key === "ArrowUp")
+        this.fwrd2 = ok;
+      if (key === "ArrowDown")
+        this.back2 = ok;
+      if (key === "ArrowLeft")
+        this.left2 = ok;
+      if (key === "ArrowRight")
+        this.rght2 = ok;
+      if (key === "r")
         this.grow = ok;
-      if (evt.key === "f")
+      if (key === "f")
         this.shrk = ok;
     };
-    this.onKeyUp = (evt) => {
-      if (evt.key === "w")
-        this.fwrd = false;
-      if (evt.key === "s")
-        this.back = false;
-      if (evt.key === "a")
-        this.left = false;
-      if (evt.key === "d")
-        this.rgth = false;
-      if (evt.key === "e")
-        this.up = false;
-      if (evt.key === "q")
-        this.down = false;
-      if (evt.key === "r")
-        this.grow = false;
-      if (evt.key === "f")
-        this.shrk = false;
-    };
+    this.onKeyDown = (evt) => setKey(evt.key, isModifierless(evt));
+    this.onKeyUp = (evt) => setKey(evt.key, false);
     this.keyboardControlEnabled = true;
     if (isMobileVR()) {
       this.controlMode = "motioncontroller" /* MotionControllerStick */;
@@ -11644,6 +11629,22 @@ var AvatarLocal = class extends TypedEventBase {
   get worldPitch() {
     return this._worldPitch;
   }
+  set disableVertical(v) {
+    this._disableVertical = v;
+    this.axisControl.x = this._disableVertical ? 0 : this._invertVertical ? 1 : -1;
+  }
+  set invertVertical(v) {
+    this._invertVertical = v;
+    this.axisControl.x = this._disableVertical ? 0 : this._invertVertical ? 1 : -1;
+  }
+  set disableHorizontal(v) {
+    this._disableHorizontal = v;
+    this.axisControl.y = this._disableHorizontal ? 0 : this._invertHorizontal ? 1 : -1;
+  }
+  set invertHorizontal(v) {
+    this._invertHorizontal = v;
+    this.axisControl.y = this._disableHorizontal ? 0 : this._invertHorizontal ? 1 : -1;
+  }
   get height() {
     return this.head.position.y;
   }
@@ -11654,7 +11655,7 @@ var AvatarLocal = class extends TypedEventBase {
     return this.head.parent;
   }
   onFlick(direction) {
-    nextFlick.set(MOTIONCONTROLLER_STICK_SENSITIVITY_SCALE * direction, 0, 0);
+    this.nextFlick.x = MOTIONCONTROLLER_STICK_SENSITIVITY_SCALE * direction;
   }
   get keyboardControlEnabled() {
     return this._keyboardControlEnabled;
@@ -11683,10 +11684,8 @@ var AvatarLocal = class extends TypedEventBase {
     if (evt.pointer.enabled) {
       this.setMode(evt);
       if (evt.pointer.canMoveView && this.checkMode(this.controlMode, evt)) {
-        this.u = evt.pointer.state.u;
-        this.v = evt.pointer.state.v;
-        this.du = evt.pointer.state.du;
-        this.dv = evt.pointer.state.dv;
+        this.uv.copy(evt.pointer.state.uv);
+        this.duv.copy(evt.pointer.state.duv);
       }
     }
   }
@@ -11766,70 +11765,62 @@ var AvatarLocal = class extends TypedEventBase {
         const beta2 = device.beta ? deg2rad(device.beta) : 0;
         const gamma = device.gamma ? deg2rad(device.gamma) : 0;
         const orient = this.screenOrientation ? deg2rad(this.screenOrientation) : 0;
-        E.set(beta2, alpha, -gamma, "YXZ");
-        Q2.setFromAxisAngle(B2, -orient);
-        this.deviceQ.setFromEuler(E).multiply(Q3).multiply(Q2);
+        this.E.set(beta2, alpha, -gamma, "YXZ");
+        this.Q2.setFromAxisAngle(this.B, -orient);
+        this.deviceQ.setFromEuler(this.E).multiply(this.Q3).multiply(this.Q2);
+      }
+    } else if (this.controlMode === "motioncontroller" /* MotionControllerStick */) {
+      if (this.nextFlick.manhattanLength() !== 0) {
+        this.motion.copy(this.nextFlick).multiply(this.axisControl);
+        this.nextFlick.setScalar(0);
+        this.setHeading(this.heading + this.motion.x);
+        this.setPitch(this.pitch + this.motion.y, this.minimumX, this.maximumX);
+        this.setRoll(0);
+      }
+    } else if (this.controlMode === "mouseedge" /* MouseScreenEdge */) {
+      if (this.uv.manhattanLength() > 0) {
+        this.motion.set(this.scaleRadialComponent(this.uv.x, this.speed.x, this.acceleration.x), this.scaleRadialComponent(this.uv.y, this.speed.y, this.acceleration.y)).multiplyScalar(dt).multiply(this.axisControl);
+        this.setHeading(this.heading + this.motion.x);
+        this.setPitch(this.pitch + this.motion.y, this.minimumX, this.maximumX);
+        this.setRoll(0);
       }
     } else if (this.controlMode === "mousefirstperson" /* MouseFPS */) {
-      this.setHeading(this.heading - this.du * 5);
-      this.setPitch(this.pitch + this.dv * 5, this.minimumX, this.maximumX);
-      this.setRoll(0);
-      this.du *= 0.5;
-      this.dv *= 0.5;
+      if (this.duv.manhattanLength() > 0) {
+        this.motion.copy(this.duv).multiply(this.axisControl);
+        this.setHeading(this.heading + this.motion.x);
+        this.setPitch(this.pitch + this.motion.y, this.minimumX, this.maximumX);
+        this.setRoll(0);
+      }
     } else if (this.controlMode !== "none" /* None */) {
-      const startPitch = this.pitch;
-      const startHeading = this.heading;
-      if (this.controlMode === "motioncontroller" /* MotionControllerStick */) {
-        motion.copy(nextFlick);
-        nextFlick.set(0, 0, 0);
-      } else if (this.controlMode === "mouseedge" /* MouseScreenEdge */) {
-        motion.set(this.scaleRadialComponent(this.u, this.speedX, this.accelerationX), this.scaleRadialComponent(-this.v, this.speedY, this.accelerationY), 0);
-      } else {
+      if (this.duv.manhattanLength() > 0) {
         const sensitivity = this.controlMode === "mousedrag" /* MouseDrag */ ? MOUSE_SENSITIVITY_SCALE : this.controlMode === "touchswipe" /* Touch */ ? TOUCH_SENSITIVITY_SCALE : this.controlMode === "gamepad" /* Gamepad */ ? GAMEPAD_SENSITIVITY_SCALE : assertNever(this.controlMode);
-        motion.set(-sensitivity * this.du, sensitivity * this.dv, 0);
-      }
-      if (this.controlMode === "mousedrag" /* MouseDrag */ || this.controlMode === "touchswipe" /* Touch */) {
-        const factor = Math.pow(0.95, 100 * dt);
-        this.du = truncate(factor * this.du);
-        this.dv = truncate(factor * this.dv);
-      }
-      if (this.disableVertical) {
-        motion.x = 0;
-      } else if (this.invertVertical) {
-        motion.x *= -1;
-      }
-      if (this.disableHorizontal) {
-        motion.y = 0;
-      } else if (this.invertHorizontal) {
-        motion.y *= -1;
-      }
-      if (this.controlMode !== "motioncontroller" /* MotionControllerStick */) {
-        motion.multiplyScalar(dt);
-      }
-      E.set(motion.y, motion.x, 0, "YXZ");
-      deltaQuat.setFromEuler(E);
-      this.viewEuler.setFromQuaternion(deltaQuat, "YXZ");
-      let { x, y } = this.viewEuler;
-      this.setHeading(this.heading + y);
-      this.setPitch(this.pitch + x, this.minimumX, this.maximumX);
-      this.setRoll(0);
-      if (this.evtSys) {
-        const viewChanged = startPitch !== this.pitch || startHeading !== this.heading;
-        if (viewChanged && this.controlMode === "mouseedge" /* MouseScreenEdge */) {
-          this.evtSys.recheckPointers();
-        }
+        this.motion.copy(this.duv).multiplyScalar(sensitivity * dt).multiply(this.axisControl);
+        this.setHeading(this.heading + this.motion.x);
+        this.setPitch(this.pitch + this.motion.y, this.minimumX, this.maximumX);
+        this.setRoll(0);
       }
     }
-    if (this.fwrd || this.back || this.left || this.rgth || this.up || this.down) {
-      Q1.setFromAxisAngle(this.stage.up, this.worldHeading);
-      const dx = (this.left ? -1 : 0) + (this.rgth ? 1 : 0);
+    this.Q1.setFromAxisAngle(this.stage.up, this.worldHeading);
+    if (this.fwrd || this.back || this.left || this.rght || this.up || this.down) {
+      const dx = (this.left ? -1 : 0) + (this.rght ? 1 : 0);
       const dy = (this.down ? -1 : 0) + (this.up ? 1 : 0);
       const dz = (this.fwrd ? -1 : 0) + (this.back ? 1 : 0);
       this.move.set(dx, dy, dz);
       const d = this.move.length();
       if (d > 0) {
-        this.move.multiplyScalar(dt / d).applyQuaternion(Q1);
+        this.move.multiplyScalar(dt / d).applyQuaternion(this.Q1);
         this.stage.position.add(this.move);
+      }
+    }
+    if (this.fwrd2 || this.back2 || this.left2 || this.rght2) {
+      const dx = (this.left2 ? -1 : 0) + (this.rght2 ? 1 : 0);
+      const dz = (this.fwrd2 ? -1 : 0) + (this.back2 ? 1 : 0);
+      this.move2.set(dx, 0, dz);
+      const d = this.move2.length();
+      if (d > 0) {
+        this.move2.multiplyScalar(dt / d).applyQuaternion(this.Q1);
+        this.headX += this.move2.x;
+        this.headZ += this.move2.y;
       }
     }
     if (this.grow || this.shrk) {
@@ -11838,8 +11829,13 @@ var AvatarLocal = class extends TypedEventBase {
       this._height = clamp(this._height, 1, 2);
     }
     this.updateOrientation();
-    userMovedEvt.set(P3.x, P3.y, P3.z, F.x, F.y, F.z, U.x, U.y, U.z, this.height);
-    this.dispatchEvent(userMovedEvt);
+    this.userMovedEvt.set(this.P.x, this.P.y, this.P.z, this.F.x, this.F.y, this.F.z, this.U.x, this.U.y, this.U.z, this.height);
+    this.dispatchEvent(this.userMovedEvt);
+    const decay = Math.pow(0.95, 100 * dt);
+    this.duv.multiplyScalar(decay);
+    if (this.duv.manhattanLength() <= 1e-4) {
+      this.duv.setScalar(0);
+    }
   }
   scaleRadialComponent(n2, dn, ddn) {
     const absN = Math.abs(n2);
@@ -11847,28 +11843,28 @@ var AvatarLocal = class extends TypedEventBase {
   }
   updateOrientation() {
     const cam = resolveCamera(this.renderer, this.camera);
-    rotStage.makeRotationY(this._heading);
-    this.stage.matrix.makeTranslation(this.stage.position.x, this.stage.position.y, this.stage.position.z).multiply(rotStage);
+    this.rotStage.makeRotationY(this._heading);
+    this.stage.matrix.makeTranslation(this.stage.position.x, this.stage.position.y, this.stage.position.z).multiply(this.rotStage);
     this.stage.matrix.decompose(this.stage.position, this.stage.quaternion, this.stage.scale);
     if (this.renderer.xr.isPresenting) {
-      M2.copy(this.stage.matrixWorld).invert();
-      this.head.position.copy(cam.position).applyMatrix4(M2);
+      this.M.copy(this.stage.matrixWorld).invert();
+      this.head.position.copy(cam.position).applyMatrix4(this.M);
       this.head.quaternion.copy(this.stage.quaternion).invert().multiply(cam.quaternion);
     } else {
-      this.head.position.set(0, this._height, 0);
-      E.set(this._pitch, 0, this._roll, "XYZ");
-      this.head.quaternion.setFromEuler(E).premultiply(this.deviceQ);
+      this.head.position.set(this.headX, this._height, this.headZ);
+      this.E.set(this._pitch, 0, this._roll, "XYZ");
+      this.head.quaternion.setFromEuler(this.E).premultiply(this.deviceQ);
     }
     this.camera.position.copy(this.head.position);
     this.camera.quaternion.copy(this.head.quaternion);
     this.head.getWorldPosition(this.worldPos);
-    this.head.getWorldDirection(F);
-    this._worldHeading = getLookHeading(F);
-    this._worldPitch = getLookPitch(F);
-    setRightUpFwdPosFromMatrix(this.head.matrixWorld, R, U, F, P3);
+    this.head.getWorldDirection(this.F);
+    this._worldHeading = getLookHeading(this.F);
+    this._worldPitch = getLookPitch(this.F);
+    setRightUpFwdPosFromMatrix(this.head.matrixWorld, this.R, this.U, this.F, this.P);
   }
   reset() {
-    this.stage.position.set(0, 0, 0);
+    this.stage.position.setScalar(0);
     this.setHeadingImmediate(0);
   }
   resetFollowers() {
@@ -11918,7 +11914,7 @@ var CameraControl = class {
     this.dz = 0;
   }
   onMove(evt) {
-    if (evt.pointer.enabled && evt.pointer.canMoveView && evt.pointer.state.dz !== 0) {
+    if (evt.pointer.enabled && evt.pointer.canMoveView) {
       this.dz = evt.pointer.state.dz;
     }
   }
@@ -11955,7 +11951,7 @@ function deepEnableLayer(obj2, level) {
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/BaseCursor.ts
 var T = new THREE.Vector3();
 var V = new THREE.Vector3();
-var Q4 = new THREE.Quaternion();
+var Q2 = new THREE.Quaternion();
 var BaseCursor = class {
   constructor() {
     this._object = null;
@@ -11983,8 +11979,8 @@ var BaseCursor = class {
   update(avatarHeadPos, hit, defaultDistance, canMoveView, state, origin, direction) {
     if (hit && hit.face) {
       this.position.copy(hit.point);
-      hit.object.getWorldQuaternion(Q4);
-      T.copy(hit.face.normal).applyQuaternion(Q4);
+      hit.object.getWorldQuaternion(Q2);
+      T.copy(hit.face.normal).applyQuaternion(Q2);
       V.copy(T).multiplyScalar(0.02);
       this.position.add(V);
       V.copy(T).multiplyScalar(10).add(this.position);
@@ -11994,7 +11990,8 @@ var BaseCursor = class {
     }
     this.object.parent.worldToLocal(this.position);
     this.lookAt(V);
-    this.style = hit ? isDisabled(hit) ? "not-allowed" : isDraggable(hit) ? state.dragging ? "grabbing" : "move" : isClickable(hit) ? "pointer" : "default" : canMoveView ? state.buttons === 1 /* Mouse0 */ ? "grabbing" : "grab" : "default";
+    const target = getMeshTarget(hit);
+    this.style = target ? !target.enabled ? "not-allowed" : target.draggable ? state.dragging ? "grabbing" : "move" : target.clickable ? "pointer" : "default" : canMoveView ? state.buttons === 1 /* Mouse0 */ ? "grabbing" : "grab" : "default";
   }
   lookAt(_v) {
   }
@@ -12056,7 +12053,7 @@ var Cursor3D = class extends BaseCursor {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/event-system/ObjectMovedEvent.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/ObjectMovedEvent.ts
 var ObjectMovedEvent = class extends TypedEvent {
   constructor(name2 = null) {
     super("objectMoved");
@@ -12084,18 +12081,6 @@ var ObjectMovedEvent = class extends TypedEvent {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/resolveObj.ts
-function resolveObj(hit) {
-  if (!hit || !isCollider(hit.object)) {
-    return null;
-  }
-  let obj2 = hit.object;
-  while (isDefined(obj2) && !isInteractiveObject3D(obj2)) {
-    obj2 = obj2.parent;
-  }
-  return obj2;
-}
-
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/EventSystemEvent.ts
 var EventSystemEvent = class extends TypedEvent {
   constructor(type2, pointer) {
@@ -12104,7 +12089,7 @@ var EventSystemEvent = class extends TypedEvent {
     this._hit = null;
     this._point = null;
     this._distance = Number.POSITIVE_INFINITY;
-    this._object = null;
+    this._rayTarget = null;
     Object.seal(this);
   }
   get hit() {
@@ -12115,39 +12100,16 @@ var EventSystemEvent = class extends TypedEvent {
       this._hit = v;
       this._point = null;
       this._distance = Number.POSITIVE_INFINITY;
-      this._object = null;
+      this._rayTarget = null;
       if (v) {
         this._point = v.point;
         this._distance = v.distance;
-        this._object = resolveObj(v);
+        this._rayTarget = getMeshTarget(v.object);
       }
     }
   }
-  get object() {
-    return this._object;
-  }
-  get point() {
-    return this._point;
-  }
-  get distance() {
-    return this._distance;
-  }
-  to3(altHit) {
-    return new EventSystemThreeJSEvent(this.type, this.pointer, altHit, this.pointer.state.buttons);
-  }
-};
-var EventSystemThreeJSEvent = class {
-  constructor(type2, pointer, hit, buttons) {
-    this.type = type2;
-    this.pointer = pointer;
-    this.hit = hit;
-    this.buttons = buttons;
-    this._point = this.hit && this.hit.point;
-    this._distance = this.hit && this.hit.distance || Number.POSITIVE_INFINITY;
-    this._object = resolveObj(this.hit);
-  }
-  get object() {
-    return this._object;
+  get rayTarget() {
+    return this._rayTarget;
   }
   get point() {
     return this._point;
@@ -15148,20 +15110,16 @@ var XRHandModelFactory = class {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/event-system/PointerState.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/PointerState.ts
 var PointerState = class {
   buttons = 0;
   moveDistance = 0;
   dragDistance = 0;
-  x = 0;
-  y = 0;
-  dx = 0;
-  dy = 0;
+  position = new THREE.Vector2();
+  motion = new THREE.Vector2();
   dz = 0;
-  u = 0;
-  v = 0;
-  du = 0;
-  dv = 0;
+  uv = new THREE.Vector2();
+  duv = new THREE.Vector2();
   canClick = false;
   dragging = false;
   ctrl = false;
@@ -15175,15 +15133,11 @@ var PointerState = class {
     this.buttons = ptr.buttons;
     this.moveDistance = ptr.moveDistance;
     this.dragDistance = ptr.dragDistance;
-    this.x = ptr.x;
-    this.y = ptr.y;
-    this.dx = ptr.dx;
-    this.dy = ptr.dy;
+    this.position.copy(ptr.position);
+    this.motion.copy(ptr.motion);
     this.dz = ptr.dz;
-    this.u = ptr.u;
-    this.v = ptr.v;
-    this.du = ptr.du;
-    this.dv = ptr.dv;
+    this.uv.copy(ptr.uv);
+    this.duv.copy(ptr.duv);
     this.canClick = ptr.canClick;
     this.dragging = ptr.dragging;
     this.ctrl = ptr.ctrl;
@@ -15275,17 +15229,16 @@ cube.name = "CubeGeom";
 var invCube = cube.clone();
 invCube.name = "InvertedCubeGeom";
 setGeometryUVsForCubemaps(invCube);
-var BaseCube = class extends THREE.Mesh {
-  constructor(sx, sy, sz, material, isCollider2) {
+var Cube = class extends THREE.Mesh {
+  constructor(sx, sy, sz, material) {
     super(cube, material);
-    this.isCollider = isCollider2;
     this.scale.set(sx, sy, sz);
   }
 };
-var Cube = class extends BaseCube {
+var InvCube = class extends THREE.Mesh {
   constructor(sx, sy, sz, material) {
-    super(sx, sy, sz, material, false);
-    this.isDraggable = false;
+    super(invCube, material);
+    this.scale.set(sx, sy, sz);
   }
 };
 
@@ -15453,7 +15406,8 @@ var BasePointer = class {
   }
   set pressedHit(v) {
     this._pressedHit = v;
-    if (isDraggable(v) && !isClickable(v)) {
+    const target = getMeshTarget(v);
+    if (target && target.draggable && !target.clickable) {
       this.onDragStart();
     }
   }
@@ -15508,8 +15462,6 @@ var BasePointer = class {
   get needsUpdate() {
     return this.enabled && this.isActive;
   }
-  recheck() {
-  }
   setEventState(type2) {
     this.evtSys.checkPointer(this, type2);
   }
@@ -15519,17 +15471,14 @@ var BasePointer = class {
       this.lastState = new PointerState();
     }
     this.lastState.copy(this.state);
-  }
-  onUpdate() {
+    this.state.motion.setScalar(0);
+    this.state.dz = 0;
+    this.state.duv.setScalar(0);
   }
   updateCursor(avatarHeadPos, curHit, defaultDistance) {
     if (this.cursor) {
       this.cursor.update(avatarHeadPos, curHit, defaultDistance, this.canMoveView, this.state, this.origin, this.direction);
     }
-  }
-  onZoom(dz) {
-    this.state.dz = dz;
-    this.setEventState("move");
   }
   onPointerDown() {
     this.state.dragging = false;
@@ -15539,7 +15488,8 @@ var BasePointer = class {
   onPointerMove() {
     this.setEventState("move");
     if (this.state.buttons !== 0 /* None */) {
-      const canDrag = isNullOrUndefined(this.pressedHit) || isDraggable(this.pressedHit);
+      const target = getMeshTarget(this.pressedHit);
+      const canDrag = !target || target.draggable;
       if (canDrag) {
         if (this.lastState && this.lastState.buttons === this.state.buttons) {
           this.state.dragDistance += this.state.moveDistance;
@@ -16094,7 +16044,6 @@ var PointerHand = class extends BasePointer {
     }
   }
   onUpdate() {
-    super.onUpdate();
     if (this.enabled) {
       this.updateState();
       this.onPointerMove();
@@ -16128,7 +16077,9 @@ var BaseScreenPointer = class extends BasePointer {
     this.renderer = renderer;
     this.camera = camera;
     this.id = null;
-    this.moveOnUpdate = false;
+    this.sizeInv = new THREE.Vector2();
+    this.uvComp = new THREE.Vector2(1, -1);
+    this.uvOff = new THREE.Vector2(-1, 1);
     const onPointerDown = (evt) => {
       if (this.checkEvent(evt)) {
         this.readEvent(evt);
@@ -16137,10 +16088,12 @@ var BaseScreenPointer = class extends BasePointer {
     };
     this.element = this.renderer.domElement;
     this.element.addEventListener("pointerdown", onPointerDown);
+    const setSizeInv = () => this.sizeInv.set(1 / this.element.clientWidth, 1 / this.element.clientHeight);
+    this.element.addEventListener("resize", setSizeInv);
+    setSizeInv();
     const onPointerMove = (evt) => {
       if (this.checkEvent(evt)) {
         this.readEvent(evt);
-        this.onPointerMove();
       }
     };
     this.element.addEventListener("pointermove", onPointerMove);
@@ -16151,106 +16104,92 @@ var BaseScreenPointer = class extends BasePointer {
       }
     };
     this.element.addEventListener("pointerup", onPointerUp);
-  }
-  get isTracking() {
-    return this.id != null;
+    this.element.addEventListener("pointercancel", onPointerUp);
   }
   checkEvent(evt) {
     return evt.pointerType === this.type && evt.pointerId === this.id;
   }
-  readEvent(evt) {
-    if (this.checkEvent(evt)) {
-      this.basicReadEvent(evt);
-      this.state.buttons = evt.buttons;
-      this.state.x = evt.offsetX;
-      this.state.y = evt.offsetY;
-      this.state.dx = evt.movementX;
-      this.state.dy = evt.movementY;
-      this.stateDelta(evt.type);
-    }
-  }
-  basicReadEvent(evt) {
-    this.state.ctrl = evt.ctrlKey;
-    this.state.alt = evt.altKey;
-    this.state.shift = evt.shiftKey;
-    this.state.meta = evt.metaKey;
-    this.state.dz = 0;
-  }
-  stateDelta(type2) {
-    if (type2 === "pointermove" && this.lastState) {
-      if (document.pointerLockElement) {
-        this.state.x = this.lastState.x + this.state.dx;
-        this.state.y = this.lastState.y + this.state.dy;
-      } else {
-        this.state.dx = this.state.x - this.lastState.x;
-        this.state.dy = this.state.y - this.lastState.y;
-      }
-    }
-    this.state.moveDistance = Math.sqrt(this.state.dx * this.state.dx + this.state.dy * this.state.dy);
-    this.state.u = unproject(project(this.state.x, 0, this.element.clientWidth), -1, 1);
-    this.state.v = unproject(project(this.state.y, 0, this.element.clientHeight), -1, 1);
-    this.state.du = 2 * this.state.dx / this.element.clientWidth;
-    this.state.dv = 2 * this.state.dy / this.element.clientHeight;
-  }
-  recheck() {
-    this.moveOnUpdate = true;
-    super.recheck();
-  }
-  onUpdate() {
-    super.onUpdate();
-    const cam = resolveCamera(this.renderer, this.camera);
-    this.origin.setFromMatrixPosition(cam.matrixWorld);
-    this.direction.set(this.state.u, -this.state.v, 0.5).unproject(cam).sub(this.origin).normalize();
-    if (this.moveOnUpdate) {
-      this.onPointerMove();
-    }
-    this.origin.setFromMatrixPosition(cam.matrixWorld);
-    this.direction.set(this.state.u, -this.state.v, 0.5).unproject(cam).sub(this.origin).normalize();
-  }
-  onPointerMove() {
-    this.moveOnUpdate = false;
-    super.onPointerMove();
+  get isTracking() {
+    return this.id != null;
   }
   isPressed(button) {
     const mask = 1 << button;
     return this.state.buttons === mask;
   }
+  readEvent(evt) {
+    if (this.checkEvent(evt)) {
+      this.state.ctrl = evt.ctrlKey;
+      this.state.alt = evt.altKey;
+      this.state.shift = evt.shiftKey;
+      this.state.meta = evt.metaKey;
+      this.onReadEvent(evt);
+      if (evt.type === "pointermove" && document.pointerLockElement && this.lastState) {
+        this.state.position.copy(this.lastState.position).add(this.state.motion);
+      }
+      this.state.moveDistance = this.state.motion.length();
+      this.state.uv.copy(this.state.position).multiplyScalar(2).multiply(this.sizeInv).multiply(this.uvComp).add(this.uvOff);
+      this.state.duv.copy(this.state.motion).multiplyScalar(2).multiply(this.sizeInv).multiply(this.uvComp);
+    }
+  }
+  onUpdate() {
+    const cam = resolveCamera(this.renderer, this.camera);
+    this.updateRay(cam);
+    if (this.state.motion.manhattanLength() > 0) {
+      this.onPointerMove();
+      this.updateRay(cam);
+    }
+  }
+  updateRay(cam) {
+    this.origin.setFromMatrixPosition(cam.matrixWorld);
+    this.direction.set(this.state.uv.x, this.state.uv.y, 0.5).unproject(cam).sub(this.origin).normalize();
+  }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/PointerMouse.ts
-var PointerMouse = class extends BaseScreenPointer {
-  constructor(evtSys, renderer, camera) {
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/BaseScreenPointerSinglePoint.ts
+var BaseScreenPointerSinglePoint = class extends BaseScreenPointer {
+  constructor(type2, name2, evtSys, renderer, camera) {
     const onPrep = (evt) => {
-      if (evt.pointerType === "mouse" && this.id == null) {
+      if (evt.pointerType === type2 && this.id == null) {
         this.id = evt.pointerId;
       }
     };
     const unPrep = (evt) => {
-      if (evt.pointerType === "mouse" && this.id != null) {
+      if (evt.pointerType === type2 && this.id != null) {
         this.id = null;
       }
     };
     const element = renderer.domElement;
     element.addEventListener("pointerdown", onPrep);
     element.addEventListener("pointermove", onPrep);
-    super("mouse", 1 /* Mouse */, evtSys, renderer, camera, new CursorXRMouse(renderer));
+    super(type2, name2, evtSys, renderer, camera, new CursorXRMouse(renderer));
+    element.addEventListener("pointerup", unPrep);
+    element.addEventListener("pointercancel", unPrep);
+    this.canMoveView = true;
+  }
+  onReadEvent(evt) {
+    this.state.buttons = evt.buttons;
+    this.state.position.set(evt.offsetX, evt.offsetY);
+    this.state.motion.set(evt.movementX, evt.movementY);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/PointerMouse.ts
+var PointerMouse = class extends BaseScreenPointerSinglePoint {
+  constructor(evtSys, renderer, camera) {
+    super("mouse", 1 /* Mouse */, evtSys, renderer, camera);
     this.allowPointerLock = false;
     this.element.addEventListener("wheel", (evt) => {
       evt.preventDefault();
-      const dz = -evt.deltaY * 0.5;
-      this.onZoom(dz);
+      this.state.dz = -evt.deltaY * 0.5;
     }, { passive: false });
     this.element.addEventListener("contextmenu", (evt) => {
       evt.preventDefault();
     });
-    this.element.addEventListener("pointerup", unPrep);
-    this.element.addEventListener("pointercancel", unPrep);
     this.element.addEventListener("pointerdown", () => {
       if (this.allowPointerLock && !this.isPointerLocked) {
         this.lockPointer();
       }
     });
-    this.canMoveView = true;
     Object.seal(this);
   }
   lockPointer() {
@@ -16281,44 +16220,31 @@ var PointerMultiTouch = class extends BaseScreenPointer {
   checkEvent(evt) {
     return evt.pointerType === this.type;
   }
-  readEvent(evt) {
-    if (this.checkEvent(evt)) {
-      this.basicReadEvent(evt);
-      if (evt.type === "pointerdown" || evt.type === "pointermove") {
-        this.points.set(evt.pointerId, evt);
-      } else if (this.points.has(evt.pointerId) && (evt.type === "pointerup" || evt.type === "pointercancel")) {
-        this.points.delete(evt.pointerId);
+  onReadEvent(evt) {
+    if (evt.type === "pointerdown" || evt.type === "pointermove") {
+      this.points.set(evt.pointerId, evt);
+    } else if (this.points.has(evt.pointerId) && (evt.type === "pointerup" || evt.type === "pointercancel")) {
+      this.points.delete(evt.pointerId);
+    }
+    this.state.buttons = 0;
+    if (this.points.size > 0) {
+      this.state.position.setScalar(0);
+      const K = 1 / this.points.size;
+      for (const point of this.points.values()) {
+        this.state.buttons |= point.buttons << this.points.size - 1;
+        this.state.position.x += K * point.offsetX;
+        this.state.position.y += K * point.offsetY;
+        this.state.motion.x += K * point.movementX;
+        this.state.motion.y += K * point.movementY;
       }
-      this.state.buttons = 0;
-      this.state.dz *= 0.9;
-      if (this.points.size === 0) {
-        this.state.x *= 0.9;
-        this.state.y *= 0.9;
-        this.state.dx *= 0.9;
-        this.state.dy *= 0.9;
-      } else {
-        this.state.x = 0;
-        this.state.y = 0;
-        this.state.dx = 0;
-        this.state.dy = 0;
-        const K = 1 / this.points.size;
-        for (const point of this.points.values()) {
-          this.state.buttons |= point.buttons << this.points.size - 1;
-          this.state.x += K * point.offsetX;
-          this.state.y += K * point.offsetY;
-          this.state.dx += K * point.movementX;
-          this.state.dy += K * point.movementY;
+      if (this.points.size === 2) {
+        const [a, b] = Array.from(this.points.values());
+        const pinchDist = dist2(a, b);
+        if (this.lastState && this.lastState.buttons === 2) {
+          this.state.dz = (pinchDist - this.lastPinchDist) * 2.5;
         }
-        if (this.points.size === 2) {
-          const [a, b] = Array.from(this.points.values());
-          const pinchDist = dist2(a, b);
-          if (this.lastState && this.lastState.buttons === 2) {
-            this.state.dz = (pinchDist - this.lastPinchDist) * 2.5;
-          }
-          this.lastPinchDist = pinchDist;
-        }
+        this.lastPinchDist = pinchDist;
       }
-      this.stateDelta(evt.type);
     }
   }
   vibrate() {
@@ -16327,25 +16253,9 @@ var PointerMultiTouch = class extends BaseScreenPointer {
 };
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/PointerPen.ts
-var PointerPen = class extends BaseScreenPointer {
+var PointerPen = class extends BaseScreenPointerSinglePoint {
   constructor(evtSys, renderer, camera) {
-    const onPrep = (evt) => {
-      if (evt.pointerType === "pen" && this.id == null) {
-        this.id = evt.pointerId;
-      }
-    };
-    const unPrep = (evt) => {
-      if (evt.pointerType === "pen" && this.id != null) {
-        this.id = null;
-      }
-    };
-    const element = renderer.domElement;
-    element.addEventListener("pointerdown", onPrep);
-    element.addEventListener("pointermove", onPrep);
-    super("pen", 2 /* Pen */, evtSys, renderer, camera, new CursorXRMouse(renderer));
-    element.addEventListener("pointerup", unPrep);
-    element.addEventListener("pointercancel", unPrep);
-    this.canMoveView = true;
+    super("pen", 2 /* Pen */, evtSys, renderer, camera);
     Object.seal(this);
   }
 };
@@ -16427,10 +16337,10 @@ var EventSystem = class extends TypedEventBase {
     pointer.isActive = true;
     this.fireRay(pointer);
     const { curHit, hoveredHit, pressedHit, draggedHit } = pointer;
-    const curObj = resolveObj(curHit);
-    const hoveredObj = resolveObj(hoveredHit);
-    const pressedObj = resolveObj(pressedHit);
-    const draggedObj = resolveObj(draggedHit);
+    const curTarget = getMeshTarget(curHit);
+    const hovTarget = getMeshTarget(hoveredHit);
+    const prsTarget = getMeshTarget(pressedHit);
+    const drgTarget = getMeshTarget(draggedHit);
     if (eventType === "move" || eventType === "drag") {
       correctHit(hoveredHit, pointer);
       correctHit(pressedHit, pointer);
@@ -16443,14 +16353,14 @@ var EventSystem = class extends TypedEventBase {
           this.env.avatar.onMove(moveEvt);
           this.env.fovControl.onMove(moveEvt);
           if (isDefined(draggedHit)) {
-            draggedObj.dispatchEvent(moveEvt.to3(draggedHit));
+            drgTarget.dispatchEvent(moveEvt);
           } else if (isDefined(pressedHit)) {
-            pressedObj.dispatchEvent(moveEvt.to3(pressedHit));
+            prsTarget.dispatchEvent(moveEvt);
           } else if (pointer.state.buttons === 0) {
             this.checkExit(curHit, hoveredHit, pointer);
             this.checkEnter(curHit, hoveredHit, pointer);
-            if (curObj) {
-              curObj.dispatchEvent(moveEvt.to3(curHit));
+            if (curTarget) {
+              curTarget.dispatchEvent(moveEvt);
             }
           }
           this.localPointerMovedEvt.name = pointer.name;
@@ -16462,9 +16372,9 @@ var EventSystem = class extends TypedEventBase {
         {
           const downEvt = this.getEvent(pointer, "down", curHit);
           this.env.avatar.onDown(downEvt);
-          if (isClickable(hoveredHit) || isDraggable(hoveredHit)) {
+          if (hovTarget && (hovTarget.clickable || hovTarget.draggable)) {
             pointer.pressedHit = hoveredHit;
-            hoveredObj.dispatchEvent(downEvt.to3(hoveredHit));
+            hovTarget.dispatchEvent(downEvt);
           }
         }
         break;
@@ -16475,7 +16385,7 @@ var EventSystem = class extends TypedEventBase {
           if (pointer.state.buttons === 0) {
             if (isDefined(pressedHit)) {
               pointer.pressedHit = null;
-              pressedObj.dispatchEvent(upEvt.to3(pressedHit));
+              prsTarget.dispatchEvent(upEvt);
             }
             this.checkExit(curHit, hoveredHit, pointer);
             this.checkEnter(curHit, hoveredHit, pointer);
@@ -16486,9 +16396,9 @@ var EventSystem = class extends TypedEventBase {
         {
           const clickEvt = this.getEvent(pointer, "click", curHit);
           this.dispatchEvent(clickEvt);
-          if (isClickable(curHit)) {
+          if (curTarget && curTarget.clickable) {
             pointer.vibrate();
-            curObj.dispatchEvent(clickEvt.to3(curHit));
+            curTarget.dispatchEvent(clickEvt);
           }
         }
         break;
@@ -16498,7 +16408,7 @@ var EventSystem = class extends TypedEventBase {
           this.dispatchEvent(dragStartEvt);
           if (isDefined(pressedHit)) {
             pointer.draggedHit = pressedHit;
-            pressedObj.dispatchEvent(dragStartEvt.to3(pressedHit));
+            prsTarget.dispatchEvent(dragStartEvt);
           }
         }
         break;
@@ -16507,7 +16417,7 @@ var EventSystem = class extends TypedEventBase {
           const dragEvt = this.getEvent(pointer, "drag", draggedHit, curHit);
           this.dispatchEvent(dragEvt);
           if (isDefined(draggedHit)) {
-            draggedObj.dispatchEvent(dragEvt.to3(draggedHit));
+            drgTarget.dispatchEvent(dragEvt);
           }
         }
         break;
@@ -16517,7 +16427,7 @@ var EventSystem = class extends TypedEventBase {
           this.dispatchEvent(dragCancelEvt);
           if (isDefined(draggedHit)) {
             pointer.draggedHit = null;
-            draggedObj.dispatchEvent(dragCancelEvt.to3(draggedHit));
+            drgTarget.dispatchEvent(dragCancelEvt);
           }
         }
         break;
@@ -16527,13 +16437,9 @@ var EventSystem = class extends TypedEventBase {
           this.dispatchEvent(dragEndEvt);
           if (isDefined(draggedHit)) {
             pointer.draggedHit = null;
-            draggedObj.dispatchEvent(dragEndEvt.to3(draggedHit));
+            drgTarget.dispatchEvent(dragEndEvt);
           }
         }
-        break;
-      case "enter":
-      case "exit":
-        console.log(pointer, eventType);
         break;
       default:
         assertNever(eventType);
@@ -16559,23 +16465,23 @@ var EventSystem = class extends TypedEventBase {
     return evt;
   }
   checkExit(curHit, hoveredHit, pointer) {
-    const curObj = resolveObj(curHit);
-    const hoveredObj = resolveObj(hoveredHit);
+    const curObj = getMeshTarget(curHit);
+    const hoveredObj = getMeshTarget(hoveredHit);
     if (curObj !== hoveredObj && isDefined(hoveredObj)) {
       pointer.hoveredHit = null;
       const exitEvt = this.getEvent(pointer, "exit", hoveredHit);
       this.dispatchEvent(exitEvt);
-      hoveredObj.dispatchEvent(exitEvt.to3(hoveredHit));
+      hoveredObj.dispatchEvent(exitEvt);
     }
   }
   checkEnter(curHit, hoveredHit, pointer) {
-    const curObj = resolveObj(curHit);
-    const hoveredObj = resolveObj(hoveredHit);
+    const curObj = getMeshTarget(curHit);
+    const hoveredObj = getMeshTarget(hoveredHit);
     if (curObj !== hoveredObj && isDefined(curHit)) {
       pointer.hoveredHit = curHit;
       const enterEvt = this.getEvent(pointer, "enter", curHit);
       this.dispatchEvent(enterEvt);
-      curObj.dispatchEvent(enterEvt.to3(curHit));
+      curObj.dispatchEvent(enterEvt);
     }
   }
   refreshCursors() {
@@ -16593,7 +16499,8 @@ var EventSystem = class extends TypedEventBase {
     pointer.curHit = null;
     let minDist = Number.MAX_VALUE;
     for (const hit of this.hits) {
-      if (isInteractiveHit(hit) && isObjVisible(hit) && hit.distance < minDist) {
+      const rayTarget = getMeshTarget(hit);
+      if (rayTarget && rayTarget.object.visible && hit.distance < minDist) {
         pointer.curHit = hit;
         minDist = hit.distance;
       }
@@ -16606,13 +16513,6 @@ var EventSystem = class extends TypedEventBase {
     for (const pointer of this.pointers) {
       if (pointer.needsUpdate) {
         pointer.update();
-      }
-    }
-  }
-  recheckPointers() {
-    for (const pointer of this.pointers) {
-      if (pointer.needsUpdate) {
-        pointer.recheck();
       }
     }
   }
@@ -19851,7 +19751,7 @@ var ScreenControl = class extends TypedEventBase {
       if (this.currentSession) {
         this.currentSession.end();
       } else if (navigator.xr) {
-        this.camera.position.set(0, 0, 0);
+        this.camera.position.setScalar(0);
         this.camera.quaternion.identity();
         try {
           const session = await navigator.xr.requestSession(xrMode.sessionMode, {
@@ -19907,7 +19807,7 @@ var ScreenControl = class extends TypedEventBase {
 };
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/Skybox.ts
-var U2 = new THREE.Vector3(0, 1, 0);
+var U = new THREE.Vector3(0, 1, 0);
 var FACE_SIZE = 2048;
 var FACE_SIZE_HALF = FACE_SIZE / 2;
 var FACES = [
@@ -19932,7 +19832,7 @@ var CUBEMAP_PATTERN = {
     [0, Math.PI, 0, 0]
   ]
 };
-var black2 = new THREE.Color(0);
+var black = new THREE.Color(0);
 var Skybox = class {
   constructor(env2) {
     this.env = env2;
@@ -19955,7 +19855,7 @@ var Skybox = class {
     this.webXRLayerEnabled = true;
     this.visible = true;
     this.webXRLayerEnabled &&= this.env.hasXRCompositionLayers;
-    this.env.scene.background = black2;
+    this.env.scene.background = black;
     for (let i = 0; i < this.canvases.length; ++i) {
       const f = this.canvases[i] = createUtilityCanvas(FACE_SIZE, FACE_SIZE);
       this.contexts[i] = f.getContext("2d");
@@ -19984,7 +19884,7 @@ var Skybox = class {
     this.rtScene.add(this.rtCamera);
     this.flipped = createUtilityCanvas(FACE_SIZE, FACE_SIZE);
     this.flipper = this.flipped.getContext("2d");
-    this.flipper.fillStyle = black2.getHexString();
+    this.flipper.fillStyle = black.getHexString();
     this.flipper.scale(-1, 1);
     this.flipper.translate(-FACE_SIZE, 0);
     this.setImages("", this.canvases);
@@ -20041,7 +19941,7 @@ var Skybox = class {
         throw new Error("Skybox rotation was not a valid array format. Needs an array of 4 numbers.");
       }
     } else if (isGoodNumber(rotation)) {
-      this._rotation.setFromAxisAngle(U2, rotation);
+      this._rotation.setFromAxisAngle(U, rotation);
     } else {
       if (isDefined(rotation)) {
         console.warn("Skybox rotation must be a THREE.Quaternion, THREE.Euler, number[] (representing a Quaternion), or a number (representing rotation about the Y-axis).");
@@ -20071,7 +19971,7 @@ var Skybox = class {
         }
         this.imageNeedsUpdate = this.rotationNeedsUpdate = true;
       }
-      this.env.scene.background = this.layer ? null : this.visible ? this.rt.texture : black2;
+      this.env.scene.background = this.layer ? null : this.visible ? this.rt.texture : black;
       if (this.layer) {
         if (this.visible !== this.wasVisible || this.layer.needsRedraw) {
           this.imageNeedsUpdate = true;
@@ -20079,7 +19979,7 @@ var Skybox = class {
         if (this.env.avatar.heading !== this.stageHeading) {
           this.rotationNeedsUpdate = true;
           this.stageHeading = this.env.avatar.heading;
-          this.stageRotation.setFromAxisAngle(U2, this.env.avatar.heading);
+          this.stageRotation.setFromAxisAngle(U, this.env.avatar.heading);
         }
       } else {
         this.rotationNeedsUpdate = this.imageNeedsUpdate = this.imageNeedsUpdate || this.rotationNeedsUpdate;
@@ -20193,10 +20093,11 @@ var gridWidth = 15;
 var gridSize = feet2Meters(gridWidth);
 Style(rule("#frontBuffer", position("absolute"), left(0), top(0), width("100%"), height("100%"), margin(0), padding(0), border(0), touchAction("none")));
 var BaseEnvironment = class extends TypedEventBase {
-  constructor(canvas, fetcher, defaultAvatarHeight2, enableFullResolution2) {
+  constructor(canvas, fetcher, defaultAvatarHeight2, enableFullResolution2, DEBUG2) {
     super();
     this.fetcher = fetcher;
     this.defaultAvatarHeight = defaultAvatarHeight2;
+    this.DEBUG = DEBUG2;
     this.layers = new Array();
     this.layerSortOrder = /* @__PURE__ */ new Map();
     this.fadeDepth = 0;
@@ -20414,14 +20315,6 @@ var BaseEnvironment = class extends TypedEventBase {
     const model2 = await loader.loadAsync(path, (evt) => {
       if (isDefined(prog)) {
         prog.report(evt.loaded, evt.total, path);
-      }
-    });
-    model2.scene.traverse((m) => {
-      if (isMesh(m)) {
-        m.isCollider = true;
-        const material = m.material;
-        material.side = THREE.FrontSide;
-        material.needsUpdate = true;
       }
     });
     return model2.scene;
@@ -20753,16 +20646,14 @@ var Environment = class extends BaseEnvironment {
   get currentRoom() {
     return this._currentRoom;
   }
-  DEBUG;
   constructor(canvas, fetcher, dialogFontFamily, uiImagePaths, defaultAvatarHeight2, enableFullResolution2, options) {
-    super(canvas, fetcher, defaultAvatarHeight2, enableFullResolution2);
+    super(canvas, fetcher, defaultAvatarHeight2, enableFullResolution2, options && options.DEBUG);
     this.compassImage = new CanvasImageMesh(this, "Horizon", new ArtificialHorizon());
     this.compassImage.mesh.renderOrder = 5;
     this.clockImage = new CanvasImageMesh(this, "Clock", new ClockImage());
     this.clockImage.mesh.renderOrder = 5;
     options = options || {};
     const JS_EXT2 = options.JS_EXT || ".js";
-    this.DEBUG = options.DEBUG || false;
     this.apps = new ApplicationLoader(this, JS_EXT2);
     this.apps.addEventListener("apploading", (evt) => {
       evt.preLoadTask = this.fadeOut().then(() => {
@@ -22400,7 +22291,13 @@ function objectScan(obj2, test) {
 function isMeshNamed(name2) {
   return (obj2) => isMesh(obj2) && obj2.name === name2;
 }
-function standardMatToBasic(oldMat, override) {
+function isFalse(v) {
+  return !v;
+}
+function convertMaterial(convert, oldMat, override) {
+  if (isFalse(convert)) {
+    return oldMat;
+  }
   const params = Object.assign({
     alphaMap: oldMat.alphaMap,
     alphaTest: oldMat.alphaTest,
@@ -22464,8 +22361,9 @@ function standardMatToBasic(oldMat, override) {
   return new THREE.MeshBasicMaterial(params);
 }
 var Forest = class {
-  constructor(env2, density = 0.05) {
+  constructor(env2, useBasicMaterial, density = 0.05) {
     this.env = env2;
+    this.useBasicMaterial = useBasicMaterial;
     this.density = density;
     this.getJpeg = this.getJpeg.bind(this);
     this.getPng = this.getPng.bind(this);
@@ -22510,7 +22408,6 @@ var Forest = class {
     this.forest.result.updateMatrixWorld();
     this.raycaster.camera = this.env.camera;
     this._ground = objectScan(this.forest.result, isMeshNamed("Ground"));
-    this._ground.material = standardMatToBasic(this._ground.material, { transparent: false });
     this.env.timer.addTickHandler(() => {
       const groundHit = this.groundTest(this.env.avatar.worldPos);
       if (groundHit) {
@@ -22518,12 +22415,13 @@ var Forest = class {
       }
     });
     this._water = objectScan(this.forest.result, isMeshNamed("Water"));
-    this._water.material = standardMatToBasic(this._water.material, { transparent: false });
+    this._ground.material = convertMaterial(this.useBasicMaterial, this._ground.material, { transparent: false });
+    this._water.material = convertMaterial(this.useBasicMaterial, this._water.material, { transparent: false });
     if (this.density > 0) {
       const matrices = this.makeTrees();
       const treeMesh = objectScan(this.tree.result, isMesh);
       const treeGeom = treeMesh.geometry;
-      const treeMat = standardMatToBasic(treeMesh.material, { transparent: false });
+      const treeMat = convertMaterial(this.useBasicMaterial, treeMesh.material, { transparent: false });
       this._trees = new THREE.InstancedMesh(treeGeom, treeMat, matrices.length);
       for (let i = 0; i < matrices.length; ++i) {
         this._trees.setMatrixAt(i, matrices[i]);
@@ -22585,7 +22483,7 @@ var Forest = class {
 // src/forest-app/index.ts
 var env = await createTestEnvironment();
 await env.fadeOut();
-var forest = new Forest(env);
+var forest = new Forest(env, true);
 await forest.load();
 await env.fadeIn();
 //# sourceMappingURL=index.js.map

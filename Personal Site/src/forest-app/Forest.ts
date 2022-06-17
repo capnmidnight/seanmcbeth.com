@@ -1,7 +1,6 @@
 ﻿import { Asset } from "@juniper-lib/fetcher";
 import { Audio_Mpeg, Image_Jpeg, Image_Png, Model_Gltf_Binary } from "@juniper-lib/mediatypes";
 import { Environment } from "@juniper-lib/threejs/environment/Environment";
-import { InteractiveObject3D } from "@juniper-lib/threejs/eventSystem/InteractiveObject3D";
 import { objectScan } from "@juniper-lib/threejs/objectScan";
 import { isMesh } from "@juniper-lib/threejs/typeChecks";
 import { arrayClear, arrayScan, IProgress, isDefined, isNullOrUndefined, progressTasksWeighted } from "@juniper-lib/tslib";
@@ -10,10 +9,15 @@ function isMeshNamed(name: string) {
     return (obj: THREE.Object3D) => isMesh(obj) && obj.name === name;
 }
 
-type MatType = THREE.MeshStandardMaterial | THREE.MeshBasicMaterial;
-type MeshType = THREE.Mesh<THREE.BufferGeometry, MatType> & InteractiveObject3D;
+function isFalse(v: boolean): v is false {
+    return !v;
+}
 
-function standardMatToBasic(oldMat: THREE.MeshStandardMaterial, override?: THREE.MeshBasicMaterialParameters): THREE.MeshBasicMaterial {
+function convertMaterial<T extends boolean>(convert: T, oldMat: MatType<T>, override?: THREE.MeshBasicMaterialParameters): MatType<T> {
+    if (isFalse(convert)) {
+        return oldMat;
+    }
+
     const params = Object.assign({
         alphaMap: oldMat.alphaMap,
         alphaTest: oldMat.alphaTest,
@@ -74,10 +78,14 @@ function standardMatToBasic(oldMat: THREE.MeshStandardMaterial, override?: THREE
             delete (params as any)[key];
         }
     }
-    return new THREE.MeshBasicMaterial(params);
+    return new THREE.MeshBasicMaterial(params) as MatType<T>;
 }
 
-export class Forest {
+type MatType<T extends boolean> = T extends true ? THREE.MeshBasicMaterial : T extends false ? THREE.MeshStandardMaterial : never;
+
+type MeshType<T extends boolean> = THREE.Mesh<THREE.BufferGeometry, MatType<T>>;
+
+export class Forest<ChoiceT extends boolean> {
     private readonly skybox: Asset<HTMLImageElement>;
     private readonly forest: Asset<THREE.Group>;
     private readonly tree: Asset<THREE.Group>;
@@ -85,9 +93,9 @@ export class Forest {
     private readonly raycaster: THREE.Raycaster;
     private readonly hits: Array<THREE.Intersection>;
 
-    private _ground: MeshType;
-    private _water: MeshType;
-    private _trees: THREE.InstancedMesh & InteractiveObject3D;
+    private _ground: MeshType<ChoiceT>;
+    private _water: MeshType<ChoiceT>;
+    private _trees: THREE.InstancedMesh;
 
     get ground() {
         return this._ground;
@@ -101,7 +109,7 @@ export class Forest {
         return this._trees;
     }
 
-    constructor(private readonly env: Environment, private readonly density = 0.05) {
+    constructor(private readonly env: Environment, private readonly useBasicMaterial: ChoiceT, private readonly density = 0.05) {
         this.getJpeg = this.getJpeg.bind(this);
         this.getPng = this.getPng.bind(this);
         this.getModel = this.getModel.bind(this);
@@ -136,8 +144,7 @@ export class Forest {
         this.forest.result.updateMatrixWorld();
         this.raycaster.camera = this.env.camera;
 
-        this._ground = objectScan<MeshType>(this.forest.result, isMeshNamed("Ground"));
-        this._ground.material = standardMatToBasic(this._ground.material as THREE.MeshStandardMaterial, { transparent: false });
+        this._ground = objectScan<MeshType<ChoiceT>>(this.forest.result, isMeshNamed("Ground"));
         this.env.timer.addTickHandler(() => {
             const groundHit = this.groundTest(this.env.avatar.worldPos);
             if (groundHit) {
@@ -145,14 +152,16 @@ export class Forest {
             }
         });
 
-        this._water = objectScan<MeshType>(this.forest.result, isMeshNamed("Water"));
-        this._water.material = standardMatToBasic(this._water.material as THREE.MeshStandardMaterial, { transparent: false });
-        
+        this._water = objectScan<MeshType<ChoiceT>>(this.forest.result, isMeshNamed("Water"));
+
+        this._ground.material = convertMaterial(this.useBasicMaterial, this._ground.material, { transparent: false });
+        this._water.material = convertMaterial(this.useBasicMaterial, this._water.material, { transparent: false }) as MatType<ChoiceT>;
+
         if (this.density > 0) {
             const matrices = this.makeTrees();
-            const treeMesh = objectScan<MeshType>(this.tree.result, isMesh);
+            const treeMesh = objectScan<MeshType<ChoiceT>>(this.tree.result, isMesh);
             const treeGeom = treeMesh.geometry;
-            const treeMat = standardMatToBasic(treeMesh.material as THREE.MeshStandardMaterial, { transparent: false });
+            const treeMat = convertMaterial(this.useBasicMaterial, treeMesh.material, { transparent: false });
 
             this._trees = new THREE.InstancedMesh(treeGeom, treeMat, matrices.length);
 
