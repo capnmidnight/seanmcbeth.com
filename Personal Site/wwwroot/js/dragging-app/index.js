@@ -8072,18 +8072,18 @@ var DeviceManager = class extends TypedEventBase {
     super();
     this.element = element;
     this.needsVideoDevice = needsVideoDevice;
+    this._hasAudioPermission = false;
+    this._hasVideoPermission = false;
+    this._currentStream = null;
     this.ready = this.start();
     Object.seal(this);
   }
-  _hasAudioPermission = false;
   get hasAudioPermission() {
     return this._hasAudioPermission;
   }
-  _hasVideoPermission = false;
   get hasVideoPermission() {
     return this._hasVideoPermission;
   }
-  _currentStream = null;
   get currentStream() {
     return this._currentStream;
   }
@@ -8097,7 +8097,6 @@ var DeviceManager = class extends TypedEventBase {
       this._currentStream = v;
     }
   }
-  ready;
   async start() {
     if (canChangeAudioOutput) {
       const device = await this.getPreferredAudioOutput();
