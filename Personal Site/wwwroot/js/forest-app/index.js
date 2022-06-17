@@ -6557,22 +6557,20 @@ var ClockImage = class extends TextImage {
     setInterval(updater, 500);
     updater();
   }
-  _fps = null;
-  get fps() {
-    return this._fps;
-  }
-  set fps(v) {
-    if (v !== this.fps) {
-      this._fps = v;
-      this.update();
-    }
+  fps = null;
+  drawCalls = null;
+  triangles = null;
+  setStats(fps, drawCalls, triangles) {
+    this.fps = fps;
+    this.drawCalls = drawCalls;
+    this.triangles = triangles;
   }
   lastLen = 0;
   update() {
     const time = new Date();
     let value2 = time.toLocaleTimeString();
     if (this.fps !== null) {
-      value2 += ` ${Math.round(this.fps).toFixed(0)}hz`;
+      value2 += ` ${Math.round(this.fps).toFixed(0)}hz ${this.drawCalls}c ${this.triangles}t`;
     }
     if (value2.length !== this.lastLen) {
       this.lastLen = value2.length;
@@ -20211,6 +20209,7 @@ var BaseEnvironment = class extends TypedEventBase {
     this.ground = new THREE.GridHelper(gridSize, gridWidth, 12632256, 8421504);
     this.foreground = obj("Foreground");
     this.loadingBar = new LoadingBar();
+    this.enableSpectator = false;
     this._xrBinding = null;
     this._xrMediaBinding = null;
     this._hasXRMediaLayers = null;
@@ -20313,22 +20312,24 @@ var BaseEnvironment = class extends TypedEventBase {
       }
       this.renderer.clear();
       this.renderer.render(this.scene, this.camera);
-      if (!this.renderer.xr.isPresenting) {
-        lastViewport.copy(curViewport);
-        this.renderer.getViewport(curViewport);
-      } else if (isDesktop() && !isFirefox()) {
-        spectator.projectionMatrix.copy(this.camera.projectionMatrix);
-        spectator.position.copy(cam.position);
-        spectator.quaternion.copy(cam.quaternion);
-        const curRT = this.renderer.getRenderTarget();
-        this.renderer.xr.isPresenting = false;
-        this.renderer.setRenderTarget(null);
-        this.renderer.setViewport(lastViewport);
-        this.renderer.clear();
-        this.renderer.render(this.scene, spectator);
-        this.renderer.setViewport(curViewport);
-        this.renderer.setRenderTarget(curRT);
-        this.renderer.xr.isPresenting = true;
+      if (this.enableSpectator) {
+        if (!this.renderer.xr.isPresenting) {
+          lastViewport.copy(curViewport);
+          this.renderer.getViewport(curViewport);
+        } else if (isDesktop() && !isFirefox()) {
+          spectator.projectionMatrix.copy(this.camera.projectionMatrix);
+          spectator.position.copy(cam.position);
+          spectator.quaternion.copy(cam.quaternion);
+          const curRT = this.renderer.getRenderTarget();
+          this.renderer.xr.isPresenting = false;
+          this.renderer.setRenderTarget(null);
+          this.renderer.setViewport(lastViewport);
+          this.renderer.clear();
+          this.renderer.render(this.scene, spectator);
+          this.renderer.setViewport(curViewport);
+          this.renderer.setRenderTarget(curRT);
+          this.renderer.xr.isPresenting = true;
+        }
       }
     }
   }
@@ -20881,7 +20882,7 @@ var Environment = class extends BaseEnvironment {
         this.avgFPS -= fps2 / 100;
       }
       if (++this.countTick % 100 === 0) {
-        this.clockImage.image.fps = this.avgFPS;
+        this.clockImage.image.setStats(this.avgFPS, this.renderer.info.render.calls, this.renderer.info.render.triangles);
       }
     }
     this.confirmationDialog.update(evt.dt);
@@ -21825,6 +21826,7 @@ var Fetcher = class {
     return this.createRequest("DELETE", path, base);
   }
   async assets(progress, ...assets) {
+    assets = assets.filter(isDefined);
     const assetSizes = new Map(await Promise.all(assets.map((asset) => asset.getSize(this))));
     await progressTasksWeighted(progress, assets.map((asset) => [assetSizes.get(asset), (prog) => asset.getContent(prog)]));
   }
@@ -22398,17 +22400,83 @@ function objectScan(obj2, test) {
 function isMeshNamed(name2) {
   return (obj2) => isMesh(obj2) && obj2.name === name2;
 }
+function standardMatToBasic(oldMat, override) {
+  const params = Object.assign({
+    alphaMap: oldMat.alphaMap,
+    alphaTest: oldMat.alphaTest,
+    alphaToCoverage: oldMat.alphaToCoverage,
+    aoMap: oldMat.aoMap,
+    aoMapIntensity: oldMat.aoMapIntensity,
+    blendDst: oldMat.blendDst,
+    blendDstAlpha: oldMat.blendDstAlpha,
+    blendEquation: oldMat.blendEquation,
+    blendEquationAlpha: oldMat.blendEquationAlpha,
+    blending: oldMat.blending,
+    blendSrc: oldMat.blendSrc,
+    blendSrcAlpha: oldMat.blendSrcAlpha,
+    clipIntersection: oldMat.clipIntersection,
+    clippingPlanes: oldMat.clippingPlanes,
+    clipShadows: oldMat.clipShadows,
+    color: oldMat.color,
+    colorWrite: oldMat.colorWrite,
+    defines: oldMat.defines,
+    depthFunc: oldMat.depthFunc,
+    depthTest: oldMat.depthTest,
+    depthWrite: oldMat.depthWrite,
+    dithering: oldMat.dithering,
+    envMap: oldMat.envMap,
+    fog: oldMat.fog,
+    lightMap: oldMat.lightMap,
+    lightMapIntensity: oldMat.lightMapIntensity,
+    map: oldMat.map,
+    name: oldMat.name + "-Basic",
+    opacity: oldMat.opacity,
+    polygonOffset: oldMat.polygonOffset,
+    polygonOffsetFactor: oldMat.polygonOffsetFactor,
+    polygonOffsetUnits: oldMat.polygonOffsetUnits,
+    precision: oldMat.precision,
+    premultipliedAlpha: oldMat.premultipliedAlpha,
+    shadowSide: oldMat.shadowSide,
+    side: oldMat.side,
+    stencilFail: oldMat.stencilFail,
+    stencilFunc: oldMat.stencilFunc,
+    stencilFuncMask: oldMat.stencilFuncMask,
+    stencilRef: oldMat.stencilRef,
+    stencilWrite: oldMat.stencilWrite,
+    stencilWriteMask: oldMat.stencilWriteMask,
+    stencilZFail: oldMat.stencilZFail,
+    stencilZPass: oldMat.stencilZPass,
+    toneMapped: oldMat.toneMapped,
+    transparent: oldMat.transparent,
+    userData: oldMat.userData,
+    vertexColors: oldMat.vertexColors,
+    visible: oldMat.visible,
+    wireframe: oldMat.wireframe,
+    wireframeLinecap: oldMat.wireframeLinecap,
+    wireframeLinejoin: oldMat.wireframeLinejoin,
+    wireframeLinewidth: oldMat.wireframeLinewidth
+  }, override);
+  for (const [key, value2] of Object.entries(params)) {
+    if (isNullOrUndefined(value2)) {
+      delete params[key];
+    }
+  }
+  return new THREE.MeshBasicMaterial(params);
+}
 var Forest = class {
-  constructor(env2) {
+  constructor(env2, density = 0.05) {
     this.env = env2;
+    this.density = density;
     this.getJpeg = this.getJpeg.bind(this);
     this.getPng = this.getPng.bind(this);
     this.getModel = this.getModel.bind(this);
     this.getAudio = this.getAudio.bind(this);
     this.skybox = new Asset("/skyboxes/BearfenceMountain.jpeg", this.getJpeg);
     this.forest = new Asset("/models/Forest-Ground.glb", this.getModel);
-    this.tree = new Asset("/models/Forest-Tree.glb", this.getModel);
     this.bgAudio = new Asset("/audio/forest.mp3", this.getAudio);
+    if (this.density > 0) {
+      this.tree = new Asset("/models/Forest-Tree.glb", this.getModel);
+    }
     this.raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0), 0.1, 100);
     this.hits = new Array();
   }
@@ -22442,22 +22510,26 @@ var Forest = class {
     this.forest.result.updateMatrixWorld();
     this.raycaster.camera = this.env.camera;
     this._ground = objectScan(this.forest.result, isMeshNamed("Ground"));
-    this._water = objectScan(this.forest.result, isMeshNamed("Water"));
-    const matrices = this.makeTrees();
-    const treeMesh = objectScan(this.tree.result, isMesh);
-    const treeGeom = treeMesh.geometry;
-    const treeMat = treeMesh.material;
-    this._trees = new THREE.InstancedMesh(treeGeom, treeMat, matrices.length);
-    for (let i = 0; i < matrices.length; ++i) {
-      this._trees.setMatrixAt(i, matrices[i]);
-    }
-    this.env.foreground.add(this._trees);
+    this._ground.material = standardMatToBasic(this._ground.material, { transparent: false });
     this.env.timer.addTickHandler(() => {
       const groundHit = this.groundTest(this.env.avatar.worldPos);
       if (groundHit) {
         this.env.avatar.stage.position.y = groundHit.point.y;
       }
     });
+    this._water = objectScan(this.forest.result, isMeshNamed("Water"));
+    this._water.material = standardMatToBasic(this._water.material, { transparent: false });
+    if (this.density > 0) {
+      const matrices = this.makeTrees();
+      const treeMesh = objectScan(this.tree.result, isMesh);
+      const treeGeom = treeMesh.geometry;
+      const treeMat = standardMatToBasic(treeMesh.material, { transparent: false });
+      this._trees = new THREE.InstancedMesh(treeGeom, treeMat, matrices.length);
+      for (let i = 0; i < matrices.length; ++i) {
+        this._trees.setMatrixAt(i, matrices[i]);
+      }
+      this.env.foreground.add(this._trees);
+    }
     return assets;
   }
   getJpeg(path, prog) {
@@ -22482,7 +22554,7 @@ var Forest = class {
     const s = new THREE.Vector3();
     for (let dz = -25; dz <= 25; ++dz) {
       for (let dx = -25; dx <= 25; ++dx) {
-        if (Math.random() <= 0.1) {
+        if (Math.random() <= this.density) {
           const x = Math.random() * 0.1 + dx;
           const z = Math.random() * 0.1 + dz;
           p.set(x, 0, z);

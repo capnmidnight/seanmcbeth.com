@@ -4,10 +4,77 @@ import { Environment } from "@juniper-lib/threejs/environment/Environment";
 import { InteractiveObject3D } from "@juniper-lib/threejs/eventSystem/InteractiveObject3D";
 import { objectScan } from "@juniper-lib/threejs/objectScan";
 import { isMesh } from "@juniper-lib/threejs/typeChecks";
-import { arrayClear, arrayScan, IProgress, isDefined, progressTasksWeighted } from "@juniper-lib/tslib";
+import { arrayClear, arrayScan, IProgress, isDefined, isNullOrUndefined, progressTasksWeighted } from "@juniper-lib/tslib";
 
 function isMeshNamed(name: string) {
     return (obj: THREE.Object3D) => isMesh(obj) && obj.name === name;
+}
+
+type MatType = THREE.MeshStandardMaterial | THREE.MeshBasicMaterial;
+type MeshType = THREE.Mesh<THREE.BufferGeometry, MatType> & InteractiveObject3D;
+
+function standardMatToBasic(oldMat: THREE.MeshStandardMaterial, override?: THREE.MeshBasicMaterialParameters): THREE.MeshBasicMaterial {
+    const params = Object.assign({
+        alphaMap: oldMat.alphaMap,
+        alphaTest: oldMat.alphaTest,
+        alphaToCoverage: oldMat.alphaToCoverage,
+        aoMap: oldMat.aoMap,
+        aoMapIntensity: oldMat.aoMapIntensity,
+        blendDst: oldMat.blendDst,
+        blendDstAlpha: oldMat.blendDstAlpha,
+        blendEquation: oldMat.blendEquation,
+        blendEquationAlpha: oldMat.blendEquationAlpha,
+        blending: oldMat.blending,
+        blendSrc: oldMat.blendSrc,
+        blendSrcAlpha: oldMat.blendSrcAlpha,
+        clipIntersection: oldMat.clipIntersection,
+        clippingPlanes: oldMat.clippingPlanes,
+        clipShadows: oldMat.clipShadows,
+        color: oldMat.color,
+        colorWrite: oldMat.colorWrite,
+        defines: oldMat.defines,
+        depthFunc: oldMat.depthFunc,
+        depthTest: oldMat.depthTest,
+        depthWrite: oldMat.depthWrite,
+        dithering: oldMat.dithering,
+        envMap: oldMat.envMap,
+        fog: oldMat.fog,
+        lightMap: oldMat.lightMap,
+        lightMapIntensity: oldMat.lightMapIntensity,
+        map: oldMat.map,
+        name: oldMat.name + "-Basic",
+        opacity: oldMat.opacity,
+        polygonOffset: oldMat.polygonOffset,
+        polygonOffsetFactor: oldMat.polygonOffsetFactor,
+        polygonOffsetUnits: oldMat.polygonOffsetUnits,
+        precision: oldMat.precision,
+        premultipliedAlpha: oldMat.premultipliedAlpha,
+        shadowSide: oldMat.shadowSide,
+        side: oldMat.side,
+        stencilFail: oldMat.stencilFail,
+        stencilFunc: oldMat.stencilFunc,
+        stencilFuncMask: oldMat.stencilFuncMask,
+        stencilRef: oldMat.stencilRef,
+        stencilWrite: oldMat.stencilWrite,
+        stencilWriteMask: oldMat.stencilWriteMask,
+        stencilZFail: oldMat.stencilZFail,
+        stencilZPass: oldMat.stencilZPass,
+        toneMapped: oldMat.toneMapped,
+        transparent: oldMat.transparent,
+        userData: oldMat.userData,
+        vertexColors: oldMat.vertexColors,
+        visible: oldMat.visible,
+        wireframe: oldMat.wireframe,
+        wireframeLinecap: oldMat.wireframeLinecap,
+        wireframeLinejoin: oldMat.wireframeLinejoin,
+        wireframeLinewidth: oldMat.wireframeLinewidth
+    }, override);
+    for (const [key, value] of Object.entries(params)) {
+        if (isNullOrUndefined(value)) {
+            delete (params as any)[key];
+        }
+    }
+    return new THREE.MeshBasicMaterial(params);
 }
 
 export class Forest {
@@ -18,8 +85,8 @@ export class Forest {
     private readonly raycaster: THREE.Raycaster;
     private readonly hits: Array<THREE.Intersection>;
 
-    private _ground: THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial> & InteractiveObject3D;
-    private _water: THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial> & InteractiveObject3D;
+    private _ground: MeshType;
+    private _water: MeshType;
     private _trees: THREE.InstancedMesh & InteractiveObject3D;
 
     get ground() {
@@ -34,9 +101,7 @@ export class Forest {
         return this._trees;
     }
 
-    constructor(private readonly env: Environment) {
-        //this.env.eventSystem.mouse.allowPointerLock = true;
-
+    constructor(private readonly env: Environment, private readonly density = 0.05) {
         this.getJpeg = this.getJpeg.bind(this);
         this.getPng = this.getPng.bind(this);
         this.getModel = this.getModel.bind(this);
@@ -44,8 +109,10 @@ export class Forest {
 
         this.skybox = new Asset("/skyboxes/BearfenceMountain.jpeg", this.getJpeg);
         this.forest = new Asset("/models/Forest-Ground.glb", this.getModel);
-        this.tree = new Asset("/models/Forest-Tree.glb", this.getModel);
         this.bgAudio = new Asset("/audio/forest.mp3", this.getAudio);
+        if (this.density > 0) {
+            this.tree = new Asset("/models/Forest-Tree.glb", this.getModel);
+        }
         this.raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0), 0.1, 100);
         this.hits = new Array<THREE.Intersection>();
     }
@@ -69,27 +136,32 @@ export class Forest {
         this.forest.result.updateMatrixWorld();
         this.raycaster.camera = this.env.camera;
 
-        this._ground = objectScan<THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial> & InteractiveObject3D>(this.forest.result, isMeshNamed("Ground"));
-        this._water = objectScan<THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial> & InteractiveObject3D>(this.forest.result, isMeshNamed("Water"));
-
-        const matrices = this.makeTrees();
-        const treeMesh = objectScan<THREE.Mesh & InteractiveObject3D>(this.tree.result, isMesh);
-        const treeGeom = treeMesh.geometry;
-        const treeMat = treeMesh.material;
-
-        this._trees = new THREE.InstancedMesh(treeGeom, treeMat, matrices.length);
-
-        for (let i = 0; i < matrices.length; ++i) {
-            this._trees.setMatrixAt(i, matrices[i]);
-        }
-
-        this.env.foreground.add(this._trees);
+        this._ground = objectScan<MeshType>(this.forest.result, isMeshNamed("Ground"));
+        this._ground.material = standardMatToBasic(this._ground.material as THREE.MeshStandardMaterial, { transparent: false });
         this.env.timer.addTickHandler(() => {
             const groundHit = this.groundTest(this.env.avatar.worldPos);
             if (groundHit) {
                 this.env.avatar.stage.position.y = groundHit.point.y;
             }
         });
+
+        this._water = objectScan<MeshType>(this.forest.result, isMeshNamed("Water"));
+        this._water.material = standardMatToBasic(this._water.material as THREE.MeshStandardMaterial, { transparent: false });
+        
+        if (this.density > 0) {
+            const matrices = this.makeTrees();
+            const treeMesh = objectScan<MeshType>(this.tree.result, isMesh);
+            const treeGeom = treeMesh.geometry;
+            const treeMat = standardMatToBasic(treeMesh.material as THREE.MeshStandardMaterial, { transparent: false });
+
+            this._trees = new THREE.InstancedMesh(treeGeom, treeMat, matrices.length);
+
+            for (let i = 0; i < matrices.length; ++i) {
+                this._trees.setMatrixAt(i, matrices[i]);
+            }
+
+            this.env.foreground.add(this._trees);
+        }
 
         return assets;
     }
@@ -141,7 +213,7 @@ export class Forest {
         const s = new THREE.Vector3();
         for (let dz = -25; dz <= 25; ++dz) {
             for (let dx = -25; dx <= 25; ++dx) {
-                if (Math.random() <= 0.1) {
+                if (Math.random() <= this.density) {
                     const x = Math.random() * 0.1 + dx;
                     const z = Math.random() * 0.1 + dz;
                     p.set(x, 0, z);

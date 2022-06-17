@@ -1,22 +1,23 @@
-﻿import { Asset } from "@juniper-lib/fetcher";
+﻿import { createUICanvas } from "@juniper-lib/dom/canvas";
+import { Asset } from "@juniper-lib/fetcher";
 import { createTestEnvironment } from "../createTestEnvironment";
 import { Forest } from "../forest-app/Forest";
 
 const env = await createTestEnvironment();
 await env.fadeOut();
 
-const forest = new Forest(env);
+const forest = new Forest(env, 0.02);
 const [spatter] = await forest.load(new Asset("/img/spatter.png", forest.getPng));
-forest.water.renderOrder = 0;
-forest.ground.renderOrder = 1;
-forest.trees.removeFromParent(); // another instancedmesh, removed for debugging
+const canv = createUICanvas(spatter.result.width / 2, spatter.result.height / 2);
+const g = canv.getContext("2d");
+g.drawImage(spatter.result, 0, 0, canv.width, canv.height);
 
 const grassGeom = new THREE.PlaneBufferGeometry(5, 5, 1, 1);
-const grassTex = new THREE.CanvasTexture(spatter.result);
-const grassMat = new THREE.MeshStandardMaterial({
+const grassTex = new THREE.CanvasTexture(canv as HTMLCanvasElement);
+const grassMat = new THREE.MeshBasicMaterial({
     map: grassTex,
     transparent: true,
-    opacity: 0.9,
+    opacity: 1,
     side: THREE.DoubleSide
 });
 
@@ -32,7 +33,6 @@ for (let i = 0; i < grass.count; ++i) {
 }
 
 env.foreground.add(grass);
-grass.renderOrder = 3;
 
 env.timer.addTickHandler((evt) => {
     for (let i = 0; i < grass.count; ++i) {

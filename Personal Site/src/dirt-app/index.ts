@@ -20,8 +20,8 @@ dirt.addEventListener("update", () => dirtMap.needsUpdate = true);
 
 const surface = forest.ground;
 surface.material.precision = "highp";
-surface.material.bumpMap = dirtMap;
-surface.material.bumpScale = 0.1;
+//surface.material.bumpMap = dirtMap;
+//surface.material.bumpScale = 0.1;
 surface.material.needsUpdate = true;
 surface.isClickable = true;
 surface.isDraggable = true;

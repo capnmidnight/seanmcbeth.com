@@ -873,20 +873,20 @@ var require_cardboard_vr_display = __commonJS({
           self2.realDisable.call(gl, pname);
         };
         this.colorMask = gl.getParameter(gl.COLOR_WRITEMASK);
-        gl.colorMask = function(r, g, b, a) {
+        gl.colorMask = function(r, g2, b, a) {
           self2.colorMask[0] = r;
-          self2.colorMask[1] = g;
+          self2.colorMask[1] = g2;
           self2.colorMask[2] = b;
           self2.colorMask[3] = a;
-          self2.realColorMask.call(gl, r, g, b, a);
+          self2.realColorMask.call(gl, r, g2, b, a);
         };
         this.clearColor = gl.getParameter(gl.COLOR_CLEAR_VALUE);
-        gl.clearColor = function(r, g, b, a) {
+        gl.clearColor = function(r, g2, b, a) {
           self2.clearColor[0] = r;
-          self2.clearColor[1] = g;
+          self2.clearColor[1] = g2;
           self2.clearColor[2] = b;
           self2.clearColor[3] = a;
-          self2.realClearColor.call(gl, r, g, b, a);
+          self2.realClearColor.call(gl, r, g2, b, a);
         };
         this.viewport = gl.getParameter(gl.VIEWPORT);
         gl.viewport = function(x, y, w, h) {
@@ -5227,71 +5227,6 @@ function using(val, thunk) {
   }
 }
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher-base/Asset.ts
-var Asset = class {
-  constructor(path, getter) {
-    this.path = path;
-    this.getter = getter;
-    this.promise = new Promise((resolve, reject) => {
-      this.resolve = (value2) => {
-        this._result = value2;
-        this._finished = true;
-        resolve(value2);
-      };
-      this.reject = (reason) => {
-        this._error = reason;
-        this._finished = true;
-        reject(reason);
-      };
-    });
-  }
-  promise;
-  _result = null;
-  _error = null;
-  _started = false;
-  _finished = false;
-  get result() {
-    if (isDefined(this.error)) {
-      throw this.error;
-    }
-    return this._result;
-  }
-  get error() {
-    return this._error;
-  }
-  get started() {
-    return this._started;
-  }
-  get finished() {
-    return this._finished;
-  }
-  resolve = null;
-  reject = null;
-  getSize(fetcher) {
-    return fetcher.head(this.path).exec().then((response) => [this, response.contentLength]);
-  }
-  async getContent(prog) {
-    try {
-      const response = await this.getter(this.path, prog);
-      this.resolve(response);
-    } catch (err) {
-      this.reject(err);
-    }
-  }
-  get [Symbol.toStringTag]() {
-    return this.promise.toString();
-  }
-  then(onfulfilled, onrejected) {
-    return this.promise.then(onfulfilled, onrejected);
-  }
-  catch(onrejected) {
-    return this.promise.catch(onrejected);
-  }
-  finally(onfinally) {
-    return this.promise.finally(onfinally);
-  }
-};
-
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/attrs.ts
 var Attr = class {
   constructor(key, value2, bySetAttribute, ...tags) {
@@ -5757,18 +5692,18 @@ function isOffscreenCanvas(obj2) {
 function isImageBitmap(img) {
   return hasImageBitmap && img instanceof ImageBitmap;
 }
-function drawImageBitmapToCanvas2D(canv, img) {
-  const g = canv.getContext("2d");
-  if (isNullOrUndefined(g)) {
+function drawImageBitmapToCanvas2D(canv2, img) {
+  const g2 = canv2.getContext("2d");
+  if (isNullOrUndefined(g2)) {
     throw new Error("Could not create 2d context for canvas");
   }
-  g.drawImage(img, 0, 0);
+  g2.drawImage(img, 0, 0);
 }
 function testOffscreen2D() {
   try {
-    const canv = new OffscreenCanvas(1, 1);
-    const g = canv.getContext("2d");
-    return g != null;
+    const canv2 = new OffscreenCanvas(1, 1);
+    const g2 = canv2.getContext("2d");
+    return g2 != null;
   } catch (exp) {
     return false;
   }
@@ -5778,9 +5713,9 @@ var createUtilityCanvas = hasOffscreenCanvasRenderingContext2D && createOffscree
 var createUICanvas = hasHTMLCanvas ? createCanvas : createUtilityCanvas;
 function testOffscreen3D() {
   try {
-    const canv = new OffscreenCanvas(1, 1);
-    const g = canv.getContext("webgl2");
-    return g != null;
+    const canv2 = new OffscreenCanvas(1, 1);
+    const g2 = canv2.getContext("webgl2");
+    return g2 != null;
   } catch (exp) {
     return false;
   }
@@ -5791,9 +5726,9 @@ function testBitmapRenderer() {
     return false;
   }
   try {
-    const canv = createUtilityCanvas(1, 1);
-    const g = canv.getContext("bitmaprenderer");
-    return g != null;
+    const canv2 = createUtilityCanvas(1, 1);
+    const g2 = canv2.getContext("bitmaprenderer");
+    return g2 != null;
   } catch (exp) {
     return false;
   }
@@ -5806,23 +5741,23 @@ function createCanvas(w, h) {
   return Canvas(htmlWidth(w), htmlHeight(h));
 }
 function createCanvasFromImageBitmap(img) {
-  const canv = createCanvas(img.width, img.height);
-  drawImageBitmapToCanvas2D(canv, img);
-  return canv;
+  const canv2 = createCanvas(img.width, img.height);
+  drawImageBitmapToCanvas2D(canv2, img);
+  return canv2;
 }
-function drawImageToCanvas(canv, img) {
-  const g = canv.getContext("2d");
-  if (isNullOrUndefined(g)) {
+function drawImageToCanvas(canv2, img) {
+  const g2 = canv2.getContext("2d");
+  if (isNullOrUndefined(g2)) {
     throw new Error("Could not create 2d context for canvas");
   }
-  g.drawImage(img, 0, 0);
+  g2.drawImage(img, 0, 0);
 }
-function setCanvasSize(canv, w, h, superscale = 1) {
+function setCanvasSize(canv2, w, h, superscale = 1) {
   w = Math.floor(w * superscale);
   h = Math.floor(h * superscale);
-  if (canv.width != w || canv.height != h) {
-    canv.width = w;
-    canv.height = h;
+  if (canv2.width != w || canv2.height != h) {
+    canv2.width = w;
+    canv2.height = h;
     return true;
   }
   return false;
@@ -5847,6 +5782,71 @@ function setContextSize(ctx, w, h, superscale = 1) {
     return setCanvasSize(ctx.canvas, w, h, superscale);
   }
 }
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher-base/Asset.ts
+var Asset = class {
+  constructor(path, getter) {
+    this.path = path;
+    this.getter = getter;
+    this.promise = new Promise((resolve, reject) => {
+      this.resolve = (value2) => {
+        this._result = value2;
+        this._finished = true;
+        resolve(value2);
+      };
+      this.reject = (reason) => {
+        this._error = reason;
+        this._finished = true;
+        reject(reason);
+      };
+    });
+  }
+  promise;
+  _result = null;
+  _error = null;
+  _started = false;
+  _finished = false;
+  get result() {
+    if (isDefined(this.error)) {
+      throw this.error;
+    }
+    return this._result;
+  }
+  get error() {
+    return this._error;
+  }
+  get started() {
+    return this._started;
+  }
+  get finished() {
+    return this._finished;
+  }
+  resolve = null;
+  reject = null;
+  getSize(fetcher) {
+    return fetcher.head(this.path).exec().then((response) => [this, response.contentLength]);
+  }
+  async getContent(prog) {
+    try {
+      const response = await this.getter(this.path, prog);
+      this.resolve(response);
+    } catch (err) {
+      this.reject(err);
+    }
+  }
+  get [Symbol.toStringTag]() {
+    return this.promise.toString();
+  }
+  then(onfulfilled, onrejected) {
+    return this.promise.then(onfulfilled, onrejected);
+  }
+  catch(onrejected) {
+    return this.promise.catch(onrejected);
+  }
+  finally(onfinally) {
+    return this.promise.finally(onfinally);
+  }
+};
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/graphics2d/CanvasImage.ts
 var CanvasImage = class extends TypedEventBase {
@@ -5967,62 +5967,62 @@ var ArtificialHorizon = class extends CanvasImage {
     const hw = 0.5 * w;
     const hh = 0.5 * h;
     const y = Math.sin(a);
-    const g = this.g;
-    g.save();
+    const g2 = this.g;
+    g2.save();
     {
-      g.clearRect(0, 0, this.canvas.width, this.canvas.height);
-      g.translate(p, p);
-      g.scale(hw, hh);
-      g.translate(1, 1);
-      g.fillStyle = "#808080";
-      g.beginPath();
-      g.arc(0, 0, 1, 0, 2 * Math.PI);
-      g.fill();
-      g.fillStyle = "#d0d0d0";
-      g.beginPath();
-      g.arc(0, 0, 1, 0, Math.PI, true);
-      g.fill();
-      g.save();
+      g2.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      g2.translate(p, p);
+      g2.scale(hw, hh);
+      g2.translate(1, 1);
+      g2.fillStyle = "#808080";
+      g2.beginPath();
+      g2.arc(0, 0, 1, 0, 2 * Math.PI);
+      g2.fill();
+      g2.fillStyle = "#d0d0d0";
+      g2.beginPath();
+      g2.arc(0, 0, 1, 0, Math.PI, true);
+      g2.fill();
+      g2.save();
       {
-        g.scale(1, Math.abs(y));
+        g2.scale(1, Math.abs(y));
         if (y < 0) {
-          g.fillStyle = "#808080";
+          g2.fillStyle = "#808080";
         }
-        g.beginPath();
-        g.arc(0, 0, 1, 0, Math.PI, y < 0);
-        g.fill();
+        g2.beginPath();
+        g2.arc(0, 0, 1, 0, Math.PI, y < 0);
+        g2.fill();
       }
-      g.restore();
-      g.save();
+      g2.restore();
+      g2.save();
       {
-        g.shadowColor = "#404040";
-        g.shadowBlur = 4;
-        g.shadowOffsetX = 3;
-        g.shadowOffsetY = 3;
-        g.rotate(b);
-        g.fillStyle = "#ff0000";
-        g.beginPath();
-        g.moveTo(-0.1, 0);
-        g.lineTo(0, 0.667);
-        g.lineTo(0.1, 0);
-        g.closePath();
-        g.fill();
-        g.fillStyle = "#ffffff";
-        g.beginPath();
-        g.moveTo(-0.1, 0);
-        g.lineTo(0, -0.667);
-        g.lineTo(0.1, 0);
-        g.closePath();
-        g.fill();
+        g2.shadowColor = "#404040";
+        g2.shadowBlur = 4;
+        g2.shadowOffsetX = 3;
+        g2.shadowOffsetY = 3;
+        g2.rotate(b);
+        g2.fillStyle = "#ff0000";
+        g2.beginPath();
+        g2.moveTo(-0.1, 0);
+        g2.lineTo(0, 0.667);
+        g2.lineTo(0.1, 0);
+        g2.closePath();
+        g2.fill();
+        g2.fillStyle = "#ffffff";
+        g2.beginPath();
+        g2.moveTo(-0.1, 0);
+        g2.lineTo(0, -0.667);
+        g2.lineTo(0.1, 0);
+        g2.closePath();
+        g2.fill();
       }
-      g.restore();
-      g.beginPath();
-      g.strokeStyle = "#000000";
-      g.lineWidth = 0.1;
-      g.arc(0, 0, 1, 0, 2 * Math.PI);
-      g.stroke();
+      g2.restore();
+      g2.beginPath();
+      g2.strokeStyle = "#000000";
+      g2.lineWidth = 0.1;
+      g2.arc(0, 0, 1, 0, 2 * Math.PI);
+      g2.stroke();
     }
-    g.restore();
+    g2.restore();
     return true;
   }
 };
@@ -6434,9 +6434,9 @@ var TextImage = class extends CanvasImage {
       this.redraw();
     }
   }
-  draw(g, x, y) {
+  draw(g2, x, y) {
     if (this.canvas.width > 0 && this.canvas.height > 0) {
-      g.drawImage(this.canvas, x, y, this.width, this.height);
+      g2.drawImage(this.canvas, x, y, this.width, this.height);
     }
   }
   split(value2) {
@@ -6579,22 +6579,22 @@ var TextImage = class extends CanvasImage {
         this.g.strokeRect(s, s, this.canvas.width - this.bgStrokeSize, this.canvas.height - this.bgStrokeSize);
       }
       if (isVertical) {
-        const canv = createUtilityCanvas(this.canvas.height, this.canvas.width);
-        const g = canv.getContext("2d");
-        if (g) {
-          g.translate(canv.width / 2, canv.height / 2);
+        const canv2 = createUtilityCanvas(this.canvas.height, this.canvas.width);
+        const g2 = canv2.getContext("2d");
+        if (g2) {
+          g2.translate(canv2.width / 2, canv2.height / 2);
           if (this.textDirection === "vertical" || this.textDirection === "vertical-left") {
-            g.rotate(Math.PI / 2);
+            g2.rotate(Math.PI / 2);
           } else if (this.textDirection === "vertical-right") {
-            g.rotate(-Math.PI / 2);
+            g2.rotate(-Math.PI / 2);
           }
-          g.translate(-this.canvas.width / 2, -this.canvas.height / 2);
-          g.drawImage(this.canvas, 0, 0);
-          setContextSize(this.g, canv.width, canv.height);
+          g2.translate(-this.canvas.width / 2, -this.canvas.height / 2);
+          g2.drawImage(this.canvas, 0, 0);
+          setContextSize(this.g, canv2.width, canv2.height);
         } else {
           console.warn("Couldn't rotate the TextImage");
         }
-        this.g.drawImage(canv, 0, 0);
+        this.g.drawImage(canv2, 0, 0);
       }
       return true;
     } else {
@@ -6622,22 +6622,20 @@ var ClockImage = class extends TextImage {
     setInterval(updater, 500);
     updater();
   }
-  _fps = null;
-  get fps() {
-    return this._fps;
-  }
-  set fps(v) {
-    if (v !== this.fps) {
-      this._fps = v;
-      this.update();
-    }
+  fps = null;
+  drawCalls = null;
+  triangles = null;
+  setStats(fps, drawCalls, triangles) {
+    this.fps = fps;
+    this.drawCalls = drawCalls;
+    this.triangles = triangles;
   }
   lastLen = 0;
   update() {
     const time = new Date();
     let value2 = time.toLocaleTimeString();
     if (this.fps !== null) {
-      value2 += ` ${Math.round(this.fps).toFixed(0)}hz`;
+      value2 += ` ${Math.round(this.fps).toFixed(0)}hz ${this.drawCalls}c ${this.triangles}t`;
     }
     if (value2.length !== this.lastLen) {
       this.lastLen = value2.length;
@@ -6762,11 +6760,11 @@ function connect(left2, right) {
   if (!connections.has(a)) {
     connections.set(a, /* @__PURE__ */ new Set());
   }
-  const g = connections.get(a);
-  if (g.has(b)) {
+  const g2 = connections.get(a);
+  if (g2.has(b)) {
     return false;
   }
-  g.add(b);
+  g2.add(b);
   return true;
 }
 function disconnect(left2, right) {
@@ -6785,16 +6783,16 @@ function disconnect(left2, right) {
   if (!connections.has(a)) {
     return false;
   }
-  const g = connections.get(a);
+  const g2 = connections.get(a);
   let removed = false;
   if (isNullOrUndefined(b)) {
-    removed = g.size > 0;
-    g.clear();
-  } else if (g.has(b)) {
+    removed = g2.size > 0;
+    g2.clear();
+  } else if (g2.has(b)) {
     removed = true;
-    g.delete(b);
+    g2.delete(b);
   }
-  if (g.size === 0) {
+  if (g2.size === 0) {
     connections.delete(a);
   }
   return removed;
@@ -8405,9 +8403,9 @@ var ButtonFactory = class {
     const du = iconWidth / canvWidth;
     const dv = iconHeight / canvHeight;
     this.canvas = createUICanvas(canvWidth, canvHeight);
-    const g = this.canvas.getContext("2d");
-    g.fillStyle = "#1e4388";
-    g.fillRect(0, 0, canvWidth, canvHeight);
+    const g2 = this.canvas.getContext("2d");
+    g2.fillStyle = "#1e4388";
+    g2.fillRect(0, 0, canvWidth, canvHeight);
     let i = 0;
     for (const [setName, imgName, img] of imageSets.entries()) {
       const c = i % cols;
@@ -8418,7 +8416,7 @@ var ButtonFactory = class {
       const y = r * iconHeight + canvHeight - height2;
       const w = iconWidth - 2 * this.padding;
       const h = iconHeight - 2 * this.padding;
-      g.drawImage(img, 0, 0, img.width, img.height, x + this.padding, y + this.padding, w, h);
+      g2.drawImage(img, 0, 0, img.width, img.height, x + this.padding, y + this.padding, w, h);
       this.uvDescrips.add(setName, imgName, { u, v, du, dv });
       ++i;
     }
@@ -20033,16 +20031,16 @@ var Skybox = class {
       for (let column = 0; column < CUBEMAP_PATTERN.columns; ++column) {
         const i = indices[column];
         if (i > -1) {
-          const g = this.contexts[i];
+          const g2 = this.contexts[i];
           const rotation = rotations[column];
           if (rotation > 0) {
             if (rotation % 2 === 0) {
-              g.translate(FACE_SIZE_HALF, FACE_SIZE_HALF);
+              g2.translate(FACE_SIZE_HALF, FACE_SIZE_HALF);
             } else {
-              g.translate(FACE_SIZE_HALF, FACE_SIZE_HALF);
+              g2.translate(FACE_SIZE_HALF, FACE_SIZE_HALF);
             }
-            g.rotate(rotation);
-            g.translate(-FACE_SIZE_HALF, -FACE_SIZE_HALF);
+            g2.rotate(rotation);
+            g2.translate(-FACE_SIZE_HALF, -FACE_SIZE_HALF);
           }
         }
       }
@@ -20066,8 +20064,8 @@ var Skybox = class {
         for (let column = 0; column < CUBEMAP_PATTERN.columns; ++column) {
           const i = indices[column];
           if (i > -1) {
-            const g = this.contexts[i];
-            g.drawImage(image2, column * width2, row * height2, width2, height2, 0, 0, FACE_SIZE, FACE_SIZE);
+            const g2 = this.contexts[i];
+            g2.drawImage(image2, column * width2, row * height2, width2, height2, 0, 0, FACE_SIZE, FACE_SIZE);
           }
         }
       }
@@ -20276,6 +20274,7 @@ var BaseEnvironment = class extends TypedEventBase {
     this.ground = new THREE.GridHelper(gridSize, gridWidth, 12632256, 8421504);
     this.foreground = obj("Foreground");
     this.loadingBar = new LoadingBar();
+    this.enableSpectator = false;
     this._xrBinding = null;
     this._xrMediaBinding = null;
     this._hasXRMediaLayers = null;
@@ -20378,22 +20377,24 @@ var BaseEnvironment = class extends TypedEventBase {
       }
       this.renderer.clear();
       this.renderer.render(this.scene, this.camera);
-      if (!this.renderer.xr.isPresenting) {
-        lastViewport.copy(curViewport);
-        this.renderer.getViewport(curViewport);
-      } else if (isDesktop() && !isFirefox()) {
-        spectator.projectionMatrix.copy(this.camera.projectionMatrix);
-        spectator.position.copy(cam.position);
-        spectator.quaternion.copy(cam.quaternion);
-        const curRT = this.renderer.getRenderTarget();
-        this.renderer.xr.isPresenting = false;
-        this.renderer.setRenderTarget(null);
-        this.renderer.setViewport(lastViewport);
-        this.renderer.clear();
-        this.renderer.render(this.scene, spectator);
-        this.renderer.setViewport(curViewport);
-        this.renderer.setRenderTarget(curRT);
-        this.renderer.xr.isPresenting = true;
+      if (this.enableSpectator) {
+        if (!this.renderer.xr.isPresenting) {
+          lastViewport.copy(curViewport);
+          this.renderer.getViewport(curViewport);
+        } else if (isDesktop() && !isFirefox()) {
+          spectator.projectionMatrix.copy(this.camera.projectionMatrix);
+          spectator.position.copy(cam.position);
+          spectator.quaternion.copy(cam.quaternion);
+          const curRT = this.renderer.getRenderTarget();
+          this.renderer.xr.isPresenting = false;
+          this.renderer.setRenderTarget(null);
+          this.renderer.setViewport(lastViewport);
+          this.renderer.clear();
+          this.renderer.render(this.scene, spectator);
+          this.renderer.setViewport(curViewport);
+          this.renderer.setRenderTarget(curRT);
+          this.renderer.xr.isPresenting = true;
+        }
       }
     }
   }
@@ -20946,7 +20947,7 @@ var Environment = class extends BaseEnvironment {
         this.avgFPS -= fps2 / 100;
       }
       if (++this.countTick % 100 === 0) {
-        this.clockImage.image.fps = this.avgFPS;
+        this.clockImage.image.setStats(this.avgFPS, this.renderer.info.render.calls, this.renderer.info.render.triangles);
       }
     }
     this.confirmationDialog.update(evt.dt);
@@ -21368,8 +21369,8 @@ var FetchingServiceImplXHR = class {
     }), (img) => {
       canvas.width = img.width;
       canvas.height = img.height;
-      const g = canvas.getContext("2d");
-      g.drawImage(img, 0, 0);
+      const g2 = canvas.getContext("2d");
+      g2.drawImage(img, 0, 0);
       return translateResponse(response, () => null);
     });
   }
@@ -21890,6 +21891,7 @@ var Fetcher = class {
     return this.createRequest("DELETE", path, base);
   }
   async assets(progress, ...assets) {
+    assets = assets.filter(isDefined);
     const assetSizes = new Map(await Promise.all(assets.map((asset) => asset.getSize(this))));
     await progressTasksWeighted(progress, assets.map((asset) => [assetSizes.get(asset), (prog) => asset.getContent(prog)]));
   }
@@ -22398,17 +22400,83 @@ function objectScan(obj2, test) {
 function isMeshNamed(name2) {
   return (obj2) => isMesh(obj2) && obj2.name === name2;
 }
+function standardMatToBasic(oldMat, override) {
+  const params = Object.assign({
+    alphaMap: oldMat.alphaMap,
+    alphaTest: oldMat.alphaTest,
+    alphaToCoverage: oldMat.alphaToCoverage,
+    aoMap: oldMat.aoMap,
+    aoMapIntensity: oldMat.aoMapIntensity,
+    blendDst: oldMat.blendDst,
+    blendDstAlpha: oldMat.blendDstAlpha,
+    blendEquation: oldMat.blendEquation,
+    blendEquationAlpha: oldMat.blendEquationAlpha,
+    blending: oldMat.blending,
+    blendSrc: oldMat.blendSrc,
+    blendSrcAlpha: oldMat.blendSrcAlpha,
+    clipIntersection: oldMat.clipIntersection,
+    clippingPlanes: oldMat.clippingPlanes,
+    clipShadows: oldMat.clipShadows,
+    color: oldMat.color,
+    colorWrite: oldMat.colorWrite,
+    defines: oldMat.defines,
+    depthFunc: oldMat.depthFunc,
+    depthTest: oldMat.depthTest,
+    depthWrite: oldMat.depthWrite,
+    dithering: oldMat.dithering,
+    envMap: oldMat.envMap,
+    fog: oldMat.fog,
+    lightMap: oldMat.lightMap,
+    lightMapIntensity: oldMat.lightMapIntensity,
+    map: oldMat.map,
+    name: oldMat.name + "-Basic",
+    opacity: oldMat.opacity,
+    polygonOffset: oldMat.polygonOffset,
+    polygonOffsetFactor: oldMat.polygonOffsetFactor,
+    polygonOffsetUnits: oldMat.polygonOffsetUnits,
+    precision: oldMat.precision,
+    premultipliedAlpha: oldMat.premultipliedAlpha,
+    shadowSide: oldMat.shadowSide,
+    side: oldMat.side,
+    stencilFail: oldMat.stencilFail,
+    stencilFunc: oldMat.stencilFunc,
+    stencilFuncMask: oldMat.stencilFuncMask,
+    stencilRef: oldMat.stencilRef,
+    stencilWrite: oldMat.stencilWrite,
+    stencilWriteMask: oldMat.stencilWriteMask,
+    stencilZFail: oldMat.stencilZFail,
+    stencilZPass: oldMat.stencilZPass,
+    toneMapped: oldMat.toneMapped,
+    transparent: oldMat.transparent,
+    userData: oldMat.userData,
+    vertexColors: oldMat.vertexColors,
+    visible: oldMat.visible,
+    wireframe: oldMat.wireframe,
+    wireframeLinecap: oldMat.wireframeLinecap,
+    wireframeLinejoin: oldMat.wireframeLinejoin,
+    wireframeLinewidth: oldMat.wireframeLinewidth
+  }, override);
+  for (const [key, value2] of Object.entries(params)) {
+    if (isNullOrUndefined(value2)) {
+      delete params[key];
+    }
+  }
+  return new THREE.MeshBasicMaterial(params);
+}
 var Forest = class {
-  constructor(env2) {
+  constructor(env2, density = 0.05) {
     this.env = env2;
+    this.density = density;
     this.getJpeg = this.getJpeg.bind(this);
     this.getPng = this.getPng.bind(this);
     this.getModel = this.getModel.bind(this);
     this.getAudio = this.getAudio.bind(this);
     this.skybox = new Asset("/skyboxes/BearfenceMountain.jpeg", this.getJpeg);
     this.forest = new Asset("/models/Forest-Ground.glb", this.getModel);
-    this.tree = new Asset("/models/Forest-Tree.glb", this.getModel);
     this.bgAudio = new Asset("/audio/forest.mp3", this.getAudio);
+    if (this.density > 0) {
+      this.tree = new Asset("/models/Forest-Tree.glb", this.getModel);
+    }
     this.raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0), 0.1, 100);
     this.hits = new Array();
   }
@@ -22442,22 +22510,26 @@ var Forest = class {
     this.forest.result.updateMatrixWorld();
     this.raycaster.camera = this.env.camera;
     this._ground = objectScan(this.forest.result, isMeshNamed("Ground"));
-    this._water = objectScan(this.forest.result, isMeshNamed("Water"));
-    const matrices = this.makeTrees();
-    const treeMesh = objectScan(this.tree.result, isMesh);
-    const treeGeom = treeMesh.geometry;
-    const treeMat = treeMesh.material;
-    this._trees = new THREE.InstancedMesh(treeGeom, treeMat, matrices.length);
-    for (let i = 0; i < matrices.length; ++i) {
-      this._trees.setMatrixAt(i, matrices[i]);
-    }
-    this.env.foreground.add(this._trees);
+    this._ground.material = standardMatToBasic(this._ground.material, { transparent: false });
     this.env.timer.addTickHandler(() => {
       const groundHit = this.groundTest(this.env.avatar.worldPos);
       if (groundHit) {
         this.env.avatar.stage.position.y = groundHit.point.y;
       }
     });
+    this._water = objectScan(this.forest.result, isMeshNamed("Water"));
+    this._water.material = standardMatToBasic(this._water.material, { transparent: false });
+    if (this.density > 0) {
+      const matrices = this.makeTrees();
+      const treeMesh = objectScan(this.tree.result, isMesh);
+      const treeGeom = treeMesh.geometry;
+      const treeMat = standardMatToBasic(treeMesh.material, { transparent: false });
+      this._trees = new THREE.InstancedMesh(treeGeom, treeMat, matrices.length);
+      for (let i = 0; i < matrices.length; ++i) {
+        this._trees.setMatrixAt(i, matrices[i]);
+      }
+      this.env.foreground.add(this._trees);
+    }
     return assets;
   }
   getJpeg(path, prog) {
@@ -22482,7 +22554,7 @@ var Forest = class {
     const s = new THREE.Vector3();
     for (let dz = -25; dz <= 25; ++dz) {
       for (let dx = -25; dx <= 25; ++dx) {
-        if (Math.random() <= 0.1) {
+        if (Math.random() <= this.density) {
           const x = Math.random() * 0.1 + dx;
           const z = Math.random() * 0.1 + dz;
           p.set(x, 0, z);
@@ -22510,20 +22582,20 @@ var Forest = class {
   }
 };
 
-// src/instanced-grass-app/index.ts
+// src/grass-and-trees-app/index.ts
 var env = await createTestEnvironment();
 await env.fadeOut();
-var forest = new Forest(env);
+var forest = new Forest(env, 0.02);
 var [spatter] = await forest.load(new Asset("/img/spatter.png", forest.getPng));
-forest.water.renderOrder = 0;
-forest.ground.renderOrder = 1;
-forest.trees.removeFromParent();
+var canv = createUICanvas(spatter.result.width / 2, spatter.result.height / 2);
+var g = canv.getContext("2d");
+g.drawImage(spatter.result, 0, 0, canv.width, canv.height);
 var grassGeom = new THREE.PlaneBufferGeometry(5, 5, 1, 1);
-var grassTex = new THREE.CanvasTexture(spatter.result);
-var grassMat = new THREE.MeshStandardMaterial({
+var grassTex = new THREE.CanvasTexture(canv);
+var grassMat = new THREE.MeshBasicMaterial({
   map: grassTex,
   transparent: true,
-  opacity: 0.9,
+  opacity: 1,
   side: THREE.DoubleSide
 });
 var grass = new THREE.InstancedMesh(grassGeom, grassMat, 25);
@@ -22536,7 +22608,6 @@ for (let i = 0; i < grass.count; ++i) {
   grass.setColorAt(i, new THREE.Color(0.25, 0.25 + i / (2 * grass.count), 0));
 }
 env.foreground.add(grass);
-grass.renderOrder = 3;
 env.timer.addTickHandler((evt) => {
   for (let i = 0; i < grass.count; ++i) {
     dummy.position.set(0.08 + 0.05 * Math.cos(evt.t / 1e3) * i / grass.count, i / (5 * grass.count), 0);

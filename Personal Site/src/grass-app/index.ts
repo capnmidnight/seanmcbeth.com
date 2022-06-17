@@ -7,35 +7,36 @@ await env.fadeOut();
 
 const forest = new Forest(env);
 const [spatter] = await forest.load(new Asset("/img/spatter.png", forest.getPng));
-forest.water.renderOrder = 0;
-forest.ground.renderOrder = 1;
-forest.trees.removeFromParent(); // another instancedmesh, removed for debugging
 
 const grassGeom = new THREE.PlaneBufferGeometry(5, 5, 1, 1);
 const grassTex = new THREE.CanvasTexture(spatter.result);
-const grass = new Array<THREE.Mesh>(25);
+const grassMat = new THREE.MeshBasicMaterial({
+    map: grassTex,
+    transparent: true,
+    opacity: 1,
+    side: THREE.DoubleSide
+});
 
-for (let i = 0; i < grass.length; ++i) {
-    const grassMat = new THREE.MeshStandardMaterial({
-        map: grassTex,
-        transparent: true,
-        opacity: 0.9,
-        side: THREE.DoubleSide,
-        color: new THREE.Color(0.25, 0.25 + i / (2 * grass.length), 0)
-    });
+const grass = new THREE.InstancedMesh(grassGeom, grassMat, 25);
 
-    grass[i] = new THREE.Mesh(grassGeom, grassMat);
-    grass[i].position.set(0, i / (5 * grass.length), 0);
-    grass[i].rotation.set(Math.PI / 2, 0, 0);
-    grass[i].updateMatrix();
-    grass[i].renderOrder = 3 + i;
-    env.foreground.add(grass[i]);
+const dummy = new THREE.Object3D();
+dummy.rotation.set(Math.PI / 2, 0, 0);
+for (let i = 0; i < grass.count; ++i) {
+    dummy.position.set(0, i / (5 * grass.count), 0);
+    dummy.updateMatrix();
+    grass.setMatrixAt(i, dummy.matrix);
+    grass.setColorAt(i, new THREE.Color(0.25, 0.25 + i / (2 * grass.count), 0));
 }
 
+env.foreground.add(grass);
+
 env.timer.addTickHandler((evt) => {
-    for (let i = 0; i < grass.length; ++i) {
-        grass[i].position.set(0.08 + 0.05 * Math.cos(evt.t / 1000) * i / grass.length, i / (5 * grass.length), 0);
+    for (let i = 0; i < grass.count; ++i) {
+        dummy.position.set(0.08 + 0.05 * Math.cos(evt.t / 1000) * i / grass.count, i / (5 * grass.count), 0);
+        dummy.updateMatrix();
+        grass.setMatrixAt(i, dummy.matrix);
     }
+    grass.instanceMatrix.needsUpdate = true;
 });
 
 await env.fadeIn();
