@@ -11662,7 +11662,7 @@ var AvatarLocal = class extends TypedEventBase {
       }
     } else if (this.controlMode === "mouseedge" /* MouseScreenEdge */) {
       if (this.uv.manhattanLength() > 0) {
-        this.motion.set(this.scaleRadialComponent(this.uv.x, this.speed.x, this.acceleration.x), this.scaleRadialComponent(this.uv.y, this.speed.y, this.acceleration.y)).multiplyScalar(dt).multiply(this.axisControl);
+        this.motion.set(this.scaleRadialComponent(this.uv.x, this.speed.x, this.acceleration.x), this.scaleRadialComponent(-this.uv.y, this.speed.y, this.acceleration.y)).multiplyScalar(dt).multiply(this.axisControl);
         this.setHeading(this.heading + this.motion.x);
         this.setPitch(this.pitch + this.motion.y, this.minimumX, this.maximumX);
         this.setRoll(0);

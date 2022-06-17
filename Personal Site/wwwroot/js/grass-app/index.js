@@ -7100,18 +7100,18 @@ var DeviceManager = class extends TypedEventBase {
     super();
     this.element = element;
     this.needsVideoDevice = needsVideoDevice;
-    this._hasAudioPermission = false;
-    this._hasVideoPermission = false;
-    this._currentStream = null;
     this.ready = this.start();
     Object.seal(this);
   }
+  _hasAudioPermission = false;
   get hasAudioPermission() {
     return this._hasAudioPermission;
   }
+  _hasVideoPermission = false;
   get hasVideoPermission() {
     return this._hasVideoPermission;
   }
+  _currentStream = null;
   get currentStream() {
     return this._currentStream;
   }
@@ -7125,6 +7125,7 @@ var DeviceManager = class extends TypedEventBase {
       this._currentStream = v;
     }
   }
+  ready;
   async start() {
     if (canChangeAudioOutput) {
       const device = await this.getPreferredAudioOutput();
@@ -11844,7 +11845,7 @@ var AvatarLocal = class extends TypedEventBase {
       }
     } else if (this.controlMode === "mouseedge" /* MouseScreenEdge */) {
       if (this.uv.manhattanLength() > 0) {
-        this.motion.set(this.scaleRadialComponent(this.uv.x, this.speed.x, this.acceleration.x), this.scaleRadialComponent(this.uv.y, this.speed.y, this.acceleration.y)).multiplyScalar(dt).multiply(this.axisControl);
+        this.motion.set(this.scaleRadialComponent(this.uv.x, this.speed.x, this.acceleration.x), this.scaleRadialComponent(-this.uv.y, this.speed.y, this.acceleration.y)).multiplyScalar(dt).multiply(this.axisControl);
         this.setHeading(this.heading + this.motion.x);
         this.setPitch(this.pitch + this.motion.y, this.minimumX, this.maximumX);
         this.setRoll(0);
@@ -22480,37 +22481,42 @@ var Forest = class {
   }
 };
 
+// src/grass-app/makeGrass.ts
+function makeGrass(env2, spatter2) {
+  const grassGeom = new THREE.PlaneBufferGeometry(5, 5, 1, 1);
+  const grassTex = new THREE.CanvasTexture(spatter2);
+  const grassMat = new THREE.MeshBasicMaterial({
+    map: grassTex,
+    transparent: true,
+    opacity: 1,
+    side: THREE.DoubleSide
+  });
+  const grass = new THREE.InstancedMesh(grassGeom, grassMat, 25);
+  const dummy = new THREE.Object3D();
+  dummy.rotation.set(Math.PI / 2, 0, 0);
+  for (let i = 0; i < grass.count; ++i) {
+    dummy.position.set(0, i / (5 * grass.count), 0);
+    dummy.updateMatrix();
+    grass.setMatrixAt(i, dummy.matrix);
+    grass.setColorAt(i, new THREE.Color(0.25, 0.25 + i / (2 * grass.count), 0));
+  }
+  env2.foreground.add(grass);
+  env2.timer.addTickHandler((evt) => {
+    for (let i = 0; i < grass.count; ++i) {
+      dummy.position.set(0.08 + 0.05 * Math.cos(evt.t / 1e3) * i / grass.count, i / (5 * grass.count), 0);
+      dummy.updateMatrix();
+      grass.setMatrixAt(i, dummy.matrix);
+    }
+    grass.instanceMatrix.needsUpdate = true;
+  });
+}
+
 // src/grass-app/index.ts
 var env = await createTestEnvironment();
 await env.fadeOut();
 var forest = new Forest(env, true);
-forest.trees.removeFromParent();
 var [spatter] = await forest.load(new Asset("/img/spatter.png", forest.getPng));
-var grassGeom = new THREE.PlaneBufferGeometry(5, 5, 1, 1);
-var grassTex = new THREE.CanvasTexture(spatter.result);
-var grassMat = new THREE.MeshBasicMaterial({
-  map: grassTex,
-  transparent: true,
-  opacity: 1,
-  side: THREE.DoubleSide
-});
-var grass = new THREE.InstancedMesh(grassGeom, grassMat, 25);
-var dummy = new THREE.Object3D();
-dummy.rotation.set(Math.PI / 2, 0, 0);
-for (let i = 0; i < grass.count; ++i) {
-  dummy.position.set(0, i / (5 * grass.count), 0);
-  dummy.updateMatrix();
-  grass.setMatrixAt(i, dummy.matrix);
-  grass.setColorAt(i, new THREE.Color(0.25, 0.25 + i / (2 * grass.count), 0));
-}
-env.foreground.add(grass);
-env.timer.addTickHandler((evt) => {
-  for (let i = 0; i < grass.count; ++i) {
-    dummy.position.set(0.08 + 0.05 * Math.cos(evt.t / 1e3) * i / grass.count, i / (5 * grass.count), 0);
-    dummy.updateMatrix();
-    grass.setMatrixAt(i, dummy.matrix);
-  }
-  grass.instanceMatrix.needsUpdate = true;
-});
+forest.trees.removeFromParent();
+makeGrass(env, spatter.result);
 await env.fadeIn();
 //# sourceMappingURL=index.js.map

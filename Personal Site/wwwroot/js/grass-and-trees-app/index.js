@@ -873,20 +873,20 @@ var require_cardboard_vr_display = __commonJS({
           self2.realDisable.call(gl, pname);
         };
         this.colorMask = gl.getParameter(gl.COLOR_WRITEMASK);
-        gl.colorMask = function(r, g2, b, a) {
+        gl.colorMask = function(r, g, b, a) {
           self2.colorMask[0] = r;
-          self2.colorMask[1] = g2;
+          self2.colorMask[1] = g;
           self2.colorMask[2] = b;
           self2.colorMask[3] = a;
-          self2.realColorMask.call(gl, r, g2, b, a);
+          self2.realColorMask.call(gl, r, g, b, a);
         };
         this.clearColor = gl.getParameter(gl.COLOR_CLEAR_VALUE);
-        gl.clearColor = function(r, g2, b, a) {
+        gl.clearColor = function(r, g, b, a) {
           self2.clearColor[0] = r;
-          self2.clearColor[1] = g2;
+          self2.clearColor[1] = g;
           self2.clearColor[2] = b;
           self2.clearColor[3] = a;
-          self2.realClearColor.call(gl, r, g2, b, a);
+          self2.realClearColor.call(gl, r, g, b, a);
         };
         this.viewport = gl.getParameter(gl.VIEWPORT);
         gl.viewport = function(x, y, w, h) {
@@ -5212,6 +5212,71 @@ function using(val, thunk) {
   }
 }
 
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher-base/Asset.ts
+var Asset = class {
+  constructor(path, getter) {
+    this.path = path;
+    this.getter = getter;
+    this.promise = new Promise((resolve, reject) => {
+      this.resolve = (value2) => {
+        this._result = value2;
+        this._finished = true;
+        resolve(value2);
+      };
+      this.reject = (reason) => {
+        this._error = reason;
+        this._finished = true;
+        reject(reason);
+      };
+    });
+  }
+  promise;
+  _result = null;
+  _error = null;
+  _started = false;
+  _finished = false;
+  get result() {
+    if (isDefined(this.error)) {
+      throw this.error;
+    }
+    return this._result;
+  }
+  get error() {
+    return this._error;
+  }
+  get started() {
+    return this._started;
+  }
+  get finished() {
+    return this._finished;
+  }
+  resolve = null;
+  reject = null;
+  getSize(fetcher) {
+    return fetcher.head(this.path).exec().then((response) => [this, response.contentLength]);
+  }
+  async getContent(prog) {
+    try {
+      const response = await this.getter(this.path, prog);
+      this.resolve(response);
+    } catch (err) {
+      this.reject(err);
+    }
+  }
+  get [Symbol.toStringTag]() {
+    return this.promise.toString();
+  }
+  then(onfulfilled, onrejected) {
+    return this.promise.then(onfulfilled, onrejected);
+  }
+  catch(onrejected) {
+    return this.promise.catch(onrejected);
+  }
+  finally(onfinally) {
+    return this.promise.finally(onfinally);
+  }
+};
+
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/attrs.ts
 var Attr = class {
   constructor(key, value2, bySetAttribute, ...tags) {
@@ -5677,18 +5742,18 @@ function isOffscreenCanvas(obj2) {
 function isImageBitmap(img) {
   return hasImageBitmap && img instanceof ImageBitmap;
 }
-function drawImageBitmapToCanvas2D(canv2, img) {
-  const g2 = canv2.getContext("2d");
-  if (isNullOrUndefined(g2)) {
+function drawImageBitmapToCanvas2D(canv, img) {
+  const g = canv.getContext("2d");
+  if (isNullOrUndefined(g)) {
     throw new Error("Could not create 2d context for canvas");
   }
-  g2.drawImage(img, 0, 0);
+  g.drawImage(img, 0, 0);
 }
 function testOffscreen2D() {
   try {
-    const canv2 = new OffscreenCanvas(1, 1);
-    const g2 = canv2.getContext("2d");
-    return g2 != null;
+    const canv = new OffscreenCanvas(1, 1);
+    const g = canv.getContext("2d");
+    return g != null;
   } catch (exp) {
     return false;
   }
@@ -5698,9 +5763,9 @@ var createUtilityCanvas = hasOffscreenCanvasRenderingContext2D && createOffscree
 var createUICanvas = hasHTMLCanvas ? createCanvas : createUtilityCanvas;
 function testOffscreen3D() {
   try {
-    const canv2 = new OffscreenCanvas(1, 1);
-    const g2 = canv2.getContext("webgl2");
-    return g2 != null;
+    const canv = new OffscreenCanvas(1, 1);
+    const g = canv.getContext("webgl2");
+    return g != null;
   } catch (exp) {
     return false;
   }
@@ -5711,9 +5776,9 @@ function testBitmapRenderer() {
     return false;
   }
   try {
-    const canv2 = createUtilityCanvas(1, 1);
-    const g2 = canv2.getContext("bitmaprenderer");
-    return g2 != null;
+    const canv = createUtilityCanvas(1, 1);
+    const g = canv.getContext("bitmaprenderer");
+    return g != null;
   } catch (exp) {
     return false;
   }
@@ -5726,23 +5791,23 @@ function createCanvas(w, h) {
   return Canvas(htmlWidth(w), htmlHeight(h));
 }
 function createCanvasFromImageBitmap(img) {
-  const canv2 = createCanvas(img.width, img.height);
-  drawImageBitmapToCanvas2D(canv2, img);
-  return canv2;
+  const canv = createCanvas(img.width, img.height);
+  drawImageBitmapToCanvas2D(canv, img);
+  return canv;
 }
-function drawImageToCanvas(canv2, img) {
-  const g2 = canv2.getContext("2d");
-  if (isNullOrUndefined(g2)) {
+function drawImageToCanvas(canv, img) {
+  const g = canv.getContext("2d");
+  if (isNullOrUndefined(g)) {
     throw new Error("Could not create 2d context for canvas");
   }
-  g2.drawImage(img, 0, 0);
+  g.drawImage(img, 0, 0);
 }
-function setCanvasSize(canv2, w, h, superscale = 1) {
+function setCanvasSize(canv, w, h, superscale = 1) {
   w = Math.floor(w * superscale);
   h = Math.floor(h * superscale);
-  if (canv2.width != w || canv2.height != h) {
-    canv2.width = w;
-    canv2.height = h;
+  if (canv.width != w || canv.height != h) {
+    canv.width = w;
+    canv.height = h;
     return true;
   }
   return false;
@@ -5767,71 +5832,6 @@ function setContextSize(ctx, w, h, superscale = 1) {
     return setCanvasSize(ctx.canvas, w, h, superscale);
   }
 }
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher-base/Asset.ts
-var Asset = class {
-  constructor(path, getter) {
-    this.path = path;
-    this.getter = getter;
-    this.promise = new Promise((resolve, reject) => {
-      this.resolve = (value2) => {
-        this._result = value2;
-        this._finished = true;
-        resolve(value2);
-      };
-      this.reject = (reason) => {
-        this._error = reason;
-        this._finished = true;
-        reject(reason);
-      };
-    });
-  }
-  promise;
-  _result = null;
-  _error = null;
-  _started = false;
-  _finished = false;
-  get result() {
-    if (isDefined(this.error)) {
-      throw this.error;
-    }
-    return this._result;
-  }
-  get error() {
-    return this._error;
-  }
-  get started() {
-    return this._started;
-  }
-  get finished() {
-    return this._finished;
-  }
-  resolve = null;
-  reject = null;
-  getSize(fetcher) {
-    return fetcher.head(this.path).exec().then((response) => [this, response.contentLength]);
-  }
-  async getContent(prog) {
-    try {
-      const response = await this.getter(this.path, prog);
-      this.resolve(response);
-    } catch (err) {
-      this.reject(err);
-    }
-  }
-  get [Symbol.toStringTag]() {
-    return this.promise.toString();
-  }
-  then(onfulfilled, onrejected) {
-    return this.promise.then(onfulfilled, onrejected);
-  }
-  catch(onrejected) {
-    return this.promise.catch(onrejected);
-  }
-  finally(onfinally) {
-    return this.promise.finally(onfinally);
-  }
-};
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/graphics2d/CanvasImage.ts
 var CanvasImage = class extends TypedEventBase {
@@ -5952,62 +5952,62 @@ var ArtificialHorizon = class extends CanvasImage {
     const hw = 0.5 * w;
     const hh = 0.5 * h;
     const y = Math.sin(a);
-    const g2 = this.g;
-    g2.save();
+    const g = this.g;
+    g.save();
     {
-      g2.clearRect(0, 0, this.canvas.width, this.canvas.height);
-      g2.translate(p, p);
-      g2.scale(hw, hh);
-      g2.translate(1, 1);
-      g2.fillStyle = "#808080";
-      g2.beginPath();
-      g2.arc(0, 0, 1, 0, 2 * Math.PI);
-      g2.fill();
-      g2.fillStyle = "#d0d0d0";
-      g2.beginPath();
-      g2.arc(0, 0, 1, 0, Math.PI, true);
-      g2.fill();
-      g2.save();
+      g.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      g.translate(p, p);
+      g.scale(hw, hh);
+      g.translate(1, 1);
+      g.fillStyle = "#808080";
+      g.beginPath();
+      g.arc(0, 0, 1, 0, 2 * Math.PI);
+      g.fill();
+      g.fillStyle = "#d0d0d0";
+      g.beginPath();
+      g.arc(0, 0, 1, 0, Math.PI, true);
+      g.fill();
+      g.save();
       {
-        g2.scale(1, Math.abs(y));
+        g.scale(1, Math.abs(y));
         if (y < 0) {
-          g2.fillStyle = "#808080";
+          g.fillStyle = "#808080";
         }
-        g2.beginPath();
-        g2.arc(0, 0, 1, 0, Math.PI, y < 0);
-        g2.fill();
+        g.beginPath();
+        g.arc(0, 0, 1, 0, Math.PI, y < 0);
+        g.fill();
       }
-      g2.restore();
-      g2.save();
+      g.restore();
+      g.save();
       {
-        g2.shadowColor = "#404040";
-        g2.shadowBlur = 4;
-        g2.shadowOffsetX = 3;
-        g2.shadowOffsetY = 3;
-        g2.rotate(b);
-        g2.fillStyle = "#ff0000";
-        g2.beginPath();
-        g2.moveTo(-0.1, 0);
-        g2.lineTo(0, 0.667);
-        g2.lineTo(0.1, 0);
-        g2.closePath();
-        g2.fill();
-        g2.fillStyle = "#ffffff";
-        g2.beginPath();
-        g2.moveTo(-0.1, 0);
-        g2.lineTo(0, -0.667);
-        g2.lineTo(0.1, 0);
-        g2.closePath();
-        g2.fill();
+        g.shadowColor = "#404040";
+        g.shadowBlur = 4;
+        g.shadowOffsetX = 3;
+        g.shadowOffsetY = 3;
+        g.rotate(b);
+        g.fillStyle = "#ff0000";
+        g.beginPath();
+        g.moveTo(-0.1, 0);
+        g.lineTo(0, 0.667);
+        g.lineTo(0.1, 0);
+        g.closePath();
+        g.fill();
+        g.fillStyle = "#ffffff";
+        g.beginPath();
+        g.moveTo(-0.1, 0);
+        g.lineTo(0, -0.667);
+        g.lineTo(0.1, 0);
+        g.closePath();
+        g.fill();
       }
-      g2.restore();
-      g2.beginPath();
-      g2.strokeStyle = "#000000";
-      g2.lineWidth = 0.1;
-      g2.arc(0, 0, 1, 0, 2 * Math.PI);
-      g2.stroke();
+      g.restore();
+      g.beginPath();
+      g.strokeStyle = "#000000";
+      g.lineWidth = 0.1;
+      g.arc(0, 0, 1, 0, 2 * Math.PI);
+      g.stroke();
     }
-    g2.restore();
+    g.restore();
     return true;
   }
 };
@@ -6419,9 +6419,9 @@ var TextImage = class extends CanvasImage {
       this.redraw();
     }
   }
-  draw(g2, x, y) {
+  draw(g, x, y) {
     if (this.canvas.width > 0 && this.canvas.height > 0) {
-      g2.drawImage(this.canvas, x, y, this.width, this.height);
+      g.drawImage(this.canvas, x, y, this.width, this.height);
     }
   }
   split(value2) {
@@ -6564,22 +6564,22 @@ var TextImage = class extends CanvasImage {
         this.g.strokeRect(s, s, this.canvas.width - this.bgStrokeSize, this.canvas.height - this.bgStrokeSize);
       }
       if (isVertical) {
-        const canv2 = createUtilityCanvas(this.canvas.height, this.canvas.width);
-        const g2 = canv2.getContext("2d");
-        if (g2) {
-          g2.translate(canv2.width / 2, canv2.height / 2);
+        const canv = createUtilityCanvas(this.canvas.height, this.canvas.width);
+        const g = canv.getContext("2d");
+        if (g) {
+          g.translate(canv.width / 2, canv.height / 2);
           if (this.textDirection === "vertical" || this.textDirection === "vertical-left") {
-            g2.rotate(Math.PI / 2);
+            g.rotate(Math.PI / 2);
           } else if (this.textDirection === "vertical-right") {
-            g2.rotate(-Math.PI / 2);
+            g.rotate(-Math.PI / 2);
           }
-          g2.translate(-this.canvas.width / 2, -this.canvas.height / 2);
-          g2.drawImage(this.canvas, 0, 0);
-          setContextSize(this.g, canv2.width, canv2.height);
+          g.translate(-this.canvas.width / 2, -this.canvas.height / 2);
+          g.drawImage(this.canvas, 0, 0);
+          setContextSize(this.g, canv.width, canv.height);
         } else {
           console.warn("Couldn't rotate the TextImage");
         }
-        this.g.drawImage(canv2, 0, 0);
+        this.g.drawImage(canv, 0, 0);
       }
       return true;
     } else {
@@ -6745,11 +6745,11 @@ function connect(left2, right) {
   if (!connections.has(a)) {
     connections.set(a, /* @__PURE__ */ new Set());
   }
-  const g2 = connections.get(a);
-  if (g2.has(b)) {
+  const g = connections.get(a);
+  if (g.has(b)) {
     return false;
   }
-  g2.add(b);
+  g.add(b);
   return true;
 }
 function disconnect(left2, right) {
@@ -6768,16 +6768,16 @@ function disconnect(left2, right) {
   if (!connections.has(a)) {
     return false;
   }
-  const g2 = connections.get(a);
+  const g = connections.get(a);
   let removed = false;
   if (isNullOrUndefined(b)) {
-    removed = g2.size > 0;
-    g2.clear();
-  } else if (g2.has(b)) {
+    removed = g.size > 0;
+    g.clear();
+  } else if (g.has(b)) {
     removed = true;
-    g2.delete(b);
+    g.delete(b);
   }
-  if (g2.size === 0) {
+  if (g.size === 0) {
     connections.delete(a);
   }
   return removed;
@@ -7100,18 +7100,18 @@ var DeviceManager = class extends TypedEventBase {
     super();
     this.element = element;
     this.needsVideoDevice = needsVideoDevice;
-    this._hasAudioPermission = false;
-    this._hasVideoPermission = false;
-    this._currentStream = null;
     this.ready = this.start();
     Object.seal(this);
   }
+  _hasAudioPermission = false;
   get hasAudioPermission() {
     return this._hasAudioPermission;
   }
+  _hasVideoPermission = false;
   get hasVideoPermission() {
     return this._hasVideoPermission;
   }
+  _currentStream = null;
   get currentStream() {
     return this._currentStream;
   }
@@ -7125,6 +7125,7 @@ var DeviceManager = class extends TypedEventBase {
       this._currentStream = v;
     }
   }
+  ready;
   async start() {
     if (canChangeAudioOutput) {
       const device = await this.getPreferredAudioOutput();
@@ -8387,9 +8388,9 @@ var ButtonFactory = class {
     const du = iconWidth / canvWidth;
     const dv = iconHeight / canvHeight;
     this.canvas = createUICanvas(canvWidth, canvHeight);
-    const g2 = this.canvas.getContext("2d");
-    g2.fillStyle = "#1e4388";
-    g2.fillRect(0, 0, canvWidth, canvHeight);
+    const g = this.canvas.getContext("2d");
+    g.fillStyle = "#1e4388";
+    g.fillRect(0, 0, canvWidth, canvHeight);
     let i = 0;
     for (const [setName, imgName, img] of imageSets.entries()) {
       const c = i % cols;
@@ -8400,7 +8401,7 @@ var ButtonFactory = class {
       const y = r * iconHeight + canvHeight - height2;
       const w = iconWidth - 2 * this.padding;
       const h = iconHeight - 2 * this.padding;
-      g2.drawImage(img, 0, 0, img.width, img.height, x + this.padding, y + this.padding, w, h);
+      g.drawImage(img, 0, 0, img.width, img.height, x + this.padding, y + this.padding, w, h);
       this.uvDescrips.add(setName, imgName, { u, v, du, dv });
       ++i;
     }
@@ -11844,7 +11845,7 @@ var AvatarLocal = class extends TypedEventBase {
       }
     } else if (this.controlMode === "mouseedge" /* MouseScreenEdge */) {
       if (this.uv.manhattanLength() > 0) {
-        this.motion.set(this.scaleRadialComponent(this.uv.x, this.speed.x, this.acceleration.x), this.scaleRadialComponent(this.uv.y, this.speed.y, this.acceleration.y)).multiplyScalar(dt).multiply(this.axisControl);
+        this.motion.set(this.scaleRadialComponent(this.uv.x, this.speed.x, this.acceleration.x), this.scaleRadialComponent(-this.uv.y, this.speed.y, this.acceleration.y)).multiplyScalar(dt).multiply(this.axisControl);
         this.setHeading(this.heading + this.motion.x);
         this.setPitch(this.pitch + this.motion.y, this.minimumX, this.maximumX);
         this.setRoll(0);
@@ -19931,16 +19932,16 @@ var Skybox = class {
       for (let column = 0; column < CUBEMAP_PATTERN.columns; ++column) {
         const i = indices[column];
         if (i > -1) {
-          const g2 = this.contexts[i];
+          const g = this.contexts[i];
           const rotation = rotations[column];
           if (rotation > 0) {
             if (rotation % 2 === 0) {
-              g2.translate(FACE_SIZE_HALF, FACE_SIZE_HALF);
+              g.translate(FACE_SIZE_HALF, FACE_SIZE_HALF);
             } else {
-              g2.translate(FACE_SIZE_HALF, FACE_SIZE_HALF);
+              g.translate(FACE_SIZE_HALF, FACE_SIZE_HALF);
             }
-            g2.rotate(rotation);
-            g2.translate(-FACE_SIZE_HALF, -FACE_SIZE_HALF);
+            g.rotate(rotation);
+            g.translate(-FACE_SIZE_HALF, -FACE_SIZE_HALF);
           }
         }
       }
@@ -19964,8 +19965,8 @@ var Skybox = class {
         for (let column = 0; column < CUBEMAP_PATTERN.columns; ++column) {
           const i = indices[column];
           if (i > -1) {
-            const g2 = this.contexts[i];
-            g2.drawImage(image2, column * width2, row * height2, width2, height2, 0, 0, FACE_SIZE, FACE_SIZE);
+            const g = this.contexts[i];
+            g.drawImage(image2, column * width2, row * height2, width2, height2, 0, 0, FACE_SIZE, FACE_SIZE);
           }
         }
       }
@@ -21260,8 +21261,8 @@ var FetchingServiceImplXHR = class {
     }), (img) => {
       canvas.width = img.width;
       canvas.height = img.height;
-      const g2 = canvas.getContext("2d");
-      g2.drawImage(img, 0, 0);
+      const g = canvas.getContext("2d");
+      g.drawImage(img, 0, 0);
       return translateResponse(response, () => null);
     });
   }
@@ -22480,39 +22481,41 @@ var Forest = class {
   }
 };
 
+// src/grass-app/makeGrass.ts
+function makeGrass(env2, spatter2) {
+  const grassGeom = new THREE.PlaneBufferGeometry(5, 5, 1, 1);
+  const grassTex = new THREE.CanvasTexture(spatter2);
+  const grassMat = new THREE.MeshBasicMaterial({
+    map: grassTex,
+    transparent: true,
+    opacity: 1,
+    side: THREE.DoubleSide
+  });
+  const grass = new THREE.InstancedMesh(grassGeom, grassMat, 25);
+  const dummy = new THREE.Object3D();
+  dummy.rotation.set(Math.PI / 2, 0, 0);
+  for (let i = 0; i < grass.count; ++i) {
+    dummy.position.set(0, i / (5 * grass.count), 0);
+    dummy.updateMatrix();
+    grass.setMatrixAt(i, dummy.matrix);
+    grass.setColorAt(i, new THREE.Color(0.25, 0.25 + i / (2 * grass.count), 0));
+  }
+  env2.foreground.add(grass);
+  env2.timer.addTickHandler((evt) => {
+    for (let i = 0; i < grass.count; ++i) {
+      dummy.position.set(0.08 + 0.05 * Math.cos(evt.t / 1e3) * i / grass.count, i / (5 * grass.count), 0);
+      dummy.updateMatrix();
+      grass.setMatrixAt(i, dummy.matrix);
+    }
+    grass.instanceMatrix.needsUpdate = true;
+  });
+}
+
 // src/grass-and-trees-app/index.ts
 var env = await createTestEnvironment();
 await env.fadeOut();
 var forest = new Forest(env, true, 0.02);
 var [spatter] = await forest.load(new Asset("/img/spatter.png", forest.getPng));
-var canv = createUICanvas(spatter.result.width / 2, spatter.result.height / 2);
-var g = canv.getContext("2d");
-g.drawImage(spatter.result, 0, 0, canv.width, canv.height);
-var grassGeom = new THREE.PlaneBufferGeometry(5, 5, 1, 1);
-var grassTex = new THREE.CanvasTexture(canv);
-var grassMat = new THREE.MeshBasicMaterial({
-  map: grassTex,
-  transparent: true,
-  opacity: 1,
-  side: THREE.DoubleSide
-});
-var grass = new THREE.InstancedMesh(grassGeom, grassMat, 25);
-var dummy = new THREE.Object3D();
-dummy.rotation.set(Math.PI / 2, 0, 0);
-for (let i = 0; i < grass.count; ++i) {
-  dummy.position.set(0, i / (5 * grass.count), 0);
-  dummy.updateMatrix();
-  grass.setMatrixAt(i, dummy.matrix);
-  grass.setColorAt(i, new THREE.Color(0.25, 0.25 + i / (2 * grass.count), 0));
-}
-env.foreground.add(grass);
-env.timer.addTickHandler((evt) => {
-  for (let i = 0; i < grass.count; ++i) {
-    dummy.position.set(0.08 + 0.05 * Math.cos(evt.t / 1e3) * i / grass.count, i / (5 * grass.count), 0);
-    dummy.updateMatrix();
-    grass.setMatrixAt(i, dummy.matrix);
-  }
-  grass.instanceMatrix.needsUpdate = true;
-});
+makeGrass(env, spatter.result);
 await env.fadeIn();
 //# sourceMappingURL=index.js.map
