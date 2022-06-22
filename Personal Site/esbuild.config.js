@@ -1,19 +1,33 @@
 import { Build } from "@juniper-lib/esbuild";
 import { glsl } from "esbuild-plugin-glsl";
-import { promises } from "fs";
+import { readdirSync } from "fs";
 
-const { readdir } = promises;
-
-const dirs = await readdir("./src", {
+const dirs = readdirSync("./src", {
     withFileTypes: true
 });
 
-const apps = dirs.filter(dir => dir.isDirectory() && dir.name.endsWith("-app"))
+function hasIndexFile(dir) {
+    if (!dir.isDirectory()) {
+        return false;
+    }
+
+    const files = readdirSync("./src/" + dir.name, {
+        withFileTypes: true
+    });
+
+    return files.filter(f => f.isFile()
+        && f.name === "index.ts")
+        .length === 1;
+}
+
+const apps = dirs
+    .filter(hasIndexFile)
     .map(dir => dir.name);
 
 const build = new Build(process.argv.slice(2))
     .plugin((minify) => glsl({ minify }))
-    .external("three");
+    .external("three")
+    .outDir("wwwroot/js");
 
 for (const app of apps) {
     console.log(build.buildType, app);

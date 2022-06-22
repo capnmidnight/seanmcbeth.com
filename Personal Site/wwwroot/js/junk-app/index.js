@@ -2106,8 +2106,9 @@ function canPlay(type2) {
   return testAudio.canPlayType(type2) !== "";
 }
 var RequestBuilder = class {
-  constructor(fetcher2, method, path) {
+  constructor(fetcher2, useFileBlobsForModules, method, path) {
     this.fetcher = fetcher2;
+    this.useFileBlobsForModules = useFileBlobsForModules;
     this.method = method;
     this.prog = null;
     this.path = path;
@@ -2351,9 +2352,14 @@ var RequestBuilder = class {
   async getScript() {
     const tag2 = Script(type(Application_Javascript));
     document.body.append(tag2);
-    await this.htmlElement(tag2, "load", Application_Javascript);
+    if (this.useFileBlobsForModules) {
+      await this.htmlElement(tag2, "load", Application_Javascript);
+    } else {
+      tag2.src = this.request.path;
+    }
   }
   async script(test) {
+    const scriptPath = this.request.path;
     if (!test) {
       await this.getScript();
     } else if (!test()) {
@@ -2361,11 +2367,18 @@ var RequestBuilder = class {
       await this.getScript();
       await scriptLoadTask;
     }
+    if (this.prog) {
+      this.prog.end(scriptPath);
+    }
   }
   async module() {
     const scriptPath = this.request.path;
-    const { content: file } = await this.file(Application_Javascript);
-    const value = await import(file);
+    let requestPath = scriptPath;
+    if (this.useFileBlobsForModules) {
+      const { content: file } = await this.file(Application_Javascript);
+      requestPath = file;
+    }
+    const value = await import(requestPath);
     if (this.prog) {
       this.prog.end(scriptPath);
     }
@@ -2381,17 +2394,27 @@ var RequestBuilder = class {
     return instance.exports;
   }
   async worker(type2 = "module") {
-    const { content } = await this.file(Application_Javascript);
+    const scriptPath = this.request.path;
+    let requestPath = scriptPath;
+    if (this.useFileBlobsForModules) {
+      const { content: file } = await this.file(Application_Javascript);
+      requestPath = file;
+    }
     this.prog = null;
     this.request.timeout = null;
-    return new Worker(content, { type: type2 });
+    const worker = new Worker(requestPath, { type: type2 });
+    if (this.prog) {
+      this.prog.end(scriptPath);
+    }
+    return worker;
   }
 };
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/Fetcher.ts
 var Fetcher = class {
-  constructor(service) {
+  constructor(service, useFileBlobsForModules = true) {
     this.service = service;
+    this.useFileBlobsForModules = useFileBlobsForModules;
     if (!isWorker) {
       const antiforgeryToken = getInput("input[name=__RequestVerificationToken]");
       if (antiforgeryToken) {
@@ -2400,7 +2423,7 @@ var Fetcher = class {
     }
   }
   createRequest(method, path, base) {
-    return new RequestBuilder(this.service, method, new URL(path, base || location.href));
+    return new RequestBuilder(this.service, this.useFileBlobsForModules, method, new URL(path, base || location.href));
   }
   clearCache() {
     return this.service.clearCache();

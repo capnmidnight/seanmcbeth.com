@@ -4724,7 +4724,7 @@ function isNumber(obj2) {
   return t(obj2, "number", Number);
 }
 function isGoodNumber(obj2) {
-  return isNumber(obj2) && !Number.isNaN(obj2);
+  return isNumber(obj2) && Number.isFinite(obj2) && !Number.isNaN(obj2);
 }
 function isObject(obj2) {
   return isDefined(obj2) && t(obj2, "object", Object);
@@ -4983,6 +4983,12 @@ var FURLONGS_PER_KILOMETER = METERS_PER_KILOMETER / METERS_PER_FURLONG;
 var KILOMETERS_PER_MILE = FURLONGS_PER_MILE / FURLONGS_PER_KILOMETER;
 function feet2Meters(feet) {
   return feet / FEET_PER_METER;
+}
+function inches2Meters(inches) {
+  return inches / INCHES_PER_METER;
+}
+function meters2Inches(meters) {
+  return meters * INCHES_PER_METER;
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/URLBuilder.ts
@@ -5274,6 +5280,526 @@ var Asset = class {
   }
   finally(onfinally) {
     return this.promise.finally(onfinally);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/indexdb/index.ts
+var IDexDB = class {
+  constructor(db) {
+    this.db = db;
+  }
+  static async getCurrentVersion(dbName) {
+    if (isDefined(indexedDB.databases)) {
+      const databases = await indexedDB.databases();
+      for (const { name: name2, version: version2 } of databases) {
+        if (name2 === dbName) {
+          return version2;
+        }
+      }
+    }
+    return null;
+  }
+  static delete(dbName) {
+    const deleteRequest = indexedDB.deleteDatabase(dbName);
+    const task = once(deleteRequest, "success", "error", "blocked");
+    return success(task);
+  }
+  static async open(name2, ...storeDefs) {
+    const storesByName = mapMap(storeDefs, (v) => v.name, identity);
+    const indexesByName = new PriorityMap(storeDefs.filter((storeDef) => isDefined(storeDef.indexes)).flatMap((storeDef) => storeDef.indexes.map((indexDef) => [storeDef.name, indexDef.name, indexDef])));
+    const storesToAdd = new Array();
+    const storesToRemove = new Array();
+    const storesToChange = new Array();
+    const indexesToAdd = new PriorityList();
+    const indexesToRemove = new PriorityList();
+    let version2 = await this.getCurrentVersion(name2);
+    if (isNullOrUndefined(version2)) {
+      storesToAdd.push(...storesByName.keys());
+      for (const storeDef of storeDefs) {
+        if (isDefined(storeDef.indexes)) {
+          for (const indexDef of storeDef.indexes) {
+            indexesToAdd.add(storeDef.name, indexDef.name);
+          }
+        }
+      }
+    } else {
+      const D2 = indexedDB.open(name2);
+      if (await success(once(D2, "success", "error", "blocked"))) {
+        const db = D2.result;
+        const storesToScrutinize = new Array();
+        for (const storeName of Array.from(db.objectStoreNames)) {
+          if (!storesByName.has(storeName)) {
+            storesToRemove.push(storeName);
+          }
+        }
+        for (const storeName of storesByName.keys()) {
+          if (!db.objectStoreNames.contains(storeName)) {
+            storesToAdd.push(storeName);
+          } else {
+            storesToScrutinize.push(storeName);
+          }
+        }
+        if (storesToScrutinize.length > 0) {
+          const transaction = db.transaction(storesToScrutinize);
+          const transacting = once(transaction, "complete", "error", "abort");
+          const transacted = success(transacting);
+          for (const storeName of storesToScrutinize) {
+            const store = transaction.objectStore(storeName);
+            for (const indexName of Array.from(store.indexNames)) {
+              if (!indexesByName.has(storeName, indexName)) {
+                if (storesToChange.indexOf(storeName) === -1) {
+                  storesToChange.push(storeName);
+                }
+                indexesToRemove.add(storeName, indexName);
+              }
+            }
+            if (indexesByName.has(storeName)) {
+              for (const indexName of indexesByName.get(storeName).keys()) {
+                if (!store.indexNames.contains(indexName)) {
+                  if (storesToChange.indexOf(storeName) === -1) {
+                    storesToChange.push(storeName);
+                  }
+                  indexesToAdd.add(storeName, indexName);
+                } else {
+                  const indexDef = indexesByName.get(storeName, indexName);
+                  const index = store.index(indexName);
+                  if (isString(indexDef.keyPath) !== isString(index.keyPath) || isString(indexDef.keyPath) && isString(index.keyPath) && indexDef.keyPath !== index.keyPath || isArray(indexDef.keyPath) && isArray(index.keyPath) && arrayCompare(indexDef.keyPath, index.keyPath)) {
+                    if (storesToChange.indexOf(storeName) === -1) {
+                      storesToChange.push(storeName);
+                    }
+                    indexesToRemove.add(storeName, indexName);
+                    indexesToAdd.add(storeName, indexName);
+                  }
+                }
+              }
+            }
+          }
+          transaction.commit();
+          await transacted;
+        }
+        db.close();
+      }
+      if (storesToAdd.length > 0 || storesToRemove.length > 0 || indexesToAdd.size > 0 || indexesToRemove.size > 0) {
+        ++version2;
+      }
+    }
+    const upgrading = new Task();
+    const openRequest = isDefined(version2) ? indexedDB.open(name2, version2) : indexedDB.open(name2);
+    const opening = once(openRequest, "success", "error", "blocked");
+    const upgraded = success(upgrading);
+    const opened = success(opening);
+    const noUpgrade = () => upgrading.resolve(false);
+    openRequest.addEventListener("success", noUpgrade);
+    openRequest.addEventListener("upgradeneeded", () => {
+      const transacting = once(openRequest.transaction, "complete", "error", "abort");
+      const db = openRequest.result;
+      for (const storeName of storesToRemove) {
+        db.deleteObjectStore(storeName);
+      }
+      const stores = /* @__PURE__ */ new Map();
+      for (const storeName of storesToAdd) {
+        const storeDef = storesByName.get(storeName);
+        const store = db.createObjectStore(storeName, storeDef.options);
+        stores.set(storeName, store);
+      }
+      for (const storeName of storesToChange) {
+        const store = openRequest.transaction.objectStore(storeName);
+        stores.set(storeName, store);
+      }
+      for (const [storeName, store] of stores) {
+        for (const indexName of indexesToRemove.get(storeName)) {
+          store.deleteIndex(indexName);
+        }
+        for (const indexName of indexesToAdd.get(storeName)) {
+          const indexDef = indexesByName.get(storeName, indexName);
+          store.createIndex(indexName, indexDef.keyPath, indexDef.options);
+        }
+      }
+      success(transacting).then(upgrading.resolve).catch(upgrading.reject).finally(() => openRequest.removeEventListener("success", noUpgrade));
+    });
+    if (!await upgraded) {
+      throw upgrading.error;
+    }
+    if (!await opened) {
+      throw opening.error;
+    }
+    return new IDexDB(openRequest.result);
+  }
+  dispose() {
+    this.db.close();
+  }
+  get name() {
+    return this.db.name;
+  }
+  get version() {
+    return this.db.version;
+  }
+  get storeNames() {
+    return Array.from(this.db.objectStoreNames);
+  }
+  getStore(storeName) {
+    return new IDexStore(this.db, storeName);
+  }
+};
+var IDexStore = class {
+  constructor(db, storeName) {
+    this.db = db;
+    this.storeName = storeName;
+  }
+  async request(makeRequest, mode) {
+    const transaction = this.db.transaction(this.storeName, mode);
+    const transacting = once(transaction, "complete", "error");
+    const store = transaction.objectStore(this.storeName);
+    const request = makeRequest(store);
+    const requesting = once(request, "success", "error");
+    if (!await success(requesting)) {
+      transaction.abort();
+      throw requesting.error;
+    }
+    transaction.commit();
+    if (!await success(transacting)) {
+      throw transacting.error;
+    }
+    return request.result;
+  }
+  add(value2, key) {
+    return this.request((store) => store.add(value2, key), "readwrite");
+  }
+  clear() {
+    return this.request((store) => store.clear(), "readwrite");
+  }
+  getCount(query) {
+    return this.request((store) => store.count(query), "readonly");
+  }
+  delete(query) {
+    return this.request((store) => store.delete(query), "readwrite");
+  }
+  get(key) {
+    return this.request((store) => store.get(key), "readonly");
+  }
+  getAll() {
+    return this.request((store) => store.getAll(), "readonly");
+  }
+  getAllKeys() {
+    return this.request((store) => store.getAllKeys(), "readonly");
+  }
+  getKey(query) {
+    return this.request((store) => store.getKey(query), "readonly");
+  }
+  openCursor(query, direction) {
+    return this.request((store) => store.openCursor(query, direction), "readonly");
+  }
+  openKeyCursor(query, direction) {
+    return this.request((store) => store.openKeyCursor(query, direction), "readonly");
+  }
+  put(value2, key) {
+    return this.request((store) => store.put(value2, key), "readwrite");
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher-base/ResponseTranslator.ts
+async function translateResponse(response, translate) {
+  const {
+    status,
+    path,
+    content,
+    contentType,
+    contentLength,
+    fileName,
+    headers,
+    date
+  } = response;
+  return {
+    status,
+    path,
+    content: await translate(content),
+    contentType,
+    contentLength,
+    fileName,
+    headers,
+    date
+  };
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher-base/FetchingServiceImplXHR.ts
+function isXHRBodyInit(obj2) {
+  return isString(obj2) || isArrayBufferView(obj2) || obj2 instanceof Blob || obj2 instanceof FormData || isArrayBuffer(obj2) || obj2 instanceof ReadableStream || "Document" in globalThis && obj2 instanceof Document;
+}
+function trackProgress(name2, xhr, target, prog, skipLoading, prevTask) {
+  let prevDone = !prevTask;
+  if (prevTask) {
+    prevTask.then(() => prevDone = true);
+  }
+  let done = false;
+  let loaded = skipLoading;
+  const requestComplete = new Task(() => loaded && done, () => prevDone);
+  target.addEventListener("loadstart", () => {
+    if (prevDone && !done && prog) {
+      prog.start(name2);
+    }
+  });
+  target.addEventListener("progress", (ev) => {
+    if (prevDone && !done) {
+      const evt = ev;
+      if (prog) {
+        prog.report(evt.loaded, Math.max(evt.loaded, evt.total), name2);
+      }
+      if (evt.loaded === evt.total) {
+        loaded = true;
+        requestComplete.resolve();
+      }
+    }
+  });
+  target.addEventListener("load", () => {
+    if (prevDone && !done) {
+      if (prog) {
+        prog.end(name2);
+      }
+      done = true;
+      requestComplete.resolve();
+    }
+  });
+  const onError = (msg) => () => requestComplete.reject(`${msg} (${xhr.status})`);
+  target.addEventListener("error", onError("error"));
+  target.addEventListener("abort", onError("abort"));
+  target.addEventListener("timeout", onError("timeout"));
+  return requestComplete;
+}
+function sendRequest(xhr, method, path, timeout, headers, body) {
+  xhr.open(method, path);
+  xhr.responseType = "blob";
+  xhr.timeout = timeout;
+  if (headers) {
+    for (const [key, value2] of headers) {
+      xhr.setRequestHeader(key, value2);
+    }
+  }
+  if (isDefined(body)) {
+    xhr.send(body);
+  } else {
+    xhr.send();
+  }
+}
+function readResponseHeader(headers, key, translate) {
+  if (!headers.has(key)) {
+    return null;
+  }
+  const value2 = headers.get(key);
+  try {
+    const translated = translate(value2);
+    headers.delete(key);
+    return translated;
+  } catch (exp) {
+    console.warn(key, exp);
+  }
+  return null;
+}
+var FILE_NAME_PATTERN = /filename=\"(.+)\"(;|$)/;
+var DB_NAME = "Juniper:Fetcher:Cache";
+var FetchingServiceImplXHR = class {
+  cacheReady;
+  cache = null;
+  store = null;
+  constructor() {
+    this.cacheReady = this.openCache();
+  }
+  async drawImageToCanvas(request, canvas, progress) {
+    const response = await this.sendNothingGetSomething("blob", request, progress);
+    const blob = response.content;
+    return using(await createImageBitmap(blob, {
+      imageOrientation: "none"
+    }), (img) => {
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const g = canvas.getContext("2d");
+      g.drawImage(img, 0, 0);
+      return translateResponse(response, () => null);
+    });
+  }
+  async openCache() {
+    this.cache = await IDexDB.open(DB_NAME, {
+      name: "files",
+      options: {
+        keyPath: "path"
+      }
+    });
+    this.store = await this.cache.getStore("files");
+  }
+  async clearCache() {
+    await this.cacheReady;
+    await this.store.clear();
+  }
+  async readResponseHeaders(path, xhr) {
+    const headerParts = xhr.getAllResponseHeaders().split(/[\r\n]+/).map((v) => v.trim()).filter((v) => v.length > 0).map((line) => {
+      const parts = line.split(": ");
+      const key = parts.shift().toLowerCase();
+      const value2 = parts.join(": ");
+      return [key, value2];
+    });
+    const pList = new PriorityList(headerParts);
+    const normalizedHeaderParts = Array.from(pList.keys()).map((key) => [
+      key,
+      pList.get(key).join(", ")
+    ]);
+    const headers = new Map(normalizedHeaderParts);
+    const contentType = readResponseHeader(headers, "content-type", identity);
+    const contentLength = readResponseHeader(headers, "content-length", parseFloat);
+    const date = readResponseHeader(headers, "date", (v) => new Date(v));
+    const fileName = readResponseHeader(headers, "content-disposition", (v) => {
+      if (isDefined(v)) {
+        const match = v.match(FILE_NAME_PATTERN);
+        if (isDefined(match)) {
+          return match[1];
+        }
+      }
+      return null;
+    });
+    const response = {
+      status: xhr.status,
+      path,
+      content: void 0,
+      contentType,
+      contentLength,
+      fileName,
+      date,
+      headers
+    };
+    return response;
+  }
+  async readResponse(path, xhr) {
+    const {
+      status,
+      contentType,
+      contentLength,
+      fileName,
+      date,
+      headers
+    } = await this.readResponseHeaders(path, xhr);
+    const response = {
+      path,
+      status,
+      contentType,
+      contentLength,
+      fileName,
+      date,
+      headers,
+      content: xhr.response
+    };
+    if (isDefined(response.content)) {
+      response.contentType = response.contentType || response.content.type;
+      response.contentLength = response.contentLength || response.content.size;
+    }
+    return response;
+  }
+  async decodeContent(xhrType, response) {
+    return translateResponse(response, async (contentBlob) => {
+      if (xhrType === "") {
+        return null;
+      } else if (isNullOrUndefined(response.contentType)) {
+        const headerBlock = Array.from(response.headers.entries()).map((kv) => kv.join(": ")).join("\n  ");
+        throw new Error("No content type found in headers: \n  " + headerBlock);
+      } else if (xhrType === "blob") {
+        return contentBlob;
+      } else if (xhrType === "arraybuffer") {
+        return await contentBlob.arrayBuffer();
+      } else if (xhrType === "json") {
+        const text2 = await contentBlob.text();
+        if (text2.length > 0) {
+          return JSON.parse(text2);
+        } else {
+          return null;
+        }
+      } else if (xhrType === "document") {
+        const parser = new DOMParser();
+        if (response.contentType === "application/xhtml+xml" || response.contentType === "text/html" || response.contentType === "application/xml" || response.contentType === "image/svg+xml" || response.contentType === "text/xml") {
+          return parser.parseFromString(await contentBlob.text(), response.contentType);
+        } else {
+          throw new Error("Couldn't parse document");
+        }
+      } else if (xhrType === "text") {
+        return await contentBlob.text();
+      } else {
+        assertNever(xhrType);
+      }
+    });
+  }
+  tasks = new PriorityMap();
+  async withCachedTask(request, action) {
+    if (request.method !== "GET" && request.method !== "HEAD" && request.method !== "OPTIONS") {
+      return await action();
+    }
+    if (!this.tasks.has(request.method, request.path)) {
+      this.tasks.add(request.method, request.path, action().finally(() => this.tasks.delete(request.method, request.path)));
+    }
+    return this.tasks.get(request.method, request.path);
+  }
+  sendNothingGetNothing(request) {
+    return this.withCachedTask(request, async () => {
+      const xhr = new XMLHttpRequest();
+      const download = trackProgress(`requesting: ${request.path}`, xhr, xhr, null, true);
+      sendRequest(xhr, request.method, request.path, request.timeout, request.headers);
+      await download;
+      return await this.readResponseHeaders(request.path, xhr);
+    });
+  }
+  sendNothingGetSomething(xhrType, request, progress) {
+    return this.withCachedTask(request, async () => {
+      let response = null;
+      const useCache = request.useCache && request.method === "GET";
+      if (useCache) {
+        if (isDefined(progress)) {
+          progress.start();
+        }
+        await this.cacheReady;
+        response = await this.store.get(request.path);
+      }
+      const hadCachedResponse = isNullOrUndefined(response);
+      if (hadCachedResponse) {
+        const xhr = new XMLHttpRequest();
+        const download = trackProgress(`requesting: ${request.path}`, xhr, xhr, progress, true);
+        sendRequest(xhr, request.method, request.path, request.timeout, request.headers);
+        await download;
+        response = await this.readResponse(request.path, xhr);
+        if (useCache) {
+          await this.store.add(response);
+        }
+      }
+      const value2 = await this.decodeContent(xhrType, response);
+      if (hadCachedResponse && isDefined(progress)) {
+        progress.end();
+      }
+      return value2;
+    });
+  }
+  async sendSomethingGetSomething(xhrType, request, defaultPostHeaders, progress) {
+    let body = null;
+    const headers = mapJoin(/* @__PURE__ */ new Map(), defaultPostHeaders, request.headers);
+    if (request.body instanceof FormData && isDefined(headers)) {
+      const toDelete = new Array();
+      for (const key of headers.keys()) {
+        if (key.toLowerCase() === "content-type") {
+          toDelete.push(key);
+        }
+      }
+      for (const key of toDelete) {
+        headers.delete(key);
+      }
+    }
+    if (isXHRBodyInit(request.body) && !isString(request.body)) {
+      body = request.body;
+    } else if (isDefined(request.body)) {
+      body = JSON.stringify(request.body);
+    }
+    const progs = progressSplit(progress, 2);
+    const xhr = new XMLHttpRequest();
+    const upload = isDefined(body) ? trackProgress("uploading", xhr, xhr.upload, progs.shift(), false) : Promise.resolve();
+    const downloadProg = progs.shift();
+    const download = trackProgress("saving", xhr, xhr, downloadProg, true, upload);
+    sendRequest(xhr, request.method, request.path, request.timeout, headers, body);
+    await upload;
+    await download;
+    const response = await this.readResponse(request.path, xhr);
+    return await this.decodeContent(xhrType, response);
   }
 };
 
@@ -5726,909 +6252,6 @@ function BackgroundAudio(autoplay, mute, looping, ...rest) {
 function BackgroundVideo(autoplay, mute, looping, ...rest) {
   return Video(playsInline(true), controls(false), muted(mute), autoPlay(autoplay), loop(looping), styles(display("none")), ...rest);
 }
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/canvas.ts
-var hasHTMLCanvas = "HTMLCanvasElement" in globalThis;
-var hasHTMLImage = "HTMLImageElement" in globalThis;
-var disableAdvancedSettings = false;
-var hasOffscreenCanvas = !disableAdvancedSettings && "OffscreenCanvas" in globalThis;
-var hasImageBitmap = !disableAdvancedSettings && "createImageBitmap" in globalThis;
-function isHTMLCanvas(obj2) {
-  return hasHTMLCanvas && obj2 instanceof HTMLCanvasElement;
-}
-function isOffscreenCanvas(obj2) {
-  return hasOffscreenCanvas && obj2 instanceof OffscreenCanvas;
-}
-function isImageBitmap(img) {
-  return hasImageBitmap && img instanceof ImageBitmap;
-}
-function drawImageBitmapToCanvas2D(canv, img) {
-  const g = canv.getContext("2d");
-  if (isNullOrUndefined(g)) {
-    throw new Error("Could not create 2d context for canvas");
-  }
-  g.drawImage(img, 0, 0);
-}
-function testOffscreen2D() {
-  try {
-    const canv = new OffscreenCanvas(1, 1);
-    const g = canv.getContext("2d");
-    return g != null;
-  } catch (exp) {
-    return false;
-  }
-}
-var hasOffscreenCanvasRenderingContext2D = hasOffscreenCanvas && testOffscreen2D();
-var createUtilityCanvas = hasOffscreenCanvasRenderingContext2D && createOffscreenCanvas || hasHTMLCanvas && createCanvas || null;
-var createUICanvas = hasHTMLCanvas ? createCanvas : createUtilityCanvas;
-function testOffscreen3D() {
-  try {
-    const canv = new OffscreenCanvas(1, 1);
-    const g = canv.getContext("webgl2");
-    return g != null;
-  } catch (exp) {
-    return false;
-  }
-}
-var hasOffscreenCanvasRenderingContext3D = hasOffscreenCanvas && testOffscreen3D();
-function testBitmapRenderer() {
-  if (!hasHTMLCanvas && !hasOffscreenCanvas) {
-    return false;
-  }
-  try {
-    const canv = createUtilityCanvas(1, 1);
-    const g = canv.getContext("bitmaprenderer");
-    return g != null;
-  } catch (exp) {
-    return false;
-  }
-}
-var hasImageBitmapRenderingContext = hasImageBitmap && testBitmapRenderer();
-function createOffscreenCanvas(width2, height2) {
-  return new OffscreenCanvas(width2, height2);
-}
-function createCanvas(w, h) {
-  return Canvas(htmlWidth(w), htmlHeight(h));
-}
-function createCanvasFromImageBitmap(img) {
-  const canv = createCanvas(img.width, img.height);
-  drawImageBitmapToCanvas2D(canv, img);
-  return canv;
-}
-function drawImageToCanvas(canv, img) {
-  const g = canv.getContext("2d");
-  if (isNullOrUndefined(g)) {
-    throw new Error("Could not create 2d context for canvas");
-  }
-  g.drawImage(img, 0, 0);
-}
-function setCanvasSize(canv, w, h, superscale = 1) {
-  w = Math.floor(w * superscale);
-  h = Math.floor(h * superscale);
-  if (canv.width != w || canv.height != h) {
-    canv.width = w;
-    canv.height = h;
-    return true;
-  }
-  return false;
-}
-function is2DRenderingContext(ctx) {
-  return isDefined(ctx.textBaseline);
-}
-function setCanvas2DContextSize(ctx, w, h, superscale = 1) {
-  const oldImageSmoothingEnabled = ctx.imageSmoothingEnabled, oldTextBaseline = ctx.textBaseline, oldTextAlign = ctx.textAlign, oldFont = ctx.font, resized = setCanvasSize(ctx.canvas, w, h, superscale);
-  if (resized) {
-    ctx.imageSmoothingEnabled = oldImageSmoothingEnabled;
-    ctx.textBaseline = oldTextBaseline;
-    ctx.textAlign = oldTextAlign;
-    ctx.font = oldFont;
-  }
-  return resized;
-}
-function setContextSize(ctx, w, h, superscale = 1) {
-  if (is2DRenderingContext(ctx)) {
-    return setCanvas2DContextSize(ctx, w, h, superscale);
-  } else {
-    return setCanvasSize(ctx.canvas, w, h, superscale);
-  }
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/graphics2d/CanvasImage.ts
-var CanvasImage = class extends TypedEventBase {
-  constructor(width2, height2, options) {
-    super();
-    this._scale = 250;
-    this._visible = true;
-    this.wasVisible = null;
-    this.redrawnEvt = new TypedEvent("redrawn");
-    this.element = null;
-    if (isDefined(options)) {
-      if (isDefined(options.scale)) {
-        this._scale = options.scale;
-      }
-    }
-    this._canvas = createUICanvas(width2, height2);
-    this._g = this.canvas.getContext("2d");
-    if (isHTMLCanvas(this._canvas)) {
-      this.element = this._canvas;
-    }
-  }
-  fillRect(color, x, y, width2, height2, margin2) {
-    this.g.fillStyle = color;
-    this.g.fillRect(x + margin2, y + margin2, width2 - 2 * margin2, height2 - 2 * margin2);
-  }
-  drawText(text2, x, y, align) {
-    this.g.textAlign = align;
-    this.g.strokeText(text2, x, y);
-    this.g.fillText(text2, x, y);
-  }
-  redraw() {
-    if ((this.visible || this.wasVisible) && this.onRedraw()) {
-      this.wasVisible = this.visible;
-      this.dispatchEvent(this.redrawnEvt);
-    }
-  }
-  get canvas() {
-    return this._canvas;
-  }
-  get g() {
-    return this._g;
-  }
-  get imageWidth() {
-    return this.canvas.width;
-  }
-  get imageHeight() {
-    return this.canvas.height;
-  }
-  get aspectRatio() {
-    return this.imageWidth / this.imageHeight;
-  }
-  get width() {
-    return this.imageWidth / this.scale;
-  }
-  get height() {
-    return this.imageHeight / this.scale;
-  }
-  get scale() {
-    return this._scale;
-  }
-  set scale(v) {
-    if (this.scale !== v) {
-      this._scale = v;
-      this.redraw();
-    }
-  }
-  get visible() {
-    return this._visible;
-  }
-  set visible(v) {
-    if (this.visible !== v) {
-      this.wasVisible = this._visible;
-      this._visible = v;
-      this.redraw();
-    }
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/graphics2d/ArtificialHorizon.ts
-var ArtificialHorizon = class extends CanvasImage {
-  _pitch = 0;
-  _heading = 0;
-  constructor() {
-    super(128, 128);
-    this.redraw();
-  }
-  get pitch() {
-    return this._pitch;
-  }
-  set pitch(v) {
-    if (v !== this.pitch) {
-      this._pitch = v;
-      this.redraw();
-    }
-  }
-  get heading() {
-    return this._heading;
-  }
-  set heading(v) {
-    if (v !== this.heading) {
-      this._heading = v;
-      this.redraw();
-    }
-  }
-  setPitchAndHeading(pitch, heading) {
-    if (pitch !== this.pitch || heading !== this.heading) {
-      this._pitch = pitch;
-      this._heading = heading;
-      this.redraw();
-    }
-  }
-  onRedraw() {
-    const a = deg2rad(this.pitch);
-    const b = deg2rad(this.heading - 180);
-    const p = 5;
-    const w = this.canvas.width - 2 * p;
-    const h = this.canvas.height - 2 * p;
-    const hw = 0.5 * w;
-    const hh = 0.5 * h;
-    const y = Math.sin(a);
-    const g = this.g;
-    g.save();
-    {
-      g.clearRect(0, 0, this.canvas.width, this.canvas.height);
-      g.translate(p, p);
-      g.scale(hw, hh);
-      g.translate(1, 1);
-      g.fillStyle = "#808080";
-      g.beginPath();
-      g.arc(0, 0, 1, 0, 2 * Math.PI);
-      g.fill();
-      g.fillStyle = "#d0d0d0";
-      g.beginPath();
-      g.arc(0, 0, 1, 0, Math.PI, true);
-      g.fill();
-      g.save();
-      {
-        g.scale(1, Math.abs(y));
-        if (y < 0) {
-          g.fillStyle = "#808080";
-        }
-        g.beginPath();
-        g.arc(0, 0, 1, 0, Math.PI, y < 0);
-        g.fill();
-      }
-      g.restore();
-      g.save();
-      {
-        g.shadowColor = "#404040";
-        g.shadowBlur = 4;
-        g.shadowOffsetX = 3;
-        g.shadowOffsetY = 3;
-        g.rotate(b);
-        g.fillStyle = "#ff0000";
-        g.beginPath();
-        g.moveTo(-0.1, 0);
-        g.lineTo(0, 0.667);
-        g.lineTo(0.1, 0);
-        g.closePath();
-        g.fill();
-        g.fillStyle = "#ffffff";
-        g.beginPath();
-        g.moveTo(-0.1, 0);
-        g.lineTo(0, -0.667);
-        g.lineTo(0.1, 0);
-        g.closePath();
-        g.fill();
-      }
-      g.restore();
-      g.beginPath();
-      g.strokeStyle = "#000000";
-      g.lineWidth = 0.1;
-      g.arc(0, 0, 1, 0, 2 * Math.PI);
-      g.stroke();
-    }
-    g.restore();
-    return true;
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/fonts.ts
-var DEFAULT_TEST_TEXT = "The quick brown fox jumps over the lazy dog";
-var loadedFonts = singleton("juniper::loadedFonts", () => []);
-function makeFont(style) {
-  const fontParts = [];
-  if (style.fontStyle && style.fontStyle !== "normal") {
-    fontParts.push(style.fontStyle);
-  }
-  if (style.fontVariant && style.fontVariant !== "normal") {
-    fontParts.push(style.fontVariant);
-  }
-  if (style.fontWeight && style.fontWeight !== "normal") {
-    fontParts.push(style.fontWeight);
-  }
-  fontParts.push(`${style.fontSize}px`);
-  fontParts.push(style.fontFamily);
-  return fontParts.join(" ");
-}
-async function loadFont(font, testString = null, prog) {
-  if (!isString(font)) {
-    font = makeFont(font);
-  }
-  if (loadedFonts.indexOf(font) === -1) {
-    testString = testString || DEFAULT_TEST_TEXT;
-    if (prog) {
-      prog.start(font);
-    }
-    const fonts = await document.fonts.load(font, testString);
-    if (prog) {
-      prog.end(font);
-    }
-    if (fonts.length === 0) {
-      console.warn(`Failed to load font "${font}". If this is a system font, just set the object's \`value\` property, instead of calling \`loadFontAndSetText\`.`);
-    } else {
-      loadedFonts.push(font);
-    }
-  }
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/graphics2d/BatteryImage.ts
-function isBatteryNavigator(nav) {
-  return "getBattery" in nav;
-}
-var chargeLabels = [
-  "",
-  "N/A",
-  "charging"
-];
-var BatteryImage = class extends CanvasImage {
-  battery = null;
-  lastChargeDirection = null;
-  lastLevel = null;
-  chargeDirection = 0;
-  level = 0.5;
-  constructor() {
-    super(256, 128);
-    if (isBatteryNavigator(navigator)) {
-      this.readBattery(navigator);
-    } else {
-      this.redraw();
-    }
-  }
-  onRedraw() {
-    if (this.battery) {
-      this.chargeDirection = this.battery.charging ? 1 : -1;
-      this.level = this.battery.level;
-    } else {
-      this.level += 0.1;
-      if (this.level > 1) {
-        this.level = 0;
-      }
-    }
-    const directionChanged = this.chargeDirection !== this.lastChargeDirection;
-    const levelChanged = this.level !== this.lastLevel;
-    if (!directionChanged && !levelChanged) {
-      return false;
-    }
-    this.lastChargeDirection = this.chargeDirection;
-    this.lastLevel = this.level;
-    const levelColor = this.level < 0.1 ? "red" : "#ccc";
-    const padding2 = 7;
-    const scale4 = 0.7;
-    const invScale = (1 - scale4) / 2;
-    const bodyWidth = this.canvas.width - 2 * padding2;
-    const width2 = bodyWidth - 4 * padding2;
-    const height2 = this.canvas.height - 4 * padding2;
-    const midX = bodyWidth / 2;
-    const midY = this.canvas.height / 2;
-    const label = chargeLabels[this.chargeDirection + 1];
-    this.g.clearRect(0, 0, bodyWidth, this.canvas.height);
-    this.g.save();
-    this.g.translate(invScale * this.canvas.width, invScale * this.canvas.height);
-    this.g.globalAlpha = 0.75;
-    this.g.scale(scale4, scale4);
-    this.fillRect("#ccc", 0, 0, bodyWidth, this.canvas.height, 0);
-    this.fillRect("#ccc", bodyWidth, midY - 2 * padding2 - 10, padding2 + 10, 4 * padding2 + 20, 0);
-    this.g.clearRect(padding2, padding2, bodyWidth - 2 * padding2, this.canvas.height - 2 * padding2);
-    this.fillRect("black", padding2, padding2, bodyWidth - 2 * padding2, this.canvas.height - 2 * padding2, 0);
-    this.g.clearRect(2 * padding2, 2 * padding2, width2 * this.level, height2);
-    this.fillRect(levelColor, 2 * padding2, 2 * padding2, width2 * this.level, height2, 0);
-    this.g.fillStyle = "white";
-    this.g.strokeStyle = "black";
-    this.g.lineWidth = 4;
-    this.g.textBaseline = "middle";
-    this.g.font = makeFont({
-      fontSize: height2 / 2,
-      fontFamily: "Lato"
-    });
-    this.drawText(label, midX, midY, "center");
-    this.g.restore();
-    return true;
-  }
-  async readBattery(navigator2) {
-    const redraw = this.redraw.bind(this);
-    redraw();
-    this.battery = await navigator2.getBattery();
-    this.battery.addEventListener("chargingchange", redraw);
-    this.battery.addEventListener("levelchange", redraw);
-    setInterval(redraw, 1e3);
-    redraw();
-  }
-};
-__publicField(BatteryImage, "isAvailable", isBatteryNavigator(navigator));
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/graphics2d/TextImage.ts
-var TextImage = class extends CanvasImage {
-  constructor(options) {
-    super(10, 10, options);
-    this.trueWidth = null;
-    this.trueHeight = null;
-    this.trueFontSize = null;
-    this.dx = null;
-    this._minWidth = null;
-    this._maxWidth = null;
-    this._minHeight = null;
-    this._maxHeight = null;
-    this._freezeDimensions = false;
-    this._dimensionsFrozen = false;
-    this._bgFillColor = null;
-    this._bgStrokeColor = null;
-    this._bgStrokeSize = null;
-    this._textStrokeColor = null;
-    this._textStrokeSize = null;
-    this._textFillColor = "black";
-    this._textDirection = "horizontal";
-    this._wrapWords = true;
-    this._fontStyle = "normal";
-    this._fontVariant = "normal";
-    this._fontWeight = "normal";
-    this._fontFamily = "sans-serif";
-    this._fontSize = 20;
-    this._value = null;
-    if (isDefined(options)) {
-      if (isDefined(options.minWidth)) {
-        this._minWidth = options.minWidth;
-      }
-      if (isDefined(options.maxWidth)) {
-        this._maxWidth = options.maxWidth;
-      }
-      if (isDefined(options.minHeight)) {
-        this._minHeight = options.minHeight;
-      }
-      if (isDefined(options.maxHeight)) {
-        this._maxHeight = options.maxHeight;
-      }
-      if (isDefined(options.freezeDimensions)) {
-        this._freezeDimensions = options.freezeDimensions;
-      }
-      if (isDefined(options.textStrokeColor)) {
-        this._textStrokeColor = options.textStrokeColor;
-      }
-      if (isDefined(options.textStrokeSize)) {
-        this._textStrokeSize = options.textStrokeSize;
-      }
-      if (isDefined(options.bgFillColor)) {
-        this._bgFillColor = options.bgFillColor;
-      }
-      if (isDefined(options.bgStrokeColor)) {
-        this._bgStrokeColor = options.bgStrokeColor;
-      }
-      if (isDefined(options.bgStrokeSize)) {
-        this._bgStrokeSize = options.bgStrokeSize;
-      }
-      if (isDefined(options.value)) {
-        this._value = options.value;
-      }
-      if (isDefined(options.textFillColor)) {
-        this._textFillColor = options.textFillColor;
-      }
-      if (isDefined(options.textDirection)) {
-        this._textDirection = options.textDirection;
-      }
-      if (isDefined(options.wrapWords)) {
-        this._wrapWords = options.wrapWords;
-      }
-      if (isDefined(options.fontStyle)) {
-        this._fontStyle = options.fontStyle;
-      }
-      if (isDefined(options.fontVariant)) {
-        this._fontVariant = options.fontVariant;
-      }
-      if (isDefined(options.fontWeight)) {
-        this._fontWeight = options.fontWeight;
-      }
-      if (isDefined(options.fontFamily)) {
-        this._fontFamily = options.fontFamily;
-      }
-      if (isDefined(options.fontSize)) {
-        this._fontSize = options.fontSize;
-      }
-      if (isDefined(options.padding)) {
-        if (isNumber(options.padding)) {
-          this._padding = {
-            left: options.padding,
-            right: options.padding,
-            top: options.padding,
-            bottom: options.padding
-          };
-        } else {
-          this._padding = options.padding;
-        }
-      }
-    }
-    if (isNullOrUndefined(this._padding)) {
-      this._padding = {
-        top: 0,
-        right: 0,
-        bottom: 0,
-        left: 0
-      };
-    }
-    this.redraw();
-  }
-  get minWidth() {
-    return this._minWidth;
-  }
-  set minWidth(v) {
-    if (this.minWidth !== v) {
-      this._minWidth = v;
-      this.redraw();
-    }
-  }
-  get maxWidth() {
-    return this._maxWidth;
-  }
-  set maxWidth(v) {
-    if (this.maxWidth !== v) {
-      this._maxWidth = v;
-      this.redraw();
-    }
-  }
-  get minHeight() {
-    return this._minHeight;
-  }
-  set minHeight(v) {
-    if (this.minHeight !== v) {
-      this._minHeight = v;
-      this.redraw();
-    }
-  }
-  get maxHeight() {
-    return this._maxHeight;
-  }
-  set maxHeight(v) {
-    if (this.maxHeight !== v) {
-      this._maxHeight = v;
-      this.redraw();
-    }
-  }
-  get padding() {
-    return this._padding;
-  }
-  set padding(v) {
-    if (v instanceof Array) {
-      throw new Error("Invalid padding");
-    }
-    if (this.padding.top !== v.top || this.padding.right != v.right || this.padding.bottom != v.bottom || this.padding.left != v.left) {
-      this._padding = v;
-      this.redraw();
-    }
-  }
-  get wrapWords() {
-    return this._wrapWords;
-  }
-  set wrapWords(v) {
-    if (this.wrapWords !== v) {
-      this._wrapWords = v;
-      this.redraw();
-    }
-  }
-  get textDirection() {
-    return this._textDirection;
-  }
-  set textDirection(v) {
-    if (this.textDirection !== v) {
-      this._textDirection = v;
-      this.redraw();
-    }
-  }
-  get fontStyle() {
-    return this._fontStyle;
-  }
-  set fontStyle(v) {
-    if (this.fontStyle !== v) {
-      this._fontStyle = v;
-      this.redraw();
-    }
-  }
-  get fontVariant() {
-    return this._fontVariant;
-  }
-  set fontVariant(v) {
-    if (this.fontVariant !== v) {
-      this._fontVariant = v;
-      this.redraw();
-    }
-  }
-  get fontWeight() {
-    return this._fontWeight;
-  }
-  set fontWeight(v) {
-    if (this.fontWeight !== v) {
-      this._fontWeight = v;
-      this.redraw();
-    }
-  }
-  get fontSize() {
-    return this._fontSize;
-  }
-  set fontSize(v) {
-    if (this.fontSize !== v) {
-      this._fontSize = v;
-      this.redraw();
-    }
-  }
-  get fontFamily() {
-    return this._fontFamily;
-  }
-  set fontFamily(v) {
-    if (this.fontFamily !== v) {
-      this._fontFamily = v;
-      this.redraw();
-    }
-  }
-  get textFillColor() {
-    return this._textFillColor;
-  }
-  set textFillColor(v) {
-    if (this.textFillColor !== v) {
-      this._textFillColor = v;
-      this.redraw();
-    }
-  }
-  get textStrokeColor() {
-    return this._textStrokeColor;
-  }
-  set textStrokeColor(v) {
-    if (this.textStrokeColor !== v) {
-      this._textStrokeColor = v;
-      this.redraw();
-    }
-  }
-  get textStrokeSize() {
-    return this._textStrokeSize;
-  }
-  set textStrokeSize(v) {
-    if (this.textStrokeSize !== v) {
-      this._textStrokeSize = v;
-      this.redraw();
-    }
-  }
-  get bgFillColor() {
-    return this._bgFillColor;
-  }
-  set bgFillColor(v) {
-    if (this.bgFillColor !== v) {
-      this._bgFillColor = v;
-      this.redraw();
-    }
-  }
-  get bgStrokeColor() {
-    return this._bgStrokeColor;
-  }
-  set bgStrokeColor(v) {
-    if (this.bgStrokeColor !== v) {
-      this._bgStrokeColor = v;
-      this.redraw();
-    }
-  }
-  get bgStrokeSize() {
-    return this._bgStrokeSize;
-  }
-  set bgStrokeSize(v) {
-    if (this.bgStrokeSize !== v) {
-      this._bgStrokeSize = v;
-      this.redraw();
-    }
-  }
-  get value() {
-    return this._value;
-  }
-  set value(v) {
-    if (this.value !== v) {
-      this._value = v;
-      this.redraw();
-    }
-  }
-  draw(g, x, y) {
-    if (this.canvas.width > 0 && this.canvas.height > 0) {
-      g.drawImage(this.canvas, x, y, this.width, this.height);
-    }
-  }
-  split(value2) {
-    if (this.wrapWords) {
-      return value2.split(" ").join("\n").replace(/\r\n/, "\n").split("\n");
-    } else {
-      return value2.replace(/\r\n/, "\n").split("\n");
-    }
-  }
-  unfreeze() {
-    this._dimensionsFrozen = false;
-  }
-  onRedraw() {
-    this.g.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    if (this.visible && this.fontFamily && this.fontSize && (this.textFillColor || this.textStrokeColor && this.textStrokeSize) && this.value) {
-      const lines = this.split(this.value);
-      const isVertical = this.textDirection && this.textDirection.indexOf("vertical") === 0;
-      if (this.trueWidth === null || this.trueHeight === null || this.dx === null || this.trueFontSize === null || !this._dimensionsFrozen) {
-        this._dimensionsFrozen = this._freezeDimensions;
-        const autoResize = this.minWidth != null || this.maxWidth != null || this.minHeight != null || this.maxHeight != null;
-        const _targetMinWidth = ((this.minWidth || 0) - this.padding.right - this.padding.left) * this.scale;
-        const _targetMaxWidth = ((this.maxWidth || 4096) - this.padding.right - this.padding.left) * this.scale;
-        const _targetMinHeight = ((this.minHeight || 0) - this.padding.top - this.padding.bottom) * this.scale;
-        const _targetMaxHeight = ((this.maxHeight || 4096) - this.padding.top - this.padding.bottom) * this.scale;
-        const targetMinWidth = isVertical ? _targetMinHeight : _targetMinWidth;
-        const targetMaxWidth = isVertical ? _targetMaxHeight : _targetMaxWidth;
-        const targetMinHeight = isVertical ? _targetMinWidth : _targetMinHeight;
-        const targetMaxHeight = isVertical ? _targetMaxWidth : _targetMaxHeight;
-        const tried = [];
-        this.trueWidth = 0;
-        this.trueHeight = 0;
-        this.dx = 0;
-        let tooBig = false, tooSmall = false, highFontSize = 1e4, lowFontSize = 0;
-        this.trueFontSize = clamp(this.fontSize * this.scale, lowFontSize, highFontSize);
-        let minFont = null, minFontDelta = Number.MAX_VALUE;
-        do {
-          const realFontSize = this.fontSize;
-          this._fontSize = this.trueFontSize;
-          const font = makeFont(this);
-          this._fontSize = realFontSize;
-          this.g.textAlign = "center";
-          this.g.textBaseline = "middle";
-          this.g.font = font;
-          this.trueWidth = 0;
-          this.trueHeight = 0;
-          for (const line of lines) {
-            const metrics = this.g.measureText(line);
-            this.trueWidth = Math.max(this.trueWidth, metrics.width);
-            this.trueHeight += this.trueFontSize;
-            if (isNumber(metrics.actualBoundingBoxLeft) && isNumber(metrics.actualBoundingBoxRight) && isNumber(metrics.actualBoundingBoxAscent) && isNumber(metrics.actualBoundingBoxDescent)) {
-              if (!autoResize) {
-                this.trueWidth = metrics.actualBoundingBoxLeft + metrics.actualBoundingBoxRight;
-                this.trueHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
-                this.dx = (metrics.actualBoundingBoxLeft - this.trueWidth / 2) / 2;
-              }
-            }
-          }
-          if (autoResize) {
-            const dMinWidth = this.trueWidth - targetMinWidth;
-            const dMaxWidth = this.trueWidth - targetMaxWidth;
-            const dMinHeight = this.trueHeight - targetMinHeight;
-            const dMaxHeight = this.trueHeight - targetMaxHeight;
-            const mdMinWidth = Math.abs(dMinWidth);
-            const mdMaxWidth = Math.abs(dMaxWidth);
-            const mdMinHeight = Math.abs(dMinHeight);
-            const mdMaxHeight = Math.abs(dMaxHeight);
-            tooBig = dMaxWidth > 1 || dMaxHeight > 1;
-            tooSmall = dMinWidth < -1 && dMinHeight < -1;
-            const minDif = Math.min(mdMinWidth, Math.min(mdMaxWidth, Math.min(mdMinHeight, mdMaxHeight)));
-            if (minDif < minFontDelta) {
-              minFontDelta = minDif;
-              minFont = this.g.font;
-            }
-            if ((tooBig || tooSmall) && tried.indexOf(this.g.font) > -1 && minFont) {
-              this.g.font = minFont;
-              tooBig = false;
-              tooSmall = false;
-            }
-            if (tooBig) {
-              highFontSize = this.trueFontSize;
-              this.trueFontSize = (lowFontSize + this.trueFontSize) / 2;
-            } else if (tooSmall) {
-              lowFontSize = this.trueFontSize;
-              this.trueFontSize = (this.trueFontSize + highFontSize) / 2;
-            }
-          }
-          tried.push(this.g.font);
-        } while (tooBig || tooSmall);
-        if (autoResize) {
-          if (this.trueWidth < targetMinWidth) {
-            this.trueWidth = targetMinWidth;
-          } else if (this.trueWidth > targetMaxWidth) {
-            this.trueWidth = targetMaxWidth;
-          }
-          if (this.trueHeight < targetMinHeight) {
-            this.trueHeight = targetMinHeight;
-          } else if (this.trueHeight > targetMaxHeight) {
-            this.trueHeight = targetMaxHeight;
-          }
-        }
-        const newW = this.trueWidth + this.scale * (this.padding.right + this.padding.left);
-        const newH = this.trueHeight + this.scale * (this.padding.top + this.padding.bottom);
-        try {
-          setContextSize(this.g, newW, newH);
-        } catch (exp) {
-          console.error(exp);
-          throw exp;
-        }
-      }
-      if (this.bgFillColor) {
-        this.g.fillStyle = this.bgFillColor;
-        this.g.fillRect(0, 0, this.canvas.width, this.canvas.height);
-      } else {
-        this.g.clearRect(0, 0, this.canvas.width, this.canvas.height);
-      }
-      if (this.textStrokeColor && this.textStrokeSize) {
-        this.g.lineWidth = this.textStrokeSize * this.scale;
-        this.g.strokeStyle = this.textStrokeColor;
-      }
-      if (this.textFillColor) {
-        this.g.fillStyle = this.textFillColor;
-      }
-      const di = 0.5 * (lines.length - 1);
-      for (let i = 0; i < lines.length; ++i) {
-        const line = lines[i];
-        const dy = (i - di) * this.trueFontSize;
-        const x = this.dx + this.trueWidth / 2 + this.scale * this.padding.left;
-        const y = dy + this.trueHeight / 2 + this.scale * this.padding.top;
-        if (this.textStrokeColor && this.textStrokeSize) {
-          this.g.strokeText(line, x, y);
-        }
-        if (this.textFillColor) {
-          this.g.fillText(line, x, y);
-        }
-      }
-      if (this.bgStrokeColor && this.bgStrokeSize) {
-        this.g.strokeStyle = this.bgStrokeColor;
-        this.g.lineWidth = this.bgStrokeSize * this.scale;
-        const s = this.bgStrokeSize / 2;
-        this.g.strokeRect(s, s, this.canvas.width - this.bgStrokeSize, this.canvas.height - this.bgStrokeSize);
-      }
-      if (isVertical) {
-        const canv = createUtilityCanvas(this.canvas.height, this.canvas.width);
-        const g = canv.getContext("2d");
-        if (g) {
-          g.translate(canv.width / 2, canv.height / 2);
-          if (this.textDirection === "vertical" || this.textDirection === "vertical-left") {
-            g.rotate(Math.PI / 2);
-          } else if (this.textDirection === "vertical-right") {
-            g.rotate(-Math.PI / 2);
-          }
-          g.translate(-this.canvas.width / 2, -this.canvas.height / 2);
-          g.drawImage(this.canvas, 0, 0);
-          setContextSize(this.g, canv.width, canv.height);
-        } else {
-          console.warn("Couldn't rotate the TextImage");
-        }
-        this.g.drawImage(canv, 0, 0);
-      }
-      return true;
-    } else {
-      return false;
-    }
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/graphics2d/ClockImage.ts
-var ClockImage = class extends TextImage {
-  constructor() {
-    super({
-      textFillColor: "#ffffff",
-      textStrokeColor: "rgba(0, 0, 0, 0.25)",
-      textStrokeSize: 0.05,
-      fontFamily: getMonospaceFonts(),
-      fontSize: 20,
-      minHeight: 1,
-      maxHeight: 1,
-      padding: 0.3,
-      wrapWords: false,
-      freezeDimensions: true
-    });
-    const updater = this.update.bind(this);
-    setInterval(updater, 500);
-    updater();
-  }
-  fps = null;
-  drawCalls = null;
-  triangles = null;
-  setStats(fps, drawCalls, triangles) {
-    this.fps = fps;
-    this.drawCalls = drawCalls;
-    this.triangles = triangles;
-  }
-  lastLen = 0;
-  update() {
-    const time = new Date();
-    let value2 = time.toLocaleTimeString();
-    if (this.fps !== null) {
-      value2 += ` ${Math.round(this.fps).toFixed(0)}hz ${this.drawCalls}c ${this.triangles}t`;
-    }
-    if (value2.length !== this.lastLen) {
-      this.lastLen = value2.length;
-      this.unfreeze();
-    }
-    this.value = value2;
-  }
-};
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/onUserGesture.ts
 var gestures = [
@@ -7100,18 +6723,18 @@ var DeviceManager = class extends TypedEventBase {
     super();
     this.element = element;
     this.needsVideoDevice = needsVideoDevice;
-    this._hasAudioPermission = false;
-    this._hasVideoPermission = false;
-    this._currentStream = null;
     this.ready = this.start();
     Object.seal(this);
   }
+  _hasAudioPermission = false;
   get hasAudioPermission() {
     return this._hasAudioPermission;
   }
+  _hasVideoPermission = false;
   get hasVideoPermission() {
     return this._hasVideoPermission;
   }
+  _currentStream = null;
   get currentStream() {
     return this._currentStream;
   }
@@ -7125,6 +6748,7 @@ var DeviceManager = class extends TypedEventBase {
       this._currentStream = v;
     }
   }
+  ready;
   async start() {
     if (canChangeAudioOutput) {
       const device = await this.getPreferredAudioOutput();
@@ -8343,145 +7967,911 @@ var AudioPlayer = class extends BaseAudioSource {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/webrtc/constants.ts
-var DEFAULT_LOCAL_USER_ID = "local-user";
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/ButtonFactory.ts
-async function loadIcon(fetcher, setName, iconName, iconPath, popper) {
-  const { content } = await fetcher.get(iconPath).progress(popper.pop()).image();
-  return [
-    setName,
-    iconName,
-    content
-  ];
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/canvas.ts
+var hasHTMLCanvas = "HTMLCanvasElement" in globalThis;
+var hasHTMLImage = "HTMLImageElement" in globalThis;
+var disableAdvancedSettings = false;
+var hasOffscreenCanvas = !disableAdvancedSettings && "OffscreenCanvas" in globalThis;
+var hasImageBitmap = !disableAdvancedSettings && "createImageBitmap" in globalThis;
+function isHTMLCanvas(obj2) {
+  return hasHTMLCanvas && obj2 instanceof HTMLCanvasElement;
 }
-var ButtonFactory = class {
-  constructor(fetcher, imagePaths, padding2) {
-    this.fetcher = fetcher;
-    this.imagePaths = imagePaths;
-    this.padding = padding2;
-    this.uvDescrips = new PriorityMap();
-    this.geoms = new PriorityMap();
-    this.canvas = null;
-    this.texture = null;
-    this.enabledMaterial = null;
-    this.disabledMaterial = null;
-    this.readyTask = new Task();
+function isOffscreenCanvas(obj2) {
+  return hasOffscreenCanvas && obj2 instanceof OffscreenCanvas;
+}
+function isImageBitmap(img) {
+  return hasImageBitmap && img instanceof ImageBitmap;
+}
+function drawImageBitmapToCanvas2D(canv, img) {
+  const g = canv.getContext("2d");
+  if (isNullOrUndefined(g)) {
+    throw new Error("Could not create 2d context for canvas");
   }
-  async load(prog) {
-    const popper = progressPopper(prog);
-    const imageSets = new PriorityMap(await Promise.all(Array.from(this.imagePaths.entries()).map(([setName, iconName, path]) => loadIcon(this.fetcher, setName, iconName, path, popper))));
-    const images = Array.from(imageSets.values());
-    const iconWidth = Math.max(...images.map((img) => img.width));
-    const iconHeight = Math.max(...images.map((img) => img.height));
-    const area = iconWidth * iconHeight * images.length;
-    const squareDim = Math.sqrt(area);
-    const cols = Math.floor(squareDim / iconWidth);
-    const rows = Math.ceil(images.length / cols);
-    const width2 = cols * iconWidth;
-    const height2 = rows * iconHeight;
-    const canvWidth = nextPowerOf2(width2);
-    const canvHeight = nextPowerOf2(height2);
-    const widthRatio = width2 / canvWidth;
-    const heightRatio = height2 / canvHeight;
-    const du = iconWidth / canvWidth;
-    const dv = iconHeight / canvHeight;
-    this.canvas = createUICanvas(canvWidth, canvHeight);
-    const g = this.canvas.getContext("2d");
-    g.fillStyle = "#1e4388";
-    g.fillRect(0, 0, canvWidth, canvHeight);
-    let i = 0;
-    for (const [setName, imgName, img] of imageSets.entries()) {
-      const c = i % cols;
-      const r = (i - c) / cols;
-      const u = widthRatio * (c * iconWidth / width2);
-      const v = heightRatio * (1 - r / rows) - dv;
-      const x = c * iconWidth;
-      const y = r * iconHeight + canvHeight - height2;
-      const w = iconWidth - 2 * this.padding;
-      const h = iconHeight - 2 * this.padding;
-      g.drawImage(img, 0, 0, img.width, img.height, x + this.padding, y + this.padding, w, h);
-      this.uvDescrips.add(setName, imgName, { u, v, du, dv });
-      ++i;
-    }
-    this.texture = new THREE.CanvasTexture(this.canvas);
-    this.enabledMaterial = new THREE.MeshBasicMaterial({
-      map: this.texture
-    });
-    this.enabledMaterial.needsUpdate = true;
-    this.disabledMaterial = new THREE.MeshBasicMaterial({
-      map: this.texture,
-      transparent: true,
-      opacity: 0.5
-    });
-    this.disabledMaterial.needsUpdate = true;
-    this.readyTask.resolve();
+  g.drawImage(img, 0, 0);
+}
+function testOffscreen2D() {
+  try {
+    const canv = new OffscreenCanvas(1, 1);
+    const g = canv.getContext("2d");
+    return g != null;
+  } catch (exp) {
+    return false;
   }
-  getSets() {
-    return Array.from(this.imagePaths.keys());
+}
+var hasOffscreenCanvasRenderingContext2D = hasOffscreenCanvas && testOffscreen2D();
+var createUtilityCanvas = hasOffscreenCanvasRenderingContext2D && createOffscreenCanvas || hasHTMLCanvas && createCanvas || null;
+var createUICanvas = hasHTMLCanvas ? createCanvas : createUtilityCanvas;
+function testOffscreen3D() {
+  try {
+    const canv = new OffscreenCanvas(1, 1);
+    const g = canv.getContext("webgl2");
+    return g != null;
+  } catch (exp) {
+    return false;
   }
-  getIcons(setName) {
-    if (!this.imagePaths.has(setName)) {
-      throw new Exception(`Button set ${setName} does not exist`);
-    }
-    return Array.from(this.imagePaths.get(setName).keys());
+}
+var hasOffscreenCanvasRenderingContext3D = hasOffscreenCanvas && testOffscreen3D();
+function testBitmapRenderer() {
+  if (!hasHTMLCanvas && !hasOffscreenCanvas) {
+    return false;
   }
-  async getMaterial(enabled) {
-    await this.readyTask;
-    return enabled ? this.enabledMaterial : this.disabledMaterial;
+  try {
+    const canv = createUtilityCanvas(1, 1);
+    const g = canv.getContext("bitmaprenderer");
+    return g != null;
+  } catch (exp) {
+    return false;
   }
-  async getGeometry(setName, iconName) {
-    await this.readyTask;
-    const uvSet = this.uvDescrips.get(setName);
-    const uv = uvSet && uvSet.get(iconName);
-    if (!uvSet || !uv) {
-      throw new Exception(`Button ${setName}/${iconName} does not exist`, this.uvDescrips);
-    }
-    let geom2 = this.geoms.get(setName, iconName);
-    if (!geom2) {
-      geom2 = new THREE.PlaneBufferGeometry(1, 1, 1, 1);
-      geom2.name = `Geometry:${setName}/${iconName}`;
-      this.geoms.add(setName, iconName, geom2);
-      const uvBuffer = geom2.getAttribute("uv");
-      for (let i = 0; i < uvBuffer.count; ++i) {
-        const u = uvBuffer.getX(i) * uv.du + uv.u;
-        const v = uvBuffer.getY(i) * uv.dv + uv.v;
-        uvBuffer.setX(i, u);
-        uvBuffer.setY(i, v);
+}
+var hasImageBitmapRenderingContext = hasImageBitmap && testBitmapRenderer();
+function createOffscreenCanvas(width2, height2) {
+  return new OffscreenCanvas(width2, height2);
+}
+function createCanvas(w, h) {
+  return Canvas(htmlWidth(w), htmlHeight(h));
+}
+function createCanvasFromImageBitmap(img) {
+  const canv = createCanvas(img.width, img.height);
+  drawImageBitmapToCanvas2D(canv, img);
+  return canv;
+}
+function drawImageToCanvas(canv, img) {
+  const g = canv.getContext("2d");
+  if (isNullOrUndefined(g)) {
+    throw new Error("Could not create 2d context for canvas");
+  }
+  g.drawImage(img, 0, 0);
+}
+function setCanvasSize(canv, w, h, superscale = 1) {
+  w = Math.floor(w * superscale);
+  h = Math.floor(h * superscale);
+  if (canv.width != w || canv.height != h) {
+    canv.width = w;
+    canv.height = h;
+    return true;
+  }
+  return false;
+}
+function is2DRenderingContext(ctx) {
+  return isDefined(ctx.textBaseline);
+}
+function setCanvas2DContextSize(ctx, w, h, superscale = 1) {
+  const oldImageSmoothingEnabled = ctx.imageSmoothingEnabled, oldTextBaseline = ctx.textBaseline, oldTextAlign = ctx.textAlign, oldFont = ctx.font, resized = setCanvasSize(ctx.canvas, w, h, superscale);
+  if (resized) {
+    ctx.imageSmoothingEnabled = oldImageSmoothingEnabled;
+    ctx.textBaseline = oldTextBaseline;
+    ctx.textAlign = oldTextAlign;
+    ctx.font = oldFont;
+  }
+  return resized;
+}
+function setContextSize(ctx, w, h, superscale = 1) {
+  if (is2DRenderingContext(ctx)) {
+    return setCanvas2DContextSize(ctx, w, h, superscale);
+  } else {
+    return setCanvasSize(ctx.canvas, w, h, superscale);
+  }
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/graphics2d/CanvasImage.ts
+var CanvasImage = class extends TypedEventBase {
+  constructor(width2, height2, options) {
+    super();
+    this._scale = 250;
+    this._visible = true;
+    this.wasVisible = null;
+    this.redrawnEvt = new TypedEvent("redrawn");
+    this.element = null;
+    if (isDefined(options)) {
+      if (isDefined(options.scale)) {
+        this._scale = options.scale;
       }
     }
-    return geom2;
-  }
-  async getMesh(setName, iconName, enabled) {
-    const geom2 = await this.getGeometry(setName, iconName);
-    const mesh = new THREE.Mesh(geom2, enabled ? this.enabledMaterial : this.disabledMaterial);
-    mesh.name = `Mesh:${setName}/${iconName}`;
-    return mesh;
-  }
-  async getGeometryAndMaterials(setName, iconName) {
-    const [geometry, enabledMaterial, disabledMaterial] = await Promise.all([
-      this.getGeometry(setName, iconName),
-      this.getMaterial(true),
-      this.getMaterial(false)
-    ]);
-    return {
-      geometry,
-      enabledMaterial,
-      disabledMaterial
-    };
-  }
-  getImageSrc(setName, iconName) {
-    const imageSet = this.imagePaths.get(setName);
-    const imgSrc = imageSet && imageSet.get(iconName);
-    if (!imageSet || !imgSrc) {
-      throw new Exception(`Button ${setName}/${iconName} does not exist`, this.uvDescrips);
+    this._canvas = createUICanvas(width2, height2);
+    this._g = this.canvas.getContext("2d");
+    if (isHTMLCanvas(this._canvas)) {
+      this.element = this._canvas;
     }
-    return imgSrc;
   }
-  getImageElement(setName, iconName) {
-    return Img(title(setName + " " + iconName), src(this.getImageSrc(setName, iconName)));
+  fillRect(color, x, y, width2, height2, margin2) {
+    this.g.fillStyle = color;
+    this.g.fillRect(x + margin2, y + margin2, width2 - 2 * margin2, height2 - 2 * margin2);
+  }
+  drawText(text2, x, y, align) {
+    this.g.textAlign = align;
+    this.g.strokeText(text2, x, y);
+    this.g.fillText(text2, x, y);
+  }
+  redraw() {
+    if ((this.visible || this.wasVisible) && this.onRedraw()) {
+      this.wasVisible = this.visible;
+      this.dispatchEvent(this.redrawnEvt);
+    }
+  }
+  get canvas() {
+    return this._canvas;
+  }
+  get g() {
+    return this._g;
+  }
+  get imageWidth() {
+    return this.canvas.width;
+  }
+  get imageHeight() {
+    return this.canvas.height;
+  }
+  get aspectRatio() {
+    return this.imageWidth / this.imageHeight;
+  }
+  get width() {
+    return this.imageWidth / this.scale;
+  }
+  get height() {
+    return this.imageHeight / this.scale;
+  }
+  get scale() {
+    return this._scale;
+  }
+  set scale(v) {
+    if (this.scale !== v) {
+      this._scale = v;
+      this.redraw();
+    }
+  }
+  get visible() {
+    return this._visible;
+  }
+  set visible(v) {
+    if (this.visible !== v) {
+      this.wasVisible = this._visible;
+      this._visible = v;
+      this.redraw();
+    }
   }
 };
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/graphics2d/ArtificialHorizon.ts
+var ArtificialHorizon = class extends CanvasImage {
+  _pitch = 0;
+  _heading = 0;
+  constructor() {
+    super(128, 128);
+    this.redraw();
+  }
+  get pitch() {
+    return this._pitch;
+  }
+  set pitch(v) {
+    if (v !== this.pitch) {
+      this._pitch = v;
+      this.redraw();
+    }
+  }
+  get heading() {
+    return this._heading;
+  }
+  set heading(v) {
+    if (v !== this.heading) {
+      this._heading = v;
+      this.redraw();
+    }
+  }
+  setPitchAndHeading(pitch, heading) {
+    if (pitch !== this.pitch || heading !== this.heading) {
+      this._pitch = pitch;
+      this._heading = heading;
+      this.redraw();
+    }
+  }
+  onRedraw() {
+    const a = deg2rad(this.pitch);
+    const b = deg2rad(this.heading - 180);
+    const p = 5;
+    const w = this.canvas.width - 2 * p;
+    const h = this.canvas.height - 2 * p;
+    const hw = 0.5 * w;
+    const hh = 0.5 * h;
+    const y = Math.sin(a);
+    const g = this.g;
+    g.save();
+    {
+      g.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      g.translate(p, p);
+      g.scale(hw, hh);
+      g.translate(1, 1);
+      g.fillStyle = "#808080";
+      g.beginPath();
+      g.arc(0, 0, 1, 0, 2 * Math.PI);
+      g.fill();
+      g.fillStyle = "#d0d0d0";
+      g.beginPath();
+      g.arc(0, 0, 1, 0, Math.PI, true);
+      g.fill();
+      g.save();
+      {
+        g.scale(1, Math.abs(y));
+        if (y < 0) {
+          g.fillStyle = "#808080";
+        }
+        g.beginPath();
+        g.arc(0, 0, 1, 0, Math.PI, y < 0);
+        g.fill();
+      }
+      g.restore();
+      g.save();
+      {
+        g.shadowColor = "#404040";
+        g.shadowBlur = 4;
+        g.shadowOffsetX = 3;
+        g.shadowOffsetY = 3;
+        g.rotate(b);
+        g.fillStyle = "#ff0000";
+        g.beginPath();
+        g.moveTo(-0.1, 0);
+        g.lineTo(0, 0.667);
+        g.lineTo(0.1, 0);
+        g.closePath();
+        g.fill();
+        g.fillStyle = "#ffffff";
+        g.beginPath();
+        g.moveTo(-0.1, 0);
+        g.lineTo(0, -0.667);
+        g.lineTo(0.1, 0);
+        g.closePath();
+        g.fill();
+      }
+      g.restore();
+      g.beginPath();
+      g.strokeStyle = "#000000";
+      g.lineWidth = 0.1;
+      g.arc(0, 0, 1, 0, 2 * Math.PI);
+      g.stroke();
+    }
+    g.restore();
+    return true;
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/fonts.ts
+var DEFAULT_TEST_TEXT = "The quick brown fox jumps over the lazy dog";
+var loadedFonts = singleton("juniper::loadedFonts", () => []);
+function makeFont(style) {
+  const fontParts = [];
+  if (style.fontStyle && style.fontStyle !== "normal") {
+    fontParts.push(style.fontStyle);
+  }
+  if (style.fontVariant && style.fontVariant !== "normal") {
+    fontParts.push(style.fontVariant);
+  }
+  if (style.fontWeight && style.fontWeight !== "normal") {
+    fontParts.push(style.fontWeight);
+  }
+  fontParts.push(`${style.fontSize}px`);
+  fontParts.push(style.fontFamily);
+  return fontParts.join(" ");
+}
+async function loadFont(font, testString = null, prog) {
+  if (!isString(font)) {
+    font = makeFont(font);
+  }
+  if (loadedFonts.indexOf(font) === -1) {
+    testString = testString || DEFAULT_TEST_TEXT;
+    if (prog) {
+      prog.start(font);
+    }
+    const fonts = await document.fonts.load(font, testString);
+    if (prog) {
+      prog.end(font);
+    }
+    if (fonts.length === 0) {
+      console.warn(`Failed to load font "${font}". If this is a system font, just set the object's \`value\` property, instead of calling \`loadFontAndSetText\`.`);
+    } else {
+      loadedFonts.push(font);
+    }
+  }
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/graphics2d/BatteryImage.ts
+function isBatteryNavigator(nav) {
+  return "getBattery" in nav;
+}
+var chargeLabels = [
+  "",
+  "N/A",
+  "charging"
+];
+var BatteryImage = class extends CanvasImage {
+  battery = null;
+  lastChargeDirection = null;
+  lastLevel = null;
+  chargeDirection = 0;
+  level = 0.5;
+  constructor() {
+    super(256, 128);
+    if (isBatteryNavigator(navigator)) {
+      this.readBattery(navigator);
+    } else {
+      this.redraw();
+    }
+  }
+  onRedraw() {
+    if (this.battery) {
+      this.chargeDirection = this.battery.charging ? 1 : -1;
+      this.level = this.battery.level;
+    } else {
+      this.level += 0.1;
+      if (this.level > 1) {
+        this.level = 0;
+      }
+    }
+    const directionChanged = this.chargeDirection !== this.lastChargeDirection;
+    const levelChanged = this.level !== this.lastLevel;
+    if (!directionChanged && !levelChanged) {
+      return false;
+    }
+    this.lastChargeDirection = this.chargeDirection;
+    this.lastLevel = this.level;
+    const levelColor = this.level < 0.1 ? "red" : "#ccc";
+    const padding2 = 7;
+    const scale4 = 0.7;
+    const invScale = (1 - scale4) / 2;
+    const bodyWidth = this.canvas.width - 2 * padding2;
+    const width2 = bodyWidth - 4 * padding2;
+    const height2 = this.canvas.height - 4 * padding2;
+    const midX = bodyWidth / 2;
+    const midY = this.canvas.height / 2;
+    const label = chargeLabels[this.chargeDirection + 1];
+    this.g.clearRect(0, 0, bodyWidth, this.canvas.height);
+    this.g.save();
+    this.g.translate(invScale * this.canvas.width, invScale * this.canvas.height);
+    this.g.globalAlpha = 0.75;
+    this.g.scale(scale4, scale4);
+    this.fillRect("#ccc", 0, 0, bodyWidth, this.canvas.height, 0);
+    this.fillRect("#ccc", bodyWidth, midY - 2 * padding2 - 10, padding2 + 10, 4 * padding2 + 20, 0);
+    this.g.clearRect(padding2, padding2, bodyWidth - 2 * padding2, this.canvas.height - 2 * padding2);
+    this.fillRect("black", padding2, padding2, bodyWidth - 2 * padding2, this.canvas.height - 2 * padding2, 0);
+    this.g.clearRect(2 * padding2, 2 * padding2, width2 * this.level, height2);
+    this.fillRect(levelColor, 2 * padding2, 2 * padding2, width2 * this.level, height2, 0);
+    this.g.fillStyle = "white";
+    this.g.strokeStyle = "black";
+    this.g.lineWidth = 4;
+    this.g.textBaseline = "middle";
+    this.g.font = makeFont({
+      fontSize: height2 / 2,
+      fontFamily: "Lato"
+    });
+    this.drawText(label, midX, midY, "center");
+    this.g.restore();
+    return true;
+  }
+  async readBattery(navigator2) {
+    const redraw = this.redraw.bind(this);
+    redraw();
+    this.battery = await navigator2.getBattery();
+    this.battery.addEventListener("chargingchange", redraw);
+    this.battery.addEventListener("levelchange", redraw);
+    setInterval(redraw, 1e3);
+    redraw();
+  }
+};
+__publicField(BatteryImage, "isAvailable", isBatteryNavigator(navigator));
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/graphics2d/TextImage.ts
+var TextImage = class extends CanvasImage {
+  constructor(options) {
+    super(10, 10, options);
+    this.trueWidth = null;
+    this.trueHeight = null;
+    this.trueFontSize = null;
+    this.dx = null;
+    this._minWidth = null;
+    this._maxWidth = null;
+    this._minHeight = null;
+    this._maxHeight = null;
+    this._freezeDimensions = false;
+    this._dimensionsFrozen = false;
+    this._bgFillColor = null;
+    this._bgStrokeColor = null;
+    this._bgStrokeSize = null;
+    this._textStrokeColor = null;
+    this._textStrokeSize = null;
+    this._textFillColor = "black";
+    this._textDirection = "horizontal";
+    this._wrapWords = true;
+    this._fontStyle = "normal";
+    this._fontVariant = "normal";
+    this._fontWeight = "normal";
+    this._fontFamily = "sans-serif";
+    this._fontSize = 20;
+    this._value = null;
+    if (isDefined(options)) {
+      if (isDefined(options.minWidth)) {
+        this._minWidth = options.minWidth;
+      }
+      if (isDefined(options.maxWidth)) {
+        this._maxWidth = options.maxWidth;
+      }
+      if (isDefined(options.minHeight)) {
+        this._minHeight = options.minHeight;
+      }
+      if (isDefined(options.maxHeight)) {
+        this._maxHeight = options.maxHeight;
+      }
+      if (isDefined(options.freezeDimensions)) {
+        this._freezeDimensions = options.freezeDimensions;
+      }
+      if (isDefined(options.textStrokeColor)) {
+        this._textStrokeColor = options.textStrokeColor;
+      }
+      if (isDefined(options.textStrokeSize)) {
+        this._textStrokeSize = options.textStrokeSize;
+      }
+      if (isDefined(options.bgFillColor)) {
+        this._bgFillColor = options.bgFillColor;
+      }
+      if (isDefined(options.bgStrokeColor)) {
+        this._bgStrokeColor = options.bgStrokeColor;
+      }
+      if (isDefined(options.bgStrokeSize)) {
+        this._bgStrokeSize = options.bgStrokeSize;
+      }
+      if (isDefined(options.value)) {
+        this._value = options.value;
+      }
+      if (isDefined(options.textFillColor)) {
+        this._textFillColor = options.textFillColor;
+      }
+      if (isDefined(options.textDirection)) {
+        this._textDirection = options.textDirection;
+      }
+      if (isDefined(options.wrapWords)) {
+        this._wrapWords = options.wrapWords;
+      }
+      if (isDefined(options.fontStyle)) {
+        this._fontStyle = options.fontStyle;
+      }
+      if (isDefined(options.fontVariant)) {
+        this._fontVariant = options.fontVariant;
+      }
+      if (isDefined(options.fontWeight)) {
+        this._fontWeight = options.fontWeight;
+      }
+      if (isDefined(options.fontFamily)) {
+        this._fontFamily = options.fontFamily;
+      }
+      if (isDefined(options.fontSize)) {
+        this._fontSize = options.fontSize;
+      }
+      if (isDefined(options.padding)) {
+        if (isNumber(options.padding)) {
+          this._padding = {
+            left: options.padding,
+            right: options.padding,
+            top: options.padding,
+            bottom: options.padding
+          };
+        } else {
+          this._padding = options.padding;
+        }
+      }
+    }
+    if (isNullOrUndefined(this._padding)) {
+      this._padding = {
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0
+      };
+    }
+    this.redraw();
+  }
+  get minWidth() {
+    return this._minWidth;
+  }
+  set minWidth(v) {
+    if (this.minWidth !== v) {
+      this._minWidth = v;
+      this.redraw();
+    }
+  }
+  get maxWidth() {
+    return this._maxWidth;
+  }
+  set maxWidth(v) {
+    if (this.maxWidth !== v) {
+      this._maxWidth = v;
+      this.redraw();
+    }
+  }
+  get minHeight() {
+    return this._minHeight;
+  }
+  set minHeight(v) {
+    if (this.minHeight !== v) {
+      this._minHeight = v;
+      this.redraw();
+    }
+  }
+  get maxHeight() {
+    return this._maxHeight;
+  }
+  set maxHeight(v) {
+    if (this.maxHeight !== v) {
+      this._maxHeight = v;
+      this.redraw();
+    }
+  }
+  get padding() {
+    return this._padding;
+  }
+  set padding(v) {
+    if (v instanceof Array) {
+      throw new Error("Invalid padding");
+    }
+    if (this.padding.top !== v.top || this.padding.right != v.right || this.padding.bottom != v.bottom || this.padding.left != v.left) {
+      this._padding = v;
+      this.redraw();
+    }
+  }
+  get wrapWords() {
+    return this._wrapWords;
+  }
+  set wrapWords(v) {
+    if (this.wrapWords !== v) {
+      this._wrapWords = v;
+      this.redraw();
+    }
+  }
+  get textDirection() {
+    return this._textDirection;
+  }
+  set textDirection(v) {
+    if (this.textDirection !== v) {
+      this._textDirection = v;
+      this.redraw();
+    }
+  }
+  get fontStyle() {
+    return this._fontStyle;
+  }
+  set fontStyle(v) {
+    if (this.fontStyle !== v) {
+      this._fontStyle = v;
+      this.redraw();
+    }
+  }
+  get fontVariant() {
+    return this._fontVariant;
+  }
+  set fontVariant(v) {
+    if (this.fontVariant !== v) {
+      this._fontVariant = v;
+      this.redraw();
+    }
+  }
+  get fontWeight() {
+    return this._fontWeight;
+  }
+  set fontWeight(v) {
+    if (this.fontWeight !== v) {
+      this._fontWeight = v;
+      this.redraw();
+    }
+  }
+  get fontSize() {
+    return this._fontSize;
+  }
+  set fontSize(v) {
+    if (this.fontSize !== v) {
+      this._fontSize = v;
+      this.redraw();
+    }
+  }
+  get fontFamily() {
+    return this._fontFamily;
+  }
+  set fontFamily(v) {
+    if (this.fontFamily !== v) {
+      this._fontFamily = v;
+      this.redraw();
+    }
+  }
+  get textFillColor() {
+    return this._textFillColor;
+  }
+  set textFillColor(v) {
+    if (this.textFillColor !== v) {
+      this._textFillColor = v;
+      this.redraw();
+    }
+  }
+  get textStrokeColor() {
+    return this._textStrokeColor;
+  }
+  set textStrokeColor(v) {
+    if (this.textStrokeColor !== v) {
+      this._textStrokeColor = v;
+      this.redraw();
+    }
+  }
+  get textStrokeSize() {
+    return this._textStrokeSize;
+  }
+  set textStrokeSize(v) {
+    if (this.textStrokeSize !== v) {
+      this._textStrokeSize = v;
+      this.redraw();
+    }
+  }
+  get bgFillColor() {
+    return this._bgFillColor;
+  }
+  set bgFillColor(v) {
+    if (this.bgFillColor !== v) {
+      this._bgFillColor = v;
+      this.redraw();
+    }
+  }
+  get bgStrokeColor() {
+    return this._bgStrokeColor;
+  }
+  set bgStrokeColor(v) {
+    if (this.bgStrokeColor !== v) {
+      this._bgStrokeColor = v;
+      this.redraw();
+    }
+  }
+  get bgStrokeSize() {
+    return this._bgStrokeSize;
+  }
+  set bgStrokeSize(v) {
+    if (this.bgStrokeSize !== v) {
+      this._bgStrokeSize = v;
+      this.redraw();
+    }
+  }
+  get value() {
+    return this._value;
+  }
+  set value(v) {
+    if (this.value !== v) {
+      this._value = v;
+      this.redraw();
+    }
+  }
+  draw(g, x, y) {
+    if (this.canvas.width > 0 && this.canvas.height > 0) {
+      g.drawImage(this.canvas, x, y, this.width, this.height);
+    }
+  }
+  split(value2) {
+    if (this.wrapWords) {
+      return value2.split(" ").join("\n").replace(/\r\n/, "\n").split("\n");
+    } else {
+      return value2.replace(/\r\n/, "\n").split("\n");
+    }
+  }
+  unfreeze() {
+    this._dimensionsFrozen = false;
+  }
+  onRedraw() {
+    this.g.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    if (this.visible && this.fontFamily && this.fontSize && (this.textFillColor || this.textStrokeColor && this.textStrokeSize) && this.value) {
+      const lines = this.split(this.value);
+      const isVertical = this.textDirection && this.textDirection.indexOf("vertical") === 0;
+      if (this.trueWidth === null || this.trueHeight === null || this.dx === null || this.trueFontSize === null || !this._dimensionsFrozen) {
+        this._dimensionsFrozen = this._freezeDimensions;
+        const autoResize = this.minWidth != null || this.maxWidth != null || this.minHeight != null || this.maxHeight != null;
+        const _targetMinWidth = ((this.minWidth || 0) - this.padding.right - this.padding.left) * this.scale;
+        const _targetMaxWidth = ((this.maxWidth || 4096) - this.padding.right - this.padding.left) * this.scale;
+        const _targetMinHeight = ((this.minHeight || 0) - this.padding.top - this.padding.bottom) * this.scale;
+        const _targetMaxHeight = ((this.maxHeight || 4096) - this.padding.top - this.padding.bottom) * this.scale;
+        const targetMinWidth = isVertical ? _targetMinHeight : _targetMinWidth;
+        const targetMaxWidth = isVertical ? _targetMaxHeight : _targetMaxWidth;
+        const targetMinHeight = isVertical ? _targetMinWidth : _targetMinHeight;
+        const targetMaxHeight = isVertical ? _targetMaxWidth : _targetMaxHeight;
+        const tried = [];
+        this.trueWidth = 0;
+        this.trueHeight = 0;
+        this.dx = 0;
+        let tooBig = false, tooSmall = false, highFontSize = 1e4, lowFontSize = 0;
+        this.trueFontSize = clamp(this.fontSize * this.scale, lowFontSize, highFontSize);
+        let minFont = null, minFontDelta = Number.MAX_VALUE;
+        do {
+          const realFontSize = this.fontSize;
+          this._fontSize = this.trueFontSize;
+          const font = makeFont(this);
+          this._fontSize = realFontSize;
+          this.g.textAlign = "center";
+          this.g.textBaseline = "middle";
+          this.g.font = font;
+          this.trueWidth = 0;
+          this.trueHeight = 0;
+          for (const line of lines) {
+            const metrics = this.g.measureText(line);
+            this.trueWidth = Math.max(this.trueWidth, metrics.width);
+            this.trueHeight += this.trueFontSize;
+            if (isNumber(metrics.actualBoundingBoxLeft) && isNumber(metrics.actualBoundingBoxRight) && isNumber(metrics.actualBoundingBoxAscent) && isNumber(metrics.actualBoundingBoxDescent)) {
+              if (!autoResize) {
+                this.trueWidth = metrics.actualBoundingBoxLeft + metrics.actualBoundingBoxRight;
+                this.trueHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
+                this.dx = (metrics.actualBoundingBoxLeft - this.trueWidth / 2) / 2;
+              }
+            }
+          }
+          if (autoResize) {
+            const dMinWidth = this.trueWidth - targetMinWidth;
+            const dMaxWidth = this.trueWidth - targetMaxWidth;
+            const dMinHeight = this.trueHeight - targetMinHeight;
+            const dMaxHeight = this.trueHeight - targetMaxHeight;
+            const mdMinWidth = Math.abs(dMinWidth);
+            const mdMaxWidth = Math.abs(dMaxWidth);
+            const mdMinHeight = Math.abs(dMinHeight);
+            const mdMaxHeight = Math.abs(dMaxHeight);
+            tooBig = dMaxWidth > 1 || dMaxHeight > 1;
+            tooSmall = dMinWidth < -1 && dMinHeight < -1;
+            const minDif = Math.min(mdMinWidth, Math.min(mdMaxWidth, Math.min(mdMinHeight, mdMaxHeight)));
+            if (minDif < minFontDelta) {
+              minFontDelta = minDif;
+              minFont = this.g.font;
+            }
+            if ((tooBig || tooSmall) && tried.indexOf(this.g.font) > -1 && minFont) {
+              this.g.font = minFont;
+              tooBig = false;
+              tooSmall = false;
+            }
+            if (tooBig) {
+              highFontSize = this.trueFontSize;
+              this.trueFontSize = (lowFontSize + this.trueFontSize) / 2;
+            } else if (tooSmall) {
+              lowFontSize = this.trueFontSize;
+              this.trueFontSize = (this.trueFontSize + highFontSize) / 2;
+            }
+          }
+          tried.push(this.g.font);
+        } while (tooBig || tooSmall);
+        if (autoResize) {
+          if (this.trueWidth < targetMinWidth) {
+            this.trueWidth = targetMinWidth;
+          } else if (this.trueWidth > targetMaxWidth) {
+            this.trueWidth = targetMaxWidth;
+          }
+          if (this.trueHeight < targetMinHeight) {
+            this.trueHeight = targetMinHeight;
+          } else if (this.trueHeight > targetMaxHeight) {
+            this.trueHeight = targetMaxHeight;
+          }
+        }
+        const newW = this.trueWidth + this.scale * (this.padding.right + this.padding.left);
+        const newH = this.trueHeight + this.scale * (this.padding.top + this.padding.bottom);
+        try {
+          setContextSize(this.g, newW, newH);
+        } catch (exp) {
+          console.error(exp);
+          throw exp;
+        }
+      }
+      if (this.bgFillColor) {
+        this.g.fillStyle = this.bgFillColor;
+        this.g.fillRect(0, 0, this.canvas.width, this.canvas.height);
+      } else {
+        this.g.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      }
+      if (this.textStrokeColor && this.textStrokeSize) {
+        this.g.lineWidth = this.textStrokeSize * this.scale;
+        this.g.strokeStyle = this.textStrokeColor;
+      }
+      if (this.textFillColor) {
+        this.g.fillStyle = this.textFillColor;
+      }
+      const di = 0.5 * (lines.length - 1);
+      for (let i = 0; i < lines.length; ++i) {
+        const line = lines[i];
+        const dy = (i - di) * this.trueFontSize;
+        const x = this.dx + this.trueWidth / 2 + this.scale * this.padding.left;
+        const y = dy + this.trueHeight / 2 + this.scale * this.padding.top;
+        if (this.textStrokeColor && this.textStrokeSize) {
+          this.g.strokeText(line, x, y);
+        }
+        if (this.textFillColor) {
+          this.g.fillText(line, x, y);
+        }
+      }
+      if (this.bgStrokeColor && this.bgStrokeSize) {
+        this.g.strokeStyle = this.bgStrokeColor;
+        this.g.lineWidth = this.bgStrokeSize * this.scale;
+        const s = this.bgStrokeSize / 2;
+        this.g.strokeRect(s, s, this.canvas.width - this.bgStrokeSize, this.canvas.height - this.bgStrokeSize);
+      }
+      if (isVertical) {
+        const canv = createUtilityCanvas(this.canvas.height, this.canvas.width);
+        const g = canv.getContext("2d");
+        if (g) {
+          g.translate(canv.width / 2, canv.height / 2);
+          if (this.textDirection === "vertical" || this.textDirection === "vertical-left") {
+            g.rotate(Math.PI / 2);
+          } else if (this.textDirection === "vertical-right") {
+            g.rotate(-Math.PI / 2);
+          }
+          g.translate(-this.canvas.width / 2, -this.canvas.height / 2);
+          g.drawImage(this.canvas, 0, 0);
+          setContextSize(this.g, canv.width, canv.height);
+        } else {
+          console.warn("Couldn't rotate the TextImage");
+        }
+        this.g.drawImage(canv, 0, 0);
+      }
+      return true;
+    } else {
+      return false;
+    }
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/graphics2d/ClockImage.ts
+var ClockImage = class extends TextImage {
+  constructor() {
+    super({
+      textFillColor: "#ffffff",
+      textStrokeColor: "rgba(0, 0, 0, 0.25)",
+      textStrokeSize: 0.05,
+      fontFamily: getMonospaceFonts(),
+      fontSize: 20,
+      minHeight: 1,
+      maxHeight: 1,
+      padding: 0.3,
+      wrapWords: false,
+      freezeDimensions: true
+    });
+    const updater = this.update.bind(this);
+    setInterval(updater, 500);
+    updater();
+  }
+  fps = null;
+  drawCalls = null;
+  triangles = null;
+  setStats(fps, drawCalls, triangles) {
+    this.fps = fps;
+    this.drawCalls = drawCalls;
+    this.triangles = triangles;
+  }
+  lastLen = 0;
+  update() {
+    const time = new Date();
+    let value2 = time.toLocaleTimeString();
+    if (this.fps !== null) {
+      value2 += ` ${Math.round(this.fps).toFixed(0)}hz ${this.drawCalls}c ${this.triangles}t`;
+    }
+    if (value2.length !== this.lastLen) {
+      this.lastLen = value2.length;
+      this.unfreeze();
+    }
+    this.value = value2;
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/webrtc/constants.ts
+var DEFAULT_LOCAL_USER_ID = "local-user";
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/graphics2d/animation/Animator.ts
 var Animator = class {
@@ -8648,6 +9038,183 @@ function objectSetEnabled(obj2, enabled) {
   if (isDisableable(obj2)) {
     obj2.disabled = !enabled;
   }
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/RayTarget.ts
+var RAY_TARGET_KEY = "Juniper:ThreeJS:EventSystem:RayTarget";
+var RayTarget = class extends TypedEventBase {
+  constructor(object) {
+    super();
+    this.object = object;
+    this.object.userData[RAY_TARGET_KEY] = this;
+  }
+  meshes = new Array();
+  _disabled = false;
+  _clickable = false;
+  _draggable = false;
+  addMesh(mesh) {
+    mesh.userData[RAY_TARGET_KEY] = this;
+    this.meshes.push(mesh);
+    return this;
+  }
+  get disabled() {
+    return this._disabled;
+  }
+  set disabled(v) {
+    this._disabled = v;
+  }
+  get enabled() {
+    return !this.disabled;
+  }
+  set enabled(v) {
+    this.disabled = !v;
+  }
+  get clickable() {
+    return this._clickable;
+  }
+  set clickable(v) {
+    this._clickable = v;
+  }
+  get draggable() {
+    return this._draggable;
+  }
+  set draggable(v) {
+    this._draggable = v;
+  }
+};
+function isRayTarget(obj2) {
+  return obj2 instanceof RayTarget;
+}
+function isIntersection(obj2) {
+  return isDefined(obj2) && isNumber(obj2.distance) && obj2.point instanceof THREE.Vector3 && (obj2.object === null || obj2.object instanceof THREE.Object3D);
+}
+function getRayTarget(obj2) {
+  if (!obj2) {
+    return null;
+  }
+  if (isRayTarget(obj2)) {
+    return obj2;
+  } else if (isIntersection(obj2) || isErsatzObject(obj2)) {
+    obj2 = obj2.object;
+  }
+  return obj2 && obj2.userData[RAY_TARGET_KEY];
+}
+function assureRayTarget(obj2) {
+  if (!obj2) {
+    throw new Error("object is not defined");
+  }
+  return getRayTarget(obj2) || new RayTarget(objectResolve(obj2));
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/animation/scaleOnHover.ts
+var scaledItems = singleton("Juniper:ScaledItems", () => /* @__PURE__ */ new Map());
+var start = 1;
+var end = 1.1;
+var timeScale = 5e-3;
+var ScaleState = class {
+  constructor(obj2) {
+    this.target = assureRayTarget(obj2);
+    this.obj = objectResolve(obj2);
+    this.base = this.obj.scale.clone();
+    this.p = 0;
+    this.dir = 0;
+    this.running = false;
+    this.wasDisabled = this.disabled;
+    this.onEnter = () => this.run(1);
+    this.onExit = () => this.run(-1);
+    this.target.addEventListener("enter", this.onEnter);
+    this.target.addEventListener("exit", this.onExit);
+    this.obj.traverse((child) => {
+      if (isMesh(child)) {
+        this.target.addMesh(child);
+      }
+    });
+  }
+  get disabled() {
+    return this.target.disabled;
+  }
+  run(d) {
+    if (!this.disabled || (d === -1 || this.p > 0)) {
+      this.dir = d;
+      this.running = true;
+    }
+  }
+  updateScaling(dt) {
+    if (this.disabled !== this.wasDisabled) {
+      this.wasDisabled = this.disabled;
+      if (this.disabled) {
+        this.onExit();
+      }
+    }
+    if (this.running) {
+      this.p += this.dir * dt;
+      if (this.dir > 0 && this.p >= 1 || this.dir < 0 && this.p < 0) {
+        this.p = Math.max(0, Math.min(1, this.p));
+        this.running = false;
+      }
+      const q = bump(this.p, 1.1);
+      this.obj.scale.copy(this.base).multiplyScalar(q * (end - start) + start);
+    }
+  }
+  dispose() {
+    this.target.removeEventListener("enter", this.onEnter);
+    this.target.removeEventListener("exit", this.onExit);
+  }
+};
+function updateScalings(dt) {
+  dt *= timeScale;
+  for (const state of scaledItems.values()) {
+    state.updateScaling(dt);
+  }
+}
+function removeScaledObj(obj2) {
+  const state = scaledItems.get(obj2);
+  if (state) {
+    scaledItems.delete(obj2);
+    state.dispose();
+  }
+}
+function scaleOnHover(obj2, enabled) {
+  const has = scaledItems.has(obj2);
+  if (enabled != has) {
+    if (enabled) {
+      scaledItems.set(obj2, new ScaleState(obj2));
+      ;
+    } else {
+      const scaler = scaledItems.get(obj2);
+      scaler.dispose();
+      scaledItems.delete(obj2);
+    }
+  }
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/cleanup.ts
+function cleanup(obj2) {
+  const cleanupQ = new Array();
+  const cleanupSeen = /* @__PURE__ */ new Set();
+  cleanupQ.push(obj2);
+  while (cleanupQ.length > 0) {
+    const here = cleanupQ.shift();
+    if (here && !cleanupSeen.has(here)) {
+      cleanupSeen.add(here);
+      if (here.isMesh) {
+        cleanupQ.push(here.material, here.geometry);
+      }
+      if (here.isMaterial) {
+        cleanupQ.push(...Object.values(here));
+      }
+      if (here.isObject3D) {
+        cleanupQ.push(...here.children);
+        here.clear();
+        removeScaledObj(here);
+      }
+      if (isArray(here)) {
+        cleanupQ.push(...here);
+      }
+      dispose(here);
+    }
+  }
+  cleanupSeen.clear();
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/examples/lines/LineMaterial.js
@@ -9228,186 +9795,6 @@ var white = 16777215;
 var litGrey = /* @__PURE__ */ lit({ color: grey });
 var litWhite = /* @__PURE__ */ lit({ color: white });
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/RayTarget.ts
-var RAY_TARGET_KEY = "Juniper:ThreeJS:EventSystem:RayTarget";
-var RAY_TARGETS_KEY = "Juniper:ThreeJS:EventSystem:RayTargets";
-var RAY_TARGET_DISABLED_KEY = "Juniper:ThreeJS:EventSystem:RayTarget:Disabled";
-var RAY_TARGET_CLICKABLE_KEY = "Juniper:ThreeJS:EventSystem:RayTarget:Clickable";
-var RAY_TARGET_DRAGGABLE_KEY = "Juniper:ThreeJS:EventSystem:RayTarget:Draggable";
-var RayTarget = class extends TypedEventBase {
-  constructor(object, mesh) {
-    super();
-    this.object = object;
-    this.mesh = mesh;
-    this.mesh.userData[RAY_TARGET_KEY] = this;
-    let targets = this.object.userData[RAY_TARGETS_KEY];
-    if (!targets) {
-      this.object.userData[RAY_TARGETS_KEY] = targets = new Array();
-    }
-    targets.push(this);
-  }
-  get disabled() {
-    return this.object.userData[RAY_TARGET_DISABLED_KEY];
-  }
-  set disabled(v) {
-    this.object.userData[RAY_TARGET_DISABLED_KEY] = v;
-  }
-  get enabled() {
-    return !this.disabled;
-  }
-  set enabled(v) {
-    this.disabled = !v;
-  }
-  get clickable() {
-    return this.object.userData[RAY_TARGET_CLICKABLE_KEY];
-  }
-  set clickable(v) {
-    this.object.userData[RAY_TARGET_CLICKABLE_KEY] = v;
-  }
-  get draggable() {
-    return this.object.userData[RAY_TARGET_DRAGGABLE_KEY];
-  }
-  set draggable(v) {
-    this.object.userData[RAY_TARGET_DRAGGABLE_KEY] = v;
-  }
-};
-function getMeshTarget(objectOrHit) {
-  if (!objectOrHit) {
-    return null;
-  }
-  const obj2 = isObject3D(objectOrHit) ? objectOrHit : objectOrHit.object;
-  return obj2 && obj2.userData[RAY_TARGET_KEY];
-}
-function getObjectTargets(obj2) {
-  if (!obj2) {
-    return null;
-  }
-  return obj2.userData[RAY_TARGETS_KEY];
-}
-function makeRayTarget(mesh, obj2) {
-  obj2 = obj2 || mesh;
-  return new RayTarget(obj2, mesh);
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/animation/scaleOnHover.ts
-var scaledItems = singleton("Juniper:ScaledItems", () => /* @__PURE__ */ new Map());
-var start = 1;
-var end = 1.1;
-var timeScale = 5e-3;
-var ScaleState = class {
-  constructor(obj2) {
-    this.obj = obj2;
-    this.base = obj2.scale.clone();
-    this.p = 0;
-    this.dir = 0;
-    this.running = false;
-    this.wasDisabled = this.disabled;
-    this.onEnter = () => this.run(1);
-    this.onExit = () => this.run(-1);
-    this.obj.traverse((child) => {
-      if (isMesh(child)) {
-        const target = makeRayTarget(child, this.obj);
-        target.addEventListener("enter", this.onEnter);
-        target.addEventListener("exit", this.onExit);
-      }
-    });
-  }
-  base;
-  onEnter;
-  onExit;
-  p;
-  dir;
-  running;
-  wasDisabled;
-  get enabled() {
-    const targets = getObjectTargets(this.obj);
-    if (!targets || targets.length === 0) {
-      return false;
-    }
-    for (const target of targets) {
-      if (!target.enabled) {
-        return false;
-      }
-    }
-    return true;
-  }
-  get disabled() {
-    return !this.enabled;
-  }
-  run(d) {
-    if (!this.disabled || (d === -1 || this.p > 0)) {
-      this.dir = d;
-      this.running = true;
-    }
-  }
-  updateScaling(dt) {
-    if (this.disabled !== this.wasDisabled) {
-      this.wasDisabled = this.disabled;
-      if (this.disabled) {
-        this.onExit();
-      }
-    }
-    if (this.running) {
-      this.p += this.dir * dt;
-      if (this.dir > 0 && this.p >= 1 || this.dir < 0 && this.p < 0) {
-        this.p = Math.max(0, Math.min(1, this.p));
-        this.running = false;
-      }
-      const q = bump(this.p, 1.1);
-      this.obj.scale.copy(this.base).multiplyScalar(q * (end - start) + start);
-    }
-  }
-  dispose() {
-    this.obj.removeEventListener("enter", this.onEnter);
-    this.obj.removeEventListener("exit", this.onExit);
-  }
-};
-function updateScalings(dt) {
-  dt *= timeScale;
-  for (const state of scaledItems.values()) {
-    state.updateScaling(dt);
-  }
-}
-function removeScaledObj(obj2) {
-  const state = scaledItems.get(obj2);
-  if (state) {
-    scaledItems.delete(obj2);
-    state.dispose();
-  }
-}
-function scaleOnHover(obj2) {
-  scaledItems.set(obj2, new ScaleState(obj2));
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/cleanup.ts
-function cleanup(obj2) {
-  const cleanupQ = new Array();
-  const cleanupSeen = /* @__PURE__ */ new Set();
-  cleanupQ.push(obj2);
-  while (cleanupQ.length > 0) {
-    const here = cleanupQ.shift();
-    if (here && !cleanupSeen.has(here)) {
-      cleanupSeen.add(here);
-      if (here.isMesh) {
-        cleanupQ.push(here.material, here.geometry);
-      }
-      if (here.isMaterial) {
-        cleanupQ.push(...Object.values(here));
-      }
-      if (here.isObject3D) {
-        cleanupQ.push(...here.children);
-        here.clear();
-        removeScaledObj(here);
-      }
-      if (isArray(here)) {
-        cleanupQ.push(...here);
-      }
-      dispose(here);
-    }
-  }
-  cleanupSeen.clear();
-}
-
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/objectGetRelativePose.ts
 var M = new THREE.Matrix4();
 var P = new THREE.Vector3();
@@ -9426,19 +9813,52 @@ var Plane = class extends THREE.Mesh {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/TexturedMesh.ts
-var inchesPerMeter = 39.3701;
-var TexturedMesh = class extends THREE.Mesh {
-  constructor(geom2, mat) {
-    super(geom2, mat);
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/widgets/Image2D.ts
+var P2 = new THREE.Vector4();
+var Q = new THREE.Quaternion();
+var S = new THREE.Vector3();
+var copyCounter = 0;
+var Image2D = class extends THREE.Object3D {
+  constructor(env2, name2, isStatic, materialOrOptions = null) {
+    super();
+    this.isStatic = isStatic;
+    this.lastMatrixWorld = new THREE.Matrix4();
+    this.layer = null;
+    this.tryWebXRLayers = true;
+    this.wasUsingLayer = false;
     this._imageWidth = 0;
     this._imageHeight = 0;
+    this.lastImage = null;
+    this.lastWidth = null;
+    this.lastHeight = null;
+    this.stereoLayoutName = "mono";
+    this.env = null;
+    this.mesh = null;
+    this.webXRLayersEnabled = true;
+    this.sizeMode = "none";
+    if (env2) {
+      this.setEnvAndName(env2, name2);
+      let material = isMeshBasicMaterial(materialOrOptions) ? materialOrOptions : solidTransparent(Object.assign({}, materialOrOptions, { name: this.name }));
+      this.mesh = new THREE.Mesh(plane, material);
+      objGraph(this, this.mesh);
+    }
   }
-  copy(source, recursive = true) {
-    super.copy(source, recursive);
-    this._imageWidth = source.imageWidth;
-    this._imageHeight = source.imageHeight;
-    return this;
+  dispose() {
+    cleanup(this.layer);
+  }
+  setImageSize(width2, height2) {
+    if (width2 !== this._imageWidth || height2 !== this._imageHeight) {
+      const { objectWidth, objectHeight } = this;
+      this._imageWidth = width2;
+      this._imageHeight = height2;
+      if (this.sizeMode !== "none") {
+        if (this.sizeMode === "fixed-width") {
+          this.objectWidth = objectWidth;
+        } else {
+          this.objectHeight = objectHeight;
+        }
+      }
+    }
   }
   get imageWidth() {
     return this._imageWidth;
@@ -9453,92 +9873,23 @@ var TexturedMesh = class extends THREE.Mesh {
     return this.scale.x;
   }
   set objectWidth(v) {
-    this.scale.x = v;
-    this.scale.y = v / this.imageAspectRatio;
+    this.scale.set(v, this.scale.y = v / this.imageAspectRatio, 1);
   }
   get objectHeight() {
     return this.scale.y;
   }
   set objectHeight(v) {
-    this.scale.x = this.imageAspectRatio * v;
-    this.scale.y = v;
+    this.scale.set(this.imageAspectRatio * v, v, 1);
   }
   get pixelDensity() {
-    const ppm = this.imageWidth / this.objectWidth;
-    const ppi = ppm / inchesPerMeter;
+    const inches = meters2Inches(this.objectWidth);
+    const ppi = this.imageWidth / inches;
     return ppi;
   }
   set pixelDensity(ppi) {
-    const ppm = ppi * inchesPerMeter;
-    this.objectWidth = this.imageWidth / ppm;
-  }
-  setImage(img) {
-    if (isImageBitmap(img)) {
-      img = createCanvasFromImageBitmap(img);
-    }
-    if (isOffscreenCanvas(img)) {
-      img = img;
-    }
-    if (img instanceof HTMLVideoElement) {
-      this.material.map = new THREE.VideoTexture(img);
-      this._imageWidth = img.videoWidth;
-      this._imageHeight = img.videoHeight;
-    } else {
-      this.material.map = new THREE.Texture(img);
-      this._imageWidth = img.width;
-      this._imageHeight = img.height;
-      this.material.map.needsUpdate = true;
-    }
-    this.material.needsUpdate = true;
-    return this.material.map;
-  }
-  async loadImage(fetcher, path, prog) {
-    let { content: img } = await fetcher.get(path).progress(prog).image();
-    const texture = this.setImage(img);
-    texture.name = path;
-  }
-  updateTexture() {
-    const img = this.material.map.image;
-    if (isNumber(img.width) && isNumber(img.height) && (this.imageWidth !== img.width || this.imageHeight !== img.height)) {
-      this._imageWidth = img.width;
-      this._imageHeight = img.height;
-      this.material.map.dispose();
-      this.material.map = new THREE.Texture(img);
-      this.material.needsUpdate = true;
-    }
-    this.material.map.needsUpdate = true;
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/Image2DMesh.ts
-var P2 = new THREE.Vector4();
-var Q = new THREE.Quaternion();
-var S = new THREE.Vector3();
-var copyCounter = 0;
-var Image2DMesh = class extends THREE.Object3D {
-  constructor(env2, name2, isStatic, materialOrOptions = null) {
-    super();
-    this.isStatic = isStatic;
-    this.lastMatrixWorld = new THREE.Matrix4();
-    this.layer = null;
-    this.tryWebXRLayers = true;
-    this.wasUsingLayer = false;
-    this.lastImage = null;
-    this.lastWidth = null;
-    this.lastHeight = null;
-    this.stereoLayoutName = "mono";
-    this.env = null;
-    this.mesh = null;
-    this.webXRLayersEnabled = true;
-    if (env2) {
-      this.setEnvAndName(env2, name2);
-      let material = isMeshBasicMaterial(materialOrOptions) ? materialOrOptions : solidTransparent(Object.assign({}, materialOrOptions, { name: this.name }));
-      this.mesh = new TexturedMesh(plane, material);
-      this.add(this.mesh);
-    }
-  }
-  dispose() {
-    cleanup(this.layer);
+    const inches = this.imageWidth / ppi;
+    const meters = inches2Meters(inches);
+    this.objectWidth = meters;
   }
   setEnvAndName(env2, name2) {
     this.env = env2;
@@ -9547,17 +9898,18 @@ var Image2DMesh = class extends THREE.Object3D {
   }
   copy(source, recursive = true) {
     super.copy(source, recursive);
+    this.setImageSize(source.imageWidth, source.imageHeight);
     this.setEnvAndName(source.env, source.name + ++copyCounter);
     for (let i = this.children.length - 1; i >= 0; --i) {
       const child = this.children[i];
-      if (child.parent instanceof Image2DMesh && child instanceof TexturedMesh) {
+      if (child.parent instanceof Image2D && child instanceof THREE.Mesh) {
         child.removeFromParent();
-        this.mesh = new TexturedMesh(child.geometry, child.material);
+        this.mesh = new THREE.Mesh(child.geometry, child.material);
       }
     }
     if (isNullOrUndefined(this.mesh)) {
       this.mesh = source.mesh.clone();
-      this.add(this.mesh);
+      objGraph(this, this.mesh);
     }
     return this;
   }
@@ -9583,6 +9935,39 @@ var Image2DMesh = class extends THREE.Object3D {
       }, 100);
     }
   }
+  setTextureMap(img) {
+    if (isImageBitmap(img)) {
+      img = createCanvasFromImageBitmap(img);
+    }
+    if (isOffscreenCanvas(img)) {
+      img = img;
+    }
+    if (img instanceof HTMLVideoElement) {
+      this.mesh.material.map = new THREE.VideoTexture(img);
+      this.setImageSize(img.videoWidth, img.videoHeight);
+    } else {
+      this.mesh.material.map = new THREE.Texture(img);
+      this.setImageSize(img.width, img.height);
+      this.mesh.material.map.needsUpdate = true;
+    }
+    this.mesh.material.needsUpdate = true;
+    return this.mesh.material.map;
+  }
+  async loadTextureMap(fetcher, path, prog) {
+    let { content: img } = await fetcher.get(path).progress(prog).image();
+    const texture = this.setTextureMap(img);
+    texture.name = path;
+  }
+  updateTexture() {
+    const img = this.mesh.material.map.image;
+    if (isNumber(img.width) && isNumber(img.height) && (this.imageWidth !== img.width || this.imageHeight !== img.height)) {
+      this.mesh.material.map.dispose();
+      this.mesh.material.map = new THREE.Texture(img);
+      this.mesh.material.needsUpdate = true;
+      this.setImageSize(img.width, img.height);
+    }
+    this.mesh.material.map.needsUpdate = true;
+  }
   update(_dt, frame) {
     if (this.mesh.material.map && this.mesh.material.map.image) {
       const isVideo = this.mesh.material.map instanceof THREE.VideoTexture;
@@ -9590,11 +9975,11 @@ var Image2DMesh = class extends THREE.Object3D {
       const useLayer = isLayersAvailable && this.needsLayer;
       const useLayerChanged = useLayer !== this.wasUsingLayer;
       const imageChanged = this.mesh.material.map.image !== this.lastImage || this.mesh.material.needsUpdate || this.mesh.material.map.needsUpdate;
-      const sizeChanged = this.mesh.imageWidth !== this.lastWidth || this.mesh.imageHeight !== this.lastHeight;
+      const sizeChanged = this.imageWidth !== this.lastWidth || this.imageHeight !== this.lastHeight;
       this.wasUsingLayer = useLayer;
       this.lastImage = this.mesh.material.map.image;
-      this.lastWidth = this.mesh.imageWidth;
-      this.lastHeight = this.mesh.imageHeight;
+      this.lastWidth = this.imageWidth;
+      this.lastHeight = this.imageHeight;
       if (useLayerChanged || sizeChanged) {
         if ((!useLayer || sizeChanged) && this.layer) {
           this.removeWebXRLayer();
@@ -9623,8 +10008,8 @@ var Image2DMesh = class extends THREE.Object3D {
               layout,
               textureType: "texture",
               isStatic: this.isStatic,
-              viewPixelWidth: this.mesh.imageWidth,
-              viewPixelHeight: this.mesh.imageHeight,
+              viewPixelWidth: this.imageWidth,
+              viewPixelHeight: this.imageHeight,
               transform: transform2,
               width: width2,
               height: height2
@@ -9656,163 +10041,88 @@ var Image2DMesh = class extends THREE.Object3D {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/TextMesh.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/widgets/CanvasImageMesh.ts
 var redrawnEvt = { type: "redrawn" };
-var TextMesh = class extends Image2DMesh {
-  constructor(env2, name2, materialOptions) {
+var CanvasImageMesh = class extends Image2D {
+  constructor(env2, name2, image2, materialOptions) {
     super(env2, name2, false, materialOptions);
-    this._textImage = null;
     this._onRedrawn = this.onRedrawn.bind(this);
+    this.image = image2;
   }
-  onRedrawn() {
-    this.mesh.updateTexture();
-    this.scale.set(this._textImage.width, this._textImage.height, 0.01);
-    this.dispatchEvent(redrawnEvt);
+  get object() {
+    return this;
   }
-  get textImage() {
-    return this._textImage;
-  }
-  set textImage(v) {
-    if (v !== this.textImage) {
-      if (this.textImage) {
-        this.textImage.clearEventListeners();
-      }
-      this._textImage = v;
-      if (this.textImage) {
-        this.textImage.addEventListener("redrawn", this._onRedrawn);
-        this.mesh.setImage(this.textImage.canvas);
-        this._onRedrawn();
-      }
+  get element() {
+    if (isHTMLCanvas(this.image.canvas)) {
+      return this.image.canvas;
+    } else {
+      return null;
     }
   }
-  createTextImage(textImageOptions) {
-    this.textImage = new TextImage(textImageOptions);
+  onRedrawn() {
+    this.updateTexture();
+    this.dispatchEvent(redrawnEvt);
   }
-  get wrapWords() {
-    return this._textImage.wrapWords;
+  get image() {
+    return this._image;
   }
-  set wrapWords(v) {
-    this._textImage.wrapWords = v;
+  set image(v) {
+    if (this.image) {
+      this.image.removeEventListener("redrawn", this._onRedrawn);
+    }
+    this._image = v;
+    if (this.image) {
+      this.image.addEventListener("redrawn", this._onRedrawn);
+      this.setTextureMap(this.image.canvas);
+      this.onRedrawn();
+    }
   }
-  get minWidth() {
-    return this._textImage.minWidth;
+  get imageWidth() {
+    return this.image.width;
   }
-  set minWidth(v) {
-    this._textImage.minWidth = v;
+  get imageHeight() {
+    return this.image.height;
   }
-  get maxWidth() {
-    return this._textImage.maxWidth;
+  copy(source, recursive = true) {
+    super.copy(source, recursive);
+    this.image = source.image;
+    return this;
   }
-  set maxWidth(v) {
-    this._textImage.maxWidth = v;
+  get isVisible() {
+    return elementIsDisplayed(this);
   }
-  get minHeight() {
-    return this._textImage.minHeight;
-  }
-  set minHeight(v) {
-    this._textImage.minHeight = v;
-  }
-  get maxHeight() {
-    return this._textImage.maxHeight;
-  }
-  set maxHeight(v) {
-    this._textImage.maxHeight = v;
-  }
-  get textDirection() {
-    return this._textImage.textDirection;
-  }
-  set textDirection(v) {
-    this._textImage.textDirection = v;
-  }
-  get textScale() {
-    return this._textImage.scale;
-  }
-  set textScale(v) {
-    this._textImage.scale = v;
-  }
-  get textWidth() {
-    return this._textImage.width;
-  }
-  get textHeight() {
-    return this._textImage.height;
-  }
-  get textPadding() {
-    return this._textImage.padding;
-  }
-  set textPadding(v) {
-    this._textImage.padding = v;
-  }
-  get fontStyle() {
-    return this._textImage.fontStyle;
-  }
-  set fontStyle(v) {
-    this._textImage.fontStyle = v;
-  }
-  get fontVariant() {
-    return this._textImage.fontVariant;
-  }
-  set fontVariant(v) {
-    this._textImage.fontVariant = v;
-  }
-  get fontWeight() {
-    return this._textImage.fontWeight;
-  }
-  set fontWeight(v) {
-    this._textImage.fontWeight = v;
-  }
-  get fontSize() {
-    return this._textImage.fontSize;
-  }
-  set fontSize(v) {
-    this._textImage.fontSize = v;
-  }
-  get fontFamily() {
-    return this._textImage.fontFamily;
-  }
-  set fontFamily(v) {
-    this._textImage.fontFamily = v;
-  }
-  get textFillColor() {
-    return this._textImage.textFillColor;
-  }
-  set textFillColor(v) {
-    this._textImage.textFillColor = v;
-  }
-  get textStrokeColor() {
-    return this._textImage.textStrokeColor;
-  }
-  set textStrokeColor(v) {
-    this._textImage.textStrokeColor = v;
-  }
-  get textStrokeSize() {
-    return this._textImage.textStrokeSize;
-  }
-  set textStrokeSize(v) {
-    this._textImage.textStrokeSize = v;
-  }
-  get textBgColor() {
-    return this._textImage.bgFillColor;
-  }
-  set textBgColor(v) {
-    this._textImage.bgFillColor = v;
-  }
-  get value() {
-    return this._textImage.value;
-  }
-  set value(v) {
-    this._textImage.value = v;
+  set isVisible(v) {
+    elementSetDisplay(this, v, "inline-block");
+    objectSetVisible(this, v);
+    objectSetVisible(this.mesh, v);
+    this.image.visible = v;
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/TextMeshLabel.ts
-var TextMeshLabel = class extends THREE.Object3D {
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/widgets/TextMesh.ts
+var TextMesh = class extends CanvasImageMesh {
+  constructor(env2, name2, textOptions, materialOptions) {
+    let image2;
+    if (textOptions instanceof TextImage) {
+      image2 = textOptions;
+    } else {
+      image2 = new TextImage(textOptions);
+    }
+    super(env2, name2, image2, materialOptions);
+  }
+  onRedrawn() {
+    this.objectHeight = this.imageHeight;
+    super.onRedrawn();
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/widgets/TextMeshButton.ts
+var TextMeshButton = class extends RayTarget {
   constructor(fetcher, env2, name2, value2, textImageOptions) {
-    super();
+    super(obj(name2));
     this.fetcher = fetcher;
     this.env = env2;
-    this._disabled = false;
     if (isDefined(value2)) {
-      this.name = name2;
       textImageOptions = Object.assign({
         textFillColor: "#ffffff",
         fontFamily: "Segoe UI Emoji",
@@ -9827,38 +10137,29 @@ var TextMeshLabel = class extends THREE.Object3D {
       this.enabledImage = this.createImage(`${id2}-enabled`, 1);
       this.disabledImage = this.createImage(`${id2}-disabled`, 0.5);
       this.disabledImage.visible = false;
-      this.add(this.enabledImage, this.disabledImage);
+      objGraph(this, this.enabledImage, this.disabledImage);
+    }
+    this.addMesh(this.enabledImage.mesh);
+    this.addMesh(this.disabledImage.mesh);
+    this.clickable = true;
+    if (isDefined(value2)) {
+      scaleOnHover(this, true);
     }
   }
   createImage(id2, opacity) {
-    const image2 = new TextMesh(this.env, `text-${id2}`, {
+    const image2 = new TextMesh(this.env, `text-${id2}`, this.image, {
       side: THREE.FrontSide,
       opacity
     });
-    image2.textImage = this.image;
     return image2;
   }
   get disabled() {
-    return this._disabled;
+    return super.disabled;
   }
   set disabled(v) {
-    if (v !== this.disabled) {
-      this._disabled = v;
-      this.enabledImage.visible = !v;
-      this.disabledImage.visible = v;
-    }
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/TextMeshButton.ts
-var TextMeshButton = class extends TextMeshLabel {
-  constructor(fetcher, env2, name2, value2, textImageOptions) {
-    super(fetcher, env2, name2, value2, textImageOptions);
-    this.target = makeRayTarget(this.enabledImage.mesh, this);
-    this.target.clickable = true;
-    if (isDefined(value2)) {
-      scaleOnHover(this);
-    }
+    super.disabled = v;
+    this.enabledImage.visible = !v;
+    this.disabledImage.visible = v;
   }
 };
 
@@ -9914,13 +10215,13 @@ var ConfirmationDialog = class extends DialogBox {
     this.animator = new Animator();
     this.confirmButton.innerText = "Yes";
     this.cancelButton.innerText = "No";
-    this.mesh = new TextMeshLabel(this.env.fetcher, this.env, "confirmationDialogLabel", "", newStyle(textLabelStyle, fontFamily));
+    this.mesh = new TextMesh(this.env, "confirmationDialogLabel", newStyle(textLabelStyle, fontFamily));
     this.confirmButton3D = new TextMeshButton(this.env.fetcher, this.env, "confirmationDialogConfirmButton", "Yes", newStyle(confirmButton3DStyle, fontFamily));
-    this.confirmButton3D.target.addEventListener("click", () => this.confirmButton.click());
-    this.confirmButton3D.position.set(1, -0.5, 0.5);
+    this.confirmButton3D.addEventListener("click", () => this.confirmButton.click());
+    this.confirmButton3D.object.position.set(1, -0.5, 0.5);
     this.cancelButton3D = new TextMeshButton(this.env.fetcher, this.env, "confirmationDialogCancelButton", "No", newStyle(cancelButton3DStyle, fontFamily));
-    this.cancelButton3D.target.addEventListener("click", () => this.cancelButton.click());
-    this.cancelButton3D.position.set(2, -0.5, 0.5);
+    this.cancelButton3D.addEventListener("click", () => this.cancelButton.click());
+    this.cancelButton3D.object.position.set(2, -0.5, 0.5);
     elementApply(this.container, styles(maxWidth("calc(100% - 2em)"), width("max-content")));
     elementApply(this.contentArea, styles(fontSize("18pt"), textAlign("center"), padding("1em")));
     objGraph(this, objGraph(this.root, this.mesh, this.confirmButton3D, this.cancelButton3D));
@@ -10014,7 +10315,7 @@ var ScreenMode = /* @__PURE__ */ ((ScreenMode2) => {
 })(ScreenMode || {});
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/ScreenUI.ts
-Style(rule("#controls", position("absolute"), left(0), top(0), width("100%"), height("100%")), rule("#controls", display("grid"), fontSize("20pt"), gridTemplateRows("auto 1fr auto")), rule("#controls, #controls *", pointerEvents("none")), rule("#controls canvas", height("58px")), rule("#controls > .row", display("grid"), margin("10px 5px"), gridTemplateColumns("repeat(2, auto)")), rule("#controls > .row.top", gridRow(1)), rule("#controls > .row.middle", gridRow(2, -2)), rule("#controls > .row.bottom", gridRow(-2)), rule("#controls > .row > .cell", display("flex")), rule("#controls > .row > .cell.left", gridColumn(1)), rule("#controls > .row > .cell.right", gridColumn(-2), flexFlow("row-reverse")), rule("#controls > .row > .cell > .btn", borderRadius(0), backgroundColor("#1e4388"), height("58px !important"), width("58px"), padding("0.25em"), margin("0 5px"), pointerEvents("initial")), rule("#controls .btn-primary img", height("calc(100% - 0.5em)")));
+Style(rule("#controls", position("absolute"), left(0), top(0), width("100%"), height("100%")), rule("#controls", display("grid"), fontSize("20pt"), gridTemplateRows("auto 1fr auto"), zIndex(1)), rule("#controls, #controls *", pointerEvents("none")), rule("#controls canvas", height("58px")), rule("#controls > .row", display("grid"), margin("10px 5px"), gridTemplateColumns("repeat(2, auto)")), rule("#controls > .row.top", gridRow(1)), rule("#controls > .row.middle", gridRow(2, -2)), rule("#controls > .row.bottom", gridRow(-2)), rule("#controls > .row > .cell", display("flex")), rule("#controls > .row > .cell.left", gridColumn(1)), rule("#controls > .row > .cell.right", gridColumn(-2), flexFlow("row-reverse")), rule("#controls > .row > .cell > .btn", borderRadius(0), backgroundColor("#1e4388"), height("58px !important"), width("58px"), padding("0.25em"), margin("0 5px"), pointerEvents("initial")), rule("#controls .btn-primary img", height("calc(100% - 0.5em)")));
 var ScreenUI = class {
   constructor() {
     this.element = Div(id("controls"), Div(className("row top"), this.topRowLeft = Div(className("cell left")), this.topRowRight = Div(className("cell right"))), Div(className("row middle"), this.middleRowLeft = Div(className("cell left")), this.middleRowRight = Div(className("cell right"))), Div(className("row bottom"), this.bottomRowLeft = Div(className("cell left")), this.bottomRowRight = Div(className("cell right"))));
@@ -10027,6 +10328,12 @@ var ScreenUI = class {
 };
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/SpaceUI.ts
+function isPoint2DHeight(v) {
+  return "height" in v;
+}
+function isPoint2DWidth(v) {
+  return "width" in v;
+}
 var radius = 1.25;
 var dAngleH = deg2rad(30);
 var dAngleV = deg2rad(32);
@@ -10040,9 +10347,17 @@ var SpaceUI = class extends THREE.Object3D {
   addItem(child, position2) {
     child = objectResolve(child);
     objGraph(this, child);
-    this.add(child);
     child.position.set(radius * Math.sin(position2.x * dAngleH), radius * Math.sin(position2.y * dAngleV), -radius * Math.cos(position2.x * dAngleH));
-    child.scale.set(position2.scale, position2.scale, 1);
+    if (isPoint2DHeight(position2) && isPoint2DWidth(position2)) {
+      child.scale.set(position2.width, position2.height, 1);
+    } else if (isPoint2DHeight(position2)) {
+      child.scale.multiplyScalar(position2.height / child.scale.y);
+    } else if (isPoint2DWidth(position2)) {
+      child.scale.multiplyScalar(position2.width / child.scale.x);
+    } else {
+      child.scale.setScalar(position2.scale);
+    }
+    child.scale.z = 1;
     for (const child2 of this.children) {
       child2.lookAt(headPos);
     }
@@ -10725,9 +11040,9 @@ var VideoPlayer3D = class extends BaseVideoPlayer {
     this.material = solidTransparent({ name: "videoPlayer-material" });
     this.vidMeshes = [];
     for (let i = 0; i < 2; ++i) {
-      const vidMesh = new Image2DMesh(layerMgr, `videoPlayer-view${i + 1}`, false, this.material);
-      vidMesh.mesh.setImage(this.video);
-      vidMesh.renderOrder = 4;
+      const vidMesh = new Image2D(layerMgr, `videoPlayer-view${i + 1}`, false, this.material);
+      vidMesh.setTextureMap(this.video);
+      vidMesh.mesh.renderOrder = 4;
       if (i > 0) {
         vidMesh.mesh.layers.disable(0);
       } else {
@@ -10952,18 +11267,152 @@ function rot(def) {
   return def.map(rotQuad);
 }
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/MeshLabel.ts
-var MeshLabel = class extends THREE.Object3D {
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/widgets/ButtonFactory.ts
+async function loadIcon(fetcher, setName, iconName, iconPath, popper) {
+  const { content } = await fetcher.get(iconPath).progress(popper.pop()).image();
+  return [
+    setName,
+    iconName,
+    content
+  ];
+}
+var ButtonFactory = class {
+  constructor(fetcher, imagePaths, padding2) {
+    this.fetcher = fetcher;
+    this.imagePaths = imagePaths;
+    this.padding = padding2;
+    this.uvDescrips = new PriorityMap();
+    this.geoms = new PriorityMap();
+    this.canvas = null;
+    this.texture = null;
+    this.enabledMaterial = null;
+    this.disabledMaterial = null;
+    this.readyTask = new Task();
+  }
+  async load(prog) {
+    const popper = progressPopper(prog);
+    const imageSets = new PriorityMap(await Promise.all(Array.from(this.imagePaths.entries()).map(([setName, iconName, path]) => loadIcon(this.fetcher, setName, iconName, path, popper))));
+    const images = Array.from(imageSets.values());
+    const iconWidth = Math.max(...images.map((img) => img.width));
+    const iconHeight = Math.max(...images.map((img) => img.height));
+    const area = iconWidth * iconHeight * images.length;
+    const squareDim = Math.sqrt(area);
+    const cols = Math.floor(squareDim / iconWidth);
+    const rows = Math.ceil(images.length / cols);
+    const width2 = cols * iconWidth;
+    const height2 = rows * iconHeight;
+    const canvWidth = nextPowerOf2(width2);
+    const canvHeight = nextPowerOf2(height2);
+    const widthRatio = width2 / canvWidth;
+    const heightRatio = height2 / canvHeight;
+    const du = iconWidth / canvWidth;
+    const dv = iconHeight / canvHeight;
+    this.canvas = createUICanvas(canvWidth, canvHeight);
+    const g = this.canvas.getContext("2d");
+    g.fillStyle = "#1e4388";
+    g.fillRect(0, 0, canvWidth, canvHeight);
+    let i = 0;
+    for (const [setName, imgName, img] of imageSets.entries()) {
+      const c = i % cols;
+      const r = (i - c) / cols;
+      const u = widthRatio * (c * iconWidth / width2);
+      const v = heightRatio * (1 - r / rows) - dv;
+      const x = c * iconWidth;
+      const y = r * iconHeight + canvHeight - height2;
+      const w = iconWidth - 2 * this.padding;
+      const h = iconHeight - 2 * this.padding;
+      g.drawImage(img, 0, 0, img.width, img.height, x + this.padding, y + this.padding, w, h);
+      this.uvDescrips.add(setName, imgName, { u, v, du, dv });
+      ++i;
+    }
+    this.texture = new THREE.CanvasTexture(this.canvas);
+    this.enabledMaterial = new THREE.MeshBasicMaterial({
+      map: this.texture
+    });
+    this.enabledMaterial.needsUpdate = true;
+    this.disabledMaterial = new THREE.MeshBasicMaterial({
+      map: this.texture,
+      transparent: true,
+      opacity: 0.5
+    });
+    this.disabledMaterial.needsUpdate = true;
+    this.readyTask.resolve();
+  }
+  getSets() {
+    return Array.from(this.imagePaths.keys());
+  }
+  getIcons(setName) {
+    if (!this.imagePaths.has(setName)) {
+      throw new Exception(`Button set ${setName} does not exist`);
+    }
+    return Array.from(this.imagePaths.get(setName).keys());
+  }
+  async getMaterial(enabled) {
+    await this.readyTask;
+    return enabled ? this.enabledMaterial : this.disabledMaterial;
+  }
+  async getGeometry(setName, iconName) {
+    await this.readyTask;
+    const uvSet = this.uvDescrips.get(setName);
+    const uv = uvSet && uvSet.get(iconName);
+    if (!uvSet || !uv) {
+      throw new Exception(`Button ${setName}/${iconName} does not exist`, this.uvDescrips);
+    }
+    let geom2 = this.geoms.get(setName, iconName);
+    if (!geom2) {
+      geom2 = new THREE.PlaneBufferGeometry(1, 1, 1, 1);
+      geom2.name = `Geometry:${setName}/${iconName}`;
+      this.geoms.add(setName, iconName, geom2);
+      const uvBuffer = geom2.getAttribute("uv");
+      for (let i = 0; i < uvBuffer.count; ++i) {
+        const u = uvBuffer.getX(i) * uv.du + uv.u;
+        const v = uvBuffer.getY(i) * uv.dv + uv.v;
+        uvBuffer.setX(i, u);
+        uvBuffer.setY(i, v);
+      }
+    }
+    return geom2;
+  }
+  async getGeometryAndMaterials(setName, iconName) {
+    const [geometry, enabledMaterial, disabledMaterial] = await Promise.all([
+      this.getGeometry(setName, iconName),
+      this.getMaterial(true),
+      this.getMaterial(false)
+    ]);
+    return {
+      geometry,
+      enabledMaterial,
+      disabledMaterial
+    };
+  }
+  getImageSrc(setName, iconName) {
+    const imageSet = this.imagePaths.get(setName);
+    const imgSrc = imageSet && imageSet.get(iconName);
+    if (!imageSet || !imgSrc) {
+      throw new Exception(`Button ${setName}/${iconName} does not exist`, this.uvDescrips);
+    }
+    return imgSrc;
+  }
+  getImageElement(setName, iconName) {
+    return Img(title(setName + " " + iconName), src(this.getImageSrc(setName, iconName)));
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/widgets/MeshButton.ts
+var MeshButton = class extends RayTarget {
   constructor(name2, geometry, enabledMaterial, disabledMaterial, size) {
-    super();
-    this._disabled = false;
-    const id2 = stringRandom(16);
-    this.name = name2 + id2;
-    this.enabledMesh = this.createMesh(`${this.name}-enabled`, geometry, enabledMaterial);
-    this.disabledMesh = this.createMesh(`${this.name}-disabled`, geometry, disabledMaterial);
+    name2 = name2 + stringRandom(16);
+    super(obj(name2));
+    this.enabledMesh = this.createMesh(`${name2}-enabled`, geometry, enabledMaterial);
+    this.disabledMesh = this.createMesh(`${name2}-disabled`, geometry, disabledMaterial);
     this.disabledMesh.visible = false;
     this.size = size;
-    this.add(this.enabledMesh, this.disabledMesh);
+    objGraph(this, this.enabledMesh, this.disabledMesh);
+    this.addMesh(this.enabledMesh);
+    this.addMesh(this.disabledMesh);
+    this.clickable = true;
+    this.disabled = this.disabled;
+    scaleOnHover(this, true);
   }
   get size() {
     return this.enabledMesh.scale.x;
@@ -10978,31 +11427,12 @@ var MeshLabel = class extends THREE.Object3D {
     return mesh;
   }
   get disabled() {
-    return this._disabled;
-  }
-  set disabled(v) {
-    if (v !== this.disabled) {
-      this._disabled = v;
-      this.enabledMesh.visible = !v;
-      this.disabledMesh.visible = v;
-    }
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/MeshButton.ts
-var MeshButton = class extends MeshLabel {
-  constructor(name2, geometry, enabledMaterial, disabledMaterial, size) {
-    super(name2, geometry, enabledMaterial, disabledMaterial, size);
-    this.target = makeRayTarget(this.enabledMesh);
-    this.target.clickable = true;
-    this.target.disabled = this.disabled;
-    scaleOnHover(this);
-  }
-  get disabled() {
     return super.disabled;
   }
   set disabled(v) {
-    this.target.disabled = super.disabled = v;
+    super.disabled = v;
+    this.enabledMesh.visible = !v;
+    this.disabledMesh.visible = v;
   }
 };
 
@@ -11017,9 +11447,9 @@ var ButtonImageWidget = class {
   async load(buttons, setName, iconName) {
     const { geometry, enabledMaterial, disabledMaterial } = await buttons.getGeometryAndMaterials(setName, iconName);
     this.mesh = new MeshButton(iconName, geometry, enabledMaterial, disabledMaterial, 0.2);
-    this.object.add(this.mesh);
-    this.mesh.visible = this.visible;
-    this.mesh.target.addEventListener("click", () => {
+    objGraph(this, this.mesh);
+    this.mesh.object.visible = this.visible;
+    this.mesh.addEventListener("click", () => {
       this.element.click();
     });
   }
@@ -11044,49 +11474,8 @@ var ButtonImageWidget = class {
   set visible(visible) {
     elementSetDisplay(this, visible, "inline-block");
     if (this.mesh) {
-      this.mesh.visible = visible;
+      this.mesh.object.visible = visible;
     }
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/widgets/CanvasImageMesh.ts
-var CanvasImageMesh = class extends Image2DMesh {
-  constructor(env2, name2, image2) {
-    super(env2, name2, false);
-    this.image = image2;
-    if (this.mesh) {
-      this.setImage(image2);
-    }
-  }
-  get object() {
-    return this;
-  }
-  setImage(image2) {
-    this.mesh.setImage(image2.canvas);
-    this.mesh.objectHeight = 0.1;
-    this.mesh.updateTexture();
-    image2.addEventListener("redrawn", () => this.mesh.updateTexture());
-  }
-  copy(source, recursive = true) {
-    super.copy(source, recursive);
-    this.setImage(source.image);
-    return this;
-  }
-  get element() {
-    if (isHTMLCanvas(this.image.canvas)) {
-      return this.image.canvas;
-    } else {
-      return null;
-    }
-  }
-  get isVisible() {
-    return elementIsDisplayed(this);
-  }
-  set isVisible(v) {
-    elementSetDisplay(this, v, "inline-block");
-    objectSetVisible(this, v);
-    objectSetVisible(this.mesh, v);
-    this.image.visible = v;
   }
 };
 
@@ -11170,8 +11559,8 @@ var ToggleButton = class {
       this.buttons.getGeometryAndMaterials(this.setName, this.inactiveName)
     ]);
     objGraph(this.object, this.enterButton = new MeshButton(`${this.setName}-activate-button`, activate.geometry, activate.enabledMaterial, activate.disabledMaterial, 0.2), this.exitButton = new MeshButton(`${this.setName}-deactivate-button`, deactivate.geometry, deactivate.enabledMaterial, deactivate.disabledMaterial, 0.2));
-    this.enterButton.target.addEventListener("click", () => this.element.click());
-    this.exitButton.target.addEventListener("click", () => this.element.click());
+    this.enterButton.addEventListener("click", () => this.element.click());
+    this.exitButton.addEventListener("click", () => this.element.click());
     this.refreshState();
   }
   get mesh() {
@@ -11501,6 +11890,30 @@ function onClick(callback, opts) {
 function onInput(callback, opts) {
   return new HtmlEvt("input", callback, opts);
 }
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/events/PointerName.ts
+var PointerName = /* @__PURE__ */ ((PointerName2) => {
+  PointerName2[PointerName2["LocalUser"] = 0] = "LocalUser";
+  PointerName2[PointerName2["Mouse"] = 1] = "Mouse";
+  PointerName2[PointerName2["Pen"] = 2] = "Pen";
+  PointerName2[PointerName2["Touch0"] = 3] = "Touch0";
+  PointerName2[PointerName2["Touch1"] = 4] = "Touch1";
+  PointerName2[PointerName2["Touch2"] = 5] = "Touch2";
+  PointerName2[PointerName2["Touch3"] = 6] = "Touch3";
+  PointerName2[PointerName2["Touch4"] = 7] = "Touch4";
+  PointerName2[PointerName2["Touch5"] = 8] = "Touch5";
+  PointerName2[PointerName2["Touch6"] = 9] = "Touch6";
+  PointerName2[PointerName2["Touch7"] = 10] = "Touch7";
+  PointerName2[PointerName2["Touch8"] = 11] = "Touch8";
+  PointerName2[PointerName2["Touch9"] = 12] = "Touch9";
+  PointerName2[PointerName2["Touch10"] = 13] = "Touch10";
+  PointerName2[PointerName2["Touches"] = 14] = "Touches";
+  PointerName2[PointerName2["MotionController"] = 15] = "MotionController";
+  PointerName2[PointerName2["MotionControllerLeft"] = 16] = "MotionControllerLeft";
+  PointerName2[PointerName2["MotionControllerRight"] = 17] = "MotionControllerRight";
+  PointerName2[PointerName2["RemoteUser"] = 18] = "RemoteUser";
+  return PointerName2;
+})(PointerName || {});
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/AvatarMovedEvent.ts
 var AvatarMovedEvent = class extends TypedEvent {
@@ -12055,7 +12468,7 @@ var BaseCursor = class {
     }
     this.object.parent.worldToLocal(this.position);
     this.lookAt(V);
-    const target = getMeshTarget(hit);
+    const target = getRayTarget(hit);
     this.style = target ? !target.enabled ? "not-allowed" : target.draggable ? state.dragging ? "grabbing" : "move" : target.clickable ? "pointer" : "default" : canMoveView ? state.buttons === 1 /* Mouse0 */ ? "grabbing" : "grab" : "default";
   }
   lookAt(_v) {
@@ -12071,7 +12484,7 @@ var Cursor3D = class extends BaseCursor {
     this.cursorSystem = cursorSystem;
   }
   add(name2, obj2) {
-    this.object.add(obj2);
+    objGraph(this, obj2);
     deepEnableLayer(obj2, PURGATORY);
     obj2.visible = name2 === "default";
   }
@@ -12169,7 +12582,7 @@ var EventSystemEvent = class extends TypedEvent {
       if (v) {
         this._point = v.point;
         this._distance = v.distance;
-        this._rayTarget = getMeshTarget(v.object);
+        this._rayTarget = getRayTarget(v);
       }
     }
   }
@@ -15471,7 +15884,7 @@ var BasePointer = class {
   }
   set pressedHit(v) {
     this._pressedHit = v;
-    const target = getMeshTarget(v);
+    const target = getRayTarget(v);
     if (target && target.draggable && !target.clickable) {
       this.onDragStart();
     }
@@ -15500,13 +15913,13 @@ var BasePointer = class {
         if (oldCursor instanceof CursorXRMouse) {
           oldCursor.cursor = newCursor;
           if (oldParent) {
-            oldParent.add(oldCursor.object);
+            objGraph(oldParent, oldCursor);
           }
         } else {
           this._cursor = newCursor;
           if (oldCursor) {
             if (oldParent) {
-              oldParent.add(newCursor.object);
+              objGraph(oldParent, newCursor);
             }
             newCursor.style = oldCursor.style;
             newCursor.visible = oldCursor.visible;
@@ -15552,8 +15965,9 @@ var BasePointer = class {
   }
   onPointerMove() {
     this.setEventState("move");
+    console.log(PointerName[this.name], this.state.buttons);
     if (this.state.buttons !== 0 /* None */) {
-      const target = getMeshTarget(this.pressedHit);
+      const target = getRayTarget(this.pressedHit);
       const canDrag = !target || target.draggable;
       if (canDrag) {
         if (this.lastState && this.lastState.buttons === this.state.buttons) {
@@ -15946,7 +16360,7 @@ var Laser = class extends THREE.Object3D {
       linewidth
     }));
     this.line.computeLineDistances();
-    this.add(this.line);
+    objGraph(this, this.line);
   }
   get length() {
     return this._length;
@@ -15990,7 +16404,7 @@ var PointerHand = class extends BasePointer {
     this.inputSource = null;
     this._gamepad = null;
     this.useHaptics = true;
-    this.object.add(this.controller = this.renderer.xr.getController(index), this.grip = this.renderer.xr.getControllerGrip(index), this.hand = this.renderer.xr.getHand(index));
+    objGraph(this, this.controller = this.renderer.xr.getController(index), this.grip = this.renderer.xr.getControllerGrip(index), this.hand = this.renderer.xr.getHand(index));
     if (isDesktop() && isChrome() && !isOculusBrowser) {
       let maybeOculusRiftS = false;
       this.controller.traverse((child) => {
@@ -16003,43 +16417,45 @@ var PointerHand = class extends BasePointer {
         this.laser.matrix.copy(riftSCorrection);
       }
     }
-    this.controller.add(this.laser);
-    this.grip.add(mcModelFactory.createControllerModel(this.controller));
-    this.hand.add(handModelFactory.createHandModel(this.hand, "mesh"));
+    objGraph(this.controller, this.laser);
+    objGraph(this.grip, mcModelFactory.createControllerModel(this.controller));
+    objGraph(this.hand, handModelFactory.createHandModel(this.hand, "mesh"));
     this.onAxisMaxed = (evt) => {
       if (evt.axis === 2) {
         this.evtSys.onFlick(evt.value);
       }
     };
-    this.controller.addEventListener("connected", () => {
-      const session = this.renderer.xr.getSession();
-      this.inputSource = session.inputSources[index];
-      this.setGamepad(this.inputSource.gamepad);
-      this._isHand = isDefined(this.inputSource.hand);
-      this._handedness = this.inputSource.handedness;
-      this.name = pointerNames.get(this.handedness);
-      this.updateCursorSide();
-      this.grip.visible = !this.isHand;
-      this.controller.visible = !this.isHand;
-      this.hand.visible = this.isHand;
-      this.enabled = true;
-      this.isActive = true;
-      this.evtSys.onConnected(this);
+    this.controller.addEventListener("connected", (evt) => {
+      if (evt.target === this.controller) {
+        this.inputSource = evt.data;
+        this.setGamepad(this.inputSource.gamepad);
+        this._isHand = isDefined(this.inputSource.hand);
+        this._handedness = this.inputSource.handedness;
+        this.name = pointerNames.get(this.handedness);
+        this.updateCursorSide();
+        this.grip.visible = !this.isHand;
+        this.controller.visible = !this.isHand;
+        this.hand.visible = this.isHand;
+        this.enabled = true;
+        this.isActive = true;
+        this.evtSys.onConnected(this);
+      }
     });
-    this.controller.addEventListener("disconnected", () => {
-      this.inputSource = null;
-      this.setGamepad(null);
-      this._isHand = false;
-      this._handedness = "none";
-      this.name = pointerNames.get(this.handedness);
-      this.updateCursorSide();
-      this.grip.visible = false;
-      this.controller.visible = false;
-      this.hand.visible = false;
-      this.enabled = false;
-      this.isActive = false;
-      this.evtSys.onDisconnected(this);
-      this.isActive = false;
+    this.controller.addEventListener("disconnected", (evt) => {
+      if (evt.target === this.controller) {
+        this.inputSource = null;
+        this.setGamepad(null);
+        this._isHand = false;
+        this._handedness = "none";
+        this.name = pointerNames.get(this.handedness);
+        this.updateCursorSide();
+        this.grip.visible = false;
+        this.controller.visible = false;
+        this.hand.visible = false;
+        this.enabled = false;
+        this.isActive = false;
+        this.evtSys.onDisconnected(this);
+      }
     });
     const buttonDown = (btn) => {
       this.updateState();
@@ -16153,9 +16569,6 @@ var BaseScreenPointer = class extends BasePointer {
     };
     this.element = this.renderer.domElement;
     this.element.addEventListener("pointerdown", onPointerDown);
-    const setSizeInv = () => this.sizeInv.set(1 / this.element.clientWidth, 1 / this.element.clientHeight);
-    this.element.addEventListener("resize", setSizeInv);
-    setSizeInv();
     const onPointerMove = (evt) => {
       if (this.checkEvent(evt)) {
         this.readEvent(evt);
@@ -16172,6 +16585,9 @@ var BaseScreenPointer = class extends BasePointer {
     this.element.addEventListener("pointercancel", onPointerUp);
   }
   checkEvent(evt) {
+    return this.isActive = this.onCheckEvent(evt);
+  }
+  onCheckEvent(evt) {
     return evt.pointerType === this.type && evt.pointerId === this.id;
   }
   get isTracking() {
@@ -16192,8 +16608,11 @@ var BaseScreenPointer = class extends BasePointer {
         this.state.position.copy(this.lastState.position).add(this.state.motion);
       }
       this.state.moveDistance = this.state.motion.length();
-      this.state.uv.copy(this.state.position).multiplyScalar(2).multiply(this.sizeInv).multiply(this.uvComp).add(this.uvOff);
-      this.state.duv.copy(this.state.motion).multiplyScalar(2).multiply(this.sizeInv).multiply(this.uvComp);
+      this.sizeInv.set(this.element.clientWidth, this.element.clientHeight);
+      if (this.sizeInv.manhattanLength() > 0) {
+        this.state.uv.copy(this.state.position).multiplyScalar(2).divide(this.sizeInv).multiply(this.uvComp).add(this.uvOff);
+        this.state.duv.copy(this.state.motion).multiplyScalar(2).divide(this.sizeInv).multiply(this.uvComp);
+      }
     }
   }
   onUpdate() {
@@ -16282,7 +16701,7 @@ var PointerMultiTouch = class extends BaseScreenPointer {
     this.canMoveView = true;
     Object.seal(this);
   }
-  checkEvent(evt) {
+  onCheckEvent(evt) {
     return evt.pointerType === this.type;
   }
   onReadEvent(evt) {
@@ -16399,13 +16818,12 @@ var EventSystem = class extends TypedEventBase {
     this.touches.enabled = enableScreenPointers;
   }
   checkPointer(pointer, eventType) {
-    pointer.isActive = true;
     this.fireRay(pointer);
     const { curHit, hoveredHit, pressedHit, draggedHit } = pointer;
-    const curTarget = getMeshTarget(curHit);
-    const hovTarget = getMeshTarget(hoveredHit);
-    const prsTarget = getMeshTarget(pressedHit);
-    const drgTarget = getMeshTarget(draggedHit);
+    const curTarget = getRayTarget(curHit);
+    const hovTarget = getRayTarget(hoveredHit);
+    const prsTarget = getRayTarget(pressedHit);
+    const drgTarget = getRayTarget(draggedHit);
     if (eventType === "move" || eventType === "drag") {
       correctHit(hoveredHit, pointer);
       correctHit(pressedHit, pointer);
@@ -16530,23 +16948,23 @@ var EventSystem = class extends TypedEventBase {
     return evt;
   }
   checkExit(curHit, hoveredHit, pointer) {
-    const curObj = getMeshTarget(curHit);
-    const hoveredObj = getMeshTarget(hoveredHit);
-    if (curObj !== hoveredObj && isDefined(hoveredObj)) {
+    const curTarget = getRayTarget(curHit);
+    const hoveredTarget = getRayTarget(hoveredHit);
+    if (curTarget !== hoveredTarget && isDefined(hoveredTarget)) {
       pointer.hoveredHit = null;
       const exitEvt = this.getEvent(pointer, "exit", hoveredHit);
       this.dispatchEvent(exitEvt);
-      hoveredObj.dispatchEvent(exitEvt);
+      hoveredTarget.dispatchEvent(exitEvt);
     }
   }
   checkEnter(curHit, hoveredHit, pointer) {
-    const curObj = getMeshTarget(curHit);
-    const hoveredObj = getMeshTarget(hoveredHit);
-    if (curObj !== hoveredObj && isDefined(curHit)) {
+    const curTarget = getRayTarget(curHit);
+    const hoveredTarget = getRayTarget(hoveredHit);
+    if (curTarget !== hoveredTarget && isDefined(curHit)) {
       pointer.hoveredHit = curHit;
       const enterEvt = this.getEvent(pointer, "enter", curHit);
       this.dispatchEvent(enterEvt);
-      curObj.dispatchEvent(enterEvt);
+      curTarget.dispatchEvent(enterEvt);
     }
   }
   refreshCursors() {
@@ -16564,7 +16982,7 @@ var EventSystem = class extends TypedEventBase {
     pointer.curHit = null;
     let minDist = Number.MAX_VALUE;
     for (const hit of this.hits) {
-      const rayTarget = getMeshTarget(hit);
+      const rayTarget = getRayTarget(hit);
       if (rayTarget && rayTarget.object.visible && hit.distance < minDist) {
         pointer.curHit = hit;
         minDist = hit.distance;
@@ -19865,7 +20283,7 @@ var ScreenControl = class extends TypedEventBase {
   setActive(mode) {
     for (const button of this.buttons.values()) {
       button.active = button.mode === mode;
-      button.visible = this.wasVisible.get(button) && (mode === "None" /* None */ || button.mode === mode || mode === "Fullscreen" /* Fullscreen */);
+      button.visible = this.wasVisible.get(button) && (mode === "None" /* None */ || mode === "Fullscreen" /* Fullscreen */ || button.mode === mode);
     }
     this._currentMode = mode;
   }
@@ -20221,8 +20639,8 @@ var BaseEnvironment = class extends TypedEventBase {
     this.loadingBar.object.position.set(0, -0.25, -2);
     this.scene.layers.enableAll();
     this.avatar.addFollower(this.worldUISpace);
-    this.timer.addTickHandler((evt) => this.update(evt));
     objGraph(this.scene, this.sun, this.ambient, objGraph(this.stage, this.ground, this.camera, this.avatar, ...this.eventSystem.hands), this.foreground, objGraph(this.worldUISpace, this.loadingBar));
+    this.timer.addTickHandler((evt) => this.update(evt));
     this.timer.start();
     globalThis.env = this;
   }
@@ -20713,9 +21131,9 @@ var Environment = class extends BaseEnvironment {
   }
   constructor(canvas, fetcher, dialogFontFamily, uiImagePaths, defaultAvatarHeight2, enableFullResolution2, options) {
     super(canvas, fetcher, defaultAvatarHeight2, enableFullResolution2, options && options.DEBUG);
-    this.compassImage = new CanvasImageMesh(this, "Horizon", new ArtificialHorizon());
-    this.compassImage.mesh.renderOrder = 5;
+    this.compassImage = new ArtificialHorizon();
     this.clockImage = new CanvasImageMesh(this, "Clock", new ClockImage());
+    this.clockImage.sizeMode = "fixed-height";
     this.clockImage.mesh.renderOrder = 5;
     options = options || {};
     const JS_EXT2 = options.JS_EXT || ".js";
@@ -20746,7 +21164,7 @@ var Environment = class extends BaseEnvironment {
     this.interactionAudio = new InteractionAudio(this.audio, this.eventSystem);
     this.confirmationDialog = new ConfirmationDialog(this, dialogFontFamily);
     this.devicesDialog = new DeviceDialog(this);
-    elementApply(this.renderer.domElement.parentElement, this.screenUISpace, this.confirmationDialog, this.devicesDialog);
+    elementApply(this.renderer.domElement.parentElement, this.screenUISpace, this.confirmationDialog, this.devicesDialog, this.renderer.domElement);
     this.uiButtons = new ButtonFactory(this.fetcher, uiImagePaths, 20);
     this.settingsButton = new ButtonImageWidget(this.uiButtons, "ui", "settings");
     this.quitButton = new ButtonImageWidget(this.uiButtons, "ui", "quit");
@@ -20756,7 +21174,7 @@ var Environment = class extends BaseEnvironment {
     this.vrButton = new ScreenModeToggleButton(this.uiButtons, "VR" /* VR */);
     this.fullscreenButton = new ScreenModeToggleButton(this.uiButtons, "Fullscreen" /* Fullscreen */);
     this.xrUI = new SpaceUI();
-    this.xrUI.addItem(this.clockImage, { x: -1, y: 1, scale: 1 });
+    this.xrUI.addItem(this.clockImage, { x: -1, y: 1, height: 0.1 });
     this.xrUI.addItem(this.quitButton, { x: 1, y: 1, scale: 0.5 });
     this.xrUI.addItem(this.confirmationDialog, { x: 0, y: 0, scale: 0.25 });
     this.xrUI.addItem(this.settingsButton, { x: -1, y: -1, scale: 0.5 });
@@ -20765,14 +21183,15 @@ var Environment = class extends BaseEnvironment {
     this.xrUI.addItem(this.lobbyButton, { x: -0.473, y: -1, scale: 0.5 });
     this.xrUI.addItem(this.vrButton, { x: 1, y: -1, scale: 0.5 });
     this.xrUI.addItem(this.fullscreenButton, { x: 1, y: -1, scale: 0.5 });
-    this.worldUISpace.add(this.xrUI);
+    objGraph(this.worldUISpace, this.xrUI);
     elementApply(this.screenUISpace.topRowLeft, this.compassImage, this.clockImage);
     elementApply(this.screenUISpace.topRowRight, this.quitButton);
     elementApply(this.screenUISpace.bottomRowLeft, this.settingsButton, this.muteMicButton, this.muteEnvAudioButton, this.lobbyButton);
     elementApply(this.screenUISpace.bottomRowRight, this.fullscreenButton, this.vrButton);
     if (BatteryImage.isAvailable && isMobile()) {
       this.batteryImage = new CanvasImageMesh(this, "Battery", new BatteryImage());
-      this.xrUI.addItem(this.batteryImage, { x: 0.75, y: -1, scale: 1 });
+      this.batteryImage.sizeMode = "fixed-height";
+      this.xrUI.addItem(this.batteryImage, { x: 0.75, y: -1, width: 0.2, height: 0.1 });
       elementApply(this.screenUISpace.topRowRight, this.batteryImage);
     }
     this.vrButton.visible = isDesktop() && hasVR() || isMobileVR();
@@ -20828,7 +21247,9 @@ var Environment = class extends BaseEnvironment {
     super.preRender(evt);
     this.audio.update();
     this.videoPlayer.update(evt.dt, evt.frame);
-    this.compassImage.image.setPitchAndHeading(rad2deg(this.avatar.worldPitch), rad2deg(this.avatar.worldHeading));
+    if (!this.renderer.xr.isPresenting) {
+      this.compassImage.setPitchAndHeading(rad2deg(this.avatar.worldPitch), rad2deg(this.avatar.worldHeading));
+    }
     if (this.DEBUG) {
       const fps = Math.round(evt.fps);
       this.avgFPS += fps / 100;
@@ -20864,30 +21285,6 @@ var Environment = class extends BaseEnvironment {
     await progressTasks(prog, (prog2) => super.load(prog2), (prog2) => this.uiButtons.load(prog2), (prog2) => this.audio.loadBasicClip("footsteps", "/audio/TransitionFootstepAudio.mp3", 0.5, prog2), (prog2) => this.interactionAudio.load("enter", "/audio/basic_enter.mp3", 0.25, prog2), (prog2) => this.interactionAudio.load("exit", "/audio/basic_exit.mp3", 0.25, prog2), (prog2) => this.interactionAudio.load("error", "/audio/basic_error.mp3", 0.25, prog2), (prog2) => this.interactionAudio.load("click", "/audio/vintage_radio_button_pressed.mp3", 1, prog2));
   }
 };
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher-base/ResponseTranslator.ts
-async function translateResponse(response, translate) {
-  const {
-    status,
-    path,
-    content,
-    contentType,
-    contentLength,
-    fileName,
-    headers,
-    date
-  } = response;
-  return {
-    status,
-    path,
-    content: await translate(content),
-    contentType,
-    contentLength,
-    fileName,
-    headers,
-    date
-  };
-}
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher-base/FetchingService.ts
 var FetchingService = class {
@@ -20956,502 +21353,6 @@ var FetchingService = class {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/indexdb/index.ts
-var IDexDB = class {
-  constructor(db) {
-    this.db = db;
-  }
-  static async getCurrentVersion(dbName) {
-    if (isDefined(indexedDB.databases)) {
-      const databases = await indexedDB.databases();
-      for (const { name: name2, version: version2 } of databases) {
-        if (name2 === dbName) {
-          return version2;
-        }
-      }
-    }
-    return null;
-  }
-  static delete(dbName) {
-    const deleteRequest = indexedDB.deleteDatabase(dbName);
-    const task = once(deleteRequest, "success", "error", "blocked");
-    return success(task);
-  }
-  static async open(name2, ...storeDefs) {
-    const storesByName = mapMap(storeDefs, (v) => v.name, identity);
-    const indexesByName = new PriorityMap(storeDefs.filter((storeDef) => isDefined(storeDef.indexes)).flatMap((storeDef) => storeDef.indexes.map((indexDef) => [storeDef.name, indexDef.name, indexDef])));
-    const storesToAdd = new Array();
-    const storesToRemove = new Array();
-    const storesToChange = new Array();
-    const indexesToAdd = new PriorityList();
-    const indexesToRemove = new PriorityList();
-    let version2 = await this.getCurrentVersion(name2);
-    if (isNullOrUndefined(version2)) {
-      storesToAdd.push(...storesByName.keys());
-      for (const storeDef of storeDefs) {
-        if (isDefined(storeDef.indexes)) {
-          for (const indexDef of storeDef.indexes) {
-            indexesToAdd.add(storeDef.name, indexDef.name);
-          }
-        }
-      }
-    } else {
-      const D2 = indexedDB.open(name2);
-      if (await success(once(D2, "success", "error", "blocked"))) {
-        const db = D2.result;
-        const storesToScrutinize = new Array();
-        for (const storeName of Array.from(db.objectStoreNames)) {
-          if (!storesByName.has(storeName)) {
-            storesToRemove.push(storeName);
-          }
-        }
-        for (const storeName of storesByName.keys()) {
-          if (!db.objectStoreNames.contains(storeName)) {
-            storesToAdd.push(storeName);
-          } else {
-            storesToScrutinize.push(storeName);
-          }
-        }
-        if (storesToScrutinize.length > 0) {
-          const transaction = db.transaction(storesToScrutinize);
-          const transacting = once(transaction, "complete", "error", "abort");
-          const transacted = success(transacting);
-          for (const storeName of storesToScrutinize) {
-            const store = transaction.objectStore(storeName);
-            for (const indexName of Array.from(store.indexNames)) {
-              if (!indexesByName.has(storeName, indexName)) {
-                if (storesToChange.indexOf(storeName) === -1) {
-                  storesToChange.push(storeName);
-                }
-                indexesToRemove.add(storeName, indexName);
-              }
-            }
-            if (indexesByName.has(storeName)) {
-              for (const indexName of indexesByName.get(storeName).keys()) {
-                if (!store.indexNames.contains(indexName)) {
-                  if (storesToChange.indexOf(storeName) === -1) {
-                    storesToChange.push(storeName);
-                  }
-                  indexesToAdd.add(storeName, indexName);
-                } else {
-                  const indexDef = indexesByName.get(storeName, indexName);
-                  const index = store.index(indexName);
-                  if (isString(indexDef.keyPath) !== isString(index.keyPath) || isString(indexDef.keyPath) && isString(index.keyPath) && indexDef.keyPath !== index.keyPath || isArray(indexDef.keyPath) && isArray(index.keyPath) && arrayCompare(indexDef.keyPath, index.keyPath)) {
-                    if (storesToChange.indexOf(storeName) === -1) {
-                      storesToChange.push(storeName);
-                    }
-                    indexesToRemove.add(storeName, indexName);
-                    indexesToAdd.add(storeName, indexName);
-                  }
-                }
-              }
-            }
-          }
-          transaction.commit();
-          await transacted;
-        }
-        db.close();
-      }
-      if (storesToAdd.length > 0 || storesToRemove.length > 0 || indexesToAdd.size > 0 || indexesToRemove.size > 0) {
-        ++version2;
-      }
-    }
-    const upgrading = new Task();
-    const openRequest = isDefined(version2) ? indexedDB.open(name2, version2) : indexedDB.open(name2);
-    const opening = once(openRequest, "success", "error", "blocked");
-    const upgraded = success(upgrading);
-    const opened = success(opening);
-    const noUpgrade = () => upgrading.resolve(false);
-    openRequest.addEventListener("success", noUpgrade);
-    openRequest.addEventListener("upgradeneeded", () => {
-      const transacting = once(openRequest.transaction, "complete", "error", "abort");
-      const db = openRequest.result;
-      for (const storeName of storesToRemove) {
-        db.deleteObjectStore(storeName);
-      }
-      const stores = /* @__PURE__ */ new Map();
-      for (const storeName of storesToAdd) {
-        const storeDef = storesByName.get(storeName);
-        const store = db.createObjectStore(storeName, storeDef.options);
-        stores.set(storeName, store);
-      }
-      for (const storeName of storesToChange) {
-        const store = openRequest.transaction.objectStore(storeName);
-        stores.set(storeName, store);
-      }
-      for (const [storeName, store] of stores) {
-        for (const indexName of indexesToRemove.get(storeName)) {
-          store.deleteIndex(indexName);
-        }
-        for (const indexName of indexesToAdd.get(storeName)) {
-          const indexDef = indexesByName.get(storeName, indexName);
-          store.createIndex(indexName, indexDef.keyPath, indexDef.options);
-        }
-      }
-      success(transacting).then(upgrading.resolve).catch(upgrading.reject).finally(() => openRequest.removeEventListener("success", noUpgrade));
-    });
-    if (!await upgraded) {
-      throw upgrading.error;
-    }
-    if (!await opened) {
-      throw opening.error;
-    }
-    return new IDexDB(openRequest.result);
-  }
-  dispose() {
-    this.db.close();
-  }
-  get name() {
-    return this.db.name;
-  }
-  get version() {
-    return this.db.version;
-  }
-  get storeNames() {
-    return Array.from(this.db.objectStoreNames);
-  }
-  getStore(storeName) {
-    return new IDexStore(this.db, storeName);
-  }
-};
-var IDexStore = class {
-  constructor(db, storeName) {
-    this.db = db;
-    this.storeName = storeName;
-  }
-  async request(makeRequest, mode) {
-    const transaction = this.db.transaction(this.storeName, mode);
-    const transacting = once(transaction, "complete", "error");
-    const store = transaction.objectStore(this.storeName);
-    const request = makeRequest(store);
-    const requesting = once(request, "success", "error");
-    if (!await success(requesting)) {
-      transaction.abort();
-      throw requesting.error;
-    }
-    transaction.commit();
-    if (!await success(transacting)) {
-      throw transacting.error;
-    }
-    return request.result;
-  }
-  add(value2, key) {
-    return this.request((store) => store.add(value2, key), "readwrite");
-  }
-  clear() {
-    return this.request((store) => store.clear(), "readwrite");
-  }
-  getCount(query) {
-    return this.request((store) => store.count(query), "readonly");
-  }
-  delete(query) {
-    return this.request((store) => store.delete(query), "readwrite");
-  }
-  get(key) {
-    return this.request((store) => store.get(key), "readonly");
-  }
-  getAll() {
-    return this.request((store) => store.getAll(), "readonly");
-  }
-  getAllKeys() {
-    return this.request((store) => store.getAllKeys(), "readonly");
-  }
-  getKey(query) {
-    return this.request((store) => store.getKey(query), "readonly");
-  }
-  openCursor(query, direction) {
-    return this.request((store) => store.openCursor(query, direction), "readonly");
-  }
-  openKeyCursor(query, direction) {
-    return this.request((store) => store.openKeyCursor(query, direction), "readonly");
-  }
-  put(value2, key) {
-    return this.request((store) => store.put(value2, key), "readwrite");
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher-base/FetchingServiceImplXHR.ts
-function isXHRBodyInit(obj2) {
-  return isString(obj2) || isArrayBufferView(obj2) || obj2 instanceof Blob || obj2 instanceof FormData || isArrayBuffer(obj2) || obj2 instanceof ReadableStream || "Document" in globalThis && obj2 instanceof Document;
-}
-function trackProgress(name2, xhr, target, prog, skipLoading, prevTask) {
-  let prevDone = !prevTask;
-  if (prevTask) {
-    prevTask.then(() => prevDone = true);
-  }
-  let done = false;
-  let loaded = skipLoading;
-  const requestComplete = new Task(() => loaded && done, () => prevDone);
-  target.addEventListener("loadstart", () => {
-    if (prevDone && !done && prog) {
-      prog.start(name2);
-    }
-  });
-  target.addEventListener("progress", (ev) => {
-    if (prevDone && !done) {
-      const evt = ev;
-      if (prog) {
-        prog.report(evt.loaded, Math.max(evt.loaded, evt.total), name2);
-      }
-      if (evt.loaded === evt.total) {
-        loaded = true;
-        requestComplete.resolve();
-      }
-    }
-  });
-  target.addEventListener("load", () => {
-    if (prevDone && !done) {
-      if (prog) {
-        prog.end(name2);
-      }
-      done = true;
-      requestComplete.resolve();
-    }
-  });
-  const onError = (msg) => () => requestComplete.reject(`${msg} (${xhr.status})`);
-  target.addEventListener("error", onError("error"));
-  target.addEventListener("abort", onError("abort"));
-  target.addEventListener("timeout", onError("timeout"));
-  return requestComplete;
-}
-function sendRequest(xhr, method, path, timeout, headers, body) {
-  xhr.open(method, path);
-  xhr.responseType = "blob";
-  xhr.timeout = timeout;
-  if (headers) {
-    for (const [key, value2] of headers) {
-      xhr.setRequestHeader(key, value2);
-    }
-  }
-  if (isDefined(body)) {
-    xhr.send(body);
-  } else {
-    xhr.send();
-  }
-}
-function readResponseHeader(headers, key, translate) {
-  if (!headers.has(key)) {
-    return null;
-  }
-  const value2 = headers.get(key);
-  try {
-    const translated = translate(value2);
-    headers.delete(key);
-    return translated;
-  } catch (exp) {
-    console.warn(key, exp);
-  }
-  return null;
-}
-var FILE_NAME_PATTERN = /filename=\"(.+)\"(;|$)/;
-var DB_NAME = "Juniper:Fetcher:Cache";
-var FetchingServiceImplXHR = class {
-  cacheReady;
-  cache = null;
-  store = null;
-  constructor() {
-    this.cacheReady = this.openCache();
-  }
-  async drawImageToCanvas(request, canvas, progress) {
-    const response = await this.sendNothingGetSomething("blob", request, progress);
-    const blob = response.content;
-    return using(await createImageBitmap(blob, {
-      imageOrientation: "none"
-    }), (img) => {
-      canvas.width = img.width;
-      canvas.height = img.height;
-      const g = canvas.getContext("2d");
-      g.drawImage(img, 0, 0);
-      return translateResponse(response, () => null);
-    });
-  }
-  async openCache() {
-    this.cache = await IDexDB.open(DB_NAME, {
-      name: "files",
-      options: {
-        keyPath: "path"
-      }
-    });
-    this.store = await this.cache.getStore("files");
-  }
-  async clearCache() {
-    await this.cacheReady;
-    await this.store.clear();
-  }
-  async readResponseHeaders(path, xhr) {
-    const headerParts = xhr.getAllResponseHeaders().split(/[\r\n]+/).map((v) => v.trim()).filter((v) => v.length > 0).map((line) => {
-      const parts = line.split(": ");
-      const key = parts.shift().toLowerCase();
-      const value2 = parts.join(": ");
-      return [key, value2];
-    });
-    const pList = new PriorityList(headerParts);
-    const normalizedHeaderParts = Array.from(pList.keys()).map((key) => [
-      key,
-      pList.get(key).join(", ")
-    ]);
-    const headers = new Map(normalizedHeaderParts);
-    const contentType = readResponseHeader(headers, "content-type", identity);
-    const contentLength = readResponseHeader(headers, "content-length", parseFloat);
-    const date = readResponseHeader(headers, "date", (v) => new Date(v));
-    const fileName = readResponseHeader(headers, "content-disposition", (v) => {
-      if (isDefined(v)) {
-        const match = v.match(FILE_NAME_PATTERN);
-        if (isDefined(match)) {
-          return match[1];
-        }
-      }
-      return null;
-    });
-    const response = {
-      status: xhr.status,
-      path,
-      content: void 0,
-      contentType,
-      contentLength,
-      fileName,
-      date,
-      headers
-    };
-    return response;
-  }
-  async readResponse(path, xhr) {
-    const {
-      status,
-      contentType,
-      contentLength,
-      fileName,
-      date,
-      headers
-    } = await this.readResponseHeaders(path, xhr);
-    const response = {
-      path,
-      status,
-      contentType,
-      contentLength,
-      fileName,
-      date,
-      headers,
-      content: xhr.response
-    };
-    if (isDefined(response.content)) {
-      response.contentType = response.contentType || response.content.type;
-      response.contentLength = response.contentLength || response.content.size;
-    }
-    return response;
-  }
-  async decodeContent(xhrType, response) {
-    return translateResponse(response, async (contentBlob) => {
-      if (xhrType === "") {
-        return null;
-      } else if (isNullOrUndefined(response.contentType)) {
-        const headerBlock = Array.from(response.headers.entries()).map((kv) => kv.join(": ")).join("\n  ");
-        throw new Error("No content type found in headers: \n  " + headerBlock);
-      } else if (xhrType === "blob") {
-        return contentBlob;
-      } else if (xhrType === "arraybuffer") {
-        return await contentBlob.arrayBuffer();
-      } else if (xhrType === "json") {
-        const text2 = await contentBlob.text();
-        if (text2.length > 0) {
-          return JSON.parse(text2);
-        } else {
-          return null;
-        }
-      } else if (xhrType === "document") {
-        const parser = new DOMParser();
-        if (response.contentType === "application/xhtml+xml" || response.contentType === "text/html" || response.contentType === "application/xml" || response.contentType === "image/svg+xml" || response.contentType === "text/xml") {
-          return parser.parseFromString(await contentBlob.text(), response.contentType);
-        } else {
-          throw new Error("Couldn't parse document");
-        }
-      } else if (xhrType === "text") {
-        return await contentBlob.text();
-      } else {
-        assertNever(xhrType);
-      }
-    });
-  }
-  tasks = new PriorityMap();
-  async withCachedTask(request, action) {
-    if (request.method !== "GET" && request.method !== "HEAD" && request.method !== "OPTIONS") {
-      return await action();
-    }
-    if (!this.tasks.has(request.method, request.path)) {
-      this.tasks.add(request.method, request.path, action().finally(() => this.tasks.delete(request.method, request.path)));
-    }
-    return this.tasks.get(request.method, request.path);
-  }
-  sendNothingGetNothing(request) {
-    return this.withCachedTask(request, async () => {
-      const xhr = new XMLHttpRequest();
-      const download = trackProgress(`requesting: ${request.path}`, xhr, xhr, null, true);
-      sendRequest(xhr, request.method, request.path, request.timeout, request.headers);
-      await download;
-      return await this.readResponseHeaders(request.path, xhr);
-    });
-  }
-  sendNothingGetSomething(xhrType, request, progress) {
-    return this.withCachedTask(request, async () => {
-      let response = null;
-      const useCache = request.useCache && request.method === "GET";
-      if (useCache) {
-        if (isDefined(progress)) {
-          progress.start();
-        }
-        await this.cacheReady;
-        response = await this.store.get(request.path);
-      }
-      const hadCachedResponse = isNullOrUndefined(response);
-      if (hadCachedResponse) {
-        const xhr = new XMLHttpRequest();
-        const download = trackProgress(`requesting: ${request.path}`, xhr, xhr, progress, true);
-        sendRequest(xhr, request.method, request.path, request.timeout, request.headers);
-        await download;
-        response = await this.readResponse(request.path, xhr);
-        if (useCache) {
-          await this.store.add(response);
-        }
-      }
-      const value2 = await this.decodeContent(xhrType, response);
-      if (hadCachedResponse && isDefined(progress)) {
-        progress.end();
-      }
-      return value2;
-    });
-  }
-  async sendSomethingGetSomething(xhrType, request, defaultPostHeaders, progress) {
-    let body = null;
-    const headers = mapJoin(/* @__PURE__ */ new Map(), defaultPostHeaders, request.headers);
-    if (request.body instanceof FormData && isDefined(headers)) {
-      const toDelete = new Array();
-      for (const key of headers.keys()) {
-        if (key.toLowerCase() === "content-type") {
-          toDelete.push(key);
-        }
-      }
-      for (const key of toDelete) {
-        headers.delete(key);
-      }
-    }
-    if (isXHRBodyInit(request.body) && !isString(request.body)) {
-      body = request.body;
-    } else if (isDefined(request.body)) {
-      body = JSON.stringify(request.body);
-    }
-    const progs = progressSplit(progress, 2);
-    const xhr = new XMLHttpRequest();
-    const upload = isDefined(body) ? trackProgress("uploading", xhr, xhr.upload, progs.shift(), false) : Promise.resolve();
-    const downloadProg = progs.shift();
-    const download = trackProgress("saving", xhr, xhr, downloadProg, true, upload);
-    sendRequest(xhr, request.method, request.path, request.timeout, headers, body);
-    await upload;
-    await download;
-    const response = await this.readResponse(request.path, xhr);
-    return await this.decodeContent(xhrType, response);
-  }
-};
-
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/RequestBuilder.ts
 var testAudio = null;
 function canPlay(type2) {
@@ -21461,8 +21362,9 @@ function canPlay(type2) {
   return testAudio.canPlayType(type2) !== "";
 }
 var RequestBuilder = class {
-  constructor(fetcher, method, path) {
+  constructor(fetcher, useFileBlobsForModules, method, path) {
     this.fetcher = fetcher;
+    this.useFileBlobsForModules = useFileBlobsForModules;
     this.method = method;
     this.prog = null;
     this.path = path;
@@ -21706,9 +21608,14 @@ var RequestBuilder = class {
   async getScript() {
     const tag2 = Script(type(Application_Javascript));
     document.body.append(tag2);
-    await this.htmlElement(tag2, "load", Application_Javascript);
+    if (this.useFileBlobsForModules) {
+      await this.htmlElement(tag2, "load", Application_Javascript);
+    } else {
+      tag2.src = this.request.path;
+    }
   }
   async script(test) {
+    const scriptPath = this.request.path;
     if (!test) {
       await this.getScript();
     } else if (!test()) {
@@ -21716,11 +21623,18 @@ var RequestBuilder = class {
       await this.getScript();
       await scriptLoadTask;
     }
+    if (this.prog) {
+      this.prog.end(scriptPath);
+    }
   }
   async module() {
     const scriptPath = this.request.path;
-    const { content: file } = await this.file(Application_Javascript);
-    const value2 = await import(file);
+    let requestPath = scriptPath;
+    if (this.useFileBlobsForModules) {
+      const { content: file } = await this.file(Application_Javascript);
+      requestPath = file;
+    }
+    const value2 = await import(requestPath);
     if (this.prog) {
       this.prog.end(scriptPath);
     }
@@ -21736,17 +21650,27 @@ var RequestBuilder = class {
     return instance.exports;
   }
   async worker(type2 = "module") {
-    const { content } = await this.file(Application_Javascript);
+    const scriptPath = this.request.path;
+    let requestPath = scriptPath;
+    if (this.useFileBlobsForModules) {
+      const { content: file } = await this.file(Application_Javascript);
+      requestPath = file;
+    }
     this.prog = null;
     this.request.timeout = null;
-    return new Worker(content, { type: type2 });
+    const worker = new Worker(requestPath, { type: type2 });
+    if (this.prog) {
+      this.prog.end(scriptPath);
+    }
+    return worker;
   }
 };
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/Fetcher.ts
 var Fetcher = class {
-  constructor(service) {
+  constructor(service, useFileBlobsForModules = true) {
     this.service = service;
+    this.useFileBlobsForModules = useFileBlobsForModules;
     if (!isWorker) {
       const antiforgeryToken = getInput("input[name=__RequestVerificationToken]");
       if (antiforgeryToken) {
@@ -21755,7 +21679,7 @@ var Fetcher = class {
     }
   }
   createRequest(method, path, base) {
-    return new RequestBuilder(this.service, method, new URL(path, base || location.href));
+    return new RequestBuilder(this.service, this.useFileBlobsForModules, method, new URL(path, base || location.href));
   }
   clearCache() {
     return this.service.clearCache();

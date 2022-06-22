@@ -1,14 +1,14 @@
-// ../tslib/collections/arrayRemoveAt.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/arrayRemoveAt.ts
 function arrayRemoveAt(arr, idx) {
   return arr.splice(idx, 1)[0];
 }
 
-// ../tslib/collections/arrayClear.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/arrayClear.ts
 function arrayClear(arr) {
   return arr.splice(0);
 }
 
-// ../tslib/collections/arrayCompare.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/arrayCompare.ts
 function arrayCompare(arr1, arr2) {
   for (let i = 0; i < arr1.length; ++i) {
     if (arr1[i] !== arr2[i]) {
@@ -18,7 +18,7 @@ function arrayCompare(arr1, arr2) {
   return -1;
 }
 
-// ../tslib/collections/arrayRemove.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/arrayRemove.ts
 function arrayRemove(arr, value) {
   const idx = arr.indexOf(value);
   if (idx > -1) {
@@ -28,12 +28,12 @@ function arrayRemove(arr, value) {
   return false;
 }
 
-// ../tslib/collections/mapMap.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/mapMap.ts
 function mapMap(items, makeID, makeValue) {
   return new Map(items.map((item) => [makeID(item), makeValue(item)]));
 }
 
-// ../tslib/collections/mapJoin.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/mapJoin.ts
 function mapJoin(dest, ...sources) {
   for (const source of sources) {
     if (isDefined(source)) {
@@ -45,7 +45,7 @@ function mapJoin(dest, ...sources) {
   return dest;
 }
 
-// ../tslib/collections/PriorityList.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/PriorityList.ts
 var PriorityList = class {
   constructor(init) {
     this.items = /* @__PURE__ */ new Map();
@@ -143,7 +143,7 @@ var PriorityList = class {
   }
 };
 
-// ../tslib/collections/PriorityMap.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/PriorityMap.ts
 var PriorityMap = class {
   constructor(init) {
     this.items = /* @__PURE__ */ new Map();
@@ -221,7 +221,7 @@ var PriorityMap = class {
   }
 };
 
-// ../tslib/events/EventBase.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/events/EventBase.ts
 var EventBase = class {
   constructor() {
     this.listeners = /* @__PURE__ */ new Map();
@@ -334,7 +334,7 @@ var TypedEventBase = class extends EventBase {
   }
 };
 
-// ../tslib/events/Task.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/events/Task.ts
 var Task = class {
   constructor(resolveTestOrAutoStart, rejectTestOrAutoStart, autoStart = true) {
     this._resolve = null;
@@ -420,7 +420,7 @@ var Task = class {
   }
 };
 
-// ../tslib/events/once.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/events/once.ts
 function targetValidateEvent(target, type) {
   return "on" + type in target;
 }
@@ -465,7 +465,7 @@ function success(task) {
   return task.then(alwaysTrue).catch(alwaysFalse);
 }
 
-// ../tslib/events/Promisifier.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/events/Promisifier.ts
 var Promisifier = class {
   constructor(resolveRejectTest, selectValue, selectRejectionReason) {
     this.callback = null;
@@ -493,7 +493,7 @@ var Promisifier = class {
   }
 };
 
-// ../tslib/Exception.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/Exception.ts
 var Exception = class extends Error {
   constructor(message, innerError = null) {
     super(message);
@@ -501,7 +501,7 @@ var Exception = class extends Error {
   }
 };
 
-// ../tslib/flags.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/flags.ts
 var oculusBrowserPattern = /OculusBrowser\/(\d+)\.(\d+)\.(\d+)/i;
 var oculusMatch = navigator.userAgent.match(oculusBrowserPattern);
 var isOculusBrowser = !!oculusMatch;
@@ -515,7 +515,7 @@ var isOculusQuest = isOculusBrowser && /quest/i.test(navigator.userAgent);
 var isOculusQuest2 = isOculusBrowser && /quest 2/i.test(navigator.userAgent);
 var isWorker = !("Document" in globalThis);
 
-// ../tslib/gis/Datum.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/gis/Datum.ts
 var invF = 298.257223563;
 var equatorialRadius = 6378137;
 var flattening = 1 / invF;
@@ -540,7 +540,7 @@ var delta = [
   56 * n * n * n / 15
 ];
 
-// ../tslib/identity.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/identity.ts
 function identity(item) {
   return item;
 }
@@ -551,10 +551,10 @@ function alwaysFalse() {
   return false;
 }
 
-// ../tslib/math/angleClamp.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math/angleClamp.ts
 var Tau = 2 * Math.PI;
 
-// ../tslib/progress/BaseProgress.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/progress/BaseProgress.ts
 var BaseProgress = class extends TypedEventBase {
   constructor() {
     super(...arguments);
@@ -600,7 +600,7 @@ var BaseProgress = class extends TypedEventBase {
   }
 };
 
-// ../tslib/progress/ChildProgressCallback.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/progress/ChildProgressCallback.ts
 var ChildProgressCallback = class extends BaseProgress {
   constructor(i, prog) {
     super();
@@ -613,7 +613,7 @@ var ChildProgressCallback = class extends BaseProgress {
   }
 };
 
-// ../tslib/progress/BaseParentProgressCallback.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/progress/BaseParentProgressCallback.ts
 var BaseParentProgressCallback = class {
   constructor(prog) {
     this.prog = prog;
@@ -651,7 +651,7 @@ var BaseParentProgressCallback = class {
   }
 };
 
-// ../tslib/progress/progressSplit.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/progress/progressSplit.ts
 function progressSplitWeighted(prog, subProgressWeights) {
   const subProg = new WeightedParentProgressCallback(subProgressWeights, prog);
   return subProg.subProgressCallbacks;
@@ -672,7 +672,7 @@ var WeightedParentProgressCallback = class extends BaseParentProgressCallback {
   }
 };
 
-// ../tslib/typeChecks.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/typeChecks.ts
 function t(o, s, c) {
   return typeof o === s || o instanceof c;
 }
@@ -710,7 +710,7 @@ function isArrayBuffer(val) {
   return val && typeof ArrayBuffer !== "undefined" && (val instanceof ArrayBuffer || val.constructor && val.constructor.name === "ArrayBuffer");
 }
 
-// ../tslib/collections/mapInvert.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/mapInvert.ts
 function mapInvert(map) {
   const mapOut = /* @__PURE__ */ new Map();
   for (const [key, value] of map) {
@@ -719,7 +719,7 @@ function mapInvert(map) {
   return mapOut;
 }
 
-// ../tslib/units/fileSize.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/units/fileSize.ts
 var base2Labels = /* @__PURE__ */ new Map([
   [1, "KiB"],
   [2, "MiB"],
@@ -735,7 +735,7 @@ var base10Labels = /* @__PURE__ */ new Map([
 var base2Sizes = mapInvert(base2Labels);
 var base10Sizes = mapInvert(base10Labels);
 
-// ../tslib/units/length.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/units/length.ts
 var MICROMETERS_PER_MILLIMETER = 1e3;
 var MILLIMETERS_PER_CENTIMETER = 10;
 var CENTIMETERS_PER_INCH = 2.54;
@@ -803,7 +803,7 @@ var RODS_PER_MILE = RODS_PER_FURLONG * FURLONGS_PER_MILE;
 var FURLONGS_PER_KILOMETER = METERS_PER_KILOMETER / METERS_PER_FURLONG;
 var KILOMETERS_PER_MILE = FURLONGS_PER_MILE / FURLONGS_PER_KILOMETER;
 
-// ../tslib/URLBuilder.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/URLBuilder.ts
 function parsePort(portString) {
   if (isDefined(portString) && portString.length > 0) {
     return parseFloat(portString);
@@ -985,7 +985,7 @@ var URLBuilder = class {
   }
 };
 
-// ../tslib/using.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/using.ts
 function interfaceSigCheck(obj, ...funcNames) {
   if (!isObject(obj)) {
     return false;
@@ -1030,7 +1030,72 @@ function using(val, thunk) {
   }
 }
 
-// ../indexdb/index.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher-base/Asset.ts
+var Asset = class {
+  constructor(path, getter) {
+    this.path = path;
+    this.getter = getter;
+    this.promise = new Promise((resolve, reject) => {
+      this.resolve = (value) => {
+        this._result = value;
+        this._finished = true;
+        resolve(value);
+      };
+      this.reject = (reason) => {
+        this._error = reason;
+        this._finished = true;
+        reject(reason);
+      };
+    });
+  }
+  promise;
+  _result = null;
+  _error = null;
+  _started = false;
+  _finished = false;
+  get result() {
+    if (isDefined(this.error)) {
+      throw this.error;
+    }
+    return this._result;
+  }
+  get error() {
+    return this._error;
+  }
+  get started() {
+    return this._started;
+  }
+  get finished() {
+    return this._finished;
+  }
+  resolve = null;
+  reject = null;
+  getSize(fetcher) {
+    return fetcher.head(this.path).exec().then((response) => [this, response.contentLength]);
+  }
+  async getContent(prog) {
+    try {
+      const response = await this.getter(this.path, prog);
+      this.resolve(response);
+    } catch (err) {
+      this.reject(err);
+    }
+  }
+  get [Symbol.toStringTag]() {
+    return this.promise.toString();
+  }
+  then(onfulfilled, onrejected) {
+    return this.promise.then(onfulfilled, onrejected);
+  }
+  catch(onrejected) {
+    return this.promise.catch(onrejected);
+  }
+  finally(onfinally) {
+    return this.promise.finally(onfinally);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/indexdb/index.ts
 var IDexDB = class {
   constructor(db) {
     this.db = db;
@@ -1244,7 +1309,7 @@ var IDexStore = class {
   }
 };
 
-// ../fetcher-base/ResponseTranslator.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher-base/ResponseTranslator.ts
 async function translateResponse(response, translate) {
   const {
     status,
@@ -1268,7 +1333,7 @@ async function translateResponse(response, translate) {
   };
 }
 
-// ../fetcher-base/FetchingServiceImplXHR.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher-base/FetchingServiceImplXHR.ts
 function isXHRBodyInit(obj) {
   return isString(obj) || isArrayBufferView(obj) || obj instanceof Blob || obj instanceof FormData || isArrayBuffer(obj) || obj instanceof ReadableStream || "Document" in globalThis && obj instanceof Document;
 }
@@ -1550,7 +1615,7 @@ var FetchingServiceImplXHR = class {
   }
 };
 
-// ../fetcher-base/FetchingService.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher-base/FetchingService.ts
 var FetchingService = class {
   constructor(impl) {
     this.impl = impl;
@@ -1617,7 +1682,7 @@ var FetchingService = class {
   }
 };
 
-// ../worker-server/WorkerServer.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/worker-server/WorkerServer.ts
 var WorkerServerProgress = class extends BaseProgress {
   constructor(server, taskID) {
     super();
@@ -1751,7 +1816,7 @@ var WorkerServer = class {
   }
 };
 
-// src/FetchingServiceServer.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher-worker/src/FetchingServiceServer.ts
 var FetchingServiceServer = class extends WorkerServer {
   constructor(self, impl) {
     super(self);
@@ -1780,6 +1845,6 @@ function addFetcherMethods(server, fetcher) {
   server.addMethod(fetcher, "drawImageToCanvas", fetcher.drawImageToCanvas);
 }
 
-// src/index.ts
+// src/fetcher-worker/index.ts
 globalThis.server = new FetchingServiceServer(globalThis, new FetchingServiceImplXHR());
 //# sourceMappingURL=index.js.map
