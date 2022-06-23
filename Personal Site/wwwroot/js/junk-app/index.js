@@ -1819,8 +1819,8 @@ var FetchingServiceImplXHR = class {
         await this.cacheReady;
         response = await this.store.get(request.path);
       }
-      const hadCachedResponse = isNullOrUndefined(response);
-      if (hadCachedResponse) {
+      const noCachedResponse = isNullOrUndefined(response);
+      if (noCachedResponse) {
         const xhr = new XMLHttpRequest();
         const download = trackProgress(`requesting: ${request.path}`, xhr, xhr, progress, true);
         sendRequest(xhr, request.method, request.path, request.timeout, request.headers);
@@ -1831,7 +1831,7 @@ var FetchingServiceImplXHR = class {
         }
       }
       const value = await this.decodeContent(xhrType, response);
-      if (hadCachedResponse && isDefined(progress)) {
+      if (noCachedResponse && isDefined(progress)) {
         progress.end();
       }
       return value;
@@ -1878,7 +1878,6 @@ var Attr = class {
     this.tags = tags.map((t2) => t2.toLocaleUpperCase());
     Object.freeze(this);
   }
-  tags;
   applyToElement(elem) {
     const isDataSet = this.key.startsWith("data-");
     const isValid = this.tags.length === 0 || this.tags.indexOf(elem.tagName) > -1 || isDataSet;
@@ -2168,6 +2167,7 @@ var RequestBuilder = class {
   }
   accept(acceptType) {
     this.media("accept", acceptType);
+    return this;
   }
   blob(acceptType) {
     this.accept(acceptType);

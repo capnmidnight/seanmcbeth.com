@@ -1,5 +1,5 @@
 cd ".\Personal Site"
-$v=npm version patch
+$v=npm version minor
 cd ..\Build
 dotnet run
 git add -A

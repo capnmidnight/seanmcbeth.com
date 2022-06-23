@@ -5218,6 +5218,194 @@ function using(val, thunk) {
   }
 }
 
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/util.ts
+var typePattern = /([^\/]+)\/(.+)/;
+var subTypePattern = /(?:([^\.]+)\.)?([^\+;]+)(?:\+([^;]+))?((?:; *([^=]+)=([^;]+))*)/;
+var MediaType = class {
+  constructor(_type, _fullSubType, extensions) {
+    this._type = _type;
+    this._fullSubType = _fullSubType;
+    this._primaryExtension = null;
+    this.depMessage = null;
+    const parameters = /* @__PURE__ */ new Map();
+    this._parameters = parameters;
+    const subTypeParts = this._fullSubType.match(subTypePattern);
+    this._tree = subTypeParts[1];
+    this._subType = subTypeParts[2];
+    this._suffix = subTypeParts[3];
+    const paramStr = subTypeParts[4];
+    this._value = this._fullValue = this._type + "/";
+    if (isDefined(this._tree)) {
+      this._value = this._fullValue += this._tree + ".";
+    }
+    this._value = this._fullValue += this._subType;
+    if (isDefined(this._suffix)) {
+      this._value = this._fullValue += "+" + this._suffix;
+    }
+    if (isDefined(paramStr)) {
+      const pairs = paramStr.split(";").map((p) => p.trim()).filter((p) => p.length > 0).map((p) => p.split("="));
+      for (const [key, ...values] of pairs) {
+        const value2 = values.join("=");
+        parameters.set(key, value2);
+        const slug = `; ${key}=${value2}`;
+        this._fullValue += slug;
+        if (key !== "q") {
+          this._value += slug;
+        }
+      }
+    }
+    this._extensions = extensions || [];
+    this._primaryExtension = this._extensions[0] || null;
+  }
+  static parse(value2) {
+    if (!value2) {
+      return null;
+    }
+    const match = value2.match(typePattern);
+    if (!match) {
+      return null;
+    }
+    const type2 = match[1];
+    const subType = match[2];
+    return new MediaType(type2, subType);
+  }
+  deprecate(message) {
+    this.depMessage = message;
+    return this;
+  }
+  check() {
+    if (isDefined(this.depMessage)) {
+      console.warn(`${this._value} is deprecated ${this.depMessage}`);
+    }
+  }
+  matches(value2) {
+    if (isNullOrUndefined(value2)) {
+      return false;
+    }
+    if (this.typeName === "*" && this.subTypeName === "*") {
+      return true;
+    }
+    let typeName = null;
+    let subTypeName = null;
+    if (isString(value2)) {
+      const match = value2.match(typePattern);
+      if (!match) {
+        return false;
+      }
+      typeName = match[1];
+      subTypeName = match[2];
+    } else {
+      typeName = value2.typeName;
+      subTypeName = value2._fullSubType;
+    }
+    return this.typeName === typeName && (this._fullSubType === "*" || this._fullSubType === subTypeName);
+  }
+  withParameter(key, value2) {
+    const newSubType = `${this._fullSubType}; ${key}=${value2}`;
+    return new MediaType(this.typeName, newSubType, this.extensions);
+  }
+  get typeName() {
+    this.check();
+    return this._type;
+  }
+  get tree() {
+    this.check();
+    return this._tree;
+  }
+  get suffix() {
+    return this._suffix;
+  }
+  get subTypeName() {
+    this.check();
+    return this._subType;
+  }
+  get value() {
+    this.check();
+    return this._value;
+  }
+  __getValueUnsafe() {
+    return this._value;
+  }
+  get fullValue() {
+    this.check();
+    return this._fullValue;
+  }
+  get parameters() {
+    this.check();
+    return this._parameters;
+  }
+  get extensions() {
+    this.check();
+    return this._extensions;
+  }
+  __getExtensionsUnsafe() {
+    return this._extensions;
+  }
+  get primaryExtension() {
+    this.check();
+    return this._primaryExtension;
+  }
+  toString() {
+    if (this.parameters.get("q") === "1") {
+      return this.value;
+    } else {
+      return this.fullValue;
+    }
+  }
+  addExtension(fileName) {
+    if (!fileName) {
+      throw new Error("File name is not defined");
+    }
+    if (this.primaryExtension) {
+      const idx = fileName.lastIndexOf(".");
+      if (idx > -1) {
+        const currentExtension = fileName.substring(idx + 1);
+        ;
+        if (this.extensions.indexOf(currentExtension) > -1) {
+          fileName = fileName.substring(0, idx);
+        }
+      }
+      fileName = `${fileName}.${this.primaryExtension}`;
+    }
+    return fileName;
+  }
+};
+function create2(group2, value2, ...extensions) {
+  return new MediaType(group2, value2, extensions);
+}
+function specialize(group2) {
+  return create2.bind(null, group2);
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/application.ts
+var application = /* @__PURE__ */ specialize("application");
+var Application_Javascript = /* @__PURE__ */ application("javascript", "js");
+var Application_Json = /* @__PURE__ */ application("json", "json");
+var Application_Wasm = /* @__PURE__ */ application("wasm", "wasm");
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/audio.ts
+var audio = /* @__PURE__ */ specialize("audio");
+var Audio_Mpeg = /* @__PURE__ */ audio("mpeg", "mp3", "mp2", "mp2a", "mpga", "m2a", "m3a");
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/image.ts
+var image = /* @__PURE__ */ specialize("image");
+var Image_Jpeg = /* @__PURE__ */ image("jpeg", "jpeg", "jpg", "jpe");
+var Image_Png = /* @__PURE__ */ image("png", "png");
+var Image_Vendor_Google_StreetView_Pano = image("vnd.google.streetview.pano");
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/model.ts
+var model = /* @__PURE__ */ specialize("model");
+var Model_Gltf_Binary = /* @__PURE__ */ model("gltf-binary", "glb");
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/text.ts
+var text = /* @__PURE__ */ specialize("text");
+var Text_Plain = /* @__PURE__ */ text("plain", "txt", "text", "conf", "def", "list", "log", "in");
+var Text_Xml = /* @__PURE__ */ text("xml");
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/video.ts
+var video = /* @__PURE__ */ specialize("video");
+var Video_Vendor_Mpeg_Dash_Mpd = video("vnd.mpeg.dash.mpd", "mpd");
+
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher-base/Asset.ts
 var BaseAsset = class {
   constructor(path, type2) {
@@ -5258,8 +5446,15 @@ var BaseAsset = class {
   }
   resolve = null;
   reject = null;
-  getSize(fetcher) {
-    return fetcher.head(this.path).exec().then((response) => [this, response.contentLength]);
+  async getSize(fetcher) {
+    try {
+      const { contentLength } = await fetcher.head(this.path).accept(this.type).exec();
+      return [this, contentLength || 1];
+    } catch (exp) {
+      console.warn(exp);
+      return [this, 1];
+    }
+    ;
   }
   async fetch(fetcher, prog) {
     try {
@@ -5292,15 +5487,23 @@ var AssetCustom = class extends BaseAsset {
   }
 };
 var BaseFetchedAsset = class extends BaseAsset {
-  constructor(path, type2) {
+  useCache;
+  constructor(path, typeOrUseCache, useCache) {
+    let type2;
+    if (isBoolean(typeOrUseCache)) {
+      useCache = typeOrUseCache;
+    } else {
+      type2 = typeOrUseCache;
+    }
     super(path, type2);
+    this.useCache = !!useCache;
   }
   async getResult(fetcher, prog) {
     const response = await this.getRequest(fetcher, prog);
     return response.content;
   }
   getRequest(fetcher, prog) {
-    const request = fetcher.get(this.path).progress(prog);
+    const request = fetcher.get(this.path).useCache(this.useCache).progress(prog);
     return this.getResponse(request);
   }
 };
@@ -5785,8 +5988,8 @@ var FetchingServiceImplXHR = class {
         await this.cacheReady;
         response = await this.store.get(request.path);
       }
-      const hadCachedResponse = isNullOrUndefined(response);
-      if (hadCachedResponse) {
+      const noCachedResponse = isNullOrUndefined(response);
+      if (noCachedResponse) {
         const xhr = new XMLHttpRequest();
         const download = trackProgress(`requesting: ${request.path}`, xhr, xhr, progress, true);
         sendRequest(xhr, request.method, request.path, request.timeout, request.headers);
@@ -5797,7 +6000,7 @@ var FetchingServiceImplXHR = class {
         }
       }
       const value2 = await this.decodeContent(xhrType, response);
-      if (hadCachedResponse && isDefined(progress)) {
+      if (noCachedResponse && isDefined(progress)) {
         progress.end();
       }
       return value2;
@@ -5835,194 +6038,6 @@ var FetchingServiceImplXHR = class {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/util.ts
-var typePattern = /([^\/]+)\/(.+)/;
-var subTypePattern = /(?:([^\.]+)\.)?([^\+;]+)(?:\+([^;]+))?((?:; *([^=]+)=([^;]+))*)/;
-var MediaType = class {
-  constructor(_type, _fullSubType, extensions) {
-    this._type = _type;
-    this._fullSubType = _fullSubType;
-    this._primaryExtension = null;
-    this.depMessage = null;
-    const parameters = /* @__PURE__ */ new Map();
-    this._parameters = parameters;
-    const subTypeParts = this._fullSubType.match(subTypePattern);
-    this._tree = subTypeParts[1];
-    this._subType = subTypeParts[2];
-    this._suffix = subTypeParts[3];
-    const paramStr = subTypeParts[4];
-    this._value = this._fullValue = this._type + "/";
-    if (isDefined(this._tree)) {
-      this._value = this._fullValue += this._tree + ".";
-    }
-    this._value = this._fullValue += this._subType;
-    if (isDefined(this._suffix)) {
-      this._value = this._fullValue += "+" + this._suffix;
-    }
-    if (isDefined(paramStr)) {
-      const pairs = paramStr.split(";").map((p) => p.trim()).filter((p) => p.length > 0).map((p) => p.split("="));
-      for (const [key, ...values] of pairs) {
-        const value2 = values.join("=");
-        parameters.set(key, value2);
-        const slug = `; ${key}=${value2}`;
-        this._fullValue += slug;
-        if (key !== "q") {
-          this._value += slug;
-        }
-      }
-    }
-    this._extensions = extensions || [];
-    this._primaryExtension = this._extensions[0] || null;
-  }
-  static parse(value2) {
-    if (!value2) {
-      return null;
-    }
-    const match = value2.match(typePattern);
-    if (!match) {
-      return null;
-    }
-    const type2 = match[1];
-    const subType = match[2];
-    return new MediaType(type2, subType);
-  }
-  deprecate(message) {
-    this.depMessage = message;
-    return this;
-  }
-  check() {
-    if (isDefined(this.depMessage)) {
-      console.warn(`${this._value} is deprecated ${this.depMessage}`);
-    }
-  }
-  matches(value2) {
-    if (isNullOrUndefined(value2)) {
-      return false;
-    }
-    if (this.typeName === "*" && this.subTypeName === "*") {
-      return true;
-    }
-    let typeName = null;
-    let subTypeName = null;
-    if (isString(value2)) {
-      const match = value2.match(typePattern);
-      if (!match) {
-        return false;
-      }
-      typeName = match[1];
-      subTypeName = match[2];
-    } else {
-      typeName = value2.typeName;
-      subTypeName = value2._fullSubType;
-    }
-    return this.typeName === typeName && (this._fullSubType === "*" || this._fullSubType === subTypeName);
-  }
-  withParameter(key, value2) {
-    const newSubType = `${this._fullSubType}; ${key}=${value2}`;
-    return new MediaType(this.typeName, newSubType, this.extensions);
-  }
-  get typeName() {
-    this.check();
-    return this._type;
-  }
-  get tree() {
-    this.check();
-    return this._tree;
-  }
-  get suffix() {
-    return this._suffix;
-  }
-  get subTypeName() {
-    this.check();
-    return this._subType;
-  }
-  get value() {
-    this.check();
-    return this._value;
-  }
-  __getValueUnsafe() {
-    return this._value;
-  }
-  get fullValue() {
-    this.check();
-    return this._fullValue;
-  }
-  get parameters() {
-    this.check();
-    return this._parameters;
-  }
-  get extensions() {
-    this.check();
-    return this._extensions;
-  }
-  __getExtensionsUnsafe() {
-    return this._extensions;
-  }
-  get primaryExtension() {
-    this.check();
-    return this._primaryExtension;
-  }
-  toString() {
-    if (this.parameters.get("q") === "1") {
-      return this.value;
-    } else {
-      return this.fullValue;
-    }
-  }
-  addExtension(fileName) {
-    if (!fileName) {
-      throw new Error("File name is not defined");
-    }
-    if (this.primaryExtension) {
-      const idx = fileName.lastIndexOf(".");
-      if (idx > -1) {
-        const currentExtension = fileName.substring(idx + 1);
-        ;
-        if (this.extensions.indexOf(currentExtension) > -1) {
-          fileName = fileName.substring(0, idx);
-        }
-      }
-      fileName = `${fileName}.${this.primaryExtension}`;
-    }
-    return fileName;
-  }
-};
-function create2(group2, value2, ...extensions) {
-  return new MediaType(group2, value2, extensions);
-}
-function specialize(group2) {
-  return create2.bind(null, group2);
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/application.ts
-var application = /* @__PURE__ */ specialize("application");
-var Application_Javascript = /* @__PURE__ */ application("javascript", "js");
-var Application_Json = /* @__PURE__ */ application("json", "json");
-var Application_Wasm = /* @__PURE__ */ application("wasm", "wasm");
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/audio.ts
-var audio = /* @__PURE__ */ specialize("audio");
-var Audio_Mpeg = /* @__PURE__ */ audio("mpeg", "mp3", "mp2", "mp2a", "mpga", "m2a", "m3a");
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/image.ts
-var image = /* @__PURE__ */ specialize("image");
-var Image_Jpeg = /* @__PURE__ */ image("jpeg", "jpeg", "jpg", "jpe");
-var Image_Png = /* @__PURE__ */ image("png", "png");
-var Image_Vendor_Google_StreetView_Pano = image("vnd.google.streetview.pano");
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/model.ts
-var model = /* @__PURE__ */ specialize("model");
-var Model_Gltf_Binary = /* @__PURE__ */ model("gltf-binary", "glb");
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/text.ts
-var text = /* @__PURE__ */ specialize("text");
-var Text_Plain = /* @__PURE__ */ text("plain", "txt", "text", "conf", "def", "list", "log", "in");
-var Text_Xml = /* @__PURE__ */ text("xml");
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/video.ts
-var video = /* @__PURE__ */ specialize("video");
-var Video_Vendor_Mpeg_Dash_Mpd = video("vnd.mpeg.dash.mpd", "mpd");
-
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/attrs.ts
 var Attr = class {
   constructor(key, value2, bySetAttribute, ...tags) {
@@ -6032,7 +6047,6 @@ var Attr = class {
     this.tags = tags.map((t2) => t2.toLocaleUpperCase());
     Object.freeze(this);
   }
-  tags;
   applyToElement(elem) {
     const isDataSet = this.key.startsWith("data-");
     const isValid = this.tags.length === 0 || this.tags.indexOf(elem.tagName) > -1 || isDataSet;
@@ -6943,18 +6957,18 @@ var DeviceManager = class extends TypedEventBase {
     super();
     this.element = element;
     this.needsVideoDevice = needsVideoDevice;
-    this._hasAudioPermission = false;
-    this._hasVideoPermission = false;
-    this._currentStream = null;
     this.ready = this.start();
     Object.seal(this);
   }
+  _hasAudioPermission = false;
   get hasAudioPermission() {
     return this._hasAudioPermission;
   }
+  _hasVideoPermission = false;
   get hasVideoPermission() {
     return this._hasVideoPermission;
   }
+  _currentStream = null;
   get currentStream() {
     return this._currentStream;
   }
@@ -6968,6 +6982,7 @@ var DeviceManager = class extends TypedEventBase {
       this._currentStream = v;
     }
   }
+  ready;
   async start() {
     if (canChangeAudioOutput) {
       const device = await this.getPreferredAudioOutput();
@@ -7264,10 +7279,11 @@ var AudioSourceAddedEvent = class extends TypedEvent {
   }
 };
 var BaseAudioSource = class extends BaseAudioElement {
-  source = null;
-  effects = new Array();
   constructor(id2, audioCtx, spatializer, ...effectNames) {
     super(id2, audioCtx, spatializer);
+    this.source = null;
+    this.effects = new Array();
+    this._connected = false;
     this.setEffects(...effectNames);
   }
   onDisposing() {
@@ -7303,7 +7319,6 @@ var BaseAudioSource = class extends BaseAudioElement {
   get input() {
     return this.source;
   }
-  _connected = false;
   get connected() {
     return this._connected;
   }
@@ -7368,10 +7383,10 @@ var MediaElementSourceStoppedEvent = class extends MediaElementSourceEvent {
   }
 };
 var MediaElementSourceProgressEvent = class extends MediaElementSourceEvent {
-  value = 0;
-  total = 0;
   constructor(source) {
     super("progress", source);
+    this.value = 0;
+    this.total = 0;
   }
 };
 
@@ -11304,7 +11319,7 @@ function rot(def) {
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/widgets/ButtonFactory.ts
 var ButtonFactory = class {
-  constructor(imagePaths, padding2) {
+  constructor(imagePaths, padding2, debug) {
     this.imagePaths = imagePaths;
     this.padding = padding2;
     this.uvDescrips = new PriorityMap();
@@ -11317,7 +11332,7 @@ var ButtonFactory = class {
     this.assetSets = new PriorityMap(Array.from(this.imagePaths.entries()).map(([setName, iconName, path]) => [
       setName,
       iconName,
-      new AssetImage(path, Image_Png)
+      new AssetImage(path, Image_Png, !debug)
     ]));
     this.assets = Array.from(this.assetSets.values());
     Promise.all(this.assets).then(() => this.finish());
@@ -11722,9 +11737,11 @@ var ApplicationLoader = class extends TypedEventBase {
     if (!this.loadedModules.has(name2)) {
       let url = `/js/${name2}/index${this.JS_EXT}`;
       if (isDefined(this.cacheBustString)) {
-        url += "#" + this.cacheBustString;
+        const uri = new URLBuilder(url, location.href);
+        uri.query("v", this.cacheBustString);
+        url = uri.toString();
       }
-      const task = this.env.fetcher.get(url).progress(prog).module();
+      const task = this.env.fetcher.get(url).progress(prog).useCache(!this.env.DEBUG).module();
       this.loadedModules.set(name2, task);
     } else if (isDefined(prog)) {
       prog.end();
@@ -20435,12 +20452,12 @@ var Skybox = class {
         this.rotationNeedsUpdate = this.imageNeedsUpdate = this.imageNeedsUpdate || this.rotationNeedsUpdate;
       }
       if (this.rotationNeedsUpdate) {
-        this.layerRotation.copy(this.rotation).invert();
+        this.layerRotation.copy(this.rotation);
         if (this.layer) {
           this.layerRotation.multiply(this.stageRotation);
           this.layer.orientation = new DOMPointReadOnly(this.layerRotation.x, this.layerRotation.y, this.layerRotation.z, this.layerRotation.w);
         } else {
-          this.rtCamera.quaternion.copy(this.layerRotation);
+          this.rtCamera.quaternion.copy(this.layerRotation.invert());
         }
       }
       if (this.imageNeedsUpdate) {
@@ -20625,7 +20642,6 @@ var BaseEnvironment = class extends TypedEventBase {
       if (this.hasXRMediaLayers && this._xrMediaBinding === null === this.renderer.xr.isPresenting) {
         if (this._xrMediaBinding === null && isDefined(session)) {
           this._xrMediaBinding = new XRMediaBinding(session);
-          console.log("Media binding created");
         } else {
           this._xrMediaBinding = null;
         }
@@ -20765,7 +20781,7 @@ var BaseEnvironment = class extends TypedEventBase {
     return new AssetCustom(path, Model_Gltf_Binary, this.getModel);
   }
   getModel(fetcher, path, type2, prog) {
-    return fetcher.get(path).useCache(true).progress(prog).file(type2).then((response) => this.loadModel(response.content));
+    return fetcher.get(path).useCache(!this.DEBUG).progress(prog).file(type2).then((response) => this.loadModel(response.content));
   }
   async loadModel(path, prog) {
     const loader = new GLTFLoader();
@@ -21147,7 +21163,7 @@ var Environment = class extends BaseEnvironment {
     this.confirmationDialog = new ConfirmationDialog(this, dialogFontFamily);
     this.devicesDialog = new DeviceDialog(this);
     elementApply(this.renderer.domElement.parentElement, this.screenUISpace, this.confirmationDialog, this.devicesDialog, this.renderer.domElement);
-    this.uiButtons = new ButtonFactory(uiImagePaths, 20);
+    this.uiButtons = new ButtonFactory(uiImagePaths, 20, this.DEBUG);
     this.settingsButton = new ButtonImageWidget(this.uiButtons, "ui", "settings");
     this.quitButton = new ButtonImageWidget(this.uiButtons, "ui", "quit");
     this.lobbyButton = new ButtonImageWidget(this.uiButtons, "ui", "lobby");
@@ -21271,11 +21287,11 @@ var Environment = class extends BaseEnvironment {
     } else {
       prog = progOrAsset;
     }
-    const footsteps = new AssetAudio("/audio/TransitionFootstepAudio.mp3", Audio_Mpeg);
-    const enter = new AssetAudio("/audio/basic_enter.mp3", Audio_Mpeg);
-    const exit = new AssetAudio("/audio/basic_exit.mp3", Audio_Mpeg);
-    const error = new AssetAudio("/audio/basic_error.mp3", Audio_Mpeg);
-    const click = new AssetAudio("/audio/vintage_radio_button_pressed.mp3", Audio_Mpeg);
+    const footsteps = new AssetAudio("/audio/TransitionFootstepAudio.mp3", Audio_Mpeg, !this.DEBUG);
+    const enter = new AssetAudio("/audio/basic_enter.mp3", Audio_Mpeg, !this.DEBUG);
+    const exit = new AssetAudio("/audio/basic_exit.mp3", Audio_Mpeg, !this.DEBUG);
+    const error = new AssetAudio("/audio/basic_error.mp3", Audio_Mpeg, !this.DEBUG);
+    const click = new AssetAudio("/audio/vintage_radio_button_pressed.mp3", Audio_Mpeg, !this.DEBUG);
     assets.push(...this.uiButtons.assets, footsteps, enter, exit, error, click);
     await super.load(prog, ...assets);
     this.audio.createBasicClip("footsteps", footsteps.result, 0.5);
@@ -21424,6 +21440,7 @@ var RequestBuilder = class {
   }
   accept(acceptType) {
     this.media("accept", acceptType);
+    return this;
   }
   blob(acceptType) {
     this.accept(acceptType);
@@ -22289,9 +22306,9 @@ var Forest = class {
     this.useBasicMaterial = useBasicMaterial;
     this.density = density;
     this.assets = [
-      this.skybox = new AssetImage("/skyboxes/BearfenceMountain.jpeg", Image_Jpeg),
+      this.skybox = new AssetImage("/skyboxes/BearfenceMountain.jpeg", Image_Jpeg, false),
       this.forest = env2.modelAsset("/models/Forest-Ground.glb"),
-      this.bgAudio = new AssetAudio("/audio/forest.mp3", Audio_Mpeg)
+      this.bgAudio = new AssetAudio("/audio/forest.mp3", Audio_Mpeg, false)
     ];
     if (this.density > 0) {
       this.assets.push(this.tree = env2.modelAsset("/models/Forest-Tree.glb"));
@@ -22420,7 +22437,7 @@ function makeGrass(env2, spatter2) {
 var env = await createTestEnvironment();
 await env.fadeOut();
 var forest = new Forest(env, true, 0.02);
-var spatter = new AssetImage("/img/spatter.png", Image_Png);
+var spatter = new AssetImage("/img/spatter.png", Image_Png, false);
 await env.load(spatter, ...forest.assets);
 makeGrass(env, spatter.result);
 await env.fadeIn();

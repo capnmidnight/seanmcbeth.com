@@ -3317,101 +3317,6 @@ var require_cardboard_vr_display = __commonJS({
   }
 });
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/setGeometryUVsForCubemaps.ts
-function setGeometryUVsForCubemaps(geom2) {
-  const positions = geom2.attributes.position;
-  const normals = geom2.attributes.normal;
-  const uvs = geom2.attributes.uv;
-  for (let n2 = 0; n2 < normals.count; ++n2) {
-    const _x = n2 * normals.itemSize, _y = n2 * normals.itemSize + 1, _z = n2 * normals.itemSize + 2, nx = normals.array[_x], ny = normals.array[_y], nz = normals.array[_z], _nx_ = Math.abs(nx), _ny_ = Math.abs(ny), _nz_ = Math.abs(nz), px = positions.array[_x], py = positions.array[_y], pz = positions.array[_z], _px_ = Math.abs(px), _py_ = Math.abs(py), _pz_ = Math.abs(pz), _u = n2 * uvs.itemSize, _v = n2 * uvs.itemSize + 1;
-    let u = uvs.array[_u], v = uvs.array[_v], largest = 0, mx = _nx_, max3 = _px_;
-    if (_ny_ > mx) {
-      largest = 1;
-      mx = _ny_;
-      max3 = _py_;
-    }
-    if (_nz_ > mx) {
-      largest = 2;
-      mx = _nz_;
-      max3 = _pz_;
-    }
-    if (largest === 0) {
-      if (px < 0) {
-        u = -pz;
-        v = py;
-      } else {
-        u = pz;
-        v = py;
-      }
-    } else if (largest === 1) {
-      if (py < 0) {
-        u = px;
-        v = -pz;
-      } else {
-        u = px;
-        v = pz;
-      }
-    } else {
-      if (pz < 0) {
-        u = px;
-        v = py;
-      } else {
-        u = -px;
-        v = py;
-      }
-    }
-    u = (u / max3 + 1) / 8;
-    v = (v / max3 + 1) / 6;
-    if (largest === 0) {
-      if (px < 0) {
-        u += 0;
-        v += 1 / 3;
-      } else {
-        u += 0.5;
-        v += 1 / 3;
-      }
-    } else if (largest === 1) {
-      if (py < 0) {
-        u += 0.25;
-        v += 0;
-      } else {
-        u += 0.25;
-        v += 2 / 3;
-      }
-    } else {
-      if (pz < 0) {
-        u += 0.25;
-        v += 1 / 3;
-      } else {
-        u += 0.75;
-        v += 1 / 3;
-      }
-    }
-    const arr = uvs.array;
-    arr[_u] = u;
-    arr[_v] = v;
-  }
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/Cube.ts
-var cube = new THREE.BoxBufferGeometry(1, 1, 1, 1, 1, 1);
-cube.name = "CubeGeom";
-var invCube = cube.clone();
-invCube.name = "InvertedCubeGeom";
-setGeometryUVsForCubemaps(invCube);
-var Cube = class extends THREE.Mesh {
-  constructor(sx, sy, sz, material) {
-    super(cube, material);
-    this.scale.set(sx, sy, sz);
-  }
-};
-var InvCube = class extends THREE.Mesh {
-  constructor(sx, sy, sz, material) {
-    super(invCube, material);
-    this.scale.set(sx, sy, sz);
-  }
-};
-
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/arrayBinarySearch.ts
 function defaultKeySelector(obj3) {
   return obj3;
@@ -5313,6 +5218,921 @@ function using(val, thunk) {
   }
 }
 
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/util.ts
+var typePattern = /([^\/]+)\/(.+)/;
+var subTypePattern = /(?:([^\.]+)\.)?([^\+;]+)(?:\+([^;]+))?((?:; *([^=]+)=([^;]+))*)/;
+var MediaType = class {
+  constructor(_type, _fullSubType, extensions) {
+    this._type = _type;
+    this._fullSubType = _fullSubType;
+    this._primaryExtension = null;
+    this.depMessage = null;
+    const parameters = /* @__PURE__ */ new Map();
+    this._parameters = parameters;
+    const subTypeParts = this._fullSubType.match(subTypePattern);
+    this._tree = subTypeParts[1];
+    this._subType = subTypeParts[2];
+    this._suffix = subTypeParts[3];
+    const paramStr = subTypeParts[4];
+    this._value = this._fullValue = this._type + "/";
+    if (isDefined(this._tree)) {
+      this._value = this._fullValue += this._tree + ".";
+    }
+    this._value = this._fullValue += this._subType;
+    if (isDefined(this._suffix)) {
+      this._value = this._fullValue += "+" + this._suffix;
+    }
+    if (isDefined(paramStr)) {
+      const pairs = paramStr.split(";").map((p) => p.trim()).filter((p) => p.length > 0).map((p) => p.split("="));
+      for (const [key, ...values] of pairs) {
+        const value2 = values.join("=");
+        parameters.set(key, value2);
+        const slug = `; ${key}=${value2}`;
+        this._fullValue += slug;
+        if (key !== "q") {
+          this._value += slug;
+        }
+      }
+    }
+    this._extensions = extensions || [];
+    this._primaryExtension = this._extensions[0] || null;
+  }
+  static parse(value2) {
+    if (!value2) {
+      return null;
+    }
+    const match = value2.match(typePattern);
+    if (!match) {
+      return null;
+    }
+    const type2 = match[1];
+    const subType = match[2];
+    return new MediaType(type2, subType);
+  }
+  deprecate(message) {
+    this.depMessage = message;
+    return this;
+  }
+  check() {
+    if (isDefined(this.depMessage)) {
+      console.warn(`${this._value} is deprecated ${this.depMessage}`);
+    }
+  }
+  matches(value2) {
+    if (isNullOrUndefined(value2)) {
+      return false;
+    }
+    if (this.typeName === "*" && this.subTypeName === "*") {
+      return true;
+    }
+    let typeName = null;
+    let subTypeName = null;
+    if (isString(value2)) {
+      const match = value2.match(typePattern);
+      if (!match) {
+        return false;
+      }
+      typeName = match[1];
+      subTypeName = match[2];
+    } else {
+      typeName = value2.typeName;
+      subTypeName = value2._fullSubType;
+    }
+    return this.typeName === typeName && (this._fullSubType === "*" || this._fullSubType === subTypeName);
+  }
+  withParameter(key, value2) {
+    const newSubType = `${this._fullSubType}; ${key}=${value2}`;
+    return new MediaType(this.typeName, newSubType, this.extensions);
+  }
+  get typeName() {
+    this.check();
+    return this._type;
+  }
+  get tree() {
+    this.check();
+    return this._tree;
+  }
+  get suffix() {
+    return this._suffix;
+  }
+  get subTypeName() {
+    this.check();
+    return this._subType;
+  }
+  get value() {
+    this.check();
+    return this._value;
+  }
+  __getValueUnsafe() {
+    return this._value;
+  }
+  get fullValue() {
+    this.check();
+    return this._fullValue;
+  }
+  get parameters() {
+    this.check();
+    return this._parameters;
+  }
+  get extensions() {
+    this.check();
+    return this._extensions;
+  }
+  __getExtensionsUnsafe() {
+    return this._extensions;
+  }
+  get primaryExtension() {
+    this.check();
+    return this._primaryExtension;
+  }
+  toString() {
+    if (this.parameters.get("q") === "1") {
+      return this.value;
+    } else {
+      return this.fullValue;
+    }
+  }
+  addExtension(fileName) {
+    if (!fileName) {
+      throw new Error("File name is not defined");
+    }
+    if (this.primaryExtension) {
+      const idx = fileName.lastIndexOf(".");
+      if (idx > -1) {
+        const currentExtension = fileName.substring(idx + 1);
+        ;
+        if (this.extensions.indexOf(currentExtension) > -1) {
+          fileName = fileName.substring(0, idx);
+        }
+      }
+      fileName = `${fileName}.${this.primaryExtension}`;
+    }
+    return fileName;
+  }
+};
+function create2(group2, value2, ...extensions) {
+  return new MediaType(group2, value2, extensions);
+}
+function specialize(group2) {
+  return create2.bind(null, group2);
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/application.ts
+var application = /* @__PURE__ */ specialize("application");
+var Application_Javascript = /* @__PURE__ */ application("javascript", "js");
+var Application_Json = /* @__PURE__ */ application("json", "json");
+var Application_Wasm = /* @__PURE__ */ application("wasm", "wasm");
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/audio.ts
+var audio = /* @__PURE__ */ specialize("audio");
+var Audio_Mpeg = /* @__PURE__ */ audio("mpeg", "mp3", "mp2", "mp2a", "mpga", "m2a", "m3a");
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/image.ts
+var image = /* @__PURE__ */ specialize("image");
+var Image_Jpeg = /* @__PURE__ */ image("jpeg", "jpeg", "jpg", "jpe");
+var Image_Png = /* @__PURE__ */ image("png", "png");
+var Image_Vendor_Google_StreetView_Pano = image("vnd.google.streetview.pano");
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/model.ts
+var model = /* @__PURE__ */ specialize("model");
+var Model_Gltf_Binary = /* @__PURE__ */ model("gltf-binary", "glb");
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/text.ts
+var text = /* @__PURE__ */ specialize("text");
+var Text_Plain = /* @__PURE__ */ text("plain", "txt", "text", "conf", "def", "list", "log", "in");
+var Text_Xml = /* @__PURE__ */ text("xml");
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/video.ts
+var video = /* @__PURE__ */ specialize("video");
+var Video_Vendor_Mpeg_Dash_Mpd = video("vnd.mpeg.dash.mpd", "mpd");
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher-base/Asset.ts
+var BaseAsset = class {
+  constructor(path, type2) {
+    this.path = path;
+    this.type = type2;
+    this.promise = new Promise((resolve, reject) => {
+      this.resolve = (value2) => {
+        this._result = value2;
+        this._finished = true;
+        resolve(value2);
+      };
+      this.reject = (reason) => {
+        this._error = reason;
+        this._finished = true;
+        reject(reason);
+      };
+    });
+  }
+  promise;
+  _result = null;
+  _error = null;
+  _started = false;
+  _finished = false;
+  get result() {
+    if (isDefined(this.error)) {
+      throw this.error;
+    }
+    return this._result;
+  }
+  get error() {
+    return this._error;
+  }
+  get started() {
+    return this._started;
+  }
+  get finished() {
+    return this._finished;
+  }
+  resolve = null;
+  reject = null;
+  async getSize(fetcher) {
+    try {
+      const { contentLength } = await fetcher.head(this.path).accept(this.type).exec();
+      return [this, contentLength || 1];
+    } catch (exp) {
+      console.warn(exp);
+      return [this, 1];
+    }
+    ;
+  }
+  async fetch(fetcher, prog) {
+    try {
+      const result = await this.getResult(fetcher, prog);
+      this.resolve(result);
+    } catch (err) {
+      this.reject(err);
+    }
+  }
+  get [Symbol.toStringTag]() {
+    return this.promise.toString();
+  }
+  then(onfulfilled, onrejected) {
+    return this.promise.then(onfulfilled, onrejected);
+  }
+  catch(onrejected) {
+    return this.promise.catch(onrejected);
+  }
+  finally(onfinally) {
+    return this.promise.finally(onfinally);
+  }
+};
+var AssetCustom = class extends BaseAsset {
+  constructor(path, type2, getter) {
+    super(path, type2);
+    this.getter = getter;
+  }
+  getResult(fetcher, prog) {
+    return this.getter(fetcher, this.path, this.type, prog);
+  }
+};
+var BaseFetchedAsset = class extends BaseAsset {
+  useCache;
+  constructor(path, typeOrUseCache, useCache) {
+    let type2;
+    if (isBoolean(typeOrUseCache)) {
+      useCache = typeOrUseCache;
+    } else {
+      type2 = typeOrUseCache;
+    }
+    super(path, type2);
+    this.useCache = !!useCache;
+  }
+  async getResult(fetcher, prog) {
+    const response = await this.getRequest(fetcher, prog);
+    return response.content;
+  }
+  getRequest(fetcher, prog) {
+    const request = fetcher.get(this.path).useCache(this.useCache).progress(prog);
+    return this.getResponse(request);
+  }
+};
+var AssetAudio = class extends BaseFetchedAsset {
+  getResponse(request) {
+    return request.audio(false, false, this.type);
+  }
+};
+var AssetImage = class extends BaseFetchedAsset {
+  getResponse(request) {
+    return request.image(this.type);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/indexdb/index.ts
+var IDexDB = class {
+  constructor(db) {
+    this.db = db;
+  }
+  static async getCurrentVersion(dbName) {
+    if (isDefined(indexedDB.databases)) {
+      const databases = await indexedDB.databases();
+      for (const { name: name2, version: version2 } of databases) {
+        if (name2 === dbName) {
+          return version2;
+        }
+      }
+    }
+    return null;
+  }
+  static delete(dbName) {
+    const deleteRequest = indexedDB.deleteDatabase(dbName);
+    const task = once(deleteRequest, "success", "error", "blocked");
+    return success(task);
+  }
+  static async open(name2, ...storeDefs) {
+    const storesByName = mapMap(storeDefs, (v) => v.name, identity);
+    const indexesByName = new PriorityMap(storeDefs.filter((storeDef) => isDefined(storeDef.indexes)).flatMap((storeDef) => storeDef.indexes.map((indexDef) => [storeDef.name, indexDef.name, indexDef])));
+    const storesToAdd = new Array();
+    const storesToRemove = new Array();
+    const storesToChange = new Array();
+    const indexesToAdd = new PriorityList();
+    const indexesToRemove = new PriorityList();
+    let version2 = await this.getCurrentVersion(name2);
+    if (isNullOrUndefined(version2)) {
+      storesToAdd.push(...storesByName.keys());
+      for (const storeDef of storeDefs) {
+        if (isDefined(storeDef.indexes)) {
+          for (const indexDef of storeDef.indexes) {
+            indexesToAdd.add(storeDef.name, indexDef.name);
+          }
+        }
+      }
+    } else {
+      const D2 = indexedDB.open(name2);
+      if (await success(once(D2, "success", "error", "blocked"))) {
+        const db = D2.result;
+        const storesToScrutinize = new Array();
+        for (const storeName of Array.from(db.objectStoreNames)) {
+          if (!storesByName.has(storeName)) {
+            storesToRemove.push(storeName);
+          }
+        }
+        for (const storeName of storesByName.keys()) {
+          if (!db.objectStoreNames.contains(storeName)) {
+            storesToAdd.push(storeName);
+          } else {
+            storesToScrutinize.push(storeName);
+          }
+        }
+        if (storesToScrutinize.length > 0) {
+          const transaction = db.transaction(storesToScrutinize);
+          const transacting = once(transaction, "complete", "error", "abort");
+          const transacted = success(transacting);
+          for (const storeName of storesToScrutinize) {
+            const store = transaction.objectStore(storeName);
+            for (const indexName of Array.from(store.indexNames)) {
+              if (!indexesByName.has(storeName, indexName)) {
+                if (storesToChange.indexOf(storeName) === -1) {
+                  storesToChange.push(storeName);
+                }
+                indexesToRemove.add(storeName, indexName);
+              }
+            }
+            if (indexesByName.has(storeName)) {
+              for (const indexName of indexesByName.get(storeName).keys()) {
+                if (!store.indexNames.contains(indexName)) {
+                  if (storesToChange.indexOf(storeName) === -1) {
+                    storesToChange.push(storeName);
+                  }
+                  indexesToAdd.add(storeName, indexName);
+                } else {
+                  const indexDef = indexesByName.get(storeName, indexName);
+                  const index = store.index(indexName);
+                  if (isString(indexDef.keyPath) !== isString(index.keyPath) || isString(indexDef.keyPath) && isString(index.keyPath) && indexDef.keyPath !== index.keyPath || isArray(indexDef.keyPath) && isArray(index.keyPath) && arrayCompare(indexDef.keyPath, index.keyPath)) {
+                    if (storesToChange.indexOf(storeName) === -1) {
+                      storesToChange.push(storeName);
+                    }
+                    indexesToRemove.add(storeName, indexName);
+                    indexesToAdd.add(storeName, indexName);
+                  }
+                }
+              }
+            }
+          }
+          transaction.commit();
+          await transacted;
+        }
+        db.close();
+      }
+      if (storesToAdd.length > 0 || storesToRemove.length > 0 || indexesToAdd.size > 0 || indexesToRemove.size > 0) {
+        ++version2;
+      }
+    }
+    const upgrading = new Task();
+    const openRequest = isDefined(version2) ? indexedDB.open(name2, version2) : indexedDB.open(name2);
+    const opening = once(openRequest, "success", "error", "blocked");
+    const upgraded = success(upgrading);
+    const opened = success(opening);
+    const noUpgrade = () => upgrading.resolve(false);
+    openRequest.addEventListener("success", noUpgrade);
+    openRequest.addEventListener("upgradeneeded", () => {
+      const transacting = once(openRequest.transaction, "complete", "error", "abort");
+      const db = openRequest.result;
+      for (const storeName of storesToRemove) {
+        db.deleteObjectStore(storeName);
+      }
+      const stores = /* @__PURE__ */ new Map();
+      for (const storeName of storesToAdd) {
+        const storeDef = storesByName.get(storeName);
+        const store = db.createObjectStore(storeName, storeDef.options);
+        stores.set(storeName, store);
+      }
+      for (const storeName of storesToChange) {
+        const store = openRequest.transaction.objectStore(storeName);
+        stores.set(storeName, store);
+      }
+      for (const [storeName, store] of stores) {
+        for (const indexName of indexesToRemove.get(storeName)) {
+          store.deleteIndex(indexName);
+        }
+        for (const indexName of indexesToAdd.get(storeName)) {
+          const indexDef = indexesByName.get(storeName, indexName);
+          store.createIndex(indexName, indexDef.keyPath, indexDef.options);
+        }
+      }
+      success(transacting).then(upgrading.resolve).catch(upgrading.reject).finally(() => openRequest.removeEventListener("success", noUpgrade));
+    });
+    if (!await upgraded) {
+      throw upgrading.error;
+    }
+    if (!await opened) {
+      throw opening.error;
+    }
+    return new IDexDB(openRequest.result);
+  }
+  dispose() {
+    this.db.close();
+  }
+  get name() {
+    return this.db.name;
+  }
+  get version() {
+    return this.db.version;
+  }
+  get storeNames() {
+    return Array.from(this.db.objectStoreNames);
+  }
+  getStore(storeName) {
+    return new IDexStore(this.db, storeName);
+  }
+};
+var IDexStore = class {
+  constructor(db, storeName) {
+    this.db = db;
+    this.storeName = storeName;
+  }
+  async request(makeRequest, mode) {
+    const transaction = this.db.transaction(this.storeName, mode);
+    const transacting = once(transaction, "complete", "error");
+    const store = transaction.objectStore(this.storeName);
+    const request = makeRequest(store);
+    const requesting = once(request, "success", "error");
+    if (!await success(requesting)) {
+      transaction.abort();
+      throw requesting.error;
+    }
+    transaction.commit();
+    if (!await success(transacting)) {
+      throw transacting.error;
+    }
+    return request.result;
+  }
+  add(value2, key) {
+    return this.request((store) => store.add(value2, key), "readwrite");
+  }
+  clear() {
+    return this.request((store) => store.clear(), "readwrite");
+  }
+  getCount(query) {
+    return this.request((store) => store.count(query), "readonly");
+  }
+  delete(query) {
+    return this.request((store) => store.delete(query), "readwrite");
+  }
+  get(key) {
+    return this.request((store) => store.get(key), "readonly");
+  }
+  getAll() {
+    return this.request((store) => store.getAll(), "readonly");
+  }
+  getAllKeys() {
+    return this.request((store) => store.getAllKeys(), "readonly");
+  }
+  getKey(query) {
+    return this.request((store) => store.getKey(query), "readonly");
+  }
+  openCursor(query, direction) {
+    return this.request((store) => store.openCursor(query, direction), "readonly");
+  }
+  openKeyCursor(query, direction) {
+    return this.request((store) => store.openKeyCursor(query, direction), "readonly");
+  }
+  put(value2, key) {
+    return this.request((store) => store.put(value2, key), "readwrite");
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher-base/ResponseTranslator.ts
+async function translateResponse(response, translate) {
+  const {
+    status,
+    path,
+    content,
+    contentType,
+    contentLength,
+    fileName,
+    headers,
+    date
+  } = response;
+  return {
+    status,
+    path,
+    content: await translate(content),
+    contentType,
+    contentLength,
+    fileName,
+    headers,
+    date
+  };
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher-base/FetchingServiceImplXHR.ts
+function isXHRBodyInit(obj3) {
+  return isString(obj3) || isArrayBufferView(obj3) || obj3 instanceof Blob || obj3 instanceof FormData || isArrayBuffer(obj3) || obj3 instanceof ReadableStream || "Document" in globalThis && obj3 instanceof Document;
+}
+function trackProgress(name2, xhr, target, prog, skipLoading, prevTask) {
+  let prevDone = !prevTask;
+  if (prevTask) {
+    prevTask.then(() => prevDone = true);
+  }
+  let done = false;
+  let loaded = skipLoading;
+  const requestComplete = new Task(() => loaded && done, () => prevDone);
+  target.addEventListener("loadstart", () => {
+    if (prevDone && !done && prog) {
+      prog.start(name2);
+    }
+  });
+  target.addEventListener("progress", (ev) => {
+    if (prevDone && !done) {
+      const evt = ev;
+      if (prog) {
+        prog.report(evt.loaded, Math.max(evt.loaded, evt.total), name2);
+      }
+      if (evt.loaded === evt.total) {
+        loaded = true;
+        requestComplete.resolve();
+      }
+    }
+  });
+  target.addEventListener("load", () => {
+    if (prevDone && !done) {
+      if (prog) {
+        prog.end(name2);
+      }
+      done = true;
+      requestComplete.resolve();
+    }
+  });
+  const onError = (msg) => () => requestComplete.reject(`${msg} (${xhr.status})`);
+  target.addEventListener("error", onError("error"));
+  target.addEventListener("abort", onError("abort"));
+  target.addEventListener("timeout", onError("timeout"));
+  return requestComplete;
+}
+function sendRequest(xhr, method, path, timeout, headers, body) {
+  xhr.open(method, path);
+  xhr.responseType = "blob";
+  xhr.timeout = timeout;
+  if (headers) {
+    for (const [key, value2] of headers) {
+      xhr.setRequestHeader(key, value2);
+    }
+  }
+  if (isDefined(body)) {
+    xhr.send(body);
+  } else {
+    xhr.send();
+  }
+}
+function readResponseHeader(headers, key, translate) {
+  if (!headers.has(key)) {
+    return null;
+  }
+  const value2 = headers.get(key);
+  try {
+    const translated = translate(value2);
+    headers.delete(key);
+    return translated;
+  } catch (exp) {
+    console.warn(key, exp);
+  }
+  return null;
+}
+var FILE_NAME_PATTERN = /filename=\"(.+)\"(;|$)/;
+var DB_NAME = "Juniper:Fetcher:Cache";
+var FetchingServiceImplXHR = class {
+  cacheReady;
+  cache = null;
+  store = null;
+  constructor() {
+    this.cacheReady = this.openCache();
+  }
+  async drawImageToCanvas(request, canvas, progress) {
+    const response = await this.sendNothingGetSomething("blob", request, progress);
+    const blob = response.content;
+    return using(await createImageBitmap(blob, {
+      imageOrientation: "none"
+    }), (img) => {
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const g = canvas.getContext("2d");
+      g.drawImage(img, 0, 0);
+      return translateResponse(response, () => null);
+    });
+  }
+  async openCache() {
+    this.cache = await IDexDB.open(DB_NAME, {
+      name: "files",
+      options: {
+        keyPath: "path"
+      }
+    });
+    this.store = await this.cache.getStore("files");
+  }
+  async clearCache() {
+    await this.cacheReady;
+    await this.store.clear();
+  }
+  async readResponseHeaders(path, xhr) {
+    const headerParts = xhr.getAllResponseHeaders().split(/[\r\n]+/).map((v) => v.trim()).filter((v) => v.length > 0).map((line) => {
+      const parts = line.split(": ");
+      const key = parts.shift().toLowerCase();
+      const value2 = parts.join(": ");
+      return [key, value2];
+    });
+    const pList = new PriorityList(headerParts);
+    const normalizedHeaderParts = Array.from(pList.keys()).map((key) => [
+      key,
+      pList.get(key).join(", ")
+    ]);
+    const headers = new Map(normalizedHeaderParts);
+    const contentType = readResponseHeader(headers, "content-type", identity);
+    const contentLength = readResponseHeader(headers, "content-length", parseFloat);
+    const date = readResponseHeader(headers, "date", (v) => new Date(v));
+    const fileName = readResponseHeader(headers, "content-disposition", (v) => {
+      if (isDefined(v)) {
+        const match = v.match(FILE_NAME_PATTERN);
+        if (isDefined(match)) {
+          return match[1];
+        }
+      }
+      return null;
+    });
+    const response = {
+      status: xhr.status,
+      path,
+      content: void 0,
+      contentType,
+      contentLength,
+      fileName,
+      date,
+      headers
+    };
+    return response;
+  }
+  async readResponse(path, xhr) {
+    const {
+      status,
+      contentType,
+      contentLength,
+      fileName,
+      date,
+      headers
+    } = await this.readResponseHeaders(path, xhr);
+    const response = {
+      path,
+      status,
+      contentType,
+      contentLength,
+      fileName,
+      date,
+      headers,
+      content: xhr.response
+    };
+    if (isDefined(response.content)) {
+      response.contentType = response.contentType || response.content.type;
+      response.contentLength = response.contentLength || response.content.size;
+    }
+    return response;
+  }
+  async decodeContent(xhrType, response) {
+    return translateResponse(response, async (contentBlob) => {
+      if (xhrType === "") {
+        return null;
+      } else if (isNullOrUndefined(response.contentType)) {
+        const headerBlock = Array.from(response.headers.entries()).map((kv) => kv.join(": ")).join("\n  ");
+        throw new Error("No content type found in headers: \n  " + headerBlock);
+      } else if (xhrType === "blob") {
+        return contentBlob;
+      } else if (xhrType === "arraybuffer") {
+        return await contentBlob.arrayBuffer();
+      } else if (xhrType === "json") {
+        const text2 = await contentBlob.text();
+        if (text2.length > 0) {
+          return JSON.parse(text2);
+        } else {
+          return null;
+        }
+      } else if (xhrType === "document") {
+        const parser = new DOMParser();
+        if (response.contentType === "application/xhtml+xml" || response.contentType === "text/html" || response.contentType === "application/xml" || response.contentType === "image/svg+xml" || response.contentType === "text/xml") {
+          return parser.parseFromString(await contentBlob.text(), response.contentType);
+        } else {
+          throw new Error("Couldn't parse document");
+        }
+      } else if (xhrType === "text") {
+        return await contentBlob.text();
+      } else {
+        assertNever(xhrType);
+      }
+    });
+  }
+  tasks = new PriorityMap();
+  async withCachedTask(request, action) {
+    if (request.method !== "GET" && request.method !== "HEAD" && request.method !== "OPTIONS") {
+      return await action();
+    }
+    if (!this.tasks.has(request.method, request.path)) {
+      this.tasks.add(request.method, request.path, action().finally(() => this.tasks.delete(request.method, request.path)));
+    }
+    return this.tasks.get(request.method, request.path);
+  }
+  sendNothingGetNothing(request) {
+    return this.withCachedTask(request, async () => {
+      const xhr = new XMLHttpRequest();
+      const download = trackProgress(`requesting: ${request.path}`, xhr, xhr, null, true);
+      sendRequest(xhr, request.method, request.path, request.timeout, request.headers);
+      await download;
+      return await this.readResponseHeaders(request.path, xhr);
+    });
+  }
+  sendNothingGetSomething(xhrType, request, progress) {
+    return this.withCachedTask(request, async () => {
+      let response = null;
+      const useCache = request.useCache && request.method === "GET";
+      if (useCache) {
+        if (isDefined(progress)) {
+          progress.start();
+        }
+        await this.cacheReady;
+        response = await this.store.get(request.path);
+      }
+      const noCachedResponse = isNullOrUndefined(response);
+      if (noCachedResponse) {
+        const xhr = new XMLHttpRequest();
+        const download = trackProgress(`requesting: ${request.path}`, xhr, xhr, progress, true);
+        sendRequest(xhr, request.method, request.path, request.timeout, request.headers);
+        await download;
+        response = await this.readResponse(request.path, xhr);
+        if (useCache) {
+          await this.store.add(response);
+        }
+      }
+      const value2 = await this.decodeContent(xhrType, response);
+      if (noCachedResponse && isDefined(progress)) {
+        progress.end();
+      }
+      return value2;
+    });
+  }
+  async sendSomethingGetSomething(xhrType, request, defaultPostHeaders, progress) {
+    let body = null;
+    const headers = mapJoin(/* @__PURE__ */ new Map(), defaultPostHeaders, request.headers);
+    if (request.body instanceof FormData && isDefined(headers)) {
+      const toDelete = new Array();
+      for (const key of headers.keys()) {
+        if (key.toLowerCase() === "content-type") {
+          toDelete.push(key);
+        }
+      }
+      for (const key of toDelete) {
+        headers.delete(key);
+      }
+    }
+    if (isXHRBodyInit(request.body) && !isString(request.body)) {
+      body = request.body;
+    } else if (isDefined(request.body)) {
+      body = JSON.stringify(request.body);
+    }
+    const progs = progressSplit(progress, 2);
+    const xhr = new XMLHttpRequest();
+    const upload = isDefined(body) ? trackProgress("uploading", xhr, xhr.upload, progs.shift(), false) : Promise.resolve();
+    const downloadProg = progs.shift();
+    const download = trackProgress("saving", xhr, xhr, downloadProg, true, upload);
+    sendRequest(xhr, request.method, request.path, request.timeout, headers, body);
+    await upload;
+    await download;
+    const response = await this.readResponse(request.path, xhr);
+    return await this.decodeContent(xhrType, response);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/setGeometryUVsForCubemaps.ts
+function setGeometryUVsForCubemaps(geom2) {
+  const positions = geom2.attributes.position;
+  const normals = geom2.attributes.normal;
+  const uvs = geom2.attributes.uv;
+  for (let n2 = 0; n2 < normals.count; ++n2) {
+    const _x = n2 * normals.itemSize, _y = n2 * normals.itemSize + 1, _z = n2 * normals.itemSize + 2, nx = normals.array[_x], ny = normals.array[_y], nz = normals.array[_z], _nx_ = Math.abs(nx), _ny_ = Math.abs(ny), _nz_ = Math.abs(nz), px = positions.array[_x], py = positions.array[_y], pz = positions.array[_z], _px_ = Math.abs(px), _py_ = Math.abs(py), _pz_ = Math.abs(pz), _u = n2 * uvs.itemSize, _v = n2 * uvs.itemSize + 1;
+    let u = uvs.array[_u], v = uvs.array[_v], largest = 0, mx = _nx_, max3 = _px_;
+    if (_ny_ > mx) {
+      largest = 1;
+      mx = _ny_;
+      max3 = _py_;
+    }
+    if (_nz_ > mx) {
+      largest = 2;
+      mx = _nz_;
+      max3 = _pz_;
+    }
+    if (largest === 0) {
+      if (px < 0) {
+        u = -pz;
+        v = py;
+      } else {
+        u = pz;
+        v = py;
+      }
+    } else if (largest === 1) {
+      if (py < 0) {
+        u = px;
+        v = -pz;
+      } else {
+        u = px;
+        v = pz;
+      }
+    } else {
+      if (pz < 0) {
+        u = px;
+        v = py;
+      } else {
+        u = -px;
+        v = py;
+      }
+    }
+    u = (u / max3 + 1) / 8;
+    v = (v / max3 + 1) / 6;
+    if (largest === 0) {
+      if (px < 0) {
+        u += 0;
+        v += 1 / 3;
+      } else {
+        u += 0.5;
+        v += 1 / 3;
+      }
+    } else if (largest === 1) {
+      if (py < 0) {
+        u += 0.25;
+        v += 0;
+      } else {
+        u += 0.25;
+        v += 2 / 3;
+      }
+    } else {
+      if (pz < 0) {
+        u += 0.25;
+        v += 1 / 3;
+      } else {
+        u += 0.75;
+        v += 1 / 3;
+      }
+    }
+    const arr = uvs.array;
+    arr[_u] = u;
+    arr[_v] = v;
+  }
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/Cube.ts
+var cube = new THREE.BoxBufferGeometry(1, 1, 1, 1, 1, 1);
+cube.name = "CubeGeom";
+var invCube = cube.clone();
+invCube.name = "InvertedCubeGeom";
+setGeometryUVsForCubemaps(invCube);
+var Cube = class extends THREE.Mesh {
+  constructor(sx, sy, sz, material) {
+    super(cube, material);
+    this.scale.set(sx, sy, sz);
+  }
+};
+var InvCube = class extends THREE.Mesh {
+  constructor(sx, sy, sz, material) {
+    super(invCube, material);
+    this.scale.set(sx, sy, sz);
+  }
+};
+
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/examples/lines/LineMaterial.js
 THREE.UniformsLib.line = {
   worldUnits: { value: 1 },
@@ -5906,7 +6726,6 @@ var Attr = class {
     this.tags = tags.map((t2) => t2.toLocaleUpperCase());
     Object.freeze(this);
   }
-  tags;
   applyToElement(elem) {
     const isDataSet = this.key.startsWith("data-");
     const isValid = this.tags.length === 0 || this.tags.indexOf(elem.tagName) > -1 || isDataSet;
@@ -7079,18 +7898,18 @@ var DeviceManager = class extends TypedEventBase {
     super();
     this.element = element;
     this.needsVideoDevice = needsVideoDevice;
-    this._hasAudioPermission = false;
-    this._hasVideoPermission = false;
-    this._currentStream = null;
     this.ready = this.start();
     Object.seal(this);
   }
+  _hasAudioPermission = false;
   get hasAudioPermission() {
     return this._hasAudioPermission;
   }
+  _hasVideoPermission = false;
   get hasVideoPermission() {
     return this._hasVideoPermission;
   }
+  _currentStream = null;
   get currentStream() {
     return this._currentStream;
   }
@@ -7104,6 +7923,7 @@ var DeviceManager = class extends TypedEventBase {
       this._currentStream = v;
     }
   }
+  ready;
   async start() {
     if (canChangeAudioOutput) {
       const device = await this.getPreferredAudioOutput();
@@ -7400,10 +8220,11 @@ var AudioSourceAddedEvent = class extends TypedEvent {
   }
 };
 var BaseAudioSource = class extends BaseAudioElement {
-  source = null;
-  effects = new Array();
   constructor(id2, audioCtx, spatializer, ...effectNames) {
     super(id2, audioCtx, spatializer);
+    this.source = null;
+    this.effects = new Array();
+    this._connected = false;
     this.setEffects(...effectNames);
   }
   onDisposing() {
@@ -7439,7 +8260,6 @@ var BaseAudioSource = class extends BaseAudioElement {
   get input() {
     return this.source;
   }
-  _connected = false;
   get connected() {
     return this._connected;
   }
@@ -7504,10 +8324,10 @@ var MediaElementSourceStoppedEvent = class extends MediaElementSourceEvent {
   }
 };
 var MediaElementSourceProgressEvent = class extends MediaElementSourceEvent {
-  value = 0;
-  total = 0;
   constructor(source) {
     super("progress", source);
+    this.value = 0;
+    this.total = 0;
   }
 };
 
@@ -8319,623 +9139,6 @@ var AudioPlayer = class extends BaseAudioSource {
   restart() {
     this.stop();
     return this.play();
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher-base/Asset.ts
-var BaseAsset = class {
-  constructor(path, type2) {
-    this.path = path;
-    this.type = type2;
-    this.promise = new Promise((resolve, reject) => {
-      this.resolve = (value2) => {
-        this._result = value2;
-        this._finished = true;
-        resolve(value2);
-      };
-      this.reject = (reason) => {
-        this._error = reason;
-        this._finished = true;
-        reject(reason);
-      };
-    });
-  }
-  promise;
-  _result = null;
-  _error = null;
-  _started = false;
-  _finished = false;
-  get result() {
-    if (isDefined(this.error)) {
-      throw this.error;
-    }
-    return this._result;
-  }
-  get error() {
-    return this._error;
-  }
-  get started() {
-    return this._started;
-  }
-  get finished() {
-    return this._finished;
-  }
-  resolve = null;
-  reject = null;
-  getSize(fetcher) {
-    return fetcher.head(this.path).exec().then((response) => [this, response.contentLength]);
-  }
-  async fetch(fetcher, prog) {
-    try {
-      const result = await this.getResult(fetcher, prog);
-      this.resolve(result);
-    } catch (err) {
-      this.reject(err);
-    }
-  }
-  get [Symbol.toStringTag]() {
-    return this.promise.toString();
-  }
-  then(onfulfilled, onrejected) {
-    return this.promise.then(onfulfilled, onrejected);
-  }
-  catch(onrejected) {
-    return this.promise.catch(onrejected);
-  }
-  finally(onfinally) {
-    return this.promise.finally(onfinally);
-  }
-};
-var AssetCustom = class extends BaseAsset {
-  constructor(path, type2, getter) {
-    super(path, type2);
-    this.getter = getter;
-  }
-  getResult(fetcher, prog) {
-    return this.getter(fetcher, this.path, this.type, prog);
-  }
-};
-var BaseFetchedAsset = class extends BaseAsset {
-  constructor(path, type2) {
-    super(path, type2);
-  }
-  async getResult(fetcher, prog) {
-    const response = await this.getRequest(fetcher, prog);
-    return response.content;
-  }
-  getRequest(fetcher, prog) {
-    const request = fetcher.get(this.path).progress(prog);
-    return this.getResponse(request);
-  }
-};
-var AssetAudio = class extends BaseFetchedAsset {
-  getResponse(request) {
-    return request.audio(false, false, this.type);
-  }
-};
-var AssetImage = class extends BaseFetchedAsset {
-  getResponse(request) {
-    return request.image(this.type);
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/indexdb/index.ts
-var IDexDB = class {
-  constructor(db) {
-    this.db = db;
-  }
-  static async getCurrentVersion(dbName) {
-    if (isDefined(indexedDB.databases)) {
-      const databases = await indexedDB.databases();
-      for (const { name: name2, version: version2 } of databases) {
-        if (name2 === dbName) {
-          return version2;
-        }
-      }
-    }
-    return null;
-  }
-  static delete(dbName) {
-    const deleteRequest = indexedDB.deleteDatabase(dbName);
-    const task = once(deleteRequest, "success", "error", "blocked");
-    return success(task);
-  }
-  static async open(name2, ...storeDefs) {
-    const storesByName = mapMap(storeDefs, (v) => v.name, identity);
-    const indexesByName = new PriorityMap(storeDefs.filter((storeDef) => isDefined(storeDef.indexes)).flatMap((storeDef) => storeDef.indexes.map((indexDef) => [storeDef.name, indexDef.name, indexDef])));
-    const storesToAdd = new Array();
-    const storesToRemove = new Array();
-    const storesToChange = new Array();
-    const indexesToAdd = new PriorityList();
-    const indexesToRemove = new PriorityList();
-    let version2 = await this.getCurrentVersion(name2);
-    if (isNullOrUndefined(version2)) {
-      storesToAdd.push(...storesByName.keys());
-      for (const storeDef of storeDefs) {
-        if (isDefined(storeDef.indexes)) {
-          for (const indexDef of storeDef.indexes) {
-            indexesToAdd.add(storeDef.name, indexDef.name);
-          }
-        }
-      }
-    } else {
-      const D2 = indexedDB.open(name2);
-      if (await success(once(D2, "success", "error", "blocked"))) {
-        const db = D2.result;
-        const storesToScrutinize = new Array();
-        for (const storeName of Array.from(db.objectStoreNames)) {
-          if (!storesByName.has(storeName)) {
-            storesToRemove.push(storeName);
-          }
-        }
-        for (const storeName of storesByName.keys()) {
-          if (!db.objectStoreNames.contains(storeName)) {
-            storesToAdd.push(storeName);
-          } else {
-            storesToScrutinize.push(storeName);
-          }
-        }
-        if (storesToScrutinize.length > 0) {
-          const transaction = db.transaction(storesToScrutinize);
-          const transacting = once(transaction, "complete", "error", "abort");
-          const transacted = success(transacting);
-          for (const storeName of storesToScrutinize) {
-            const store = transaction.objectStore(storeName);
-            for (const indexName of Array.from(store.indexNames)) {
-              if (!indexesByName.has(storeName, indexName)) {
-                if (storesToChange.indexOf(storeName) === -1) {
-                  storesToChange.push(storeName);
-                }
-                indexesToRemove.add(storeName, indexName);
-              }
-            }
-            if (indexesByName.has(storeName)) {
-              for (const indexName of indexesByName.get(storeName).keys()) {
-                if (!store.indexNames.contains(indexName)) {
-                  if (storesToChange.indexOf(storeName) === -1) {
-                    storesToChange.push(storeName);
-                  }
-                  indexesToAdd.add(storeName, indexName);
-                } else {
-                  const indexDef = indexesByName.get(storeName, indexName);
-                  const index = store.index(indexName);
-                  if (isString(indexDef.keyPath) !== isString(index.keyPath) || isString(indexDef.keyPath) && isString(index.keyPath) && indexDef.keyPath !== index.keyPath || isArray(indexDef.keyPath) && isArray(index.keyPath) && arrayCompare(indexDef.keyPath, index.keyPath)) {
-                    if (storesToChange.indexOf(storeName) === -1) {
-                      storesToChange.push(storeName);
-                    }
-                    indexesToRemove.add(storeName, indexName);
-                    indexesToAdd.add(storeName, indexName);
-                  }
-                }
-              }
-            }
-          }
-          transaction.commit();
-          await transacted;
-        }
-        db.close();
-      }
-      if (storesToAdd.length > 0 || storesToRemove.length > 0 || indexesToAdd.size > 0 || indexesToRemove.size > 0) {
-        ++version2;
-      }
-    }
-    const upgrading = new Task();
-    const openRequest = isDefined(version2) ? indexedDB.open(name2, version2) : indexedDB.open(name2);
-    const opening = once(openRequest, "success", "error", "blocked");
-    const upgraded = success(upgrading);
-    const opened = success(opening);
-    const noUpgrade = () => upgrading.resolve(false);
-    openRequest.addEventListener("success", noUpgrade);
-    openRequest.addEventListener("upgradeneeded", () => {
-      const transacting = once(openRequest.transaction, "complete", "error", "abort");
-      const db = openRequest.result;
-      for (const storeName of storesToRemove) {
-        db.deleteObjectStore(storeName);
-      }
-      const stores = /* @__PURE__ */ new Map();
-      for (const storeName of storesToAdd) {
-        const storeDef = storesByName.get(storeName);
-        const store = db.createObjectStore(storeName, storeDef.options);
-        stores.set(storeName, store);
-      }
-      for (const storeName of storesToChange) {
-        const store = openRequest.transaction.objectStore(storeName);
-        stores.set(storeName, store);
-      }
-      for (const [storeName, store] of stores) {
-        for (const indexName of indexesToRemove.get(storeName)) {
-          store.deleteIndex(indexName);
-        }
-        for (const indexName of indexesToAdd.get(storeName)) {
-          const indexDef = indexesByName.get(storeName, indexName);
-          store.createIndex(indexName, indexDef.keyPath, indexDef.options);
-        }
-      }
-      success(transacting).then(upgrading.resolve).catch(upgrading.reject).finally(() => openRequest.removeEventListener("success", noUpgrade));
-    });
-    if (!await upgraded) {
-      throw upgrading.error;
-    }
-    if (!await opened) {
-      throw opening.error;
-    }
-    return new IDexDB(openRequest.result);
-  }
-  dispose() {
-    this.db.close();
-  }
-  get name() {
-    return this.db.name;
-  }
-  get version() {
-    return this.db.version;
-  }
-  get storeNames() {
-    return Array.from(this.db.objectStoreNames);
-  }
-  getStore(storeName) {
-    return new IDexStore(this.db, storeName);
-  }
-};
-var IDexStore = class {
-  constructor(db, storeName) {
-    this.db = db;
-    this.storeName = storeName;
-  }
-  async request(makeRequest, mode) {
-    const transaction = this.db.transaction(this.storeName, mode);
-    const transacting = once(transaction, "complete", "error");
-    const store = transaction.objectStore(this.storeName);
-    const request = makeRequest(store);
-    const requesting = once(request, "success", "error");
-    if (!await success(requesting)) {
-      transaction.abort();
-      throw requesting.error;
-    }
-    transaction.commit();
-    if (!await success(transacting)) {
-      throw transacting.error;
-    }
-    return request.result;
-  }
-  add(value2, key) {
-    return this.request((store) => store.add(value2, key), "readwrite");
-  }
-  clear() {
-    return this.request((store) => store.clear(), "readwrite");
-  }
-  getCount(query) {
-    return this.request((store) => store.count(query), "readonly");
-  }
-  delete(query) {
-    return this.request((store) => store.delete(query), "readwrite");
-  }
-  get(key) {
-    return this.request((store) => store.get(key), "readonly");
-  }
-  getAll() {
-    return this.request((store) => store.getAll(), "readonly");
-  }
-  getAllKeys() {
-    return this.request((store) => store.getAllKeys(), "readonly");
-  }
-  getKey(query) {
-    return this.request((store) => store.getKey(query), "readonly");
-  }
-  openCursor(query, direction) {
-    return this.request((store) => store.openCursor(query, direction), "readonly");
-  }
-  openKeyCursor(query, direction) {
-    return this.request((store) => store.openKeyCursor(query, direction), "readonly");
-  }
-  put(value2, key) {
-    return this.request((store) => store.put(value2, key), "readwrite");
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher-base/ResponseTranslator.ts
-async function translateResponse(response, translate) {
-  const {
-    status,
-    path,
-    content,
-    contentType,
-    contentLength,
-    fileName,
-    headers,
-    date
-  } = response;
-  return {
-    status,
-    path,
-    content: await translate(content),
-    contentType,
-    contentLength,
-    fileName,
-    headers,
-    date
-  };
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher-base/FetchingServiceImplXHR.ts
-function isXHRBodyInit(obj3) {
-  return isString(obj3) || isArrayBufferView(obj3) || obj3 instanceof Blob || obj3 instanceof FormData || isArrayBuffer(obj3) || obj3 instanceof ReadableStream || "Document" in globalThis && obj3 instanceof Document;
-}
-function trackProgress(name2, xhr, target, prog, skipLoading, prevTask) {
-  let prevDone = !prevTask;
-  if (prevTask) {
-    prevTask.then(() => prevDone = true);
-  }
-  let done = false;
-  let loaded = skipLoading;
-  const requestComplete = new Task(() => loaded && done, () => prevDone);
-  target.addEventListener("loadstart", () => {
-    if (prevDone && !done && prog) {
-      prog.start(name2);
-    }
-  });
-  target.addEventListener("progress", (ev) => {
-    if (prevDone && !done) {
-      const evt = ev;
-      if (prog) {
-        prog.report(evt.loaded, Math.max(evt.loaded, evt.total), name2);
-      }
-      if (evt.loaded === evt.total) {
-        loaded = true;
-        requestComplete.resolve();
-      }
-    }
-  });
-  target.addEventListener("load", () => {
-    if (prevDone && !done) {
-      if (prog) {
-        prog.end(name2);
-      }
-      done = true;
-      requestComplete.resolve();
-    }
-  });
-  const onError = (msg) => () => requestComplete.reject(`${msg} (${xhr.status})`);
-  target.addEventListener("error", onError("error"));
-  target.addEventListener("abort", onError("abort"));
-  target.addEventListener("timeout", onError("timeout"));
-  return requestComplete;
-}
-function sendRequest(xhr, method, path, timeout, headers, body) {
-  xhr.open(method, path);
-  xhr.responseType = "blob";
-  xhr.timeout = timeout;
-  if (headers) {
-    for (const [key, value2] of headers) {
-      xhr.setRequestHeader(key, value2);
-    }
-  }
-  if (isDefined(body)) {
-    xhr.send(body);
-  } else {
-    xhr.send();
-  }
-}
-function readResponseHeader(headers, key, translate) {
-  if (!headers.has(key)) {
-    return null;
-  }
-  const value2 = headers.get(key);
-  try {
-    const translated = translate(value2);
-    headers.delete(key);
-    return translated;
-  } catch (exp) {
-    console.warn(key, exp);
-  }
-  return null;
-}
-var FILE_NAME_PATTERN = /filename=\"(.+)\"(;|$)/;
-var DB_NAME = "Juniper:Fetcher:Cache";
-var FetchingServiceImplXHR = class {
-  cacheReady;
-  cache = null;
-  store = null;
-  constructor() {
-    this.cacheReady = this.openCache();
-  }
-  async drawImageToCanvas(request, canvas, progress) {
-    const response = await this.sendNothingGetSomething("blob", request, progress);
-    const blob = response.content;
-    return using(await createImageBitmap(blob, {
-      imageOrientation: "none"
-    }), (img) => {
-      canvas.width = img.width;
-      canvas.height = img.height;
-      const g = canvas.getContext("2d");
-      g.drawImage(img, 0, 0);
-      return translateResponse(response, () => null);
-    });
-  }
-  async openCache() {
-    this.cache = await IDexDB.open(DB_NAME, {
-      name: "files",
-      options: {
-        keyPath: "path"
-      }
-    });
-    this.store = await this.cache.getStore("files");
-  }
-  async clearCache() {
-    await this.cacheReady;
-    await this.store.clear();
-  }
-  async readResponseHeaders(path, xhr) {
-    const headerParts = xhr.getAllResponseHeaders().split(/[\r\n]+/).map((v) => v.trim()).filter((v) => v.length > 0).map((line) => {
-      const parts = line.split(": ");
-      const key = parts.shift().toLowerCase();
-      const value2 = parts.join(": ");
-      return [key, value2];
-    });
-    const pList = new PriorityList(headerParts);
-    const normalizedHeaderParts = Array.from(pList.keys()).map((key) => [
-      key,
-      pList.get(key).join(", ")
-    ]);
-    const headers = new Map(normalizedHeaderParts);
-    const contentType = readResponseHeader(headers, "content-type", identity);
-    const contentLength = readResponseHeader(headers, "content-length", parseFloat);
-    const date = readResponseHeader(headers, "date", (v) => new Date(v));
-    const fileName = readResponseHeader(headers, "content-disposition", (v) => {
-      if (isDefined(v)) {
-        const match = v.match(FILE_NAME_PATTERN);
-        if (isDefined(match)) {
-          return match[1];
-        }
-      }
-      return null;
-    });
-    const response = {
-      status: xhr.status,
-      path,
-      content: void 0,
-      contentType,
-      contentLength,
-      fileName,
-      date,
-      headers
-    };
-    return response;
-  }
-  async readResponse(path, xhr) {
-    const {
-      status,
-      contentType,
-      contentLength,
-      fileName,
-      date,
-      headers
-    } = await this.readResponseHeaders(path, xhr);
-    const response = {
-      path,
-      status,
-      contentType,
-      contentLength,
-      fileName,
-      date,
-      headers,
-      content: xhr.response
-    };
-    if (isDefined(response.content)) {
-      response.contentType = response.contentType || response.content.type;
-      response.contentLength = response.contentLength || response.content.size;
-    }
-    return response;
-  }
-  async decodeContent(xhrType, response) {
-    return translateResponse(response, async (contentBlob) => {
-      if (xhrType === "") {
-        return null;
-      } else if (isNullOrUndefined(response.contentType)) {
-        const headerBlock = Array.from(response.headers.entries()).map((kv) => kv.join(": ")).join("\n  ");
-        throw new Error("No content type found in headers: \n  " + headerBlock);
-      } else if (xhrType === "blob") {
-        return contentBlob;
-      } else if (xhrType === "arraybuffer") {
-        return await contentBlob.arrayBuffer();
-      } else if (xhrType === "json") {
-        const text2 = await contentBlob.text();
-        if (text2.length > 0) {
-          return JSON.parse(text2);
-        } else {
-          return null;
-        }
-      } else if (xhrType === "document") {
-        const parser = new DOMParser();
-        if (response.contentType === "application/xhtml+xml" || response.contentType === "text/html" || response.contentType === "application/xml" || response.contentType === "image/svg+xml" || response.contentType === "text/xml") {
-          return parser.parseFromString(await contentBlob.text(), response.contentType);
-        } else {
-          throw new Error("Couldn't parse document");
-        }
-      } else if (xhrType === "text") {
-        return await contentBlob.text();
-      } else {
-        assertNever(xhrType);
-      }
-    });
-  }
-  tasks = new PriorityMap();
-  async withCachedTask(request, action) {
-    if (request.method !== "GET" && request.method !== "HEAD" && request.method !== "OPTIONS") {
-      return await action();
-    }
-    if (!this.tasks.has(request.method, request.path)) {
-      this.tasks.add(request.method, request.path, action().finally(() => this.tasks.delete(request.method, request.path)));
-    }
-    return this.tasks.get(request.method, request.path);
-  }
-  sendNothingGetNothing(request) {
-    return this.withCachedTask(request, async () => {
-      const xhr = new XMLHttpRequest();
-      const download = trackProgress(`requesting: ${request.path}`, xhr, xhr, null, true);
-      sendRequest(xhr, request.method, request.path, request.timeout, request.headers);
-      await download;
-      return await this.readResponseHeaders(request.path, xhr);
-    });
-  }
-  sendNothingGetSomething(xhrType, request, progress) {
-    return this.withCachedTask(request, async () => {
-      let response = null;
-      const useCache = request.useCache && request.method === "GET";
-      if (useCache) {
-        if (isDefined(progress)) {
-          progress.start();
-        }
-        await this.cacheReady;
-        response = await this.store.get(request.path);
-      }
-      const hadCachedResponse = isNullOrUndefined(response);
-      if (hadCachedResponse) {
-        const xhr = new XMLHttpRequest();
-        const download = trackProgress(`requesting: ${request.path}`, xhr, xhr, progress, true);
-        sendRequest(xhr, request.method, request.path, request.timeout, request.headers);
-        await download;
-        response = await this.readResponse(request.path, xhr);
-        if (useCache) {
-          await this.store.add(response);
-        }
-      }
-      const value2 = await this.decodeContent(xhrType, response);
-      if (hadCachedResponse && isDefined(progress)) {
-        progress.end();
-      }
-      return value2;
-    });
-  }
-  async sendSomethingGetSomething(xhrType, request, defaultPostHeaders, progress) {
-    let body = null;
-    const headers = mapJoin(/* @__PURE__ */ new Map(), defaultPostHeaders, request.headers);
-    if (request.body instanceof FormData && isDefined(headers)) {
-      const toDelete = new Array();
-      for (const key of headers.keys()) {
-        if (key.toLowerCase() === "content-type") {
-          toDelete.push(key);
-        }
-      }
-      for (const key of toDelete) {
-        headers.delete(key);
-      }
-    }
-    if (isXHRBodyInit(request.body) && !isString(request.body)) {
-      body = request.body;
-    } else if (isDefined(request.body)) {
-      body = JSON.stringify(request.body);
-    }
-    const progs = progressSplit(progress, 2);
-    const xhr = new XMLHttpRequest();
-    const upload = isDefined(body) ? trackProgress("uploading", xhr, xhr.upload, progs.shift(), false) : Promise.resolve();
-    const downloadProg = progs.shift();
-    const download = trackProgress("saving", xhr, xhr, downloadProg, true, upload);
-    sendRequest(xhr, request.method, request.path, request.timeout, headers, body);
-    await upload;
-    await download;
-    const response = await this.readResponse(request.path, xhr);
-    return await this.decodeContent(xhrType, response);
   }
 };
 
@@ -9841,193 +10044,6 @@ var ClockImage = class extends TextImage {
     this.value = value2;
   }
 };
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/util.ts
-var typePattern = /([^\/]+)\/(.+)/;
-var subTypePattern = /(?:([^\.]+)\.)?([^\+;]+)(?:\+([^;]+))?((?:; *([^=]+)=([^;]+))*)/;
-var MediaType = class {
-  constructor(_type, _fullSubType, extensions) {
-    this._type = _type;
-    this._fullSubType = _fullSubType;
-    this._primaryExtension = null;
-    this.depMessage = null;
-    const parameters = /* @__PURE__ */ new Map();
-    this._parameters = parameters;
-    const subTypeParts = this._fullSubType.match(subTypePattern);
-    this._tree = subTypeParts[1];
-    this._subType = subTypeParts[2];
-    this._suffix = subTypeParts[3];
-    const paramStr = subTypeParts[4];
-    this._value = this._fullValue = this._type + "/";
-    if (isDefined(this._tree)) {
-      this._value = this._fullValue += this._tree + ".";
-    }
-    this._value = this._fullValue += this._subType;
-    if (isDefined(this._suffix)) {
-      this._value = this._fullValue += "+" + this._suffix;
-    }
-    if (isDefined(paramStr)) {
-      const pairs = paramStr.split(";").map((p) => p.trim()).filter((p) => p.length > 0).map((p) => p.split("="));
-      for (const [key, ...values] of pairs) {
-        const value2 = values.join("=");
-        parameters.set(key, value2);
-        const slug = `; ${key}=${value2}`;
-        this._fullValue += slug;
-        if (key !== "q") {
-          this._value += slug;
-        }
-      }
-    }
-    this._extensions = extensions || [];
-    this._primaryExtension = this._extensions[0] || null;
-  }
-  static parse(value2) {
-    if (!value2) {
-      return null;
-    }
-    const match = value2.match(typePattern);
-    if (!match) {
-      return null;
-    }
-    const type2 = match[1];
-    const subType = match[2];
-    return new MediaType(type2, subType);
-  }
-  deprecate(message) {
-    this.depMessage = message;
-    return this;
-  }
-  check() {
-    if (isDefined(this.depMessage)) {
-      console.warn(`${this._value} is deprecated ${this.depMessage}`);
-    }
-  }
-  matches(value2) {
-    if (isNullOrUndefined(value2)) {
-      return false;
-    }
-    if (this.typeName === "*" && this.subTypeName === "*") {
-      return true;
-    }
-    let typeName = null;
-    let subTypeName = null;
-    if (isString(value2)) {
-      const match = value2.match(typePattern);
-      if (!match) {
-        return false;
-      }
-      typeName = match[1];
-      subTypeName = match[2];
-    } else {
-      typeName = value2.typeName;
-      subTypeName = value2._fullSubType;
-    }
-    return this.typeName === typeName && (this._fullSubType === "*" || this._fullSubType === subTypeName);
-  }
-  withParameter(key, value2) {
-    const newSubType = `${this._fullSubType}; ${key}=${value2}`;
-    return new MediaType(this.typeName, newSubType, this.extensions);
-  }
-  get typeName() {
-    this.check();
-    return this._type;
-  }
-  get tree() {
-    this.check();
-    return this._tree;
-  }
-  get suffix() {
-    return this._suffix;
-  }
-  get subTypeName() {
-    this.check();
-    return this._subType;
-  }
-  get value() {
-    this.check();
-    return this._value;
-  }
-  __getValueUnsafe() {
-    return this._value;
-  }
-  get fullValue() {
-    this.check();
-    return this._fullValue;
-  }
-  get parameters() {
-    this.check();
-    return this._parameters;
-  }
-  get extensions() {
-    this.check();
-    return this._extensions;
-  }
-  __getExtensionsUnsafe() {
-    return this._extensions;
-  }
-  get primaryExtension() {
-    this.check();
-    return this._primaryExtension;
-  }
-  toString() {
-    if (this.parameters.get("q") === "1") {
-      return this.value;
-    } else {
-      return this.fullValue;
-    }
-  }
-  addExtension(fileName) {
-    if (!fileName) {
-      throw new Error("File name is not defined");
-    }
-    if (this.primaryExtension) {
-      const idx = fileName.lastIndexOf(".");
-      if (idx > -1) {
-        const currentExtension = fileName.substring(idx + 1);
-        ;
-        if (this.extensions.indexOf(currentExtension) > -1) {
-          fileName = fileName.substring(0, idx);
-        }
-      }
-      fileName = `${fileName}.${this.primaryExtension}`;
-    }
-    return fileName;
-  }
-};
-function create2(group2, value2, ...extensions) {
-  return new MediaType(group2, value2, extensions);
-}
-function specialize(group2) {
-  return create2.bind(null, group2);
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/application.ts
-var application = /* @__PURE__ */ specialize("application");
-var Application_Javascript = /* @__PURE__ */ application("javascript", "js");
-var Application_Json = /* @__PURE__ */ application("json", "json");
-var Application_Wasm = /* @__PURE__ */ application("wasm", "wasm");
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/audio.ts
-var audio = /* @__PURE__ */ specialize("audio");
-var Audio_Mpeg = /* @__PURE__ */ audio("mpeg", "mp3", "mp2", "mp2a", "mpga", "m2a", "m3a");
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/image.ts
-var image = /* @__PURE__ */ specialize("image");
-var Image_Png = /* @__PURE__ */ image("png", "png");
-var Image_Vendor_Google_StreetView_Pano = image("vnd.google.streetview.pano");
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/model.ts
-var model = /* @__PURE__ */ specialize("model");
-var Model_Gltf_Binary = /* @__PURE__ */ model("gltf-binary", "glb");
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/text.ts
-var text = /* @__PURE__ */ specialize("text");
-var Text_Plain = /* @__PURE__ */ text("plain", "txt", "text", "conf", "def", "list", "log", "in");
-var Text_Xml = /* @__PURE__ */ text("xml");
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/video.ts
-var video = /* @__PURE__ */ specialize("video");
-var Video_Vendor_Mpeg_Dash_Mpd = video("vnd.mpeg.dash.mpd", "mpd");
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/webrtc/constants.ts
 var DEFAULT_LOCAL_USER_ID = "local-user";
@@ -11531,7 +11547,7 @@ function rot(def) {
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/widgets/ButtonFactory.ts
 var ButtonFactory = class {
-  constructor(imagePaths, padding2) {
+  constructor(imagePaths, padding2, debug) {
     this.imagePaths = imagePaths;
     this.padding = padding2;
     this.uvDescrips = new PriorityMap();
@@ -11544,7 +11560,7 @@ var ButtonFactory = class {
     this.assetSets = new PriorityMap(Array.from(this.imagePaths.entries()).map(([setName, iconName, path]) => [
       setName,
       iconName,
-      new AssetImage(path, Image_Png)
+      new AssetImage(path, Image_Png, !debug)
     ]));
     this.assets = Array.from(this.assetSets.values());
     Promise.all(this.assets).then(() => this.finish());
@@ -11949,9 +11965,11 @@ var ApplicationLoader = class extends TypedEventBase {
     if (!this.loadedModules.has(name2)) {
       let url = `/js/${name2}/index${this.JS_EXT}`;
       if (isDefined(this.cacheBustString)) {
-        url += "#" + this.cacheBustString;
+        const uri = new URLBuilder(url, location.href);
+        uri.query("v", this.cacheBustString);
+        url = uri.toString();
       }
-      const task = this.env.fetcher.get(url).progress(prog).module();
+      const task = this.env.fetcher.get(url).progress(prog).useCache(!this.env.DEBUG).module();
       this.loadedModules.set(name2, task);
     } else if (isDefined(prog)) {
       prog.end();
@@ -20567,12 +20585,12 @@ var Skybox = class {
         this.rotationNeedsUpdate = this.imageNeedsUpdate = this.imageNeedsUpdate || this.rotationNeedsUpdate;
       }
       if (this.rotationNeedsUpdate) {
-        this.layerRotation.copy(this.rotation).invert();
+        this.layerRotation.copy(this.rotation);
         if (this.layer) {
           this.layerRotation.multiply(this.stageRotation);
           this.layer.orientation = new DOMPointReadOnly(this.layerRotation.x, this.layerRotation.y, this.layerRotation.z, this.layerRotation.w);
         } else {
-          this.rtCamera.quaternion.copy(this.layerRotation);
+          this.rtCamera.quaternion.copy(this.layerRotation.invert());
         }
       }
       if (this.imageNeedsUpdate) {
@@ -20757,7 +20775,6 @@ var BaseEnvironment = class extends TypedEventBase {
       if (this.hasXRMediaLayers && this._xrMediaBinding === null === this.renderer.xr.isPresenting) {
         if (this._xrMediaBinding === null && isDefined(session)) {
           this._xrMediaBinding = new XRMediaBinding(session);
-          console.log("Media binding created");
         } else {
           this._xrMediaBinding = null;
         }
@@ -20897,7 +20914,7 @@ var BaseEnvironment = class extends TypedEventBase {
     return new AssetCustom(path, Model_Gltf_Binary, this.getModel);
   }
   getModel(fetcher, path, type2, prog) {
-    return fetcher.get(path).useCache(true).progress(prog).file(type2).then((response) => this.loadModel(response.content));
+    return fetcher.get(path).useCache(!this.DEBUG).progress(prog).file(type2).then((response) => this.loadModel(response.content));
   }
   async loadModel(path, prog) {
     const loader = new GLTFLoader();
@@ -21279,7 +21296,7 @@ var Environment = class extends BaseEnvironment {
     this.confirmationDialog = new ConfirmationDialog(this, dialogFontFamily);
     this.devicesDialog = new DeviceDialog(this);
     elementApply(this.renderer.domElement.parentElement, this.screenUISpace, this.confirmationDialog, this.devicesDialog, this.renderer.domElement);
-    this.uiButtons = new ButtonFactory(uiImagePaths, 20);
+    this.uiButtons = new ButtonFactory(uiImagePaths, 20, this.DEBUG);
     this.settingsButton = new ButtonImageWidget(this.uiButtons, "ui", "settings");
     this.quitButton = new ButtonImageWidget(this.uiButtons, "ui", "quit");
     this.lobbyButton = new ButtonImageWidget(this.uiButtons, "ui", "lobby");
@@ -21403,11 +21420,11 @@ var Environment = class extends BaseEnvironment {
     } else {
       prog = progOrAsset;
     }
-    const footsteps = new AssetAudio("/audio/TransitionFootstepAudio.mp3", Audio_Mpeg);
-    const enter = new AssetAudio("/audio/basic_enter.mp3", Audio_Mpeg);
-    const exit = new AssetAudio("/audio/basic_exit.mp3", Audio_Mpeg);
-    const error = new AssetAudio("/audio/basic_error.mp3", Audio_Mpeg);
-    const click = new AssetAudio("/audio/vintage_radio_button_pressed.mp3", Audio_Mpeg);
+    const footsteps = new AssetAudio("/audio/TransitionFootstepAudio.mp3", Audio_Mpeg, !this.DEBUG);
+    const enter = new AssetAudio("/audio/basic_enter.mp3", Audio_Mpeg, !this.DEBUG);
+    const exit = new AssetAudio("/audio/basic_exit.mp3", Audio_Mpeg, !this.DEBUG);
+    const error = new AssetAudio("/audio/basic_error.mp3", Audio_Mpeg, !this.DEBUG);
+    const click = new AssetAudio("/audio/vintage_radio_button_pressed.mp3", Audio_Mpeg, !this.DEBUG);
     assets.push(...this.uiButtons.assets, footsteps, enter, exit, error, click);
     await super.load(prog, ...assets);
     this.audio.createBasicClip("footsteps", footsteps.result, 0.5);
@@ -21556,6 +21573,7 @@ var RequestBuilder = class {
   }
   accept(acceptType) {
     this.media("accept", acceptType);
+    return this;
   }
   blob(acceptType) {
     this.accept(acceptType);
@@ -22330,8 +22348,10 @@ async function createTestEnvironment(debug = true) {
 
 // src/dragging-app/index.ts
 var env = await createTestEnvironment();
+var skybox = new AssetImage("/skyboxes/BearfenceMountain.jpeg", Image_Jpeg, false);
 await env.fadeOut();
-await env.load();
+await env.load(skybox);
+env.skybox.setImage(skybox.path, skybox.result);
 var obj2 = new Cube(0.25, 0.25, 0.25, lit({
   color: "red"
 }));
