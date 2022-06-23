@@ -112,9 +112,9 @@ export class Forest<ChoiceT extends boolean> {
 
     constructor(private readonly env: Environment, private readonly useBasicMaterial: ChoiceT, private readonly density = 0.05) {
         this.assets = [
-            this.skybox = new AssetImage("/skyboxes/BearfenceMountain.jpeg", Image_Jpeg),
+            this.skybox = new AssetImage("/skyboxes/BearfenceMountain.jpeg", Image_Jpeg, !DEBUG),
             this.forest = env.modelAsset("/models/Forest-Ground.glb"),
-            this.bgAudio = new AssetAudio("/audio/forest.mp3", Audio_Mpeg)
+            this.bgAudio = new AssetAudio("/audio/forest.mp3", Audio_Mpeg, !DEBUG)
         ];
         if (this.density > 0) {
             this.assets.push(this.tree = env.modelAsset("/models/Forest-Tree.glb"));

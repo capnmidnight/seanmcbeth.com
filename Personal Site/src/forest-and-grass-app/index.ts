@@ -8,7 +8,7 @@ const env = await createTestEnvironment();
 await env.fadeOut();
 
 const forest = new Forest(env, true, 0.02);
-const spatter = new AssetImage("/img/spatter.png", Image_Png);
+const spatter = new AssetImage("/img/spatter.png", Image_Png, !DEBUG);
 
 await env.load(spatter, ...forest.assets);
 
