@@ -6138,18 +6138,18 @@ var DeviceManager = class extends TypedEventBase {
     super();
     this.element = element;
     this.needsVideoDevice = needsVideoDevice;
+    this._hasAudioPermission = false;
+    this._hasVideoPermission = false;
+    this._currentStream = null;
     this.ready = this.start();
     Object.seal(this);
   }
-  _hasAudioPermission = false;
   get hasAudioPermission() {
     return this._hasAudioPermission;
   }
-  _hasVideoPermission = false;
   get hasVideoPermission() {
     return this._hasVideoPermission;
   }
-  _currentStream = null;
   get currentStream() {
     return this._currentStream;
   }
@@ -6163,7 +6163,6 @@ var DeviceManager = class extends TypedEventBase {
       this._currentStream = v;
     }
   }
-  ready;
   async start() {
     if (canChangeAudioOutput) {
       const device = await this.getPreferredAudioOutput();
@@ -6460,11 +6459,10 @@ var AudioSourceAddedEvent = class extends TypedEvent {
   }
 };
 var BaseAudioSource = class extends BaseAudioElement {
+  source = null;
+  effects = new Array();
   constructor(id2, audioCtx, spatializer, ...effectNames) {
     super(id2, audioCtx, spatializer);
-    this.source = null;
-    this.effects = new Array();
-    this._connected = false;
     this.setEffects(...effectNames);
   }
   onDisposing() {
@@ -6500,6 +6498,7 @@ var BaseAudioSource = class extends BaseAudioElement {
   get input() {
     return this.source;
   }
+  _connected = false;
   get connected() {
     return this._connected;
   }
@@ -6564,10 +6563,10 @@ var MediaElementSourceStoppedEvent = class extends MediaElementSourceEvent {
   }
 };
 var MediaElementSourceProgressEvent = class extends MediaElementSourceEvent {
+  value = 0;
+  total = 0;
   constructor(source) {
     super("progress", source);
-    this.value = 0;
-    this.total = 0;
   }
 };
 
@@ -12139,7 +12138,7 @@ var AvatarLocal = class extends TypedEventBase {
     return this.head.parent;
   }
   snapTurn(direction) {
-    this.setHeading(this.heading + MOTIONCONTROLLER_STICK_SENSITIVITY_SCALE * direction);
+    this.setHeading(this.heading - MOTIONCONTROLLER_STICK_SENSITIVITY_SCALE * direction);
   }
   get keyboardControlEnabled() {
     return this._keyboardControlEnabled;
@@ -20430,7 +20429,7 @@ var Skybox = class {
         if (this.env.avatar.heading !== this.stageHeading) {
           this.rotationNeedsUpdate = true;
           this.stageHeading = this.env.avatar.heading;
-          this.stageRotation.setFromAxisAngle(U, this.env.avatar.heading);
+          this.stageRotation.setFromAxisAngle(U, -this.env.avatar.heading);
         }
       } else {
         this.rotationNeedsUpdate = this.imageNeedsUpdate = this.imageNeedsUpdate || this.rotationNeedsUpdate;
