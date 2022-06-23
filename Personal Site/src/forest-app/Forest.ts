@@ -36,7 +36,6 @@ function convertMaterial<T extends boolean>(convert: T, oldMat: MatType<T>, over
         clipShadows: oldMat.clipShadows,
         color: oldMat.color,
         colorWrite: oldMat.colorWrite,
-        defines: oldMat.defines,
         depthFunc: oldMat.depthFunc,
         depthTest: oldMat.depthTest,
         depthWrite: oldMat.depthWrite,

@@ -2871,7 +2871,7 @@ function createFetcher(enableWorkers = true) {
       scriptPath: `/js/fetcher-worker/index${".js"}?${version}`
     }, FetchingServiceClient, fallback);
   }
-  return new Fetcher(fallback);
+  return new Fetcher(fallback, false);
 }
 
 // src/junk-app/index.ts

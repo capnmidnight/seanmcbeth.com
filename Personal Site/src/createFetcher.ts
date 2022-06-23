@@ -12,5 +12,5 @@ export function createFetcher(enableWorkers = true): IFetcher {
         }, FetchingServiceClient, fallback);
     }
 
-    return new Fetcher(fallback);
+    return new Fetcher(fallback, !DEBUG);
 }

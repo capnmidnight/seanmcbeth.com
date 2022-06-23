@@ -6489,37 +6489,37 @@ var TranslatorDragDirEvent = class extends TypedEvent {
     this.delta = new THREE.Vector3();
   }
 };
-var _Translator = class extends Cube {
+var _Translator = class extends RayTarget {
   constructor(name2, sx, sy, sz, color) {
-    super(1, 1, 1, color);
+    const cube2 = new Cube(1, 1, 1, color);
+    super(cube2);
     this.sx = sx;
     this.sy = sy;
     this.sz = sz;
     this._size = 1;
-    this.name = "Translator " + name2;
+    this.object.name = "Translator " + name2;
     const sel = new THREE.Vector3(sx, sy, sz);
     const start2 = new THREE.Vector3();
     const deltaIn = new THREE.Vector3();
     const dragEvt = new TranslatorDragDirEvent();
     let dragging = false;
-    this.target = assureRayTarget(this);
-    this.target.addMesh(this);
-    this.target.enabled = true;
-    this.target.draggable = true;
-    this.target.addEventListener("dragstart", (evt) => {
+    this.addMesh(cube2);
+    this.enabled = true;
+    this.draggable = true;
+    this.addEventListener("dragstart", (evt) => {
       dragging = true;
       start2.copy(evt.point);
     });
-    this.target.addEventListener("dragend", () => {
+    this.addEventListener("dragend", () => {
       dragging = false;
     });
-    this.target.addEventListener("drag", (evt) => {
+    this.addEventListener("drag", (evt) => {
       if (dragging) {
         deltaIn.copy(evt.point).sub(start2);
         start2.copy(evt.point);
         if (deltaIn.manhattanLength() > 0) {
-          dragEvt.delta.copy(sel).applyQuaternion(this.parent.parent.quaternion).multiplyScalar(deltaIn.dot(dragEvt.delta));
-          this.target.dispatchEvent(dragEvt);
+          dragEvt.delta.copy(sel).applyQuaternion(this.object.parent.parent.quaternion).multiplyScalar(deltaIn.dot(dragEvt.delta));
+          this.dispatchEvent(dragEvt);
         }
       }
     });
@@ -6529,8 +6529,8 @@ var _Translator = class extends Cube {
   }
   set size(v) {
     this._size = v;
-    this.scale.set(this.sx, this.sy, this.sz).multiplyScalar(0.9).add(_Translator.small).multiplyScalar(this.size);
-    this.position.set(this.sx, this.sy, this.sz).multiplyScalar(this.size);
+    this.object.scale.set(this.sx, this.sy, this.sz).multiplyScalar(0.9).add(_Translator.small).multiplyScalar(this.size);
+    this.object.position.set(this.sx, this.sy, this.sz).multiplyScalar(this.size);
   }
 };
 var Translator = _Translator;
@@ -6567,11 +6567,11 @@ var TransformEditor = class extends TypedEventBase {
     this.orbit = orbitTranslate;
   }
   get orbit() {
-    return !this.translators[4].visible;
+    return !this.translators[4].object.visible;
   }
   set orbit(v) {
     if (v !== this.orbit) {
-      this.translators[4].visible = this.translators[5].visible = !v;
+      this.translators[4].object.visible = this.translators[5].object.visible = !v;
     }
   }
   get size() {
@@ -6586,7 +6586,7 @@ var TransformEditor = class extends TypedEventBase {
   setTranslator(name2, sx, sy, sz, color, defaultAvatarHeight2) {
     const translator = new Translator(name2, sx, sy, sz, color);
     translator.size = this.size * 0.5;
-    translator.target.addEventListener("dragdir", (evt) => {
+    translator.addEventListener("dragdir", (evt) => {
       this.object.parent.position.y -= defaultAvatarHeight2;
       const dist3 = this.object.parent.position.length();
       this.object.parent.position.add(evt.delta);
@@ -6598,7 +6598,7 @@ var TransformEditor = class extends TypedEventBase {
       this.object.parent.position.y += defaultAvatarHeight2;
       this.dispatchEvent(this.movingEvt);
     });
-    translator.target.addEventListener("dragend", () => this.dispatchEvent(this.movedEvt));
+    translator.addEventListener("dragend", () => this.dispatchEvent(this.movedEvt));
     return translator;
   }
   get visible() {
@@ -7079,18 +7079,18 @@ var DeviceManager = class extends TypedEventBase {
     super();
     this.element = element;
     this.needsVideoDevice = needsVideoDevice;
+    this._hasAudioPermission = false;
+    this._hasVideoPermission = false;
+    this._currentStream = null;
     this.ready = this.start();
     Object.seal(this);
   }
-  _hasAudioPermission = false;
   get hasAudioPermission() {
     return this._hasAudioPermission;
   }
-  _hasVideoPermission = false;
   get hasVideoPermission() {
     return this._hasVideoPermission;
   }
-  _currentStream = null;
   get currentStream() {
     return this._currentStream;
   }
@@ -7104,7 +7104,6 @@ var DeviceManager = class extends TypedEventBase {
       this._currentStream = v;
     }
   }
-  ready;
   async start() {
     if (canChangeAudioOutput) {
       const device = await this.getPreferredAudioOutput();
@@ -9869,6 +9868,7 @@ var ConfirmationDialog = class extends DialogBox {
     elementApply(this.contentArea, styles(fontSize("18pt"), textAlign("center"), padding("1em")));
     objGraph(this, objGraph(this.root, this.mesh, this.confirmButton3D, this.cancelButton3D));
     objectSetVisible(this.root, false);
+    this.root.scale.setScalar(0);
   }
   get visible() {
     return elementIsDisplayed(this);
@@ -11524,30 +11524,6 @@ function onInput(callback, opts) {
   return new HtmlEvt("input", callback, opts);
 }
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/events/PointerName.ts
-var PointerName = /* @__PURE__ */ ((PointerName2) => {
-  PointerName2[PointerName2["LocalUser"] = 0] = "LocalUser";
-  PointerName2[PointerName2["Mouse"] = 1] = "Mouse";
-  PointerName2[PointerName2["Pen"] = 2] = "Pen";
-  PointerName2[PointerName2["Touch0"] = 3] = "Touch0";
-  PointerName2[PointerName2["Touch1"] = 4] = "Touch1";
-  PointerName2[PointerName2["Touch2"] = 5] = "Touch2";
-  PointerName2[PointerName2["Touch3"] = 6] = "Touch3";
-  PointerName2[PointerName2["Touch4"] = 7] = "Touch4";
-  PointerName2[PointerName2["Touch5"] = 8] = "Touch5";
-  PointerName2[PointerName2["Touch6"] = 9] = "Touch6";
-  PointerName2[PointerName2["Touch7"] = 10] = "Touch7";
-  PointerName2[PointerName2["Touch8"] = 11] = "Touch8";
-  PointerName2[PointerName2["Touch9"] = 12] = "Touch9";
-  PointerName2[PointerName2["Touch10"] = 13] = "Touch10";
-  PointerName2[PointerName2["Touches"] = 14] = "Touches";
-  PointerName2[PointerName2["MotionController"] = 15] = "MotionController";
-  PointerName2[PointerName2["MotionControllerLeft"] = 16] = "MotionControllerLeft";
-  PointerName2[PointerName2["MotionControllerRight"] = 17] = "MotionControllerRight";
-  PointerName2[PointerName2["RemoteUser"] = 18] = "RemoteUser";
-  return PointerName2;
-})(PointerName || {});
-
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/AvatarMovedEvent.ts
 var AvatarMovedEvent = class extends TypedEvent {
   px = 0;
@@ -11628,7 +11604,6 @@ var AvatarLocal = class extends TypedEventBase {
     this.Q2 = new THREE.Quaternion();
     this.Q3 = new THREE.Quaternion(-Math.sqrt(0.5), 0, 0, Math.sqrt(0.5));
     this.motion = new THREE.Vector2();
-    this.nextFlick = new THREE.Vector2();
     this.rotStage = new THREE.Matrix4();
     this.userMovedEvt = new AvatarMovedEvent();
     this._heading = 0;
@@ -11709,9 +11684,7 @@ var AvatarLocal = class extends TypedEventBase {
     this.onKeyDown = (evt) => setKey(evt.key, isModifierless(evt));
     this.onKeyUp = (evt) => setKey(evt.key, false);
     this.keyboardControlEnabled = true;
-    if (isMobileVR()) {
-      this.controlMode = "motioncontroller" /* MotionControllerStick */;
-    } else if (matchMedia("(pointer: coarse)").matches) {
+    if (matchMedia("(pointer: coarse)").matches) {
       this.controlMode = "touchswipe" /* Touch */;
     } else if (matchMedia("(pointer: fine)").matches) {
       this.controlMode = "mousedrag" /* MouseDrag */;
@@ -11765,8 +11738,8 @@ var AvatarLocal = class extends TypedEventBase {
   get stage() {
     return this.head.parent;
   }
-  onFlick(direction) {
-    this.nextFlick.x = MOTIONCONTROLLER_STICK_SENSITIVITY_SCALE * direction;
+  snapTurn(direction) {
+    this.setHeading(this.heading + MOTIONCONTROLLER_STICK_SENSITIVITY_SCALE * direction);
   }
   get keyboardControlEnabled() {
     return this._keyboardControlEnabled;
@@ -11786,51 +11759,39 @@ var AvatarLocal = class extends TypedEventBase {
   addFollower(follower) {
     this.followers.push(follower);
   }
-  onDown(evt) {
-    if (evt.pointer.enabled) {
-      this.setMode(evt);
+  onMove(pointer, uv, duv) {
+    this.setMode(pointer);
+    if (pointer.canMoveView && this.controlMode !== "none" /* None */ && this.gestureSatisfied(pointer) && this.dragSatisfied(pointer)) {
+      this.uv.copy(uv);
+      this.duv.copy(duv);
     }
   }
-  onMove(evt) {
-    if (evt.pointer.enabled) {
-      this.setMode(evt);
-      if (evt.pointer.canMoveView && this.checkMode(this.controlMode, evt)) {
-        this.uv.copy(evt.pointer.state.uv);
-        this.duv.copy(evt.pointer.state.duv);
-      }
-    }
-  }
-  setMode(evt) {
-    if (evt.pointer.type === "touch" || evt.pointer.type === "pen") {
+  setMode(pointer) {
+    if (pointer.type === "touch" || pointer.type === "pen") {
       this.lastTouchInputTime = performance.now();
       this.controlMode = "touchswipe" /* Touch */;
-    } else if (evt.pointer.type === "gamepad") {
+    } else if (pointer.type === "gamepad") {
       this.controlMode = "gamepad" /* Gamepad */;
-    } else if (evt.pointer.type === "hand") {
-      this.controlMode = "motioncontroller" /* MotionControllerStick */;
-    } else if (evt.pointer.type !== "mouse") {
+    } else if (pointer.type !== "mouse") {
       this.controlMode = "none" /* None */;
     } else if (this.evtSys.mouse.isPointerLocked) {
       this.controlMode = "mousefirstperson" /* MouseFPS */;
-    } else if (evt.pointer.draggedHit) {
+    } else if (pointer.draggedHit) {
       this.controlMode = "mouseedge" /* MouseScreenEdge */;
     } else {
       this.controlMode = "mousedrag" /* MouseDrag */;
     }
   }
-  checkMode(mode, evt) {
-    return mode !== "none" /* None */ && this.gestureSatisfied(mode, evt) && this.dragSatisfied(mode, evt);
-  }
-  gestureSatisfied(mode, evt) {
-    const button = this.requiredMouseButton.get(mode);
+  gestureSatisfied(pointer) {
+    const button = this.requiredMouseButton.get(this.controlMode);
     if (isNullOrUndefined(button)) {
-      return mode === "mouseedge" /* MouseScreenEdge */ || mode === "mousefirstperson" /* MouseFPS */ || mode === "touchswipe" /* Touch */ || mode === "gamepad" /* Gamepad */;
+      return this.controlMode === "mouseedge" /* MouseScreenEdge */ || this.controlMode === "mousefirstperson" /* MouseFPS */ || this.controlMode === "touchswipe" /* Touch */ || this.controlMode === "gamepad" /* Gamepad */;
     } else {
-      return evt.pointer.state.buttons === button;
+      return pointer.buttons === button;
     }
   }
-  dragSatisfied(mode, evt) {
-    return !this.requiredMouseButton.has(mode) || this.requiredMouseButton.get(mode) == 0 /* None */ || evt.pointer.state.dragging;
+  dragSatisfied(pointer) {
+    return !this.requiredMouseButton.has(this.controlMode) || this.requiredMouseButton.get(this.controlMode) == 0 /* None */ || pointer.dragging;
   }
   get name() {
     return this.object.name;
@@ -11880,17 +11841,9 @@ var AvatarLocal = class extends TypedEventBase {
         this.Q2.setFromAxisAngle(this.B, -orient);
         this.deviceQ.setFromEuler(this.E).multiply(this.Q3).multiply(this.Q2);
       }
-    } else if (this.controlMode === "motioncontroller" /* MotionControllerStick */) {
-      if (this.nextFlick.manhattanLength() !== 0) {
-        this.motion.copy(this.nextFlick).multiply(this.axisControl);
-        this.nextFlick.setScalar(0);
-        this.setHeading(this.heading + this.motion.x);
-        this.setPitch(this.pitch + this.motion.y, this.minimumX, this.maximumX);
-        this.setRoll(0);
-      }
     } else if (this.controlMode === "mouseedge" /* MouseScreenEdge */) {
       if (this.uv.manhattanLength() > 0) {
-        this.motion.set(this.scaleRadialComponent(this.uv.x, this.speed.x, this.acceleration.x), this.scaleRadialComponent(-this.uv.y, this.speed.y, this.acceleration.y)).multiplyScalar(dt).multiply(this.axisControl);
+        this.motion.set(this.scaleRadialComponent(-this.uv.x, this.speed.x, this.acceleration.x), this.scaleRadialComponent(this.uv.y, this.speed.y, this.acceleration.y)).multiplyScalar(dt);
         this.setHeading(this.heading + this.motion.x);
         this.setPitch(this.pitch + this.motion.y, this.minimumX, this.maximumX);
         this.setRoll(0);
@@ -12024,10 +11977,8 @@ var CameraControl = class {
     this.maxFOV = 120;
     this.dz = 0;
   }
-  onMove(evt) {
-    if (evt.pointer.enabled && evt.pointer.canMoveView) {
-      this.dz = evt.pointer.state.dz;
-    }
+  zoom(dz) {
+    this.dz = dz;
   }
   get fov() {
     return this.camera.fov;
@@ -12087,7 +12038,7 @@ var BaseCursor = class {
   set visible(v) {
     this._visible = v;
   }
-  update(avatarHeadPos, hit, defaultDistance, canMoveView, state, origin, direction) {
+  update(avatarHeadPos, hit, defaultDistance, canMoveView, origin, direction, buttons, dragging) {
     if (hit && hit.face) {
       this.position.copy(hit.point);
       hit.object.getWorldQuaternion(Q2);
@@ -12102,7 +12053,7 @@ var BaseCursor = class {
     this.object.parent.worldToLocal(this.position);
     this.lookAt(V);
     const target = getRayTarget(hit);
-    this.style = target ? !target.enabled ? "not-allowed" : target.draggable ? state.dragging ? "grabbing" : "move" : target.clickable ? "pointer" : "default" : canMoveView ? state.buttons === 1 /* Mouse0 */ ? "grabbing" : "grab" : "default";
+    this.style = target ? !target.enabled ? "not-allowed" : target.draggable ? dragging ? "grabbing" : "move" : target.clickable ? "pointer" : "default" : canMoveView ? buttons === 1 /* Mouse0 */ ? "grabbing" : "grab" : "default";
   }
   lookAt(_v) {
   }
@@ -15221,43 +15172,6 @@ var XRHandModelFactory = class {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/PointerState.ts
-var PointerState = class {
-  buttons = 0;
-  moveDistance = 0;
-  dragDistance = 0;
-  position = new THREE.Vector2();
-  motion = new THREE.Vector2();
-  dz = 0;
-  uv = new THREE.Vector2();
-  duv = new THREE.Vector2();
-  canClick = false;
-  dragging = false;
-  ctrl = false;
-  alt = false;
-  shift = false;
-  meta = false;
-  constructor() {
-    Object.seal(this);
-  }
-  copy(ptr) {
-    this.buttons = ptr.buttons;
-    this.moveDistance = ptr.moveDistance;
-    this.dragDistance = ptr.dragDistance;
-    this.position.copy(ptr.position);
-    this.motion.copy(ptr.motion);
-    this.dz = ptr.dz;
-    this.uv.copy(ptr.uv);
-    this.duv.copy(ptr.duv);
-    this.canClick = ptr.canClick;
-    this.dragging = ptr.dragging;
-    this.ctrl = ptr.ctrl;
-    this.alt = ptr.alt;
-    this.shift = ptr.shift;
-    this.meta = ptr.meta;
-  }
-};
-
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/CursorColor.ts
 var CursorColor = class extends BaseCursor {
   constructor() {
@@ -15397,16 +15311,20 @@ var CursorXRMouse = class extends BaseCursor {
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/BasePointer.ts
 var MAX_DRAG_DISTANCE = 5;
 var BasePointer = class {
-  constructor(type2, name2, evtSys, cursor) {
+  constructor(type2, name2, env2, cursor) {
     this.type = type2;
     this.name = name2;
-    this.evtSys = evtSys;
+    this.env = env2;
     this._canMoveView = false;
     this._enabled = false;
+    this.canClick = false;
+    this._buttons = 0 /* None */;
+    this.lastButtons = 0;
+    this.moveDistance = 0;
+    this._dragging = false;
+    this.wasDragging = false;
+    this.dragDistance = 0;
     this.isActive = false;
-    this.movementDragThreshold = MAX_DRAG_DISTANCE;
-    this.state = new PointerState();
-    this.lastState = null;
     this.origin = new THREE.Vector3();
     this.direction = new THREE.Vector3();
     this.curHit = null;
@@ -15414,7 +15332,9 @@ var BasePointer = class {
     this._pressedHit = null;
     this.draggedHit = null;
     this._cursor = cursor;
-    this.enabled = false;
+    if (this.cursor) {
+      this.cursor.visible = false;
+    }
     this.canMoveView = false;
   }
   get pressedHit() {
@@ -15475,70 +15395,76 @@ var BasePointer = class {
       this.cursor.visible = v;
     }
   }
+  get buttons() {
+    return this._buttons;
+  }
+  get dragging() {
+    return this._dragging;
+  }
+  set dragging(v) {
+    this._dragging = v;
+    this.dragDistance = 0;
+  }
   get needsUpdate() {
     return this.enabled && this.isActive;
   }
   setEventState(type2) {
-    this.evtSys.checkPointer(this, type2);
+    this.env.eventSystem.checkPointer(this, type2);
   }
   update() {
-    this.onUpdate();
-    if (!this.lastState) {
-      this.lastState = new PointerState();
+    if (this.needsUpdate) {
+      this.onUpdate();
+      this.lastButtons = this.buttons;
+      this.wasDragging = this.dragging;
     }
-    this.lastState.copy(this.state);
-    this.state.motion.setScalar(0);
-    this.state.dz = 0;
-    this.state.duv.setScalar(0);
   }
   updateCursor(avatarHeadPos, curHit, defaultDistance) {
     if (this.cursor) {
-      this.cursor.update(avatarHeadPos, curHit, defaultDistance, this.canMoveView, this.state, this.origin, this.direction);
+      this.cursor.update(avatarHeadPos, curHit, defaultDistance, this.canMoveView, this.origin, this.direction, this.buttons, this.dragging);
     }
   }
   onPointerDown() {
-    this.state.dragging = false;
-    this.state.canClick = true;
+    this.dragging = false;
+    this.canClick = true;
+    this.env.avatar.setMode(this);
     this.setEventState("down");
   }
   onPointerMove() {
     this.setEventState("move");
-    console.log(PointerName[this.name], this.state.buttons);
-    if (this.state.buttons !== 0 /* None */) {
+    if (this.buttons !== 0 /* None */) {
       const target = getRayTarget(this.pressedHit);
       const canDrag = !target || target.draggable;
       if (canDrag) {
-        if (this.lastState && this.lastState.buttons === this.state.buttons) {
-          this.state.dragDistance += this.state.moveDistance;
-          if (this.state.dragDistance > this.movementDragThreshold) {
+        if (this.buttons === this.lastButtons) {
+          this.dragDistance += this.moveDistance;
+          if (this.dragDistance > MAX_DRAG_DISTANCE) {
             this.onDragStart();
           }
-        } else if (this.state.dragging) {
-          this.state.dragging = false;
+        } else if (this.dragging) {
+          this.dragging = false;
           this.setEventState("dragcancel");
         }
       }
     }
   }
   onDragStart() {
-    this.state.dragging = true;
-    if (this.lastState && !this.lastState.dragging) {
+    this.dragging = true;
+    if (!this.wasDragging) {
       this.setEventState("dragstart");
     }
-    this.state.canClick = false;
+    this.canClick = false;
     this.setEventState("drag");
   }
   onPointerUp() {
-    if (this.state.canClick && this.lastState) {
-      const lastButtons = this.state.buttons;
-      this.state.buttons = this.lastState.buttons;
+    if (this.canClick) {
+      const curButtons = this.buttons;
+      this._buttons = this.lastButtons;
       this.setEventState("click");
-      this.state.buttons = lastButtons;
+      this._buttons = curButtons;
     }
     this.setEventState("up");
-    this.state.dragDistance = 0;
-    this.state.dragging = false;
-    if (this.lastState && this.lastState.dragging) {
+    this.dragging = false;
+    if (this.wasDragging) {
       this.setEventState("dragend");
     }
   }
@@ -15932,9 +15858,8 @@ var pointerNames = /* @__PURE__ */ new Map([
   ["right", 17 /* MotionControllerRight */]
 ]);
 var PointerHand = class extends BasePointer {
-  constructor(evtSys, renderer, index) {
-    super("hand", 15 /* MotionController */, evtSys, new CursorColor());
-    this.renderer = renderer;
+  constructor(env2, index) {
+    super("hand", 15 /* MotionController */, env2, new CursorColor());
     this.laser = new Laser(white, 2e-3);
     this.object = new THREE.Object3D();
     this._handedness = "none";
@@ -15942,7 +15867,7 @@ var PointerHand = class extends BasePointer {
     this.inputSource = null;
     this._gamepad = null;
     this.useHaptics = true;
-    objGraph(this, this.controller = this.renderer.xr.getController(index), this.grip = this.renderer.xr.getControllerGrip(index), this.hand = this.renderer.xr.getHand(index));
+    objGraph(this, this.controller = this.env.renderer.xr.getController(index), this.grip = this.env.renderer.xr.getControllerGrip(index), this.hand = this.env.renderer.xr.getHand(index));
     if (isDesktop() && isChrome() && !isOculusBrowser) {
       let maybeOculusRiftS = false;
       this.controller.traverse((child) => {
@@ -15960,7 +15885,7 @@ var PointerHand = class extends BasePointer {
     objGraph(this.hand, handModelFactory.createHandModel(this.hand, "mesh"));
     this.onAxisMaxed = (evt) => {
       if (evt.axis === 2) {
-        this.evtSys.onFlick(evt.value);
+        this.env.avatar.snapTurn(evt.value);
       }
     };
     this.controller.addEventListener("connected", (evt) => {
@@ -15976,7 +15901,7 @@ var PointerHand = class extends BasePointer {
         this.hand.visible = this.isHand;
         this.enabled = true;
         this.isActive = true;
-        this.evtSys.onConnected(this);
+        this.env.eventSystem.onConnected(this);
       }
     });
     this.controller.addEventListener("disconnected", (evt) => {
@@ -15992,17 +15917,15 @@ var PointerHand = class extends BasePointer {
         this.hand.visible = false;
         this.enabled = false;
         this.isActive = false;
-        this.evtSys.onDisconnected(this);
+        this.env.eventSystem.onDisconnected(this);
       }
     });
     const buttonDown = (btn) => {
-      this.updateState();
-      this.state.buttons = this.state.buttons | btn;
+      this._buttons = this.buttons | btn;
       this.onPointerDown();
     };
     const buttonUp = (btn) => {
-      this.updateState();
-      this.state.buttons = this.state.buttons & ~btn;
+      this._buttons = this.buttons & ~btn;
       this.onPointerUp();
     };
     this.controller.addEventListener("selectstart", () => buttonDown(1 /* Mouse0 */));
@@ -16063,22 +15986,17 @@ var PointerHand = class extends BasePointer {
     }
   }
   onUpdate() {
-    if (this.enabled) {
-      this.updateState();
-      this.onPointerMove();
-    }
-  }
-  updateState() {
     this.laser.getWorldPosition(newOrigin);
     this.laser.getWorldDirection(newDirection).multiplyScalar(-1);
     delta2.copy(this.origin).add(this.direction);
     this.origin.lerp(newOrigin, 0.9);
     this.direction.lerp(newDirection, 0.9).normalize();
     delta2.sub(this.origin).sub(this.direction);
-    this.state.moveDistance += 1e-3 * delta2.length();
+    this.moveDistance = 1e3 * delta2.length();
     if (isDefined(this._gamepad) && isDefined(this.inputSource)) {
       this.setGamepad(this.inputSource.gamepad);
     }
+    this.onPointerMove();
   }
   isPressed(button) {
     if (!this._gamepad || !buttonIndices.has(this.handedness) || !buttonIndices.get(this.handedness).has(button)) {
@@ -16091,21 +16009,24 @@ var PointerHand = class extends BasePointer {
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/BaseScreenPointer.ts
 var BaseScreenPointer = class extends BasePointer {
-  constructor(type2, name2, evtSys, renderer, camera, cursor) {
-    super(type2, name2, evtSys, cursor);
-    this.renderer = renderer;
-    this.camera = camera;
+  constructor(type2, name2, env2, cursor) {
+    super(type2, name2, env2, cursor);
     this.id = null;
+    this.position = new THREE.Vector2();
+    this.motion = new THREE.Vector2();
+    this.uv = new THREE.Vector2();
+    this.duv = new THREE.Vector2();
     this.sizeInv = new THREE.Vector2();
     this.uvComp = new THREE.Vector2(1, -1);
     this.uvOff = new THREE.Vector2(-1, 1);
+    this.lastPosition = null;
     const onPointerDown = (evt) => {
       if (this.checkEvent(evt)) {
         this.readEvent(evt);
         this.onPointerDown();
       }
     };
-    this.element = this.renderer.domElement;
+    this.element = this.env.renderer.domElement;
     this.element.addEventListener("pointerdown", onPointerDown);
     const onPointerMove = (evt) => {
       if (this.checkEvent(evt)) {
@@ -16133,43 +16054,49 @@ var BaseScreenPointer = class extends BasePointer {
   }
   isPressed(button) {
     const mask = 1 << button;
-    return this.state.buttons === mask;
+    return this.buttons === mask;
   }
   readEvent(evt) {
     if (this.checkEvent(evt)) {
-      this.state.ctrl = evt.ctrlKey;
-      this.state.alt = evt.altKey;
-      this.state.shift = evt.shiftKey;
-      this.state.meta = evt.metaKey;
       this.onReadEvent(evt);
-      if (evt.type === "pointermove" && document.pointerLockElement && this.lastState) {
-        this.state.position.copy(this.lastState.position).add(this.state.motion);
+      if (evt.type === "pointermove" && document.pointerLockElement && this.lastPosition) {
+        this.position.copy(this.lastPosition).add(this.motion);
       }
-      this.state.moveDistance = this.state.motion.length();
+      this.moveDistance = this.motion.length();
       this.sizeInv.set(this.element.clientWidth, this.element.clientHeight);
       if (this.sizeInv.manhattanLength() > 0) {
-        this.state.uv.copy(this.state.position).multiplyScalar(2).divide(this.sizeInv).multiply(this.uvComp).add(this.uvOff);
-        this.state.duv.copy(this.state.motion).multiplyScalar(2).divide(this.sizeInv).multiply(this.uvComp);
+        this.uv.copy(this.position).multiplyScalar(2).divide(this.sizeInv).multiply(this.uvComp).add(this.uvOff);
+        this.duv.copy(this.motion).multiplyScalar(2).divide(this.sizeInv).multiply(this.uvComp);
       }
     }
   }
+  onPointerMove() {
+    this.env.avatar.onMove(this, this.uv, this.duv);
+    super.onPointerMove();
+  }
   onUpdate() {
-    const cam = resolveCamera(this.renderer, this.camera);
+    const cam = resolveCamera(this.env.renderer, this.env.camera);
     this.updateRay(cam);
-    if (this.state.motion.manhattanLength() > 0) {
+    if (this.motion.manhattanLength() > 0) {
       this.onPointerMove();
       this.updateRay(cam);
     }
+    if (!this.lastPosition) {
+      this.lastPosition = new THREE.Vector2();
+    }
+    this.lastPosition.copy(this.position);
+    this.motion.setScalar(0);
+    this.duv.setScalar(0);
   }
   updateRay(cam) {
     this.origin.setFromMatrixPosition(cam.matrixWorld);
-    this.direction.set(this.state.uv.x, this.state.uv.y, 0.5).unproject(cam).sub(this.origin).normalize();
+    this.direction.set(this.uv.x, this.uv.y, 0.5).unproject(cam).sub(this.origin).normalize();
   }
 };
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/BaseScreenPointerSinglePoint.ts
 var BaseScreenPointerSinglePoint = class extends BaseScreenPointer {
-  constructor(type2, name2, evtSys, renderer, camera) {
+  constructor(type2, name2, env2) {
     const onPrep = (evt) => {
       if (evt.pointerType === type2 && this.id == null) {
         this.id = evt.pointerId;
@@ -16180,29 +16107,29 @@ var BaseScreenPointerSinglePoint = class extends BaseScreenPointer {
         this.id = null;
       }
     };
-    const element = renderer.domElement;
+    const element = env2.renderer.domElement;
     element.addEventListener("pointerdown", onPrep);
     element.addEventListener("pointermove", onPrep);
-    super(type2, name2, evtSys, renderer, camera, new CursorXRMouse(renderer));
+    super(type2, name2, env2, new CursorXRMouse(env2.renderer));
     element.addEventListener("pointerup", unPrep);
     element.addEventListener("pointercancel", unPrep);
     this.canMoveView = true;
   }
   onReadEvent(evt) {
-    this.state.buttons = evt.buttons;
-    this.state.position.set(evt.offsetX, evt.offsetY);
-    this.state.motion.set(evt.movementX, evt.movementY);
+    this._buttons = evt.buttons;
+    this.position.set(evt.offsetX, evt.offsetY);
+    this.motion.set(evt.movementX, evt.movementY);
   }
 };
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/PointerMouse.ts
 var PointerMouse = class extends BaseScreenPointerSinglePoint {
-  constructor(evtSys, renderer, camera) {
-    super("mouse", 1 /* Mouse */, evtSys, renderer, camera);
+  constructor(env2) {
+    super("mouse", 1 /* Mouse */, env2);
     this.allowPointerLock = false;
     this.element.addEventListener("wheel", (evt) => {
       evt.preventDefault();
-      this.state.dz = -evt.deltaY * 0.5;
+      this.env.fovControl.zoom(-evt.deltaY * 0.5);
     }, { passive: false });
     this.element.addEventListener("contextmenu", (evt) => {
       evt.preventDefault();
@@ -16232,12 +16159,21 @@ function dist2(a, b) {
   return Math.sqrt(dx * dx + dy * dy);
 }
 var PointerMultiTouch = class extends BaseScreenPointer {
-  constructor(evtSys, renderer, camera) {
-    super("touch", 14 /* Touches */, evtSys, renderer, camera, null);
+  constructor(env2) {
+    super("touch", 14 /* Touches */, env2, null);
     this.lastPinchDist = 0;
     this.points = /* @__PURE__ */ new Map();
     this.canMoveView = true;
     Object.seal(this);
+  }
+  get enabled() {
+    return super.enabled;
+  }
+  set enabled(v) {
+    super.enabled = v;
+    if (!this.enabled) {
+      this.points.clear();
+    }
   }
   onCheckEvent(evt) {
     return evt.pointerType === this.type;
@@ -16248,22 +16184,22 @@ var PointerMultiTouch = class extends BaseScreenPointer {
     } else if (this.points.has(evt.pointerId) && (evt.type === "pointerup" || evt.type === "pointercancel")) {
       this.points.delete(evt.pointerId);
     }
-    this.state.buttons = 0;
+    this._buttons = 0;
     if (this.points.size > 0) {
-      this.state.position.setScalar(0);
+      this.position.setScalar(0);
       const K = 1 / this.points.size;
       for (const point of this.points.values()) {
-        this.state.buttons |= point.buttons << this.points.size - 1;
-        this.state.position.x += K * point.offsetX;
-        this.state.position.y += K * point.offsetY;
-        this.state.motion.x += K * point.movementX;
-        this.state.motion.y += K * point.movementY;
+        this._buttons |= point.buttons << this.points.size - 1;
+        this.position.x += K * point.offsetX;
+        this.position.y += K * point.offsetY;
+        this.motion.x += K * point.movementX;
+        this.motion.y += K * point.movementY;
       }
       if (this.points.size === 2) {
         const [a, b] = Array.from(this.points.values());
         const pinchDist = dist2(a, b);
-        if (this.lastState && this.lastState.buttons === 2) {
-          this.state.dz = (pinchDist - this.lastPinchDist) * 2.5;
+        if (evt.type === "pointermove") {
+          this.env.fovControl.zoom((pinchDist - this.lastPinchDist) * 5);
         }
         this.lastPinchDist = pinchDist;
       }
@@ -16276,8 +16212,8 @@ var PointerMultiTouch = class extends BaseScreenPointer {
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/PointerPen.ts
 var PointerPen = class extends BaseScreenPointerSinglePoint {
-  constructor(evtSys, renderer, camera) {
-    super("pen", 2 /* Pen */, evtSys, renderer, camera);
+  constructor(env2) {
+    super("pen", 2 /* Pen */, env2);
     Object.seal(this);
   }
 };
@@ -16301,11 +16237,11 @@ var EventSystem = class extends TypedEventBase {
     this.pointerEvents = /* @__PURE__ */ new Map();
     this.raycaster.camera = this.env.camera;
     this.raycaster.layers.set(FOREGROUND);
-    this.mouse = new PointerMouse(this, this.env.renderer, this.env.camera);
-    this.pen = new PointerPen(this, this.env.renderer, this.env.camera);
-    this.touches = new PointerMultiTouch(this, this.env.renderer, this.env.camera);
+    this.mouse = new PointerMouse(this.env);
+    this.pen = new PointerPen(this.env);
+    this.touches = new PointerMultiTouch(this.env);
     for (let i = 0; i < 2; ++i) {
-      this.hands[i] = new PointerHand(this, this.env.renderer, i);
+      this.hands[i] = new PointerHand(this.env, i);
     }
     this.pointers = [
       this.mouse,
@@ -16333,9 +16269,6 @@ var EventSystem = class extends TypedEventBase {
     });
     this.env.avatar.evtSys = this;
     this.checkXRMouse();
-  }
-  onFlick(direction) {
-    this.env.avatar.onFlick(direction);
   }
   onConnected(_hand) {
     this.checkXRMouse();
@@ -16371,13 +16304,11 @@ var EventSystem = class extends TypedEventBase {
       case "move":
         {
           const moveEvt = this.getEvent(pointer, "move", curHit);
-          this.env.avatar.onMove(moveEvt);
-          this.env.fovControl.onMove(moveEvt);
-          if (isDefined(draggedHit)) {
+          if (isDefined(drgTarget)) {
             drgTarget.dispatchEvent(moveEvt);
-          } else if (isDefined(pressedHit)) {
+          } else if (isDefined(prsTarget)) {
             prsTarget.dispatchEvent(moveEvt);
-          } else if (pointer.state.buttons === 0) {
+          } else if (pointer.buttons === 0) {
             this.checkExit(curHit, hoveredHit, pointer);
             this.checkEnter(curHit, hoveredHit, pointer);
             if (curTarget) {
@@ -16392,7 +16323,6 @@ var EventSystem = class extends TypedEventBase {
       case "down":
         {
           const downEvt = this.getEvent(pointer, "down", curHit);
-          this.env.avatar.onDown(downEvt);
           if (hovTarget && (hovTarget.clickable || hovTarget.draggable)) {
             pointer.pressedHit = hoveredHit;
             hovTarget.dispatchEvent(downEvt);
@@ -16403,7 +16333,7 @@ var EventSystem = class extends TypedEventBase {
         {
           const upEvt = this.getEvent(pointer, "up", curHit);
           this.dispatchEvent(upEvt);
-          if (pointer.state.buttons === 0) {
+          if (pointer.buttons === 0) {
             if (isDefined(pressedHit)) {
               pointer.pressedHit = null;
               prsTarget.dispatchEvent(upEvt);
@@ -16427,7 +16357,7 @@ var EventSystem = class extends TypedEventBase {
         {
           const dragStartEvt = this.getEvent(pointer, "dragstart", pressedHit, curHit);
           this.dispatchEvent(dragStartEvt);
-          if (isDefined(pressedHit)) {
+          if (isDefined(prsTarget)) {
             pointer.draggedHit = pressedHit;
             prsTarget.dispatchEvent(dragStartEvt);
           }
@@ -16437,7 +16367,7 @@ var EventSystem = class extends TypedEventBase {
         {
           const dragEvt = this.getEvent(pointer, "drag", draggedHit, curHit);
           this.dispatchEvent(dragEvt);
-          if (isDefined(draggedHit)) {
+          if (isDefined(drgTarget)) {
             drgTarget.dispatchEvent(dragEvt);
           }
         }
@@ -16446,7 +16376,7 @@ var EventSystem = class extends TypedEventBase {
         {
           const dragCancelEvt = this.getEvent(pointer, "dragcancel", draggedHit, curHit);
           this.dispatchEvent(dragCancelEvt);
-          if (isDefined(draggedHit)) {
+          if (isDefined(drgTarget)) {
             pointer.draggedHit = null;
             drgTarget.dispatchEvent(dragCancelEvt);
           }
@@ -16456,7 +16386,7 @@ var EventSystem = class extends TypedEventBase {
         {
           const dragEndEvt = this.getEvent(pointer, "dragend", draggedHit, curHit);
           this.dispatchEvent(dragEndEvt);
-          if (isDefined(draggedHit)) {
+          if (isDefined(drgTarget)) {
             pointer.draggedHit = null;
             drgTarget.dispatchEvent(dragEndEvt);
           }
@@ -16526,8 +16456,13 @@ var EventSystem = class extends TypedEventBase {
         minDist = hit.distance;
       }
     }
-    if (pointer.curHit && pointer.hoveredHit && pointer.curHit.object === pointer.hoveredHit.object) {
-      pointer.hoveredHit = pointer.curHit;
+    if (pointer.curHit) {
+      if (pointer.hoveredHit && pointer.curHit.object === pointer.hoveredHit.object) {
+        pointer.hoveredHit = pointer.curHit;
+      }
+      if (pointer.draggedHit && pointer.curHit.object === pointer.draggedHit.object) {
+        pointer.draggedHit = pointer.curHit;
+      }
     }
   }
   update() {
@@ -22240,7 +22175,7 @@ function createFetcher(enableWorkers = true) {
       scriptPath: `/js/fetcher-worker/index${".js"}?${version}`
     }, FetchingServiceClient, fallback);
   }
-  return new Fetcher(fallback);
+  return new Fetcher(fallback, false);
 }
 
 // src/createTestEnvironment.ts

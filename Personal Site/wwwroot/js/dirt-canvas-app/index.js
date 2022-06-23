@@ -1028,10 +1028,10 @@ var Dirt = class extends TypedEventBase {
     if (this.pressed) {
       this.pointerId = id;
       if (isDefined(this.timer)) {
-        cancelAnimationFrame(this.timer);
+        clearTimeout(this.timer);
         this.timer = null;
       }
-      this.timer = requestAnimationFrame(this._update);
+      this.timer = setTimeout(this._update, 10);
     } else {
       this.pointerId = null;
     }

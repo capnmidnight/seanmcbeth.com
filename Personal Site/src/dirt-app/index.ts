@@ -36,7 +36,8 @@ surfaceTarget.addEventListener("dragstart", checkPointer);
 await env.fadeIn();
 
 function checkPointer(evt: EventSystemEvent) {
-    dirt.checkPointerUV(evt.pointer.name,
+    dirt.checkPointerUV(
+        evt.pointer.name,
         evt.hit.uv.x,
         1 - evt.hit.uv.y,
         evt.type);
