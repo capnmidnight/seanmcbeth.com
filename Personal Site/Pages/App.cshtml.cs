@@ -5,7 +5,7 @@ namespace SeanMcBeth.Pages
 {
     public class AppModel : PageModel
     {
-        private static readonly DirectoryInfo appRoot = 
+        private static readonly DirectoryInfo appRoot =
             new DirectoryInfo("wwwroot").CD("js");
 
         public static readonly string[] AppNames =
@@ -15,6 +15,7 @@ namespace SeanMcBeth.Pages
                     && d.Name.ToLowerInvariant() != "junk-app"
                     && d.Touch("index.js").Exists)
                 .Select(d => d.Name[0..^4])
+                .OrderBy(d => d)
                 .ToArray();
 
         [BindProperty(SupportsGet = true), FromRoute]
