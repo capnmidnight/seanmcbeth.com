@@ -7,7 +7,7 @@ import { createTestEnvironment } from "../createTestEnvironment";
 const env = await createTestEnvironment();
 
 await env.fadeOut();
-await env.load(env.loadingBar);
+await env.load();
 
 const obj = new Cube(0.25, 0.25, 0.25, lit({
     color: "red"

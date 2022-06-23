@@ -5218,591 +5218,6 @@ function using(val, thunk) {
   }
 }
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher-base/Asset.ts
-var Asset = class {
-  constructor(path, getter) {
-    this.path = path;
-    this.getter = getter;
-    this.promise = new Promise((resolve, reject) => {
-      this.resolve = (value2) => {
-        this._result = value2;
-        this._finished = true;
-        resolve(value2);
-      };
-      this.reject = (reason) => {
-        this._error = reason;
-        this._finished = true;
-        reject(reason);
-      };
-    });
-  }
-  promise;
-  _result = null;
-  _error = null;
-  _started = false;
-  _finished = false;
-  get result() {
-    if (isDefined(this.error)) {
-      throw this.error;
-    }
-    return this._result;
-  }
-  get error() {
-    return this._error;
-  }
-  get started() {
-    return this._started;
-  }
-  get finished() {
-    return this._finished;
-  }
-  resolve = null;
-  reject = null;
-  getSize(fetcher) {
-    return fetcher.head(this.path).exec().then((response) => [this, response.contentLength]);
-  }
-  async getContent(prog) {
-    try {
-      const response = await this.getter(this.path, prog);
-      this.resolve(response);
-    } catch (err) {
-      this.reject(err);
-    }
-  }
-  get [Symbol.toStringTag]() {
-    return this.promise.toString();
-  }
-  then(onfulfilled, onrejected) {
-    return this.promise.then(onfulfilled, onrejected);
-  }
-  catch(onrejected) {
-    return this.promise.catch(onrejected);
-  }
-  finally(onfinally) {
-    return this.promise.finally(onfinally);
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/indexdb/index.ts
-var IDexDB = class {
-  constructor(db) {
-    this.db = db;
-  }
-  static async getCurrentVersion(dbName) {
-    if (isDefined(indexedDB.databases)) {
-      const databases = await indexedDB.databases();
-      for (const { name: name2, version: version2 } of databases) {
-        if (name2 === dbName) {
-          return version2;
-        }
-      }
-    }
-    return null;
-  }
-  static delete(dbName) {
-    const deleteRequest = indexedDB.deleteDatabase(dbName);
-    const task = once(deleteRequest, "success", "error", "blocked");
-    return success(task);
-  }
-  static async open(name2, ...storeDefs) {
-    const storesByName = mapMap(storeDefs, (v) => v.name, identity);
-    const indexesByName = new PriorityMap(storeDefs.filter((storeDef) => isDefined(storeDef.indexes)).flatMap((storeDef) => storeDef.indexes.map((indexDef) => [storeDef.name, indexDef.name, indexDef])));
-    const storesToAdd = new Array();
-    const storesToRemove = new Array();
-    const storesToChange = new Array();
-    const indexesToAdd = new PriorityList();
-    const indexesToRemove = new PriorityList();
-    let version2 = await this.getCurrentVersion(name2);
-    if (isNullOrUndefined(version2)) {
-      storesToAdd.push(...storesByName.keys());
-      for (const storeDef of storeDefs) {
-        if (isDefined(storeDef.indexes)) {
-          for (const indexDef of storeDef.indexes) {
-            indexesToAdd.add(storeDef.name, indexDef.name);
-          }
-        }
-      }
-    } else {
-      const D2 = indexedDB.open(name2);
-      if (await success(once(D2, "success", "error", "blocked"))) {
-        const db = D2.result;
-        const storesToScrutinize = new Array();
-        for (const storeName of Array.from(db.objectStoreNames)) {
-          if (!storesByName.has(storeName)) {
-            storesToRemove.push(storeName);
-          }
-        }
-        for (const storeName of storesByName.keys()) {
-          if (!db.objectStoreNames.contains(storeName)) {
-            storesToAdd.push(storeName);
-          } else {
-            storesToScrutinize.push(storeName);
-          }
-        }
-        if (storesToScrutinize.length > 0) {
-          const transaction = db.transaction(storesToScrutinize);
-          const transacting = once(transaction, "complete", "error", "abort");
-          const transacted = success(transacting);
-          for (const storeName of storesToScrutinize) {
-            const store = transaction.objectStore(storeName);
-            for (const indexName of Array.from(store.indexNames)) {
-              if (!indexesByName.has(storeName, indexName)) {
-                if (storesToChange.indexOf(storeName) === -1) {
-                  storesToChange.push(storeName);
-                }
-                indexesToRemove.add(storeName, indexName);
-              }
-            }
-            if (indexesByName.has(storeName)) {
-              for (const indexName of indexesByName.get(storeName).keys()) {
-                if (!store.indexNames.contains(indexName)) {
-                  if (storesToChange.indexOf(storeName) === -1) {
-                    storesToChange.push(storeName);
-                  }
-                  indexesToAdd.add(storeName, indexName);
-                } else {
-                  const indexDef = indexesByName.get(storeName, indexName);
-                  const index = store.index(indexName);
-                  if (isString(indexDef.keyPath) !== isString(index.keyPath) || isString(indexDef.keyPath) && isString(index.keyPath) && indexDef.keyPath !== index.keyPath || isArray(indexDef.keyPath) && isArray(index.keyPath) && arrayCompare(indexDef.keyPath, index.keyPath)) {
-                    if (storesToChange.indexOf(storeName) === -1) {
-                      storesToChange.push(storeName);
-                    }
-                    indexesToRemove.add(storeName, indexName);
-                    indexesToAdd.add(storeName, indexName);
-                  }
-                }
-              }
-            }
-          }
-          transaction.commit();
-          await transacted;
-        }
-        db.close();
-      }
-      if (storesToAdd.length > 0 || storesToRemove.length > 0 || indexesToAdd.size > 0 || indexesToRemove.size > 0) {
-        ++version2;
-      }
-    }
-    const upgrading = new Task();
-    const openRequest = isDefined(version2) ? indexedDB.open(name2, version2) : indexedDB.open(name2);
-    const opening = once(openRequest, "success", "error", "blocked");
-    const upgraded = success(upgrading);
-    const opened = success(opening);
-    const noUpgrade = () => upgrading.resolve(false);
-    openRequest.addEventListener("success", noUpgrade);
-    openRequest.addEventListener("upgradeneeded", () => {
-      const transacting = once(openRequest.transaction, "complete", "error", "abort");
-      const db = openRequest.result;
-      for (const storeName of storesToRemove) {
-        db.deleteObjectStore(storeName);
-      }
-      const stores = /* @__PURE__ */ new Map();
-      for (const storeName of storesToAdd) {
-        const storeDef = storesByName.get(storeName);
-        const store = db.createObjectStore(storeName, storeDef.options);
-        stores.set(storeName, store);
-      }
-      for (const storeName of storesToChange) {
-        const store = openRequest.transaction.objectStore(storeName);
-        stores.set(storeName, store);
-      }
-      for (const [storeName, store] of stores) {
-        for (const indexName of indexesToRemove.get(storeName)) {
-          store.deleteIndex(indexName);
-        }
-        for (const indexName of indexesToAdd.get(storeName)) {
-          const indexDef = indexesByName.get(storeName, indexName);
-          store.createIndex(indexName, indexDef.keyPath, indexDef.options);
-        }
-      }
-      success(transacting).then(upgrading.resolve).catch(upgrading.reject).finally(() => openRequest.removeEventListener("success", noUpgrade));
-    });
-    if (!await upgraded) {
-      throw upgrading.error;
-    }
-    if (!await opened) {
-      throw opening.error;
-    }
-    return new IDexDB(openRequest.result);
-  }
-  dispose() {
-    this.db.close();
-  }
-  get name() {
-    return this.db.name;
-  }
-  get version() {
-    return this.db.version;
-  }
-  get storeNames() {
-    return Array.from(this.db.objectStoreNames);
-  }
-  getStore(storeName) {
-    return new IDexStore(this.db, storeName);
-  }
-};
-var IDexStore = class {
-  constructor(db, storeName) {
-    this.db = db;
-    this.storeName = storeName;
-  }
-  async request(makeRequest, mode) {
-    const transaction = this.db.transaction(this.storeName, mode);
-    const transacting = once(transaction, "complete", "error");
-    const store = transaction.objectStore(this.storeName);
-    const request = makeRequest(store);
-    const requesting = once(request, "success", "error");
-    if (!await success(requesting)) {
-      transaction.abort();
-      throw requesting.error;
-    }
-    transaction.commit();
-    if (!await success(transacting)) {
-      throw transacting.error;
-    }
-    return request.result;
-  }
-  add(value2, key) {
-    return this.request((store) => store.add(value2, key), "readwrite");
-  }
-  clear() {
-    return this.request((store) => store.clear(), "readwrite");
-  }
-  getCount(query) {
-    return this.request((store) => store.count(query), "readonly");
-  }
-  delete(query) {
-    return this.request((store) => store.delete(query), "readwrite");
-  }
-  get(key) {
-    return this.request((store) => store.get(key), "readonly");
-  }
-  getAll() {
-    return this.request((store) => store.getAll(), "readonly");
-  }
-  getAllKeys() {
-    return this.request((store) => store.getAllKeys(), "readonly");
-  }
-  getKey(query) {
-    return this.request((store) => store.getKey(query), "readonly");
-  }
-  openCursor(query, direction) {
-    return this.request((store) => store.openCursor(query, direction), "readonly");
-  }
-  openKeyCursor(query, direction) {
-    return this.request((store) => store.openKeyCursor(query, direction), "readonly");
-  }
-  put(value2, key) {
-    return this.request((store) => store.put(value2, key), "readwrite");
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher-base/ResponseTranslator.ts
-async function translateResponse(response, translate) {
-  const {
-    status,
-    path,
-    content,
-    contentType,
-    contentLength,
-    fileName,
-    headers,
-    date
-  } = response;
-  return {
-    status,
-    path,
-    content: await translate(content),
-    contentType,
-    contentLength,
-    fileName,
-    headers,
-    date
-  };
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher-base/FetchingServiceImplXHR.ts
-function isXHRBodyInit(obj2) {
-  return isString(obj2) || isArrayBufferView(obj2) || obj2 instanceof Blob || obj2 instanceof FormData || isArrayBuffer(obj2) || obj2 instanceof ReadableStream || "Document" in globalThis && obj2 instanceof Document;
-}
-function trackProgress(name2, xhr, target, prog, skipLoading, prevTask) {
-  let prevDone = !prevTask;
-  if (prevTask) {
-    prevTask.then(() => prevDone = true);
-  }
-  let done = false;
-  let loaded = skipLoading;
-  const requestComplete = new Task(() => loaded && done, () => prevDone);
-  target.addEventListener("loadstart", () => {
-    if (prevDone && !done && prog) {
-      prog.start(name2);
-    }
-  });
-  target.addEventListener("progress", (ev) => {
-    if (prevDone && !done) {
-      const evt = ev;
-      if (prog) {
-        prog.report(evt.loaded, Math.max(evt.loaded, evt.total), name2);
-      }
-      if (evt.loaded === evt.total) {
-        loaded = true;
-        requestComplete.resolve();
-      }
-    }
-  });
-  target.addEventListener("load", () => {
-    if (prevDone && !done) {
-      if (prog) {
-        prog.end(name2);
-      }
-      done = true;
-      requestComplete.resolve();
-    }
-  });
-  const onError = (msg) => () => requestComplete.reject(`${msg} (${xhr.status})`);
-  target.addEventListener("error", onError("error"));
-  target.addEventListener("abort", onError("abort"));
-  target.addEventListener("timeout", onError("timeout"));
-  return requestComplete;
-}
-function sendRequest(xhr, method, path, timeout, headers, body) {
-  xhr.open(method, path);
-  xhr.responseType = "blob";
-  xhr.timeout = timeout;
-  if (headers) {
-    for (const [key, value2] of headers) {
-      xhr.setRequestHeader(key, value2);
-    }
-  }
-  if (isDefined(body)) {
-    xhr.send(body);
-  } else {
-    xhr.send();
-  }
-}
-function readResponseHeader(headers, key, translate) {
-  if (!headers.has(key)) {
-    return null;
-  }
-  const value2 = headers.get(key);
-  try {
-    const translated = translate(value2);
-    headers.delete(key);
-    return translated;
-  } catch (exp) {
-    console.warn(key, exp);
-  }
-  return null;
-}
-var FILE_NAME_PATTERN = /filename=\"(.+)\"(;|$)/;
-var DB_NAME = "Juniper:Fetcher:Cache";
-var FetchingServiceImplXHR = class {
-  cacheReady;
-  cache = null;
-  store = null;
-  constructor() {
-    this.cacheReady = this.openCache();
-  }
-  async drawImageToCanvas(request, canvas, progress) {
-    const response = await this.sendNothingGetSomething("blob", request, progress);
-    const blob = response.content;
-    return using(await createImageBitmap(blob, {
-      imageOrientation: "none"
-    }), (img) => {
-      canvas.width = img.width;
-      canvas.height = img.height;
-      const g = canvas.getContext("2d");
-      g.drawImage(img, 0, 0);
-      return translateResponse(response, () => null);
-    });
-  }
-  async openCache() {
-    this.cache = await IDexDB.open(DB_NAME, {
-      name: "files",
-      options: {
-        keyPath: "path"
-      }
-    });
-    this.store = await this.cache.getStore("files");
-  }
-  async clearCache() {
-    await this.cacheReady;
-    await this.store.clear();
-  }
-  async readResponseHeaders(path, xhr) {
-    const headerParts = xhr.getAllResponseHeaders().split(/[\r\n]+/).map((v) => v.trim()).filter((v) => v.length > 0).map((line) => {
-      const parts = line.split(": ");
-      const key = parts.shift().toLowerCase();
-      const value2 = parts.join(": ");
-      return [key, value2];
-    });
-    const pList = new PriorityList(headerParts);
-    const normalizedHeaderParts = Array.from(pList.keys()).map((key) => [
-      key,
-      pList.get(key).join(", ")
-    ]);
-    const headers = new Map(normalizedHeaderParts);
-    const contentType = readResponseHeader(headers, "content-type", identity);
-    const contentLength = readResponseHeader(headers, "content-length", parseFloat);
-    const date = readResponseHeader(headers, "date", (v) => new Date(v));
-    const fileName = readResponseHeader(headers, "content-disposition", (v) => {
-      if (isDefined(v)) {
-        const match = v.match(FILE_NAME_PATTERN);
-        if (isDefined(match)) {
-          return match[1];
-        }
-      }
-      return null;
-    });
-    const response = {
-      status: xhr.status,
-      path,
-      content: void 0,
-      contentType,
-      contentLength,
-      fileName,
-      date,
-      headers
-    };
-    return response;
-  }
-  async readResponse(path, xhr) {
-    const {
-      status,
-      contentType,
-      contentLength,
-      fileName,
-      date,
-      headers
-    } = await this.readResponseHeaders(path, xhr);
-    const response = {
-      path,
-      status,
-      contentType,
-      contentLength,
-      fileName,
-      date,
-      headers,
-      content: xhr.response
-    };
-    if (isDefined(response.content)) {
-      response.contentType = response.contentType || response.content.type;
-      response.contentLength = response.contentLength || response.content.size;
-    }
-    return response;
-  }
-  async decodeContent(xhrType, response) {
-    return translateResponse(response, async (contentBlob) => {
-      if (xhrType === "") {
-        return null;
-      } else if (isNullOrUndefined(response.contentType)) {
-        const headerBlock = Array.from(response.headers.entries()).map((kv) => kv.join(": ")).join("\n  ");
-        throw new Error("No content type found in headers: \n  " + headerBlock);
-      } else if (xhrType === "blob") {
-        return contentBlob;
-      } else if (xhrType === "arraybuffer") {
-        return await contentBlob.arrayBuffer();
-      } else if (xhrType === "json") {
-        const text2 = await contentBlob.text();
-        if (text2.length > 0) {
-          return JSON.parse(text2);
-        } else {
-          return null;
-        }
-      } else if (xhrType === "document") {
-        const parser = new DOMParser();
-        if (response.contentType === "application/xhtml+xml" || response.contentType === "text/html" || response.contentType === "application/xml" || response.contentType === "image/svg+xml" || response.contentType === "text/xml") {
-          return parser.parseFromString(await contentBlob.text(), response.contentType);
-        } else {
-          throw new Error("Couldn't parse document");
-        }
-      } else if (xhrType === "text") {
-        return await contentBlob.text();
-      } else {
-        assertNever(xhrType);
-      }
-    });
-  }
-  tasks = new PriorityMap();
-  async withCachedTask(request, action) {
-    if (request.method !== "GET" && request.method !== "HEAD" && request.method !== "OPTIONS") {
-      return await action();
-    }
-    if (!this.tasks.has(request.method, request.path)) {
-      this.tasks.add(request.method, request.path, action().finally(() => this.tasks.delete(request.method, request.path)));
-    }
-    return this.tasks.get(request.method, request.path);
-  }
-  sendNothingGetNothing(request) {
-    return this.withCachedTask(request, async () => {
-      const xhr = new XMLHttpRequest();
-      const download = trackProgress(`requesting: ${request.path}`, xhr, xhr, null, true);
-      sendRequest(xhr, request.method, request.path, request.timeout, request.headers);
-      await download;
-      return await this.readResponseHeaders(request.path, xhr);
-    });
-  }
-  sendNothingGetSomething(xhrType, request, progress) {
-    return this.withCachedTask(request, async () => {
-      let response = null;
-      const useCache = request.useCache && request.method === "GET";
-      if (useCache) {
-        if (isDefined(progress)) {
-          progress.start();
-        }
-        await this.cacheReady;
-        response = await this.store.get(request.path);
-      }
-      const hadCachedResponse = isNullOrUndefined(response);
-      if (hadCachedResponse) {
-        const xhr = new XMLHttpRequest();
-        const download = trackProgress(`requesting: ${request.path}`, xhr, xhr, progress, true);
-        sendRequest(xhr, request.method, request.path, request.timeout, request.headers);
-        await download;
-        response = await this.readResponse(request.path, xhr);
-        if (useCache) {
-          await this.store.add(response);
-        }
-      }
-      const value2 = await this.decodeContent(xhrType, response);
-      if (hadCachedResponse && isDefined(progress)) {
-        progress.end();
-      }
-      return value2;
-    });
-  }
-  async sendSomethingGetSomething(xhrType, request, defaultPostHeaders, progress) {
-    let body = null;
-    const headers = mapJoin(/* @__PURE__ */ new Map(), defaultPostHeaders, request.headers);
-    if (request.body instanceof FormData && isDefined(headers)) {
-      const toDelete = new Array();
-      for (const key of headers.keys()) {
-        if (key.toLowerCase() === "content-type") {
-          toDelete.push(key);
-        }
-      }
-      for (const key of toDelete) {
-        headers.delete(key);
-      }
-    }
-    if (isXHRBodyInit(request.body) && !isString(request.body)) {
-      body = request.body;
-    } else if (isDefined(request.body)) {
-      body = JSON.stringify(request.body);
-    }
-    const progs = progressSplit(progress, 2);
-    const xhr = new XMLHttpRequest();
-    const upload = isDefined(body) ? trackProgress("uploading", xhr, xhr.upload, progs.shift(), false) : Promise.resolve();
-    const downloadProg = progs.shift();
-    const download = trackProgress("saving", xhr, xhr, downloadProg, true, upload);
-    sendRequest(xhr, request.method, request.path, request.timeout, headers, body);
-    await upload;
-    await download;
-    const response = await this.readResponse(request.path, xhr);
-    return await this.decodeContent(xhrType, response);
-  }
-};
-
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/attrs.ts
 var Attr = class {
   constructor(key, value2, bySetAttribute, ...tags) {
@@ -6251,6 +5666,351 @@ function BackgroundAudio(autoplay, mute, looping, ...rest) {
 }
 function BackgroundVideo(autoplay, mute, looping, ...rest) {
   return Video(playsInline(true), controls(false), muted(mute), autoPlay(autoplay), loop(looping), styles(display("none")), ...rest);
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/canvas.ts
+var hasHTMLCanvas = "HTMLCanvasElement" in globalThis;
+var hasHTMLImage = "HTMLImageElement" in globalThis;
+var disableAdvancedSettings = false;
+var hasOffscreenCanvas = !disableAdvancedSettings && "OffscreenCanvas" in globalThis;
+var hasImageBitmap = !disableAdvancedSettings && "createImageBitmap" in globalThis;
+function isHTMLCanvas(obj2) {
+  return hasHTMLCanvas && obj2 instanceof HTMLCanvasElement;
+}
+function isOffscreenCanvas(obj2) {
+  return hasOffscreenCanvas && obj2 instanceof OffscreenCanvas;
+}
+function isImageBitmap(img) {
+  return hasImageBitmap && img instanceof ImageBitmap;
+}
+function drawImageBitmapToCanvas2D(canv, img) {
+  const g = canv.getContext("2d");
+  if (isNullOrUndefined(g)) {
+    throw new Error("Could not create 2d context for canvas");
+  }
+  g.drawImage(img, 0, 0);
+}
+function testOffscreen2D() {
+  try {
+    const canv = new OffscreenCanvas(1, 1);
+    const g = canv.getContext("2d");
+    return g != null;
+  } catch (exp) {
+    return false;
+  }
+}
+var hasOffscreenCanvasRenderingContext2D = hasOffscreenCanvas && testOffscreen2D();
+var createUtilityCanvas = hasOffscreenCanvasRenderingContext2D && createOffscreenCanvas || hasHTMLCanvas && createCanvas || null;
+var createUICanvas = hasHTMLCanvas ? createCanvas : createUtilityCanvas;
+function testOffscreen3D() {
+  try {
+    const canv = new OffscreenCanvas(1, 1);
+    const g = canv.getContext("webgl2");
+    return g != null;
+  } catch (exp) {
+    return false;
+  }
+}
+var hasOffscreenCanvasRenderingContext3D = hasOffscreenCanvas && testOffscreen3D();
+function testBitmapRenderer() {
+  if (!hasHTMLCanvas && !hasOffscreenCanvas) {
+    return false;
+  }
+  try {
+    const canv = createUtilityCanvas(1, 1);
+    const g = canv.getContext("bitmaprenderer");
+    return g != null;
+  } catch (exp) {
+    return false;
+  }
+}
+var hasImageBitmapRenderingContext = hasImageBitmap && testBitmapRenderer();
+function createOffscreenCanvas(width2, height2) {
+  return new OffscreenCanvas(width2, height2);
+}
+function createCanvas(w, h) {
+  return Canvas(htmlWidth(w), htmlHeight(h));
+}
+function createCanvasFromImageBitmap(img) {
+  const canv = createCanvas(img.width, img.height);
+  drawImageBitmapToCanvas2D(canv, img);
+  return canv;
+}
+function drawImageToCanvas(canv, img) {
+  const g = canv.getContext("2d");
+  if (isNullOrUndefined(g)) {
+    throw new Error("Could not create 2d context for canvas");
+  }
+  g.drawImage(img, 0, 0);
+}
+function setCanvasSize(canv, w, h, superscale = 1) {
+  w = Math.floor(w * superscale);
+  h = Math.floor(h * superscale);
+  if (canv.width != w || canv.height != h) {
+    canv.width = w;
+    canv.height = h;
+    return true;
+  }
+  return false;
+}
+function is2DRenderingContext(ctx) {
+  return isDefined(ctx.textBaseline);
+}
+function setCanvas2DContextSize(ctx, w, h, superscale = 1) {
+  const oldImageSmoothingEnabled = ctx.imageSmoothingEnabled, oldTextBaseline = ctx.textBaseline, oldTextAlign = ctx.textAlign, oldFont = ctx.font, resized = setCanvasSize(ctx.canvas, w, h, superscale);
+  if (resized) {
+    ctx.imageSmoothingEnabled = oldImageSmoothingEnabled;
+    ctx.textBaseline = oldTextBaseline;
+    ctx.textAlign = oldTextAlign;
+    ctx.font = oldFont;
+  }
+  return resized;
+}
+function setContextSize(ctx, w, h, superscale = 1) {
+  if (is2DRenderingContext(ctx)) {
+    return setCanvas2DContextSize(ctx, w, h, superscale);
+  } else {
+    return setCanvasSize(ctx.canvas, w, h, superscale);
+  }
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/graphics2d/Dirt.ts
+var actionTypes = singleton("Juniper:Graphics2D:Dirt:StopTypes", () => /* @__PURE__ */ new Map([
+  ["drag", "move"],
+  ["dragcancel", "up"],
+  ["dragend", "up"],
+  ["dragstart", "down"],
+  ["mousedown", "down"],
+  ["mouseenter", "move"],
+  ["mouseleave", "up"],
+  ["mousemove", "move"],
+  ["mouseout", "up"],
+  ["mouseover", "move"],
+  ["mouseup", "up"],
+  ["pointerdown", "down"],
+  ["pointerenter", "move"],
+  ["pointerleave", "up"],
+  ["pointermove", "move"],
+  ["pointerout", "up"],
+  ["pointerup", "up"],
+  ["pointerover", "move"],
+  ["touchcancel", "up"],
+  ["touchend", "up"],
+  ["touchmove", "move"],
+  ["touchstart", "down"]
+]));
+var Dirt = class extends TypedEventBase {
+  constructor(width2, height2, fingerScale = 1) {
+    super();
+    this.fingerScale = fingerScale;
+    this.element = createCanvas(width2, height2);
+    this.bcanvas = createUICanvas(this.element.width, this.element.height);
+    this.fg = this.element.getContext("2d");
+    this.bg = this.bcanvas.getContext("2d");
+    this.bg.fillStyle = "rgb(50%, 50%, 50%)";
+    this.bg.fillRect(0, 0, this.bcanvas.width, this.bcanvas.height);
+    this.fg.drawImage(this.bcanvas, 0, 0);
+    this._update = this.update.bind(this);
+    this.finger = Img(src("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAAXNSR0IArs4c6QAAAqhJREFUOE+VVE1PE1EUPbfvDdOZUiwtdAr9pqQhZBIJQoCwYGX8SlgIaUgIEqb8AxQ2JP0Nuta1rtS4UH6CmBDcGqP+gS4waV3YwDP32akdLAl9yc3M3HnvvPt1DuGKpZSyARQBlAGU2s9oe/tXAK+J6PPl43TZoZQSAJK1Wq1Sr9cfSClnR0dH47lc7rxYLP5mcxwnZBgGg78F8JiIvvs4AUAG29nZmT89PX0WDofnk8kkxsbGkE6nkc1mkclk9HsqlUI8HvcxfgLYIKIjdnQAlVLkuu6der3+MhqNxhKJBCzLghBCG7/zBeVyGYuLi1heXgZR5/g5gIdE9K7jcRzHbTabx7Zt25FIBFJKTE9Po1QqIRr9W7pWq6UtFAphYmIC6+vr3ZE2ANzyAckwjGPTNOc5EgZYXV1FLBbr2TKllI6OL97d3e3ed+QD3hVCfAiHwzBNE1tbWxgeHr5qAAL+8fFxDeqn7wM+F0JUGWxhYQErKyvXAvM3ra2twXVd/ekD/hBCFAzDgOd5uvj9rMnJSWxubv4DJKKWEEJyN/f393VX+1mDg4PY29sLRPhLSmlx9w4ODvoG5AAODw8DgF+EEGX+wQXuN+VeEb6QUno8e0tLS3035b8aArgnpXw/MDAAtu3t7WuPDefZq8s82J9M05zjeRoZGdGDfdUsXlxcaLbw6jmHzONUKuU2Go2PTD1mAtdlZmZGU6wX9ZhRzJRqtdp9cYcpYKWZmpq6fXZ29ioSidxgUE6fgYeGhgLGPr6oUql0064JYDagNgBsz/NunpycPLUsa862bZ0aD7yvNtyAa6kN10MpJQEwiWO1Wu1+t8Dm83ktsIVCgQVWtAWWj7HKPCKiNwE99JnhKzaAHCs3171tWQAZAGkADoAEAAZ5QkTf/PN/ACV4rJ9AdCf3AAAAAElFTkSuQmCC"));
+  }
+  element;
+  finger;
+  bcanvas;
+  fg;
+  bg;
+  _update;
+  updateEvt = new TypedEvent("update");
+  pressed = false;
+  pointerId = null;
+  x = null;
+  y = null;
+  lx = null;
+  ly = null;
+  timer = null;
+  update() {
+    const dx = this.lx - this.x;
+    const dy = this.ly - this.y;
+    if (Math.abs(dx) + Math.abs(dy) > 0 && this.pressed) {
+      const a = Math.atan2(dy, dx) + Math.PI;
+      const d = Math.round(Math.sqrt(dx * dx + dy * dy));
+      this.bg.save();
+      this.bg.translate(this.lx, this.ly);
+      this.bg.rotate(a);
+      this.bg.translate(-0.5 * this.finger.width * this.fingerScale, -0.5 * this.finger.height * this.fingerScale);
+      for (let i = 0; i <= d; ++i) {
+        this.bg.drawImage(this.finger, 0, 0, this.finger.width, this.finger.height, i, 0, this.finger.width * this.fingerScale, this.finger.height * this.fingerScale);
+      }
+      this.bg.restore();
+    }
+    this.fg.drawImage(this.bcanvas, 0, 0);
+    this.lx = this.x;
+    this.ly = this.y;
+    this.timer = null;
+    this.dispatchEvent(this.updateEvt);
+  }
+  stop() {
+    this.pressed = false;
+  }
+  checkPointer(id2, x, y, type2) {
+    const action = actionTypes.get(type2) || "up";
+    const start2 = action === "down" && this.pointerId === null;
+    const sustain = action === "move" && id2 === this.pointerId && this.pressed;
+    this.x = x;
+    this.y = y;
+    if (start2) {
+      this.lx = x;
+      this.ly = y;
+    }
+    this.pressed = start2 || sustain;
+    if (this.pressed) {
+      this.pointerId = id2;
+      if (isDefined(this.timer)) {
+        clearTimeout(this.timer);
+        this.timer = null;
+      }
+      this.timer = setTimeout(this._update, 10);
+    } else {
+      this.pointerId = null;
+    }
+  }
+  checkPointerUV(id2, x, y, type2) {
+    this.checkPointer(id2, x * this.element.width, y * this.element.height, type2);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/typeChecks.ts
+function isMesh(obj2) {
+  return isDefined(obj2) && obj2.isMesh;
+}
+function isMaterial(obj2) {
+  return isDefined(obj2) && obj2.isMaterial;
+}
+function isMeshBasicMaterial(obj2) {
+  return isMaterial(obj2) && obj2.type === "MeshBasicMaterial";
+}
+function isObject3D(obj2) {
+  return isDefined(obj2) && obj2.isObject3D;
+}
+function isQuaternion(obj2) {
+  return isDefined(obj2) && obj2.isQuaternion;
+}
+function isEuler(obj2) {
+  return isDefined(obj2) && obj2.isEuler;
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/objects.ts
+function isErsatzObject(obj2) {
+  return isDefined(obj2) && isObject3D(obj2.object);
+}
+function objectResolve(obj2) {
+  if (isErsatzObject(obj2)) {
+    return obj2.object;
+  }
+  return obj2;
+}
+function objectSetVisible(obj2, visible) {
+  obj2 = objectResolve(obj2);
+  obj2.visible = visible;
+  return visible;
+}
+function objectIsVisible(obj2) {
+  obj2 = objectResolve(obj2);
+  return obj2.visible;
+}
+function objectIsFullyVisible(obj2) {
+  obj2 = objectResolve(obj2);
+  while (obj2) {
+    if (!obj2.visible) {
+      return false;
+    }
+    obj2 = obj2.parent;
+  }
+  return true;
+}
+function objGraph(obj2, ...children) {
+  const toAdd = children.filter(isDefined).map(objectResolve);
+  if (toAdd.length > 0) {
+    objectResolve(obj2).add(...toAdd);
+  }
+  return obj2;
+}
+function obj(name2, ...rest) {
+  const obj2 = new THREE.Object3D();
+  obj2.name = name2;
+  objGraph(obj2, ...rest);
+  return obj2;
+}
+function objectSetEnabled(obj2, enabled) {
+  obj2 = objectResolve(obj2);
+  if (isDisableable(obj2)) {
+    obj2.disabled = !enabled;
+  }
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/RayTarget.ts
+var RAY_TARGET_KEY = "Juniper:ThreeJS:EventSystem:RayTarget";
+var RayTarget = class extends TypedEventBase {
+  constructor(object) {
+    super();
+    this.object = object;
+    this.object.userData[RAY_TARGET_KEY] = this;
+  }
+  meshes = new Array();
+  _disabled = false;
+  _clickable = false;
+  _draggable = false;
+  addMesh(mesh) {
+    mesh.userData[RAY_TARGET_KEY] = this;
+    this.meshes.push(mesh);
+    return this;
+  }
+  get disabled() {
+    return this._disabled;
+  }
+  set disabled(v) {
+    this._disabled = v;
+  }
+  get enabled() {
+    return !this.disabled;
+  }
+  set enabled(v) {
+    this.disabled = !v;
+  }
+  get clickable() {
+    return this._clickable;
+  }
+  set clickable(v) {
+    this._clickable = v;
+  }
+  get draggable() {
+    return this._draggable;
+  }
+  set draggable(v) {
+    this._draggable = v;
+  }
+};
+function isRayTarget(obj2) {
+  return obj2 instanceof RayTarget;
+}
+function isIntersection(obj2) {
+  return isDefined(obj2) && isNumber(obj2.distance) && obj2.point instanceof THREE.Vector3 && (obj2.object === null || obj2.object instanceof THREE.Object3D);
+}
+function getRayTarget(obj2) {
+  if (!obj2) {
+    return null;
+  }
+  if (isRayTarget(obj2)) {
+    return obj2;
+  } else if (isIntersection(obj2) || isErsatzObject(obj2)) {
+    obj2 = obj2.object;
+  }
+  return obj2 && obj2.userData[RAY_TARGET_KEY];
+}
+function assureRayTarget(obj2) {
+  if (!obj2) {
+    throw new Error("object is not defined");
+  }
+  return getRayTarget(obj2) || new RayTarget(objectResolve(obj2));
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/onUserGesture.ts
@@ -6723,18 +6483,18 @@ var DeviceManager = class extends TypedEventBase {
     super();
     this.element = element;
     this.needsVideoDevice = needsVideoDevice;
-    this._hasAudioPermission = false;
-    this._hasVideoPermission = false;
-    this._currentStream = null;
     this.ready = this.start();
     Object.seal(this);
   }
+  _hasAudioPermission = false;
   get hasAudioPermission() {
     return this._hasAudioPermission;
   }
+  _hasVideoPermission = false;
   get hasVideoPermission() {
     return this._hasVideoPermission;
   }
+  _currentStream = null;
   get currentStream() {
     return this._currentStream;
   }
@@ -6748,6 +6508,7 @@ var DeviceManager = class extends TypedEventBase {
       this._currentStream = v;
     }
   }
+  ready;
   async start() {
     if (canChangeAudioOutput) {
       const device = await this.getPreferredAudioOutput();
@@ -7966,111 +7727,622 @@ var AudioPlayer = class extends BaseAudioSource {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/canvas.ts
-var hasHTMLCanvas = "HTMLCanvasElement" in globalThis;
-var hasHTMLImage = "HTMLImageElement" in globalThis;
-var disableAdvancedSettings = false;
-var hasOffscreenCanvas = !disableAdvancedSettings && "OffscreenCanvas" in globalThis;
-var hasImageBitmap = !disableAdvancedSettings && "createImageBitmap" in globalThis;
-function isHTMLCanvas(obj2) {
-  return hasHTMLCanvas && obj2 instanceof HTMLCanvasElement;
-}
-function isOffscreenCanvas(obj2) {
-  return hasOffscreenCanvas && obj2 instanceof OffscreenCanvas;
-}
-function isImageBitmap(img) {
-  return hasImageBitmap && img instanceof ImageBitmap;
-}
-function drawImageBitmapToCanvas2D(canv, img) {
-  const g = canv.getContext("2d");
-  if (isNullOrUndefined(g)) {
-    throw new Error("Could not create 2d context for canvas");
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher-base/Asset.ts
+var BaseAsset = class {
+  constructor(path, type2) {
+    this.path = path;
+    this.type = type2;
+    this.promise = new Promise((resolve, reject) => {
+      this.resolve = (value2) => {
+        this._result = value2;
+        this._finished = true;
+        resolve(value2);
+      };
+      this.reject = (reason) => {
+        this._error = reason;
+        this._finished = true;
+        reject(reason);
+      };
+    });
   }
-  g.drawImage(img, 0, 0);
-}
-function testOffscreen2D() {
-  try {
-    const canv = new OffscreenCanvas(1, 1);
-    const g = canv.getContext("2d");
-    return g != null;
-  } catch (exp) {
-    return false;
+  promise;
+  _result = null;
+  _error = null;
+  _started = false;
+  _finished = false;
+  get result() {
+    if (isDefined(this.error)) {
+      throw this.error;
+    }
+    return this._result;
   }
-}
-var hasOffscreenCanvasRenderingContext2D = hasOffscreenCanvas && testOffscreen2D();
-var createUtilityCanvas = hasOffscreenCanvasRenderingContext2D && createOffscreenCanvas || hasHTMLCanvas && createCanvas || null;
-var createUICanvas = hasHTMLCanvas ? createCanvas : createUtilityCanvas;
-function testOffscreen3D() {
-  try {
-    const canv = new OffscreenCanvas(1, 1);
-    const g = canv.getContext("webgl2");
-    return g != null;
-  } catch (exp) {
-    return false;
+  get error() {
+    return this._error;
   }
-}
-var hasOffscreenCanvasRenderingContext3D = hasOffscreenCanvas && testOffscreen3D();
-function testBitmapRenderer() {
-  if (!hasHTMLCanvas && !hasOffscreenCanvas) {
-    return false;
+  get started() {
+    return this._started;
   }
-  try {
-    const canv = createUtilityCanvas(1, 1);
-    const g = canv.getContext("bitmaprenderer");
-    return g != null;
-  } catch (exp) {
-    return false;
+  get finished() {
+    return this._finished;
   }
-}
-var hasImageBitmapRenderingContext = hasImageBitmap && testBitmapRenderer();
-function createOffscreenCanvas(width2, height2) {
-  return new OffscreenCanvas(width2, height2);
-}
-function createCanvas(w, h) {
-  return Canvas(htmlWidth(w), htmlHeight(h));
-}
-function createCanvasFromImageBitmap(img) {
-  const canv = createCanvas(img.width, img.height);
-  drawImageBitmapToCanvas2D(canv, img);
-  return canv;
-}
-function drawImageToCanvas(canv, img) {
-  const g = canv.getContext("2d");
-  if (isNullOrUndefined(g)) {
-    throw new Error("Could not create 2d context for canvas");
+  resolve = null;
+  reject = null;
+  getSize(fetcher) {
+    return fetcher.head(this.path).exec().then((response) => [this, response.contentLength]);
   }
-  g.drawImage(img, 0, 0);
-}
-function setCanvasSize(canv, w, h, superscale = 1) {
-  w = Math.floor(w * superscale);
-  h = Math.floor(h * superscale);
-  if (canv.width != w || canv.height != h) {
-    canv.width = w;
-    canv.height = h;
-    return true;
+  async fetch(fetcher, prog) {
+    try {
+      const result = await this.getResult(fetcher, prog);
+      this.resolve(result);
+    } catch (err) {
+      this.reject(err);
+    }
   }
-  return false;
-}
-function is2DRenderingContext(ctx) {
-  return isDefined(ctx.textBaseline);
-}
-function setCanvas2DContextSize(ctx, w, h, superscale = 1) {
-  const oldImageSmoothingEnabled = ctx.imageSmoothingEnabled, oldTextBaseline = ctx.textBaseline, oldTextAlign = ctx.textAlign, oldFont = ctx.font, resized = setCanvasSize(ctx.canvas, w, h, superscale);
-  if (resized) {
-    ctx.imageSmoothingEnabled = oldImageSmoothingEnabled;
-    ctx.textBaseline = oldTextBaseline;
-    ctx.textAlign = oldTextAlign;
-    ctx.font = oldFont;
+  get [Symbol.toStringTag]() {
+    return this.promise.toString();
   }
-  return resized;
+  then(onfulfilled, onrejected) {
+    return this.promise.then(onfulfilled, onrejected);
+  }
+  catch(onrejected) {
+    return this.promise.catch(onrejected);
+  }
+  finally(onfinally) {
+    return this.promise.finally(onfinally);
+  }
+};
+var AssetCustom = class extends BaseAsset {
+  constructor(path, type2, getter) {
+    super(path, type2);
+    this.getter = getter;
+  }
+  getResult(fetcher, prog) {
+    return this.getter(fetcher, this.path, this.type, prog);
+  }
+};
+var BaseFetchedAsset = class extends BaseAsset {
+  constructor(path, type2) {
+    super(path, type2);
+  }
+  async getResult(fetcher, prog) {
+    const response = await this.getRequest(fetcher, prog);
+    return response.content;
+  }
+  getRequest(fetcher, prog) {
+    const request = fetcher.get(this.path).progress(prog);
+    return this.getResponse(request);
+  }
+};
+var AssetAudio = class extends BaseFetchedAsset {
+  getResponse(request) {
+    return request.audio(false, false, this.type);
+  }
+};
+var AssetImage = class extends BaseFetchedAsset {
+  getResponse(request) {
+    return request.image(this.type);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/indexdb/index.ts
+var IDexDB = class {
+  constructor(db) {
+    this.db = db;
+  }
+  static async getCurrentVersion(dbName) {
+    if (isDefined(indexedDB.databases)) {
+      const databases = await indexedDB.databases();
+      for (const { name: name2, version: version2 } of databases) {
+        if (name2 === dbName) {
+          return version2;
+        }
+      }
+    }
+    return null;
+  }
+  static delete(dbName) {
+    const deleteRequest = indexedDB.deleteDatabase(dbName);
+    const task = once(deleteRequest, "success", "error", "blocked");
+    return success(task);
+  }
+  static async open(name2, ...storeDefs) {
+    const storesByName = mapMap(storeDefs, (v) => v.name, identity);
+    const indexesByName = new PriorityMap(storeDefs.filter((storeDef) => isDefined(storeDef.indexes)).flatMap((storeDef) => storeDef.indexes.map((indexDef) => [storeDef.name, indexDef.name, indexDef])));
+    const storesToAdd = new Array();
+    const storesToRemove = new Array();
+    const storesToChange = new Array();
+    const indexesToAdd = new PriorityList();
+    const indexesToRemove = new PriorityList();
+    let version2 = await this.getCurrentVersion(name2);
+    if (isNullOrUndefined(version2)) {
+      storesToAdd.push(...storesByName.keys());
+      for (const storeDef of storeDefs) {
+        if (isDefined(storeDef.indexes)) {
+          for (const indexDef of storeDef.indexes) {
+            indexesToAdd.add(storeDef.name, indexDef.name);
+          }
+        }
+      }
+    } else {
+      const D2 = indexedDB.open(name2);
+      if (await success(once(D2, "success", "error", "blocked"))) {
+        const db = D2.result;
+        const storesToScrutinize = new Array();
+        for (const storeName of Array.from(db.objectStoreNames)) {
+          if (!storesByName.has(storeName)) {
+            storesToRemove.push(storeName);
+          }
+        }
+        for (const storeName of storesByName.keys()) {
+          if (!db.objectStoreNames.contains(storeName)) {
+            storesToAdd.push(storeName);
+          } else {
+            storesToScrutinize.push(storeName);
+          }
+        }
+        if (storesToScrutinize.length > 0) {
+          const transaction = db.transaction(storesToScrutinize);
+          const transacting = once(transaction, "complete", "error", "abort");
+          const transacted = success(transacting);
+          for (const storeName of storesToScrutinize) {
+            const store = transaction.objectStore(storeName);
+            for (const indexName of Array.from(store.indexNames)) {
+              if (!indexesByName.has(storeName, indexName)) {
+                if (storesToChange.indexOf(storeName) === -1) {
+                  storesToChange.push(storeName);
+                }
+                indexesToRemove.add(storeName, indexName);
+              }
+            }
+            if (indexesByName.has(storeName)) {
+              for (const indexName of indexesByName.get(storeName).keys()) {
+                if (!store.indexNames.contains(indexName)) {
+                  if (storesToChange.indexOf(storeName) === -1) {
+                    storesToChange.push(storeName);
+                  }
+                  indexesToAdd.add(storeName, indexName);
+                } else {
+                  const indexDef = indexesByName.get(storeName, indexName);
+                  const index = store.index(indexName);
+                  if (isString(indexDef.keyPath) !== isString(index.keyPath) || isString(indexDef.keyPath) && isString(index.keyPath) && indexDef.keyPath !== index.keyPath || isArray(indexDef.keyPath) && isArray(index.keyPath) && arrayCompare(indexDef.keyPath, index.keyPath)) {
+                    if (storesToChange.indexOf(storeName) === -1) {
+                      storesToChange.push(storeName);
+                    }
+                    indexesToRemove.add(storeName, indexName);
+                    indexesToAdd.add(storeName, indexName);
+                  }
+                }
+              }
+            }
+          }
+          transaction.commit();
+          await transacted;
+        }
+        db.close();
+      }
+      if (storesToAdd.length > 0 || storesToRemove.length > 0 || indexesToAdd.size > 0 || indexesToRemove.size > 0) {
+        ++version2;
+      }
+    }
+    const upgrading = new Task();
+    const openRequest = isDefined(version2) ? indexedDB.open(name2, version2) : indexedDB.open(name2);
+    const opening = once(openRequest, "success", "error", "blocked");
+    const upgraded = success(upgrading);
+    const opened = success(opening);
+    const noUpgrade = () => upgrading.resolve(false);
+    openRequest.addEventListener("success", noUpgrade);
+    openRequest.addEventListener("upgradeneeded", () => {
+      const transacting = once(openRequest.transaction, "complete", "error", "abort");
+      const db = openRequest.result;
+      for (const storeName of storesToRemove) {
+        db.deleteObjectStore(storeName);
+      }
+      const stores = /* @__PURE__ */ new Map();
+      for (const storeName of storesToAdd) {
+        const storeDef = storesByName.get(storeName);
+        const store = db.createObjectStore(storeName, storeDef.options);
+        stores.set(storeName, store);
+      }
+      for (const storeName of storesToChange) {
+        const store = openRequest.transaction.objectStore(storeName);
+        stores.set(storeName, store);
+      }
+      for (const [storeName, store] of stores) {
+        for (const indexName of indexesToRemove.get(storeName)) {
+          store.deleteIndex(indexName);
+        }
+        for (const indexName of indexesToAdd.get(storeName)) {
+          const indexDef = indexesByName.get(storeName, indexName);
+          store.createIndex(indexName, indexDef.keyPath, indexDef.options);
+        }
+      }
+      success(transacting).then(upgrading.resolve).catch(upgrading.reject).finally(() => openRequest.removeEventListener("success", noUpgrade));
+    });
+    if (!await upgraded) {
+      throw upgrading.error;
+    }
+    if (!await opened) {
+      throw opening.error;
+    }
+    return new IDexDB(openRequest.result);
+  }
+  dispose() {
+    this.db.close();
+  }
+  get name() {
+    return this.db.name;
+  }
+  get version() {
+    return this.db.version;
+  }
+  get storeNames() {
+    return Array.from(this.db.objectStoreNames);
+  }
+  getStore(storeName) {
+    return new IDexStore(this.db, storeName);
+  }
+};
+var IDexStore = class {
+  constructor(db, storeName) {
+    this.db = db;
+    this.storeName = storeName;
+  }
+  async request(makeRequest, mode) {
+    const transaction = this.db.transaction(this.storeName, mode);
+    const transacting = once(transaction, "complete", "error");
+    const store = transaction.objectStore(this.storeName);
+    const request = makeRequest(store);
+    const requesting = once(request, "success", "error");
+    if (!await success(requesting)) {
+      transaction.abort();
+      throw requesting.error;
+    }
+    transaction.commit();
+    if (!await success(transacting)) {
+      throw transacting.error;
+    }
+    return request.result;
+  }
+  add(value2, key) {
+    return this.request((store) => store.add(value2, key), "readwrite");
+  }
+  clear() {
+    return this.request((store) => store.clear(), "readwrite");
+  }
+  getCount(query) {
+    return this.request((store) => store.count(query), "readonly");
+  }
+  delete(query) {
+    return this.request((store) => store.delete(query), "readwrite");
+  }
+  get(key) {
+    return this.request((store) => store.get(key), "readonly");
+  }
+  getAll() {
+    return this.request((store) => store.getAll(), "readonly");
+  }
+  getAllKeys() {
+    return this.request((store) => store.getAllKeys(), "readonly");
+  }
+  getKey(query) {
+    return this.request((store) => store.getKey(query), "readonly");
+  }
+  openCursor(query, direction) {
+    return this.request((store) => store.openCursor(query, direction), "readonly");
+  }
+  openKeyCursor(query, direction) {
+    return this.request((store) => store.openKeyCursor(query, direction), "readonly");
+  }
+  put(value2, key) {
+    return this.request((store) => store.put(value2, key), "readwrite");
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher-base/ResponseTranslator.ts
+async function translateResponse(response, translate) {
+  const {
+    status,
+    path,
+    content,
+    contentType,
+    contentLength,
+    fileName,
+    headers,
+    date
+  } = response;
+  return {
+    status,
+    path,
+    content: await translate(content),
+    contentType,
+    contentLength,
+    fileName,
+    headers,
+    date
+  };
 }
-function setContextSize(ctx, w, h, superscale = 1) {
-  if (is2DRenderingContext(ctx)) {
-    return setCanvas2DContextSize(ctx, w, h, superscale);
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher-base/FetchingServiceImplXHR.ts
+function isXHRBodyInit(obj2) {
+  return isString(obj2) || isArrayBufferView(obj2) || obj2 instanceof Blob || obj2 instanceof FormData || isArrayBuffer(obj2) || obj2 instanceof ReadableStream || "Document" in globalThis && obj2 instanceof Document;
+}
+function trackProgress(name2, xhr, target, prog, skipLoading, prevTask) {
+  let prevDone = !prevTask;
+  if (prevTask) {
+    prevTask.then(() => prevDone = true);
+  }
+  let done = false;
+  let loaded = skipLoading;
+  const requestComplete = new Task(() => loaded && done, () => prevDone);
+  target.addEventListener("loadstart", () => {
+    if (prevDone && !done && prog) {
+      prog.start(name2);
+    }
+  });
+  target.addEventListener("progress", (ev) => {
+    if (prevDone && !done) {
+      const evt = ev;
+      if (prog) {
+        prog.report(evt.loaded, Math.max(evt.loaded, evt.total), name2);
+      }
+      if (evt.loaded === evt.total) {
+        loaded = true;
+        requestComplete.resolve();
+      }
+    }
+  });
+  target.addEventListener("load", () => {
+    if (prevDone && !done) {
+      if (prog) {
+        prog.end(name2);
+      }
+      done = true;
+      requestComplete.resolve();
+    }
+  });
+  const onError = (msg) => () => requestComplete.reject(`${msg} (${xhr.status})`);
+  target.addEventListener("error", onError("error"));
+  target.addEventListener("abort", onError("abort"));
+  target.addEventListener("timeout", onError("timeout"));
+  return requestComplete;
+}
+function sendRequest(xhr, method, path, timeout, headers, body) {
+  xhr.open(method, path);
+  xhr.responseType = "blob";
+  xhr.timeout = timeout;
+  if (headers) {
+    for (const [key, value2] of headers) {
+      xhr.setRequestHeader(key, value2);
+    }
+  }
+  if (isDefined(body)) {
+    xhr.send(body);
   } else {
-    return setCanvasSize(ctx.canvas, w, h, superscale);
+    xhr.send();
   }
 }
+function readResponseHeader(headers, key, translate) {
+  if (!headers.has(key)) {
+    return null;
+  }
+  const value2 = headers.get(key);
+  try {
+    const translated = translate(value2);
+    headers.delete(key);
+    return translated;
+  } catch (exp) {
+    console.warn(key, exp);
+  }
+  return null;
+}
+var FILE_NAME_PATTERN = /filename=\"(.+)\"(;|$)/;
+var DB_NAME = "Juniper:Fetcher:Cache";
+var FetchingServiceImplXHR = class {
+  cacheReady;
+  cache = null;
+  store = null;
+  constructor() {
+    this.cacheReady = this.openCache();
+  }
+  async drawImageToCanvas(request, canvas, progress) {
+    const response = await this.sendNothingGetSomething("blob", request, progress);
+    const blob = response.content;
+    return using(await createImageBitmap(blob, {
+      imageOrientation: "none"
+    }), (img) => {
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const g = canvas.getContext("2d");
+      g.drawImage(img, 0, 0);
+      return translateResponse(response, () => null);
+    });
+  }
+  async openCache() {
+    this.cache = await IDexDB.open(DB_NAME, {
+      name: "files",
+      options: {
+        keyPath: "path"
+      }
+    });
+    this.store = await this.cache.getStore("files");
+  }
+  async clearCache() {
+    await this.cacheReady;
+    await this.store.clear();
+  }
+  async readResponseHeaders(path, xhr) {
+    const headerParts = xhr.getAllResponseHeaders().split(/[\r\n]+/).map((v) => v.trim()).filter((v) => v.length > 0).map((line) => {
+      const parts = line.split(": ");
+      const key = parts.shift().toLowerCase();
+      const value2 = parts.join(": ");
+      return [key, value2];
+    });
+    const pList = new PriorityList(headerParts);
+    const normalizedHeaderParts = Array.from(pList.keys()).map((key) => [
+      key,
+      pList.get(key).join(", ")
+    ]);
+    const headers = new Map(normalizedHeaderParts);
+    const contentType = readResponseHeader(headers, "content-type", identity);
+    const contentLength = readResponseHeader(headers, "content-length", parseFloat);
+    const date = readResponseHeader(headers, "date", (v) => new Date(v));
+    const fileName = readResponseHeader(headers, "content-disposition", (v) => {
+      if (isDefined(v)) {
+        const match = v.match(FILE_NAME_PATTERN);
+        if (isDefined(match)) {
+          return match[1];
+        }
+      }
+      return null;
+    });
+    const response = {
+      status: xhr.status,
+      path,
+      content: void 0,
+      contentType,
+      contentLength,
+      fileName,
+      date,
+      headers
+    };
+    return response;
+  }
+  async readResponse(path, xhr) {
+    const {
+      status,
+      contentType,
+      contentLength,
+      fileName,
+      date,
+      headers
+    } = await this.readResponseHeaders(path, xhr);
+    const response = {
+      path,
+      status,
+      contentType,
+      contentLength,
+      fileName,
+      date,
+      headers,
+      content: xhr.response
+    };
+    if (isDefined(response.content)) {
+      response.contentType = response.contentType || response.content.type;
+      response.contentLength = response.contentLength || response.content.size;
+    }
+    return response;
+  }
+  async decodeContent(xhrType, response) {
+    return translateResponse(response, async (contentBlob) => {
+      if (xhrType === "") {
+        return null;
+      } else if (isNullOrUndefined(response.contentType)) {
+        const headerBlock = Array.from(response.headers.entries()).map((kv) => kv.join(": ")).join("\n  ");
+        throw new Error("No content type found in headers: \n  " + headerBlock);
+      } else if (xhrType === "blob") {
+        return contentBlob;
+      } else if (xhrType === "arraybuffer") {
+        return await contentBlob.arrayBuffer();
+      } else if (xhrType === "json") {
+        const text2 = await contentBlob.text();
+        if (text2.length > 0) {
+          return JSON.parse(text2);
+        } else {
+          return null;
+        }
+      } else if (xhrType === "document") {
+        const parser = new DOMParser();
+        if (response.contentType === "application/xhtml+xml" || response.contentType === "text/html" || response.contentType === "application/xml" || response.contentType === "image/svg+xml" || response.contentType === "text/xml") {
+          return parser.parseFromString(await contentBlob.text(), response.contentType);
+        } else {
+          throw new Error("Couldn't parse document");
+        }
+      } else if (xhrType === "text") {
+        return await contentBlob.text();
+      } else {
+        assertNever(xhrType);
+      }
+    });
+  }
+  tasks = new PriorityMap();
+  async withCachedTask(request, action) {
+    if (request.method !== "GET" && request.method !== "HEAD" && request.method !== "OPTIONS") {
+      return await action();
+    }
+    if (!this.tasks.has(request.method, request.path)) {
+      this.tasks.add(request.method, request.path, action().finally(() => this.tasks.delete(request.method, request.path)));
+    }
+    return this.tasks.get(request.method, request.path);
+  }
+  sendNothingGetNothing(request) {
+    return this.withCachedTask(request, async () => {
+      const xhr = new XMLHttpRequest();
+      const download = trackProgress(`requesting: ${request.path}`, xhr, xhr, null, true);
+      sendRequest(xhr, request.method, request.path, request.timeout, request.headers);
+      await download;
+      return await this.readResponseHeaders(request.path, xhr);
+    });
+  }
+  sendNothingGetSomething(xhrType, request, progress) {
+    return this.withCachedTask(request, async () => {
+      let response = null;
+      const useCache = request.useCache && request.method === "GET";
+      if (useCache) {
+        if (isDefined(progress)) {
+          progress.start();
+        }
+        await this.cacheReady;
+        response = await this.store.get(request.path);
+      }
+      const hadCachedResponse = isNullOrUndefined(response);
+      if (hadCachedResponse) {
+        const xhr = new XMLHttpRequest();
+        const download = trackProgress(`requesting: ${request.path}`, xhr, xhr, progress, true);
+        sendRequest(xhr, request.method, request.path, request.timeout, request.headers);
+        await download;
+        response = await this.readResponse(request.path, xhr);
+        if (useCache) {
+          await this.store.add(response);
+        }
+      }
+      const value2 = await this.decodeContent(xhrType, response);
+      if (hadCachedResponse && isDefined(progress)) {
+        progress.end();
+      }
+      return value2;
+    });
+  }
+  async sendSomethingGetSomething(xhrType, request, defaultPostHeaders, progress) {
+    let body = null;
+    const headers = mapJoin(/* @__PURE__ */ new Map(), defaultPostHeaders, request.headers);
+    if (request.body instanceof FormData && isDefined(headers)) {
+      const toDelete = new Array();
+      for (const key of headers.keys()) {
+        if (key.toLowerCase() === "content-type") {
+          toDelete.push(key);
+        }
+      }
+      for (const key of toDelete) {
+        headers.delete(key);
+      }
+    }
+    if (isXHRBodyInit(request.body) && !isString(request.body)) {
+      body = request.body;
+    } else if (isDefined(request.body)) {
+      body = JSON.stringify(request.body);
+    }
+    const progs = progressSplit(progress, 2);
+    const xhr = new XMLHttpRequest();
+    const upload = isDefined(body) ? trackProgress("uploading", xhr, xhr.upload, progs.shift(), false) : Promise.resolve();
+    const downloadProg = progs.shift();
+    const download = trackProgress("saving", xhr, xhr, downloadProg, true, upload);
+    sendRequest(xhr, request.method, request.path, request.timeout, headers, body);
+    await upload;
+    await download;
+    const response = await this.readResponse(request.path, xhr);
+    return await this.decodeContent(xhrType, response);
+  }
+};
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/graphics2d/CanvasImage.ts
 var CanvasImage = class extends TypedEventBase {
@@ -8869,6 +9141,194 @@ var ClockImage = class extends TextImage {
   }
 };
 
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/util.ts
+var typePattern = /([^\/]+)\/(.+)/;
+var subTypePattern = /(?:([^\.]+)\.)?([^\+;]+)(?:\+([^;]+))?((?:; *([^=]+)=([^;]+))*)/;
+var MediaType = class {
+  constructor(_type, _fullSubType, extensions) {
+    this._type = _type;
+    this._fullSubType = _fullSubType;
+    this._primaryExtension = null;
+    this.depMessage = null;
+    const parameters = /* @__PURE__ */ new Map();
+    this._parameters = parameters;
+    const subTypeParts = this._fullSubType.match(subTypePattern);
+    this._tree = subTypeParts[1];
+    this._subType = subTypeParts[2];
+    this._suffix = subTypeParts[3];
+    const paramStr = subTypeParts[4];
+    this._value = this._fullValue = this._type + "/";
+    if (isDefined(this._tree)) {
+      this._value = this._fullValue += this._tree + ".";
+    }
+    this._value = this._fullValue += this._subType;
+    if (isDefined(this._suffix)) {
+      this._value = this._fullValue += "+" + this._suffix;
+    }
+    if (isDefined(paramStr)) {
+      const pairs = paramStr.split(";").map((p) => p.trim()).filter((p) => p.length > 0).map((p) => p.split("="));
+      for (const [key, ...values] of pairs) {
+        const value2 = values.join("=");
+        parameters.set(key, value2);
+        const slug = `; ${key}=${value2}`;
+        this._fullValue += slug;
+        if (key !== "q") {
+          this._value += slug;
+        }
+      }
+    }
+    this._extensions = extensions || [];
+    this._primaryExtension = this._extensions[0] || null;
+  }
+  static parse(value2) {
+    if (!value2) {
+      return null;
+    }
+    const match = value2.match(typePattern);
+    if (!match) {
+      return null;
+    }
+    const type2 = match[1];
+    const subType = match[2];
+    return new MediaType(type2, subType);
+  }
+  deprecate(message) {
+    this.depMessage = message;
+    return this;
+  }
+  check() {
+    if (isDefined(this.depMessage)) {
+      console.warn(`${this._value} is deprecated ${this.depMessage}`);
+    }
+  }
+  matches(value2) {
+    if (isNullOrUndefined(value2)) {
+      return false;
+    }
+    if (this.typeName === "*" && this.subTypeName === "*") {
+      return true;
+    }
+    let typeName = null;
+    let subTypeName = null;
+    if (isString(value2)) {
+      const match = value2.match(typePattern);
+      if (!match) {
+        return false;
+      }
+      typeName = match[1];
+      subTypeName = match[2];
+    } else {
+      typeName = value2.typeName;
+      subTypeName = value2._fullSubType;
+    }
+    return this.typeName === typeName && (this._fullSubType === "*" || this._fullSubType === subTypeName);
+  }
+  withParameter(key, value2) {
+    const newSubType = `${this._fullSubType}; ${key}=${value2}`;
+    return new MediaType(this.typeName, newSubType, this.extensions);
+  }
+  get typeName() {
+    this.check();
+    return this._type;
+  }
+  get tree() {
+    this.check();
+    return this._tree;
+  }
+  get suffix() {
+    return this._suffix;
+  }
+  get subTypeName() {
+    this.check();
+    return this._subType;
+  }
+  get value() {
+    this.check();
+    return this._value;
+  }
+  __getValueUnsafe() {
+    return this._value;
+  }
+  get fullValue() {
+    this.check();
+    return this._fullValue;
+  }
+  get parameters() {
+    this.check();
+    return this._parameters;
+  }
+  get extensions() {
+    this.check();
+    return this._extensions;
+  }
+  __getExtensionsUnsafe() {
+    return this._extensions;
+  }
+  get primaryExtension() {
+    this.check();
+    return this._primaryExtension;
+  }
+  toString() {
+    if (this.parameters.get("q") === "1") {
+      return this.value;
+    } else {
+      return this.fullValue;
+    }
+  }
+  addExtension(fileName) {
+    if (!fileName) {
+      throw new Error("File name is not defined");
+    }
+    if (this.primaryExtension) {
+      const idx = fileName.lastIndexOf(".");
+      if (idx > -1) {
+        const currentExtension = fileName.substring(idx + 1);
+        ;
+        if (this.extensions.indexOf(currentExtension) > -1) {
+          fileName = fileName.substring(0, idx);
+        }
+      }
+      fileName = `${fileName}.${this.primaryExtension}`;
+    }
+    return fileName;
+  }
+};
+function create2(group2, value2, ...extensions) {
+  return new MediaType(group2, value2, extensions);
+}
+function specialize(group2) {
+  return create2.bind(null, group2);
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/application.ts
+var application = /* @__PURE__ */ specialize("application");
+var Application_Javascript = /* @__PURE__ */ application("javascript", "js");
+var Application_Json = /* @__PURE__ */ application("json", "json");
+var Application_Wasm = /* @__PURE__ */ application("wasm", "wasm");
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/audio.ts
+var audio = /* @__PURE__ */ specialize("audio");
+var Audio_Mpeg = /* @__PURE__ */ audio("mpeg", "mp3", "mp2", "mp2a", "mpga", "m2a", "m3a");
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/image.ts
+var image = /* @__PURE__ */ specialize("image");
+var Image_Jpeg = /* @__PURE__ */ image("jpeg", "jpeg", "jpg", "jpe");
+var Image_Png = /* @__PURE__ */ image("png", "png");
+var Image_Vendor_Google_StreetView_Pano = image("vnd.google.streetview.pano");
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/model.ts
+var model = /* @__PURE__ */ specialize("model");
+var Model_Gltf_Binary = /* @__PURE__ */ model("gltf-binary", "glb");
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/text.ts
+var text = /* @__PURE__ */ specialize("text");
+var Text_Plain = /* @__PURE__ */ text("plain", "txt", "text", "conf", "def", "list", "log", "in");
+var Text_Xml = /* @__PURE__ */ text("xml");
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/video.ts
+var video = /* @__PURE__ */ specialize("video");
+var Video_Vendor_Mpeg_Dash_Mpd = video("vnd.mpeg.dash.mpd", "mpd");
+
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/webrtc/constants.ts
 var DEFAULT_LOCAL_USER_ID = "local-user";
 
@@ -8969,141 +9429,6 @@ var DialogBox = class {
     return confirmed;
   }
 };
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/typeChecks.ts
-function isMesh(obj2) {
-  return isDefined(obj2) && obj2.isMesh;
-}
-function isMaterial(obj2) {
-  return isDefined(obj2) && obj2.isMaterial;
-}
-function isMeshBasicMaterial(obj2) {
-  return isMaterial(obj2) && obj2.type === "MeshBasicMaterial";
-}
-function isObject3D(obj2) {
-  return isDefined(obj2) && obj2.isObject3D;
-}
-function isQuaternion(obj2) {
-  return isDefined(obj2) && obj2.isQuaternion;
-}
-function isEuler(obj2) {
-  return isDefined(obj2) && obj2.isEuler;
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/objects.ts
-function isErsatzObject(obj2) {
-  return isDefined(obj2) && isObject3D(obj2.object);
-}
-function objectResolve(obj2) {
-  if (isErsatzObject(obj2)) {
-    return obj2.object;
-  }
-  return obj2;
-}
-function objectSetVisible(obj2, visible) {
-  obj2 = objectResolve(obj2);
-  obj2.visible = visible;
-  return visible;
-}
-function objectIsVisible(obj2) {
-  obj2 = objectResolve(obj2);
-  return obj2.visible;
-}
-function objectIsFullyVisible(obj2) {
-  obj2 = objectResolve(obj2);
-  while (obj2) {
-    if (!obj2.visible) {
-      return false;
-    }
-    obj2 = obj2.parent;
-  }
-  return true;
-}
-function objGraph(obj2, ...children) {
-  const toAdd = children.filter(isDefined).map(objectResolve);
-  if (toAdd.length > 0) {
-    objectResolve(obj2).add(...toAdd);
-  }
-  return obj2;
-}
-function obj(name2, ...rest) {
-  const obj2 = new THREE.Object3D();
-  obj2.name = name2;
-  objGraph(obj2, ...rest);
-  return obj2;
-}
-function objectSetEnabled(obj2, enabled) {
-  obj2 = objectResolve(obj2);
-  if (isDisableable(obj2)) {
-    obj2.disabled = !enabled;
-  }
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/RayTarget.ts
-var RAY_TARGET_KEY = "Juniper:ThreeJS:EventSystem:RayTarget";
-var RayTarget = class extends TypedEventBase {
-  constructor(object) {
-    super();
-    this.object = object;
-    this.object.userData[RAY_TARGET_KEY] = this;
-  }
-  meshes = new Array();
-  _disabled = false;
-  _clickable = false;
-  _draggable = false;
-  addMesh(mesh) {
-    mesh.userData[RAY_TARGET_KEY] = this;
-    this.meshes.push(mesh);
-    return this;
-  }
-  get disabled() {
-    return this._disabled;
-  }
-  set disabled(v) {
-    this._disabled = v;
-  }
-  get enabled() {
-    return !this.disabled;
-  }
-  set enabled(v) {
-    this.disabled = !v;
-  }
-  get clickable() {
-    return this._clickable;
-  }
-  set clickable(v) {
-    this._clickable = v;
-  }
-  get draggable() {
-    return this._draggable;
-  }
-  set draggable(v) {
-    this._draggable = v;
-  }
-};
-function isRayTarget(obj2) {
-  return obj2 instanceof RayTarget;
-}
-function isIntersection(obj2) {
-  return isDefined(obj2) && isNumber(obj2.distance) && obj2.point instanceof THREE.Vector3 && (obj2.object === null || obj2.object instanceof THREE.Object3D);
-}
-function getRayTarget(obj2) {
-  if (!obj2) {
-    return null;
-  }
-  if (isRayTarget(obj2)) {
-    return obj2;
-  } else if (isIntersection(obj2) || isErsatzObject(obj2)) {
-    obj2 = obj2.object;
-  }
-  return obj2 && obj2.userData[RAY_TARGET_KEY];
-}
-function assureRayTarget(obj2) {
-  if (!obj2) {
-    throw new Error("object is not defined");
-  }
-  return getRayTarget(obj2) || new RayTarget(objectResolve(obj2));
-}
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/animation/scaleOnHover.ts
 var scaledItems = singleton("Juniper:ScaledItems", () => /* @__PURE__ */ new Map());
@@ -10303,6 +10628,9 @@ var InteractionAudio = class {
   async load(type2, path, volume, prog) {
     return await this.audio.loadClip(makeClipName(type2, false), path, false, false, true, false, volume, [], prog);
   }
+  create(type2, element, volume) {
+    return this.audio.createClip(makeClipName(type2, false), element, false, true, false, volume, []);
+  }
 };
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/ScreenMode.ts
@@ -10363,194 +10691,6 @@ var SpaceUI = class extends THREE.Object3D {
     }
   }
 };
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/util.ts
-var typePattern = /([^\/]+)\/(.+)/;
-var subTypePattern = /(?:([^\.]+)\.)?([^\+;]+)(?:\+([^;]+))?((?:; *([^=]+)=([^;]+))*)/;
-var MediaType = class {
-  constructor(_type, _fullSubType, extensions) {
-    this._type = _type;
-    this._fullSubType = _fullSubType;
-    this._primaryExtension = null;
-    this.depMessage = null;
-    const parameters = /* @__PURE__ */ new Map();
-    this._parameters = parameters;
-    const subTypeParts = this._fullSubType.match(subTypePattern);
-    this._tree = subTypeParts[1];
-    this._subType = subTypeParts[2];
-    this._suffix = subTypeParts[3];
-    const paramStr = subTypeParts[4];
-    this._value = this._fullValue = this._type + "/";
-    if (isDefined(this._tree)) {
-      this._value = this._fullValue += this._tree + ".";
-    }
-    this._value = this._fullValue += this._subType;
-    if (isDefined(this._suffix)) {
-      this._value = this._fullValue += "+" + this._suffix;
-    }
-    if (isDefined(paramStr)) {
-      const pairs = paramStr.split(";").map((p) => p.trim()).filter((p) => p.length > 0).map((p) => p.split("="));
-      for (const [key, ...values] of pairs) {
-        const value2 = values.join("=");
-        parameters.set(key, value2);
-        const slug = `; ${key}=${value2}`;
-        this._fullValue += slug;
-        if (key !== "q") {
-          this._value += slug;
-        }
-      }
-    }
-    this._extensions = extensions || [];
-    this._primaryExtension = this._extensions[0] || null;
-  }
-  static parse(value2) {
-    if (!value2) {
-      return null;
-    }
-    const match = value2.match(typePattern);
-    if (!match) {
-      return null;
-    }
-    const type2 = match[1];
-    const subType = match[2];
-    return new MediaType(type2, subType);
-  }
-  deprecate(message) {
-    this.depMessage = message;
-    return this;
-  }
-  check() {
-    if (isDefined(this.depMessage)) {
-      console.warn(`${this._value} is deprecated ${this.depMessage}`);
-    }
-  }
-  matches(value2) {
-    if (isNullOrUndefined(value2)) {
-      return false;
-    }
-    if (this.typeName === "*" && this.subTypeName === "*") {
-      return true;
-    }
-    let typeName = null;
-    let subTypeName = null;
-    if (isString(value2)) {
-      const match = value2.match(typePattern);
-      if (!match) {
-        return false;
-      }
-      typeName = match[1];
-      subTypeName = match[2];
-    } else {
-      typeName = value2.typeName;
-      subTypeName = value2._fullSubType;
-    }
-    return this.typeName === typeName && (this._fullSubType === "*" || this._fullSubType === subTypeName);
-  }
-  withParameter(key, value2) {
-    const newSubType = `${this._fullSubType}; ${key}=${value2}`;
-    return new MediaType(this.typeName, newSubType, this.extensions);
-  }
-  get typeName() {
-    this.check();
-    return this._type;
-  }
-  get tree() {
-    this.check();
-    return this._tree;
-  }
-  get suffix() {
-    return this._suffix;
-  }
-  get subTypeName() {
-    this.check();
-    return this._subType;
-  }
-  get value() {
-    this.check();
-    return this._value;
-  }
-  __getValueUnsafe() {
-    return this._value;
-  }
-  get fullValue() {
-    this.check();
-    return this._fullValue;
-  }
-  get parameters() {
-    this.check();
-    return this._parameters;
-  }
-  get extensions() {
-    this.check();
-    return this._extensions;
-  }
-  __getExtensionsUnsafe() {
-    return this._extensions;
-  }
-  get primaryExtension() {
-    this.check();
-    return this._primaryExtension;
-  }
-  toString() {
-    if (this.parameters.get("q") === "1") {
-      return this.value;
-    } else {
-      return this.fullValue;
-    }
-  }
-  addExtension(fileName) {
-    if (!fileName) {
-      throw new Error("File name is not defined");
-    }
-    if (this.primaryExtension) {
-      const idx = fileName.lastIndexOf(".");
-      if (idx > -1) {
-        const currentExtension = fileName.substring(idx + 1);
-        ;
-        if (this.extensions.indexOf(currentExtension) > -1) {
-          fileName = fileName.substring(0, idx);
-        }
-      }
-      fileName = `${fileName}.${this.primaryExtension}`;
-    }
-    return fileName;
-  }
-};
-function create2(group2, value2, ...extensions) {
-  return new MediaType(group2, value2, extensions);
-}
-function specialize(group2) {
-  return create2.bind(null, group2);
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/application.ts
-var application = /* @__PURE__ */ specialize("application");
-var Application_Javascript = /* @__PURE__ */ application("javascript", "js");
-var Application_Json = /* @__PURE__ */ application("json", "json");
-var Application_Wasm = /* @__PURE__ */ application("wasm", "wasm");
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/audio.ts
-var audio = /* @__PURE__ */ specialize("audio");
-var Audio_Mpeg = /* @__PURE__ */ audio("mpeg", "mp3", "mp2", "mp2a", "mpga", "m2a", "m3a");
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/image.ts
-var image = /* @__PURE__ */ specialize("image");
-var Image_Jpeg = /* @__PURE__ */ image("jpeg", "jpeg", "jpg", "jpe");
-var Image_Png = /* @__PURE__ */ image("png", "png");
-var Image_Vendor_Google_StreetView_Pano = image("vnd.google.streetview.pano");
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/model.ts
-var model = /* @__PURE__ */ specialize("model");
-var Model_Gltf_Binary = /* @__PURE__ */ model("gltf-binary", "glb");
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/text.ts
-var text = /* @__PURE__ */ specialize("text");
-var Text_Plain = /* @__PURE__ */ text("plain", "txt", "text", "conf", "def", "list", "log", "in");
-var Text_Xml = /* @__PURE__ */ text("xml");
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/video.ts
-var video = /* @__PURE__ */ specialize("video");
-var Video_Vendor_Mpeg_Dash_Mpd = video("vnd.mpeg.dash.mpd", "mpd");
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/video/data.ts
 function isVideoRecord(obj2) {
@@ -11268,17 +11408,8 @@ function rot(def) {
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/widgets/ButtonFactory.ts
-async function loadIcon(fetcher, setName, iconName, iconPath, popper) {
-  const { content } = await fetcher.get(iconPath).progress(popper.pop()).image();
-  return [
-    setName,
-    iconName,
-    content
-  ];
-}
 var ButtonFactory = class {
-  constructor(fetcher, imagePaths, padding2) {
-    this.fetcher = fetcher;
+  constructor(imagePaths, padding2) {
     this.imagePaths = imagePaths;
     this.padding = padding2;
     this.uvDescrips = new PriorityMap();
@@ -11288,11 +11419,16 @@ var ButtonFactory = class {
     this.enabledMaterial = null;
     this.disabledMaterial = null;
     this.readyTask = new Task();
+    this.assetSets = new PriorityMap(Array.from(this.imagePaths.entries()).map(([setName, iconName, path]) => [
+      setName,
+      iconName,
+      new AssetImage(path, Image_Png)
+    ]));
+    this.assets = Array.from(this.assetSets.values());
+    Promise.all(this.assets).then(() => this.finish());
   }
-  async load(prog) {
-    const popper = progressPopper(prog);
-    const imageSets = new PriorityMap(await Promise.all(Array.from(this.imagePaths.entries()).map(([setName, iconName, path]) => loadIcon(this.fetcher, setName, iconName, path, popper))));
-    const images = Array.from(imageSets.values());
+  finish() {
+    const images = Array.from(this.assets.map((asset) => asset.result));
     const iconWidth = Math.max(...images.map((img) => img.width));
     const iconHeight = Math.max(...images.map((img) => img.height));
     const area = iconWidth * iconHeight * images.length;
@@ -11312,7 +11448,8 @@ var ButtonFactory = class {
     g.fillStyle = "#1e4388";
     g.fillRect(0, 0, canvWidth, canvHeight);
     let i = 0;
-    for (const [setName, imgName, img] of imageSets.entries()) {
+    for (const [setName, imgName, asset] of this.assetSets.entries()) {
+      const img = asset.result;
       const c = i % cols;
       const r = (i - c) / cols;
       const u = widthRatio * (c * iconWidth / width2);
@@ -17325,31 +17462,31 @@ function getTranslation(out, mat) {
 }
 function getRotation(out, mat) {
   let trace = mat[0] + mat[5] + mat[10];
-  let S2 = 0;
+  let S3 = 0;
   if (trace > 0) {
-    S2 = Math.sqrt(trace + 1) * 2;
-    out[3] = 0.25 * S2;
-    out[0] = (mat[6] - mat[9]) / S2;
-    out[1] = (mat[8] - mat[2]) / S2;
-    out[2] = (mat[1] - mat[4]) / S2;
+    S3 = Math.sqrt(trace + 1) * 2;
+    out[3] = 0.25 * S3;
+    out[0] = (mat[6] - mat[9]) / S3;
+    out[1] = (mat[8] - mat[2]) / S3;
+    out[2] = (mat[1] - mat[4]) / S3;
   } else if (mat[0] > mat[5] && mat[0] > mat[10]) {
-    S2 = Math.sqrt(1 + mat[0] - mat[5] - mat[10]) * 2;
-    out[3] = (mat[6] - mat[9]) / S2;
-    out[0] = 0.25 * S2;
-    out[1] = (mat[1] + mat[4]) / S2;
-    out[2] = (mat[8] + mat[2]) / S2;
+    S3 = Math.sqrt(1 + mat[0] - mat[5] - mat[10]) * 2;
+    out[3] = (mat[6] - mat[9]) / S3;
+    out[0] = 0.25 * S3;
+    out[1] = (mat[1] + mat[4]) / S3;
+    out[2] = (mat[8] + mat[2]) / S3;
   } else if (mat[5] > mat[10]) {
-    S2 = Math.sqrt(1 + mat[5] - mat[0] - mat[10]) * 2;
-    out[3] = (mat[8] - mat[2]) / S2;
-    out[0] = (mat[1] + mat[4]) / S2;
-    out[1] = 0.25 * S2;
-    out[2] = (mat[6] + mat[9]) / S2;
+    S3 = Math.sqrt(1 + mat[5] - mat[0] - mat[10]) * 2;
+    out[3] = (mat[8] - mat[2]) / S3;
+    out[0] = (mat[1] + mat[4]) / S3;
+    out[1] = 0.25 * S3;
+    out[2] = (mat[6] + mat[9]) / S3;
   } else {
-    S2 = Math.sqrt(1 + mat[10] - mat[0] - mat[5]) * 2;
-    out[3] = (mat[1] - mat[4]) / S2;
-    out[0] = (mat[8] + mat[2]) / S2;
-    out[1] = (mat[6] + mat[9]) / S2;
-    out[2] = 0.25 * S2;
+    S3 = Math.sqrt(1 + mat[10] - mat[0] - mat[5]) * 2;
+    out[3] = (mat[1] - mat[4]) / S3;
+    out[0] = (mat[8] + mat[2]) / S3;
+    out[1] = (mat[6] + mat[9]) / S3;
+    out[2] = 0.25 * S3;
   }
   return out;
 }
@@ -20533,6 +20670,7 @@ var BaseEnvironment = class extends TypedEventBase {
     this._xrMediaBinding = null;
     this._hasXRMediaLayers = null;
     this._hasXRCompositionLayers = null;
+    this.getModel = this.getModel.bind(this);
     if (isHTMLCanvas(canvas)) {
       canvas.style.backgroundColor = "black";
     }
@@ -20728,6 +20866,12 @@ var BaseEnvironment = class extends TypedEventBase {
       await this.fader.fadeIn();
     }
   }
+  modelAsset(path) {
+    return new AssetCustom(path, Model_Gltf_Binary, this.getModel);
+  }
+  getModel(fetcher, path, type2, prog) {
+    return fetcher.get(path).useCache(true).progress(prog).file(type2).then((response) => this.loadModel(response.content));
+  }
   async loadModel(path, prog) {
     const loader = new GLTFLoader();
     const model2 = await loader.loadAsync(path, (evt) => {
@@ -20737,8 +20881,7 @@ var BaseEnvironment = class extends TypedEventBase {
     });
     return model2.scene;
   }
-  async load3DCursor(path, prog) {
-    const model2 = await this.loadModel(path, prog);
+  set3DCursor(model2) {
     const children = model2.children.slice(0);
     for (const child of children) {
       this.cursor3D.add(child.name, child);
@@ -20746,8 +20889,17 @@ var BaseEnvironment = class extends TypedEventBase {
     this.eventSystem.refreshCursors();
     this.dispatchEvent(new TypedEvent("newcursorloaded"));
   }
-  async load(prog) {
-    await this.load3DCursor("/models/Cursors.glb", prog);
+  async load(progOrAsset, ...assets) {
+    let prog = null;
+    if (progOrAsset instanceof BaseAsset) {
+      assets.push(progOrAsset);
+    } else {
+      prog = progOrAsset;
+    }
+    const cursor3d = this.modelAsset("/models/Cursors.glb");
+    assets.push(cursor3d);
+    await this.fetcher.assets(prog, ...assets);
+    this.set3DCursor(cursor3d.result);
   }
 };
 
@@ -21100,7 +21252,7 @@ var Environment = class extends BaseEnvironment {
     this.confirmationDialog = new ConfirmationDialog(this, dialogFontFamily);
     this.devicesDialog = new DeviceDialog(this);
     elementApply(this.renderer.domElement.parentElement, this.screenUISpace, this.confirmationDialog, this.devicesDialog, this.renderer.domElement);
-    this.uiButtons = new ButtonFactory(this.fetcher, uiImagePaths, 20);
+    this.uiButtons = new ButtonFactory(uiImagePaths, 20);
     this.settingsButton = new ButtonImageWidget(this.uiButtons, "ui", "settings");
     this.quitButton = new ButtonImageWidget(this.uiButtons, "ui", "quit");
     this.lobbyButton = new ButtonImageWidget(this.uiButtons, "ui", "lobby");
@@ -21216,8 +21368,26 @@ var Environment = class extends BaseEnvironment {
     widgetSetEnabled(this.quitButton, !showing, "primary");
     widgetSetEnabled(this.lobbyButton, !showing, "primary");
   }
-  async load(prog) {
-    await progressTasks(prog, (prog2) => super.load(prog2), (prog2) => this.uiButtons.load(prog2), (prog2) => this.audio.loadBasicClip("footsteps", "/audio/TransitionFootstepAudio.mp3", 0.5, prog2), (prog2) => this.interactionAudio.load("enter", "/audio/basic_enter.mp3", 0.25, prog2), (prog2) => this.interactionAudio.load("exit", "/audio/basic_exit.mp3", 0.25, prog2), (prog2) => this.interactionAudio.load("error", "/audio/basic_error.mp3", 0.25, prog2), (prog2) => this.interactionAudio.load("click", "/audio/vintage_radio_button_pressed.mp3", 1, prog2));
+  async load(progOrAsset, ...assets) {
+    let prog = null;
+    if (progOrAsset instanceof BaseAsset) {
+      assets.push(progOrAsset);
+      prog = this.loadingBar;
+    } else {
+      prog = progOrAsset;
+    }
+    const footsteps = new AssetAudio("/audio/TransitionFootstepAudio.mp3", Audio_Mpeg);
+    const enter = new AssetAudio("/audio/basic_enter.mp3", Audio_Mpeg);
+    const exit = new AssetAudio("/audio/basic_exit.mp3", Audio_Mpeg);
+    const error = new AssetAudio("/audio/basic_error.mp3", Audio_Mpeg);
+    const click = new AssetAudio("/audio/vintage_radio_button_pressed.mp3", Audio_Mpeg);
+    assets.push(...this.uiButtons.assets, footsteps, enter, exit, error, click);
+    await super.load(prog, ...assets);
+    this.audio.createBasicClip("footsteps", footsteps.result, 0.5);
+    this.interactionAudio.create("enter", enter.result, 0.25);
+    this.interactionAudio.create("exit", exit.result, 0.25);
+    this.interactionAudio.create("error", error.result, 0.25);
+    this.interactionAudio.create("click", click.result, 1);
   }
 };
 
@@ -21643,7 +21813,7 @@ var Fetcher = class {
   async assets(progress, ...assets) {
     assets = assets.filter(isDefined);
     const assetSizes = new Map(await Promise.all(assets.map((asset) => asset.getSize(this))));
-    await progressTasksWeighted(progress, assets.map((asset) => [assetSizes.get(asset), (prog) => asset.getContent(prog)]));
+    await progressTasksWeighted(progress, assets.map((asset) => [assetSizes.get(asset), (prog) => asset.fetch(this, prog)]));
   }
 };
 
@@ -22223,18 +22393,17 @@ var Forest = class {
     this.env = env2;
     this.useBasicMaterial = useBasicMaterial;
     this.density = density;
-    this.getJpeg = this.getJpeg.bind(this);
-    this.getPng = this.getPng.bind(this);
-    this.getModel = this.getModel.bind(this);
-    this.getAudio = this.getAudio.bind(this);
-    this.skybox = new Asset("/skyboxes/BearfenceMountain.jpeg", this.getJpeg);
-    this.forest = new Asset("/models/Forest-Ground.glb", this.getModel);
-    this.bgAudio = new Asset("/audio/forest.mp3", this.getAudio);
+    this.assets = [
+      this.skybox = new AssetImage("/skyboxes/BearfenceMountain.jpeg", Image_Jpeg),
+      this.forest = env2.modelAsset("/models/Forest-Ground.glb"),
+      this.bgAudio = new AssetAudio("/audio/forest.mp3", Audio_Mpeg)
+    ];
     if (this.density > 0) {
-      this.tree = new Asset("/models/Forest-Tree.glb", this.getModel);
+      this.assets.push(this.tree = env2.modelAsset("/models/Forest-Tree.glb"));
     }
     this.raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0), 0.1, 100);
     this.hits = new Array();
+    Promise.all(this.assets).then(() => this.finish());
   }
   skybox;
   forest;
@@ -22254,11 +22423,8 @@ var Forest = class {
   get trees() {
     return this._trees;
   }
-  async load(...assets) {
-    await progressTasksWeighted(this.env.loadingBar, [
-      [1, (prog) => this.env.load(prog)],
-      [10, (prog) => this.env.fetcher.assets(prog, this.skybox, this.forest, this.tree, this.bgAudio, ...assets)]
-    ]);
+  assets;
+  finish() {
     this.env.skybox.setImage("forest", this.skybox.result);
     this.env.audio.createClip("forest", this.bgAudio.result, true, true, true, 1, []);
     this.env.audio.setClipPosition("forest", 25, 5, 25);
@@ -22286,19 +22452,6 @@ var Forest = class {
       }
       this.env.foreground.add(this._trees);
     }
-    return assets;
-  }
-  getJpeg(path, prog) {
-    return this.env.fetcher.get(path).useCache(true).progress(prog).image(Image_Jpeg).then((response) => response.content);
-  }
-  getPng(path, prog) {
-    return this.env.fetcher.get(path).useCache(false).progress(prog).image(Image_Png).then((response) => response.content);
-  }
-  getAudio(path, prog) {
-    return this.env.fetcher.get(path).useCache(true).progress(prog).audio(true, true, Audio_Mpeg).then((response) => response.content);
-  }
-  getModel(path, prog) {
-    return this.env.fetcher.get(path).useCache(true).progress(prog).file(Model_Gltf_Binary).then((response) => this.env.loadModel(response.content));
   }
   makeTrees() {
     const matrices = new Array();
@@ -22310,7 +22463,7 @@ var Forest = class {
     const s = new THREE.Vector3();
     for (let dz = -25; dz <= 25; ++dz) {
       for (let dx = -25; dx <= 25; ++dx) {
-        if (Math.random() <= this.density) {
+        if ((dx !== 0 || dx !== 0) && Math.random() <= this.density) {
           const x = Math.random() * 0.1 + dx;
           const z = Math.random() * 0.1 + dz;
           p.set(x, 0, z);
@@ -22338,41 +22491,32 @@ var Forest = class {
   }
 };
 
-// src/grass-app/makeGrass.ts
-function makeGrass(env2, spatter2) {
-  const grassGeom = new THREE.PlaneBufferGeometry(5, 5, 1, 1);
-  const grassTex = new THREE.CanvasTexture(spatter2);
-  const grassMat = new THREE.MeshBasicMaterial({
-    map: grassTex,
-    transparent: true,
-    opacity: 1,
-    side: THREE.DoubleSide
-  });
-  const grass = new THREE.InstancedMesh(grassGeom, grassMat, 25);
-  const dummy = new THREE.Object3D();
-  dummy.rotation.set(Math.PI / 2, 0, 0);
-  for (let i = 0; i < grass.count; ++i) {
-    dummy.position.set(0, i / (5 * grass.count), 0);
-    dummy.updateMatrix();
-    grass.setMatrixAt(i, dummy.matrix);
-    grass.setColorAt(i, new THREE.Color(0.25, 0.25 + i / (2 * grass.count), 0));
-  }
-  env2.foreground.add(grass);
-  env2.timer.addTickHandler((evt) => {
-    for (let i = 0; i < grass.count; ++i) {
-      dummy.position.set(0.08 + 0.05 * Math.cos(evt.t / 1e3) * i / grass.count, i / (5 * grass.count), 0);
-      dummy.updateMatrix();
-      grass.setMatrixAt(i, dummy.matrix);
-    }
-    grass.instanceMatrix.needsUpdate = true;
-  });
-}
-
-// src/grass-and-trees-app/index.ts
+// src/forest-and-dirt-app/index.ts
 var env = await createTestEnvironment();
 await env.fadeOut();
-var forest = new Forest(env, true, 0.02);
-var [spatter] = await forest.load(new Asset("/img/spatter.png", forest.getPng));
-makeGrass(env, spatter.result);
+var forest = new Forest(env, false);
+await env.load(...forest.assets);
+var S2 = isMobile() ? 2048 : 4096;
+var dirt = new Dirt(S2, S2, S2 / 8192);
+var dirtMap = new THREE.Texture(dirt.element);
+dirtMap.minFilter = THREE.LinearMipmapLinearFilter;
+dirtMap.magFilter = THREE.LinearFilter;
+dirtMap.needsUpdate = true;
+dirt.addEventListener("update", () => dirtMap.needsUpdate = true);
+var surface = forest.ground;
+surface.material.precision = "highp";
+surface.material.bumpMap = dirtMap;
+surface.material.bumpScale = 0.1;
+surface.material.needsUpdate = true;
+var surfaceTarget = assureRayTarget(surface);
+surfaceTarget.addMesh(surface);
+surfaceTarget.draggable = true;
+surfaceTarget.addEventListener("drag", checkPointer);
+surfaceTarget.addEventListener("dragcancel", checkPointer);
+surfaceTarget.addEventListener("dragend", checkPointer);
+surfaceTarget.addEventListener("dragstart", checkPointer);
 await env.fadeIn();
+function checkPointer(evt) {
+  dirt.checkPointerUV(evt.pointer.name, evt.hit.uv.x, 1 - evt.hit.uv.y, evt.type);
+}
 //# sourceMappingURL=index.js.map

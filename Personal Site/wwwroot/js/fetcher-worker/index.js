@@ -1031,10 +1031,10 @@ function using(val, thunk) {
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher-base/Asset.ts
-var Asset = class {
-  constructor(path, getter) {
+var BaseAsset = class {
+  constructor(path, type) {
     this.path = path;
-    this.getter = getter;
+    this.type = type;
     this.promise = new Promise((resolve, reject) => {
       this.resolve = (value) => {
         this._result = value;
@@ -1073,10 +1073,10 @@ var Asset = class {
   getSize(fetcher) {
     return fetcher.head(this.path).exec().then((response) => [this, response.contentLength]);
   }
-  async getContent(prog) {
+  async fetch(fetcher, prog) {
     try {
-      const response = await this.getter(this.path, prog);
-      this.resolve(response);
+      const result = await this.getResult(fetcher, prog);
+      this.resolve(result);
     } catch (err) {
       this.reject(err);
     }

@@ -5219,10 +5219,10 @@ function using(val, thunk) {
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher-base/Asset.ts
-var Asset = class {
-  constructor(path, getter) {
+var BaseAsset = class {
+  constructor(path, type2) {
     this.path = path;
-    this.getter = getter;
+    this.type = type2;
     this.promise = new Promise((resolve, reject) => {
       this.resolve = (value2) => {
         this._result = value2;
@@ -5261,10 +5261,10 @@ var Asset = class {
   getSize(fetcher) {
     return fetcher.head(this.path).exec().then((response) => [this, response.contentLength]);
   }
-  async getContent(prog) {
+  async fetch(fetcher, prog) {
     try {
-      const response = await this.getter(this.path, prog);
-      this.resolve(response);
+      const result = await this.getResult(fetcher, prog);
+      this.resolve(result);
     } catch (err) {
       this.reject(err);
     }
@@ -5280,6 +5280,38 @@ var Asset = class {
   }
   finally(onfinally) {
     return this.promise.finally(onfinally);
+  }
+};
+var AssetCustom = class extends BaseAsset {
+  constructor(path, type2, getter) {
+    super(path, type2);
+    this.getter = getter;
+  }
+  getResult(fetcher, prog) {
+    return this.getter(fetcher, this.path, this.type, prog);
+  }
+};
+var BaseFetchedAsset = class extends BaseAsset {
+  constructor(path, type2) {
+    super(path, type2);
+  }
+  async getResult(fetcher, prog) {
+    const response = await this.getRequest(fetcher, prog);
+    return response.content;
+  }
+  getRequest(fetcher, prog) {
+    const request = fetcher.get(this.path).progress(prog);
+    return this.getResponse(request);
+  }
+};
+var AssetAudio = class extends BaseFetchedAsset {
+  getResponse(request) {
+    return request.audio(false, false, this.type);
+  }
+};
+var AssetImage = class extends BaseFetchedAsset {
+  getResponse(request) {
+    return request.image(this.type);
   }
 };
 
@@ -5802,6 +5834,194 @@ var FetchingServiceImplXHR = class {
     return await this.decodeContent(xhrType, response);
   }
 };
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/util.ts
+var typePattern = /([^\/]+)\/(.+)/;
+var subTypePattern = /(?:([^\.]+)\.)?([^\+;]+)(?:\+([^;]+))?((?:; *([^=]+)=([^;]+))*)/;
+var MediaType = class {
+  constructor(_type, _fullSubType, extensions) {
+    this._type = _type;
+    this._fullSubType = _fullSubType;
+    this._primaryExtension = null;
+    this.depMessage = null;
+    const parameters = /* @__PURE__ */ new Map();
+    this._parameters = parameters;
+    const subTypeParts = this._fullSubType.match(subTypePattern);
+    this._tree = subTypeParts[1];
+    this._subType = subTypeParts[2];
+    this._suffix = subTypeParts[3];
+    const paramStr = subTypeParts[4];
+    this._value = this._fullValue = this._type + "/";
+    if (isDefined(this._tree)) {
+      this._value = this._fullValue += this._tree + ".";
+    }
+    this._value = this._fullValue += this._subType;
+    if (isDefined(this._suffix)) {
+      this._value = this._fullValue += "+" + this._suffix;
+    }
+    if (isDefined(paramStr)) {
+      const pairs = paramStr.split(";").map((p) => p.trim()).filter((p) => p.length > 0).map((p) => p.split("="));
+      for (const [key, ...values] of pairs) {
+        const value2 = values.join("=");
+        parameters.set(key, value2);
+        const slug = `; ${key}=${value2}`;
+        this._fullValue += slug;
+        if (key !== "q") {
+          this._value += slug;
+        }
+      }
+    }
+    this._extensions = extensions || [];
+    this._primaryExtension = this._extensions[0] || null;
+  }
+  static parse(value2) {
+    if (!value2) {
+      return null;
+    }
+    const match = value2.match(typePattern);
+    if (!match) {
+      return null;
+    }
+    const type2 = match[1];
+    const subType = match[2];
+    return new MediaType(type2, subType);
+  }
+  deprecate(message) {
+    this.depMessage = message;
+    return this;
+  }
+  check() {
+    if (isDefined(this.depMessage)) {
+      console.warn(`${this._value} is deprecated ${this.depMessage}`);
+    }
+  }
+  matches(value2) {
+    if (isNullOrUndefined(value2)) {
+      return false;
+    }
+    if (this.typeName === "*" && this.subTypeName === "*") {
+      return true;
+    }
+    let typeName = null;
+    let subTypeName = null;
+    if (isString(value2)) {
+      const match = value2.match(typePattern);
+      if (!match) {
+        return false;
+      }
+      typeName = match[1];
+      subTypeName = match[2];
+    } else {
+      typeName = value2.typeName;
+      subTypeName = value2._fullSubType;
+    }
+    return this.typeName === typeName && (this._fullSubType === "*" || this._fullSubType === subTypeName);
+  }
+  withParameter(key, value2) {
+    const newSubType = `${this._fullSubType}; ${key}=${value2}`;
+    return new MediaType(this.typeName, newSubType, this.extensions);
+  }
+  get typeName() {
+    this.check();
+    return this._type;
+  }
+  get tree() {
+    this.check();
+    return this._tree;
+  }
+  get suffix() {
+    return this._suffix;
+  }
+  get subTypeName() {
+    this.check();
+    return this._subType;
+  }
+  get value() {
+    this.check();
+    return this._value;
+  }
+  __getValueUnsafe() {
+    return this._value;
+  }
+  get fullValue() {
+    this.check();
+    return this._fullValue;
+  }
+  get parameters() {
+    this.check();
+    return this._parameters;
+  }
+  get extensions() {
+    this.check();
+    return this._extensions;
+  }
+  __getExtensionsUnsafe() {
+    return this._extensions;
+  }
+  get primaryExtension() {
+    this.check();
+    return this._primaryExtension;
+  }
+  toString() {
+    if (this.parameters.get("q") === "1") {
+      return this.value;
+    } else {
+      return this.fullValue;
+    }
+  }
+  addExtension(fileName) {
+    if (!fileName) {
+      throw new Error("File name is not defined");
+    }
+    if (this.primaryExtension) {
+      const idx = fileName.lastIndexOf(".");
+      if (idx > -1) {
+        const currentExtension = fileName.substring(idx + 1);
+        ;
+        if (this.extensions.indexOf(currentExtension) > -1) {
+          fileName = fileName.substring(0, idx);
+        }
+      }
+      fileName = `${fileName}.${this.primaryExtension}`;
+    }
+    return fileName;
+  }
+};
+function create2(group2, value2, ...extensions) {
+  return new MediaType(group2, value2, extensions);
+}
+function specialize(group2) {
+  return create2.bind(null, group2);
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/application.ts
+var application = /* @__PURE__ */ specialize("application");
+var Application_Javascript = /* @__PURE__ */ application("javascript", "js");
+var Application_Json = /* @__PURE__ */ application("json", "json");
+var Application_Wasm = /* @__PURE__ */ application("wasm", "wasm");
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/audio.ts
+var audio = /* @__PURE__ */ specialize("audio");
+var Audio_Mpeg = /* @__PURE__ */ audio("mpeg", "mp3", "mp2", "mp2a", "mpga", "m2a", "m3a");
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/image.ts
+var image = /* @__PURE__ */ specialize("image");
+var Image_Jpeg = /* @__PURE__ */ image("jpeg", "jpeg", "jpg", "jpe");
+var Image_Png = /* @__PURE__ */ image("png", "png");
+var Image_Vendor_Google_StreetView_Pano = image("vnd.google.streetview.pano");
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/model.ts
+var model = /* @__PURE__ */ specialize("model");
+var Model_Gltf_Binary = /* @__PURE__ */ model("gltf-binary", "glb");
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/text.ts
+var text = /* @__PURE__ */ specialize("text");
+var Text_Plain = /* @__PURE__ */ text("plain", "txt", "text", "conf", "def", "list", "log", "in");
+var Text_Xml = /* @__PURE__ */ text("xml");
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/video.ts
+var video = /* @__PURE__ */ specialize("video");
+var Video_Vendor_Mpeg_Dash_Mpd = video("vnd.mpeg.dash.mpd", "mpd");
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/attrs.ts
 var Attr = class {
@@ -6723,18 +6943,18 @@ var DeviceManager = class extends TypedEventBase {
     super();
     this.element = element;
     this.needsVideoDevice = needsVideoDevice;
-    this._hasAudioPermission = false;
-    this._hasVideoPermission = false;
-    this._currentStream = null;
     this.ready = this.start();
     Object.seal(this);
   }
+  _hasAudioPermission = false;
   get hasAudioPermission() {
     return this._hasAudioPermission;
   }
+  _hasVideoPermission = false;
   get hasVideoPermission() {
     return this._hasVideoPermission;
   }
+  _currentStream = null;
   get currentStream() {
     return this._currentStream;
   }
@@ -6748,6 +6968,7 @@ var DeviceManager = class extends TypedEventBase {
       this._currentStream = v;
     }
   }
+  ready;
   async start() {
     if (canChangeAudioOutput) {
       const device = await this.getPreferredAudioOutput();
@@ -10303,6 +10524,9 @@ var InteractionAudio = class {
   async load(type2, path, volume, prog) {
     return await this.audio.loadClip(makeClipName(type2, false), path, false, false, true, false, volume, [], prog);
   }
+  create(type2, element, volume) {
+    return this.audio.createClip(makeClipName(type2, false), element, false, true, false, volume, []);
+  }
 };
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/ScreenMode.ts
@@ -10363,194 +10587,6 @@ var SpaceUI = class extends THREE.Object3D {
     }
   }
 };
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/util.ts
-var typePattern = /([^\/]+)\/(.+)/;
-var subTypePattern = /(?:([^\.]+)\.)?([^\+;]+)(?:\+([^;]+))?((?:; *([^=]+)=([^;]+))*)/;
-var MediaType = class {
-  constructor(_type, _fullSubType, extensions) {
-    this._type = _type;
-    this._fullSubType = _fullSubType;
-    this._primaryExtension = null;
-    this.depMessage = null;
-    const parameters = /* @__PURE__ */ new Map();
-    this._parameters = parameters;
-    const subTypeParts = this._fullSubType.match(subTypePattern);
-    this._tree = subTypeParts[1];
-    this._subType = subTypeParts[2];
-    this._suffix = subTypeParts[3];
-    const paramStr = subTypeParts[4];
-    this._value = this._fullValue = this._type + "/";
-    if (isDefined(this._tree)) {
-      this._value = this._fullValue += this._tree + ".";
-    }
-    this._value = this._fullValue += this._subType;
-    if (isDefined(this._suffix)) {
-      this._value = this._fullValue += "+" + this._suffix;
-    }
-    if (isDefined(paramStr)) {
-      const pairs = paramStr.split(";").map((p) => p.trim()).filter((p) => p.length > 0).map((p) => p.split("="));
-      for (const [key, ...values] of pairs) {
-        const value2 = values.join("=");
-        parameters.set(key, value2);
-        const slug = `; ${key}=${value2}`;
-        this._fullValue += slug;
-        if (key !== "q") {
-          this._value += slug;
-        }
-      }
-    }
-    this._extensions = extensions || [];
-    this._primaryExtension = this._extensions[0] || null;
-  }
-  static parse(value2) {
-    if (!value2) {
-      return null;
-    }
-    const match = value2.match(typePattern);
-    if (!match) {
-      return null;
-    }
-    const type2 = match[1];
-    const subType = match[2];
-    return new MediaType(type2, subType);
-  }
-  deprecate(message) {
-    this.depMessage = message;
-    return this;
-  }
-  check() {
-    if (isDefined(this.depMessage)) {
-      console.warn(`${this._value} is deprecated ${this.depMessage}`);
-    }
-  }
-  matches(value2) {
-    if (isNullOrUndefined(value2)) {
-      return false;
-    }
-    if (this.typeName === "*" && this.subTypeName === "*") {
-      return true;
-    }
-    let typeName = null;
-    let subTypeName = null;
-    if (isString(value2)) {
-      const match = value2.match(typePattern);
-      if (!match) {
-        return false;
-      }
-      typeName = match[1];
-      subTypeName = match[2];
-    } else {
-      typeName = value2.typeName;
-      subTypeName = value2._fullSubType;
-    }
-    return this.typeName === typeName && (this._fullSubType === "*" || this._fullSubType === subTypeName);
-  }
-  withParameter(key, value2) {
-    const newSubType = `${this._fullSubType}; ${key}=${value2}`;
-    return new MediaType(this.typeName, newSubType, this.extensions);
-  }
-  get typeName() {
-    this.check();
-    return this._type;
-  }
-  get tree() {
-    this.check();
-    return this._tree;
-  }
-  get suffix() {
-    return this._suffix;
-  }
-  get subTypeName() {
-    this.check();
-    return this._subType;
-  }
-  get value() {
-    this.check();
-    return this._value;
-  }
-  __getValueUnsafe() {
-    return this._value;
-  }
-  get fullValue() {
-    this.check();
-    return this._fullValue;
-  }
-  get parameters() {
-    this.check();
-    return this._parameters;
-  }
-  get extensions() {
-    this.check();
-    return this._extensions;
-  }
-  __getExtensionsUnsafe() {
-    return this._extensions;
-  }
-  get primaryExtension() {
-    this.check();
-    return this._primaryExtension;
-  }
-  toString() {
-    if (this.parameters.get("q") === "1") {
-      return this.value;
-    } else {
-      return this.fullValue;
-    }
-  }
-  addExtension(fileName) {
-    if (!fileName) {
-      throw new Error("File name is not defined");
-    }
-    if (this.primaryExtension) {
-      const idx = fileName.lastIndexOf(".");
-      if (idx > -1) {
-        const currentExtension = fileName.substring(idx + 1);
-        ;
-        if (this.extensions.indexOf(currentExtension) > -1) {
-          fileName = fileName.substring(0, idx);
-        }
-      }
-      fileName = `${fileName}.${this.primaryExtension}`;
-    }
-    return fileName;
-  }
-};
-function create2(group2, value2, ...extensions) {
-  return new MediaType(group2, value2, extensions);
-}
-function specialize(group2) {
-  return create2.bind(null, group2);
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/application.ts
-var application = /* @__PURE__ */ specialize("application");
-var Application_Javascript = /* @__PURE__ */ application("javascript", "js");
-var Application_Json = /* @__PURE__ */ application("json", "json");
-var Application_Wasm = /* @__PURE__ */ application("wasm", "wasm");
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/audio.ts
-var audio = /* @__PURE__ */ specialize("audio");
-var Audio_Mpeg = /* @__PURE__ */ audio("mpeg", "mp3", "mp2", "mp2a", "mpga", "m2a", "m3a");
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/image.ts
-var image = /* @__PURE__ */ specialize("image");
-var Image_Jpeg = /* @__PURE__ */ image("jpeg", "jpeg", "jpg", "jpe");
-var Image_Png = /* @__PURE__ */ image("png", "png");
-var Image_Vendor_Google_StreetView_Pano = image("vnd.google.streetview.pano");
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/model.ts
-var model = /* @__PURE__ */ specialize("model");
-var Model_Gltf_Binary = /* @__PURE__ */ model("gltf-binary", "glb");
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/text.ts
-var text = /* @__PURE__ */ specialize("text");
-var Text_Plain = /* @__PURE__ */ text("plain", "txt", "text", "conf", "def", "list", "log", "in");
-var Text_Xml = /* @__PURE__ */ text("xml");
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/video.ts
-var video = /* @__PURE__ */ specialize("video");
-var Video_Vendor_Mpeg_Dash_Mpd = video("vnd.mpeg.dash.mpd", "mpd");
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/video/data.ts
 function isVideoRecord(obj2) {
@@ -11268,17 +11304,8 @@ function rot(def) {
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/widgets/ButtonFactory.ts
-async function loadIcon(fetcher, setName, iconName, iconPath, popper) {
-  const { content } = await fetcher.get(iconPath).progress(popper.pop()).image();
-  return [
-    setName,
-    iconName,
-    content
-  ];
-}
 var ButtonFactory = class {
-  constructor(fetcher, imagePaths, padding2) {
-    this.fetcher = fetcher;
+  constructor(imagePaths, padding2) {
     this.imagePaths = imagePaths;
     this.padding = padding2;
     this.uvDescrips = new PriorityMap();
@@ -11288,11 +11315,16 @@ var ButtonFactory = class {
     this.enabledMaterial = null;
     this.disabledMaterial = null;
     this.readyTask = new Task();
+    this.assetSets = new PriorityMap(Array.from(this.imagePaths.entries()).map(([setName, iconName, path]) => [
+      setName,
+      iconName,
+      new AssetImage(path, Image_Png)
+    ]));
+    this.assets = Array.from(this.assetSets.values());
+    Promise.all(this.assets).then(() => this.finish());
   }
-  async load(prog) {
-    const popper = progressPopper(prog);
-    const imageSets = new PriorityMap(await Promise.all(Array.from(this.imagePaths.entries()).map(([setName, iconName, path]) => loadIcon(this.fetcher, setName, iconName, path, popper))));
-    const images = Array.from(imageSets.values());
+  finish() {
+    const images = Array.from(this.assets.map((asset) => asset.result));
     const iconWidth = Math.max(...images.map((img) => img.width));
     const iconHeight = Math.max(...images.map((img) => img.height));
     const area = iconWidth * iconHeight * images.length;
@@ -11312,7 +11344,8 @@ var ButtonFactory = class {
     g.fillStyle = "#1e4388";
     g.fillRect(0, 0, canvWidth, canvHeight);
     let i = 0;
-    for (const [setName, imgName, img] of imageSets.entries()) {
+    for (const [setName, imgName, asset] of this.assetSets.entries()) {
+      const img = asset.result;
       const c = i % cols;
       const r = (i - c) / cols;
       const u = widthRatio * (c * iconWidth / width2);
@@ -20533,6 +20566,7 @@ var BaseEnvironment = class extends TypedEventBase {
     this._xrMediaBinding = null;
     this._hasXRMediaLayers = null;
     this._hasXRCompositionLayers = null;
+    this.getModel = this.getModel.bind(this);
     if (isHTMLCanvas(canvas)) {
       canvas.style.backgroundColor = "black";
     }
@@ -20728,6 +20762,12 @@ var BaseEnvironment = class extends TypedEventBase {
       await this.fader.fadeIn();
     }
   }
+  modelAsset(path) {
+    return new AssetCustom(path, Model_Gltf_Binary, this.getModel);
+  }
+  getModel(fetcher, path, type2, prog) {
+    return fetcher.get(path).useCache(true).progress(prog).file(type2).then((response) => this.loadModel(response.content));
+  }
   async loadModel(path, prog) {
     const loader = new GLTFLoader();
     const model2 = await loader.loadAsync(path, (evt) => {
@@ -20737,8 +20777,7 @@ var BaseEnvironment = class extends TypedEventBase {
     });
     return model2.scene;
   }
-  async load3DCursor(path, prog) {
-    const model2 = await this.loadModel(path, prog);
+  set3DCursor(model2) {
     const children = model2.children.slice(0);
     for (const child of children) {
       this.cursor3D.add(child.name, child);
@@ -20746,8 +20785,17 @@ var BaseEnvironment = class extends TypedEventBase {
     this.eventSystem.refreshCursors();
     this.dispatchEvent(new TypedEvent("newcursorloaded"));
   }
-  async load(prog) {
-    await this.load3DCursor("/models/Cursors.glb", prog);
+  async load(progOrAsset, ...assets) {
+    let prog = null;
+    if (progOrAsset instanceof BaseAsset) {
+      assets.push(progOrAsset);
+    } else {
+      prog = progOrAsset;
+    }
+    const cursor3d = this.modelAsset("/models/Cursors.glb");
+    assets.push(cursor3d);
+    await this.fetcher.assets(prog, ...assets);
+    this.set3DCursor(cursor3d.result);
   }
 };
 
@@ -21100,7 +21148,7 @@ var Environment = class extends BaseEnvironment {
     this.confirmationDialog = new ConfirmationDialog(this, dialogFontFamily);
     this.devicesDialog = new DeviceDialog(this);
     elementApply(this.renderer.domElement.parentElement, this.screenUISpace, this.confirmationDialog, this.devicesDialog, this.renderer.domElement);
-    this.uiButtons = new ButtonFactory(this.fetcher, uiImagePaths, 20);
+    this.uiButtons = new ButtonFactory(uiImagePaths, 20);
     this.settingsButton = new ButtonImageWidget(this.uiButtons, "ui", "settings");
     this.quitButton = new ButtonImageWidget(this.uiButtons, "ui", "quit");
     this.lobbyButton = new ButtonImageWidget(this.uiButtons, "ui", "lobby");
@@ -21216,8 +21264,26 @@ var Environment = class extends BaseEnvironment {
     widgetSetEnabled(this.quitButton, !showing, "primary");
     widgetSetEnabled(this.lobbyButton, !showing, "primary");
   }
-  async load(prog) {
-    await progressTasks(prog, (prog2) => super.load(prog2), (prog2) => this.uiButtons.load(prog2), (prog2) => this.audio.loadBasicClip("footsteps", "/audio/TransitionFootstepAudio.mp3", 0.5, prog2), (prog2) => this.interactionAudio.load("enter", "/audio/basic_enter.mp3", 0.25, prog2), (prog2) => this.interactionAudio.load("exit", "/audio/basic_exit.mp3", 0.25, prog2), (prog2) => this.interactionAudio.load("error", "/audio/basic_error.mp3", 0.25, prog2), (prog2) => this.interactionAudio.load("click", "/audio/vintage_radio_button_pressed.mp3", 1, prog2));
+  async load(progOrAsset, ...assets) {
+    let prog = null;
+    if (progOrAsset instanceof BaseAsset) {
+      assets.push(progOrAsset);
+      prog = this.loadingBar;
+    } else {
+      prog = progOrAsset;
+    }
+    const footsteps = new AssetAudio("/audio/TransitionFootstepAudio.mp3", Audio_Mpeg);
+    const enter = new AssetAudio("/audio/basic_enter.mp3", Audio_Mpeg);
+    const exit = new AssetAudio("/audio/basic_exit.mp3", Audio_Mpeg);
+    const error = new AssetAudio("/audio/basic_error.mp3", Audio_Mpeg);
+    const click = new AssetAudio("/audio/vintage_radio_button_pressed.mp3", Audio_Mpeg);
+    assets.push(...this.uiButtons.assets, footsteps, enter, exit, error, click);
+    await super.load(prog, ...assets);
+    this.audio.createBasicClip("footsteps", footsteps.result, 0.5);
+    this.interactionAudio.create("enter", enter.result, 0.25);
+    this.interactionAudio.create("exit", exit.result, 0.25);
+    this.interactionAudio.create("error", error.result, 0.25);
+    this.interactionAudio.create("click", click.result, 1);
   }
 };
 
@@ -21643,7 +21709,7 @@ var Fetcher = class {
   async assets(progress, ...assets) {
     assets = assets.filter(isDefined);
     const assetSizes = new Map(await Promise.all(assets.map((asset) => asset.getSize(this))));
-    await progressTasksWeighted(progress, assets.map((asset) => [assetSizes.get(asset), (prog) => asset.getContent(prog)]));
+    await progressTasksWeighted(progress, assets.map((asset) => [assetSizes.get(asset), (prog) => asset.fetch(this, prog)]));
   }
 };
 
@@ -22223,18 +22289,17 @@ var Forest = class {
     this.env = env2;
     this.useBasicMaterial = useBasicMaterial;
     this.density = density;
-    this.getJpeg = this.getJpeg.bind(this);
-    this.getPng = this.getPng.bind(this);
-    this.getModel = this.getModel.bind(this);
-    this.getAudio = this.getAudio.bind(this);
-    this.skybox = new Asset("/skyboxes/BearfenceMountain.jpeg", this.getJpeg);
-    this.forest = new Asset("/models/Forest-Ground.glb", this.getModel);
-    this.bgAudio = new Asset("/audio/forest.mp3", this.getAudio);
+    this.assets = [
+      this.skybox = new AssetImage("/skyboxes/BearfenceMountain.jpeg", Image_Jpeg),
+      this.forest = env2.modelAsset("/models/Forest-Ground.glb"),
+      this.bgAudio = new AssetAudio("/audio/forest.mp3", Audio_Mpeg)
+    ];
     if (this.density > 0) {
-      this.tree = new Asset("/models/Forest-Tree.glb", this.getModel);
+      this.assets.push(this.tree = env2.modelAsset("/models/Forest-Tree.glb"));
     }
     this.raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0), 0.1, 100);
     this.hits = new Array();
+    Promise.all(this.assets).then(() => this.finish());
   }
   skybox;
   forest;
@@ -22254,11 +22319,8 @@ var Forest = class {
   get trees() {
     return this._trees;
   }
-  async load(...assets) {
-    await progressTasksWeighted(this.env.loadingBar, [
-      [1, (prog) => this.env.load(prog)],
-      [10, (prog) => this.env.fetcher.assets(prog, this.skybox, this.forest, this.tree, this.bgAudio, ...assets)]
-    ]);
+  assets;
+  finish() {
     this.env.skybox.setImage("forest", this.skybox.result);
     this.env.audio.createClip("forest", this.bgAudio.result, true, true, true, 1, []);
     this.env.audio.setClipPosition("forest", 25, 5, 25);
@@ -22286,19 +22348,6 @@ var Forest = class {
       }
       this.env.foreground.add(this._trees);
     }
-    return assets;
-  }
-  getJpeg(path, prog) {
-    return this.env.fetcher.get(path).useCache(true).progress(prog).image(Image_Jpeg).then((response) => response.content);
-  }
-  getPng(path, prog) {
-    return this.env.fetcher.get(path).useCache(false).progress(prog).image(Image_Png).then((response) => response.content);
-  }
-  getAudio(path, prog) {
-    return this.env.fetcher.get(path).useCache(true).progress(prog).audio(true, true, Audio_Mpeg).then((response) => response.content);
-  }
-  getModel(path, prog) {
-    return this.env.fetcher.get(path).useCache(true).progress(prog).file(Model_Gltf_Binary).then((response) => this.env.loadModel(response.content));
   }
   makeTrees() {
     const matrices = new Array();
@@ -22310,7 +22359,7 @@ var Forest = class {
     const s = new THREE.Vector3();
     for (let dz = -25; dz <= 25; ++dz) {
       for (let dx = -25; dx <= 25; ++dx) {
-        if (Math.random() <= this.density) {
+        if ((dx !== 0 || dx !== 0) && Math.random() <= this.density) {
           const x = Math.random() * 0.1 + dx;
           const z = Math.random() * 0.1 + dz;
           p.set(x, 0, z);
@@ -22372,7 +22421,8 @@ function makeGrass(env2, spatter2) {
 var env = await createTestEnvironment();
 await env.fadeOut();
 var forest = new Forest(env, true);
-var [spatter] = await forest.load(new Asset("/img/spatter.png", forest.getPng));
+var spatter = new AssetImage("/img/spatter.png", Image_Png);
+await env.load(spatter, ...forest.assets);
 forest.trees.removeFromParent();
 makeGrass(env, spatter.result);
 await env.fadeIn();

@@ -2452,7 +2452,7 @@ var Fetcher = class {
   async assets(progress, ...assets) {
     assets = assets.filter(isDefined);
     const assetSizes = new Map(await Promise.all(assets.map((asset) => asset.getSize(this))));
-    await progressTasksWeighted(progress, assets.map((asset) => [assetSizes.get(asset), (prog) => asset.getContent(prog)]));
+    await progressTasksWeighted(progress, assets.map((asset) => [assetSizes.get(asset), (prog) => asset.fetch(this, prog)]));
   }
 };
 

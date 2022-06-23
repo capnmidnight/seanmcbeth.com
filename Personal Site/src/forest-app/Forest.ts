@@ -1,9 +1,9 @@
-﻿import { Asset } from "@juniper-lib/fetcher";
-import { Audio_Mpeg, Image_Jpeg, Image_Png, Model_Gltf_Binary } from "@juniper-lib/mediatypes";
+﻿import { AssetAudio, AssetCustom, AssetImage, BaseAsset } from "@juniper-lib/fetcher";
+import { Audio_Mpeg, Image_Jpeg } from "@juniper-lib/mediatypes";
 import { Environment } from "@juniper-lib/threejs/environment/Environment";
 import { objectScan } from "@juniper-lib/threejs/objectScan";
 import { isMesh } from "@juniper-lib/threejs/typeChecks";
-import { arrayClear, arrayScan, IProgress, isDefined, isNullOrUndefined, progressTasksWeighted } from "@juniper-lib/tslib";
+import { arrayClear, arrayScan, isDefined, isNullOrUndefined } from "@juniper-lib/tslib";
 
 function isMeshNamed(name: string) {
     return (obj: THREE.Object3D) => isMesh(obj) && obj.name === name;
@@ -85,10 +85,10 @@ type MatType<T extends boolean> = T extends true ? THREE.MeshBasicMaterial : T e
 type MeshType<T extends boolean> = THREE.Mesh<THREE.BufferGeometry, MatType<T>>;
 
 export class Forest<ChoiceT extends boolean> {
-    private readonly skybox: Asset<HTMLImageElement>;
-    private readonly forest: Asset<THREE.Group>;
-    private readonly tree: Asset<THREE.Group>;
-    private readonly bgAudio: Asset<HTMLAudioElement>;
+    private readonly skybox: AssetImage;
+    private readonly forest: AssetCustom<THREE.Group>;
+    private readonly tree: AssetCustom<THREE.Group>;
+    private readonly bgAudio: AssetAudio;
     private readonly raycaster: THREE.Raycaster;
     private readonly hits: Array<THREE.Intersection>;
 
@@ -108,34 +108,25 @@ export class Forest<ChoiceT extends boolean> {
         return this._trees;
     }
 
-    constructor(private readonly env: Environment, private readonly useBasicMaterial: ChoiceT, private readonly density = 0.05) {
-        this.getJpeg = this.getJpeg.bind(this);
-        this.getPng = this.getPng.bind(this);
-        this.getModel = this.getModel.bind(this);
-        this.getAudio = this.getAudio.bind(this);
+    readonly assets: BaseAsset<any, any>[];
 
-        this.skybox = new Asset("/skyboxes/BearfenceMountain.jpeg", this.getJpeg);
-        this.forest = new Asset("/models/Forest-Ground.glb", this.getModel);
-        this.bgAudio = new Asset("/audio/forest.mp3", this.getAudio);
+    constructor(private readonly env: Environment, private readonly useBasicMaterial: ChoiceT, private readonly density = 0.05) {
+        this.assets = [
+            this.skybox = new AssetImage("/skyboxes/BearfenceMountain.jpeg", Image_Jpeg),
+            this.forest = env.modelAsset("/models/Forest-Ground.glb"),
+            this.bgAudio = new AssetAudio("/audio/forest.mp3", Audio_Mpeg)
+        ];
         if (this.density > 0) {
-            this.tree = new Asset("/models/Forest-Tree.glb", this.getModel);
+            this.assets.push(this.tree = env.modelAsset("/models/Forest-Tree.glb"));
         }
         this.raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0), 0.1, 100);
         this.hits = new Array<THREE.Intersection>();
+
+        Promise.all(this.assets)
+            .then(() => this.finish())
     }
 
-    async load<T extends Asset<any>[]>(...assets: T): Promise<T> {
-        await progressTasksWeighted(this.env.loadingBar, [
-            [1, (prog) => this.env.load(prog)],
-            [10, (prog) => this.env.fetcher.assets(prog,
-                this.skybox,
-                this.forest,
-                this.tree,
-                this.bgAudio,
-                ...assets
-            )]
-        ]);
-
+    private finish(): void {
         this.env.skybox.setImage("forest", this.skybox.result);
         this.env.audio.createClip("forest", this.bgAudio.result, true, true, true, 1, []);
         this.env.audio.setClipPosition("forest", 25, 5, 25);
@@ -170,45 +161,6 @@ export class Forest<ChoiceT extends boolean> {
 
             this.env.foreground.add(this._trees);
         }
-
-        return assets;
-    }
-
-
-    getJpeg(path: string, prog?: IProgress) {
-        return this.env.fetcher
-            .get(path)
-            .useCache(true)
-            .progress(prog)
-            .image(Image_Jpeg)
-            .then(response => response.content);
-    }
-
-    getPng(path: string, prog?: IProgress) {
-        return this.env.fetcher
-            .get(path)
-            .useCache(false)
-            .progress(prog)
-            .image(Image_Png)
-            .then(response => response.content);
-    }
-
-    getAudio(path: string, prog?: IProgress) {
-        return this.env.fetcher
-            .get(path)
-            .useCache(true)
-            .progress(prog)
-            .audio(true, true, Audio_Mpeg)
-            .then(response => response.content);
-    }
-
-    getModel(path: string, prog?: IProgress) {
-        return this.env.fetcher
-            .get(path)
-            .useCache(true)
-            .progress(prog)
-            .file(Model_Gltf_Binary)
-            .then(response => this.env.loadModel(response.content));
     }
 
     private makeTrees() {
@@ -221,7 +173,8 @@ export class Forest<ChoiceT extends boolean> {
         const s = new THREE.Vector3();
         for (let dz = -25; dz <= 25; ++dz) {
             for (let dx = -25; dx <= 25; ++dx) {
-                if (Math.random() <= this.density) {
+                if ((dx !== 0 || dx !== 0) // don't put a tree on top of the spawn point
+                    && Math.random() <= this.density) {
                     const x = Math.random() * 0.1 + dx;
                     const z = Math.random() * 0.1 + dz;
                     p.set(x, 0, z);
