@@ -5227,6 +5227,7 @@ var Attr = class {
     this.tags = tags.map((t2) => t2.toLocaleUpperCase());
     Object.freeze(this);
   }
+  tags;
   applyToElement(elem) {
     const isDataSet = this.key.startsWith("data-");
     const isValid = this.tags.length === 0 || this.tags.indexOf(elem.tagName) > -1 || isDataSet;
@@ -12627,98 +12628,127 @@ var GamepadAxisMaxedEvent = class extends GamepadAxisEvent {
   }
 };
 var EventedGamepad = class extends TypedEventBase {
-  constructor(pad) {
-    super();
-    this.pad = pad;
-    this._isStick = (a) => a % 2 === 0 && a < pad.axes.length - 1;
-    for (let b = 0; b < pad.buttons.length; ++b) {
-      this.btnDownEvts[b] = new GamepadButtonDownEvent(b);
-      this.btnUpEvts[b] = new GamepadButtonUpEvent(b);
-      this.wasPressed[b] = false;
-    }
-    for (let a = 0; a < pad.axes.length; ++a) {
-      this.axisMaxEvts[a] = new GamepadAxisMaxedEvent(a, 0);
-      this.wasAxisMaxed[a] = false;
-      if (this._isStick(a)) {
-        this.sticks[a / 2] = { x: 0, y: 0 };
-      }
-      this.lastAxisValues[a] = pad.axes[a];
-    }
-    Object.seal(this);
-  }
   lastAxisValues = new Array();
-  _isStick;
   btnDownEvts = new Array();
   btnUpEvts = new Array();
   wasPressed = new Array();
-  axisThresholdMax = 0.9;
-  axisThresholdMin = 0.1;
   axisMaxEvts = new Array();
   wasAxisMaxed = new Array();
   sticks = new Array();
-  setPad(pad) {
-    this.pad = pad;
-    this.update();
+  axisThresholdMax = 0.9;
+  axisThresholdMin = 0.1;
+  _pad = null;
+  constructor() {
+    super();
+    Object.seal(this);
+  }
+  get pad() {
+    return this._pad;
+  }
+  set pad(pad) {
+    this._pad = pad;
+    if (this.pad) {
+      if (this.btnUpEvts.length === 0) {
+        for (let b = 0; b < pad.buttons.length; ++b) {
+          this.btnDownEvts[b] = new GamepadButtonDownEvent(b);
+          this.btnUpEvts[b] = new GamepadButtonUpEvent(b);
+          this.wasPressed[b] = false;
+        }
+        for (let a = 0; a < pad.axes.length; ++a) {
+          this.axisMaxEvts[a] = new GamepadAxisMaxedEvent(a, 0);
+          this.wasAxisMaxed[a] = false;
+          if (a % 2 === 0 && a < pad.axes.length - 1) {
+            this.sticks[a / 2] = { x: 0, y: 0 };
+          }
+          this.lastAxisValues[a] = pad.axes[a];
+        }
+      }
+      for (let b = 0; b < this.pad.buttons.length; ++b) {
+        const wasPressed = this.wasPressed[b];
+        const pressed = this.pad.buttons[b].pressed;
+        if (pressed !== wasPressed) {
+          this.wasPressed[b] = pressed;
+          this.dispatchEvent((pressed ? this.btnDownEvts : this.btnUpEvts)[b]);
+        }
+      }
+      for (let a = 0; a < this.pad.axes.length; ++a) {
+        const wasMaxed = this.wasAxisMaxed[a];
+        const val = this.pad.axes[a];
+        const dir = Math.sign(val);
+        const mag = Math.abs(val);
+        const maxed = mag >= this.axisThresholdMax;
+        const mined = mag <= this.axisThresholdMin;
+        const correctedVal = dir * (maxed ? 1 : mined ? 0 : mag);
+        if (maxed && !wasMaxed) {
+          this.axisMaxEvts[a].value = correctedVal;
+          this.dispatchEvent(this.axisMaxEvts[a]);
+        }
+        this.wasAxisMaxed[a] = maxed;
+        this.lastAxisValues[a] = correctedVal;
+      }
+      for (let a = 0; a < this.axes.length - 1; a += 2) {
+        const stick = this.sticks[a / 2];
+        stick.x = this.axes[a];
+        stick.y = this.axes[a + 1];
+      }
+    }
   }
   get id() {
+    if (!this.pad) {
+      return null;
+    }
     return this.pad.id;
   }
   get index() {
+    if (!this.pad) {
+      return null;
+    }
     return this.pad.index;
   }
   get connected() {
-    return this.pad.connected;
+    return this.pad && this.pad.connected;
   }
   get mapping() {
+    if (!this.pad) {
+      return null;
+    }
     return this.pad.mapping;
   }
   get timestamp() {
+    if (!this.pad) {
+      return null;
+    }
     return this.pad.timestamp;
   }
   get hand() {
+    if (!this.pad) {
+      return null;
+    }
     return this.pad.hand;
   }
   get pose() {
+    if (!this.pad) {
+      return null;
+    }
     return this.pad.pose;
   }
   get buttons() {
+    if (!this.pad) {
+      return null;
+    }
     return this.pad.buttons;
   }
   get axes() {
+    if (!this.pad) {
+      return null;
+    }
     return this.pad.axes;
   }
   get hapticActuators() {
+    if (!this.pad) {
+      return null;
+    }
     return this.pad.hapticActuators;
-  }
-  update() {
-    for (let b = 0; b < this.pad.buttons.length; ++b) {
-      const wasPressed = this.wasPressed[b];
-      const pressed = this.pad.buttons[b].pressed;
-      if (pressed !== wasPressed) {
-        this.wasPressed[b] = pressed;
-        this.dispatchEvent((pressed ? this.btnDownEvts : this.btnUpEvts)[b]);
-      }
-    }
-    for (let a = 0; a < this.pad.axes.length; ++a) {
-      const wasMaxed = this.wasAxisMaxed[a];
-      const val = this.pad.axes[a];
-      const dir = Math.sign(val);
-      const mag = Math.abs(val);
-      const maxed = mag >= this.axisThresholdMax;
-      const mined = mag <= this.axisThresholdMin;
-      const correctedVal = dir * (maxed ? 1 : mined ? 0 : mag);
-      if (maxed && !wasMaxed) {
-        this.axisMaxEvts[a].value = correctedVal;
-        this.dispatchEvent(this.axisMaxEvts[a]);
-      }
-      this.wasAxisMaxed[a] = maxed;
-      this.lastAxisValues[a] = correctedVal;
-    }
-    for (let a = 0; a < this.axes.length - 1; a += 2) {
-      const stick = this.sticks[a / 2];
-      stick.x = this.axes[a];
-      stick.y = this.axes[a + 1];
-    }
   }
 };
 
@@ -16376,7 +16406,7 @@ var PointerHand = class extends BasePointer {
     this._handedness = "none";
     this._isHand = false;
     this.inputSource = null;
-    this._gamepad = null;
+    this._gamepad = new EventedGamepad();
     this.useHaptics = true;
     objGraph(this, this.controller = this.env.renderer.xr.getController(index), this.grip = this.env.renderer.xr.getControllerGrip(index), this.hand = this.env.renderer.xr.getHand(index));
     if (isDesktop() && isChrome() && !isOculusBrowser) {
@@ -16394,15 +16424,15 @@ var PointerHand = class extends BasePointer {
     objGraph(this.controller, this.laser);
     objGraph(this.grip, mcModelFactory.createControllerModel(this.controller));
     objGraph(this.hand, handModelFactory.createHandModel(this.hand, "mesh"));
-    this.onAxisMaxed = (evt) => {
+    this.gamepad.addEventListener("gamepadaxismaxed", (evt) => {
       if (evt.axis === 2) {
         this.env.avatar.snapTurn(evt.value);
       }
-    };
+    });
     this.controller.addEventListener("connected", (evt) => {
       if (evt.target === this.controller) {
         this.inputSource = evt.data;
-        this.setGamepad(this.inputSource.gamepad);
+        this.gamepad.pad = this.inputSource.gamepad;
         this._isHand = isDefined(this.inputSource.hand);
         this._handedness = this.inputSource.handedness;
         this.name = pointerNames.get(this.handedness);
@@ -16418,7 +16448,7 @@ var PointerHand = class extends BasePointer {
     this.controller.addEventListener("disconnected", (evt) => {
       if (evt.target === this.controller) {
         this.inputSource = null;
-        this.setGamepad(null);
+        this.gamepad.pad = null;
         this._isHand = false;
         this._handedness = "none";
         this.name = pointerNames.get(this.handedness);
@@ -16448,33 +16478,16 @@ var PointerHand = class extends BasePointer {
     this._vibrate();
   }
   async _vibrate() {
-    if (this._gamepad && this.useHaptics) {
+    if (this.useHaptics && this.gamepad.hapticActuators) {
       try {
-        await Promise.all(this._gamepad.hapticActuators.map((actuator) => actuator.pulse(0.25, 125)));
+        await Promise.all(this.gamepad.hapticActuators.map((actuator) => actuator.pulse(0.25, 125)));
       } catch {
         this.useHaptics = false;
       }
     }
   }
-  setGamepad(pad) {
-    if (isDefined(this._gamepad) && isNullOrUndefined(pad)) {
-      this._gamepad.clearEventListeners();
-      this._gamepad = null;
-    }
-    if (isDefined(pad)) {
-      if (isDefined(this._gamepad)) {
-        this._gamepad.setPad(pad);
-      } else {
-        this._gamepad = new EventedGamepad(pad);
-        this._gamepad.addEventListener("gamepadaxismaxed", this.onAxisMaxed);
-      }
-    }
-  }
   get gamepad() {
     return this._gamepad;
-  }
-  get gamepadId() {
-    return this._gamepad && this._gamepad.id;
   }
   get handedness() {
     return this._handedness;
@@ -16504,17 +16517,15 @@ var PointerHand = class extends BasePointer {
     this.direction.lerp(newDirection, 0.9).normalize();
     delta2.sub(this.origin).sub(this.direction);
     this.moveDistance = 1e3 * delta2.length();
-    if (isDefined(this._gamepad) && isDefined(this.inputSource)) {
-      this.setGamepad(this.inputSource.gamepad);
-    }
+    this.gamepad.pad = this.inputSource && this.inputSource.gamepad || null;
     this.onPointerMove();
   }
   isPressed(button) {
-    if (!this._gamepad || !buttonIndices.has(this.handedness) || !buttonIndices.get(this.handedness).has(button)) {
+    if (!buttonIndices.has(this.handedness) || !buttonIndices.get(this.handedness).has(button)) {
       return false;
     }
     const index = buttonIndices.get(this.handedness).get(button);
-    return this._gamepad.buttons[index].pressed;
+    return index < this.gamepad.buttons.length && this.gamepad.buttons[index].pressed;
   }
 };
 
@@ -20420,6 +20431,8 @@ var Skybox = class {
   update(frame) {
     if (this.cube) {
       const isWebXRLayerAvailable = this.webXRLayerEnabled && this.env.renderer.xr.isPresenting && isDefined(frame) && isDefined(this.env.xrBinding);
+      const visibleChanged = this.visible !== this.wasVisible;
+      const headingChanged = this.env.avatar.heading !== this.stageHeading;
       if (isWebXRLayerAvailable !== this.wasWebXRLayerAvailable) {
         if (isWebXRLayerAvailable) {
           const space = this.env.renderer.xr.getReferenceSpace();
@@ -20440,13 +20453,13 @@ var Skybox = class {
       }
       this.env.scene.background = this.layer ? null : this.visible ? this.rt.texture : black;
       if (this.layer) {
-        if (this.visible !== this.wasVisible || this.layer.needsRedraw) {
+        if (visibleChanged || this.layer.needsRedraw) {
           this.imageNeedsUpdate = true;
         }
-        if (this.env.avatar.heading !== this.stageHeading) {
+        if (headingChanged) {
           this.rotationNeedsUpdate = true;
           this.stageHeading = this.env.avatar.heading;
-          this.stageRotation.setFromAxisAngle(U, -this.env.avatar.heading);
+          this.stageRotation.setFromAxisAngle(U, this.env.avatar.heading);
         }
       } else {
         this.rotationNeedsUpdate = this.imageNeedsUpdate = this.imageNeedsUpdate || this.rotationNeedsUpdate;
@@ -20457,7 +20470,7 @@ var Skybox = class {
           this.layerRotation.multiply(this.stageRotation);
           this.layer.orientation = new DOMPointReadOnly(this.layerRotation.x, this.layerRotation.y, this.layerRotation.z, this.layerRotation.w);
         } else {
-          this.rtCamera.quaternion.copy(this.layerRotation.invert());
+          this.rtCamera.quaternion.copy(this.layerRotation);
         }
       }
       if (this.imageNeedsUpdate) {

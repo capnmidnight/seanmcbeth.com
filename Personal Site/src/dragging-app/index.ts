@@ -12,6 +12,7 @@ await env.fadeOut();
 await env.load(skybox);
 
 env.skybox.setImage(skybox.path, skybox.result);
+env.skybox.rotation = -21 * Math.PI / 180
 
 const obj = new Cube(0.25, 0.25, 0.25, lit({
     color: "red"
