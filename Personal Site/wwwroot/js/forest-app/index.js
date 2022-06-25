@@ -6138,18 +6138,18 @@ var DeviceManager = class extends TypedEventBase {
     super();
     this.element = element;
     this.needsVideoDevice = needsVideoDevice;
+    this._hasAudioPermission = false;
+    this._hasVideoPermission = false;
+    this._currentStream = null;
     this.ready = this.start();
     Object.seal(this);
   }
-  _hasAudioPermission = false;
   get hasAudioPermission() {
     return this._hasAudioPermission;
   }
-  _hasVideoPermission = false;
   get hasVideoPermission() {
     return this._hasVideoPermission;
   }
-  _currentStream = null;
   get currentStream() {
     return this._currentStream;
   }
@@ -6163,7 +6163,6 @@ var DeviceManager = class extends TypedEventBase {
       this._currentStream = v;
     }
   }
-  ready;
   async start() {
     if (canChangeAudioOutput) {
       const device = await this.getPreferredAudioOutput();
@@ -16752,7 +16751,7 @@ var EventSystem = class extends TypedEventBase {
     this.env = env2;
     this.raycaster = new THREE.Raycaster();
     this.hands = new Array();
-    this.localPointerMovedEvt = new ObjectMovedEvent();
+    this.pointerMovedEvts = /* @__PURE__ */ new Map();
     this.hits = new Array();
     this.infoPressed = false;
     this.menuPressed = false;
@@ -16837,9 +16836,12 @@ var EventSystem = class extends TypedEventBase {
               curTarget.dispatchEvent(moveEvt);
             }
           }
-          this.localPointerMovedEvt.name = pointer.name;
-          this.localPointerMovedEvt.set(pointer.origin.x, pointer.origin.y, pointer.origin.z, pointer.direction.x, pointer.direction.y, pointer.direction.z, 0, 1, 0);
-          this.dispatchEvent(this.localPointerMovedEvt);
+          let evt = this.pointerMovedEvts.get(pointer.name);
+          if (!evt) {
+            this.pointerMovedEvts.set(pointer.name, evt = new ObjectMovedEvent(pointer.name));
+          }
+          evt.set(pointer.origin.x, pointer.origin.y, pointer.origin.z, pointer.direction.x, pointer.direction.y, pointer.direction.z, 0, 1, 0);
+          this.dispatchEvent(evt);
         }
         break;
       case "down":
@@ -20326,11 +20328,11 @@ var Skybox = class {
     this.curImagePath = null;
     this.layer = null;
     this.wasVisible = false;
-    this.wasWebXRLayerAvailable = null;
     this.stageHeading = 0;
     this.rotationNeedsUpdate = false;
     this.imageNeedsUpdate = false;
     this.webXRLayerEnabled = true;
+    this.wasWebXRLayerAvailable = null;
     this.visible = true;
     this.webXRLayerEnabled &&= this.env.hasXRCompositionLayers;
     this.env.scene.background = black;
@@ -20431,9 +20433,8 @@ var Skybox = class {
   update(frame) {
     if (this.cube) {
       const isWebXRLayerAvailable = this.webXRLayerEnabled && this.env.renderer.xr.isPresenting && isDefined(frame) && isDefined(this.env.xrBinding);
-      const visibleChanged = this.visible !== this.wasVisible;
-      const headingChanged = this.env.avatar.heading !== this.stageHeading;
-      if (isWebXRLayerAvailable !== this.wasWebXRLayerAvailable) {
+      const webXRLayerChanged = isWebXRLayerAvailable !== this.wasWebXRLayerAvailable;
+      if (webXRLayerChanged) {
         if (isWebXRLayerAvailable) {
           const space = this.env.renderer.xr.getReferenceSpace();
           this.layer = this.env.xrBinding.createCubeLayer({
@@ -20444,33 +20445,28 @@ var Skybox = class {
             viewPixelHeight: FACE_SIZE
           });
           this.env.addWebXRLayer(this.layer, Number.MAX_VALUE);
+          this.rotationNeedsUpdate = true;
         } else if (this.layer) {
           this.env.removeWebXRLayer(this.layer);
           this.layer.destroy();
           this.layer = null;
         }
-        this.imageNeedsUpdate = this.rotationNeedsUpdate = true;
+        this.imageNeedsUpdate = true;
       }
+      const visibleChanged = this.visible !== this.wasVisible;
+      const headingChanged = this.env.avatar.heading !== this.stageHeading;
+      this.imageNeedsUpdate = this.imageNeedsUpdate || visibleChanged || this.layer && this.layer.needsRedraw;
+      this.rotationNeedsUpdate = this.rotationNeedsUpdate || headingChanged;
       this.env.scene.background = this.layer ? null : this.visible ? this.rt.texture : black;
-      if (this.layer) {
-        if (visibleChanged || this.layer.needsRedraw) {
-          this.imageNeedsUpdate = true;
-        }
-        if (headingChanged) {
-          this.rotationNeedsUpdate = true;
-          this.stageHeading = this.env.avatar.heading;
-          this.stageRotation.setFromAxisAngle(U, this.env.avatar.heading);
-        }
-      } else {
-        this.rotationNeedsUpdate = this.imageNeedsUpdate = this.imageNeedsUpdate || this.rotationNeedsUpdate;
-      }
       if (this.rotationNeedsUpdate) {
-        this.layerRotation.copy(this.rotation);
+        this.layerRotation.copy(this.rotation).invert();
+        this.stageRotation.setFromAxisAngle(U, this.env.avatar.heading);
         if (this.layer) {
           this.layerRotation.multiply(this.stageRotation);
           this.layer.orientation = new DOMPointReadOnly(this.layerRotation.x, this.layerRotation.y, this.layerRotation.z, this.layerRotation.w);
         } else {
           this.rtCamera.quaternion.copy(this.layerRotation);
+          this.imageNeedsUpdate = true;
         }
       }
       if (this.imageNeedsUpdate) {
@@ -20493,6 +20489,7 @@ var Skybox = class {
           this.rtCamera.update(this.env.renderer, this.rtScene);
         }
       }
+      this.stageHeading = this.env.avatar.heading;
       this.imageNeedsUpdate = false;
       this.rotationNeedsUpdate = false;
       this.wasVisible = this.visible;
