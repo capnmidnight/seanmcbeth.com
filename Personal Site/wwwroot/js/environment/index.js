@@ -19701,24 +19701,22 @@ var Skybox = class {
     this.rtCamera = new THREE.CubeCamera(0.01, 10, this.rt);
     this._rotation = new THREE.Quaternion();
     this.layerRotation = new THREE.Quaternion().identity();
-    this.layerOrientation = null;
     this.stageRotation = new THREE.Quaternion().identity();
-    this.images = null;
     this.canvases = new Array(6);
     this.contexts = new Array(6);
+    this.onNeedsRedraw = null;
+    this.layerOrientation = null;
+    this.images = null;
     this.curImagePath = null;
     this.layer = null;
     this.wasVisible = false;
     this.stageHeading = 0;
     this.rotationNeedsUpdate = false;
     this.imageNeedsUpdate = false;
-    this.webXRLayerEnabled = true;
     this.wasWebXRLayerAvailable = null;
     this.visible = true;
-    this.onNeedsRedraw = null;
     this.framecount = 0;
     this.onNeedsRedraw = () => this.imageNeedsUpdate = true;
-    this.webXRLayerEnabled &&= this.env.hasXRCompositionLayers;
     this.env.scene.background = black;
     for (let i = 0; i < this.canvases.length; ++i) {
       const f = this.canvases[i] = createUtilityCanvas(FACE_SIZE, FACE_SIZE);
@@ -19817,7 +19815,7 @@ var Skybox = class {
   update(frame) {
     this.framecount++;
     if (this.cube) {
-      const isWebXRLayerAvailable = this.webXRLayerEnabled && this.env.renderer.xr.isPresenting && isDefined(frame) && isDefined(this.env.xrBinding);
+      const isWebXRLayerAvailable = this.env.hasXRCompositionLayers && this.env.renderer.xr.isPresenting && isDefined(frame) && isDefined(this.env.xrBinding);
       const webXRLayerChanged = isWebXRLayerAvailable !== this.wasWebXRLayerAvailable;
       if (webXRLayerChanged) {
         if (isWebXRLayerAvailable) {
