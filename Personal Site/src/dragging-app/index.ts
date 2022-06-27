@@ -16,14 +16,17 @@ env.skybox.setImage(skybox.path, skybox.result);
 env.skybox.rotation = deg2rad(176)
 
 const obj = new Cube(0.25, 0.25, 0.25, lit({
-    color: "red"
+    color: "yellow"
 }));
+
+const transformer = new TransformEditor(true, 1.75);
+transformer.size = 2;
 
 obj.position.set(0, 1.75, -2);
 
 objGraph(env.foreground,
     objGraph(obj,
-        new TransformEditor(false, 1.75)
+        transformer
     )
 );
 
