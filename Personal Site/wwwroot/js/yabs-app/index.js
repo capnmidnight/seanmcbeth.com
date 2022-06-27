@@ -343,59 +343,45 @@ var EventBase = class {
   }
 };
 
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/identity.ts
+function alwaysTrue() {
+  return true;
+}
+
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/events/Task.ts
 var Task = class {
   constructor(resolveTestOrAutoStart, rejectTestOrAutoStart, autoStart = true) {
-    this._resolve = null;
-    this._reject = null;
+    this.onThens = new Array();
+    this.onCatches = new Array();
     this._result = null;
     this._error = null;
     this._started = false;
+    this._errored = false;
     this._finished = false;
-    this.resolve = null;
-    this.reject = null;
-    let resolveTest = alwaysTrue;
-    let rejectTest = alwaysTrue;
     if (isFunction(resolveTestOrAutoStart)) {
-      resolveTest = resolveTestOrAutoStart;
+      this.resolveTest = resolveTestOrAutoStart;
+    } else {
+      this.resolveTest = alwaysTrue;
     }
     if (isFunction(rejectTestOrAutoStart)) {
-      rejectTest = rejectTestOrAutoStart;
+      this.rejectTest = rejectTestOrAutoStart;
+    } else {
+      this.rejectTest = alwaysTrue;
     }
     if (isBoolean(resolveTestOrAutoStart)) {
-      autoStart = resolveTestOrAutoStart;
+      this.autoStart = resolveTestOrAutoStart;
     } else if (isBoolean(rejectTestOrAutoStart)) {
-      autoStart = rejectTestOrAutoStart;
+      this.autoStart = rejectTestOrAutoStart;
+    } else if (isDefined(autoStart)) {
+      this.autoStart = autoStart;
+    } else {
+      this.autoStart = false;
     }
-    this.resolve = (value) => {
-      if (isDefined(this._resolve)) {
-        this._resolve(value);
-      }
-    };
-    this.reject = (reason) => {
-      if (isDefined(this._reject)) {
-        this._reject(reason);
-      }
-    };
-    this.promise = new Promise((resolve, reject) => {
-      this._resolve = (value) => {
-        if (resolveTest(value)) {
-          this._result = value;
-          this._finished = true;
-          resolve(value);
-        }
-      };
-      this._reject = (reason) => {
-        if (rejectTest(reason)) {
-          this._error = reason;
-          this._finished = true;
-          reject(reason);
-        }
-      };
-    });
-    if (autoStart) {
+    if (this.autoStart) {
       this.start();
     }
+    this.resolve = this._resolve.bind(this);
+    this.reject = this._reject.bind(this);
   }
   get result() {
     if (isDefined(this.error)) {
@@ -412,20 +398,64 @@ var Task = class {
   get finished() {
     return this._finished;
   }
+  get errored() {
+    return this._errored;
+  }
   start() {
     this._started = true;
   }
+  _resolve(value) {
+    if (this.started && !this.finished && this.resolveTest(value)) {
+      this._result = value;
+      for (const thenner of this.onThens) {
+        thenner(value);
+      }
+      this._finished = true;
+    }
+  }
+  _reject(reason) {
+    if (this.started && !this.finished && this.rejectTest(reason)) {
+      this._error = reason;
+      this._errored = true;
+      for (const catcher of this.onCatches) {
+        catcher(reason);
+      }
+      this._finished = true;
+    }
+  }
   get [Symbol.toStringTag]() {
-    return this.promise.toString();
+    return this.toString();
+  }
+  project() {
+    return new Promise((resolve, reject) => {
+      if (!this.finished) {
+        this.onThens.push(resolve);
+        this.onCatches.push(reject);
+      } else if (this.errored) {
+        reject(this.error);
+      } else {
+        resolve(this.result);
+      }
+    });
   }
   then(onfulfilled, onrejected) {
-    return this.promise.then(onfulfilled, onrejected);
+    return this.project().then(onfulfilled, onrejected);
   }
   catch(onrejected) {
-    return this.promise.catch(onrejected);
+    return this.project().catch(onrejected);
   }
   finally(onfinally) {
-    return this.promise.finally(onfinally);
+    return this.project().finally(onfinally);
+  }
+  reset() {
+    if (this.started && !this.finished) {
+      this.reject("Resetting previous invocation");
+    }
+    arrayClear(this.onThens);
+    arrayClear(this.onCatches);
+    this._started = this.autoStart;
+    this._errored = false;
+    this._finished = false;
   }
 };
 
@@ -499,6 +529,35 @@ var Promisifier = class {
   }
 };
 
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/typeChecks.ts
+function t(o, s, c) {
+  return typeof o === s || o instanceof c;
+}
+function isFunction(obj) {
+  return t(obj, "function", Function);
+}
+function isString(obj) {
+  return t(obj, "string", String);
+}
+function isBoolean(obj) {
+  return t(obj, "boolean", Boolean);
+}
+function isNumber(obj) {
+  return t(obj, "number", Number);
+}
+function isObject(obj) {
+  return isDefined(obj) && t(obj, "object", Object);
+}
+function assertNever(x, msg) {
+  throw new Error((msg || "Unexpected object: ") + x);
+}
+function isNullOrUndefined(obj) {
+  return obj === null || obj === void 0;
+}
+function isDefined(obj) {
+  return !isNullOrUndefined(obj);
+}
+
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/Exception.ts
 var Exception = class extends Error {
   constructor(message, innerError = null) {
@@ -546,42 +605,8 @@ var delta = [
   56 * n * n * n / 15
 ];
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/identity.ts
-function alwaysTrue() {
-  return true;
-}
-
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math/angleClamp.ts
 var Tau = 2 * Math.PI;
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/typeChecks.ts
-function t(o, s, c) {
-  return typeof o === s || o instanceof c;
-}
-function isFunction(obj) {
-  return t(obj, "function", Function);
-}
-function isString(obj) {
-  return t(obj, "string", String);
-}
-function isBoolean(obj) {
-  return t(obj, "boolean", Boolean);
-}
-function isNumber(obj) {
-  return t(obj, "number", Number);
-}
-function isObject(obj) {
-  return isDefined(obj) && t(obj, "object", Object);
-}
-function assertNever(x, msg) {
-  throw new Error((msg || "Unexpected object: ") + x);
-}
-function isNullOrUndefined(obj) {
-  return obj === null || obj === void 0;
-}
-function isDefined(obj) {
-  return !isNullOrUndefined(obj);
-}
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/singleton.ts
 function singleton(name, create) {

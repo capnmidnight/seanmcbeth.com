@@ -3854,59 +3854,54 @@ var TypedEventBase = class extends EventBase {
   }
 };
 
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/identity.ts
+function identity(item) {
+  return item;
+}
+function alwaysTrue() {
+  return true;
+}
+function alwaysFalse() {
+  return false;
+}
+function and(a, b) {
+  return a && b;
+}
+
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/events/Task.ts
 var Task = class {
   constructor(resolveTestOrAutoStart, rejectTestOrAutoStart, autoStart = true) {
-    this._resolve = null;
-    this._reject = null;
+    this.onThens = new Array();
+    this.onCatches = new Array();
     this._result = null;
     this._error = null;
     this._started = false;
+    this._errored = false;
     this._finished = false;
-    this.resolve = null;
-    this.reject = null;
-    let resolveTest = alwaysTrue;
-    let rejectTest = alwaysTrue;
     if (isFunction(resolveTestOrAutoStart)) {
-      resolveTest = resolveTestOrAutoStart;
+      this.resolveTest = resolveTestOrAutoStart;
+    } else {
+      this.resolveTest = alwaysTrue;
     }
     if (isFunction(rejectTestOrAutoStart)) {
-      rejectTest = rejectTestOrAutoStart;
+      this.rejectTest = rejectTestOrAutoStart;
+    } else {
+      this.rejectTest = alwaysTrue;
     }
     if (isBoolean(resolveTestOrAutoStart)) {
-      autoStart = resolveTestOrAutoStart;
+      this.autoStart = resolveTestOrAutoStart;
     } else if (isBoolean(rejectTestOrAutoStart)) {
-      autoStart = rejectTestOrAutoStart;
+      this.autoStart = rejectTestOrAutoStart;
+    } else if (isDefined(autoStart)) {
+      this.autoStart = autoStart;
+    } else {
+      this.autoStart = false;
     }
-    this.resolve = (value2) => {
-      if (isDefined(this._resolve)) {
-        this._resolve(value2);
-      }
-    };
-    this.reject = (reason) => {
-      if (isDefined(this._reject)) {
-        this._reject(reason);
-      }
-    };
-    this.promise = new Promise((resolve, reject) => {
-      this._resolve = (value2) => {
-        if (resolveTest(value2)) {
-          this._result = value2;
-          this._finished = true;
-          resolve(value2);
-        }
-      };
-      this._reject = (reason) => {
-        if (rejectTest(reason)) {
-          this._error = reason;
-          this._finished = true;
-          reject(reason);
-        }
-      };
-    });
-    if (autoStart) {
+    if (this.autoStart) {
       this.start();
     }
+    this.resolve = this._resolve.bind(this);
+    this.reject = this._reject.bind(this);
   }
   get result() {
     if (isDefined(this.error)) {
@@ -3923,20 +3918,64 @@ var Task = class {
   get finished() {
     return this._finished;
   }
+  get errored() {
+    return this._errored;
+  }
   start() {
     this._started = true;
   }
+  _resolve(value2) {
+    if (this.started && !this.finished && this.resolveTest(value2)) {
+      this._result = value2;
+      for (const thenner of this.onThens) {
+        thenner(value2);
+      }
+      this._finished = true;
+    }
+  }
+  _reject(reason) {
+    if (this.started && !this.finished && this.rejectTest(reason)) {
+      this._error = reason;
+      this._errored = true;
+      for (const catcher of this.onCatches) {
+        catcher(reason);
+      }
+      this._finished = true;
+    }
+  }
   get [Symbol.toStringTag]() {
-    return this.promise.toString();
+    return this.toString();
+  }
+  project() {
+    return new Promise((resolve, reject) => {
+      if (!this.finished) {
+        this.onThens.push(resolve);
+        this.onCatches.push(reject);
+      } else if (this.errored) {
+        reject(this.error);
+      } else {
+        resolve(this.result);
+      }
+    });
   }
   then(onfulfilled, onrejected) {
-    return this.promise.then(onfulfilled, onrejected);
+    return this.project().then(onfulfilled, onrejected);
   }
   catch(onrejected) {
-    return this.promise.catch(onrejected);
+    return this.project().catch(onrejected);
   }
   finally(onfinally) {
-    return this.promise.finally(onfinally);
+    return this.project().finally(onfinally);
+  }
+  reset() {
+    if (this.started && !this.finished) {
+      this.reject("Resetting previous invocation");
+    }
+    arrayClear(this.onThens);
+    arrayClear(this.onCatches);
+    this._started = this.autoStart;
+    this._errored = false;
+    this._finished = false;
   }
 };
 
@@ -4012,6 +4051,50 @@ var Promisifier = class {
     return this.promise.finally(onfinally);
   }
 };
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/typeChecks.ts
+function t(o, s, c) {
+  return typeof o === s || o instanceof c;
+}
+function isFunction(obj3) {
+  return t(obj3, "function", Function);
+}
+function isString(obj3) {
+  return t(obj3, "string", String);
+}
+function isBoolean(obj3) {
+  return t(obj3, "boolean", Boolean);
+}
+function isNumber(obj3) {
+  return t(obj3, "number", Number);
+}
+function isGoodNumber(obj3) {
+  return isNumber(obj3) && Number.isFinite(obj3) && !Number.isNaN(obj3);
+}
+function isObject(obj3) {
+  return isDefined(obj3) && t(obj3, "object", Object);
+}
+function isDate(obj3) {
+  return obj3 instanceof Date;
+}
+function isArray(obj3) {
+  return obj3 instanceof Array;
+}
+function assertNever(x, msg) {
+  throw new Error((msg || "Unexpected object: ") + x);
+}
+function isNullOrUndefined(obj3) {
+  return obj3 === null || obj3 === void 0;
+}
+function isDefined(obj3) {
+  return !isNullOrUndefined(obj3);
+}
+function isArrayBufferView(obj3) {
+  return obj3 instanceof Uint8Array || obj3 instanceof Uint8ClampedArray || obj3 instanceof Int8Array || obj3 instanceof Uint16Array || obj3 instanceof Int16Array || obj3 instanceof Uint32Array || obj3 instanceof Int32Array || obj3 instanceof Float32Array || obj3 instanceof Float64Array || "BigUint64Array" in globalThis && obj3 instanceof globalThis["BigUint64Array"] || "BigInt64Array" in globalThis && obj3 instanceof globalThis["BigInt64Array"];
+}
+function isArrayBuffer(val) {
+  return val && typeof ArrayBuffer !== "undefined" && (val instanceof ArrayBuffer || val.constructor && val.constructor.name === "ArrayBuffer");
+}
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/events/waitFor.ts
 function waitFor(test) {
@@ -4500,20 +4583,6 @@ var forEach = function() {
   };
 }();
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/identity.ts
-function identity(item) {
-  return item;
-}
-function alwaysTrue() {
-  return true;
-}
-function alwaysFalse() {
-  return false;
-}
-function and(a, b) {
-  return a && b;
-}
-
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math/angleClamp.ts
 var Tau = 2 * Math.PI;
 function angleClamp(v) {
@@ -4705,50 +4774,6 @@ async function progressTasksWeighted(prog, taskDefs) {
 function progressTasks(prog, ...subTaskDef) {
   const taskDefs = subTaskDef.map((t2) => [1, t2]);
   return progressTasksWeighted(prog, taskDefs);
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/typeChecks.ts
-function t(o, s, c) {
-  return typeof o === s || o instanceof c;
-}
-function isFunction(obj3) {
-  return t(obj3, "function", Function);
-}
-function isString(obj3) {
-  return t(obj3, "string", String);
-}
-function isBoolean(obj3) {
-  return t(obj3, "boolean", Boolean);
-}
-function isNumber(obj3) {
-  return t(obj3, "number", Number);
-}
-function isGoodNumber(obj3) {
-  return isNumber(obj3) && Number.isFinite(obj3) && !Number.isNaN(obj3);
-}
-function isObject(obj3) {
-  return isDefined(obj3) && t(obj3, "object", Object);
-}
-function isDate(obj3) {
-  return obj3 instanceof Date;
-}
-function isArray(obj3) {
-  return obj3 instanceof Array;
-}
-function assertNever(x, msg) {
-  throw new Error((msg || "Unexpected object: ") + x);
-}
-function isNullOrUndefined(obj3) {
-  return obj3 === null || obj3 === void 0;
-}
-function isDefined(obj3) {
-  return !isNullOrUndefined(obj3);
-}
-function isArrayBufferView(obj3) {
-  return obj3 instanceof Uint8Array || obj3 instanceof Uint8ClampedArray || obj3 instanceof Int8Array || obj3 instanceof Uint16Array || obj3 instanceof Int16Array || obj3 instanceof Uint32Array || obj3 instanceof Int32Array || obj3 instanceof Float32Array || obj3 instanceof Float64Array || "BigUint64Array" in globalThis && obj3 instanceof globalThis["BigUint64Array"] || "BigInt64Array" in globalThis && obj3 instanceof globalThis["BigInt64Array"];
-}
-function isArrayBuffer(val) {
-  return val && typeof ArrayBuffer !== "undefined" && (val instanceof ArrayBuffer || val.constructor && val.constructor.name === "ArrayBuffer");
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/singleton.ts
@@ -7289,11 +7314,18 @@ function getRayTarget(obj3) {
     return null;
   }
   if (isRayTarget(obj3)) {
-    return obj3;
-  } else if (isIntersection(obj3) || isErsatzObject(obj3)) {
+    if (obj3.object.visible) {
+      return obj3;
+    }
+    return null;
+  }
+  if (isIntersection(obj3) || isErsatzObject(obj3)) {
     obj3 = obj3.object;
   }
-  return obj3 && obj3.userData[RAY_TARGET_KEY];
+  if (!obj3 || !obj3.visible) {
+    return null;
+  }
+  return obj3.userData[RAY_TARGET_KEY];
 }
 function assureRayTarget(obj3) {
   if (!obj3) {
@@ -7301,6 +7333,25 @@ function assureRayTarget(obj3) {
   }
   return getRayTarget(obj3) || new RayTarget(objectResolve(obj3));
 }
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/Sphere.ts
+var sphere = new THREE.SphereBufferGeometry(0.5);
+sphere.name = "SphereGeom";
+var invSphere = sphere.clone();
+invSphere.name = "InvertedSphereGeom";
+setGeometryUVsForCubemaps(invSphere);
+var Sphere = class extends THREE.Mesh {
+  constructor(size, material) {
+    super(sphere, material);
+    this.scale.setScalar(0.5 * size);
+  }
+};
+var InvSphere = class extends THREE.Mesh {
+  constructor(size, material) {
+    super(invSphere, material);
+    this.scale.setScalar(0.5 * size);
+  }
+};
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/Translator.ts
 var TranslatorDragDirEvent = class extends TypedEvent {
@@ -7312,18 +7363,18 @@ var TranslatorDragDirEvent = class extends TypedEvent {
 var _Translator = class extends RayTarget {
   constructor(name2, sx, sy, sz, color) {
     const cube2 = new Cube(1, 1, 1, color);
-    super(cube2);
-    this.sx = sx;
-    this.sy = sy;
-    this.sz = sz;
+    const sphere2 = new Sphere(1, color);
+    super(obj("Translator " + name2, cube2, sphere2));
     this._size = 1;
-    this.object.name = "Translator " + name2;
-    const sel = new THREE.Vector3(sx, sy, sz);
+    this.bar = cube2;
+    this.pad = sphere2;
+    this.sel = new THREE.Vector3(sx, sy, sz);
     const start2 = new THREE.Vector3();
     const deltaIn = new THREE.Vector3();
     const dragEvt = new TranslatorDragDirEvent();
     let dragging = false;
     this.addMesh(cube2);
+    this.addMesh(sphere2);
     this.enabled = true;
     this.draggable = true;
     this.addEventListener("dragstart", (evt) => {
@@ -7338,19 +7389,22 @@ var _Translator = class extends RayTarget {
         deltaIn.copy(evt.point).sub(start2);
         start2.copy(evt.point);
         if (deltaIn.manhattanLength() > 0) {
-          dragEvt.delta.copy(sel).applyQuaternion(this.object.parent.parent.quaternion).multiplyScalar(deltaIn.dot(dragEvt.delta));
+          dragEvt.delta.copy(this.sel).applyQuaternion(this.object.parent.parent.quaternion).multiplyScalar(deltaIn.dot(dragEvt.delta));
           this.dispatchEvent(dragEvt);
         }
       }
     });
+    this.size = 1;
   }
   get size() {
     return this._size;
   }
   set size(v) {
     this._size = v;
-    this.object.scale.set(this.sx, this.sy, this.sz).multiplyScalar(0.9).add(_Translator.small).multiplyScalar(this.size);
-    this.object.position.set(this.sx, this.sy, this.sz).multiplyScalar(this.size);
+    this.pad.scale.setScalar(v / 3);
+    this.pad.position.copy(this.sel).multiplyScalar(0.5).add(this.sel).multiplyScalar(this.size);
+    this.bar.scale.copy(this.sel).multiplyScalar(0.9).add(_Translator.small).multiplyScalar(this.size);
+    this.bar.position.copy(this.sel).multiplyScalar(this.size);
   }
 };
 var Translator = _Translator;
@@ -10050,31 +10104,56 @@ var ClockImage = class extends TextImage {
 var DEFAULT_LOCAL_USER_ID = "local-user";
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/graphics2d/animation/Animator.ts
+function isDead(task) {
+  return !task.started || task.finished;
+}
+var AnimationTask = class extends Task {
+  time = 0;
+  duration = 0;
+  onTick = null;
+  constructor() {
+    super(false);
+  }
+  begin(delay, duration, onTick) {
+    this.reset();
+    this.start();
+    this.time = -delay;
+    this.duration = duration;
+    this.onTick = onTick;
+    this.onTick(0);
+  }
+  update(dt) {
+    if (!isDead(this)) {
+      this.time += dt / this.duration;
+      if (this.time >= 1) {
+        this.onTick(1);
+        this.resolve();
+      } else if (this.time >= 0) {
+        this.onTick(this.time);
+      }
+    }
+  }
+};
 var Animator = class {
   animations = new Array();
   update(dt) {
     dt = 1e-3 * dt;
     for (const animation of this.animations) {
-      animation(dt);
+      animation.update(dt);
     }
   }
   clear() {
-    arrayClear(this.animations);
+    for (const animation of this.animations) {
+      animation.resolve();
+    }
   }
   start(delay, duration, update) {
-    let time = -delay;
-    update(0);
-    const animationComplete = new Task();
-    this.animations.push((dt) => {
-      time += dt / duration;
-      if (time >= 1) {
-        update(1);
-        animationComplete.resolve();
-      } else if (time >= 0) {
-        update(time);
-      }
-    });
-    return animationComplete;
+    let task = arrayScan(this.animations, isDead);
+    if (!task) {
+      this.animations.push(task = new AnimationTask());
+    }
+    task.begin(delay, duration, update);
+    return task;
   }
 };
 
@@ -10676,6 +10755,8 @@ var ConfirmationDialog = class extends DialogBox {
     this.name = "ConfirmationDialog";
     this.root = new THREE.Object3D();
     this.animator = new Animator();
+    this.a = 0;
+    this.b = 0;
     this.confirmButton.innerText = "Yes";
     this.cancelButton.innerText = "No";
     this.mesh = new TextMesh(this.env, "confirmationDialogLabel", newStyle(textLabelStyle, fontFamily));
@@ -10690,6 +10771,10 @@ var ConfirmationDialog = class extends DialogBox {
     objGraph(this, objGraph(this.root, this.mesh, this.confirmButton3D, this.cancelButton3D));
     objectSetVisible(this.root, false);
     this.root.scale.setScalar(0);
+    this.onTick = (t2) => {
+      const scale4 = jump(this.a + this.b * t2, JUMP_FACTOR);
+      this.root.scale.set(scale4, scale4, 0.01);
+    };
   }
   get visible() {
     return elementIsDisplayed(this);
@@ -10702,10 +10787,9 @@ var ConfirmationDialog = class extends DialogBox {
     this.animator.update(dt);
   }
   async showHide(a, b) {
-    await this.animator.start(0, 0.25, (t2) => {
-      const scale4 = jump(a + b * t2, JUMP_FACTOR);
-      this.root.scale.set(scale4, scale4, 0.01);
-    });
+    this.a = a;
+    this.b = b;
+    await this.animator.start(0, 0.25, this.onTick);
     this.animator.clear();
   }
   get use3D() {
@@ -11557,17 +11641,16 @@ var ButtonFactory = class {
     this.texture = null;
     this.enabledMaterial = null;
     this.disabledMaterial = null;
-    this.readyTask = new Task();
     this.assetSets = new PriorityMap(Array.from(this.imagePaths.entries()).map(([setName, iconName, path]) => [
       setName,
       iconName,
       new AssetImage(path, Image_Png, !debug)
     ]));
     this.assets = Array.from(this.assetSets.values());
-    Promise.all(this.assets).then(() => this.finish());
+    this.ready = Promise.all(this.assets).then(() => this.finish());
   }
   finish() {
-    const images = Array.from(this.assets.map((asset) => asset.result));
+    const images = this.assets.map((asset) => asset.result);
     const iconWidth = Math.max(...images.map((img) => img.width));
     const iconHeight = Math.max(...images.map((img) => img.height));
     const area = iconWidth * iconHeight * images.length;
@@ -11612,7 +11695,6 @@ var ButtonFactory = class {
       opacity: 0.5
     });
     this.disabledMaterial.needsUpdate = true;
-    this.readyTask.resolve();
   }
   getSets() {
     return Array.from(this.imagePaths.keys());
@@ -11624,11 +11706,11 @@ var ButtonFactory = class {
     return Array.from(this.imagePaths.get(setName).keys());
   }
   async getMaterial(enabled) {
-    await this.readyTask;
+    await this.ready;
     return enabled ? this.enabledMaterial : this.disabledMaterial;
   }
   async getGeometry(setName, iconName) {
-    await this.readyTask;
+    await this.ready;
     const uvSet = this.uvDescrips.get(setName);
     const uv = uvSet && uvSet.get(iconName);
     if (!uvSet || !uv) {
@@ -12251,11 +12333,24 @@ var AvatarLocal = class extends TypedEventBase {
     this.motion = new THREE.Vector2();
     this.rotStage = new THREE.Matrix4();
     this.userMovedEvt = new AvatarMovedEvent();
+    this.acceleration = new THREE.Vector2(2, 2);
+    this.speed = new THREE.Vector2(3, 2);
+    this.axisControl = new THREE.Vector2(0, 0);
+    this.deviceQ = new THREE.Quaternion().identity();
+    this.uv = new THREE.Vector2();
+    this.duv = new THREE.Vector2();
+    this.move = new THREE.Vector3();
+    this.move2 = new THREE.Vector3();
+    this.followers = new Array();
+    this.dz = 0;
     this._heading = 0;
     this._pitch = 0;
     this._roll = 0;
     this.headX = 0;
     this.headZ = 0;
+    this._worldHeading = 0;
+    this._worldPitch = 0;
+    this.lastTouchInputTime = Number.MIN_SAFE_INTEGER;
     this.fwrd = false;
     this.back = false;
     this.left = false;
@@ -12268,26 +12363,15 @@ var AvatarLocal = class extends TypedEventBase {
     this.down = false;
     this.grow = false;
     this.shrk = false;
-    this.move = new THREE.Vector3();
-    this.move2 = new THREE.Vector3();
-    this.followers = new Array();
+    this._keyboardControlEnabled = false;
     this.worldPos = new THREE.Vector3();
-    this._worldHeading = 0;
-    this._worldPitch = 0;
-    this.lastTouchInputTime = Number.MIN_SAFE_INTEGER;
     this.evtSys = null;
-    this.requiredTouchCount = 1;
-    this.axisControl = new THREE.Vector2(0, 0);
+    this.fovZoomEnabled = true;
+    this.minFOV = 15;
+    this.maxFOV = 120;
     this.minimumX = -85 * Math.PI / 180;
     this.maximumX = 85 * Math.PI / 180;
-    this.target = new THREE.Quaternion(0, 0, 0, 1);
     this.edgeFactor = 1 / 3;
-    this.acceleration = new THREE.Vector2(2, 2);
-    this.speed = new THREE.Vector2(3, 2);
-    this.deviceQ = new THREE.Quaternion().identity();
-    this.uv = new THREE.Vector2();
-    this.duv = new THREE.Vector2();
-    this._keyboardControlEnabled = false;
     this.deviceOrientation = null;
     this.screenOrientation = 0;
     this.alphaOffset = 0;
@@ -12352,12 +12436,6 @@ var AvatarLocal = class extends TypedEventBase {
       this.startMotionControl();
     }
   }
-  get worldHeading() {
-    return this._worldHeading;
-  }
-  get worldPitch() {
-    return this._worldPitch;
-  }
   set disableVertical(v) {
     this._disableVertical = v;
     this.axisControl.x = this._disableVertical ? 0 : this._invertVertical ? 1 : -1;
@@ -12379,6 +12457,21 @@ var AvatarLocal = class extends TypedEventBase {
   }
   get object() {
     return this.head;
+  }
+  get worldHeading() {
+    return this._worldHeading;
+  }
+  get worldPitch() {
+    return this._worldPitch;
+  }
+  get fov() {
+    return this.camera.fov;
+  }
+  set fov(v) {
+    if (v !== this.fov) {
+      this.camera.fov = v;
+      this.camera.updateProjectionMatrix();
+    }
   }
   get stage() {
     return this.head.parent;
@@ -12412,7 +12505,11 @@ var AvatarLocal = class extends TypedEventBase {
     }
   }
   setMode(pointer) {
-    if (pointer.type === "touch" || pointer.type === "pen") {
+    if (pointer.type === "hand" || pointer.type === "remote") {
+      this.controlMode = "none" /* None */;
+    } else if (pointer.draggedHit) {
+      this.controlMode = "mouseedge" /* ScreenEdge */;
+    } else if (pointer.type === "touch" || pointer.type === "pen") {
       this.lastTouchInputTime = performance.now();
       this.controlMode = "touchswipe" /* Touch */;
     } else if (pointer.type === "gamepad") {
@@ -12421,8 +12518,6 @@ var AvatarLocal = class extends TypedEventBase {
       this.controlMode = "none" /* None */;
     } else if (this.evtSys.mouse.isPointerLocked) {
       this.controlMode = "mousefirstperson" /* MouseFPS */;
-    } else if (pointer.draggedHit) {
-      this.controlMode = "mouseedge" /* MouseScreenEdge */;
     } else {
       this.controlMode = "mousedrag" /* MouseDrag */;
     }
@@ -12430,7 +12525,7 @@ var AvatarLocal = class extends TypedEventBase {
   gestureSatisfied(pointer) {
     const button = this.requiredMouseButton.get(this.controlMode);
     if (isNullOrUndefined(button)) {
-      return this.controlMode === "mouseedge" /* MouseScreenEdge */ || this.controlMode === "mousefirstperson" /* MouseFPS */ || this.controlMode === "touchswipe" /* Touch */ || this.controlMode === "gamepad" /* Gamepad */;
+      return this.controlMode === "mouseedge" /* ScreenEdge */ || this.controlMode === "mousefirstperson" /* MouseFPS */ || this.controlMode === "touchswipe" /* Touch */ || this.controlMode === "gamepad" /* Gamepad */;
     } else {
       return pointer.buttons === button;
     }
@@ -12473,7 +12568,15 @@ var AvatarLocal = class extends TypedEventBase {
     this._pitch = angleClamp(pitch);
     this.updateOrientation();
   }
+  zoom(dz) {
+    this.dz = dz;
+  }
   update(dt) {
+    if (this.fovZoomEnabled && Math.abs(this.dz) > 0) {
+      const factor = Math.pow(0.95, 5 * dt);
+      this.dz = truncate(factor * this.dz);
+      this.fov = clamp(this.camera.fov - this.dz, this.minFOV, this.maxFOV);
+    }
     dt *= 1e-3;
     if (this.controlMode === "magicwindow" /* MagicWindow */) {
       const device = this.deviceOrientation;
@@ -12486,7 +12589,7 @@ var AvatarLocal = class extends TypedEventBase {
         this.Q2.setFromAxisAngle(this.B, -orient);
         this.deviceQ.setFromEuler(this.E).multiply(this.Q3).multiply(this.Q2);
       }
-    } else if (this.controlMode === "mouseedge" /* MouseScreenEdge */) {
+    } else if (this.controlMode === "mouseedge" /* ScreenEdge */) {
       if (this.uv.manhattanLength() > 0) {
         this.motion.set(this.scaleRadialComponent(-this.uv.x, this.speed.x, this.acceleration.x), this.scaleRadialComponent(this.uv.y, this.speed.y, this.acceleration.y)).multiplyScalar(dt);
         this.setHeading(this.heading + this.motion.x);
@@ -12610,36 +12713,6 @@ var AvatarLocal = class extends TypedEventBase {
   }
   dispose() {
     this.stopMotionControl();
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/CameraFOVControl.ts
-var CameraControl = class {
-  constructor(camera) {
-    this.camera = camera;
-    this.fovZoomEnabled = true;
-    this.minFOV = 15;
-    this.maxFOV = 120;
-    this.dz = 0;
-  }
-  zoom(dz) {
-    this.dz = dz;
-  }
-  get fov() {
-    return this.camera.fov;
-  }
-  set fov(v) {
-    if (v !== this.fov) {
-      this.camera.fov = v;
-      this.camera.updateProjectionMatrix();
-    }
-  }
-  update(dt) {
-    if (this.fovZoomEnabled && Math.abs(this.dz) > 0) {
-      const factor = Math.pow(0.95, 5 * dt);
-      this.dz = truncate(factor * this.dz);
-      this.fov = clamp(this.camera.fov - this.dz, this.minFOV, this.maxFOV);
-    }
   }
 };
 
@@ -15169,10 +15242,10 @@ function computeBounds(geometry, primitiveDef, parser) {
     box.expandByVector(maxDisplacement);
   }
   geometry.boundingBox = box;
-  const sphere = new THREE.Sphere();
-  box.getCenter(sphere.center);
-  sphere.radius = box.min.distanceTo(box.max) / 2;
-  geometry.boundingSphere = sphere;
+  const sphere2 = new THREE.Sphere();
+  box.getCenter(sphere2.center);
+  sphere2.radius = box.min.distanceTo(box.max) / 2;
+  geometry.boundingSphere = sphere2;
 }
 function addPrimitiveAttributes(geometry, primitiveDef, parser) {
   const attributes = primitiveDef.attributes;
@@ -15557,8 +15630,8 @@ function findNodes(motionController, scene) {
       if (component.touchPointNode) {
         const sphereGeometry = new THREE.SphereGeometry(1e-3);
         const material = new THREE.MeshBasicMaterial({ color: 255 });
-        const sphere = new THREE.Mesh(sphereGeometry, material);
-        component.touchPointNode.add(sphere);
+        const sphere2 = new THREE.Mesh(sphereGeometry, material);
+        component.touchPointNode.add(sphere2);
       } else {
         console.warn(`Could not find touch dot, ${component.touchPointNodeName}, in touchpad component ${component.id}`);
       }
@@ -16784,7 +16857,7 @@ var PointerMouse = class extends BaseScreenPointerSinglePoint {
     this.allowPointerLock = false;
     this.element.addEventListener("wheel", (evt) => {
       evt.preventDefault();
-      this.env.fovControl.zoom(-evt.deltaY * 0.5);
+      this.env.avatar.zoom(-evt.deltaY * 0.5);
     }, { passive: false });
     this.element.addEventListener("contextmenu", (evt) => {
       evt.preventDefault();
@@ -16854,7 +16927,7 @@ var PointerMultiTouch = class extends BaseScreenPointer {
         const [a, b] = Array.from(this.points.values());
         const pinchDist = dist2(a, b);
         if (evt.type === "pointermove") {
-          this.env.fovControl.zoom((pinchDist - this.lastPinchDist) * 5);
+          this.env.avatar.zoom((pinchDist - this.lastPinchDist) * 5);
         }
         this.lastPinchDist = pinchDist;
       }
@@ -20569,7 +20642,7 @@ var Skybox = class {
   update(frame) {
     this.framecount++;
     if (this.cube) {
-      const isWebXRLayerAvailable = this.env.hasXRCompositionLayers && this.env.renderer.xr.isPresenting && isDefined(frame) && isDefined(this.env.xrBinding);
+      const isWebXRLayerAvailable = this.env.hasXRCompositionLayers && !!this.env.xrBinding && !!frame;
       const webXRLayerChanged = isWebXRLayerAvailable !== this.wasWebXRLayerAvailable;
       if (webXRLayerChanged) {
         if (isWebXRLayerAvailable) {
@@ -20580,11 +20653,11 @@ var Skybox = class {
             layout: "mono",
             isStatic: false,
             viewPixelWidth: FACE_SIZE,
-            viewPixelHeight: FACE_SIZE
+            viewPixelHeight: FACE_SIZE,
+            orientation: this.layerOrientation
           });
           this.layer.addEventListener("redraw", this.onNeedsRedraw);
           this.env.addWebXRLayer(this.layer, Number.MAX_VALUE);
-          this.rotationNeedsUpdate = true;
         } else if (this.layer) {
           this.env.removeWebXRLayer(this.layer);
           this.layer.removeEventListener("redraw", this.onNeedsRedraw);
@@ -20752,7 +20825,6 @@ var BaseEnvironment = class extends TypedEventBase {
       preserveDrawingBuffer: false
     });
     this.renderer.domElement.tabIndex = 1;
-    this.fovControl = new CameraControl(this.camera);
     this.screenControl = new ScreenControl(this.renderer, this.camera, this.renderer.domElement.parentElement, enableFullResolution2);
     this.fader = new Fader("ViewFader");
     this.worldUISpace = new BodyFollower("WorldUISpace", 0.2, 20, 0.125);
@@ -20812,7 +20884,6 @@ var BaseEnvironment = class extends TypedEventBase {
       }
       this.screenControl.resize();
       this.eventSystem.update();
-      this.fovControl.update(evt.dt);
       this.avatar.update(evt.dt);
       this.worldUISpace.update(this.avatar.height, this.avatar.worldPos, this.avatar.worldHeading, evt.dt);
       this.fader.update(evt.dt);
@@ -22374,9 +22445,11 @@ await env.load(skybox);
 env.skybox.setImage(skybox.path, skybox.result);
 env.skybox.rotation = deg2rad(176);
 var obj2 = new Cube(0.25, 0.25, 0.25, lit({
-  color: "red"
+  color: "yellow"
 }));
+var transformer = new TransformEditor(true, 1.75);
+transformer.size = 2;
 obj2.position.set(0, 1.75, -2);
-objGraph(env.foreground, objGraph(obj2, new TransformEditor(false, 1.75)));
+objGraph(env.foreground, objGraph(obj2, transformer));
 await env.fadeIn();
 //# sourceMappingURL=index.js.map
