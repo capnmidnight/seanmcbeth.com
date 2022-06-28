@@ -4712,8 +4712,8 @@ var BaseParentProgressCallback = class {
         soFar += this.subProgressValues[j] * this.subProgressWeights[j];
       }
       const end2 = performance.now();
-      const delta3 = end2 - this.start;
-      const est = this.start - end2 + delta3 * this.weightTotal / soFar;
+      const delta2 = end2 - this.start;
+      const est = this.start - end2 + delta2 * this.weightTotal / soFar;
       this.prog.report(soFar, this.weightTotal, msg, est);
     }
   }
@@ -6515,18 +6515,18 @@ var DeviceManager = class extends TypedEventBase {
     super();
     this.element = element;
     this.needsVideoDevice = needsVideoDevice;
+    this._hasAudioPermission = false;
+    this._hasVideoPermission = false;
+    this._currentStream = null;
     this.ready = this.start();
     Object.seal(this);
   }
-  _hasAudioPermission = false;
   get hasAudioPermission() {
     return this._hasAudioPermission;
   }
-  _hasVideoPermission = false;
   get hasVideoPermission() {
     return this._hasVideoPermission;
   }
-  _currentStream = null;
   get currentStream() {
     return this._currentStream;
   }
@@ -6540,7 +6540,6 @@ var DeviceManager = class extends TypedEventBase {
       this._currentStream = v;
     }
   }
-  ready;
   async start() {
     if (canChangeAudioOutput) {
       const device = await this.getPreferredAudioOutput();
@@ -6951,11 +6950,11 @@ var MediaElementSourceProgressEvent = class extends MediaElementSourceEvent {
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/sources/AudioElementSource.ts
 var elementRefCounts = /* @__PURE__ */ new WeakMap();
 var nodeRefCounts = /* @__PURE__ */ new WeakMap();
-function count(source, delta3) {
-  const nodeCount = (nodeRefCounts.get(source) || 0) + delta3;
+function count(source, delta2) {
+  const nodeCount = (nodeRefCounts.get(source) || 0) + delta2;
   nodeRefCounts.set(source, nodeCount);
   const elem = source.mediaElement;
-  const elementCount = (elementRefCounts.get(elem) || 0) + delta3;
+  const elementCount = (elementRefCounts.get(elem) || 0) + delta2;
   elementRefCounts.set(elem, elementCount);
   return elementCount;
 }
@@ -10873,8 +10872,8 @@ var BaseVideoPlayer = class extends BaseAudioSource {
         }
       } else if (this.useAudioElement) {
         this.wasUsingAudioElement = false;
-        const delta3 = this.video.currentTime - this.audio.currentTime;
-        if (Math.abs(delta3) > 0.25) {
+        const delta2 = this.video.currentTime - this.audio.currentTime;
+        if (Math.abs(delta2) > 0.25) {
           this.audio.currentTime = this.video.currentTime;
         }
       } else if (!this.wasUsingAudioElement) {
@@ -12117,11 +12116,13 @@ var AvatarMovedEvent = class extends TypedEvent {
   uy = 0;
   uz = 0;
   height = 0;
+  changed = false;
   name = 0 /* LocalUser */;
   constructor() {
     super("avatarmoved");
   }
   set(px, py, pz, fx, fy, fz, ux, uy, uz, height2) {
+    this.changed = this.px !== px || this.py !== py || this.pz !== pz || this.fx !== fx || this.fy !== fy || this.fz !== fz || this.ux !== ux || this.uy !== uy || this.uz !== uz;
     this.px = px;
     this.py = py;
     this.pz = pz;
@@ -12496,7 +12497,9 @@ var AvatarLocal = class extends TypedEventBase {
     }
     this.updateOrientation();
     this.userMovedEvt.set(this.P.x, this.P.y, this.P.z, this.F.x, this.F.y, this.F.z, this.U.x, this.U.y, this.U.z, this.height);
-    this.dispatchEvent(this.userMovedEvt);
+    if (this.userMovedEvt.changed) {
+      this.dispatchEvent(this.userMovedEvt);
+    }
     const decay = Math.pow(0.95, 100 * dt);
     this.duv.multiplyScalar(decay);
     if (this.duv.manhattanLength() <= 1e-4) {
@@ -16023,6 +16026,7 @@ var BasePointer = class {
     this.isActive = false;
     this.origin = new THREE.Vector3();
     this.direction = new THREE.Vector3();
+    this.delta = new THREE.Vector3();
     this.curHit = null;
     this.hoveredHit = null;
     this._pressedHit = null;
@@ -16109,7 +16113,14 @@ var BasePointer = class {
   }
   update() {
     if (this.needsUpdate) {
+      this.delta.copy(this.origin).add(this.direction);
       this.onUpdate();
+      this.delta.sub(this.origin).sub(this.direction);
+      const move = 1e3 * this.delta.length();
+      this.moveDistance = move;
+      if (move > 1e-5) {
+        this.onPointerMove();
+      }
       this.lastButtons = this.buttons;
       this.wasDragging = this.dragging;
     }
@@ -16126,7 +16137,6 @@ var BasePointer = class {
     this.setEventState("down");
   }
   onPointerMove() {
-    this.setEventState("move");
     if (this.buttons !== 0 /* None */) {
       const target = getRayTarget(this.pressedHit);
       const canDrag = !target || target.draggable;
@@ -16142,6 +16152,7 @@ var BasePointer = class {
         }
       }
     }
+    this.setEventState("move");
   }
   onDragStart() {
     this.dragging = true;
@@ -16537,7 +16548,6 @@ var handModelFactory = new XRHandModelFactory();
 var riftSCorrection = new THREE.Matrix4().makeRotationX(-7 * Math.PI / 9);
 var newOrigin = new THREE.Vector3();
 var newDirection = new THREE.Vector3();
-var delta2 = new THREE.Vector3();
 var buttonIndices = new PriorityMap([
   ["left", 1 /* Primary */, 0],
   ["left", 2 /* Secondary */, 1],
@@ -16667,13 +16677,9 @@ var PointerHand = class extends BasePointer {
   onUpdate() {
     this.laser.getWorldPosition(newOrigin);
     this.laser.getWorldDirection(newDirection).multiplyScalar(-1);
-    delta2.copy(this.origin).add(this.direction);
     this.origin.lerp(newOrigin, 0.9);
     this.direction.lerp(newDirection, 0.9).normalize();
-    delta2.sub(this.origin).sub(this.direction);
-    this.moveDistance = 1e3 * delta2.length();
     this.gamepad.pad = this.inputSource && this.inputSource.gamepad || null;
-    this.onPointerMove();
   }
   isPressed(button) {
     if (!buttonIndices.has(this.handedness) || !buttonIndices.get(this.handedness).has(button)) {
@@ -16693,7 +16699,7 @@ var BaseScreenPointer = class extends BasePointer {
     this.motion = new THREE.Vector2();
     this.uv = new THREE.Vector2();
     this.duv = new THREE.Vector2();
-    this.sizeInv = new THREE.Vector2();
+    this.canvasSize = new THREE.Vector2();
     this.uvComp = new THREE.Vector2(1, -1);
     this.uvOff = new THREE.Vector2(-1, 1);
     this.lastPosition = null;
@@ -16739,11 +16745,10 @@ var BaseScreenPointer = class extends BasePointer {
       if (evt.type === "pointermove" && document.pointerLockElement && this.lastPosition) {
         this.position.copy(this.lastPosition).add(this.motion);
       }
-      this.moveDistance = this.motion.length();
-      this.sizeInv.set(this.element.clientWidth, this.element.clientHeight);
-      if (this.sizeInv.manhattanLength() > 0) {
-        this.uv.copy(this.position).multiplyScalar(2).divide(this.sizeInv).multiply(this.uvComp).add(this.uvOff);
-        this.duv.copy(this.motion).multiplyScalar(2).divide(this.sizeInv).multiply(this.uvComp);
+      if (this.element.clientWidth > 0 && this.element.clientHeight > 0) {
+        this.canvasSize.set(this.element.clientWidth, this.element.clientHeight);
+        this.uv.copy(this.position).multiplyScalar(2).divide(this.canvasSize).multiply(this.uvComp).add(this.uvOff);
+        this.duv.copy(this.motion).multiplyScalar(2).divide(this.canvasSize).multiply(this.uvComp);
       }
     }
   }
@@ -16753,21 +16758,12 @@ var BaseScreenPointer = class extends BasePointer {
   }
   onUpdate() {
     const cam = resolveCamera(this.env.renderer, this.env.camera);
-    this.updateRay(cam);
-    if (this.motion.manhattanLength() > 0) {
-      this.onPointerMove();
-      this.updateRay(cam);
-    }
+    this.origin.setFromMatrixPosition(cam.matrixWorld);
+    this.direction.set(this.uv.x, this.uv.y, 0.5).unproject(cam).sub(this.origin).normalize();
     if (!this.lastPosition) {
       this.lastPosition = new THREE.Vector2();
     }
     this.lastPosition.copy(this.position);
-    this.motion.setScalar(0);
-    this.duv.setScalar(0);
-  }
-  updateRay(cam) {
-    this.origin.setFromMatrixPosition(cam.matrixWorld);
-    this.direction.set(this.uv.x, this.uv.y, 0.5).unproject(cam).sub(this.origin).normalize();
   }
 };
 
@@ -16864,6 +16860,7 @@ var PointerMultiTouch = class extends BaseScreenPointer {
     this._buttons = 0;
     if (this.points.size > 0) {
       this.position.setScalar(0);
+      this.motion.setScalar(0);
       const K = 1 / this.points.size;
       for (const point of this.points.values()) {
         this._buttons |= point.buttons << this.points.size - 1;
