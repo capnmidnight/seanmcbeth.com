@@ -23,15 +23,21 @@ function hasIndexFile(dir) {
 const apps = dirs
     .filter(hasIndexFile)
     .map(dir => dir.name);
-
-const build = new Build(process.argv.slice(2))
+const bundleApps = apps.filter(name => !name.endsWith("-worker"));
+const workerApps = apps.filter(name => name.endsWith("-worker"));
+const args = process.argv.slice(2);
+const buildBundles = new Build(args, false)
     .plugin((minify) => glsl({ minify }))
     .external("three")
-    .outDir("wwwroot/js");
+    .outDir("wwwroot/js")
+    .bundles(bundleApps);
+const buildWorkers = new Build(args, true)
+    .plugin((minify) => glsl({ minify }))
+    .external("three")
+    .outDir("wwwroot/js")
+    .bundles(workerApps);
 
-for (const app of apps) {
-    console.log(build.buildType, app);
-    build.bundle(app);
-}
-
-await build.run();
+await Promise.all([
+    buildBundles.run(),
+    buildWorkers.run()
+]);
