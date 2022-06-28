@@ -578,7 +578,7 @@ var oculusBrowserVersion = isOculusBrowser && {
 var isOculusGo = isOculusBrowser && /pacific/i.test(navigator.userAgent);
 var isOculusQuest = isOculusBrowser && /quest/i.test(navigator.userAgent);
 var isOculusQuest2 = isOculusBrowser && /quest 2/i.test(navigator.userAgent);
-var isWorker = !("Document" in globalThis);
+var isWorkerSupported = "Worker" in globalThis;
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/gis/Datum.ts
 var invF = 298.257223563;
@@ -1233,7 +1233,7 @@ var hasAudioContext = "AudioContext" in globalThis;
 var hasAudioListener = hasAudioContext && "AudioListener" in globalThis;
 var hasOldAudioListener = hasAudioListener && "setPosition" in AudioListener.prototype;
 var hasNewAudioListener = hasAudioListener && "positionX" in AudioListener.prototype;
-var canCaptureStream = isFunction(HTMLMediaElement.prototype.captureStream) || isFunction(HTMLMediaElement.prototype.mozCaptureStream);
+var canCaptureStream = /* @__PURE__ */ isFunction(HTMLMediaElement.prototype.captureStream) || isFunction(HTMLMediaElement.prototype.mozCaptureStream);
 var connections = singleton("Juniper:Audio:connections", () => /* @__PURE__ */ new Map());
 var names = singleton("Juniper:Audio:names", () => /* @__PURE__ */ new Map());
 function nameVertex(name, v) {

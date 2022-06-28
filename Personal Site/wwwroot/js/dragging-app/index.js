@@ -4158,7 +4158,7 @@ var oculusBrowserVersion = isOculusBrowser && {
 var isOculusGo = isOculusBrowser && /pacific/i.test(navigator.userAgent);
 var isOculusQuest = isOculusBrowser && /quest/i.test(navigator.userAgent);
 var isOculusQuest2 = isOculusBrowser && /quest 2/i.test(navigator.userAgent);
-var isWorker = !("Document" in globalThis);
+var isWorkerSupported = "Worker" in globalThis;
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/gis/Datum.ts
 var invF = 298.257223563;
@@ -5429,13 +5429,19 @@ var Text_Xml = /* @__PURE__ */ text("xml");
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/video.ts
 var video = /* @__PURE__ */ specialize("video");
-var Video_Vendor_Mpeg_Dash_Mpd = video("vnd.mpeg.dash.mpd", "mpd");
+var Video_Vendor_Mpeg_Dash_Mpd = /* @__PURE__ */ video("vnd.mpeg.dash.mpd", "mpd");
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher-base/Asset.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/Asset.ts
 var BaseAsset = class {
   constructor(path, type2) {
     this.path = path;
     this.type = type2;
+    this._result = null;
+    this._error = null;
+    this._started = false;
+    this._finished = false;
+    this.resolve = null;
+    this.reject = null;
     this.promise = new Promise((resolve, reject) => {
       this.resolve = (value2) => {
         this._result = value2;
@@ -5449,11 +5455,6 @@ var BaseAsset = class {
       };
     });
   }
-  promise;
-  _result = null;
-  _error = null;
-  _started = false;
-  _finished = false;
   get result() {
     if (isDefined(this.error)) {
       throw this.error;
@@ -5469,8 +5470,6 @@ var BaseAsset = class {
   get finished() {
     return this._finished;
   }
-  resolve = null;
-  reject = null;
   async getSize(fetcher) {
     try {
       const { contentLength } = await fetcher.head(this.path).accept(this.type).exec();
@@ -5512,7 +5511,6 @@ var AssetCustom = class extends BaseAsset {
   }
 };
 var BaseFetchedAsset = class extends BaseAsset {
-  useCache;
   constructor(path, typeOrUseCache, useCache) {
     let type2;
     if (isBoolean(typeOrUseCache)) {
@@ -5540,6 +5538,1327 @@ var AssetAudio = class extends BaseFetchedAsset {
 var AssetImage = class extends BaseFetchedAsset {
   getResponse(request) {
     return request.image(this.type);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/attrs.ts
+var Attr = class {
+  constructor(key, value2, bySetAttribute, ...tags) {
+    this.key = key;
+    this.value = value2;
+    this.bySetAttribute = bySetAttribute;
+    this.tags = tags.map((t2) => t2.toLocaleUpperCase());
+    Object.freeze(this);
+  }
+  tags;
+  applyToElement(elem) {
+    const isDataSet = this.key.startsWith("data-");
+    const isValid = this.tags.length === 0 || this.tags.indexOf(elem.tagName) > -1 || isDataSet;
+    if (!isValid) {
+      console.warn(`Element ${elem.tagName} does not support Attribute ${this.key}`);
+    } else if (isDataSet) {
+      const subkey = this.key.substring(5);
+      elem.dataset[subkey] = this.value;
+    } else if (this.key === "style") {
+      Object.assign(elem.style, this.value);
+    } else if (this.key === "classList") {
+      this.value.forEach((v) => elem.classList.add(v));
+    } else if (this.bySetAttribute) {
+      elem.setAttribute(this.key, this.value);
+    } else if (this.key in elem) {
+      elem[this.key] = this.value;
+    } else if (this.value === false) {
+      elem.removeAttribute(this.key);
+    } else if (this.value === true) {
+      elem.setAttribute(this.key, "");
+    } else {
+      elem.setAttribute(this.key, this.value);
+    }
+  }
+};
+function autoPlay(value2) {
+  return new Attr("autoplay", value2, false, "audio", "video");
+}
+function className(value2) {
+  return new Attr("className", value2, false);
+}
+function classList(...values) {
+  return new Attr("classList", values, false);
+}
+function controls(value2) {
+  return new Attr("controls", value2, false, "audio", "video");
+}
+function customData(name2, value2) {
+  return new Attr("data-" + name2, value2, false);
+}
+function htmlHeight(value2) {
+  return new Attr("height", value2, false, "canvas", "embed", "iframe", "img", "input", "object", "video");
+}
+function id(value2) {
+  return new Attr("id", value2, false);
+}
+function loop(value2) {
+  return new Attr("loop", value2, false, "audio", "bgsound", "marquee", "video");
+}
+function max2(value2) {
+  return new Attr("max", value2, false, "input", "meter", "progress");
+}
+function min2(value2) {
+  return new Attr("min", value2, false, "input", "meter");
+}
+function muted(value2) {
+  return new Attr("muted", value2, false, "audio", "video");
+}
+function playsInline(value2) {
+  return new Attr("playsInline", value2, false, "audio", "video");
+}
+function unpackURL(value2) {
+  if (value2 instanceof URL) {
+    value2 = value2.href;
+  }
+  return value2;
+}
+function src(value2) {
+  return new Attr("src", unpackURL(value2), false, "audio", "embed", "iframe", "img", "input", "script", "source", "track", "video");
+}
+function srcObject(value2) {
+  return new Attr("srcObject", value2, false, "audio", "video");
+}
+function step(value2) {
+  return new Attr("step", value2, false, "input");
+}
+function title(value2) {
+  return new Attr("title", value2, false);
+}
+function type(value2) {
+  if (!isString(value2)) {
+    value2 = value2.value;
+  }
+  return new Attr("type", value2, false, "button", "input", "command", "embed", "link", "object", "script", "source", "style", "menu");
+}
+function value(value2) {
+  return new Attr("value", value2, false, "button", "data", "input", "li", "meter", "option", "progress", "param");
+}
+function htmlWidth(value2) {
+  return new Attr("width", value2, false, "canvas", "embed", "iframe", "img", "input", "object", "video");
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/css.ts
+var CssProp = class {
+  constructor(key, value2) {
+    this.key = key;
+    this.value = value2;
+    this.name = key.replace(/[A-Z]/g, (m) => `-${m.toLocaleLowerCase()}`);
+  }
+  name;
+  applyToElement(elem) {
+    elem.style[this.key] = this.value;
+  }
+};
+var CssPropSet = class {
+  rest;
+  constructor(...rest) {
+    this.rest = rest;
+  }
+  applyToElement(elem) {
+    for (const prop of this.rest) {
+      prop.applyToElement(elem);
+    }
+  }
+};
+function styles(...rest) {
+  return new CssPropSet(...rest);
+}
+function backgroundColor(v) {
+  return new CssProp("backgroundColor", v);
+}
+function border(v) {
+  return new CssProp("border", v);
+}
+function borderRadius(v) {
+  return new CssProp("borderRadius", v);
+}
+function boxShadow(v) {
+  return new CssProp("boxShadow", v);
+}
+function columnGap(v) {
+  return new CssProp("columnGap", v);
+}
+function display(v) {
+  return new CssProp("display", v);
+}
+function flexFlow(v) {
+  return new CssProp("flexFlow", v);
+}
+function float(v) {
+  return new CssProp("float", v);
+}
+function fontSize(v) {
+  return new CssProp("fontSize", v);
+}
+function gridArea(vOrRowStart, colStart, rowEnd, colEnd) {
+  if (!isString(vOrRowStart)) {
+    vOrRowStart = [vOrRowStart, colStart, rowEnd, colEnd].filter(isDefined).join("/");
+  }
+  return new CssProp("gridArea", vOrRowStart);
+}
+function gridAutoFlow(v) {
+  return new CssProp("gridAutoFlow", v);
+}
+function gridColumn(vOrColStart, colEnd) {
+  if (!isString(vOrColStart)) {
+    vOrColStart = [vOrColStart, colEnd].filter(isDefined).join("/");
+  }
+  return new CssProp("gridColumn", vOrColStart);
+}
+function gridRow(vOrRowStart, rowEnd) {
+  if (!isString(vOrRowStart)) {
+    vOrRowStart = [vOrRowStart, rowEnd].filter(isDefined).join("/");
+  }
+  return new CssProp("gridRow", vOrRowStart);
+}
+function gridTemplateColumns(v) {
+  return new CssProp("gridTemplateColumns", v);
+}
+function gridTemplateRows(v) {
+  return new CssProp("gridTemplateRows", v);
+}
+function height(v) {
+  return new CssProp("height", v);
+}
+function left(v) {
+  return new CssProp("left", v);
+}
+function margin(v) {
+  return new CssProp("margin", v);
+}
+function marginInlineStart(v) {
+  return new CssProp("marginInlineStart", v);
+}
+function marginLeft(v) {
+  return new CssProp("marginLeft", v);
+}
+function maxHeight(v) {
+  return new CssProp("maxHeight", v);
+}
+function maxWidth(v) {
+  return new CssProp("maxWidth", v);
+}
+function minWidth(v) {
+  return new CssProp("minWidth", v);
+}
+function overflow(v) {
+  return new CssProp("overflow", v);
+}
+function padding(...v) {
+  return new CssProp("padding", v.join(" "));
+}
+function paddingRight(v) {
+  return new CssProp("paddingRight", v);
+}
+function pointerEvents(v) {
+  return new CssProp("pointerEvents", v);
+}
+function position(v) {
+  return new CssProp("position", v);
+}
+function textAlign(v) {
+  return new CssProp("textAlign", v);
+}
+function top(v) {
+  return new CssProp("top", v);
+}
+function touchAction(v) {
+  return new CssProp("touchAction", v);
+}
+function transform(v) {
+  return new CssProp("transform", v);
+}
+function width(v) {
+  return new CssProp("width", v);
+}
+function zIndex(v) {
+  return new CssProp("zIndex", isNumber(v) ? v.toFixed(0) : v);
+}
+function getMonospaceFonts() {
+  return "ui-monospace, 'Droid Sans Mono', 'Cascadia Mono', 'Segoe UI Mono', 'Ubuntu Mono', 'Roboto Mono', Menlo, Monaco, Consolas, monospace";
+}
+var CSSInJSRule = class {
+  constructor(selector, props) {
+    this.selector = selector;
+    this.props = props;
+  }
+  apply(sheet) {
+    const style = this.props.map((prop) => `${prop.name}: ${prop.value};`).join("");
+    sheet.insertRule(`${this.selector} {${style}}`, sheet.cssRules.length);
+  }
+};
+function rule(selector, ...props) {
+  return new CSSInJSRule(selector, props);
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/tags.ts
+function isErsatzElement(obj3) {
+  if (!isObject(obj3)) {
+    return false;
+  }
+  const elem = obj3;
+  return elem.element instanceof Node;
+}
+function isErsatzElements(obj3) {
+  return isObject(obj3) && "elements" in obj3 && obj3.elements instanceof Array;
+}
+function resolveElement(elem) {
+  if (isErsatzElement(elem)) {
+    return elem.element;
+  }
+  return elem;
+}
+function isIElementAppliable(obj3) {
+  return isObject(obj3) && "applyToElement" in obj3 && isFunction(obj3.applyToElement);
+}
+function elementSetDisplay(elem, visible, visibleDisplayType = "block") {
+  elem = resolveElement(elem);
+  elem.style.display = visible ? visibleDisplayType : "none";
+}
+function elementIsDisplayed(elem) {
+  elem = resolveElement(elem);
+  return elem.style.display !== "none";
+}
+function elementApply(elem, ...children) {
+  elem = resolveElement(elem);
+  for (const child of children) {
+    if (isDefined(child)) {
+      if (child instanceof Node) {
+        elem.append(child);
+      } else if (isErsatzElement(child)) {
+        elem.append(resolveElement(child));
+      } else if (isErsatzElements(child)) {
+        elem.append(...child.elements.map(resolveElement));
+      } else if (isIElementAppliable(child)) {
+        child.applyToElement(elem);
+      } else {
+        elem.append(document.createTextNode(child.toLocaleString()));
+      }
+    }
+  }
+  return elem;
+}
+function getElement(selector) {
+  return document.querySelector(selector);
+}
+function getInput(selector) {
+  return getElement(selector);
+}
+function tag(name2, ...rest) {
+  let elem = null;
+  for (const attr of rest) {
+    if (attr instanceof Attr && attr.key === "id") {
+      elem = document.getElementById(attr.value);
+      break;
+    }
+  }
+  if (elem == null) {
+    elem = document.createElement(name2);
+  }
+  elementApply(elem, ...rest);
+  return elem;
+}
+function isDisableable(obj3) {
+  return "disabled" in obj3 && isBoolean(obj3.disabled);
+}
+function elementClearChildren(elem) {
+  elem = resolveElement(elem);
+  while (elem.lastChild) {
+    elem.lastChild.remove();
+  }
+}
+function elementSetText(elem, text2) {
+  elem = resolveElement(elem);
+  elementClearChildren(elem);
+  elem.append(TextNode(text2));
+}
+async function mediaElementCan(type2, elem, prog) {
+  if (isDefined(prog)) {
+    prog.start();
+  }
+  const expectedState = type2 === "canplay" ? elem.HAVE_CURRENT_DATA : elem.HAVE_ENOUGH_DATA;
+  if (elem.readyState >= expectedState) {
+    return true;
+  }
+  try {
+    await once(elem, type2, "error");
+    return true;
+  } catch (err) {
+    console.warn(elem.error, err);
+    return false;
+  } finally {
+    if (isDefined(prog)) {
+      prog.end();
+    }
+  }
+}
+function mediaElementCanPlay(elem, prog) {
+  return mediaElementCan("canplay", elem, prog);
+}
+function mediaElementCanPlayThrough(elem, prog) {
+  return mediaElementCan("canplaythrough", elem, prog);
+}
+function Audio2(...rest) {
+  return tag("audio", ...rest);
+}
+function ButtonRaw(...rest) {
+  return tag("button", ...rest);
+}
+function Button(...rest) {
+  return ButtonRaw(...rest, type("button"));
+}
+function ButtonPrimary(...rest) {
+  return Button(...rest, classList("btn", "btn-primary"));
+}
+function ButtonSecondary(...rest) {
+  return Button(...rest, classList("btn", "btn-secondary"));
+}
+function Canvas(...rest) {
+  return tag("canvas", ...rest);
+}
+function DD(...rest) {
+  return tag("dd", ...rest);
+}
+function Div(...rest) {
+  return tag("div", ...rest);
+}
+function DL(...rest) {
+  return tag("dl", ...rest);
+}
+function DT(...rest) {
+  return tag("dt", ...rest);
+}
+function H1(...rest) {
+  return tag("h1", ...rest);
+}
+function H2(...rest) {
+  return tag("h2", ...rest);
+}
+function Img(...rest) {
+  return tag("img", ...rest);
+}
+function Input(...rest) {
+  return tag("input", ...rest);
+}
+function Label(...rest) {
+  return tag("label", ...rest);
+}
+function Meter(...rest) {
+  return tag("meter", ...rest);
+}
+function Option(...rest) {
+  return tag("option", ...rest);
+}
+function Script(...rest) {
+  return tag("script", ...rest);
+}
+function Select(...rest) {
+  return tag("select", ...rest);
+}
+function Video(...rest) {
+  return tag("video", ...rest);
+}
+function InputCheckbox(...rest) {
+  return Input(type("checkbox"), ...rest);
+}
+function InputNumber(...rest) {
+  return Input(type("number"), ...rest);
+}
+function InputRange(...rest) {
+  return Input(type("range"), ...rest);
+}
+function TextNode(txt) {
+  return document.createTextNode(txt);
+}
+function Style(...rest) {
+  let elem = document.createElement("style");
+  document.head.append(elem);
+  for (let x of rest) {
+    x.apply(elem.sheet);
+  }
+  return elem;
+}
+function BackgroundAudio(autoplay, mute, looping, ...rest) {
+  return Audio2(playsInline(true), controls(false), muted(mute), autoPlay(autoplay), loop(looping), styles(display("none")), ...rest);
+}
+function BackgroundVideo(autoplay, mute, looping, ...rest) {
+  return Video(playsInline(true), controls(false), muted(mute), autoPlay(autoplay), loop(looping), styles(display("none")), ...rest);
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/canvas.ts
+var hasHTMLCanvas = "HTMLCanvasElement" in globalThis;
+var hasHTMLImage = "HTMLImageElement" in globalThis;
+var disableAdvancedSettings = false;
+var hasOffscreenCanvas = !disableAdvancedSettings && "OffscreenCanvas" in globalThis;
+var hasImageBitmap = !disableAdvancedSettings && "createImageBitmap" in globalThis;
+function isHTMLCanvas(obj3) {
+  return hasHTMLCanvas && obj3 instanceof HTMLCanvasElement;
+}
+function isOffscreenCanvas(obj3) {
+  return hasOffscreenCanvas && obj3 instanceof OffscreenCanvas;
+}
+function isImageBitmap(img) {
+  return hasImageBitmap && img instanceof ImageBitmap;
+}
+function drawImageBitmapToCanvas(canv, img) {
+  const g = canv.getContext("2d");
+  if (isNullOrUndefined(g)) {
+    throw new Error("Could not create 2d context for canvas");
+  }
+  g.drawImage(img, 0, 0);
+}
+function testOffscreen2D() {
+  try {
+    const canv = new OffscreenCanvas(1, 1);
+    const g = canv.getContext("2d");
+    return g != null;
+  } catch (exp) {
+    return false;
+  }
+}
+var hasOffscreenCanvasRenderingContext2D = hasOffscreenCanvas && testOffscreen2D();
+var createUtilityCanvas = hasOffscreenCanvasRenderingContext2D && createOffscreenCanvas || hasHTMLCanvas && createCanvas || null;
+var createUICanvas = hasHTMLCanvas ? createCanvas : createUtilityCanvas;
+function testOffscreen3D() {
+  try {
+    const canv = new OffscreenCanvas(1, 1);
+    const g = canv.getContext("webgl2");
+    return g != null;
+  } catch (exp) {
+    return false;
+  }
+}
+var hasOffscreenCanvasRenderingContext3D = hasOffscreenCanvas && testOffscreen3D();
+function createOffscreenCanvas(width2, height2) {
+  return new OffscreenCanvas(width2, height2);
+}
+function createCanvas(w, h) {
+  if (false) {
+    throw new Error("HTML Canvas is not supported in workers");
+  }
+  return Canvas(htmlWidth(w), htmlHeight(h));
+}
+function createCanvasFromImageBitmap(img) {
+  if (false) {
+    throw new Error("HTML Canvas is not supported in workers");
+  }
+  const canv = createCanvas(img.width, img.height);
+  drawImageBitmapToCanvas(canv, img);
+  return canv;
+}
+function drawImageToCanvas(canv, img) {
+  const g = canv.getContext("2d");
+  if (isNullOrUndefined(g)) {
+    throw new Error("Could not create 2d context for canvas");
+  }
+  g.drawImage(img, 0, 0);
+}
+function setCanvasSize(canv, w, h, superscale = 1) {
+  w = Math.floor(w * superscale);
+  h = Math.floor(h * superscale);
+  if (canv.width != w || canv.height != h) {
+    canv.width = w;
+    canv.height = h;
+    return true;
+  }
+  return false;
+}
+function is2DRenderingContext(ctx) {
+  return isDefined(ctx.textBaseline);
+}
+function setCanvas2DContextSize(ctx, w, h, superscale = 1) {
+  const oldImageSmoothingEnabled = ctx.imageSmoothingEnabled, oldTextBaseline = ctx.textBaseline, oldTextAlign = ctx.textAlign, oldFont = ctx.font, resized = setCanvasSize(ctx.canvas, w, h, superscale);
+  if (resized) {
+    ctx.imageSmoothingEnabled = oldImageSmoothingEnabled;
+    ctx.textBaseline = oldTextBaseline;
+    ctx.textAlign = oldTextAlign;
+    ctx.font = oldFont;
+  }
+  return resized;
+}
+function setContextSize(ctx, w, h, superscale = 1) {
+  if (is2DRenderingContext(ctx)) {
+    return setCanvas2DContextSize(ctx, w, h, superscale);
+  } else {
+    return setCanvasSize(ctx.canvas, w, h, superscale);
+  }
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/RequestBuilder.ts
+var testAudio = null;
+function canPlay(type2) {
+  if (testAudio === null) {
+    testAudio = new Audio();
+  }
+  return testAudio.canPlayType(type2) !== "";
+}
+var RequestBuilder = class {
+  constructor(fetcher, useFileBlobsForModules, method, path) {
+    this.fetcher = fetcher;
+    this.useFileBlobsForModules = useFileBlobsForModules;
+    this.method = method;
+    this.prog = null;
+    this.path = path;
+    this.request = {
+      method,
+      path: this.path.href,
+      body: null,
+      headers: null,
+      timeout: null,
+      withCredentials: false,
+      useCache: false
+    };
+  }
+  query(name2, value2) {
+    this.path.searchParams.set(name2, value2);
+    this.request.path = this.path.href;
+    return this;
+  }
+  header(name2, value2) {
+    if (this.request.headers === null) {
+      this.request.headers = /* @__PURE__ */ new Map();
+    }
+    this.request.headers.set(name2.toLowerCase(), value2);
+    return this;
+  }
+  timeout(value2) {
+    this.request.timeout = value2;
+    return this;
+  }
+  progress(prog) {
+    this.prog = prog;
+    return this;
+  }
+  body(body, contentType) {
+    this.request.body = body;
+    this.content(contentType);
+    return this;
+  }
+  withCredentials() {
+    this.request.withCredentials = true;
+    return this;
+  }
+  useCache(enabled = true) {
+    this.request.useCache = enabled;
+    return this;
+  }
+  media(key, mediaType) {
+    if (isDefined(mediaType)) {
+      if (!isString(mediaType)) {
+        mediaType = mediaType.value;
+      }
+      this.header(key, mediaType);
+    }
+  }
+  content(contentType) {
+    this.media("content-type", contentType);
+  }
+  accept(acceptType) {
+    this.media("accept", acceptType);
+    return this;
+  }
+  blob(acceptType) {
+    this.accept(acceptType);
+    if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE") {
+      return this.fetcher.sendObjectGetBlob(this.request, this.prog);
+    } else if (this.method === "GET") {
+      return this.fetcher.sendNothingGetBlob(this.request, this.prog);
+    } else if (this.method === "HEAD" || this.method === "OPTIONS") {
+      throw new Error(`${this.method} responses do not contain bodies`);
+    } else {
+      assertNever(this.method);
+    }
+  }
+  buffer(acceptType) {
+    this.accept(acceptType);
+    if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE") {
+      return this.fetcher.sendObjectGetBuffer(this.request, this.prog);
+    } else if (this.method === "GET") {
+      return this.fetcher.sendNothingGetBuffer(this.request, this.prog);
+    } else if (this.method === "HEAD" || this.method === "OPTIONS") {
+      throw new Error(`${this.method} responses do not contain bodies`);
+    } else {
+      assertNever(this.method);
+    }
+  }
+  file(acceptType) {
+    this.accept(acceptType);
+    if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE") {
+      return this.fetcher.sendObjectGetFile(this.request, this.prog);
+    } else if (this.method === "GET") {
+      return this.fetcher.sendNothingGetFile(this.request, this.prog);
+    } else if (this.method === "HEAD" || this.method === "OPTIONS") {
+      throw new Error(`${this.method} responses do not contain bodies`);
+    } else {
+      assertNever(this.method);
+    }
+  }
+  text(acceptType) {
+    this.accept(acceptType || Text_Plain);
+    if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE") {
+      return this.fetcher.sendObjectGetText(this.request, this.prog);
+    } else if (this.method === "GET") {
+      return this.fetcher.sendNothingGetText(this.request, this.prog);
+    } else if (this.method === "HEAD" || this.method === "OPTIONS") {
+      throw new Error(`${this.method} responses do not contain bodies`);
+    } else {
+      assertNever(this.method);
+    }
+  }
+  object(acceptType) {
+    this.accept(acceptType || Application_Json);
+    if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE") {
+      return this.fetcher.sendObjectGetObject(this.request, this.prog);
+    } else if (this.method === "GET") {
+      return this.fetcher.sendNothingGetObject(this.request, this.prog);
+    } else if (this.method === "HEAD" || this.method === "OPTIONS") {
+      throw new Error(`${this.method} responses do not contain bodies`);
+    } else {
+      assertNever(this.method);
+    }
+  }
+  xml(acceptType) {
+    this.accept(acceptType || Text_Xml);
+    if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE") {
+      return this.fetcher.sendObjectGetXml(this.request, this.prog);
+    } else if (this.method === "GET") {
+      return this.fetcher.sendNothingGetXml(this.request, this.prog);
+    } else if (this.method === "HEAD" || this.method === "OPTIONS") {
+      throw new Error(`${this.method} responses do not contain bodies`);
+    } else {
+      assertNever(this.method);
+    }
+  }
+  imageBitmap(acceptType) {
+    this.accept(acceptType);
+    if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE") {
+      return this.fetcher.sendObjectGetImageBitmap(this.request, this.prog);
+    } else if (this.method === "GET") {
+      return this.fetcher.sendNothingGetImageBitmap(this.request, this.prog);
+    } else if (this.method === "HEAD" || this.method === "OPTIONS") {
+      throw new Error(`${this.method} responses do not contain bodies`);
+    } else {
+      assertNever(this.method);
+    }
+  }
+  exec() {
+    if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE") {
+      return this.fetcher.sendObjectGetNothing(this.request, this.prog);
+    } else if (this.method === "GET") {
+      throw new Exception("GET requests should expect a response type");
+    } else if (this.method === "HEAD" || this.method === "OPTIONS") {
+      return this.fetcher.sendNothingGetNothing(this.request);
+    } else {
+      assertNever(this.method);
+    }
+  }
+  async audioBlob(acceptType) {
+    if (isDefined(acceptType)) {
+      if (!isString(acceptType)) {
+        acceptType = acceptType.value;
+      }
+      if (!canPlay(acceptType)) {
+        throw new Error(`Probably can't play file of type "${acceptType}" at path: ${this.request.path}`);
+      }
+    }
+    const response = await this.blob(acceptType);
+    if (canPlay(response.contentType)) {
+      return response;
+    }
+    throw new Error(`Cannot play file of type "${response.contentType}" at path: ${this.request.path}`);
+  }
+  async audioBuffer(audioCtx, acceptType) {
+    return translateResponse(await this.audioBlob(acceptType), async (blob) => await audioCtx.decodeAudioData(await blob.arrayBuffer()));
+  }
+  async htmlElement(element, resolveEvt, acceptType) {
+    const response = await this.file(acceptType);
+    const task = once(element, resolveEvt, "error");
+    element.src = response.content;
+    await task;
+    return await translateResponse(response, () => element);
+  }
+  image(acceptType) {
+    return this.htmlElement(Img(), "load", acceptType);
+  }
+  async htmlCanvas(acceptType) {
+    if (false) {
+      throw new Error("HTMLCanvasElement not supported in Workers.");
+    }
+    const canvas = createCanvas(1, 1);
+    if (this.method === "GET") {
+      if (hasOffscreenCanvas) {
+        this.accept(acceptType);
+        const response = await this.fetcher.drawImageToCanvas(this.request, canvas.transferControlToOffscreen(), this.prog);
+        return await translateResponse(response, () => canvas);
+      } else {
+        const response = await (false ? this.imageBitmap(acceptType) : this.image(acceptType));
+        return await translateResponse(response, (img) => {
+          canvas.width = img.width;
+          canvas.height = img.height;
+          drawImageToCanvas(canvas, img);
+          dispose(img);
+          return canvas;
+        });
+      }
+    } else if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE" || this.method === "HEAD" || this.method === "OPTIONS") {
+      throw new Error(`${this.method} responses do not contain bodies`);
+    } else {
+      assertNever(this.method);
+    }
+  }
+  canvas(acceptType) {
+    if (hasOffscreenCanvas) {
+      return this.offscreenCanvas(acceptType);
+    } else {
+      return this.htmlCanvas(acceptType);
+    }
+  }
+  async offscreenCanvas(acceptType) {
+    if (!hasOffscreenCanvas) {
+      throw new Error("This system does not support OffscreenCanvas");
+    }
+    if (this.method === "GET") {
+      const response = await (false ? this.imageBitmap(acceptType) : this.image(acceptType));
+      return await translateResponse(response, (img) => {
+        const canvas = createOffscreenCanvas(img.width, img.height);
+        drawImageToCanvas(canvas, img);
+        dispose(img);
+        return canvas;
+      });
+    } else if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE" || this.method === "HEAD" || this.method === "OPTIONS") {
+      throw new Error(`${this.method} responses do not contain bodies`);
+    } else {
+      assertNever(this.method);
+    }
+  }
+  audio(autoPlaying, looping, acceptType) {
+    return this.htmlElement(BackgroundAudio(autoPlaying, false, looping), "canplay", acceptType);
+  }
+  video(autoPlaying, looping, acceptType) {
+    return this.htmlElement(BackgroundVideo(autoPlaying, false, looping), "canplay", acceptType);
+  }
+  async getScript() {
+    const tag2 = Script(type(Application_Javascript));
+    document.body.append(tag2);
+    if (this.useFileBlobsForModules) {
+      await this.htmlElement(tag2, "load", Application_Javascript);
+    } else {
+      tag2.src = this.request.path;
+    }
+  }
+  async script(test) {
+    const scriptPath = this.request.path;
+    if (!test) {
+      await this.getScript();
+    } else if (!test()) {
+      const scriptLoadTask = waitFor(test);
+      await this.getScript();
+      await scriptLoadTask;
+    }
+    if (this.prog) {
+      this.prog.end(scriptPath);
+    }
+  }
+  async module() {
+    const scriptPath = this.request.path;
+    let requestPath = scriptPath;
+    if (this.useFileBlobsForModules) {
+      const { content: file } = await this.file(Application_Javascript);
+      requestPath = file;
+    }
+    const value2 = await import(requestPath);
+    if (this.prog) {
+      this.prog.end(scriptPath);
+    }
+    return value2;
+  }
+  async wasm(imports) {
+    const { content: buffer, contentType } = await this.buffer(Application_Wasm);
+    if (!Application_Wasm.matches(contentType)) {
+      throw new Error(`Server did not respond with WASM file. Was: ${contentType}`);
+    }
+    const module = await WebAssembly.compile(buffer);
+    const instance = await WebAssembly.instantiate(module, imports);
+    return instance.exports;
+  }
+  async worker(type2 = "module") {
+    const scriptPath = this.request.path;
+    let requestPath = scriptPath;
+    if (this.useFileBlobsForModules) {
+      const { content: file } = await this.file(Application_Javascript);
+      requestPath = file;
+    }
+    this.prog = null;
+    this.request.timeout = null;
+    const worker = new Worker(requestPath, { type: type2 });
+    if (this.prog) {
+      this.prog.end(scriptPath);
+    }
+    return worker;
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/Fetcher.ts
+var Fetcher = class {
+  constructor(service, useFileBlobsForModules = true) {
+    this.service = service;
+    this.useFileBlobsForModules = useFileBlobsForModules;
+    if (true) {
+      const antiforgeryToken = getInput("input[name=__RequestVerificationToken]");
+      if (antiforgeryToken) {
+        this.service.setRequestVerificationToken(antiforgeryToken.value);
+      }
+    }
+  }
+  createRequest(method, path, base) {
+    return new RequestBuilder(this.service, this.useFileBlobsForModules, method, new URL(path, base || location.href));
+  }
+  clearCache() {
+    return this.service.clearCache();
+  }
+  head(path, base) {
+    return this.createRequest("HEAD", path, base);
+  }
+  options(path, base) {
+    return this.createRequest("OPTIONS", path, base);
+  }
+  get(path, base) {
+    return this.createRequest("GET", path, base);
+  }
+  post(path, base) {
+    return this.createRequest("POST", path, base);
+  }
+  put(path, base) {
+    return this.createRequest("PUT", path, base);
+  }
+  patch(path, base) {
+    return this.createRequest("PATCH", path, base);
+  }
+  delete(path, base) {
+    return this.createRequest("DELETE", path, base);
+  }
+  async assets(progress, ...assets) {
+    assets = assets.filter(isDefined);
+    const assetSizes = new Map(await Promise.all(assets.map((asset) => asset.getSize(this))));
+    await progressTasksWeighted(progress, assets.map((asset) => [assetSizes.get(asset), (prog) => asset.fetch(this, prog)]));
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/translateResponse.ts
+async function translateResponse(response, translate) {
+  const {
+    status,
+    path,
+    content,
+    contentType,
+    contentLength,
+    fileName,
+    headers,
+    date
+  } = response;
+  return {
+    status,
+    path,
+    content: await translate(content),
+    contentType,
+    contentLength,
+    fileName,
+    headers,
+    date
+  };
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/FetchingService.ts
+var FetchingService = class {
+  constructor(impl) {
+    this.impl = impl;
+    this.defaultPostHeaders = /* @__PURE__ */ new Map();
+  }
+  setRequestVerificationToken(value2) {
+    this.defaultPostHeaders.set("RequestVerificationToken", value2);
+  }
+  clearCache() {
+    return this.impl.clearCache();
+  }
+  sendNothingGetNothing(request) {
+    return this.impl.sendNothingGetNothing(request);
+  }
+  sendNothingGetBlob(request, progress) {
+    return this.impl.sendNothingGetSomething("blob", request, progress);
+  }
+  sendObjectGetBlob(request, progress) {
+    return this.impl.sendSomethingGetSomething("blob", request, this.defaultPostHeaders, progress);
+  }
+  sendNothingGetBuffer(request, progress) {
+    return this.impl.sendNothingGetSomething("arraybuffer", request, progress);
+  }
+  sendObjectGetBuffer(request, progress) {
+    return this.impl.sendSomethingGetSomething("arraybuffer", request, this.defaultPostHeaders, progress);
+  }
+  sendNothingGetText(request, progress) {
+    return this.impl.sendNothingGetSomething("text", request, progress);
+  }
+  sendObjectGetText(request, progress) {
+    return this.impl.sendSomethingGetSomething("text", request, this.defaultPostHeaders, progress);
+  }
+  async sendNothingGetObject(request, progress) {
+    const response = await this.impl.sendNothingGetSomething("json", request, progress);
+    return response.content;
+  }
+  async sendObjectGetObject(request, progress) {
+    const response = await this.impl.sendSomethingGetSomething("json", request, this.defaultPostHeaders, progress);
+    return response.content;
+  }
+  sendObjectGetNothing(request, progress) {
+    return this.impl.sendSomethingGetSomething("", request, this.defaultPostHeaders, progress);
+  }
+  drawImageToCanvas(request, canvas, progress) {
+    return this.impl.drawImageToCanvas(request, canvas, progress);
+  }
+  async sendNothingGetFile(request, progress) {
+    return translateResponse(await this.sendNothingGetBlob(request, progress), URL.createObjectURL);
+  }
+  async sendObjectGetFile(request, progress) {
+    return translateResponse(await this.sendObjectGetBlob(request, progress), URL.createObjectURL);
+  }
+  async sendNothingGetXml(request, progress) {
+    return translateResponse(await this.impl.sendNothingGetSomething("document", request, progress), (doc) => doc.documentElement);
+  }
+  async sendObjectGetXml(request, progress) {
+    return translateResponse(await this.impl.sendSomethingGetSomething("document", request, this.defaultPostHeaders, progress), (doc) => doc.documentElement);
+  }
+  async sendNothingGetImageBitmap(request, progress) {
+    return translateResponse(await this.sendNothingGetBlob(request, progress), createImageBitmap);
+  }
+  async sendObjectGetImageBitmap(request, progress) {
+    return translateResponse(await this.sendObjectGetBlob(request, progress), createImageBitmap);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/workers/WorkerClient.ts
+var WorkerClient = class extends TypedEventBase {
+  constructor(worker) {
+    super();
+    this.worker = worker;
+    this.taskCounter = 0;
+    this.invocations = /* @__PURE__ */ new Map();
+    if (!isWorkerSupported) {
+      console.warn("Workers are not supported on this system.");
+    }
+    this.worker.addEventListener("message", (evt) => {
+      const data = evt.data;
+      switch (data.type) {
+        case "event":
+          this.propogateEvent(data);
+          break;
+        case "progress":
+          this.progressReport(data);
+          break;
+        case "return":
+          this.methodReturned(data);
+          break;
+        case "error":
+          this.invocationError(data);
+          break;
+        default:
+          assertNever(data);
+      }
+    });
+  }
+  postMessage(message, transferables) {
+    if (message.type !== "methodCall") {
+      assertNever(message.type);
+    }
+    if (transferables) {
+      this.worker.postMessage(message, transferables);
+    } else {
+      this.worker.postMessage(message);
+    }
+  }
+  dispose() {
+    this.worker.terminate();
+  }
+  propogateEvent(data) {
+    const evt = new TypedEvent(data.eventName);
+    this.dispatchEvent(Object.assign(evt, data.data));
+  }
+  progressReport(data) {
+    const invocation = this.invocations.get(data.taskID);
+    const { prog } = invocation;
+    if (prog) {
+      prog.report(data.soFar, data.total, data.msg, data.est);
+    }
+  }
+  methodReturned(data) {
+    const messageHandler = this.removeInvocation(data.taskID);
+    const { resolve } = messageHandler;
+    resolve(data.returnValue);
+  }
+  invocationError(data) {
+    const messageHandler = this.removeInvocation(data.taskID);
+    const { reject, methodName } = messageHandler;
+    reject(new Error(`${methodName} failed. Reason: ${data.errorMessage}`));
+  }
+  removeInvocation(taskID) {
+    const invocation = this.invocations.get(taskID);
+    this.invocations.delete(taskID);
+    return invocation;
+  }
+  callMethod(methodName, parameters, transferables, prog) {
+    if (!isWorkerSupported) {
+      return Promise.reject(new Error("Workers are not supported on this system."));
+    }
+    let params = null;
+    let tfers = null;
+    if (isProgressCallback(parameters)) {
+      prog = parameters;
+      parameters = null;
+      transferables = null;
+    }
+    if (isProgressCallback(transferables) && !prog) {
+      prog = transferables;
+      transferables = null;
+    }
+    if (isArray(parameters)) {
+      params = parameters;
+    }
+    if (isArray(transferables)) {
+      tfers = transferables;
+    }
+    const taskID = this.taskCounter++;
+    const task = new Task();
+    const invocation = {
+      prog,
+      resolve: task.resolve,
+      reject: task.reject,
+      methodName
+    };
+    this.invocations.set(taskID, invocation);
+    let message = null;
+    if (isDefined(parameters)) {
+      message = {
+        type: "methodCall",
+        taskID,
+        methodName,
+        params
+      };
+    } else {
+      message = {
+        type: "methodCall",
+        taskID,
+        methodName
+      };
+    }
+    this.postMessage(message, tfers);
+    return task;
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/workers/WorkerPool.ts
+var WorkerPool = class extends TypedEventBase {
+  constructor(options, WorkerClientClass) {
+    super();
+    this.scriptPath = options.scriptPath;
+    let workerPoolSize = -1;
+    const workersDef = options.workers;
+    let workers = null;
+    if (isNumber(workersDef)) {
+      workerPoolSize = workersDef;
+    } else if (isDefined(workersDef)) {
+      this.taskCounter = workersDef.curTaskCounter;
+      workers = workersDef.workers;
+      workerPoolSize = workers.length;
+    } else {
+      workerPoolSize = navigator.hardwareConcurrency || 4;
+    }
+    if (workerPoolSize < 1) {
+      throw new Error("Worker pool size must be a postive integer greater than 0");
+    }
+    this.workers = new Array(workerPoolSize);
+    if (isNullOrUndefined(workers)) {
+      this.taskCounter = 0;
+      for (let i = 0; i < workerPoolSize; ++i) {
+        this.workers[i] = new WorkerClientClass(new Worker(this.scriptPath, { type: "module" }));
+      }
+    } else {
+      for (let i = 0; i < workerPoolSize; ++i) {
+        this.workers[i] = new WorkerClientClass(workers[i]);
+      }
+    }
+    for (const worker of this.workers) {
+      worker.addBubbler(this);
+    }
+  }
+  dispose() {
+    for (const worker of this.workers) {
+      worker.dispose();
+    }
+    arrayClear(this.workers);
+  }
+  nextWorker() {
+    const worker = this.peekWorker();
+    this.taskCounter++;
+    return worker;
+  }
+  peekWorker() {
+    return this.workers[this.taskCounter % this.workers.length];
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/FetchingServiceClient.ts
+function isDOMParsersSupportedType(type2) {
+  return type2 === "application/xhtml+xml" || type2 === "application/xml" || type2 === "image/svg+xml" || type2 === "text/html" || type2 === "text/xml";
+}
+function bufferToXml(response) {
+  const {
+    status,
+    path,
+    content: buffer,
+    contentType,
+    contentLength,
+    fileName,
+    headers,
+    date
+  } = response;
+  if (!isDOMParsersSupportedType(contentType)) {
+    throw new Error(`Content-Type ${contentType} is not one supported by the DOM parser.`);
+  }
+  const decoder = new TextDecoder();
+  const text2 = decoder.decode(buffer);
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(text2, contentType);
+  return {
+    status,
+    path,
+    content: doc.documentElement,
+    contentType,
+    contentLength,
+    fileName,
+    date,
+    headers
+  };
+}
+function bufferToBlob(response) {
+  const {
+    status,
+    path,
+    content: buffer,
+    contentType,
+    contentLength,
+    fileName,
+    headers,
+    date
+  } = response;
+  const blob = new Blob([buffer], {
+    type: contentType
+  });
+  return {
+    status,
+    path,
+    content: blob,
+    contentType,
+    contentLength,
+    fileName,
+    date,
+    headers
+  };
+}
+function cloneRequest(request) {
+  request = {
+    method: request.method,
+    path: request.path,
+    timeout: request.timeout,
+    headers: request.headers,
+    withCredentials: request.withCredentials,
+    useCache: request.useCache
+  };
+  return request;
+}
+function cloneRequestWithBody(request) {
+  request = {
+    method: request.method,
+    path: request.path,
+    body: request.body,
+    timeout: request.timeout,
+    headers: request.headers,
+    withCredentials: request.withCredentials,
+    useCache: request.useCache
+  };
+  return request;
+}
+var FetchingServiceClient = class extends WorkerClient {
+  setRequestVerificationToken(value2) {
+    this.callMethod("setRequestVerificationToken", [value2]);
+  }
+  clearCache() {
+    return this.callMethod("clearCache");
+  }
+  makeRequest(methodName, request, progress) {
+    return this.callMethod(methodName, [cloneRequest(request)], progress);
+  }
+  makeRequestWithBody(methodName, request, progress) {
+    return this.callMethod(methodName, [cloneRequestWithBody(request)], progress);
+  }
+  sendNothingGetNothing(request) {
+    return this.makeRequest("sendNothingGetNothing", request, null);
+  }
+  sendNothingGetBuffer(request, progress) {
+    return this.makeRequest("sendNothingGetBuffer", request, progress);
+  }
+  sendNothingGetText(request, progress) {
+    return this.makeRequest("sendNothingGetText", request, progress);
+  }
+  sendNothingGetObject(request, progress) {
+    return this.makeRequest("sendNothingGetObject", request, progress);
+  }
+  sendNothingGetFile(request, progress) {
+    return this.makeRequest("sendNothingGetFile", request, progress);
+  }
+  sendNothingGetImageBitmap(request, progress) {
+    return this.makeRequest("sendNothingGetImageBitmap", request, progress);
+  }
+  sendObjectGetNothing(request, progress) {
+    return this.makeRequestWithBody("sendObjectGetNothing", request, progress);
+  }
+  sendObjectGetBuffer(request, progress) {
+    return this.makeRequestWithBody("sendObjectGetBuffer", request, progress);
+  }
+  sendObjectGetText(request, progress) {
+    return this.makeRequestWithBody("sendObjectGetText", request, progress);
+  }
+  sendObjectGetObject(request, progress) {
+    return this.makeRequestWithBody("sendObjectGetObject", request, progress);
+  }
+  sendObjectGetFile(request, progress) {
+    return this.makeRequestWithBody("sendObjectGetFile", request, progress);
+  }
+  sendObjectGetImageBitmap(request, progress) {
+    return this.makeRequestWithBody("sendObjectGetImageBitmap", request, progress);
+  }
+  drawImageToCanvas(request, canvas, progress) {
+    return this.callMethod("drawImageToCanvas", [cloneRequest(request), canvas], [canvas], progress);
+  }
+  async sendNothingGetBlob(request, progress) {
+    const response = await this.sendNothingGetBuffer(request, progress);
+    return bufferToBlob(response);
+  }
+  async sendNothingGetXml(request, progress) {
+    const response = await this.sendNothingGetBuffer(request, progress);
+    return bufferToXml(response);
+  }
+  async sendObjectGetBlob(request, progress) {
+    const response = await this.sendObjectGetBuffer(request, progress);
+    return bufferToBlob(response);
+  }
+  async sendObjectGetXml(request, progress) {
+    const response = await this.sendObjectGetBuffer(request, progress);
+    return bufferToXml(response);
   }
 };
 
@@ -5757,31 +7076,7 @@ var IDexStore = class {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher-base/ResponseTranslator.ts
-async function translateResponse(response, translate) {
-  const {
-    status,
-    path,
-    content,
-    contentType,
-    contentLength,
-    fileName,
-    headers,
-    date
-  } = response;
-  return {
-    status,
-    path,
-    content: await translate(content),
-    contentType,
-    contentLength,
-    fileName,
-    headers,
-    date
-  };
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher-base/FetchingServiceImplXHR.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/FetchingServiceImplXHR.ts
 function isXHRBodyInit(obj3) {
   return isString(obj3) || isArrayBufferView(obj3) || obj3 instanceof Blob || obj3 instanceof FormData || isArrayBuffer(obj3) || obj3 instanceof ReadableStream || "Document" in globalThis && obj3 instanceof Document;
 }
@@ -5857,10 +7152,10 @@ function readResponseHeader(headers, key, translate) {
 var FILE_NAME_PATTERN = /filename=\"(.+)\"(;|$)/;
 var DB_NAME = "Juniper:Fetcher:Cache";
 var FetchingServiceImplXHR = class {
-  cacheReady;
-  cache = null;
-  store = null;
   constructor() {
+    this.cache = null;
+    this.store = null;
+    this.tasks = new PriorityMap();
     this.cacheReady = this.openCache();
   }
   async drawImageToCanvas(request, canvas, progress) {
@@ -5983,7 +7278,6 @@ var FetchingServiceImplXHR = class {
       }
     });
   }
-  tasks = new PriorityMap();
   async withCachedTask(request, action) {
     if (request.method !== "GET" && request.method !== "HEAD" && request.method !== "OPTIONS") {
       return await action();
@@ -6063,6 +7357,83 @@ var FetchingServiceImplXHR = class {
   }
 };
 
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/FetchingServicePool.ts
+var BaseFetchingServicePool = class extends WorkerPool {
+  constructor(options, WorkerClientClass, fetcher) {
+    super(options, WorkerClientClass);
+    this.fetcher = fetcher;
+  }
+  getFetcher(obj3) {
+    if (obj3 instanceof FormData) {
+      return this.fetcher;
+    } else {
+      return this.nextWorker();
+    }
+  }
+  setRequestVerificationToken(value2) {
+    this.fetcher.setRequestVerificationToken(value2);
+    for (const worker of this.workers) {
+      worker.setRequestVerificationToken(value2);
+    }
+  }
+  async clearCache() {
+    await Promise.all(this.workers.map((w) => w.clearCache()));
+  }
+  sendNothingGetNothing(request) {
+    return this.nextWorker().sendNothingGetNothing(request);
+  }
+  sendNothingGetBlob(request, progress) {
+    return this.nextWorker().sendNothingGetBlob(request, progress);
+  }
+  sendNothingGetBuffer(request, progress) {
+    return this.nextWorker().sendNothingGetBuffer(request, progress);
+  }
+  sendNothingGetFile(request, progress) {
+    return this.nextWorker().sendNothingGetFile(request, progress);
+  }
+  sendNothingGetText(request, progress) {
+    return this.nextWorker().sendNothingGetText(request, progress);
+  }
+  sendNothingGetObject(request, progress) {
+    return this.nextWorker().sendNothingGetObject(request, progress);
+  }
+  sendNothingGetXml(request, progress) {
+    return this.nextWorker().sendNothingGetXml(request, progress);
+  }
+  sendNothingGetImageBitmap(request, progress) {
+    return this.nextWorker().sendNothingGetImageBitmap(request, progress);
+  }
+  drawImageToCanvas(request, canvas, progress) {
+    return this.nextWorker().drawImageToCanvas(request, canvas, progress);
+  }
+  sendObjectGetBlob(request, progress) {
+    return this.getFetcher(request.body).sendObjectGetBlob(request, progress);
+  }
+  sendObjectGetBuffer(request, progress) {
+    return this.getFetcher(request.body).sendObjectGetBuffer(request, progress);
+  }
+  sendObjectGetFile(request, progress) {
+    return this.getFetcher(request.body).sendObjectGetFile(request, progress);
+  }
+  sendObjectGetText(request, progress) {
+    return this.getFetcher(request.body).sendObjectGetText(request, progress);
+  }
+  sendObjectGetNothing(request, progress) {
+    return this.getFetcher(request.body).sendObjectGetNothing(request, progress);
+  }
+  sendObjectGetObject(request, progress) {
+    return this.getFetcher(request.body).sendObjectGetObject(request, progress);
+  }
+  sendObjectGetXml(request, progress) {
+    return this.getFetcher(request.body).sendObjectGetXml(request, progress);
+  }
+  sendObjectGetImageBitmap(request, progress) {
+    return this.getFetcher(request.body).sendObjectGetImageBitmap(request, progress);
+  }
+};
+var FetchingServicePool = class extends BaseFetchingServicePool {
+};
+
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/setGeometryUVsForCubemaps.ts
 function setGeometryUVsForCubemaps(geom2) {
   const positions = geom2.attributes.position;
@@ -6140,9 +7511,9 @@ function setGeometryUVsForCubemaps(geom2) {
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/Cube.ts
-var cube = new THREE.BoxBufferGeometry(1, 1, 1, 1, 1, 1);
+var cube = /* @__PURE__ */ new THREE.BoxBufferGeometry(1, 1, 1, 1, 1, 1);
 cube.name = "CubeGeom";
-var invCube = cube.clone();
+var invCube = /* @__PURE__ */ cube.clone();
 invCube.name = "InvertedCubeGeom";
 setGeometryUVsForCubemaps(invCube);
 var Cube = class extends THREE.Mesh {
@@ -6742,456 +8113,6 @@ var solidRed = /* @__PURE__ */ solid({ color: red });
 var litGrey = /* @__PURE__ */ lit({ color: grey });
 var litWhite = /* @__PURE__ */ lit({ color: white });
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/attrs.ts
-var Attr = class {
-  constructor(key, value2, bySetAttribute, ...tags) {
-    this.key = key;
-    this.value = value2;
-    this.bySetAttribute = bySetAttribute;
-    this.tags = tags.map((t2) => t2.toLocaleUpperCase());
-    Object.freeze(this);
-  }
-  tags;
-  applyToElement(elem) {
-    const isDataSet = this.key.startsWith("data-");
-    const isValid = this.tags.length === 0 || this.tags.indexOf(elem.tagName) > -1 || isDataSet;
-    if (!isValid) {
-      console.warn(`Element ${elem.tagName} does not support Attribute ${this.key}`);
-    } else if (isDataSet) {
-      const subkey = this.key.substring(5);
-      elem.dataset[subkey] = this.value;
-    } else if (this.key === "style") {
-      Object.assign(elem.style, this.value);
-    } else if (this.key === "classList") {
-      this.value.forEach((v) => elem.classList.add(v));
-    } else if (this.bySetAttribute) {
-      elem.setAttribute(this.key, this.value);
-    } else if (this.key in elem) {
-      elem[this.key] = this.value;
-    } else if (this.value === false) {
-      elem.removeAttribute(this.key);
-    } else if (this.value === true) {
-      elem.setAttribute(this.key, "");
-    } else {
-      elem.setAttribute(this.key, this.value);
-    }
-  }
-};
-function autoPlay(value2) {
-  return new Attr("autoplay", value2, false, "audio", "video");
-}
-function className(value2) {
-  return new Attr("className", value2, false);
-}
-function classList(...values) {
-  return new Attr("classList", values, false);
-}
-function controls(value2) {
-  return new Attr("controls", value2, false, "audio", "video");
-}
-function customData(name2, value2) {
-  return new Attr("data-" + name2, value2, false);
-}
-function htmlHeight(value2) {
-  return new Attr("height", value2, false, "canvas", "embed", "iframe", "img", "input", "object", "video");
-}
-function id(value2) {
-  return new Attr("id", value2, false);
-}
-function loop(value2) {
-  return new Attr("loop", value2, false, "audio", "bgsound", "marquee", "video");
-}
-function max2(value2) {
-  return new Attr("max", value2, false, "input", "meter", "progress");
-}
-function min2(value2) {
-  return new Attr("min", value2, false, "input", "meter");
-}
-function muted(value2) {
-  return new Attr("muted", value2, false, "audio", "video");
-}
-function playsInline(value2) {
-  return new Attr("playsInline", value2, false, "audio", "video");
-}
-function unpackURL(value2) {
-  if (value2 instanceof URL) {
-    value2 = value2.href;
-  }
-  return value2;
-}
-function src(value2) {
-  return new Attr("src", unpackURL(value2), false, "audio", "embed", "iframe", "img", "input", "script", "source", "track", "video");
-}
-function srcObject(value2) {
-  return new Attr("srcObject", value2, false, "audio", "video");
-}
-function step(value2) {
-  return new Attr("step", value2, false, "input");
-}
-function title(value2) {
-  return new Attr("title", value2, false);
-}
-function type(value2) {
-  if (!isString(value2)) {
-    value2 = value2.value;
-  }
-  return new Attr("type", value2, false, "button", "input", "command", "embed", "link", "object", "script", "source", "style", "menu");
-}
-function value(value2) {
-  return new Attr("value", value2, false, "button", "data", "input", "li", "meter", "option", "progress", "param");
-}
-function htmlWidth(value2) {
-  return new Attr("width", value2, false, "canvas", "embed", "iframe", "img", "input", "object", "video");
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/css.ts
-var CssProp = class {
-  constructor(key, value2) {
-    this.key = key;
-    this.value = value2;
-    this.name = key.replace(/[A-Z]/g, (m) => `-${m.toLocaleLowerCase()}`);
-  }
-  name;
-  applyToElement(elem) {
-    elem.style[this.key] = this.value;
-  }
-};
-var CssPropSet = class {
-  rest;
-  constructor(...rest) {
-    this.rest = rest;
-  }
-  applyToElement(elem) {
-    for (const prop of this.rest) {
-      prop.applyToElement(elem);
-    }
-  }
-};
-function styles(...rest) {
-  return new CssPropSet(...rest);
-}
-function backgroundColor(v) {
-  return new CssProp("backgroundColor", v);
-}
-function border(v) {
-  return new CssProp("border", v);
-}
-function borderRadius(v) {
-  return new CssProp("borderRadius", v);
-}
-function boxShadow(v) {
-  return new CssProp("boxShadow", v);
-}
-function columnGap(v) {
-  return new CssProp("columnGap", v);
-}
-function display(v) {
-  return new CssProp("display", v);
-}
-function flexFlow(v) {
-  return new CssProp("flexFlow", v);
-}
-function float(v) {
-  return new CssProp("float", v);
-}
-function fontSize(v) {
-  return new CssProp("fontSize", v);
-}
-function gridArea(vOrRowStart, colStart, rowEnd, colEnd) {
-  if (!isString(vOrRowStart)) {
-    vOrRowStart = [vOrRowStart, colStart, rowEnd, colEnd].filter(isDefined).join("/");
-  }
-  return new CssProp("gridArea", vOrRowStart);
-}
-function gridAutoFlow(v) {
-  return new CssProp("gridAutoFlow", v);
-}
-function gridColumn(vOrColStart, colEnd) {
-  if (!isString(vOrColStart)) {
-    vOrColStart = [vOrColStart, colEnd].filter(isDefined).join("/");
-  }
-  return new CssProp("gridColumn", vOrColStart);
-}
-function gridRow(vOrRowStart, rowEnd) {
-  if (!isString(vOrRowStart)) {
-    vOrRowStart = [vOrRowStart, rowEnd].filter(isDefined).join("/");
-  }
-  return new CssProp("gridRow", vOrRowStart);
-}
-function gridTemplateColumns(v) {
-  return new CssProp("gridTemplateColumns", v);
-}
-function gridTemplateRows(v) {
-  return new CssProp("gridTemplateRows", v);
-}
-function height(v) {
-  return new CssProp("height", v);
-}
-function left(v) {
-  return new CssProp("left", v);
-}
-function margin(v) {
-  return new CssProp("margin", v);
-}
-function marginInlineStart(v) {
-  return new CssProp("marginInlineStart", v);
-}
-function marginLeft(v) {
-  return new CssProp("marginLeft", v);
-}
-function maxHeight(v) {
-  return new CssProp("maxHeight", v);
-}
-function maxWidth(v) {
-  return new CssProp("maxWidth", v);
-}
-function minWidth(v) {
-  return new CssProp("minWidth", v);
-}
-function overflow(v) {
-  return new CssProp("overflow", v);
-}
-function padding(...v) {
-  return new CssProp("padding", v.join(" "));
-}
-function paddingRight(v) {
-  return new CssProp("paddingRight", v);
-}
-function pointerEvents(v) {
-  return new CssProp("pointerEvents", v);
-}
-function position(v) {
-  return new CssProp("position", v);
-}
-function textAlign(v) {
-  return new CssProp("textAlign", v);
-}
-function top(v) {
-  return new CssProp("top", v);
-}
-function touchAction(v) {
-  return new CssProp("touchAction", v);
-}
-function transform(v) {
-  return new CssProp("transform", v);
-}
-function width(v) {
-  return new CssProp("width", v);
-}
-function zIndex(v) {
-  return new CssProp("zIndex", isNumber(v) ? v.toFixed(0) : v);
-}
-function getMonospaceFonts() {
-  return "ui-monospace, 'Droid Sans Mono', 'Cascadia Mono', 'Segoe UI Mono', 'Ubuntu Mono', 'Roboto Mono', Menlo, Monaco, Consolas, monospace";
-}
-var CSSInJSRule = class {
-  constructor(selector, props) {
-    this.selector = selector;
-    this.props = props;
-  }
-  apply(sheet) {
-    const style = this.props.map((prop) => `${prop.name}: ${prop.value};`).join("");
-    sheet.insertRule(`${this.selector} {${style}}`, sheet.cssRules.length);
-  }
-};
-function rule(selector, ...props) {
-  return new CSSInJSRule(selector, props);
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/tags.ts
-function isErsatzElement(obj3) {
-  if (!isObject(obj3)) {
-    return false;
-  }
-  const elem = obj3;
-  return elem.element instanceof Node;
-}
-function isErsatzElements(obj3) {
-  return isObject(obj3) && "elements" in obj3 && obj3.elements instanceof Array;
-}
-function resolveElement(elem) {
-  if (isErsatzElement(elem)) {
-    return elem.element;
-  }
-  return elem;
-}
-function isIElementAppliable(obj3) {
-  return isObject(obj3) && "applyToElement" in obj3 && isFunction(obj3.applyToElement);
-}
-function elementSetDisplay(elem, visible, visibleDisplayType = "block") {
-  elem = resolveElement(elem);
-  elem.style.display = visible ? visibleDisplayType : "none";
-}
-function elementIsDisplayed(elem) {
-  elem = resolveElement(elem);
-  return elem.style.display !== "none";
-}
-function elementApply(elem, ...children) {
-  elem = resolveElement(elem);
-  for (const child of children) {
-    if (isDefined(child)) {
-      if (child instanceof Node) {
-        elem.append(child);
-      } else if (isErsatzElement(child)) {
-        elem.append(resolveElement(child));
-      } else if (isErsatzElements(child)) {
-        elem.append(...child.elements.map(resolveElement));
-      } else if (isIElementAppliable(child)) {
-        child.applyToElement(elem);
-      } else {
-        elem.append(document.createTextNode(child.toLocaleString()));
-      }
-    }
-  }
-  return elem;
-}
-function getElement(selector) {
-  return document.querySelector(selector);
-}
-function getInput(selector) {
-  return getElement(selector);
-}
-function tag(name2, ...rest) {
-  let elem = null;
-  for (const attr of rest) {
-    if (attr instanceof Attr && attr.key === "id") {
-      elem = document.getElementById(attr.value);
-      break;
-    }
-  }
-  if (elem == null) {
-    elem = document.createElement(name2);
-  }
-  elementApply(elem, ...rest);
-  return elem;
-}
-function isDisableable(obj3) {
-  return "disabled" in obj3 && isBoolean(obj3.disabled);
-}
-function elementClearChildren(elem) {
-  elem = resolveElement(elem);
-  while (elem.lastChild) {
-    elem.lastChild.remove();
-  }
-}
-function elementSetText(elem, text2) {
-  elem = resolveElement(elem);
-  elementClearChildren(elem);
-  elem.append(TextNode(text2));
-}
-async function mediaElementCan(type2, elem, prog) {
-  if (isDefined(prog)) {
-    prog.start();
-  }
-  const expectedState = type2 === "canplay" ? elem.HAVE_CURRENT_DATA : elem.HAVE_ENOUGH_DATA;
-  if (elem.readyState >= expectedState) {
-    return true;
-  }
-  try {
-    await once(elem, type2, "error");
-    return true;
-  } catch (err) {
-    console.warn(elem.error, err);
-    return false;
-  } finally {
-    if (isDefined(prog)) {
-      prog.end();
-    }
-  }
-}
-function mediaElementCanPlay(elem, prog) {
-  return mediaElementCan("canplay", elem, prog);
-}
-function mediaElementCanPlayThrough(elem, prog) {
-  return mediaElementCan("canplaythrough", elem, prog);
-}
-function Audio2(...rest) {
-  return tag("audio", ...rest);
-}
-function ButtonRaw(...rest) {
-  return tag("button", ...rest);
-}
-function Button(...rest) {
-  return ButtonRaw(...rest, type("button"));
-}
-function ButtonPrimary(...rest) {
-  return Button(...rest, classList("btn", "btn-primary"));
-}
-function ButtonSecondary(...rest) {
-  return Button(...rest, classList("btn", "btn-secondary"));
-}
-function Canvas(...rest) {
-  return tag("canvas", ...rest);
-}
-function DD(...rest) {
-  return tag("dd", ...rest);
-}
-function Div(...rest) {
-  return tag("div", ...rest);
-}
-function DL(...rest) {
-  return tag("dl", ...rest);
-}
-function DT(...rest) {
-  return tag("dt", ...rest);
-}
-function H1(...rest) {
-  return tag("h1", ...rest);
-}
-function H2(...rest) {
-  return tag("h2", ...rest);
-}
-function Img(...rest) {
-  return tag("img", ...rest);
-}
-function Input(...rest) {
-  return tag("input", ...rest);
-}
-function Label(...rest) {
-  return tag("label", ...rest);
-}
-function Meter(...rest) {
-  return tag("meter", ...rest);
-}
-function Option(...rest) {
-  return tag("option", ...rest);
-}
-function Script(...rest) {
-  return tag("script", ...rest);
-}
-function Select(...rest) {
-  return tag("select", ...rest);
-}
-function Video(...rest) {
-  return tag("video", ...rest);
-}
-function InputCheckbox(...rest) {
-  return Input(type("checkbox"), ...rest);
-}
-function InputNumber(...rest) {
-  return Input(type("number"), ...rest);
-}
-function InputRange(...rest) {
-  return Input(type("range"), ...rest);
-}
-function TextNode(txt) {
-  return document.createTextNode(txt);
-}
-function Style(...rest) {
-  let elem = document.createElement("style");
-  document.head.append(elem);
-  for (let x of rest) {
-    x.apply(elem.sheet);
-  }
-  return elem;
-}
-function BackgroundAudio(autoplay, mute, looping, ...rest) {
-  return Audio2(playsInline(true), controls(false), muted(mute), autoPlay(autoplay), loop(looping), styles(display("none")), ...rest);
-}
-function BackgroundVideo(autoplay, mute, looping, ...rest) {
-  return Video(playsInline(true), controls(false), muted(mute), autoPlay(autoplay), loop(looping), styles(display("none")), ...rest);
-}
-
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/typeChecks.ts
 function isMesh(obj3) {
   return isDefined(obj3) && obj3.isMesh;
@@ -7335,9 +8256,9 @@ function assureRayTarget(obj3) {
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/Sphere.ts
-var sphere = new THREE.SphereBufferGeometry(0.5);
+var sphere = /* @__PURE__ */ new THREE.SphereBufferGeometry(0.5);
 sphere.name = "SphereGeom";
-var invSphere = sphere.clone();
+var invSphere = /* @__PURE__ */ sphere.clone();
 invSphere.name = "InvertedSphereGeom";
 setGeometryUVsForCubemaps(invSphere);
 var Sphere = class extends THREE.Mesh {
@@ -7515,7 +8436,7 @@ var hasAudioContext = "AudioContext" in globalThis;
 var hasAudioListener = hasAudioContext && "AudioListener" in globalThis;
 var hasOldAudioListener = hasAudioListener && "setPosition" in AudioListener.prototype;
 var hasNewAudioListener = hasAudioListener && "positionX" in AudioListener.prototype;
-var canCaptureStream = isFunction(HTMLMediaElement.prototype.captureStream) || isFunction(HTMLMediaElement.prototype.mozCaptureStream);
+var canCaptureStream = /* @__PURE__ */ isFunction(HTMLMediaElement.prototype.captureStream) || isFunction(HTMLMediaElement.prototype.mozCaptureStream);
 function isWrappedAudioNode(value2) {
   return isDefined(value2) && value2.node instanceof AudioNode;
 }
@@ -7911,7 +8832,7 @@ var WebAudioListenerOld = class extends BaseListener {
 };
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/DeviceManager.ts
-var canChangeAudioOutput = isFunction(HTMLAudioElement.prototype.setSinkId);
+var canChangeAudioOutput = /* @__PURE__ */ isFunction(HTMLAudioElement.prototype.setSinkId);
 function filterDeviceDuplicates(devices) {
   const filtered = [];
   for (let i = 0; i < devices.length; ++i) {
@@ -7953,18 +8874,18 @@ var DeviceManager = class extends TypedEventBase {
     super();
     this.element = element;
     this.needsVideoDevice = needsVideoDevice;
-    this._hasAudioPermission = false;
-    this._hasVideoPermission = false;
-    this._currentStream = null;
     this.ready = this.start();
     Object.seal(this);
   }
+  _hasAudioPermission = false;
   get hasAudioPermission() {
     return this._hasAudioPermission;
   }
+  _hasVideoPermission = false;
   get hasVideoPermission() {
     return this._hasVideoPermission;
   }
+  _currentStream = null;
   get currentStream() {
     return this._currentStream;
   }
@@ -7978,6 +8899,7 @@ var DeviceManager = class extends TypedEventBase {
       this._currentStream = v;
     }
   }
+  ready;
   async start() {
     if (canChangeAudioOutput) {
       const device = await this.getPreferredAudioOutput();
@@ -9196,112 +10118,6 @@ var AudioPlayer = class extends BaseAudioSource {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/canvas.ts
-var hasHTMLCanvas = "HTMLCanvasElement" in globalThis;
-var hasHTMLImage = "HTMLImageElement" in globalThis;
-var disableAdvancedSettings = false;
-var hasOffscreenCanvas = !disableAdvancedSettings && "OffscreenCanvas" in globalThis;
-var hasImageBitmap = !disableAdvancedSettings && "createImageBitmap" in globalThis;
-function isHTMLCanvas(obj3) {
-  return hasHTMLCanvas && obj3 instanceof HTMLCanvasElement;
-}
-function isOffscreenCanvas(obj3) {
-  return hasOffscreenCanvas && obj3 instanceof OffscreenCanvas;
-}
-function isImageBitmap(img) {
-  return hasImageBitmap && img instanceof ImageBitmap;
-}
-function drawImageBitmapToCanvas2D(canv, img) {
-  const g = canv.getContext("2d");
-  if (isNullOrUndefined(g)) {
-    throw new Error("Could not create 2d context for canvas");
-  }
-  g.drawImage(img, 0, 0);
-}
-function testOffscreen2D() {
-  try {
-    const canv = new OffscreenCanvas(1, 1);
-    const g = canv.getContext("2d");
-    return g != null;
-  } catch (exp) {
-    return false;
-  }
-}
-var hasOffscreenCanvasRenderingContext2D = hasOffscreenCanvas && testOffscreen2D();
-var createUtilityCanvas = hasOffscreenCanvasRenderingContext2D && createOffscreenCanvas || hasHTMLCanvas && createCanvas || null;
-var createUICanvas = hasHTMLCanvas ? createCanvas : createUtilityCanvas;
-function testOffscreen3D() {
-  try {
-    const canv = new OffscreenCanvas(1, 1);
-    const g = canv.getContext("webgl2");
-    return g != null;
-  } catch (exp) {
-    return false;
-  }
-}
-var hasOffscreenCanvasRenderingContext3D = hasOffscreenCanvas && testOffscreen3D();
-function testBitmapRenderer() {
-  if (!hasHTMLCanvas && !hasOffscreenCanvas) {
-    return false;
-  }
-  try {
-    const canv = createUtilityCanvas(1, 1);
-    const g = canv.getContext("bitmaprenderer");
-    return g != null;
-  } catch (exp) {
-    return false;
-  }
-}
-var hasImageBitmapRenderingContext = hasImageBitmap && testBitmapRenderer();
-function createOffscreenCanvas(width2, height2) {
-  return new OffscreenCanvas(width2, height2);
-}
-function createCanvas(w, h) {
-  return Canvas(htmlWidth(w), htmlHeight(h));
-}
-function createCanvasFromImageBitmap(img) {
-  const canv = createCanvas(img.width, img.height);
-  drawImageBitmapToCanvas2D(canv, img);
-  return canv;
-}
-function drawImageToCanvas(canv, img) {
-  const g = canv.getContext("2d");
-  if (isNullOrUndefined(g)) {
-    throw new Error("Could not create 2d context for canvas");
-  }
-  g.drawImage(img, 0, 0);
-}
-function setCanvasSize(canv, w, h, superscale = 1) {
-  w = Math.floor(w * superscale);
-  h = Math.floor(h * superscale);
-  if (canv.width != w || canv.height != h) {
-    canv.width = w;
-    canv.height = h;
-    return true;
-  }
-  return false;
-}
-function is2DRenderingContext(ctx) {
-  return isDefined(ctx.textBaseline);
-}
-function setCanvas2DContextSize(ctx, w, h, superscale = 1) {
-  const oldImageSmoothingEnabled = ctx.imageSmoothingEnabled, oldTextBaseline = ctx.textBaseline, oldTextAlign = ctx.textAlign, oldFont = ctx.font, resized = setCanvasSize(ctx.canvas, w, h, superscale);
-  if (resized) {
-    ctx.imageSmoothingEnabled = oldImageSmoothingEnabled;
-    ctx.textBaseline = oldTextBaseline;
-    ctx.textAlign = oldTextAlign;
-    ctx.font = oldFont;
-  }
-  return resized;
-}
-function setContextSize(ctx, w, h, superscale = 1) {
-  if (is2DRenderingContext(ctx)) {
-    return setCanvas2DContextSize(ctx, w, h, superscale);
-  } else {
-    return setCanvasSize(ctx.canvas, w, h, superscale);
-  }
-}
-
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/graphics2d/CanvasImage.ts
 var CanvasImage = class extends TypedEventBase {
   constructor(width2, height2, options) {
@@ -10345,7 +11161,7 @@ function objectGetRelativePose(ref, obj3, position2, quaternion, scale4) {
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/Plane.ts
-var plane = new THREE.PlaneBufferGeometry(1, 1, 1, 1);
+var plane = /* @__PURE__ */ new THREE.PlaneBufferGeometry(1, 1, 1, 1);
 plane.name = "PlaneGeom";
 var Plane = class extends THREE.Mesh {
   constructor(sx, sy, material) {
@@ -16753,6 +17569,7 @@ var BaseScreenPointer = class extends BasePointer {
     this.canvasSize = new THREE.Vector2();
     this.uvComp = new THREE.Vector2(1, -1);
     this.uvOff = new THREE.Vector2(-1, 1);
+    this.lastUV = null;
     this.lastPosition = null;
     const onPointerDown = (evt) => {
       if (this.checkEvent(evt)) {
@@ -16799,13 +17616,21 @@ var BaseScreenPointer = class extends BasePointer {
       if (this.element.clientWidth > 0 && this.element.clientHeight > 0) {
         this.canvasSize.set(this.element.clientWidth, this.element.clientHeight);
         this.uv.copy(this.position).multiplyScalar(2).divide(this.canvasSize).multiply(this.uvComp).add(this.uvOff);
-        this.duv.copy(this.motion).multiplyScalar(2).divide(this.canvasSize).multiply(this.uvComp);
       }
     }
   }
   onPointerMove() {
-    this.env.avatar.onMove(this, this.uv, this.duv);
+    if (this.lastUV) {
+      this.duv.copy(this.uv).sub(this.lastUV);
+    }
+    if (this.duv.manhattanLength() > 0) {
+      this.env.avatar.onMove(this, this.uv, this.duv);
+    }
     super.onPointerMove();
+    if (!this.lastUV) {
+      this.lastUV = new THREE.Vector2();
+    }
+    this.lastUV.copy(this.uv);
   }
   onUpdate() {
     const cam = resolveCamera(this.env.renderer, this.env.camera);
@@ -16909,7 +17734,8 @@ var PointerMultiTouch = class extends BaseScreenPointer {
       this.points.delete(evt.pointerId);
     }
     this._buttons = 0;
-    if (this.points.size > 0) {
+    this.isActive = this.points.size > 0;
+    if (this.isActive) {
       this.position.setScalar(0);
       this.motion.setScalar(0);
       const K = 1 / this.points.size;
@@ -17062,7 +17888,7 @@ var EventSystem = class extends TypedEventBase {
           const upEvt = this.getEvent(pointer, "up", curHit);
           this.dispatchEvent(upEvt);
           if (pointer.buttons === 0) {
-            if (isDefined(pressedHit)) {
+            if (isDefined(prsTarget)) {
               pointer.pressedHit = null;
               prsTarget.dispatchEvent(upEvt);
             }
@@ -21523,834 +22349,6 @@ var Environment = class extends BaseEnvironment {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher-base/FetchingService.ts
-var FetchingService = class {
-  constructor(impl) {
-    this.impl = impl;
-  }
-  defaultPostHeaders = /* @__PURE__ */ new Map();
-  setRequestVerificationToken(value2) {
-    this.defaultPostHeaders.set("RequestVerificationToken", value2);
-  }
-  clearCache() {
-    return this.impl.clearCache();
-  }
-  sendNothingGetNothing(request) {
-    return this.impl.sendNothingGetNothing(request);
-  }
-  sendNothingGetBlob(request, progress) {
-    return this.impl.sendNothingGetSomething("blob", request, progress);
-  }
-  sendObjectGetBlob(request, progress) {
-    return this.impl.sendSomethingGetSomething("blob", request, this.defaultPostHeaders, progress);
-  }
-  sendNothingGetBuffer(request, progress) {
-    return this.impl.sendNothingGetSomething("arraybuffer", request, progress);
-  }
-  sendObjectGetBuffer(request, progress) {
-    return this.impl.sendSomethingGetSomething("arraybuffer", request, this.defaultPostHeaders, progress);
-  }
-  sendNothingGetText(request, progress) {
-    return this.impl.sendNothingGetSomething("text", request, progress);
-  }
-  sendObjectGetText(request, progress) {
-    return this.impl.sendSomethingGetSomething("text", request, this.defaultPostHeaders, progress);
-  }
-  async sendNothingGetObject(request, progress) {
-    const response = await this.impl.sendNothingGetSomething("json", request, progress);
-    return response.content;
-  }
-  async sendObjectGetObject(request, progress) {
-    const response = await this.impl.sendSomethingGetSomething("json", request, this.defaultPostHeaders, progress);
-    return response.content;
-  }
-  sendObjectGetNothing(request, progress) {
-    return this.impl.sendSomethingGetSomething("", request, this.defaultPostHeaders, progress);
-  }
-  drawImageToCanvas(request, canvas, progress) {
-    return this.impl.drawImageToCanvas(request, canvas, progress);
-  }
-  async sendNothingGetFile(request, progress) {
-    return translateResponse(await this.sendNothingGetBlob(request, progress), URL.createObjectURL);
-  }
-  async sendObjectGetFile(request, progress) {
-    return translateResponse(await this.sendObjectGetBlob(request, progress), URL.createObjectURL);
-  }
-  async sendNothingGetXml(request, progress) {
-    return translateResponse(await this.impl.sendNothingGetSomething("document", request, progress), (doc) => doc.documentElement);
-  }
-  async sendObjectGetXml(request, progress) {
-    return translateResponse(await this.impl.sendSomethingGetSomething("document", request, this.defaultPostHeaders, progress), (doc) => doc.documentElement);
-  }
-  async sendNothingGetImageBitmap(request, progress) {
-    return translateResponse(await this.sendNothingGetBlob(request, progress), createImageBitmap);
-  }
-  async sendObjectGetImageBitmap(request, progress) {
-    return translateResponse(await this.sendObjectGetBlob(request, progress), createImageBitmap);
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/RequestBuilder.ts
-var testAudio = null;
-function canPlay(type2) {
-  if (testAudio === null) {
-    testAudio = new Audio();
-  }
-  return testAudio.canPlayType(type2) !== "";
-}
-var RequestBuilder = class {
-  constructor(fetcher, useFileBlobsForModules, method, path) {
-    this.fetcher = fetcher;
-    this.useFileBlobsForModules = useFileBlobsForModules;
-    this.method = method;
-    this.prog = null;
-    this.path = path;
-    this.request = {
-      method,
-      path: this.path.href,
-      body: null,
-      headers: null,
-      timeout: null,
-      withCredentials: false,
-      useCache: false
-    };
-  }
-  query(name2, value2) {
-    this.path.searchParams.set(name2, value2);
-    this.request.path = this.path.href;
-    return this;
-  }
-  header(name2, value2) {
-    if (this.request.headers === null) {
-      this.request.headers = /* @__PURE__ */ new Map();
-    }
-    this.request.headers.set(name2.toLowerCase(), value2);
-    return this;
-  }
-  timeout(value2) {
-    this.request.timeout = value2;
-    return this;
-  }
-  progress(prog) {
-    this.prog = prog;
-    return this;
-  }
-  body(body, contentType) {
-    this.request.body = body;
-    this.content(contentType);
-    return this;
-  }
-  withCredentials() {
-    this.request.withCredentials = true;
-    return this;
-  }
-  useCache(enabled = true) {
-    this.request.useCache = enabled;
-    return this;
-  }
-  media(key, mediaType) {
-    if (isDefined(mediaType)) {
-      if (!isString(mediaType)) {
-        mediaType = mediaType.value;
-      }
-      this.header(key, mediaType);
-    }
-  }
-  content(contentType) {
-    this.media("content-type", contentType);
-  }
-  accept(acceptType) {
-    this.media("accept", acceptType);
-    return this;
-  }
-  blob(acceptType) {
-    this.accept(acceptType);
-    if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE") {
-      return this.fetcher.sendObjectGetBlob(this.request, this.prog);
-    } else if (this.method === "GET") {
-      return this.fetcher.sendNothingGetBlob(this.request, this.prog);
-    } else if (this.method === "HEAD" || this.method === "OPTIONS") {
-      throw new Error(`${this.method} responses do not contain bodies`);
-    } else {
-      assertNever(this.method);
-    }
-  }
-  buffer(acceptType) {
-    this.accept(acceptType);
-    if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE") {
-      return this.fetcher.sendObjectGetBuffer(this.request, this.prog);
-    } else if (this.method === "GET") {
-      return this.fetcher.sendNothingGetBuffer(this.request, this.prog);
-    } else if (this.method === "HEAD" || this.method === "OPTIONS") {
-      throw new Error(`${this.method} responses do not contain bodies`);
-    } else {
-      assertNever(this.method);
-    }
-  }
-  file(acceptType) {
-    this.accept(acceptType);
-    if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE") {
-      return this.fetcher.sendObjectGetFile(this.request, this.prog);
-    } else if (this.method === "GET") {
-      return this.fetcher.sendNothingGetFile(this.request, this.prog);
-    } else if (this.method === "HEAD" || this.method === "OPTIONS") {
-      throw new Error(`${this.method} responses do not contain bodies`);
-    } else {
-      assertNever(this.method);
-    }
-  }
-  text(acceptType) {
-    this.accept(acceptType || Text_Plain);
-    if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE") {
-      return this.fetcher.sendObjectGetText(this.request, this.prog);
-    } else if (this.method === "GET") {
-      return this.fetcher.sendNothingGetText(this.request, this.prog);
-    } else if (this.method === "HEAD" || this.method === "OPTIONS") {
-      throw new Error(`${this.method} responses do not contain bodies`);
-    } else {
-      assertNever(this.method);
-    }
-  }
-  object(acceptType) {
-    this.accept(acceptType || Application_Json);
-    if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE") {
-      return this.fetcher.sendObjectGetObject(this.request, this.prog);
-    } else if (this.method === "GET") {
-      return this.fetcher.sendNothingGetObject(this.request, this.prog);
-    } else if (this.method === "HEAD" || this.method === "OPTIONS") {
-      throw new Error(`${this.method} responses do not contain bodies`);
-    } else {
-      assertNever(this.method);
-    }
-  }
-  xml(acceptType) {
-    this.accept(acceptType || Text_Xml);
-    if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE") {
-      return this.fetcher.sendObjectGetXml(this.request, this.prog);
-    } else if (this.method === "GET") {
-      return this.fetcher.sendNothingGetXml(this.request, this.prog);
-    } else if (this.method === "HEAD" || this.method === "OPTIONS") {
-      throw new Error(`${this.method} responses do not contain bodies`);
-    } else {
-      assertNever(this.method);
-    }
-  }
-  imageBitmap(acceptType) {
-    this.accept(acceptType);
-    if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE") {
-      return this.fetcher.sendObjectGetImageBitmap(this.request, this.prog);
-    } else if (this.method === "GET") {
-      return this.fetcher.sendNothingGetImageBitmap(this.request, this.prog);
-    } else if (this.method === "HEAD" || this.method === "OPTIONS") {
-      throw new Error(`${this.method} responses do not contain bodies`);
-    } else {
-      assertNever(this.method);
-    }
-  }
-  exec() {
-    if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE") {
-      return this.fetcher.sendObjectGetNothing(this.request, this.prog);
-    } else if (this.method === "GET") {
-      throw new Exception("GET requests should expect a response type");
-    } else if (this.method === "HEAD" || this.method === "OPTIONS") {
-      return this.fetcher.sendNothingGetNothing(this.request);
-    } else {
-      assertNever(this.method);
-    }
-  }
-  async audioBlob(acceptType) {
-    if (isDefined(acceptType)) {
-      if (!isString(acceptType)) {
-        acceptType = acceptType.value;
-      }
-      if (!canPlay(acceptType)) {
-        throw new Error(`Probably can't play file of type "${acceptType}" at path: ${this.request.path}`);
-      }
-    }
-    const response = await this.blob(acceptType);
-    if (canPlay(response.contentType)) {
-      return response;
-    }
-    throw new Error(`Cannot play file of type "${response.contentType}" at path: ${this.request.path}`);
-  }
-  async audioBuffer(audioCtx, acceptType) {
-    return translateResponse(await this.audioBlob(acceptType), async (blob) => await audioCtx.decodeAudioData(await blob.arrayBuffer()));
-  }
-  async htmlElement(element, resolveEvt, acceptType) {
-    const response = await this.file(acceptType);
-    const task = once(element, resolveEvt, "error");
-    element.src = response.content;
-    await task;
-    return await translateResponse(response, () => element);
-  }
-  image(acceptType) {
-    return this.htmlElement(Img(), "load", acceptType);
-  }
-  async htmlCanvas(acceptType) {
-    if (isWorker) {
-      throw new Error("HTMLCanvasElement not supported in Workers.");
-    }
-    const canvas = createCanvas(1, 1);
-    if (this.method === "GET") {
-      if (hasOffscreenCanvas) {
-        this.accept(acceptType);
-        const response = await this.fetcher.drawImageToCanvas(this.request, canvas.transferControlToOffscreen(), this.prog);
-        return await translateResponse(response, () => canvas);
-      } else {
-        const response = await (isWorker ? this.imageBitmap(acceptType) : this.image(acceptType));
-        return await translateResponse(response, (img) => {
-          canvas.width = img.width;
-          canvas.height = img.height;
-          drawImageToCanvas(canvas, img);
-          dispose(img);
-          return canvas;
-        });
-      }
-    } else if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE" || this.method === "HEAD" || this.method === "OPTIONS") {
-      throw new Error(`${this.method} responses do not contain bodies`);
-    } else {
-      assertNever(this.method);
-    }
-  }
-  canvas(acceptType) {
-    if (hasOffscreenCanvas) {
-      return this.offscreenCanvas(acceptType);
-    } else {
-      return this.htmlCanvas(acceptType);
-    }
-  }
-  async offscreenCanvas(acceptType) {
-    if (!hasOffscreenCanvas) {
-      throw new Error("This system does not support OffscreenCanvas");
-    }
-    if (this.method === "GET") {
-      const response = await (isWorker ? this.imageBitmap(acceptType) : this.image(acceptType));
-      return await translateResponse(response, (img) => {
-        const canvas = createOffscreenCanvas(img.width, img.height);
-        drawImageToCanvas(canvas, img);
-        dispose(img);
-        return canvas;
-      });
-    } else if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE" || this.method === "HEAD" || this.method === "OPTIONS") {
-      throw new Error(`${this.method} responses do not contain bodies`);
-    } else {
-      assertNever(this.method);
-    }
-  }
-  audio(autoPlaying, looping, acceptType) {
-    return this.htmlElement(BackgroundAudio(autoPlaying, false, looping), "canplay", acceptType);
-  }
-  video(autoPlaying, looping, acceptType) {
-    return this.htmlElement(BackgroundVideo(autoPlaying, false, looping), "canplay", acceptType);
-  }
-  async getScript() {
-    const tag2 = Script(type(Application_Javascript));
-    document.body.append(tag2);
-    if (this.useFileBlobsForModules) {
-      await this.htmlElement(tag2, "load", Application_Javascript);
-    } else {
-      tag2.src = this.request.path;
-    }
-  }
-  async script(test) {
-    const scriptPath = this.request.path;
-    if (!test) {
-      await this.getScript();
-    } else if (!test()) {
-      const scriptLoadTask = waitFor(test);
-      await this.getScript();
-      await scriptLoadTask;
-    }
-    if (this.prog) {
-      this.prog.end(scriptPath);
-    }
-  }
-  async module() {
-    const scriptPath = this.request.path;
-    let requestPath = scriptPath;
-    if (this.useFileBlobsForModules) {
-      const { content: file } = await this.file(Application_Javascript);
-      requestPath = file;
-    }
-    const value2 = await import(requestPath);
-    if (this.prog) {
-      this.prog.end(scriptPath);
-    }
-    return value2;
-  }
-  async wasm(imports) {
-    const { content: buffer, contentType } = await this.buffer(Application_Wasm);
-    if (!Application_Wasm.matches(contentType)) {
-      throw new Error(`Server did not respond with WASM file. Was: ${contentType}`);
-    }
-    const module = await WebAssembly.compile(buffer);
-    const instance = await WebAssembly.instantiate(module, imports);
-    return instance.exports;
-  }
-  async worker(type2 = "module") {
-    const scriptPath = this.request.path;
-    let requestPath = scriptPath;
-    if (this.useFileBlobsForModules) {
-      const { content: file } = await this.file(Application_Javascript);
-      requestPath = file;
-    }
-    this.prog = null;
-    this.request.timeout = null;
-    const worker = new Worker(requestPath, { type: type2 });
-    if (this.prog) {
-      this.prog.end(scriptPath);
-    }
-    return worker;
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/Fetcher.ts
-var Fetcher = class {
-  constructor(service, useFileBlobsForModules = true) {
-    this.service = service;
-    this.useFileBlobsForModules = useFileBlobsForModules;
-    if (!isWorker) {
-      const antiforgeryToken = getInput("input[name=__RequestVerificationToken]");
-      if (antiforgeryToken) {
-        this.service.setRequestVerificationToken(antiforgeryToken.value);
-      }
-    }
-  }
-  createRequest(method, path, base) {
-    return new RequestBuilder(this.service, this.useFileBlobsForModules, method, new URL(path, base || location.href));
-  }
-  clearCache() {
-    return this.service.clearCache();
-  }
-  head(path, base) {
-    return this.createRequest("HEAD", path, base);
-  }
-  options(path, base) {
-    return this.createRequest("OPTIONS", path, base);
-  }
-  get(path, base) {
-    return this.createRequest("GET", path, base);
-  }
-  post(path, base) {
-    return this.createRequest("POST", path, base);
-  }
-  put(path, base) {
-    return this.createRequest("PUT", path, base);
-  }
-  patch(path, base) {
-    return this.createRequest("PATCH", path, base);
-  }
-  delete(path, base) {
-    return this.createRequest("DELETE", path, base);
-  }
-  async assets(progress, ...assets) {
-    assets = assets.filter(isDefined);
-    const assetSizes = new Map(await Promise.all(assets.map((asset) => asset.getSize(this))));
-    await progressTasksWeighted(progress, assets.map((asset) => [assetSizes.get(asset), (prog) => asset.fetch(this, prog)]));
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/worker-client/WorkerClient.ts
-var _WorkerClient = class extends TypedEventBase {
-  constructor(worker) {
-    super();
-    this.worker = worker;
-    this.taskCounter = 0;
-    this.invocations = /* @__PURE__ */ new Map();
-    if (!_WorkerClient.isSupported) {
-      console.warn("Workers are not supported on this system.");
-    }
-    this.worker.addEventListener("message", (evt) => {
-      const data = evt.data;
-      switch (data.type) {
-        case "event":
-          this.propogateEvent(data);
-          break;
-        case "progress":
-          this.progressReport(data);
-          break;
-        case "return":
-          this.methodReturned(data);
-          break;
-        case "error":
-          this.invocationError(data);
-          break;
-        default:
-          assertNever(data);
-      }
-    });
-  }
-  postMessage(message, transferables) {
-    if (message.type !== "methodCall") {
-      assertNever(message.type);
-    }
-    if (transferables) {
-      this.worker.postMessage(message, transferables);
-    } else {
-      this.worker.postMessage(message);
-    }
-  }
-  dispose() {
-    this.worker.terminate();
-  }
-  propogateEvent(data) {
-    const evt = new TypedEvent(data.eventName);
-    this.dispatchEvent(Object.assign(evt, data.data));
-  }
-  progressReport(data) {
-    const invocation = this.invocations.get(data.taskID);
-    const { prog } = invocation;
-    if (prog) {
-      prog.report(data.soFar, data.total, data.msg, data.est);
-    }
-  }
-  methodReturned(data) {
-    const messageHandler = this.removeInvocation(data.taskID);
-    const { resolve } = messageHandler;
-    resolve(data.returnValue);
-  }
-  invocationError(data) {
-    const messageHandler = this.removeInvocation(data.taskID);
-    const { reject, methodName } = messageHandler;
-    reject(new Error(`${methodName} failed. Reason: ${data.errorMessage}`));
-  }
-  removeInvocation(taskID) {
-    const invocation = this.invocations.get(taskID);
-    this.invocations.delete(taskID);
-    return invocation;
-  }
-  callMethod(methodName, parameters, transferables, prog) {
-    if (!_WorkerClient.isSupported) {
-      return Promise.reject(new Error("Workers are not supported on this system."));
-    }
-    let params = null;
-    let tfers = null;
-    if (isProgressCallback(parameters)) {
-      prog = parameters;
-      parameters = null;
-      transferables = null;
-    }
-    if (isProgressCallback(transferables) && !prog) {
-      prog = transferables;
-      transferables = null;
-    }
-    if (isArray(parameters)) {
-      params = parameters;
-    }
-    if (isArray(transferables)) {
-      tfers = transferables;
-    }
-    const taskID = this.taskCounter++;
-    const task = new Task();
-    const invocation = {
-      prog,
-      resolve: task.resolve,
-      reject: task.reject,
-      methodName
-    };
-    this.invocations.set(taskID, invocation);
-    let message = null;
-    if (isDefined(parameters)) {
-      message = {
-        type: "methodCall",
-        taskID,
-        methodName,
-        params
-      };
-    } else {
-      message = {
-        type: "methodCall",
-        taskID,
-        methodName
-      };
-    }
-    this.postMessage(message, tfers);
-    return task;
-  }
-};
-var WorkerClient = _WorkerClient;
-WorkerClient.isSupported = "Worker" in globalThis;
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/worker-client/WorkerPool.ts
-var WorkerPool = class extends TypedEventBase {
-  constructor(options, WorkerClientClass) {
-    super();
-    this.scriptPath = options.scriptPath;
-    let workerPoolSize = -1;
-    const workersDef = options.workers;
-    let workers = null;
-    if (isNumber(workersDef)) {
-      workerPoolSize = workersDef;
-    } else if (isDefined(workersDef)) {
-      this.taskCounter = workersDef.curTaskCounter;
-      workers = workersDef.workers;
-      workerPoolSize = workers.length;
-    } else {
-      workerPoolSize = navigator.hardwareConcurrency || 4;
-    }
-    if (workerPoolSize < 1) {
-      throw new Error("Worker pool size must be a postive integer greater than 0");
-    }
-    this.workers = new Array(workerPoolSize);
-    if (isNullOrUndefined(workers)) {
-      this.taskCounter = 0;
-      for (let i = 0; i < workerPoolSize; ++i) {
-        this.workers[i] = new WorkerClientClass(new Worker(this.scriptPath, { type: "module" }));
-      }
-    } else {
-      for (let i = 0; i < workerPoolSize; ++i) {
-        this.workers[i] = new WorkerClientClass(workers[i]);
-      }
-    }
-    for (const worker of this.workers) {
-      worker.addBubbler(this);
-    }
-  }
-  dispose() {
-    for (const worker of this.workers) {
-      worker.dispose();
-    }
-    arrayClear(this.workers);
-  }
-  nextWorker() {
-    const worker = this.peekWorker();
-    this.taskCounter++;
-    return worker;
-  }
-  peekWorker() {
-    return this.workers[this.taskCounter % this.workers.length];
-  }
-};
-WorkerPool.isSupported = "Worker" in globalThis;
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/FetchingServiceClient.ts
-function isDOMParsersSupportedType(type2) {
-  return type2 === "application/xhtml+xml" || type2 === "application/xml" || type2 === "image/svg+xml" || type2 === "text/html" || type2 === "text/xml";
-}
-function bufferToXml(response) {
-  const {
-    status,
-    path,
-    content: buffer,
-    contentType,
-    contentLength,
-    fileName,
-    headers,
-    date
-  } = response;
-  if (!isDOMParsersSupportedType(contentType)) {
-    throw new Error(`Content-Type ${contentType} is not one supported by the DOM parser.`);
-  }
-  const decoder = new TextDecoder();
-  const text2 = decoder.decode(buffer);
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(text2, contentType);
-  return {
-    status,
-    path,
-    content: doc.documentElement,
-    contentType,
-    contentLength,
-    fileName,
-    date,
-    headers
-  };
-}
-function bufferToBlob(response) {
-  const {
-    status,
-    path,
-    content: buffer,
-    contentType,
-    contentLength,
-    fileName,
-    headers,
-    date
-  } = response;
-  const blob = new Blob([buffer], {
-    type: contentType
-  });
-  return {
-    status,
-    path,
-    content: blob,
-    contentType,
-    contentLength,
-    fileName,
-    date,
-    headers
-  };
-}
-function cloneRequest(request) {
-  request = {
-    method: request.method,
-    path: request.path,
-    timeout: request.timeout,
-    headers: request.headers,
-    withCredentials: request.withCredentials,
-    useCache: request.useCache
-  };
-  return request;
-}
-function cloneRequestWithBody(request) {
-  request = {
-    method: request.method,
-    path: request.path,
-    body: request.body,
-    timeout: request.timeout,
-    headers: request.headers,
-    withCredentials: request.withCredentials,
-    useCache: request.useCache
-  };
-  return request;
-}
-var FetchingServiceClient = class extends WorkerClient {
-  setRequestVerificationToken(value2) {
-    this.callMethod("setRequestVerificationToken", [value2]);
-  }
-  clearCache() {
-    return this.callMethod("clearCache");
-  }
-  makeRequest(methodName, request, progress) {
-    return this.callMethod(methodName, [cloneRequest(request)], progress);
-  }
-  makeRequestWithBody(methodName, request, progress) {
-    return this.callMethod(methodName, [cloneRequestWithBody(request)], progress);
-  }
-  sendNothingGetNothing(request) {
-    return this.makeRequest("sendNothingGetNothing", request, null);
-  }
-  sendNothingGetBuffer(request, progress) {
-    return this.makeRequest("sendNothingGetBuffer", request, progress);
-  }
-  sendNothingGetText(request, progress) {
-    return this.makeRequest("sendNothingGetText", request, progress);
-  }
-  sendNothingGetObject(request, progress) {
-    return this.makeRequest("sendNothingGetObject", request, progress);
-  }
-  sendNothingGetFile(request, progress) {
-    return this.makeRequest("sendNothingGetFile", request, progress);
-  }
-  sendNothingGetImageBitmap(request, progress) {
-    return this.makeRequest("sendNothingGetImageBitmap", request, progress);
-  }
-  sendObjectGetNothing(request, progress) {
-    return this.makeRequestWithBody("sendObjectGetNothing", request, progress);
-  }
-  sendObjectGetBuffer(request, progress) {
-    return this.makeRequestWithBody("sendObjectGetBuffer", request, progress);
-  }
-  sendObjectGetText(request, progress) {
-    return this.makeRequestWithBody("sendObjectGetText", request, progress);
-  }
-  sendObjectGetObject(request, progress) {
-    return this.makeRequestWithBody("sendObjectGetObject", request, progress);
-  }
-  sendObjectGetFile(request, progress) {
-    return this.makeRequestWithBody("sendObjectGetFile", request, progress);
-  }
-  sendObjectGetImageBitmap(request, progress) {
-    return this.makeRequestWithBody("sendObjectGetImageBitmap", request, progress);
-  }
-  drawImageToCanvas(request, canvas, progress) {
-    return this.callMethod("drawImageToCanvas", [cloneRequest(request), canvas], [canvas], progress);
-  }
-  async sendNothingGetBlob(request, progress) {
-    const response = await this.sendNothingGetBuffer(request, progress);
-    return bufferToBlob(response);
-  }
-  async sendNothingGetXml(request, progress) {
-    const response = await this.sendNothingGetBuffer(request, progress);
-    return bufferToXml(response);
-  }
-  async sendObjectGetBlob(request, progress) {
-    const response = await this.sendObjectGetBuffer(request, progress);
-    return bufferToBlob(response);
-  }
-  async sendObjectGetXml(request, progress) {
-    const response = await this.sendObjectGetBuffer(request, progress);
-    return bufferToXml(response);
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/FetchingServicerPool.ts
-var BaseFetchingServicePool = class extends WorkerPool {
-  constructor(options, WorkerClientClass, fetcher) {
-    super(options, WorkerClientClass);
-    this.fetcher = fetcher;
-  }
-  getFetcher(obj3) {
-    if (obj3 instanceof FormData) {
-      return this.fetcher;
-    } else {
-      return this.nextWorker();
-    }
-  }
-  setRequestVerificationToken(value2) {
-    this.fetcher.setRequestVerificationToken(value2);
-    for (const worker of this.workers) {
-      worker.setRequestVerificationToken(value2);
-    }
-  }
-  async clearCache() {
-    await Promise.all(this.workers.map((w) => w.clearCache()));
-  }
-  sendNothingGetNothing(request) {
-    return this.nextWorker().sendNothingGetNothing(request);
-  }
-  sendNothingGetBlob(request, progress) {
-    return this.nextWorker().sendNothingGetBlob(request, progress);
-  }
-  sendNothingGetBuffer(request, progress) {
-    return this.nextWorker().sendNothingGetBuffer(request, progress);
-  }
-  sendNothingGetFile(request, progress) {
-    return this.nextWorker().sendNothingGetFile(request, progress);
-  }
-  sendNothingGetText(request, progress) {
-    return this.nextWorker().sendNothingGetText(request, progress);
-  }
-  sendNothingGetObject(request, progress) {
-    return this.nextWorker().sendNothingGetObject(request, progress);
-  }
-  sendNothingGetXml(request, progress) {
-    return this.nextWorker().sendNothingGetXml(request, progress);
-  }
-  sendNothingGetImageBitmap(request, progress) {
-    return this.nextWorker().sendNothingGetImageBitmap(request, progress);
-  }
-  drawImageToCanvas(request, canvas, progress) {
-    return this.nextWorker().drawImageToCanvas(request, canvas, progress);
-  }
-  sendObjectGetBlob(request, progress) {
-    return this.getFetcher(request.body).sendObjectGetBlob(request, progress);
-  }
-  sendObjectGetBuffer(request, progress) {
-    return this.getFetcher(request.body).sendObjectGetBuffer(request, progress);
-  }
-  sendObjectGetFile(request, progress) {
-    return this.getFetcher(request.body).sendObjectGetFile(request, progress);
-  }
-  sendObjectGetText(request, progress) {
-    return this.getFetcher(request.body).sendObjectGetText(request, progress);
-  }
-  sendObjectGetNothing(request, progress) {
-    return this.getFetcher(request.body).sendObjectGetNothing(request, progress);
-  }
-  sendObjectGetObject(request, progress) {
-    return this.getFetcher(request.body).sendObjectGetObject(request, progress);
-  }
-  sendObjectGetXml(request, progress) {
-    return this.getFetcher(request.body).sendObjectGetXml(request, progress);
-  }
-  sendObjectGetImageBitmap(request, progress) {
-    return this.getFetcher(request.body).sendObjectGetImageBitmap(request, progress);
-  }
-};
-var FetchingServicePool = class extends BaseFetchingServicePool {
-};
-
 // src/settings.ts
 var version = true ? stringRandom(10) : pkgVersion;
 var defaultAvatarHeight = 1.75;
@@ -22415,7 +22413,7 @@ function getUIImagePaths() {
 // src/createFetcher.ts
 function createFetcher(enableWorkers = true) {
   let fallback = new FetchingService(new FetchingServiceImplXHR());
-  if (!isWorker && enableWorkers) {
+  if (enableWorkers) {
     fallback = new FetchingServicePool({
       scriptPath: `/js/fetcher-worker/index${".js"}?${version}`
     }, FetchingServiceClient, fallback);

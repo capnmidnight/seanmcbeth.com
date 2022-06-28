@@ -4128,7 +4128,7 @@ var oculusBrowserVersion = isOculusBrowser && {
 var isOculusGo = isOculusBrowser && /pacific/i.test(navigator.userAgent);
 var isOculusQuest = isOculusBrowser && /quest/i.test(navigator.userAgent);
 var isOculusQuest2 = isOculusBrowser && /quest 2/i.test(navigator.userAgent);
-var isWorker = !("Document" in globalThis);
+var isWorkerSupported = "Worker" in globalThis;
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/gis/Datum.ts
 var invF = 298.257223563;
@@ -5551,7 +5551,7 @@ function mediaElementCanPlay(elem, prog) {
 function mediaElementCanPlayThrough(elem, prog) {
   return mediaElementCan("canplaythrough", elem, prog);
 }
-function Audio(...rest) {
+function Audio2(...rest) {
   return tag("audio", ...rest);
 }
 function ButtonRaw(...rest) {
@@ -5629,7 +5629,7 @@ function Style(...rest) {
   return elem;
 }
 function BackgroundAudio(autoplay, mute, looping, ...rest) {
-  return Audio(playsInline(true), controls(false), muted(mute), autoPlay(autoplay), loop(looping), styles(display("none")), ...rest);
+  return Audio2(playsInline(true), controls(false), muted(mute), autoPlay(autoplay), loop(looping), styles(display("none")), ...rest);
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/onUserGesture.ts
@@ -5664,7 +5664,7 @@ var hasAudioContext = "AudioContext" in globalThis;
 var hasAudioListener = hasAudioContext && "AudioListener" in globalThis;
 var hasOldAudioListener = hasAudioListener && "setPosition" in AudioListener.prototype;
 var hasNewAudioListener = hasAudioListener && "positionX" in AudioListener.prototype;
-var canCaptureStream = isFunction(HTMLMediaElement.prototype.captureStream) || isFunction(HTMLMediaElement.prototype.mozCaptureStream);
+var canCaptureStream = /* @__PURE__ */ isFunction(HTMLMediaElement.prototype.captureStream) || isFunction(HTMLMediaElement.prototype.mozCaptureStream);
 function isWrappedAudioNode(value2) {
   return isDefined(value2) && value2.node instanceof AudioNode;
 }
@@ -6060,7 +6060,7 @@ var WebAudioListenerOld = class extends BaseListener {
 };
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/DeviceManager.ts
-var canChangeAudioOutput = isFunction(HTMLAudioElement.prototype.setSinkId);
+var canChangeAudioOutput = /* @__PURE__ */ isFunction(HTMLAudioElement.prototype.setSinkId);
 function filterDeviceDuplicates(devices) {
   const filtered = [];
   for (let i = 0; i < devices.length; ++i) {
@@ -6102,18 +6102,18 @@ var DeviceManager = class extends TypedEventBase {
     super();
     this.element = element;
     this.needsVideoDevice = needsVideoDevice;
-    this._hasAudioPermission = false;
-    this._hasVideoPermission = false;
-    this._currentStream = null;
     this.ready = this.start();
     Object.seal(this);
   }
+  _hasAudioPermission = false;
   get hasAudioPermission() {
     return this._hasAudioPermission;
   }
+  _hasVideoPermission = false;
   get hasVideoPermission() {
     return this._hasVideoPermission;
   }
+  _currentStream = null;
   get currentStream() {
     return this._currentStream;
   }
@@ -6127,6 +6127,7 @@ var DeviceManager = class extends TypedEventBase {
       this._currentStream = v;
     }
   }
+  ready;
   async start() {
     if (canChangeAudioOutput) {
       const device = await this.getPreferredAudioOutput();
@@ -6766,7 +6767,7 @@ var AudioManager = class extends TypedEventBase {
     let destination = null;
     if (canChangeAudioOutput) {
       destination = MediaStreamDestination("final-destination", this.audioCtx);
-      this.element = Audio(id("Audio-Device-Manager"), playsInline(true), autoPlay(true), srcObject(destination.stream), styles(display("none")));
+      this.element = Audio2(id("Audio-Device-Manager"), playsInline(true), autoPlay(true), srcObject(destination.stream), styles(display("none")));
       elementApply(document.body, this);
     } else {
       destination = this.audioCtx.destination;
@@ -7160,7 +7161,7 @@ var AudioPlayer = class extends BaseAudioSource {
   potatoes = new Array();
   constructor(audioCtx) {
     super("JuniperAudioPlayer", audioCtx, NoSpatializationNode.instance(audioCtx));
-    this.element = Audio(playsInline(true), autoPlay(false), loop(false), controls(true));
+    this.element = Audio2(playsInline(true), autoPlay(false), loop(false), controls(true));
     this.input = MediaElementSource("JuniperAudioPlayer-Input", audioCtx, this.element);
     this.loadingEvt = new MediaPlayerLoadingEvent(this);
     this.loadEvt = new MediaElementSourceLoadedEvent(this);
@@ -7519,13 +7520,19 @@ var Model_Gltf_Binary = /* @__PURE__ */ model("gltf-binary", "glb");
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/video.ts
 var video = /* @__PURE__ */ specialize("video");
-var Video_Vendor_Mpeg_Dash_Mpd = video("vnd.mpeg.dash.mpd", "mpd");
+var Video_Vendor_Mpeg_Dash_Mpd = /* @__PURE__ */ video("vnd.mpeg.dash.mpd", "mpd");
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher-base/Asset.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/Asset.ts
 var BaseAsset = class {
   constructor(path, type2) {
     this.path = path;
     this.type = type2;
+    this._result = null;
+    this._error = null;
+    this._started = false;
+    this._finished = false;
+    this.resolve = null;
+    this.reject = null;
     this.promise = new Promise((resolve, reject) => {
       this.resolve = (value2) => {
         this._result = value2;
@@ -7539,11 +7546,6 @@ var BaseAsset = class {
       };
     });
   }
-  promise;
-  _result = null;
-  _error = null;
-  _started = false;
-  _finished = false;
   get result() {
     if (isDefined(this.error)) {
       throw this.error;
@@ -7559,8 +7561,6 @@ var BaseAsset = class {
   get finished() {
     return this._finished;
   }
-  resolve = null;
-  reject = null;
   async getSize(fetcher) {
     try {
       const { contentLength } = await fetcher.head(this.path).accept(this.type).exec();
@@ -7602,7 +7602,6 @@ var AssetCustom = class extends BaseAsset {
   }
 };
 var BaseFetchedAsset = class extends BaseAsset {
-  useCache;
   constructor(path, typeOrUseCache, useCache) {
     let type2;
     if (isBoolean(typeOrUseCache)) {
@@ -7648,7 +7647,7 @@ function isOffscreenCanvas(obj2) {
 function isImageBitmap(img) {
   return hasImageBitmap && img instanceof ImageBitmap;
 }
-function drawImageBitmapToCanvas2D(canv, img) {
+function drawImageBitmapToCanvas(canv, img) {
   const g = canv.getContext("2d");
   if (isNullOrUndefined(g)) {
     throw new Error("Could not create 2d context for canvas");
@@ -7677,28 +7676,21 @@ function testOffscreen3D() {
   }
 }
 var hasOffscreenCanvasRenderingContext3D = hasOffscreenCanvas && testOffscreen3D();
-function testBitmapRenderer() {
-  if (!hasHTMLCanvas && !hasOffscreenCanvas) {
-    return false;
-  }
-  try {
-    const canv = createUtilityCanvas(1, 1);
-    const g = canv.getContext("bitmaprenderer");
-    return g != null;
-  } catch (exp) {
-    return false;
-  }
-}
-var hasImageBitmapRenderingContext = hasImageBitmap && testBitmapRenderer();
 function createOffscreenCanvas(width2, height2) {
   return new OffscreenCanvas(width2, height2);
 }
 function createCanvas(w, h) {
+  if (false) {
+    throw new Error("HTML Canvas is not supported in workers");
+  }
   return Canvas(htmlWidth(w), htmlHeight(h));
 }
 function createCanvasFromImageBitmap(img) {
+  if (false) {
+    throw new Error("HTML Canvas is not supported in workers");
+  }
   const canv = createCanvas(img.width, img.height);
-  drawImageBitmapToCanvas2D(canv, img);
+  drawImageBitmapToCanvas(canv, img);
   return canv;
 }
 function setCanvasSize(canv, w, h, superscale = 1) {
@@ -9474,7 +9466,7 @@ function objectGetRelativePose(ref, obj2, position2, quaternion, scale4) {
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/Plane.ts
-var plane = new THREE.PlaneBufferGeometry(1, 1, 1, 1);
+var plane = /* @__PURE__ */ new THREE.PlaneBufferGeometry(1, 1, 1, 1);
 plane.name = "PlaneGeom";
 var Plane = class extends THREE.Mesh {
   constructor(sx, sy, material) {
@@ -10089,7 +10081,7 @@ var BaseVideoPlayer = class extends BaseAudioSource {
   constructor(audioCtx) {
     super("JuniperVideoPlayer", audioCtx, NoSpatializationNode.instance(audioCtx));
     this.video = this.createMediaElement(Video, controls(true));
-    this.audio = this.createMediaElement(Audio, controls(false));
+    this.audio = this.createMediaElement(Audio2, controls(false));
     this.input = Gain("JuniperVideoPlayer-combiner", audioCtx);
     this.videoSource = MediaElementSource("JuniperVideoPlayer-VideoNode", audioCtx, this.video, this.input);
     this.audioSource = MediaElementSource("JuniperVideoPlayer-AudioNode", audioCtx, this.audio, this.input);
@@ -15128,9 +15120,9 @@ function setGeometryUVsForCubemaps(geom2) {
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/Cube.ts
-var cube = new THREE.BoxBufferGeometry(1, 1, 1, 1, 1, 1);
+var cube = /* @__PURE__ */ new THREE.BoxBufferGeometry(1, 1, 1, 1, 1, 1);
 cube.name = "CubeGeom";
-var invCube = cube.clone();
+var invCube = /* @__PURE__ */ cube.clone();
 invCube.name = "InvertedCubeGeom";
 setGeometryUVsForCubemaps(invCube);
 var Cube = class extends THREE.Mesh {
@@ -15977,6 +15969,7 @@ var BaseScreenPointer = class extends BasePointer {
     this.canvasSize = new THREE.Vector2();
     this.uvComp = new THREE.Vector2(1, -1);
     this.uvOff = new THREE.Vector2(-1, 1);
+    this.lastUV = null;
     this.lastPosition = null;
     const onPointerDown = (evt) => {
       if (this.checkEvent(evt)) {
@@ -16023,13 +16016,21 @@ var BaseScreenPointer = class extends BasePointer {
       if (this.element.clientWidth > 0 && this.element.clientHeight > 0) {
         this.canvasSize.set(this.element.clientWidth, this.element.clientHeight);
         this.uv.copy(this.position).multiplyScalar(2).divide(this.canvasSize).multiply(this.uvComp).add(this.uvOff);
-        this.duv.copy(this.motion).multiplyScalar(2).divide(this.canvasSize).multiply(this.uvComp);
       }
     }
   }
   onPointerMove() {
-    this.env.avatar.onMove(this, this.uv, this.duv);
+    if (this.lastUV) {
+      this.duv.copy(this.uv).sub(this.lastUV);
+    }
+    if (this.duv.manhattanLength() > 0) {
+      this.env.avatar.onMove(this, this.uv, this.duv);
+    }
     super.onPointerMove();
+    if (!this.lastUV) {
+      this.lastUV = new THREE.Vector2();
+    }
+    this.lastUV.copy(this.uv);
   }
   onUpdate() {
     const cam = resolveCamera(this.env.renderer, this.env.camera);
@@ -16133,7 +16134,8 @@ var PointerMultiTouch = class extends BaseScreenPointer {
       this.points.delete(evt.pointerId);
     }
     this._buttons = 0;
-    if (this.points.size > 0) {
+    this.isActive = this.points.size > 0;
+    if (this.isActive) {
       this.position.setScalar(0);
       this.motion.setScalar(0);
       const K = 1 / this.points.size;
@@ -16286,7 +16288,7 @@ var EventSystem = class extends TypedEventBase {
           const upEvt = this.getEvent(pointer, "up", curHit);
           this.dispatchEvent(upEvt);
           if (pointer.buttons === 0) {
-            if (isDefined(pressedHit)) {
+            if (isDefined(prsTarget)) {
               pointer.pressedHit = null;
               prsTarget.dispatchEvent(upEvt);
             }

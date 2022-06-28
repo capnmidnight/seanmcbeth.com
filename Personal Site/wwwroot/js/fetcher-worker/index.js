@@ -227,12 +227,12 @@ var EventBase = class {
     this.listeners = /* @__PURE__ */ new Map();
     this.listenerOptions = /* @__PURE__ */ new Map();
   }
-  addEventListener(type, callback, options) {
+  addEventListener(type2, callback, options) {
     if (isFunction(callback)) {
-      let listeners = this.listeners.get(type);
+      let listeners = this.listeners.get(type2);
       if (!listeners) {
         listeners = new Array();
-        this.listeners.set(type, listeners);
+        this.listeners.set(type2, listeners);
       }
       if (!listeners.find((c) => c === callback)) {
         listeners.push(callback);
@@ -242,19 +242,19 @@ var EventBase = class {
       }
     }
   }
-  removeEventListener(type, callback) {
+  removeEventListener(type2, callback) {
     if (isFunction(callback)) {
-      const listeners = this.listeners.get(type);
+      const listeners = this.listeners.get(type2);
       if (listeners) {
         this.removeListener(listeners, callback);
       }
     }
   }
-  clearEventListeners(type) {
+  clearEventListeners(type2) {
     for (const [evtName, handlers] of this.listeners) {
-      if (isNullOrUndefined(type) || type === evtName) {
+      if (isNullOrUndefined(type2) || type2 === evtName) {
         for (const handler of handlers) {
-          this.removeEventListener(type, handler);
+          this.removeEventListener(type2, handler);
         }
         arrayClear(handlers);
         this.listeners.delete(evtName);
@@ -296,28 +296,28 @@ var TypedEventBase = class extends EventBase {
   removeBubbler(bubbler) {
     this.bubblers.delete(bubbler);
   }
-  addEventListener(type, callback, options) {
-    super.addEventListener(type, callback, options);
+  addEventListener(type2, callback, options) {
+    super.addEventListener(type2, callback, options);
   }
-  removeEventListener(type, callback) {
-    super.removeEventListener(type, callback);
+  removeEventListener(type2, callback) {
+    super.removeEventListener(type2, callback);
   }
-  clearEventListeners(type) {
-    return super.clearEventListeners(type);
+  clearEventListeners(type2) {
+    return super.clearEventListeners(type2);
   }
-  addScopedEventListener(scope, type, callback, options) {
+  addScopedEventListener(scope, type2, callback, options) {
     if (!this.scopes.has(scope)) {
       this.scopes.set(scope, []);
     }
-    this.scopes.get(scope).push([type, callback]);
-    this.addEventListener(type, callback, options);
+    this.scopes.get(scope).push([type2, callback]);
+    this.addEventListener(type2, callback, options);
   }
   removeScope(scope) {
     const listeners = this.scopes.get(scope);
     if (listeners) {
       this.scopes.delete(scope);
-      for (const [type, listener] of listeners) {
-        this.removeEventListener(type, listener);
+      for (const [type2, listener] of listeners) {
+        this.removeEventListener(type2, listener);
       }
     }
   }
@@ -457,8 +457,8 @@ var Task = class {
 };
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/events/once.ts
-function targetValidateEvent(target, type) {
-  return "on" + type in target;
+function targetValidateEvent(target, type2) {
+  return "on" + type2 in target;
 }
 function once(target, resolveEvt, rejectEvtOrTimeout, ...rejectEvts) {
   if (isNullOrUndefined(rejectEvts)) {
@@ -587,7 +587,7 @@ var oculusBrowserVersion = isOculusBrowser && {
 var isOculusGo = isOculusBrowser && /pacific/i.test(navigator.userAgent);
 var isOculusQuest = isOculusBrowser && /quest/i.test(navigator.userAgent);
 var isOculusQuest2 = isOculusBrowser && /quest 2/i.test(navigator.userAgent);
-var isWorker = !("Document" in globalThis);
+var isWorkerSupported = "Worker" in globalThis;
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/gis/Datum.ts
 var invF = 298.257223563;
@@ -1102,9 +1102,9 @@ var MediaType = class {
     if (!match) {
       return null;
     }
-    const type = match[1];
+    const type2 = match[1];
     const subType = match[2];
-    return new MediaType(type, subType);
+    return new MediaType(type2, subType);
   }
   deprecate(message) {
     this.depMessage = message;
@@ -1218,15 +1218,17 @@ function specialize(group) {
 var image = /* @__PURE__ */ specialize("image");
 var Image_Vendor_Google_StreetView_Pano = image("vnd.google.streetview.pano");
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/video.ts
-var video = /* @__PURE__ */ specialize("video");
-var Video_Vendor_Mpeg_Dash_Mpd = video("vnd.mpeg.dash.mpd", "mpd");
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher-base/Asset.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/Asset.ts
 var BaseAsset = class {
-  constructor(path, type) {
+  constructor(path, type2) {
     this.path = path;
-    this.type = type;
+    this.type = type2;
+    this._result = null;
+    this._error = null;
+    this._started = false;
+    this._finished = false;
+    this.resolve = null;
+    this.reject = null;
     this.promise = new Promise((resolve, reject) => {
       this.resolve = (value) => {
         this._result = value;
@@ -1240,11 +1242,6 @@ var BaseAsset = class {
       };
     });
   }
-  promise;
-  _result = null;
-  _error = null;
-  _started = false;
-  _finished = false;
   get result() {
     if (isDefined(this.error)) {
       throw this.error;
@@ -1260,8 +1257,6 @@ var BaseAsset = class {
   get finished() {
     return this._finished;
   }
-  resolve = null;
-  reject = null;
   async getSize(fetcher) {
     try {
       const { contentLength } = await fetcher.head(this.path).accept(this.type).exec();
@@ -1291,6 +1286,256 @@ var BaseAsset = class {
   }
   finally(onfinally) {
     return this.promise.finally(onfinally);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/canvas.ts
+var disableAdvancedSettings = false;
+var hasOffscreenCanvas = !disableAdvancedSettings && "OffscreenCanvas" in globalThis;
+var hasImageBitmap = !disableAdvancedSettings && "createImageBitmap" in globalThis;
+function testOffscreen2D() {
+  try {
+    const canv = new OffscreenCanvas(1, 1);
+    const g = canv.getContext("2d");
+    return g != null;
+  } catch (exp) {
+    return false;
+  }
+}
+var hasOffscreenCanvasRenderingContext2D = hasOffscreenCanvas && testOffscreen2D();
+function testOffscreen3D() {
+  try {
+    const canv = new OffscreenCanvas(1, 1);
+    const g = canv.getContext("webgl2");
+    return g != null;
+  } catch (exp) {
+    return false;
+  }
+}
+var hasOffscreenCanvasRenderingContext3D = hasOffscreenCanvas && testOffscreen3D();
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/translateResponse.ts
+async function translateResponse(response, translate) {
+  const {
+    status,
+    path,
+    content,
+    contentType,
+    contentLength,
+    fileName,
+    headers,
+    date
+  } = response;
+  return {
+    status,
+    path,
+    content: await translate(content),
+    contentType,
+    contentLength,
+    fileName,
+    headers,
+    date
+  };
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/FetchingService.ts
+var FetchingService = class {
+  constructor(impl) {
+    this.impl = impl;
+    this.defaultPostHeaders = /* @__PURE__ */ new Map();
+  }
+  setRequestVerificationToken(value) {
+    this.defaultPostHeaders.set("RequestVerificationToken", value);
+  }
+  clearCache() {
+    return this.impl.clearCache();
+  }
+  sendNothingGetNothing(request) {
+    return this.impl.sendNothingGetNothing(request);
+  }
+  sendNothingGetBlob(request, progress) {
+    return this.impl.sendNothingGetSomething("blob", request, progress);
+  }
+  sendObjectGetBlob(request, progress) {
+    return this.impl.sendSomethingGetSomething("blob", request, this.defaultPostHeaders, progress);
+  }
+  sendNothingGetBuffer(request, progress) {
+    return this.impl.sendNothingGetSomething("arraybuffer", request, progress);
+  }
+  sendObjectGetBuffer(request, progress) {
+    return this.impl.sendSomethingGetSomething("arraybuffer", request, this.defaultPostHeaders, progress);
+  }
+  sendNothingGetText(request, progress) {
+    return this.impl.sendNothingGetSomething("text", request, progress);
+  }
+  sendObjectGetText(request, progress) {
+    return this.impl.sendSomethingGetSomething("text", request, this.defaultPostHeaders, progress);
+  }
+  async sendNothingGetObject(request, progress) {
+    const response = await this.impl.sendNothingGetSomething("json", request, progress);
+    return response.content;
+  }
+  async sendObjectGetObject(request, progress) {
+    const response = await this.impl.sendSomethingGetSomething("json", request, this.defaultPostHeaders, progress);
+    return response.content;
+  }
+  sendObjectGetNothing(request, progress) {
+    return this.impl.sendSomethingGetSomething("", request, this.defaultPostHeaders, progress);
+  }
+  drawImageToCanvas(request, canvas, progress) {
+    return this.impl.drawImageToCanvas(request, canvas, progress);
+  }
+  async sendNothingGetFile(request, progress) {
+    return translateResponse(await this.sendNothingGetBlob(request, progress), URL.createObjectURL);
+  }
+  async sendObjectGetFile(request, progress) {
+    return translateResponse(await this.sendObjectGetBlob(request, progress), URL.createObjectURL);
+  }
+  async sendNothingGetXml(request, progress) {
+    return translateResponse(await this.impl.sendNothingGetSomething("document", request, progress), (doc) => doc.documentElement);
+  }
+  async sendObjectGetXml(request, progress) {
+    return translateResponse(await this.impl.sendSomethingGetSomething("document", request, this.defaultPostHeaders, progress), (doc) => doc.documentElement);
+  }
+  async sendNothingGetImageBitmap(request, progress) {
+    return translateResponse(await this.sendNothingGetBlob(request, progress), createImageBitmap);
+  }
+  async sendObjectGetImageBitmap(request, progress) {
+    return translateResponse(await this.sendObjectGetBlob(request, progress), createImageBitmap);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/workers/WorkerServer.ts
+var WorkerServerProgress = class extends BaseProgress {
+  constructor(server, taskID) {
+    super();
+    this.server = server;
+    this.taskID = taskID;
+  }
+  report(soFar, total, msg, est) {
+    const message = {
+      type: "progress",
+      taskID: this.taskID,
+      soFar,
+      total,
+      msg,
+      est
+    };
+    this.server.postMessage(message);
+  }
+};
+var WorkerServer = class {
+  constructor(self) {
+    this.self = self;
+    this.methods = /* @__PURE__ */ new Map();
+    this.self.addEventListener("message", (evt) => {
+      const data = evt.data;
+      this.callMethod(data);
+    });
+  }
+  postMessage(message, transferables) {
+    if (isDefined(transferables)) {
+      this.self.postMessage(message, transferables);
+    } else {
+      this.self.postMessage(message);
+    }
+  }
+  callMethod(data) {
+    const method = this.methods.get(data.methodName);
+    if (method) {
+      try {
+        if (isArray(data.params)) {
+          method(data.taskID, ...data.params);
+        } else if (isDefined(data.params)) {
+          method(data.taskID, data.params);
+        } else {
+          method(data.taskID);
+        }
+      } catch (exp) {
+        this.onError(data.taskID, `method invocation error: ${data.methodName}(${exp.message || exp})`);
+      }
+    } else {
+      this.onError(data.taskID, `method not found: ${data.methodName}`);
+    }
+  }
+  onError(taskID, errorMessage) {
+    const message = {
+      type: "error",
+      taskID,
+      errorMessage
+    };
+    this.postMessage(message);
+  }
+  onReturn(taskID, returnValue, transferReturnValue) {
+    let message = null;
+    if (returnValue === void 0) {
+      message = {
+        type: "return",
+        taskID
+      };
+    } else {
+      message = {
+        type: "return",
+        taskID,
+        returnValue
+      };
+    }
+    if (isDefined(transferReturnValue)) {
+      const transferables = transferReturnValue(returnValue);
+      this.postMessage(message, transferables);
+    } else {
+      this.postMessage(message);
+    }
+  }
+  addMethodInternal(methodName, asyncFunc, transferReturnValue) {
+    if (this.methods.has(methodName)) {
+      throw new Error(`${methodName} method has already been mapped.`);
+    }
+    this.methods.set(methodName, async (taskID, ...params) => {
+      const prog = new WorkerServerProgress(this, taskID);
+      try {
+        const returnValue = await asyncFunc(...params, prog);
+        this.onReturn(taskID, returnValue, transferReturnValue);
+      } catch (exp) {
+        console.error(exp);
+        this.onError(taskID, exp.message || exp);
+      }
+    });
+  }
+  addFunction(methodName, asyncFunc, transferReturnValue) {
+    this.addMethodInternal(methodName, asyncFunc, transferReturnValue);
+  }
+  addVoidFunction(methodName, asyncFunc) {
+    this.addMethodInternal(methodName, asyncFunc);
+  }
+  addMethod(obj, methodName, method, transferReturnValue) {
+    this.addFunction(methodName, method.bind(obj), transferReturnValue);
+  }
+  addVoidMethod(obj, methodName, method) {
+    this.addVoidFunction(methodName, method.bind(obj));
+  }
+  addEvent(object, eventName, makePayload, transferReturnValue) {
+    object.addEventListener(eventName, (evt) => {
+      let message = null;
+      if (isDefined(makePayload)) {
+        message = {
+          type: "event",
+          eventName,
+          data: makePayload(evt)
+        };
+      } else {
+        message = {
+          type: "event",
+          eventName
+        };
+      }
+      if (message.data !== void 0 && isDefined(transferReturnValue)) {
+        const transferables = transferReturnValue(message.data);
+        this.postMessage(message, transferables);
+      } else {
+        this.postMessage(message);
+      }
+    });
   }
 };
 
@@ -1508,31 +1753,7 @@ var IDexStore = class {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher-base/ResponseTranslator.ts
-async function translateResponse(response, translate) {
-  const {
-    status,
-    path,
-    content,
-    contentType,
-    contentLength,
-    fileName,
-    headers,
-    date
-  } = response;
-  return {
-    status,
-    path,
-    content: await translate(content),
-    contentType,
-    contentLength,
-    fileName,
-    headers,
-    date
-  };
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher-base/FetchingServiceImplXHR.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/FetchingServiceImplXHR.ts
 function isXHRBodyInit(obj) {
   return isString(obj) || isArrayBufferView(obj) || obj instanceof Blob || obj instanceof FormData || isArrayBuffer(obj) || obj instanceof ReadableStream || "Document" in globalThis && obj instanceof Document;
 }
@@ -1608,10 +1829,10 @@ function readResponseHeader(headers, key, translate) {
 var FILE_NAME_PATTERN = /filename=\"(.+)\"(;|$)/;
 var DB_NAME = "Juniper:Fetcher:Cache";
 var FetchingServiceImplXHR = class {
-  cacheReady;
-  cache = null;
-  store = null;
   constructor() {
+    this.cache = null;
+    this.store = null;
+    this.tasks = new PriorityMap();
     this.cacheReady = this.openCache();
   }
   async drawImageToCanvas(request, canvas, progress) {
@@ -1734,7 +1955,6 @@ var FetchingServiceImplXHR = class {
       }
     });
   }
-  tasks = new PriorityMap();
   async withCachedTask(request, action) {
     if (request.method !== "GET" && request.method !== "HEAD" && request.method !== "OPTIONS") {
       return await action();
@@ -1814,208 +2034,7 @@ var FetchingServiceImplXHR = class {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher-base/FetchingService.ts
-var FetchingService = class {
-  constructor(impl) {
-    this.impl = impl;
-  }
-  defaultPostHeaders = /* @__PURE__ */ new Map();
-  setRequestVerificationToken(value) {
-    this.defaultPostHeaders.set("RequestVerificationToken", value);
-  }
-  clearCache() {
-    return this.impl.clearCache();
-  }
-  sendNothingGetNothing(request) {
-    return this.impl.sendNothingGetNothing(request);
-  }
-  sendNothingGetBlob(request, progress) {
-    return this.impl.sendNothingGetSomething("blob", request, progress);
-  }
-  sendObjectGetBlob(request, progress) {
-    return this.impl.sendSomethingGetSomething("blob", request, this.defaultPostHeaders, progress);
-  }
-  sendNothingGetBuffer(request, progress) {
-    return this.impl.sendNothingGetSomething("arraybuffer", request, progress);
-  }
-  sendObjectGetBuffer(request, progress) {
-    return this.impl.sendSomethingGetSomething("arraybuffer", request, this.defaultPostHeaders, progress);
-  }
-  sendNothingGetText(request, progress) {
-    return this.impl.sendNothingGetSomething("text", request, progress);
-  }
-  sendObjectGetText(request, progress) {
-    return this.impl.sendSomethingGetSomething("text", request, this.defaultPostHeaders, progress);
-  }
-  async sendNothingGetObject(request, progress) {
-    const response = await this.impl.sendNothingGetSomething("json", request, progress);
-    return response.content;
-  }
-  async sendObjectGetObject(request, progress) {
-    const response = await this.impl.sendSomethingGetSomething("json", request, this.defaultPostHeaders, progress);
-    return response.content;
-  }
-  sendObjectGetNothing(request, progress) {
-    return this.impl.sendSomethingGetSomething("", request, this.defaultPostHeaders, progress);
-  }
-  drawImageToCanvas(request, canvas, progress) {
-    return this.impl.drawImageToCanvas(request, canvas, progress);
-  }
-  async sendNothingGetFile(request, progress) {
-    return translateResponse(await this.sendNothingGetBlob(request, progress), URL.createObjectURL);
-  }
-  async sendObjectGetFile(request, progress) {
-    return translateResponse(await this.sendObjectGetBlob(request, progress), URL.createObjectURL);
-  }
-  async sendNothingGetXml(request, progress) {
-    return translateResponse(await this.impl.sendNothingGetSomething("document", request, progress), (doc) => doc.documentElement);
-  }
-  async sendObjectGetXml(request, progress) {
-    return translateResponse(await this.impl.sendSomethingGetSomething("document", request, this.defaultPostHeaders, progress), (doc) => doc.documentElement);
-  }
-  async sendNothingGetImageBitmap(request, progress) {
-    return translateResponse(await this.sendNothingGetBlob(request, progress), createImageBitmap);
-  }
-  async sendObjectGetImageBitmap(request, progress) {
-    return translateResponse(await this.sendObjectGetBlob(request, progress), createImageBitmap);
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/worker-server/WorkerServer.ts
-var WorkerServerProgress = class extends BaseProgress {
-  constructor(server, taskID) {
-    super();
-    this.server = server;
-    this.taskID = taskID;
-  }
-  report(soFar, total, msg, est) {
-    const message = {
-      type: "progress",
-      taskID: this.taskID,
-      soFar,
-      total,
-      msg,
-      est
-    };
-    this.server.postMessage(message);
-  }
-};
-var WorkerServer = class {
-  constructor(self) {
-    this.self = self;
-    this.methods = /* @__PURE__ */ new Map();
-    this.self.addEventListener("message", (evt) => {
-      const data = evt.data;
-      this.callMethod(data);
-    });
-  }
-  postMessage(message, transferables) {
-    if (isDefined(transferables)) {
-      this.self.postMessage(message, transferables);
-    } else {
-      this.self.postMessage(message);
-    }
-  }
-  callMethod(data) {
-    const method = this.methods.get(data.methodName);
-    if (method) {
-      try {
-        if (isArray(data.params)) {
-          method(data.taskID, ...data.params);
-        } else if (isDefined(data.params)) {
-          method(data.taskID, data.params);
-        } else {
-          method(data.taskID);
-        }
-      } catch (exp) {
-        this.onError(data.taskID, `method invocation error: ${data.methodName}(${exp.message || exp})`);
-      }
-    } else {
-      this.onError(data.taskID, `method not found: ${data.methodName}`);
-    }
-  }
-  onError(taskID, errorMessage) {
-    const message = {
-      type: "error",
-      taskID,
-      errorMessage
-    };
-    this.postMessage(message);
-  }
-  onReturn(taskID, returnValue, transferReturnValue) {
-    let message = null;
-    if (returnValue === void 0) {
-      message = {
-        type: "return",
-        taskID
-      };
-    } else {
-      message = {
-        type: "return",
-        taskID,
-        returnValue
-      };
-    }
-    if (isDefined(transferReturnValue)) {
-      const transferables = transferReturnValue(returnValue);
-      this.postMessage(message, transferables);
-    } else {
-      this.postMessage(message);
-    }
-  }
-  addMethodInternal(methodName, asyncFunc, transferReturnValue) {
-    if (this.methods.has(methodName)) {
-      throw new Error(`${methodName} method has already been mapped.`);
-    }
-    this.methods.set(methodName, async (taskID, ...params) => {
-      const prog = new WorkerServerProgress(this, taskID);
-      try {
-        const returnValue = await asyncFunc(...params, prog);
-        this.onReturn(taskID, returnValue, transferReturnValue);
-      } catch (exp) {
-        console.error(exp);
-        this.onError(taskID, exp.message || exp);
-      }
-    });
-  }
-  addFunction(methodName, asyncFunc, transferReturnValue) {
-    this.addMethodInternal(methodName, asyncFunc, transferReturnValue);
-  }
-  addVoidFunction(methodName, asyncFunc) {
-    this.addMethodInternal(methodName, asyncFunc);
-  }
-  addMethod(obj, methodName, method, transferReturnValue) {
-    this.addFunction(methodName, method.bind(obj), transferReturnValue);
-  }
-  addVoidMethod(obj, methodName, method) {
-    this.addVoidFunction(methodName, method.bind(obj));
-  }
-  addEvent(object, eventName, makePayload, transferReturnValue) {
-    object.addEventListener(eventName, (evt) => {
-      let message = null;
-      if (isDefined(makePayload)) {
-        message = {
-          type: "event",
-          eventName,
-          data: makePayload(evt)
-        };
-      } else {
-        message = {
-          type: "event",
-          eventName
-        };
-      }
-      if (message.data !== void 0 && isDefined(transferReturnValue)) {
-        const transferables = transferReturnValue(message.data);
-        this.postMessage(message, transferables);
-      } else {
-        this.postMessage(message);
-      }
-    });
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher-worker/src/FetchingServiceServer.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/FetchingServiceServer.ts
 var FetchingServiceServer = class extends WorkerServer {
   constructor(self, impl) {
     super(self);

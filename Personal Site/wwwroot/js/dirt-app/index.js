@@ -413,7 +413,7 @@ var oculusBrowserVersion = isOculusBrowser && {
 var isOculusGo = isOculusBrowser && /pacific/i.test(navigator.userAgent);
 var isOculusQuest = isOculusBrowser && /quest/i.test(navigator.userAgent);
 var isOculusQuest2 = isOculusBrowser && /quest 2/i.test(navigator.userAgent);
-var isWorker = !("Document" in globalThis);
+var isWorkerSupported = "Worker" in globalThis;
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/gis/Datum.ts
 var invF = 298.257223563;
@@ -942,23 +942,13 @@ function testOffscreen3D() {
   }
 }
 var hasOffscreenCanvasRenderingContext3D = hasOffscreenCanvas && testOffscreen3D();
-function testBitmapRenderer() {
-  if (!hasHTMLCanvas && !hasOffscreenCanvas) {
-    return false;
-  }
-  try {
-    const canv = createUtilityCanvas(1, 1);
-    const g = canv.getContext("bitmaprenderer");
-    return g != null;
-  } catch (exp) {
-    return false;
-  }
-}
-var hasImageBitmapRenderingContext = hasImageBitmap && testBitmapRenderer();
 function createOffscreenCanvas(width, height) {
   return new OffscreenCanvas(width, height);
 }
 function createCanvas(w, h) {
+  if (false) {
+    throw new Error("HTML Canvas is not supported in workers");
+  }
   return Canvas(htmlWidth(w), htmlHeight(h));
 }
 
