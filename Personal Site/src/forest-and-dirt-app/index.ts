@@ -1,6 +1,6 @@
 ﻿import { Dirt } from "@juniper-lib/graphics2d/Dirt";
 import { EventSystemEvent } from "@juniper-lib/threejs/eventSystem/EventSystemEvent";
-import { assureRayTarget } from "@juniper-lib/threejs/eventSystem/RayTarget";
+import { RayTarget } from "@juniper-lib/threejs/eventSystem/RayTarget";
 import { isMobile } from "@juniper-lib/tslib";
 import { createTestEnvironment } from "../createTestEnvironment";
 import { Forest } from "../forest-app/Forest";
@@ -25,7 +25,7 @@ surface.material.bumpMap = dirtMap;
 surface.material.bumpScale = 0.1;
 surface.material.needsUpdate = true;
 
-const surfaceTarget = assureRayTarget(surface);
+const surfaceTarget = new RayTarget(surface);
 surfaceTarget.addMesh(surface);
 surfaceTarget.draggable = true;
 surfaceTarget.addEventListener("drag", checkPointer);
