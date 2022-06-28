@@ -10140,88 +10140,15 @@ function objectSetEnabled(obj2, enabled) {
   }
 }
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/RayTarget.ts
-var RAY_TARGET_KEY = "Juniper:ThreeJS:EventSystem:RayTarget";
-var RayTarget = class extends TypedEventBase {
-  constructor(object) {
-    super();
-    this.object = object;
-    this.object.userData[RAY_TARGET_KEY] = this;
-  }
-  meshes = new Array();
-  _disabled = false;
-  _clickable = false;
-  _draggable = false;
-  addMesh(mesh) {
-    mesh.userData[RAY_TARGET_KEY] = this;
-    this.meshes.push(mesh);
-    return this;
-  }
-  get disabled() {
-    return this._disabled;
-  }
-  set disabled(v) {
-    this._disabled = v;
-  }
-  get enabled() {
-    return !this.disabled;
-  }
-  set enabled(v) {
-    this.disabled = !v;
-  }
-  get clickable() {
-    return this._clickable;
-  }
-  set clickable(v) {
-    this._clickable = v;
-  }
-  get draggable() {
-    return this._draggable;
-  }
-  set draggable(v) {
-    this._draggable = v;
-  }
-};
-function isRayTarget(obj2) {
-  return obj2 instanceof RayTarget;
-}
-function isIntersection(obj2) {
-  return isDefined(obj2) && isNumber(obj2.distance) && obj2.point instanceof THREE.Vector3 && (obj2.object === null || obj2.object instanceof THREE.Object3D);
-}
-function getRayTarget(obj2) {
-  if (!obj2) {
-    return null;
-  }
-  if (isRayTarget(obj2)) {
-    if (obj2.object.visible) {
-      return obj2;
-    }
-    return null;
-  }
-  if (isIntersection(obj2) || isErsatzObject(obj2)) {
-    obj2 = obj2.object;
-  }
-  if (!obj2 || !obj2.visible) {
-    return null;
-  }
-  return obj2.userData[RAY_TARGET_KEY];
-}
-function assureRayTarget(obj2) {
-  if (!obj2) {
-    throw new Error("object is not defined");
-  }
-  return getRayTarget(obj2) || new RayTarget(objectResolve(obj2));
-}
-
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/animation/scaleOnHover.ts
 var scaledItems = singleton("Juniper:ScaledItems", () => /* @__PURE__ */ new Map());
 var start = 1;
 var end = 1.1;
 var timeScale = 5e-3;
 var ScaleState = class {
-  constructor(obj2) {
-    this.target = assureRayTarget(obj2);
-    this.obj = objectResolve(obj2);
+  constructor(target) {
+    this.target = target;
+    this.obj = objectResolve(this.target);
     this.base = this.obj.scale.clone();
     this.p = 0;
     this.dir = 0;
@@ -10281,16 +10208,16 @@ function removeScaledObj(obj2) {
     state.dispose();
   }
 }
-function scaleOnHover(obj2, enabled) {
-  const has = scaledItems.has(obj2);
+function scaleOnHover(target, enabled) {
+  const has = scaledItems.has(target);
   if (enabled != has) {
     if (enabled) {
-      scaledItems.set(obj2, new ScaleState(obj2));
+      scaledItems.set(target, new ScaleState(target));
       ;
     } else {
-      const scaler = scaledItems.get(obj2);
+      const scaler = scaledItems.get(target);
       scaler.dispose();
-      scaledItems.delete(obj2);
+      scaledItems.delete(target);
     }
   }
 }
@@ -11222,6 +11149,69 @@ var TextMesh = class extends CanvasImageMesh {
     super.onRedrawn();
   }
 };
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/RayTarget.ts
+var RAY_TARGET_KEY = "Juniper:ThreeJS:EventSystem:RayTarget";
+var RayTarget = class extends TypedEventBase {
+  constructor(object) {
+    super();
+    this.object = object;
+    this.object.userData[RAY_TARGET_KEY] = this;
+  }
+  meshes = new Array();
+  _disabled = false;
+  _clickable = false;
+  _draggable = false;
+  addMesh(mesh) {
+    mesh.userData[RAY_TARGET_KEY] = this;
+    this.meshes.push(mesh);
+    return this;
+  }
+  get disabled() {
+    return this._disabled;
+  }
+  set disabled(v) {
+    this._disabled = v;
+  }
+  get enabled() {
+    return !this.disabled;
+  }
+  set enabled(v) {
+    this.disabled = !v;
+  }
+  get clickable() {
+    return this._clickable;
+  }
+  set clickable(v) {
+    this._clickable = v;
+  }
+  get draggable() {
+    return this._draggable;
+  }
+  set draggable(v) {
+    this._draggable = v;
+  }
+};
+function isRayTarget(obj2) {
+  return obj2 instanceof RayTarget;
+}
+function getRayTarget(obj2) {
+  let target = null;
+  if (obj2) {
+    if (isRayTarget(obj2)) {
+      target = obj2;
+    } else {
+      obj2 = objectResolve(obj2);
+      if (obj2) {
+        target = obj2.userData[RAY_TARGET_KEY];
+      }
+    }
+    if (target && !objectIsFullyVisible(target)) {
+      target = null;
+    }
+  }
+  return target;
+}
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/widgets/TextMeshButton.ts
 var TextMeshButton = class extends RayTarget {
@@ -13074,19 +13064,23 @@ var AvatarLocal = class extends TypedEventBase {
   setMode(pointer) {
     if (pointer.type === "hand" || pointer.type === "remote") {
       this.controlMode = "none" /* None */;
-    } else if (pointer.draggedHit) {
-      this.controlMode = "mouseedge" /* ScreenEdge */;
+    } else if (pointer.type === "mouse") {
+      if (this.evtSys.mouse.isPointerLocked) {
+        this.controlMode = "mousefirstperson" /* MouseFPS */;
+      } else if (pointer.draggedHit) {
+        this.controlMode = "mouseedge" /* ScreenEdge */;
+      } else {
+        this.controlMode = "mousedrag" /* MouseDrag */;
+      }
     } else if (pointer.type === "touch" || pointer.type === "pen") {
       this.lastTouchInputTime = performance.now();
-      this.controlMode = "touchswipe" /* Touch */;
+      if (pointer.draggedHit) {
+        this.controlMode = "mouseedge" /* ScreenEdge */;
+      } else {
+        this.controlMode = "touchswipe" /* Touch */;
+      }
     } else if (pointer.type === "gamepad") {
       this.controlMode = "gamepad" /* Gamepad */;
-    } else if (pointer.type !== "mouse") {
-      this.controlMode = "none" /* None */;
-    } else if (this.evtSys.mouse.isPointerLocked) {
-      this.controlMode = "mousefirstperson" /* MouseFPS */;
-    } else {
-      this.controlMode = "mousedrag" /* MouseDrag */;
     }
   }
   gestureSatisfied(pointer) {
@@ -17411,11 +17405,9 @@ var BaseScreenPointer = class extends BasePointer {
     this.motion = new THREE.Vector2();
     this.uv = new THREE.Vector2();
     this.duv = new THREE.Vector2();
-    this.canvasSize = new THREE.Vector2();
     this.uvComp = new THREE.Vector2(1, -1);
     this.uvOff = new THREE.Vector2(-1, 1);
     this.lastUV = null;
-    this.lastPosition = null;
     const onPointerDown = (evt) => {
       if (this.checkEvent(evt)) {
         this.readEvent(evt);
@@ -17455,36 +17447,29 @@ var BaseScreenPointer = class extends BasePointer {
   readEvent(evt) {
     if (this.checkEvent(evt)) {
       this.onReadEvent(evt);
-      if (evt.type === "pointermove" && document.pointerLockElement && this.lastPosition) {
-        this.position.copy(this.lastPosition).add(this.motion);
-      }
       if (this.element.clientWidth > 0 && this.element.clientHeight > 0) {
-        this.canvasSize.set(this.element.clientWidth, this.element.clientHeight);
-        this.uv.copy(this.position).multiplyScalar(2).divide(this.canvasSize).multiply(this.uvComp).add(this.uvOff);
+        this.uv.copy(this.position).multiplyScalar(2);
+        this.uv.x /= this.element.clientWidth;
+        this.uv.y /= this.element.clientHeight;
+        this.uv.multiply(this.uvComp).add(this.uvOff);
       }
     }
   }
   onPointerMove() {
+    super.onPointerMove();
     if (this.lastUV) {
       this.duv.copy(this.uv).sub(this.lastUV);
+      this.lastUV.copy(this.uv);
     }
-    if (this.duv.manhattanLength() > 0) {
-      this.env.avatar.onMove(this, this.uv, this.duv);
-    }
-    super.onPointerMove();
+    this.env.avatar.onMove(this, this.uv, this.duv);
     if (!this.lastUV) {
-      this.lastUV = new THREE.Vector2();
+      this.lastUV = new THREE.Vector2().copy(this.uv);
     }
-    this.lastUV.copy(this.uv);
   }
   onUpdate() {
     const cam = resolveCamera(this.env.renderer, this.env.camera);
     this.origin.setFromMatrixPosition(cam.matrixWorld);
     this.direction.set(this.uv.x, this.uv.y, 0.5).unproject(cam).sub(this.origin).normalize();
-    if (!this.lastPosition) {
-      this.lastPosition = new THREE.Vector2();
-    }
-    this.lastPosition.copy(this.position);
   }
 };
 
@@ -17521,6 +17506,7 @@ var PointerMouse = class extends BaseScreenPointerSinglePoint {
   constructor(env2) {
     super("mouse", 1 /* Mouse */, env2);
     this.allowPointerLock = false;
+    this.lastPosition = null;
     this.element.addEventListener("wheel", (evt) => {
       evt.preventDefault();
       this.env.avatar.zoom(-evt.deltaY * 0.5);
@@ -17528,21 +17514,35 @@ var PointerMouse = class extends BaseScreenPointerSinglePoint {
     this.element.addEventListener("contextmenu", (evt) => {
       evt.preventDefault();
     });
-    this.element.addEventListener("pointerdown", () => {
-      if (this.allowPointerLock && !this.isPointerLocked) {
+    this.element.addEventListener("pointerdown", (evt) => {
+      if (this.onCheckEvent(evt) && this.allowPointerLock && !this.isPointerLocked) {
         this.lockPointer();
       }
     });
+    document.addEventListener("pointerlockchange", () => {
+      if (this.isPointerLocked) {
+        this.lastPosition = new THREE.Vector2().copy(this.position);
+      } else {
+        this.lastPosition = null;
+      }
+    });
     Object.seal(this);
+  }
+  onReadEvent(evt) {
+    super.onReadEvent(evt);
+    if (this.lastPosition) {
+      this.position.copy(this.lastPosition).add(this.motion);
+      this.lastPosition.copy(this.position);
+    }
+  }
+  get isPointerLocked() {
+    return document.pointerLockElement != null;
   }
   lockPointer() {
     this.element.requestPointerLock();
   }
   unlockPointer() {
     document.exitPointerLock();
-  }
-  get isPointerLocked() {
-    return document.pointerLockElement != null;
   }
 };
 
@@ -17579,26 +17579,23 @@ var PointerMultiTouch = class extends BaseScreenPointer {
       this.points.delete(evt.pointerId);
     }
     this._buttons = 0;
-    this.isActive = this.points.size > 0;
-    if (this.isActive) {
-      this.position.setScalar(0);
-      this.motion.setScalar(0);
-      const K = 1 / this.points.size;
-      for (const point of this.points.values()) {
-        this._buttons |= point.buttons << this.points.size - 1;
-        this.position.x += K * point.offsetX;
-        this.position.y += K * point.offsetY;
-        this.motion.x += K * point.movementX;
-        this.motion.y += K * point.movementY;
+    this.position.setScalar(0);
+    this.motion.setScalar(0);
+    const K = 1 / this.points.size;
+    for (const point of this.points.values()) {
+      this._buttons |= point.buttons << this.points.size - 1;
+      this.position.x += K * point.offsetX;
+      this.position.y += K * point.offsetY;
+      this.motion.x += K * point.movementX;
+      this.motion.y += K * point.movementY;
+    }
+    if (this.points.size === 2) {
+      const [a, b] = Array.from(this.points.values());
+      const pinchDist = dist2(a, b);
+      if (evt.type === "pointermove") {
+        this.env.avatar.zoom((pinchDist - this.lastPinchDist) * 5);
       }
-      if (this.points.size === 2) {
-        const [a, b] = Array.from(this.points.values());
-        const pinchDist = dist2(a, b);
-        if (evt.type === "pointermove") {
-          this.env.avatar.zoom((pinchDist - this.lastPinchDist) * 5);
-        }
-        this.lastPinchDist = pinchDist;
-      }
+      this.lastPinchDist = pinchDist;
     }
   }
   vibrate() {
@@ -17734,9 +17731,9 @@ var EventSystem = class extends TypedEventBase {
           this.dispatchEvent(upEvt);
           if (pointer.buttons === 0) {
             if (isDefined(prsTarget)) {
-              pointer.pressedHit = null;
               prsTarget.dispatchEvent(upEvt);
             }
+            pointer.pressedHit = null;
             this.checkExit(curHit, hoveredHit, pointer);
             this.checkEnter(curHit, hoveredHit, pointer);
           }
@@ -17776,9 +17773,9 @@ var EventSystem = class extends TypedEventBase {
           const dragCancelEvt = this.getEvent(pointer, "dragcancel", draggedHit, curHit);
           this.dispatchEvent(dragCancelEvt);
           if (isDefined(drgTarget)) {
-            pointer.draggedHit = null;
             drgTarget.dispatchEvent(dragCancelEvt);
           }
+          pointer.draggedHit = null;
         }
         break;
       case "dragend":
@@ -17786,9 +17783,9 @@ var EventSystem = class extends TypedEventBase {
           const dragEndEvt = this.getEvent(pointer, "dragend", draggedHit, curHit);
           this.dispatchEvent(dragEndEvt);
           if (isDefined(drgTarget)) {
-            pointer.draggedHit = null;
             drgTarget.dispatchEvent(dragEndEvt);
           }
+          pointer.draggedHit = null;
         }
         break;
       default:
@@ -17815,13 +17812,15 @@ var EventSystem = class extends TypedEventBase {
     return evt;
   }
   checkExit(curHit, hoveredHit, pointer) {
-    const curTarget = getRayTarget(curHit);
-    const hoveredTarget = getRayTarget(hoveredHit);
-    if (curTarget !== hoveredTarget && isDefined(hoveredTarget)) {
+    if (curHit !== hoveredHit) {
       pointer.hoveredHit = null;
-      const exitEvt = this.getEvent(pointer, "exit", hoveredHit);
-      this.dispatchEvent(exitEvt);
-      hoveredTarget.dispatchEvent(exitEvt);
+      const curTarget = getRayTarget(curHit);
+      const hoveredTarget = getRayTarget(hoveredHit);
+      if (curTarget !== hoveredTarget && isDefined(hoveredTarget)) {
+        const exitEvt = this.getEvent(pointer, "exit", hoveredHit);
+        this.dispatchEvent(exitEvt);
+        hoveredTarget.dispatchEvent(exitEvt);
+      }
     }
   }
   checkEnter(curHit, hoveredHit, pointer) {
