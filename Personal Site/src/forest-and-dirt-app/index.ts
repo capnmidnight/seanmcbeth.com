@@ -1,6 +1,7 @@
 ﻿import { Dirt } from "@juniper-lib/graphics2d/Dirt";
 import { EventSystemEvent } from "@juniper-lib/threejs/eventSystem/EventSystemEvent";
 import { RayTarget } from "@juniper-lib/threejs/eventSystem/RayTarget";
+import { VirtualButton } from "@juniper-lib/threejs/eventSystem/VirtualButton";
 import { isMobile } from "@juniper-lib/tslib";
 import { createTestEnvironment } from "../createTestEnvironment";
 import { Forest } from "../forest-app/Forest";
@@ -28,17 +29,16 @@ surface.material.needsUpdate = true;
 const surfaceTarget = new RayTarget(surface);
 surfaceTarget.addMesh(surface);
 surfaceTarget.draggable = true;
-surfaceTarget.addEventListener("drag", checkPointer);
-surfaceTarget.addEventListener("dragcancel", checkPointer);
-surfaceTarget.addEventListener("dragend", checkPointer);
-surfaceTarget.addEventListener("dragstart", checkPointer);
+surfaceTarget.addEventListener("move", checkPointer);
 
 await env.fadeIn();
 
 function checkPointer(evt: EventSystemEvent) {
-    dirt.checkPointerUV(
-        evt.pointer.name,
-        evt.hit.uv.x,
-        1 - evt.hit.uv.y,
-        evt.type);
+    if (evt.pointer.isPressed(VirtualButton.Primary)) {
+        dirt.checkPointerUV(
+            evt.pointer.id,
+            evt.hit.uv.x,
+            1 - evt.hit.uv.y,
+            evt.type);
+    }
 }
