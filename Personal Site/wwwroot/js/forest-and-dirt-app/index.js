@@ -5283,7 +5283,6 @@ var Attr = class {
     this.tags = tags.map((t2) => t2.toLocaleUpperCase());
     Object.freeze(this);
   }
-  tags;
   applyToElement(elem) {
     const isDataSet = this.key.startsWith("data-");
     const isValid = this.tags.length === 0 || this.tags.indexOf(elem.tagName) > -1 || isDataSet;
@@ -5933,6 +5932,9 @@ function isMaterial(obj2) {
 function isMeshBasicMaterial(obj2) {
   return isMaterial(obj2) && obj2.type === "MeshBasicMaterial";
 }
+function isMeshStandardMaterial(obj2) {
+  return isMaterial(obj2) && obj2.type === "MeshStandardMaterial";
+}
 function isObject3D(obj2) {
   return isDefined(obj2) && obj2.isObject3D;
 }
@@ -6525,18 +6527,18 @@ var DeviceManager = class extends TypedEventBase {
     super();
     this.element = element;
     this.needsVideoDevice = needsVideoDevice;
-    this._hasAudioPermission = false;
-    this._hasVideoPermission = false;
-    this._currentStream = null;
     this.ready = this.start();
     Object.seal(this);
   }
+  _hasAudioPermission = false;
   get hasAudioPermission() {
     return this._hasAudioPermission;
   }
+  _hasVideoPermission = false;
   get hasVideoPermission() {
     return this._hasVideoPermission;
   }
+  _currentStream = null;
   get currentStream() {
     return this._currentStream;
   }
@@ -6550,6 +6552,7 @@ var DeviceManager = class extends TypedEventBase {
       this._currentStream = v;
     }
   }
+  ready;
   async start() {
     if (canChangeAudioOutput) {
       const device = await this.getPreferredAudioOutput();
@@ -11014,10 +11017,84 @@ function solidTransparent(options) {
   return makeMaterial("solidTransparent", THREE.MeshBasicMaterial, trans(options));
 }
 function lit(options) {
-  return makeMaterial("lit", THREE.MeshStandardMaterial, options);
+  return makeMaterial("lit", THREE.MeshPhongMaterial, options);
 }
 function line2(options) {
   return makeMaterial("line2", LineMaterial, options);
+}
+function materialStandardToPhong(oldMat, transparent) {
+  const params = {
+    alphaMap: oldMat.alphaMap,
+    alphaTest: oldMat.alphaTest,
+    alphaToCoverage: oldMat.alphaToCoverage,
+    aoMap: oldMat.aoMap,
+    aoMapIntensity: oldMat.aoMapIntensity,
+    blendDst: oldMat.blendDst,
+    blendDstAlpha: oldMat.blendDstAlpha,
+    blendEquation: oldMat.blendEquation,
+    blendEquationAlpha: oldMat.blendEquationAlpha,
+    blending: oldMat.blending,
+    blendSrc: oldMat.blendSrc,
+    blendSrcAlpha: oldMat.blendSrcAlpha,
+    bumpMap: oldMat.bumpMap,
+    bumpScale: oldMat.bumpScale,
+    clipIntersection: oldMat.clipIntersection,
+    clippingPlanes: oldMat.clippingPlanes,
+    clipShadows: oldMat.clipShadows,
+    color: oldMat.color,
+    colorWrite: oldMat.colorWrite,
+    depthFunc: oldMat.depthFunc,
+    depthTest: oldMat.depthTest,
+    depthWrite: oldMat.depthWrite,
+    displacementBias: oldMat.displacementBias,
+    displacementMap: oldMat.displacementMap,
+    displacementScale: oldMat.displacementScale,
+    dithering: oldMat.dithering,
+    emissive: oldMat.emissive,
+    emissiveIntensity: oldMat.emissiveIntensity,
+    emissiveMap: oldMat.emissiveMap,
+    envMap: oldMat.envMap,
+    flatShading: oldMat.flatShading,
+    fog: oldMat.fog,
+    lightMap: oldMat.lightMap,
+    lightMapIntensity: oldMat.lightMapIntensity,
+    map: oldMat.map,
+    name: oldMat.name + "-Basic",
+    normalMap: oldMat.normalMap,
+    normalMapType: oldMat.normalMapType,
+    normalScale: oldMat.normalScale,
+    opacity: oldMat.opacity,
+    polygonOffset: oldMat.polygonOffset,
+    polygonOffsetFactor: oldMat.polygonOffsetFactor,
+    polygonOffsetUnits: oldMat.polygonOffsetUnits,
+    precision: oldMat.precision,
+    premultipliedAlpha: oldMat.premultipliedAlpha,
+    shadowSide: oldMat.shadowSide,
+    side: oldMat.side,
+    stencilFail: oldMat.stencilFail,
+    stencilFunc: oldMat.stencilFunc,
+    stencilFuncMask: oldMat.stencilFuncMask,
+    stencilRef: oldMat.stencilRef,
+    stencilWrite: oldMat.stencilWrite,
+    stencilWriteMask: oldMat.stencilWriteMask,
+    stencilZFail: oldMat.stencilZFail,
+    stencilZPass: oldMat.stencilZPass,
+    toneMapped: oldMat.toneMapped,
+    transparent: isNullOrUndefined(transparent) ? oldMat.transparent : transparent,
+    userData: oldMat.userData,
+    vertexColors: oldMat.vertexColors,
+    visible: oldMat.visible,
+    wireframe: oldMat.wireframe,
+    wireframeLinecap: oldMat.wireframeLinecap,
+    wireframeLinejoin: oldMat.wireframeLinejoin,
+    wireframeLinewidth: oldMat.wireframeLinewidth
+  };
+  for (const [key, value2] of Object.entries(params)) {
+    if (isNullOrUndefined(value2)) {
+      delete params[key];
+    }
+  }
+  return new THREE.MeshPhongMaterial(params);
 }
 var grey = 12632256;
 var white = 16777215;
@@ -21453,7 +21530,6 @@ var BaseEnvironment = class extends TypedEventBase {
     this._xrMediaBinding = null;
     this._hasXRMediaLayers = null;
     this._hasXRCompositionLayers = null;
-    this.getModel = this.getModel.bind(this);
     if (isHTMLCanvas(canvas)) {
       canvas.style.backgroundColor = "black";
     }
@@ -21646,19 +21722,26 @@ var BaseEnvironment = class extends TypedEventBase {
       await this.fader.fadeIn();
     }
   }
-  modelAsset(path) {
-    return new AssetCustom(path, Model_Gltf_Binary, this.getModel);
+  modelAsset(path, convertMaterials = true) {
+    return new AssetCustom(path, Model_Gltf_Binary, (fetcher, path2, type2, prog) => this.getModel(fetcher, path2, type2, convertMaterials, prog));
   }
-  getModel(fetcher, path, type2, prog) {
-    return fetcher.get(path).useCache(!this.DEBUG).progress(prog).file(type2).then((response) => this.loadModel(response.content));
+  getModel(fetcher, path, type2, convertMaterials, prog) {
+    return fetcher.get(path).useCache(!this.DEBUG).progress(prog).file(type2).then((response) => this.loadModel(response.content, convertMaterials));
   }
-  async loadModel(path, prog) {
+  async loadModel(path, convertMaterials = true, prog) {
     const loader = new GLTFLoader();
     const model2 = await loader.loadAsync(path, (evt) => {
       if (isDefined(prog)) {
         prog.report(evt.loaded, evt.total, path);
       }
     });
+    if (convertMaterials) {
+      model2.scene.traverse((obj2) => {
+        if (isMesh(obj2) && isMeshStandardMaterial(obj2.material)) {
+          obj2.material = materialStandardToPhong(obj2.material);
+        }
+      });
+    }
     return model2.scene;
   }
   set3DCursor(model2) {
@@ -22273,87 +22356,16 @@ function objectScan(obj2, test) {
 function isMeshNamed(name2) {
   return (obj2) => isMesh(obj2) && obj2.name === name2;
 }
-function isFalse(v) {
-  return !v;
-}
-function convertMaterial(convert, oldMat, override) {
-  if (isFalse(convert)) {
-    return oldMat;
-  }
-  const params = Object.assign({
-    alphaMap: oldMat.alphaMap,
-    alphaTest: oldMat.alphaTest,
-    alphaToCoverage: oldMat.alphaToCoverage,
-    aoMap: oldMat.aoMap,
-    aoMapIntensity: oldMat.aoMapIntensity,
-    blendDst: oldMat.blendDst,
-    blendDstAlpha: oldMat.blendDstAlpha,
-    blendEquation: oldMat.blendEquation,
-    blendEquationAlpha: oldMat.blendEquationAlpha,
-    blending: oldMat.blending,
-    blendSrc: oldMat.blendSrc,
-    blendSrcAlpha: oldMat.blendSrcAlpha,
-    clipIntersection: oldMat.clipIntersection,
-    clippingPlanes: oldMat.clippingPlanes,
-    clipShadows: oldMat.clipShadows,
-    color: oldMat.color,
-    colorWrite: oldMat.colorWrite,
-    depthFunc: oldMat.depthFunc,
-    depthTest: oldMat.depthTest,
-    depthWrite: oldMat.depthWrite,
-    dithering: oldMat.dithering,
-    envMap: oldMat.envMap,
-    fog: oldMat.fog,
-    lightMap: oldMat.lightMap,
-    lightMapIntensity: oldMat.lightMapIntensity,
-    map: oldMat.map,
-    name: oldMat.name + "-Basic",
-    opacity: oldMat.opacity,
-    polygonOffset: oldMat.polygonOffset,
-    polygonOffsetFactor: oldMat.polygonOffsetFactor,
-    polygonOffsetUnits: oldMat.polygonOffsetUnits,
-    precision: oldMat.precision,
-    premultipliedAlpha: oldMat.premultipliedAlpha,
-    shadowSide: oldMat.shadowSide,
-    side: oldMat.side,
-    stencilFail: oldMat.stencilFail,
-    stencilFunc: oldMat.stencilFunc,
-    stencilFuncMask: oldMat.stencilFuncMask,
-    stencilRef: oldMat.stencilRef,
-    stencilWrite: oldMat.stencilWrite,
-    stencilWriteMask: oldMat.stencilWriteMask,
-    stencilZFail: oldMat.stencilZFail,
-    stencilZPass: oldMat.stencilZPass,
-    toneMapped: oldMat.toneMapped,
-    transparent: oldMat.transparent,
-    userData: oldMat.userData,
-    vertexColors: oldMat.vertexColors,
-    visible: oldMat.visible,
-    wireframe: oldMat.wireframe,
-    wireframeLinecap: oldMat.wireframeLinecap,
-    wireframeLinejoin: oldMat.wireframeLinejoin,
-    wireframeLinewidth: oldMat.wireframeLinewidth
-  }, override);
-  for (const [key, value2] of Object.entries(params)) {
-    if (isNullOrUndefined(value2)) {
-      delete params[key];
-    }
-  }
-  return new THREE.MeshBasicMaterial(params);
-}
 var Forest = class {
-  constructor(env2, useBasicMaterial, density = 0.05) {
+  constructor(env2, convertMaterial) {
     this.env = env2;
-    this.useBasicMaterial = useBasicMaterial;
-    this.density = density;
+    this.convertMaterial = convertMaterial;
     this.assets = [
       this.skybox = new AssetImage("/skyboxes/BearfenceMountain.jpeg", Image_Jpeg, false),
       this.forest = env2.modelAsset("/models/Forest-Ground.glb"),
-      this.bgAudio = new AssetAudio("/audio/forest.mp3", Audio_Mpeg, false)
+      this.bgAudio = new AssetAudio("/audio/forest.mp3", Audio_Mpeg, false),
+      this.tree = env2.modelAsset("/models/Forest-Tree.glb")
     ];
-    if (this.density > 0) {
-      this.assets.push(this.tree = env2.modelAsset("/models/Forest-Tree.glb"));
-    }
     this.raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0), 0.1, 100);
     this.hits = new Array();
     Promise.all(this.assets).then(() => this.finish());
@@ -22377,6 +22389,17 @@ var Forest = class {
     return this._trees;
   }
   assets;
+  convertMesh(oldMesh) {
+    const oldMat = oldMesh.material;
+    const newMat = this.convertMaterial(oldMesh.material, false);
+    if (newMat === oldMat) {
+      return oldMesh;
+    }
+    const newMesh = oldMesh;
+    newMesh.material = newMat;
+    oldMat.dispose();
+    return newMesh;
+  }
   finish() {
     this.env.skybox.setImage("forest", this.skybox.result);
     this.env.audio.createClip("forest", this.bgAudio.result, true, true, true, 1, []);
@@ -22384,27 +22407,25 @@ var Forest = class {
     this.env.foreground.add(this.forest.result);
     this.forest.result.updateMatrixWorld();
     this.raycaster.camera = this.env.camera;
-    this._ground = objectScan(this.forest.result, isMeshNamed("Ground"));
+    const ground = objectScan(this.forest.result, isMeshNamed("Ground"));
+    this._ground = this.convertMesh(ground);
     this.env.timer.addTickHandler(() => {
       const groundHit = this.groundTest(this.env.avatar.worldPos);
       if (groundHit) {
         this.env.avatar.stage.position.y = groundHit.point.y;
       }
     });
-    this._water = objectScan(this.forest.result, isMeshNamed("Water"));
-    this._ground.material = convertMaterial(this.useBasicMaterial, this._ground.material, { transparent: false });
-    this._water.material = convertMaterial(this.useBasicMaterial, this._water.material, { transparent: false });
-    if (this.density > 0) {
-      const matrices = this.makeTrees();
-      const treeMesh = objectScan(this.tree.result, isMesh);
-      const treeGeom = treeMesh.geometry;
-      const treeMat = convertMaterial(this.useBasicMaterial, treeMesh.material, { transparent: false });
-      this._trees = new THREE.InstancedMesh(treeGeom, treeMat, matrices.length);
-      for (let i = 0; i < matrices.length; ++i) {
-        this._trees.setMatrixAt(i, matrices[i]);
-      }
-      this.env.foreground.add(this._trees);
+    const water = objectScan(this.forest.result, isMeshNamed("Water"));
+    this._water = this.convertMesh(water);
+    const matrices = this.makeTrees();
+    const treeMesh = objectScan(this.tree.result, isMesh);
+    const treeGeom = treeMesh.geometry;
+    const treeMat = this.convertMaterial(treeMesh.material, false);
+    this._trees = new THREE.InstancedMesh(treeGeom, treeMat, matrices.length);
+    for (let i = 0; i < matrices.length; ++i) {
+      this._trees.setMatrixAt(i, matrices[i]);
     }
+    this.env.foreground.add(this._trees);
   }
   makeTrees() {
     const matrices = new Array();
@@ -22416,7 +22437,7 @@ var Forest = class {
     const s = new THREE.Vector3();
     for (let dz = -25; dz <= 25; ++dz) {
       for (let dx = -25; dx <= 25; ++dx) {
-        if ((dx !== 0 || dx !== 0) && Math.random() <= this.density) {
+        if ((dx !== 0 || dx !== 0) && Math.random() <= 0.02) {
           const x = Math.random() * 0.1 + dx;
           const z = Math.random() * 0.1 + dz;
           p.set(x, 0, z);
@@ -22447,7 +22468,7 @@ var Forest = class {
 // src/forest-and-dirt-app/index.ts
 var env = await createTestEnvironment();
 await env.fadeOut();
-var forest = new Forest(env, false);
+var forest = new Forest(env, identity);
 await env.load(...forest.assets);
 var S2 = isMobile() ? 2048 : 4096;
 var dirt = new Dirt(S2, S2, S2 / 8192);

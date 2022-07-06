@@ -5581,7 +5581,6 @@ var Attr = class {
     this.tags = tags.map((t2) => t2.toLocaleUpperCase());
     Object.freeze(this);
   }
-  tags;
   applyToElement(elem) {
     const isDataSet = this.key.startsWith("data-");
     const isValid = this.tags.length === 0 || this.tags.indexOf(elem.tagName) > -1 || isDataSet;
@@ -8130,10 +8129,84 @@ function solidTransparent(options) {
   return makeMaterial("solidTransparent", THREE.MeshBasicMaterial, trans(options));
 }
 function lit(options) {
-  return makeMaterial("lit", THREE.MeshStandardMaterial, options);
+  return makeMaterial("lit", THREE.MeshPhongMaterial, options);
 }
 function line2(options) {
   return makeMaterial("line2", LineMaterial, options);
+}
+function materialStandardToPhong(oldMat, transparent) {
+  const params = {
+    alphaMap: oldMat.alphaMap,
+    alphaTest: oldMat.alphaTest,
+    alphaToCoverage: oldMat.alphaToCoverage,
+    aoMap: oldMat.aoMap,
+    aoMapIntensity: oldMat.aoMapIntensity,
+    blendDst: oldMat.blendDst,
+    blendDstAlpha: oldMat.blendDstAlpha,
+    blendEquation: oldMat.blendEquation,
+    blendEquationAlpha: oldMat.blendEquationAlpha,
+    blending: oldMat.blending,
+    blendSrc: oldMat.blendSrc,
+    blendSrcAlpha: oldMat.blendSrcAlpha,
+    bumpMap: oldMat.bumpMap,
+    bumpScale: oldMat.bumpScale,
+    clipIntersection: oldMat.clipIntersection,
+    clippingPlanes: oldMat.clippingPlanes,
+    clipShadows: oldMat.clipShadows,
+    color: oldMat.color,
+    colorWrite: oldMat.colorWrite,
+    depthFunc: oldMat.depthFunc,
+    depthTest: oldMat.depthTest,
+    depthWrite: oldMat.depthWrite,
+    displacementBias: oldMat.displacementBias,
+    displacementMap: oldMat.displacementMap,
+    displacementScale: oldMat.displacementScale,
+    dithering: oldMat.dithering,
+    emissive: oldMat.emissive,
+    emissiveIntensity: oldMat.emissiveIntensity,
+    emissiveMap: oldMat.emissiveMap,
+    envMap: oldMat.envMap,
+    flatShading: oldMat.flatShading,
+    fog: oldMat.fog,
+    lightMap: oldMat.lightMap,
+    lightMapIntensity: oldMat.lightMapIntensity,
+    map: oldMat.map,
+    name: oldMat.name + "-Basic",
+    normalMap: oldMat.normalMap,
+    normalMapType: oldMat.normalMapType,
+    normalScale: oldMat.normalScale,
+    opacity: oldMat.opacity,
+    polygonOffset: oldMat.polygonOffset,
+    polygonOffsetFactor: oldMat.polygonOffsetFactor,
+    polygonOffsetUnits: oldMat.polygonOffsetUnits,
+    precision: oldMat.precision,
+    premultipliedAlpha: oldMat.premultipliedAlpha,
+    shadowSide: oldMat.shadowSide,
+    side: oldMat.side,
+    stencilFail: oldMat.stencilFail,
+    stencilFunc: oldMat.stencilFunc,
+    stencilFuncMask: oldMat.stencilFuncMask,
+    stencilRef: oldMat.stencilRef,
+    stencilWrite: oldMat.stencilWrite,
+    stencilWriteMask: oldMat.stencilWriteMask,
+    stencilZFail: oldMat.stencilZFail,
+    stencilZPass: oldMat.stencilZPass,
+    toneMapped: oldMat.toneMapped,
+    transparent: isNullOrUndefined(transparent) ? oldMat.transparent : transparent,
+    userData: oldMat.userData,
+    vertexColors: oldMat.vertexColors,
+    visible: oldMat.visible,
+    wireframe: oldMat.wireframe,
+    wireframeLinecap: oldMat.wireframeLinecap,
+    wireframeLinejoin: oldMat.wireframeLinejoin,
+    wireframeLinewidth: oldMat.wireframeLinewidth
+  };
+  for (const [key, value2] of Object.entries(params)) {
+    if (isNullOrUndefined(value2)) {
+      delete params[key];
+    }
+  }
+  return new THREE.MeshPhongMaterial(params);
 }
 var blue = 255;
 var green = 65280;
@@ -8155,6 +8228,9 @@ function isMaterial(obj3) {
 }
 function isMeshBasicMaterial(obj3) {
   return isMaterial(obj3) && obj3.type === "MeshBasicMaterial";
+}
+function isMeshStandardMaterial(obj3) {
+  return isMaterial(obj3) && obj3.type === "MeshStandardMaterial";
 }
 function isObject3D(obj3) {
   return isDefined(obj3) && obj3.isObject3D;
@@ -8901,18 +8977,18 @@ var DeviceManager = class extends TypedEventBase {
     super();
     this.element = element;
     this.needsVideoDevice = needsVideoDevice;
-    this._hasAudioPermission = false;
-    this._hasVideoPermission = false;
-    this._currentStream = null;
     this.ready = this.start();
     Object.seal(this);
   }
+  _hasAudioPermission = false;
   get hasAudioPermission() {
     return this._hasAudioPermission;
   }
+  _hasVideoPermission = false;
   get hasVideoPermission() {
     return this._hasVideoPermission;
   }
+  _currentStream = null;
   get currentStream() {
     return this._currentStream;
   }
@@ -8926,6 +9002,7 @@ var DeviceManager = class extends TypedEventBase {
       this._currentStream = v;
     }
   }
+  ready;
   async start() {
     if (canChangeAudioOutput) {
       const device = await this.getPreferredAudioOutput();
@@ -21512,7 +21589,6 @@ var BaseEnvironment = class extends TypedEventBase {
     this._xrMediaBinding = null;
     this._hasXRMediaLayers = null;
     this._hasXRCompositionLayers = null;
-    this.getModel = this.getModel.bind(this);
     if (isHTMLCanvas(canvas)) {
       canvas.style.backgroundColor = "black";
     }
@@ -21705,19 +21781,26 @@ var BaseEnvironment = class extends TypedEventBase {
       await this.fader.fadeIn();
     }
   }
-  modelAsset(path) {
-    return new AssetCustom(path, Model_Gltf_Binary, this.getModel);
+  modelAsset(path, convertMaterials = true) {
+    return new AssetCustom(path, Model_Gltf_Binary, (fetcher, path2, type2, prog) => this.getModel(fetcher, path2, type2, convertMaterials, prog));
   }
-  getModel(fetcher, path, type2, prog) {
-    return fetcher.get(path).useCache(!this.DEBUG).progress(prog).file(type2).then((response) => this.loadModel(response.content));
+  getModel(fetcher, path, type2, convertMaterials, prog) {
+    return fetcher.get(path).useCache(!this.DEBUG).progress(prog).file(type2).then((response) => this.loadModel(response.content, convertMaterials));
   }
-  async loadModel(path, prog) {
+  async loadModel(path, convertMaterials = true, prog) {
     const loader = new GLTFLoader();
     const model2 = await loader.loadAsync(path, (evt) => {
       if (isDefined(prog)) {
         prog.report(evt.loaded, evt.total, path);
       }
     });
+    if (convertMaterials) {
+      model2.scene.traverse((obj3) => {
+        if (isMesh(obj3) && isMeshStandardMaterial(obj3.material)) {
+          obj3.material = materialStandardToPhong(obj3.material);
+        }
+      });
+    }
     return model2.scene;
   }
   set3DCursor(model2) {
