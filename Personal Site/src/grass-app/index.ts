@@ -1,12 +1,13 @@
 ﻿import { AssetImage } from "@juniper-lib/fetcher";
 import { Image_Png } from "@juniper-lib/mediatypes";
+import { materialPhongToBasic } from "@juniper-lib/threejs/materials";
 import { createTestEnvironment } from "../createTestEnvironment";
 import { Forest } from "../forest-app/Forest";
 import { makeGrass } from "./makeGrass";
 
 const env = await createTestEnvironment();
 await env.fadeOut();
-const forest = new Forest(env, true);
+const forest = new Forest(env, materialPhongToBasic);
 const spatter = new AssetImage("/img/spatter.png", Image_Png, !DEBUG);
 await env.load(spatter, ...forest.assets);
 
