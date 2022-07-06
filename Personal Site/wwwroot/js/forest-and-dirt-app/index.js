@@ -5283,6 +5283,7 @@ var Attr = class {
     this.tags = tags.map((t2) => t2.toLocaleUpperCase());
     Object.freeze(this);
   }
+  tags;
   applyToElement(elem) {
     const isDataSet = this.key.startsWith("data-");
     const isValid = this.tags.length === 0 || this.tags.indexOf(elem.tagName) > -1 || isDataSet;
@@ -5929,11 +5930,14 @@ function isMesh(obj2) {
 function isMaterial(obj2) {
   return isDefined(obj2) && obj2.isMaterial;
 }
+function isNamedMaterial(name2, obj2) {
+  return isMaterial(obj2) && obj2.type === name2;
+}
 function isMeshBasicMaterial(obj2) {
-  return isMaterial(obj2) && obj2.type === "MeshBasicMaterial";
+  return isNamedMaterial("MeshBasicMaterial", obj2);
 }
 function isMeshStandardMaterial(obj2) {
-  return isMaterial(obj2) && obj2.type === "MeshStandardMaterial";
+  return isNamedMaterial("MeshStandardMaterial", obj2);
 }
 function isObject3D(obj2) {
   return isDefined(obj2) && obj2.isObject3D;
@@ -21736,11 +21740,16 @@ var BaseEnvironment = class extends TypedEventBase {
       }
     });
     if (convertMaterials) {
+      const oldMats = /* @__PURE__ */ new Set();
       model2.scene.traverse((obj2) => {
         if (isMesh(obj2) && isMeshStandardMaterial(obj2.material)) {
+          oldMats.add(obj2.material);
           obj2.material = materialStandardToPhong(obj2.material);
         }
       });
+      for (const oldMat of oldMats.values()) {
+        oldMat.dispose();
+      }
     }
     return model2.scene;
   }
