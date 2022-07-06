@@ -954,10 +954,6 @@ function createCanvas(w, h) {
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/graphics2d/Dirt.ts
 var actionTypes = singleton("Juniper:Graphics2D:Dirt:StopTypes", () => /* @__PURE__ */ new Map([
-  ["drag", "move"],
-  ["dragcancel", "up"],
-  ["dragend", "up"],
-  ["dragstart", "down"],
   ["mousedown", "down"],
   ["mouseenter", "move"],
   ["mouseleave", "up"],
@@ -1030,7 +1026,7 @@ var Dirt = class extends TypedEventBase {
     this.pressed = false;
   }
   checkPointer(id, x, y, type2) {
-    const action = actionTypes.get(type2) || "up";
+    const action = actionTypes.get(type2) || type2;
     const start = action === "down" && this.pointerId === null;
     const sustain = action === "move" && id === this.pointerId && this.pressed;
     this.x = x;

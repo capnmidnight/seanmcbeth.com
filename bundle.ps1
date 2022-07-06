@@ -1,6 +1,2 @@
-cd ".\Personal Site"
-$v=npm version patch
-cd ..\Build
-dotnet run
-git add -A
-git commit -m $v
+$v=npm --prefix ".\Personal Site" version patch
+.\build.ps1

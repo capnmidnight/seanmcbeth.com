@@ -2091,9 +2091,11 @@ var WorkerClient = class extends TypedEventBase {
   }
   progressReport(data) {
     const invocation = this.invocations.get(data.taskID);
-    const { prog } = invocation;
-    if (prog) {
-      prog.report(data.soFar, data.total, data.msg, data.est);
+    if (invocation) {
+      const { prog } = invocation;
+      if (prog) {
+        prog.report(data.soFar, data.total, data.msg, data.est);
+      }
     }
   }
   methodReturned(data) {
