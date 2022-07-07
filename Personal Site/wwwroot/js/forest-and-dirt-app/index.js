@@ -4043,16 +4043,16 @@ function success(task) {
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/events/Pointers.ts
-var PointerID = /* @__PURE__ */ ((PointerID2) => {
-  PointerID2[PointerID2["LocalUser"] = 0] = "LocalUser";
-  PointerID2[PointerID2["Mouse"] = 1] = "Mouse";
-  PointerID2[PointerID2["Pen"] = 2] = "Pen";
-  PointerID2[PointerID2["Touch"] = 3] = "Touch";
-  PointerID2[PointerID2["MotionController"] = 4] = "MotionController";
-  PointerID2[PointerID2["MotionControllerLeft"] = 5] = "MotionControllerLeft";
-  PointerID2[PointerID2["MotionControllerRight"] = 6] = "MotionControllerRight";
-  PointerID2[PointerID2["RemoteUser"] = 7] = "RemoteUser";
-  return PointerID2;
+var PointerID = /* @__PURE__ */ ((PointerID3) => {
+  PointerID3[PointerID3["LocalUser"] = 0] = "LocalUser";
+  PointerID3[PointerID3["Mouse"] = 1] = "Mouse";
+  PointerID3[PointerID3["Pen"] = 2] = "Pen";
+  PointerID3[PointerID3["Touch"] = 3] = "Touch";
+  PointerID3[PointerID3["MotionController"] = 4] = "MotionController";
+  PointerID3[PointerID3["MotionControllerLeft"] = 5] = "MotionControllerLeft";
+  PointerID3[PointerID3["MotionControllerRight"] = 6] = "MotionControllerRight";
+  PointerID3[PointerID3["RemoteUser"] = 7] = "RemoteUser";
+  return PointerID3;
 })(PointerID || {});
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/events/Promisifier.ts
@@ -5936,9 +5936,6 @@ function isNamedMaterial(name2, obj2) {
 function isMeshBasicMaterial(obj2) {
   return isNamedMaterial("MeshBasicMaterial", obj2);
 }
-function isMeshStandardMaterial(obj2) {
-  return isNamedMaterial("MeshStandardMaterial", obj2);
-}
 function isObject3D(obj2) {
   return isDefined(obj2) && obj2.isObject3D;
 }
@@ -6298,7 +6295,6 @@ var Pose = class {
     this.p = vec3_exports.create();
     this.f = vec3_exports.set(vec3_exports.create(), 0, 0, -1);
     this.u = vec3_exports.set(vec3_exports.create(), 0, 1, 0);
-    this.o = vec3_exports.create();
     Object.seal(this);
   }
   set(px, py, pz, fx, fy, fz, ux, uy, uz) {
@@ -6312,14 +6308,10 @@ var Pose = class {
     vec3_exports.set(this.f, fx, fy, fz);
     vec3_exports.set(this.u, ux, uy, uz);
   }
-  setOffset(ox, oy, oz) {
-    vec3_exports.set(this.o, ox, oy, oz);
-  }
   copy(other) {
     vec3_exports.copy(this.p, other.p);
     vec3_exports.copy(this.f, other.f);
     vec3_exports.copy(this.u, other.u);
-    vec3_exports.copy(this.o, other.o);
   }
 };
 
@@ -7128,14 +7120,18 @@ var WebAudioPannerNew = class extends BaseWebAudioPanner {
     Object.seal(this);
   }
   setPosition(x, y, z, t2) {
-    this.panner.positionX.setValueAtTime(x, t2);
-    this.panner.positionY.setValueAtTime(y, t2);
-    this.panner.positionZ.setValueAtTime(z, t2);
+    if (isGoodNumber(x) && isGoodNumber(y) && isGoodNumber(z) && isGoodNumber(t2)) {
+      this.panner.positionX.setValueAtTime(x, t2);
+      this.panner.positionY.setValueAtTime(y, t2);
+      this.panner.positionZ.setValueAtTime(z, t2);
+    }
   }
   setOrientation(x, y, z, t2) {
-    this.panner.orientationX.setValueAtTime(-x, t2);
-    this.panner.orientationY.setValueAtTime(-y, t2);
-    this.panner.orientationZ.setValueAtTime(-z, t2);
+    if (isGoodNumber(x) && isGoodNumber(y) && isGoodNumber(z) && isGoodNumber(t2)) {
+      this.panner.orientationX.setValueAtTime(-x, t2);
+      this.panner.orientationY.setValueAtTime(-y, t2);
+      this.panner.orientationZ.setValueAtTime(-z, t2);
+    }
   }
 };
 
@@ -7165,7 +7161,6 @@ var useHeadphonesToggledEvt = new TypedEvent("useheadphonestoggled");
 var hasStreamSources = "createMediaStreamSource" in AudioContext.prototype;
 var useElementSourceForUsers = !hasStreamSources;
 var AudioManager = class extends TypedEventBase {
-  sortedUserIDs = new Array();
   users = /* @__PURE__ */ new Map();
   clips = /* @__PURE__ */ new Map();
   clipPaths = /* @__PURE__ */ new Map();
@@ -7175,7 +7170,6 @@ var AudioManager = class extends TypedEventBase {
   localCompressor;
   _minDistance = 1;
   _maxDistance = 10;
-  _offsetRadius = 0;
   _useHeadphones = false;
   _algorithm = "inverse";
   get algorithm() {
@@ -7234,7 +7228,7 @@ var AudioManager = class extends TypedEventBase {
     }
   }
   dispose() {
-    for (const userID of this.sortedUserIDs) {
+    for (const userID of this.users.keys()) {
       this.removeUser(userID);
     }
     for (const clipID of this.clips.keys()) {
@@ -7254,13 +7248,6 @@ var AudioManager = class extends TypedEventBase {
       await this.element.play();
     }
     await this.devices.ready;
-  }
-  get offsetRadius() {
-    return this._offsetRadius;
-  }
-  set offsetRadius(v) {
-    this._offsetRadius = v;
-    this.updateUserOffsets();
   }
   get filter() {
     return this.localFilter;
@@ -7313,17 +7300,12 @@ var AudioManager = class extends TypedEventBase {
       const spatializer = this.createSpatializer(id2, true, true);
       const user = new AudioStreamSource(id2, this.audioCtx, spatializer);
       this.users.set(userID, user);
-      arraySortedInsert(this.sortedUserIDs, userID);
-      this.updateUserOffsets();
     }
     return this.users.get(userID);
   }
   setLocalUserID(id2) {
     if (this.audioDestination) {
-      arrayRemove(this.sortedUserIDs, this.localUserID);
       this.localUserID = id2;
-      arraySortedInsert(this.sortedUserIDs, this.localUserID);
-      this.updateUserOffsets();
     }
     return this.audioDestination;
   }
@@ -7444,8 +7426,6 @@ var AudioManager = class extends TypedEventBase {
     if (isDefined(user.input)) {
       user.input = null;
     }
-    arrayRemove(this.sortedUserIDs, userID);
-    this.updateUserOffsets();
   }
   removeClip(id2) {
     const path = this.clipPaths.get(id2);
@@ -7463,22 +7443,6 @@ var AudioManager = class extends TypedEventBase {
         user.input = this.createSourceFromStream(stringToName(userName, userID), stream);
       } else if (isDefined(user.input)) {
         user.input = null;
-      }
-    }
-  }
-  updateUserOffsets() {
-    if (this.offsetRadius > 0) {
-      const idx = this.sortedUserIDs.indexOf(this.localUserID);
-      const dAngle = 2 * Math.PI / this.sortedUserIDs.length;
-      const localAngle = (idx + 1) * dAngle;
-      const dx = this.offsetRadius * Math.sin(localAngle);
-      const dy = this.offsetRadius * (Math.cos(localAngle) - 1);
-      for (let i = 0; i < this.sortedUserIDs.length; ++i) {
-        const id2 = this.sortedUserIDs[i];
-        const angle3 = (i + 1) * dAngle;
-        const x = this.offsetRadius * Math.sin(angle3) - dx;
-        const z = this.offsetRadius * (Math.cos(angle3) - 1) - dy;
-        this.setUserOffset(id2, x, 0, z);
       }
     }
   }
@@ -7509,14 +7473,6 @@ var AudioManager = class extends TypedEventBase {
   }
   withUser(id2, poseCallback) {
     return this.withPose(this.users, id2, poseCallback);
-  }
-  setUserOffset(id2, x, y, z) {
-    this.withUser(id2, (pose) => {
-      pose.setOffset(x, y, z);
-    });
-  }
-  getUserOffset(id2) {
-    return this.withUser(id2, (pose) => pose.o);
   }
   setUserPose(id2, px, py, pz, fx, fy, fz, ux, uy, uz) {
     this.withUser(id2, (pose) => {
@@ -11026,7 +10982,23 @@ function lit(options) {
 function line2(options) {
   return makeMaterial("line2", LineMaterial, options);
 }
-function materialStandardToPhong(oldMat, transparent) {
+function convertMaterials(root, convertMaterial) {
+  const oldMats = /* @__PURE__ */ new Set();
+  root.traverse((obj2) => {
+    if (isMesh(obj2) && isMaterial(obj2.material)) {
+      const oldMat = obj2.material;
+      const newMat = convertMaterial(oldMat);
+      if (oldMat !== newMat) {
+        oldMats.add(oldMat);
+        obj2.material = newMat;
+      }
+    }
+  });
+  for (const oldMat of oldMats) {
+    oldMat.dispose();
+  }
+}
+function materialStandardToBasic(oldMat) {
   const params = {
     alphaMap: oldMat.alphaMap,
     alphaTest: oldMat.alphaTest,
@@ -11040,8 +11012,6 @@ function materialStandardToPhong(oldMat, transparent) {
     blending: oldMat.blending,
     blendSrc: oldMat.blendSrc,
     blendSrcAlpha: oldMat.blendSrcAlpha,
-    bumpMap: oldMat.bumpMap,
-    bumpScale: oldMat.bumpScale,
     clipIntersection: oldMat.clipIntersection,
     clippingPlanes: oldMat.clippingPlanes,
     clipShadows: oldMat.clipShadows,
@@ -11050,23 +11020,13 @@ function materialStandardToPhong(oldMat, transparent) {
     depthFunc: oldMat.depthFunc,
     depthTest: oldMat.depthTest,
     depthWrite: oldMat.depthWrite,
-    displacementBias: oldMat.displacementBias,
-    displacementMap: oldMat.displacementMap,
-    displacementScale: oldMat.displacementScale,
     dithering: oldMat.dithering,
-    emissive: oldMat.emissive,
-    emissiveIntensity: oldMat.emissiveIntensity,
-    emissiveMap: oldMat.emissiveMap,
     envMap: oldMat.envMap,
-    flatShading: oldMat.flatShading,
     fog: oldMat.fog,
     lightMap: oldMat.lightMap,
     lightMapIntensity: oldMat.lightMapIntensity,
-    map: oldMat.map,
-    name: oldMat.name + "-Basic",
-    normalMap: oldMat.normalMap,
-    normalMapType: oldMat.normalMapType,
-    normalScale: oldMat.normalScale,
+    map: oldMat.emissiveMap || oldMat.map,
+    name: oldMat.name + "-Standard-To-Basic",
     opacity: oldMat.opacity,
     polygonOffset: oldMat.polygonOffset,
     polygonOffsetFactor: oldMat.polygonOffsetFactor,
@@ -11084,7 +11044,7 @@ function materialStandardToPhong(oldMat, transparent) {
     stencilZFail: oldMat.stencilZFail,
     stencilZPass: oldMat.stencilZPass,
     toneMapped: oldMat.toneMapped,
-    transparent: isNullOrUndefined(transparent) ? oldMat.transparent : transparent,
+    transparent: oldMat.transparent,
     userData: oldMat.userData,
     vertexColors: oldMat.vertexColors,
     visible: oldMat.visible,
@@ -11098,7 +11058,7 @@ function materialStandardToPhong(oldMat, transparent) {
       delete params[key];
     }
   }
-  return new THREE.MeshPhongMaterial(params);
+  return new THREE.MeshBasicMaterial(params);
 }
 var grey = 12632256;
 var white = 16777215;
@@ -11153,6 +11113,17 @@ var Image2D = class extends THREE.Object3D {
       objGraph(this, this.mesh);
     }
   }
+  copy(source, recursive = true) {
+    super.copy(source, recursive);
+    this.setImageSize(source.imageWidth, source.imageHeight);
+    this.setEnvAndName(source.env, source.name + ++copyCounter);
+    this.mesh = arrayScan(this.children, isMesh);
+    if (isNullOrUndefined(this.mesh)) {
+      this.mesh = source.mesh.clone();
+    }
+    objGraph(this, this.mesh);
+    return this;
+  }
   dispose() {
     cleanup(this.layer);
   }
@@ -11205,23 +11176,6 @@ var Image2D = class extends THREE.Object3D {
     this.env = env2;
     this.name = name2;
     this.tryWebXRLayers &&= this.env && this.env.hasXRCompositionLayers;
-  }
-  copy(source, recursive = true) {
-    super.copy(source, recursive);
-    this.setImageSize(source.imageWidth, source.imageHeight);
-    this.setEnvAndName(source.env, source.name + ++copyCounter);
-    for (let i = this.children.length - 1; i >= 0; --i) {
-      const child = this.children[i];
-      if (child.parent instanceof Image2D && child instanceof THREE.Mesh) {
-        child.removeFromParent();
-        this.mesh = new THREE.Mesh(child.geometry, child.material);
-      }
-    }
-    if (isNullOrUndefined(this.mesh)) {
-      this.mesh = source.mesh.clone();
-      objGraph(this, this.mesh);
-    }
-    return this;
   }
   get needsLayer() {
     if (!objectIsFullyVisible(this) || isNullOrUndefined(this.mesh.material.map) || isNullOrUndefined(this.mesh.material.map.image)) {
@@ -13363,9 +13317,9 @@ var AvatarLocal = class extends TypedEventBase {
     }
     this.Q1.setFromAxisAngle(this.stage.up, this.worldHeading);
     if (this.fwrd || this.back || this.left || this.rght || this.up || this.down) {
-      const dx = (this.left ? -1 : 0) + (this.rght ? 1 : 0);
-      const dy = (this.down ? -1 : 0) + (this.up ? 1 : 0);
-      const dz = (this.fwrd ? -1 : 0) + (this.back ? 1 : 0);
+      const dx = (this.left ? 1 : 0) + (this.rght ? -1 : 0);
+      const dy = (this.down ? 1 : 0) + (this.up ? -1 : 0);
+      const dz = (this.fwrd ? 1 : 0) + (this.back ? -1 : 0);
       this.move.set(dx, dy, dz);
       const d = this.move.length();
       if (d > 0) {
@@ -13374,8 +13328,8 @@ var AvatarLocal = class extends TypedEventBase {
       }
     }
     if (this.fwrd2 || this.back2 || this.left2 || this.rght2) {
-      const dx = (this.left2 ? -1 : 0) + (this.rght2 ? 1 : 0);
-      const dz = (this.fwrd2 ? -1 : 0) + (this.back2 ? 1 : 0);
+      const dx = (this.left2 ? 1 : 0) + (this.rght2 ? -1 : 0);
+      const dz = (this.fwrd2 ? 1 : 0) + (this.back2 ? -1 : 0);
       this.move2.set(dx, 0, dz);
       const d = this.move2.length();
       if (d > 0) {
@@ -13479,14 +13433,15 @@ function deepEnableLayer(obj2, level) {
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/BaseCursor.ts
-var T = new THREE.Vector3();
-var V = new THREE.Vector3();
-var Q2 = new THREE.Quaternion();
 var BaseCursor = class {
-  constructor() {
+  constructor(env2) {
+    this.env = env2;
     this._object = null;
     this._visible = true;
     this._style = "default";
+    this.T = new THREE.Vector3();
+    this.V = new THREE.Vector3();
+    this.Q = new THREE.Quaternion();
   }
   get object() {
     return this._object;
@@ -13506,20 +13461,25 @@ var BaseCursor = class {
   set visible(v) {
     this._visible = v;
   }
-  update(avatarHeadPos, hit, target, defaultDistance, canMoveView, origin, direction, isPrimaryPressed) {
+  update(avatarHeadPos, comfortOffset, hit, target, defaultDistance, isLocal, canMoveView, origin, direction, isPrimaryPressed) {
     if (hit && hit.face) {
       this.position.copy(hit.point);
-      hit.object.getWorldQuaternion(Q2);
-      T.copy(hit.face.normal).applyQuaternion(Q2);
-      V.copy(T).multiplyScalar(0.02);
-      this.position.add(V);
-      V.copy(T).multiplyScalar(10).add(this.position);
+      hit.object.getWorldQuaternion(this.Q);
+      this.T.copy(hit.face.normal).applyQuaternion(this.Q);
+      this.V.copy(this.T).multiplyScalar(0.02);
+      this.position.add(this.V);
+      this.V.copy(this.T).multiplyScalar(10).add(this.position);
     } else {
-      this.position.copy(direction).multiplyScalar(defaultDistance).add(origin);
-      V.copy(avatarHeadPos);
+      if (isLocal) {
+        this.position.copy(direction).multiplyScalar(2).add(origin).sub(this.env.avatar.worldPos).normalize().multiplyScalar(defaultDistance).add(this.env.avatar.worldPos);
+      } else {
+        this.V.copy(origin).add(comfortOffset).sub(avatarHeadPos).multiplyScalar(2);
+        this.position.copy(direction).multiplyScalar(defaultDistance).add(this.V).add(this.env.avatar.worldPos);
+      }
+      this.V.copy(this.env.avatar.worldPos);
     }
     this.object.parent.worldToLocal(this.position);
-    this.lookAt(V);
+    this.lookAt(this.V);
     this.style = target ? !target.enabled ? "not-allowed" : target.draggable ? isPrimaryPressed ? "grabbing" : "move" : target.clickable ? "pointer" : "default" : canMoveView ? isPrimaryPressed ? "grabbing" : "grab" : "default";
   }
   lookAt(_v) {
@@ -13528,8 +13488,8 @@ var BaseCursor = class {
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/Cursor3D.ts
 var Cursor3D = class extends BaseCursor {
-  constructor(cursorSystem) {
-    super();
+  constructor(env2, cursorSystem) {
+    super(env2);
     this.cursorSystem = null;
     this.object = new THREE.Object3D();
     this.cursorSystem = cursorSystem;
@@ -13574,7 +13534,7 @@ var Cursor3D = class extends BaseCursor {
     this.object.lookAt(v);
   }
   clone() {
-    const obj2 = new Cursor3D();
+    const obj2 = new Cursor3D(this.env);
     for (const child of this.object.children) {
       obj2.add(child.name, child.clone());
     }
@@ -16699,8 +16659,8 @@ var InvCube = class extends THREE.Mesh {
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/CursorColor.ts
 var CursorColor = class extends BaseCursor {
-  constructor() {
-    super();
+  constructor(env2) {
+    super(env2);
     this.material = solid({
       name: "CursorMat",
       color: 16776960
@@ -16755,8 +16715,8 @@ var CursorColor = class extends BaseCursor {
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/CursorSystem.ts
 var CursorSystem = class extends BaseCursor {
-  constructor(element) {
-    super();
+  constructor(env2, element) {
+    super(env2);
     this.element = element;
     this._hidden = false;
     this.visible = true;
@@ -16790,11 +16750,10 @@ var CursorSystem = class extends BaseCursor {
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/CursorXRMouse.ts
 var CursorXRMouse = class extends BaseCursor {
-  constructor(renderer) {
-    super();
-    this.renderer = renderer;
-    this.xr = new CursorColor();
-    this.system = new CursorSystem(this.renderer.domElement);
+  constructor(env2) {
+    super(env2);
+    this.xr = new CursorColor(this.env);
+    this.system = new CursorSystem(this.env, this.env.renderer.domElement);
     this.visible = false;
   }
   get object() {
@@ -16814,7 +16773,7 @@ var CursorXRMouse = class extends BaseCursor {
     return this.system.style;
   }
   get visible() {
-    return this.renderer.xr.isPresenting && this.xr.visible || !this.renderer.xr.isPresenting && this.system.visible;
+    return this.env.renderer.xr.isPresenting && this.xr.visible || !this.env.renderer.xr.isPresenting && this.system.visible;
   }
   set visible(v) {
     super.visible = v;
@@ -16826,7 +16785,7 @@ var CursorXRMouse = class extends BaseCursor {
     this._refresh();
   }
   _refresh() {
-    objectSetVisible(this.xr, this.visible && (this.renderer.xr.isPresenting || document.pointerLockElement != null));
+    objectSetVisible(this.xr, this.visible && (this.env.renderer.xr.isPresenting || document.pointerLockElement != null));
   }
   lookAt(v) {
     this.xr.lookAt(v);
@@ -16873,6 +16832,7 @@ var Pointer3DEvent = class extends TypedEvent {
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/BasePointer.ts
 var MAX_DRAG_DISTANCE = 5;
+var ZERO = new THREE.Vector3();
 var BasePointer = class extends TypedEventBase {
   constructor(type2, id2, env2, cursor) {
     super();
@@ -17018,7 +16978,8 @@ var BasePointer = class extends TypedEventBase {
         minDist = hit.distance;
       }
     }
-    return this.curHit = minHit;
+    this.curHit = minHit;
+    return !!minHit;
   }
   getEvent(type2) {
     if (!this.pointerEvents.has(type2)) {
@@ -17096,11 +17057,11 @@ var BasePointer = class extends TypedEventBase {
         evt.rayTarget.dispatchEvent(evt);
       }
     }
-    this.updateCursor(2);
+    this.updateCursor(this.env.avatar.worldPos, ZERO, true, 2);
   }
-  updateCursor(defaultDistance) {
+  updateCursor(avatarHeadPos, comfortOffset, isLocal, defaultDistance) {
     if (this.cursor) {
-      this.cursor.update(this.env.avatar.worldPos, this.hoveredHit || this.curHit, this.rayTarget || this.curTarget, defaultDistance, this.canMoveView, this.origin, this.direction, this.isPressed(0 /* Primary */));
+      this.cursor.update(avatarHeadPos, comfortOffset, this.hoveredHit || this.curHit, this.rayTarget || this.curTarget, defaultDistance, isLocal, this.canMoveView, this.origin, this.direction, this.isPressed(0 /* Primary */));
     }
   }
 };
@@ -17485,7 +17446,7 @@ var questToVirtualMap = /* @__PURE__ */ new Map([
 ]);
 var PointerHand = class extends BasePointer {
   constructor(env2, index) {
-    super("hand", 4 /* MotionController */, env2, new CursorColor());
+    super("hand", 4 /* MotionController */, env2, new CursorColor(env2));
     this.laser = new Laser(white, 2e-3);
     this.object = new THREE.Object3D();
     this._handedness = "none";
@@ -17567,6 +17528,7 @@ var PointerHand = class extends BasePointer {
         console.log(this.handedness, "disconnected");
       }
     });
+    Object.seal(this);
   }
   vibrate() {
     this._vibrate();
@@ -17613,7 +17575,6 @@ var PointerHand = class extends BasePointer {
     this.up.set(0, 1, 0).applyQuaternion(this.quaternion);
     this.delta.sub(this.direction).sub(this.origin);
     this.moveDistance += 50 * this.delta.length();
-    console.log(this.moveDistance);
   }
   onUpdate() {
     this.gamepad.pad = this.inputSource && this.inputSource.gamepad || null;
@@ -17637,11 +17598,19 @@ var BaseScreenPointer = class extends BasePointer {
         this.readEvent(evt);
       }
     };
+    let onPointerEvents = onPointerEvent;
+    if (isFunction(PointerEvent.prototype.getCoalescedEvents)) {
+      onPointerEvents = (evt) => {
+        const evts = evt.getCoalescedEvents();
+        evts.forEach(onPointerEvent);
+        onPointerEvent(evt);
+      };
+    }
     this.element = this.env.renderer.domElement;
-    this.element.addEventListener("pointerdown", onPointerEvent);
-    this.element.addEventListener("pointermove", onPointerEvent);
-    this.element.addEventListener("pointerup", onPointerEvent);
-    this.element.addEventListener("pointercancel", onPointerEvent);
+    this.element.addEventListener("pointerdown", onPointerEvents);
+    this.element.addEventListener("pointermove", onPointerEvents);
+    this.element.addEventListener("pointerup", onPointerEvents);
+    this.element.addEventListener("pointercancel", onPointerEvents);
   }
   checkEvent(evt) {
     return this.isActive = this.onCheckEvent(evt);
@@ -17698,7 +17667,7 @@ var BaseScreenPointerSinglePoint = class extends BaseScreenPointer {
     const element = env2.renderer.domElement;
     element.addEventListener("pointerdown", onPrep);
     element.addEventListener("pointermove", onPrep);
-    super(type2, id2, env2, new CursorXRMouse(env2.renderer));
+    super(type2, id2, env2, new CursorXRMouse(env2));
     this.pointerID = null;
     element.addEventListener("pointerup", unPrep);
     element.addEventListener("pointercancel", unPrep);
@@ -17905,6 +17874,7 @@ var PointerManager = class extends TypedEventBase {
       }
     }
     this.checkXRMouse();
+    Object.seal(this);
   }
   checkXRMouse() {
     let count2 = 0;
@@ -21520,7 +21490,6 @@ var BaseEnvironment = class extends TypedEventBase {
     this.layers = new Array();
     this.layerSortOrder = /* @__PURE__ */ new Map();
     this.fadeDepth = 0;
-    this.cursor3D = new Cursor3D();
     this.camera = new THREE.PerspectiveCamera(50, 1, 0.01, 1e3);
     this.scene = new THREE.Scene();
     this.stage = obj("Stage");
@@ -21534,6 +21503,7 @@ var BaseEnvironment = class extends TypedEventBase {
     this._xrMediaBinding = null;
     this._hasXRMediaLayers = null;
     this._hasXRCompositionLayers = null;
+    this.cursor3D = new Cursor3D(this);
     if (isHTMLCanvas(canvas)) {
       canvas.style.backgroundColor = "black";
     }
@@ -21726,31 +21696,19 @@ var BaseEnvironment = class extends TypedEventBase {
       await this.fader.fadeIn();
     }
   }
-  modelAsset(path, convertMaterials = true) {
-    return new AssetCustom(path, Model_Gltf_Binary, (fetcher, path2, type2, prog) => this.getModel(fetcher, path2, type2, convertMaterials, prog));
+  modelAsset(path) {
+    return new AssetCustom(path, Model_Gltf_Binary, (fetcher, path2, type2, prog) => this.getModel(fetcher, path2, type2, prog));
   }
-  getModel(fetcher, path, type2, convertMaterials, prog) {
-    return fetcher.get(path).useCache(!this.DEBUG).progress(prog).file(type2).then((response) => this.loadModel(response.content, convertMaterials));
+  getModel(fetcher, path, type2, prog) {
+    return fetcher.get(path).useCache(!this.DEBUG).progress(prog).file(type2).then((response) => this.loadModel(response.content));
   }
-  async loadModel(path, convertMaterials = true, prog) {
+  async loadModel(path, prog) {
     const loader = new GLTFLoader();
     const model2 = await loader.loadAsync(path, (evt) => {
       if (isDefined(prog)) {
         prog.report(evt.loaded, evt.total, path);
       }
     });
-    if (convertMaterials) {
-      const oldMats = /* @__PURE__ */ new Set();
-      model2.scene.traverse((obj2) => {
-        if (isMesh(obj2) && isMeshStandardMaterial(obj2.material)) {
-          oldMats.add(obj2.material);
-          obj2.material = materialStandardToPhong(obj2.material);
-        }
-      });
-      for (const oldMat of oldMats.values()) {
-        oldMat.dispose();
-      }
-    }
     return model2.scene;
   }
   set3DCursor(model2) {
@@ -21771,6 +21729,7 @@ var BaseEnvironment = class extends TypedEventBase {
     const cursor3d = this.modelAsset("/models/Cursors.glb");
     assets.push(cursor3d);
     await this.fetcher.assets(prog, ...assets);
+    convertMaterials(cursor3d.result, materialStandardToBasic);
     this.set3DCursor(cursor3d.result);
   }
 };
