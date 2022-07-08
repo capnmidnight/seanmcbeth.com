@@ -1,7 +1,7 @@
 ﻿import { styles, touchAction } from "@juniper-lib/dom/css";
-import { onPointerCancel, onPointerDown, onPointerEnter, onPointerLeave, onPointerMove, onPointerUp } from "@juniper-lib/dom/evts";
+import { onPointerCancel, onPointerDown, onPointerEnter, onPointerLeave, onPointerRawUpdate, onPointerUp } from "@juniper-lib/dom/evts";
 import { elementApply } from "@juniper-lib/dom/tags";
-import { Dirt } from "@juniper-lib/graphics2d/Dirt";
+import { Dirt } from "./Dirt";
 
 const dirt = new Dirt(640, 480, 1);
 elementApply(document.body,
@@ -13,7 +13,7 @@ elementApply(document.body,
         onPointerDown(checkPointer),
         onPointerEnter(checkPointer),
         onPointerLeave(checkPointer),
-        onPointerMove(checkPointer),
+        onPointerRawUpdate(checkPointer),
         onPointerUp(checkPointer)
     )
 )

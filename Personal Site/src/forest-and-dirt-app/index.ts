@@ -1,8 +1,8 @@
-﻿import { Dirt } from "@juniper-lib/graphics2d/Dirt";
-import { Pointer3DEvent } from "@juniper-lib/threejs/eventSystem/Pointer3DEvent";
+﻿import { Pointer3DEvent } from "@juniper-lib/threejs/eventSystem/Pointer3DEvent";
 import { RayTarget } from "@juniper-lib/threejs/eventSystem/RayTarget";
 import { identity, isMobile } from "@juniper-lib/tslib";
 import { createTestEnvironment } from "../createTestEnvironment";
+import { Dirt } from "../dirt-app/Dirt";
 import { Forest } from "../forest-app/Forest";
 
 const env = await createTestEnvironment();
