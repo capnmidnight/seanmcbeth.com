@@ -1,6 +1,7 @@
 ﻿import { Pointer3DEvent } from "@juniper-lib/threejs/eventSystem/Pointer3DEvent";
 import { RayTarget } from "@juniper-lib/threejs/eventSystem/RayTarget";
-import { identity, isMobile } from "@juniper-lib/tslib";
+import { materialStandardToPhong } from "@juniper-lib/threejs/materials";
+import { isMobile } from "@juniper-lib/tslib";
 import { createTestEnvironment } from "../createTestEnvironment";
 import { Dirt } from "../dirt-app/Dirt";
 import { Forest } from "../forest-app/Forest";
@@ -8,7 +9,7 @@ import { Forest } from "../forest-app/Forest";
 const env = await createTestEnvironment();
 await env.fadeOut();
 
-const forest = new Forest(env, identity);
+const forest = new Forest(env, materialStandardToPhong);
 await env.load(...forest.assets);
 
 const S = isMobile() ? 2048 : 4096;

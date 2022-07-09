@@ -31,9 +31,7 @@ namespace SeanMcBeth
                 {
                     build = new BuildSystem(
                         BuildConfig.ProjectName,
-                        BuildConfig.BuildSystemOptions,
-                        true,
-                        null);
+                        BuildConfig.BuildSystemOptions);
                     build.Watch();
                 }
                 catch (BuildSystemProjectRootNotFoundException exp)

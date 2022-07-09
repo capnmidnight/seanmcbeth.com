@@ -1,5 +1,6 @@
-﻿import { AssetAudio, AssetCustom, AssetImage, BaseAsset } from "@juniper-lib/fetcher";
-import { Audio_Mpeg, Image_Jpeg } from "@juniper-lib/mediatypes";
+﻿import { AssetAudio, AssetImage, BaseAsset } from "@juniper-lib/fetcher";
+import { Audio_Mpeg, Image_Jpeg, Model_Gltf_Binary } from "@juniper-lib/mediatypes";
+import { AssetGltfModel } from "@juniper-lib/threejs/AssetGltfModel";
 import { Environment } from "@juniper-lib/threejs/environment/Environment";
 import { objectScan } from "@juniper-lib/threejs/objectScan";
 import { isMesh } from "@juniper-lib/threejs/typeChecks";
@@ -9,10 +10,10 @@ function isMeshNamed(name: string) {
     return (obj: THREE.Object3D) => isMesh(obj) && obj.name === name;
 }
 
-export class Forest<MatT extends THREE.Material = THREE.MeshPhongMaterial> {
+export class Forest<MatT extends THREE.Material = THREE.MeshStandardMaterial> {
     private readonly skybox: AssetImage;
-    private readonly forest: AssetCustom<THREE.Group>;
-    private readonly tree: AssetCustom<THREE.Group>;
+    private readonly forest: AssetGltfModel;
+    private readonly tree: AssetGltfModel;
     private readonly bgAudio: AssetAudio;
     private readonly raycaster: THREE.Raycaster;
     private readonly hits: Array<THREE.Intersection>;
@@ -35,12 +36,12 @@ export class Forest<MatT extends THREE.Material = THREE.MeshPhongMaterial> {
 
     readonly assets: BaseAsset<any, any>[];
 
-    constructor(private readonly env: Environment, private readonly convertMaterial: (mat: THREE.MeshPhongMaterial, transparent?: boolean) => MatT) {
+    constructor(private readonly env: Environment, private readonly convertMaterial: (mat: THREE.MeshStandardMaterial, transparent?: boolean) => MatT) {
         this.assets = [
             this.skybox = new AssetImage("/skyboxes/BearfenceMountain.jpeg", Image_Jpeg, !DEBUG),
-            this.forest = env.modelAsset("/models/Forest-Ground.glb"),
+            this.forest = new AssetGltfModel("/models/Forest-Ground.glb", Model_Gltf_Binary, !DEBUG),
             this.bgAudio = new AssetAudio("/audio/forest.mp3", Audio_Mpeg, !DEBUG),
-            this.tree = env.modelAsset("/models/Forest-Tree.glb")
+            this.tree = new AssetGltfModel("/models/Forest-Tree.glb", Model_Gltf_Binary, !DEBUG)
         ];
 
         this.raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0), 0.1, 100);
@@ -50,7 +51,7 @@ export class Forest<MatT extends THREE.Material = THREE.MeshPhongMaterial> {
             .then(() => this.finish())
     }
 
-    private convertMesh(oldMesh: THREE.Mesh<THREE.BufferGeometry, THREE.MeshPhongMaterial>): THREE.Mesh<THREE.BufferGeometry, MatT> {
+    private convertMesh(oldMesh: THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>): THREE.Mesh<THREE.BufferGeometry, MatT> {
         const oldMat = oldMesh.material;
         const newMat = this.convertMaterial(oldMesh.material, false);
         if (newMat as any === oldMat) {
@@ -67,11 +68,11 @@ export class Forest<MatT extends THREE.Material = THREE.MeshPhongMaterial> {
         this.env.skybox.setImage("forest", this.skybox.result);
         this.env.audio.createClip("forest", this.bgAudio.result, true, true, true, 1, []);
         this.env.audio.setClipPosition("forest", 25, 5, 25);
-        this.env.foreground.add(this.forest.result);
-        this.forest.result.updateMatrixWorld();
+        this.env.foreground.add(this.forest.result.scene);
+        this.forest.result.scene.updateMatrixWorld();
         this.raycaster.camera = this.env.camera;
 
-        const ground = objectScan<THREE.Mesh<THREE.BufferGeometry, THREE.MeshPhongMaterial>>(this.forest.result, isMeshNamed("Ground"));
+        const ground = objectScan<THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>>(this.forest.result.scene, isMeshNamed("Ground"));
         this._ground = this.convertMesh(ground);
 
         this.env.timer.addTickHandler(() => {
@@ -81,11 +82,11 @@ export class Forest<MatT extends THREE.Material = THREE.MeshPhongMaterial> {
             }
         });
 
-        const water = objectScan<THREE.Mesh<THREE.BufferGeometry, THREE.MeshPhongMaterial>>(this.forest.result, isMeshNamed("Water"));
+        const water = objectScan<THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>>(this.forest.result.scene, isMeshNamed("Water"));
         this._water = this.convertMesh(water);
 
         const matrices = this.makeTrees();
-        const treeMesh = objectScan<THREE.Mesh<THREE.BufferGeometry, THREE.MeshPhongMaterial>>(this.tree.result, isMesh);
+        const treeMesh = objectScan<THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>>(this.tree.result.scene, isMesh);
         const treeGeom = treeMesh.geometry;
         const treeMat = this.convertMaterial(treeMesh.material, false);
 
