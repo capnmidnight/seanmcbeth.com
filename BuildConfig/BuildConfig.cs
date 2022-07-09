@@ -1,11 +1,17 @@
-﻿namespace SeanMcBeth
+﻿using Juniper.TSBuild;
+
+namespace SeanMcBeth
 {
     public static class BuildConfig
     {
         public static readonly string ProjectName = "Personal Site";
-        public static readonly Juniper.TSBuild.BuildSystemOptions BuildSystemOptions = new()
+        public static readonly BuildSystemOptions BuildSystemOptions = new()
         {
-            IncludeThreeJS = true
+            Dependencies = new ()
+            {
+                { "Three.js", ("node_modules/three/build/three.js", "wwwroot/js/three/index.js") },
+                { "Three.js min", ("node_modules/three/build/three.min.js", "wwwroot/js/three/index.min.js") }
+            }
         };
     }
 }
