@@ -43,7 +43,6 @@ export class Dirt
     private readonly bg: Context2D
     private readonly updateEvt = new TypedEvent("update");
 
-    private pressed = false;
     private pointerId: number | string = null;
     private x: number = null;
     private y: number = null;
@@ -77,56 +76,49 @@ ZAGkADoAEAAZ5QkTf/PN/ACV4rJ9AdCf3AAAAAElFTkSuQmCC"));
     }
 
     private update() {
-        const dx = this.lx - this.x;
-        const dy = this.ly - this.y;
-        if ((Math.abs(dx) + Math.abs(dy)) > 0 && this.pressed) {
-            const a = Math.atan2(dy, dx) + Math.PI;
-            const d = Math.round(Math.sqrt(dx * dx + dy * dy));
-            this.bg.save();
-            this.bg.translate(this.lx, this.ly);
-            this.bg.rotate(a);
-            this.bg.translate(-0.5 * this.finger.width * this.fingerScale, -0.5 * this.finger.height * this.fingerScale);
-            for (let i = 0; i <= d; ++i) {
-                this.bg.drawImage(this.finger,
-                    0, 0, this.finger.width, this.finger.height,
-                    i, 0, this.finger.width * this.fingerScale, this.finger.height * this.fingerScale);
+        if (this.pointerId !== null) {
+            const dx = this.lx - this.x;
+            const dy = this.ly - this.y;
+            if ((Math.abs(dx) + Math.abs(dy)) > 0) {
+                const a = Math.atan2(dy, dx) + Math.PI;
+                const d = Math.round(Math.sqrt(dx * dx + dy * dy));
+                this.bg.save();
+                this.bg.translate(this.lx, this.ly);
+                this.bg.rotate(a);
+                this.bg.translate(-0.5 * this.finger.width * this.fingerScale, -0.5 * this.finger.height * this.fingerScale);
+                for (let i = 0; i <= d; ++i) {
+                    this.bg.drawImage(this.finger,
+                        0, 0, this.finger.width, this.finger.height,
+                        i, 0, this.finger.width * this.fingerScale, this.finger.height * this.fingerScale);
+                }
+                this.bg.restore();
+                this.fg.drawImage(this.bcanvas, 0, 0);
+                this.dispatchEvent(this.updateEvt);
             }
-            this.bg.restore();
         }
 
-        this.fg.drawImage(this.bcanvas, 0, 0);
         this.lx = this.x;
         this.ly = this.y;
-        this.dispatchEvent(this.updateEvt);
-    }
-
-    stop() {
-        this.pressed = false;
     }
 
     checkPointer(id: number | string, x: number, y: number, type: string) {
         const action = actionTypes.get(type) || type;
-        const start = action === "down"
-            && this.pointerId === null;
-        const sustain = action === "move"
-            && id === this.pointerId
-            && this.pressed;
-
-        this.x = x;
-        this.y = y;
-        if (start) {
-            this.lx = x;
-            this.ly = y;
+        if (this.pointerId === null) {
+            if (action === "down") {
+                this.pointerId = id;
+                this.lx = this.x = x;
+                this.ly = this.y = y;
+                this.update();
+            }
         }
-
-        this.pressed = start || sustain;
-        if (this.pressed) {
-            this.pointerId = id;
-
+        else if (id === this.pointerId) {
+            this.x = x;
+            this.y = y;
             this.update();
-        }
-        else {
-            this.pointerId = null;
+
+            if (action === "up") {
+                this.pointerId = null;
+            }
         }
     }
 

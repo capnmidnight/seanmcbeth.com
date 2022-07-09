@@ -2,6 +2,7 @@
 import { Audio_Mpeg, Image_Jpeg, Model_Gltf_Binary } from "@juniper-lib/mediatypes";
 import { AssetGltfModel } from "@juniper-lib/threejs/AssetGltfModel";
 import { Environment } from "@juniper-lib/threejs/environment/Environment";
+import { materialStandardToBasic } from "@juniper-lib/threejs/materials";
 import { objectScan } from "@juniper-lib/threejs/objectScan";
 import { isMesh } from "@juniper-lib/threejs/typeChecks";
 import { arrayClear, arrayScan, isDefined } from "@juniper-lib/tslib";
@@ -10,7 +11,7 @@ function isMeshNamed(name: string) {
     return (obj: THREE.Object3D) => isMesh(obj) && obj.name === name;
 }
 
-export class Forest<MatT extends THREE.Material = THREE.MeshStandardMaterial> {
+export class Forest {
     private readonly skybox: AssetImage;
     private readonly forest: AssetGltfModel;
     private readonly tree: AssetGltfModel;
@@ -18,8 +19,8 @@ export class Forest<MatT extends THREE.Material = THREE.MeshStandardMaterial> {
     private readonly raycaster: THREE.Raycaster;
     private readonly hits: Array<THREE.Intersection>;
 
-    private _ground: THREE.Mesh<THREE.BufferGeometry, MatT>;
-    private _water: THREE.Mesh<THREE.BufferGeometry, MatT>;
+    private _ground: THREE.Mesh<THREE.BufferGeometry, THREE.MeshBasicMaterial>;
+    private _water: THREE.Mesh<THREE.BufferGeometry, THREE.MeshBasicMaterial>;
     private _trees: THREE.InstancedMesh;
 
     get ground() {
@@ -36,7 +37,7 @@ export class Forest<MatT extends THREE.Material = THREE.MeshStandardMaterial> {
 
     readonly assets: BaseAsset<any, any>[];
 
-    constructor(private readonly env: Environment, private readonly convertMaterial: (mat: THREE.MeshStandardMaterial, transparent?: boolean) => MatT) {
+    constructor(private readonly env: Environment) {
         this.assets = [
             this.skybox = new AssetImage("/skyboxes/BearfenceMountain.jpeg", Image_Jpeg, !DEBUG),
             this.forest = new AssetGltfModel("/models/Forest-Ground.glb", Model_Gltf_Binary, !DEBUG),
@@ -51,14 +52,14 @@ export class Forest<MatT extends THREE.Material = THREE.MeshStandardMaterial> {
             .then(() => this.finish())
     }
 
-    private convertMesh(oldMesh: THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>): THREE.Mesh<THREE.BufferGeometry, MatT> {
+    private convertMesh(oldMesh: THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>): THREE.Mesh<THREE.BufferGeometry, THREE.MeshBasicMaterial> {
         const oldMat = oldMesh.material;
-        const newMat = this.convertMaterial(oldMesh.material, false);
+        const newMat = materialStandardToBasic(oldMesh.material);
         if (newMat as any === oldMat) {
             return oldMesh as any;
         }
 
-        const newMesh = oldMesh as any as THREE.Mesh<THREE.BufferGeometry, MatT>;
+        const newMesh = oldMesh as any as THREE.Mesh<THREE.BufferGeometry, THREE.MeshBasicMaterial>;
         newMesh.material = newMat;
         oldMat.dispose();
         return newMesh;
@@ -88,7 +89,7 @@ export class Forest<MatT extends THREE.Material = THREE.MeshStandardMaterial> {
         const matrices = this.makeTrees();
         const treeMesh = objectScan<THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>>(this.tree.result.scene, isMesh);
         const treeGeom = treeMesh.geometry;
-        const treeMat = this.convertMaterial(treeMesh.material, false);
+        const treeMat = materialStandardToBasic(treeMesh.material);
 
         this._trees = new THREE.InstancedMesh(treeGeom, treeMat, matrices.length);
 
