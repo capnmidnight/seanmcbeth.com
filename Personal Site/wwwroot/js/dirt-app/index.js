@@ -771,7 +771,6 @@ var Attr = class {
     this.tags = tags.map((t2) => t2.toLocaleUpperCase());
     Object.freeze(this);
   }
-  tags;
   applyToElement(elem) {
     const isDataSet = this.key.startsWith("data-");
     const isValid = this.tags.length === 0 || this.tags.indexOf(elem.tagName) > -1 || isDataSet;
@@ -907,8 +906,8 @@ function onPointerEnter(callback, opts) {
 function onPointerLeave(callback, opts) {
   return new HtmlEvt("pointerleave", callback, opts);
 }
-function onPointerMove(callback, opts) {
-  return new HtmlEvt("pointermove", callback, opts);
+function onPointerRawUpdate(callback, opts) {
+  return new HtmlEvt("pointerrawupdate", callback, opts);
 }
 function onPointerUp(callback, opts) {
   return new HtmlEvt("pointerup", callback, opts);
@@ -952,7 +951,7 @@ function createCanvas(w, h) {
   return Canvas(htmlWidth(w), htmlHeight(h));
 }
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/graphics2d/Dirt.ts
+// src/dirt-app/Dirt.ts
 var actionTypes = singleton("Juniper:Graphics2D:Dirt:StopTypes", () => /* @__PURE__ */ new Map([
   ["mousedown", "down"],
   ["mouseenter", "move"],
@@ -965,6 +964,7 @@ var actionTypes = singleton("Juniper:Graphics2D:Dirt:StopTypes", () => /* @__PUR
   ["pointerenter", "move"],
   ["pointerleave", "up"],
   ["pointermove", "move"],
+  ["pointerrawupdate", "move"],
   ["pointerout", "up"],
   ["pointerup", "up"],
   ["pointerover", "move"],
@@ -984,7 +984,6 @@ var Dirt = class extends TypedEventBase {
     this.bg.fillStyle = "rgb(50%, 50%, 50%)";
     this.bg.fillRect(0, 0, this.bcanvas.width, this.bcanvas.height);
     this.fg.drawImage(this.bcanvas, 0, 0);
-    this._update = this.update.bind(this);
     this.finger = Img(src("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAAXNSR0IArs4c6QAAAqhJREFUOE+VVE1PE1EUPbfvDdOZUiwtdAr9pqQhZBIJQoCwYGX8SlgIaUgIEqb8AxQ2JP0Nuta1rtS4UH6CmBDcGqP+gS4waV3YwDP32akdLAl9yc3M3HnvvPt1DuGKpZSyARQBlAGU2s9oe/tXAK+J6PPl43TZoZQSAJK1Wq1Sr9cfSClnR0dH47lc7rxYLP5mcxwnZBgGg78F8JiIvvs4AUAG29nZmT89PX0WDofnk8kkxsbGkE6nkc1mkclk9HsqlUI8HvcxfgLYIKIjdnQAlVLkuu6der3+MhqNxhKJBCzLghBCG7/zBeVyGYuLi1heXgZR5/g5gIdE9K7jcRzHbTabx7Zt25FIBFJKTE9Po1QqIRr9W7pWq6UtFAphYmIC6+vr3ZE2ANzyAckwjGPTNOc5EgZYXV1FLBbr2TKllI6OL97d3e3ed+QD3hVCfAiHwzBNE1tbWxgeHr5qAAL+8fFxDeqn7wM+F0JUGWxhYQErKyvXAvM3ra2twXVd/ekD/hBCFAzDgOd5uvj9rMnJSWxubv4DJKKWEEJyN/f393VX+1mDg4PY29sLRPhLSmlx9w4ODvoG5AAODw8DgF+EEGX+wQXuN+VeEb6QUno8e0tLS3035b8aArgnpXw/MDAAtu3t7WuPDefZq8s82J9M05zjeRoZGdGDfdUsXlxcaLbw6jmHzONUKuU2Go2PTD1mAtdlZmZGU6wX9ZhRzJRqtdp9cYcpYKWZmpq6fXZ29ioSidxgUE6fgYeGhgLGPr6oUql0064JYDagNgBsz/NunpycPLUsa862bZ0aD7yvNtyAa6kN10MpJQEwiWO1Wu1+t8Dm83ktsIVCgQVWtAWWj7HKPCKiNwE99JnhKzaAHCs3171tWQAZAGkADoAEAAZ5QkTf/PN/ACV4rJ9AdCf3AAAAAElFTkSuQmCC"));
   }
   element;
@@ -992,7 +991,6 @@ var Dirt = class extends TypedEventBase {
   bcanvas;
   fg;
   bg;
-  _update;
   updateEvt = new TypedEvent("update");
   pressed = false;
   pointerId = null;
@@ -1000,7 +998,6 @@ var Dirt = class extends TypedEventBase {
   y = null;
   lx = null;
   ly = null;
-  timer = null;
   update() {
     const dx = this.lx - this.x;
     const dy = this.ly - this.y;
@@ -1019,7 +1016,6 @@ var Dirt = class extends TypedEventBase {
     this.fg.drawImage(this.bcanvas, 0, 0);
     this.lx = this.x;
     this.ly = this.y;
-    this.timer = null;
     this.dispatchEvent(this.updateEvt);
   }
   stop() {
@@ -1038,11 +1034,7 @@ var Dirt = class extends TypedEventBase {
     this.pressed = start || sustain;
     if (this.pressed) {
       this.pointerId = id;
-      if (isDefined(this.timer)) {
-        clearTimeout(this.timer);
-        this.timer = null;
-      }
-      this.timer = setTimeout(this._update, 10);
+      this.update();
     } else {
       this.pointerId = null;
     }
@@ -1054,7 +1046,7 @@ var Dirt = class extends TypedEventBase {
 
 // src/dirt-app/index.ts
 var dirt = new Dirt(640, 480, 1);
-elementApply(document.body, elementApply(dirt, styles(touchAction("none")), onPointerCancel(checkPointer), onPointerDown(checkPointer), onPointerEnter(checkPointer), onPointerLeave(checkPointer), onPointerMove(checkPointer), onPointerUp(checkPointer)));
+elementApply(document.body, elementApply(dirt, styles(touchAction("none")), onPointerCancel(checkPointer), onPointerDown(checkPointer), onPointerEnter(checkPointer), onPointerLeave(checkPointer), onPointerRawUpdate(checkPointer), onPointerUp(checkPointer)));
 function checkPointer(evt) {
   dirt.checkPointer(evt.pointerId, evt.offsetX, evt.offsetY, evt.type);
 }
