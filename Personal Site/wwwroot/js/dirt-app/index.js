@@ -771,6 +771,7 @@ var Attr = class {
     this.tags = tags.map((t2) => t2.toLocaleUpperCase());
     Object.freeze(this);
   }
+  tags;
   applyToElement(elem) {
     const isDataSet = this.key.startsWith("data-");
     const isValid = this.tags.length === 0 || this.tags.indexOf(elem.tagName) > -1 || isDataSet;
@@ -992,51 +993,49 @@ var Dirt = class extends TypedEventBase {
   fg;
   bg;
   updateEvt = new TypedEvent("update");
-  pressed = false;
   pointerId = null;
   x = null;
   y = null;
   lx = null;
   ly = null;
   update() {
-    const dx = this.lx - this.x;
-    const dy = this.ly - this.y;
-    if (Math.abs(dx) + Math.abs(dy) > 0 && this.pressed) {
-      const a = Math.atan2(dy, dx) + Math.PI;
-      const d = Math.round(Math.sqrt(dx * dx + dy * dy));
-      this.bg.save();
-      this.bg.translate(this.lx, this.ly);
-      this.bg.rotate(a);
-      this.bg.translate(-0.5 * this.finger.width * this.fingerScale, -0.5 * this.finger.height * this.fingerScale);
-      for (let i = 0; i <= d; ++i) {
-        this.bg.drawImage(this.finger, 0, 0, this.finger.width, this.finger.height, i, 0, this.finger.width * this.fingerScale, this.finger.height * this.fingerScale);
+    if (this.pointerId !== null) {
+      const dx = this.lx - this.x;
+      const dy = this.ly - this.y;
+      if (Math.abs(dx) + Math.abs(dy) > 0) {
+        const a = Math.atan2(dy, dx) + Math.PI;
+        const d = Math.round(Math.sqrt(dx * dx + dy * dy));
+        this.bg.save();
+        this.bg.translate(this.lx, this.ly);
+        this.bg.rotate(a);
+        this.bg.translate(-0.5 * this.finger.width * this.fingerScale, -0.5 * this.finger.height * this.fingerScale);
+        for (let i = 0; i <= d; ++i) {
+          this.bg.drawImage(this.finger, 0, 0, this.finger.width, this.finger.height, i, 0, this.finger.width * this.fingerScale, this.finger.height * this.fingerScale);
+        }
+        this.bg.restore();
+        this.fg.drawImage(this.bcanvas, 0, 0);
+        this.dispatchEvent(this.updateEvt);
       }
-      this.bg.restore();
     }
-    this.fg.drawImage(this.bcanvas, 0, 0);
     this.lx = this.x;
     this.ly = this.y;
-    this.dispatchEvent(this.updateEvt);
-  }
-  stop() {
-    this.pressed = false;
   }
   checkPointer(id, x, y, type2) {
     const action = actionTypes.get(type2) || type2;
-    const start = action === "down" && this.pointerId === null;
-    const sustain = action === "move" && id === this.pointerId && this.pressed;
-    this.x = x;
-    this.y = y;
-    if (start) {
-      this.lx = x;
-      this.ly = y;
-    }
-    this.pressed = start || sustain;
-    if (this.pressed) {
-      this.pointerId = id;
+    if (this.pointerId === null) {
+      if (action === "down") {
+        this.pointerId = id;
+        this.lx = this.x = x;
+        this.ly = this.y = y;
+        this.update();
+      }
+    } else if (id === this.pointerId) {
+      this.x = x;
+      this.y = y;
       this.update();
-    } else {
-      this.pointerId = null;
+      if (action === "up") {
+        this.pointerId = null;
+      }
     }
   }
   checkPointerUV(id, x, y, type2) {

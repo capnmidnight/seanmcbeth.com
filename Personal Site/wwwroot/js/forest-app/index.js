@@ -5274,688 +5274,6 @@ function using(val, thunk) {
   }
 }
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/examples/lines/LineMaterial.js
-THREE.UniformsLib.line = {
-  worldUnits: { value: 1 },
-  linewidth: { value: 1 },
-  resolution: { value: new THREE.Vector2(1, 1) },
-  dashOffset: { value: 0 },
-  dashScale: { value: 1 },
-  dashSize: { value: 1 },
-  gapSize: { value: 1 }
-};
-THREE.ShaderLib["line"] = {
-  uniforms: THREE.UniformsUtils.merge([
-    THREE.UniformsLib.common,
-    THREE.UniformsLib.fog,
-    THREE.UniformsLib.line
-  ]),
-  vertexShader: `
-		#include <common>
-		#include <color_pars_vertex>
-		#include <fog_pars_vertex>
-		#include <logdepthbuf_pars_vertex>
-		#include <clipping_planes_pars_vertex>
-
-		uniform float linewidth;
-		uniform vec2 resolution;
-
-		attribute vec3 instanceStart;
-		attribute vec3 instanceEnd;
-
-		attribute vec3 instanceColorStart;
-		attribute vec3 instanceColorEnd;
-
-		#ifdef WORLD_UNITS
-
-			varying vec4 worldPos;
-			varying vec3 worldStart;
-			varying vec3 worldEnd;
-
-			#ifdef USE_DASH
-
-				varying vec2 vUv;
-
-			#endif
-
-		#else
-
-			varying vec2 vUv;
-
-		#endif
-
-		#ifdef USE_DASH
-
-			uniform float dashScale;
-			attribute float instanceDistanceStart;
-			attribute float instanceDistanceEnd;
-			varying float vLineDistance;
-
-		#endif
-
-		void trimSegment( const in vec4 start, inout vec4 end ) {
-
-			// trim end segment so it terminates between the camera plane and the near plane
-
-			// conservative estimate of the near plane
-			float a = projectionMatrix[ 2 ][ 2 ]; // 3nd entry in 3th column
-			float b = projectionMatrix[ 3 ][ 2 ]; // 3nd entry in 4th column
-			float nearEstimate = - 0.5 * b / a;
-
-			float alpha = ( nearEstimate - start.z ) / ( end.z - start.z );
-
-			end.xyz = mix( start.xyz, end.xyz, alpha );
-
-		}
-
-		void main() {
-
-			#ifdef USE_COLOR
-
-				vColor.xyz = ( position.y < 0.5 ) ? instanceColorStart : instanceColorEnd;
-
-			#endif
-
-			#ifdef USE_DASH
-
-				vLineDistance = ( position.y < 0.5 ) ? dashScale * instanceDistanceStart : dashScale * instanceDistanceEnd;
-				vUv = uv;
-
-			#endif
-
-			float aspect = resolution.x / resolution.y;
-
-			// camera space
-			vec4 start = modelViewMatrix * vec4( instanceStart, 1.0 );
-			vec4 end = modelViewMatrix * vec4( instanceEnd, 1.0 );
-
-			#ifdef WORLD_UNITS
-
-				worldStart = start.xyz;
-				worldEnd = end.xyz;
-
-			#else
-
-				vUv = uv;
-
-			#endif
-
-			// special case for perspective projection, and segments that terminate either in, or behind, the camera plane
-			// clearly the gpu firmware has a way of addressing this issue when projecting into ndc space
-			// but we need to perform ndc-space calculations in the shader, so we must address this issue directly
-			// perhaps there is a more elegant solution -- WestLangley
-
-			bool perspective = ( projectionMatrix[ 2 ][ 3 ] == - 1.0 ); // 4th entry in the 3rd column
-
-			if ( perspective ) {
-
-				if ( start.z < 0.0 && end.z >= 0.0 ) {
-
-					trimSegment( start, end );
-
-				} else if ( end.z < 0.0 && start.z >= 0.0 ) {
-
-					trimSegment( end, start );
-
-				}
-
-			}
-
-			// clip space
-			vec4 clipStart = projectionMatrix * start;
-			vec4 clipEnd = projectionMatrix * end;
-
-			// ndc space
-			vec3 ndcStart = clipStart.xyz / clipStart.w;
-			vec3 ndcEnd = clipEnd.xyz / clipEnd.w;
-
-			// direction
-			vec2 dir = ndcEnd.xy - ndcStart.xy;
-
-			// account for clip-space aspect ratio
-			dir.x *= aspect;
-			dir = normalize( dir );
-
-			#ifdef WORLD_UNITS
-
-				// get the offset direction as perpendicular to the view vector
-				vec3 worldDir = normalize( end.xyz - start.xyz );
-				vec3 offset;
-				if ( position.y < 0.5 ) {
-
-					offset = normalize( cross( start.xyz, worldDir ) );
-
-				} else {
-
-					offset = normalize( cross( end.xyz, worldDir ) );
-
-				}
-
-				// sign flip
-				if ( position.x < 0.0 ) offset *= - 1.0;
-
-				float forwardOffset = dot( worldDir, vec3( 0.0, 0.0, 1.0 ) );
-
-				// don't extend the line if we're rendering dashes because we
-				// won't be rendering the endcaps
-				#ifndef USE_DASH
-
-					// extend the line bounds to encompass  endcaps
-					start.xyz += - worldDir * linewidth * 0.5;
-					end.xyz += worldDir * linewidth * 0.5;
-
-					// shift the position of the quad so it hugs the forward edge of the line
-					offset.xy -= dir * forwardOffset;
-					offset.z += 0.5;
-
-				#endif
-
-				// endcaps
-				if ( position.y > 1.0 || position.y < 0.0 ) {
-
-					offset.xy += dir * 2.0 * forwardOffset;
-
-				}
-
-				// adjust for linewidth
-				offset *= linewidth * 0.5;
-
-				// set the world position
-				worldPos = ( position.y < 0.5 ) ? start : end;
-				worldPos.xyz += offset;
-
-				// project the worldpos
-				vec4 clip = projectionMatrix * worldPos;
-
-				// shift the depth of the projected points so the line
-				// segements overlap neatly
-				vec3 clipPose = ( position.y < 0.5 ) ? ndcStart : ndcEnd;
-				clip.z = clipPose.z * clip.w;
-
-			#else
-
-				vec2 offset = vec2( dir.y, - dir.x );
-				// undo aspect ratio adjustment
-				dir.x /= aspect;
-				offset.x /= aspect;
-
-				// sign flip
-				if ( position.x < 0.0 ) offset *= - 1.0;
-
-				// endcaps
-				if ( position.y < 0.0 ) {
-
-					offset += - dir;
-
-				} else if ( position.y > 1.0 ) {
-
-					offset += dir;
-
-				}
-
-				// adjust for linewidth
-				offset *= linewidth;
-
-				// adjust for clip-space to screen-space conversion // maybe resolution should be based on viewport ...
-				offset /= resolution.y;
-
-				// select end
-				vec4 clip = ( position.y < 0.5 ) ? clipStart : clipEnd;
-
-				// back to clip space
-				offset *= clip.w;
-
-				clip.xy += offset;
-
-			#endif
-
-			gl_Position = clip;
-
-			vec4 mvPosition = ( position.y < 0.5 ) ? start : end; // this is an approximation
-
-			#include <logdepthbuf_vertex>
-			#include <clipping_planes_vertex>
-			#include <fog_vertex>
-
-		}
-		`,
-  fragmentShader: `
-		uniform vec3 diffuse;
-		uniform float opacity;
-		uniform float linewidth;
-
-		#ifdef USE_DASH
-
-			uniform float dashOffset;
-			uniform float dashSize;
-			uniform float gapSize;
-
-		#endif
-
-		varying float vLineDistance;
-
-		#ifdef WORLD_UNITS
-
-			varying vec4 worldPos;
-			varying vec3 worldStart;
-			varying vec3 worldEnd;
-
-			#ifdef USE_DASH
-
-				varying vec2 vUv;
-
-			#endif
-
-		#else
-
-			varying vec2 vUv;
-
-		#endif
-
-		#include <common>
-		#include <color_pars_fragment>
-		#include <fog_pars_fragment>
-		#include <logdepthbuf_pars_fragment>
-		#include <clipping_planes_pars_fragment>
-
-		vec2 closestLineToLine(vec3 p1, vec3 p2, vec3 p3, vec3 p4) {
-
-			float mua;
-			float mub;
-
-			vec3 p13 = p1 - p3;
-			vec3 p43 = p4 - p3;
-
-			vec3 p21 = p2 - p1;
-
-			float d1343 = dot( p13, p43 );
-			float d4321 = dot( p43, p21 );
-			float d1321 = dot( p13, p21 );
-			float d4343 = dot( p43, p43 );
-			float d2121 = dot( p21, p21 );
-
-			float denom = d2121 * d4343 - d4321 * d4321;
-
-			float numer = d1343 * d4321 - d1321 * d4343;
-
-			mua = numer / denom;
-			mua = clamp( mua, 0.0, 1.0 );
-			mub = ( d1343 + d4321 * ( mua ) ) / d4343;
-			mub = clamp( mub, 0.0, 1.0 );
-
-			return vec2( mua, mub );
-
-		}
-
-		void main() {
-
-			#include <clipping_planes_fragment>
-
-			#ifdef USE_DASH
-
-				if ( vUv.y < - 1.0 || vUv.y > 1.0 ) discard; // discard endcaps
-
-				if ( mod( vLineDistance + dashOffset, dashSize + gapSize ) > dashSize ) discard; // todo - FIX
-
-			#endif
-
-			float alpha = opacity;
-
-			#ifdef WORLD_UNITS
-
-				// Find the closest points on the view ray and the line segment
-				vec3 rayEnd = normalize( worldPos.xyz ) * 1e5;
-				vec3 lineDir = worldEnd - worldStart;
-				vec2 params = closestLineToLine( worldStart, worldEnd, vec3( 0.0, 0.0, 0.0 ), rayEnd );
-
-				vec3 p1 = worldStart + lineDir * params.x;
-				vec3 p2 = rayEnd * params.y;
-				vec3 delta = p1 - p2;
-				float len = length( delta );
-				float norm = len / linewidth;
-
-				#ifndef USE_DASH
-
-					#ifdef USE_ALPHA_TO_COVERAGE
-
-						float dnorm = fwidth( norm );
-						alpha = 1.0 - smoothstep( 0.5 - dnorm, 0.5 + dnorm, norm );
-
-					#else
-
-						if ( norm > 0.5 ) {
-
-							discard;
-
-						}
-
-					#endif
-
-				#endif
-
-			#else
-
-				#ifdef USE_ALPHA_TO_COVERAGE
-
-					// artifacts appear on some hardware if a derivative is taken within a conditional
-					float a = vUv.x;
-					float b = ( vUv.y > 0.0 ) ? vUv.y - 1.0 : vUv.y + 1.0;
-					float len2 = a * a + b * b;
-					float dlen = fwidth( len2 );
-
-					if ( abs( vUv.y ) > 1.0 ) {
-
-						alpha = 1.0 - smoothstep( 1.0 - dlen, 1.0 + dlen, len2 );
-
-					}
-
-				#else
-
-					if ( abs( vUv.y ) > 1.0 ) {
-
-						float a = vUv.x;
-						float b = ( vUv.y > 0.0 ) ? vUv.y - 1.0 : vUv.y + 1.0;
-						float len2 = a * a + b * b;
-
-						if ( len2 > 1.0 ) discard;
-
-					}
-
-				#endif
-
-			#endif
-
-			vec4 diffuseColor = vec4( diffuse, alpha );
-
-			#include <logdepthbuf_fragment>
-			#include <color_fragment>
-
-			gl_FragColor = vec4( diffuseColor.rgb, alpha );
-
-			#include <tonemapping_fragment>
-			#include <encodings_fragment>
-			#include <fog_fragment>
-			#include <premultiplied_alpha_fragment>
-
-		}
-		`
-};
-var LineMaterial = class extends THREE.ShaderMaterial {
-  constructor(parameters) {
-    super({
-      type: "LineMaterial",
-      uniforms: THREE.UniformsUtils.clone(THREE.ShaderLib["line"].uniforms),
-      vertexShader: THREE.ShaderLib["line"].vertexShader,
-      fragmentShader: THREE.ShaderLib["line"].fragmentShader,
-      clipping: true
-    });
-    Object.defineProperties(this, {
-      color: {
-        enumerable: true,
-        get: function() {
-          return this.uniforms.diffuse.value;
-        },
-        set: function(value2) {
-          this.uniforms.diffuse.value = value2;
-        }
-      },
-      worldUnits: {
-        enumerable: true,
-        get: function() {
-          return "WORLD_UNITS" in this.defines;
-        },
-        set: function(value2) {
-          if (value2 === true) {
-            this.defines.WORLD_UNITS = "";
-          } else {
-            delete this.defines.WORLD_UNITS;
-          }
-        }
-      },
-      linewidth: {
-        enumerable: true,
-        get: function() {
-          return this.uniforms.linewidth.value;
-        },
-        set: function(value2) {
-          this.uniforms.linewidth.value = value2;
-        }
-      },
-      dashed: {
-        enumerable: true,
-        get: function() {
-          return Boolean("USE_DASH" in this.defines);
-        },
-        set(value2) {
-          if (Boolean(value2) !== Boolean("USE_DASH" in this.defines)) {
-            this.needsUpdate = true;
-          }
-          if (value2 === true) {
-            this.defines.USE_DASH = "";
-          } else {
-            delete this.defines.USE_DASH;
-          }
-        }
-      },
-      dashScale: {
-        enumerable: true,
-        get: function() {
-          return this.uniforms.dashScale.value;
-        },
-        set: function(value2) {
-          this.uniforms.dashScale.value = value2;
-        }
-      },
-      dashSize: {
-        enumerable: true,
-        get: function() {
-          return this.uniforms.dashSize.value;
-        },
-        set: function(value2) {
-          this.uniforms.dashSize.value = value2;
-        }
-      },
-      dashOffset: {
-        enumerable: true,
-        get: function() {
-          return this.uniforms.dashOffset.value;
-        },
-        set: function(value2) {
-          this.uniforms.dashOffset.value = value2;
-        }
-      },
-      gapSize: {
-        enumerable: true,
-        get: function() {
-          return this.uniforms.gapSize.value;
-        },
-        set: function(value2) {
-          this.uniforms.gapSize.value = value2;
-        }
-      },
-      opacity: {
-        enumerable: true,
-        get: function() {
-          return this.uniforms.opacity.value;
-        },
-        set: function(value2) {
-          this.uniforms.opacity.value = value2;
-        }
-      },
-      resolution: {
-        enumerable: true,
-        get: function() {
-          return this.uniforms.resolution.value;
-        },
-        set: function(value2) {
-          this.uniforms.resolution.value.copy(value2);
-        }
-      },
-      alphaToCoverage: {
-        enumerable: true,
-        get: function() {
-          return Boolean("USE_ALPHA_TO_COVERAGE" in this.defines);
-        },
-        set: function(value2) {
-          if (Boolean(value2) !== Boolean("USE_ALPHA_TO_COVERAGE" in this.defines)) {
-            this.needsUpdate = true;
-          }
-          if (value2 === true) {
-            this.defines.USE_ALPHA_TO_COVERAGE = "";
-            this.extensions.derivatives = true;
-          } else {
-            delete this.defines.USE_ALPHA_TO_COVERAGE;
-            this.extensions.derivatives = false;
-          }
-        }
-      }
-    });
-    this.setValues(parameters);
-  }
-};
-LineMaterial.prototype.isLineMaterial = true;
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/typeChecks.ts
-function isMesh(obj2) {
-  return isDefined(obj2) && obj2.isMesh;
-}
-function isMaterial(obj2) {
-  return isDefined(obj2) && obj2.isMaterial;
-}
-function isNamedMaterial(name2, obj2) {
-  return isMaterial(obj2) && obj2.type === name2;
-}
-function isMeshBasicMaterial(obj2) {
-  return isNamedMaterial("MeshBasicMaterial", obj2);
-}
-function isObject3D(obj2) {
-  return isDefined(obj2) && obj2.isObject3D;
-}
-function isQuaternion(obj2) {
-  return isDefined(obj2) && obj2.isQuaternion;
-}
-function isEuler(obj2) {
-  return isDefined(obj2) && obj2.isEuler;
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/materials.ts
-var materials = singleton("Juniper:Three:Materials", () => /* @__PURE__ */ new Map());
-function del(obj2, name2) {
-  if (name2 in obj2) {
-    delete obj2[name2];
-  }
-}
-function makeMaterial(slug, material, options) {
-  const key = `${slug}_${Object.keys(options).map((k) => `${k}:${options[k]}`).join(",")}`;
-  if (!materials.has(key)) {
-    del(options, "name");
-    materials.set(key, new material(options));
-  }
-  return materials.get(key);
-}
-function trans(options) {
-  return Object.assign(options, {
-    transparent: true
-  });
-}
-function solid(options) {
-  return makeMaterial("solid", THREE.MeshBasicMaterial, options);
-}
-function solidTransparent(options) {
-  return makeMaterial("solidTransparent", THREE.MeshBasicMaterial, trans(options));
-}
-function lit(options) {
-  return makeMaterial("lit", THREE.MeshPhongMaterial, options);
-}
-function line2(options) {
-  return makeMaterial("line2", LineMaterial, options);
-}
-function convertMaterials(root, convertMaterial) {
-  const oldMats = /* @__PURE__ */ new Set();
-  root.traverse((obj2) => {
-    if (isMesh(obj2) && isMaterial(obj2.material)) {
-      const oldMat = obj2.material;
-      const newMat = convertMaterial(oldMat);
-      if (oldMat !== newMat) {
-        oldMats.add(oldMat);
-        obj2.material = newMat;
-      }
-    }
-  });
-  for (const oldMat of oldMats) {
-    oldMat.dispose();
-  }
-}
-function materialStandardToBasic(oldMat) {
-  if (oldMat.type !== "MeshStandardMaterial") {
-    throw new Error("Input material is not MeshStandardMaterial");
-  }
-  const params = {
-    alphaMap: oldMat.alphaMap,
-    alphaTest: oldMat.alphaTest,
-    alphaToCoverage: oldMat.alphaToCoverage,
-    aoMap: oldMat.aoMap,
-    aoMapIntensity: oldMat.aoMapIntensity,
-    blendDst: oldMat.blendDst,
-    blendDstAlpha: oldMat.blendDstAlpha,
-    blendEquation: oldMat.blendEquation,
-    blendEquationAlpha: oldMat.blendEquationAlpha,
-    blending: oldMat.blending,
-    blendSrc: oldMat.blendSrc,
-    blendSrcAlpha: oldMat.blendSrcAlpha,
-    clipIntersection: oldMat.clipIntersection,
-    clippingPlanes: oldMat.clippingPlanes,
-    clipShadows: oldMat.clipShadows,
-    color: oldMat.color,
-    colorWrite: oldMat.colorWrite,
-    depthFunc: oldMat.depthFunc,
-    depthTest: oldMat.depthTest,
-    depthWrite: oldMat.depthWrite,
-    dithering: oldMat.dithering,
-    envMap: oldMat.envMap,
-    fog: oldMat.fog,
-    lightMap: oldMat.lightMap,
-    lightMapIntensity: oldMat.lightMapIntensity,
-    map: oldMat.emissiveMap || oldMat.map,
-    name: oldMat.name + "-Standard-To-Basic",
-    opacity: oldMat.opacity,
-    polygonOffset: oldMat.polygonOffset,
-    polygonOffsetFactor: oldMat.polygonOffsetFactor,
-    polygonOffsetUnits: oldMat.polygonOffsetUnits,
-    precision: oldMat.precision,
-    premultipliedAlpha: oldMat.premultipliedAlpha,
-    shadowSide: oldMat.shadowSide,
-    side: oldMat.side,
-    stencilFail: oldMat.stencilFail,
-    stencilFunc: oldMat.stencilFunc,
-    stencilFuncMask: oldMat.stencilFuncMask,
-    stencilRef: oldMat.stencilRef,
-    stencilWrite: oldMat.stencilWrite,
-    stencilWriteMask: oldMat.stencilWriteMask,
-    stencilZFail: oldMat.stencilZFail,
-    stencilZPass: oldMat.stencilZPass,
-    toneMapped: oldMat.toneMapped,
-    transparent: oldMat.transparent,
-    userData: oldMat.userData,
-    vertexColors: oldMat.vertexColors,
-    visible: oldMat.visible,
-    wireframe: oldMat.wireframe,
-    wireframeLinecap: oldMat.wireframeLinecap,
-    wireframeLinejoin: oldMat.wireframeLinejoin,
-    wireframeLinewidth: oldMat.wireframeLinewidth
-  };
-  for (const [key, value2] of Object.entries(params)) {
-    if (isNullOrUndefined(value2)) {
-      delete params[key];
-    }
-  }
-  return new THREE.MeshBasicMaterial(params);
-}
-var grey = 12632256;
-var white = 16777215;
-var litGrey = /* @__PURE__ */ lit({ color: grey });
-var litWhite = /* @__PURE__ */ lit({ color: white });
-
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/attrs.ts
 var Attr = class {
   constructor(key, value2, bySetAttribute, ...tags) {
@@ -5965,6 +5283,7 @@ var Attr = class {
     this.tags = tags.map((t2) => t2.toLocaleUpperCase());
     Object.freeze(this);
   }
+  tags;
   applyToElement(elem) {
     const isDataSet = this.key.startsWith("data-");
     const isValid = this.tags.length === 0 || this.tags.indexOf(elem.tagName) > -1 || isDataSet;
@@ -6911,18 +6230,18 @@ var DeviceManager = class extends TypedEventBase {
     super();
     this.element = element;
     this.needsVideoDevice = needsVideoDevice;
-    this._hasAudioPermission = false;
-    this._hasVideoPermission = false;
-    this._currentStream = null;
     this.ready = this.start();
     Object.seal(this);
   }
+  _hasAudioPermission = false;
   get hasAudioPermission() {
     return this._hasAudioPermission;
   }
+  _hasVideoPermission = false;
   get hasVideoPermission() {
     return this._hasVideoPermission;
   }
+  _currentStream = null;
   get currentStream() {
     return this._currentStream;
   }
@@ -6936,6 +6255,7 @@ var DeviceManager = class extends TypedEventBase {
       this._currentStream = v;
     }
   }
+  ready;
   async start() {
     if (canChangeAudioOutput) {
       const device = await this.getPreferredAudioOutput();
@@ -8312,6 +7632,12 @@ var BaseAsset = class {
   constructor(path, type2) {
     this.path = path;
     this.type = type2;
+    this._result = null;
+    this._error = null;
+    this._started = false;
+    this._finished = false;
+    this.resolve = null;
+    this.reject = null;
     this.promise = new Promise((resolve, reject) => {
       this.resolve = (value2) => {
         this._result = value2;
@@ -8325,11 +7651,6 @@ var BaseAsset = class {
       };
     });
   }
-  promise;
-  _result = null;
-  _error = null;
-  _started = false;
-  _finished = false;
   get result() {
     if (isDefined(this.error)) {
       throw this.error;
@@ -8345,8 +7666,6 @@ var BaseAsset = class {
   get finished() {
     return this._finished;
   }
-  resolve = null;
-  reject = null;
   async getSize(fetcher) {
     try {
       const { contentLength } = await fetcher.head(this.path).accept(this.type).exec();
@@ -8379,7 +7698,6 @@ var BaseAsset = class {
   }
 };
 var BaseFetchedAsset = class extends BaseAsset {
-  useCache;
   constructor(path, typeOrUseCache, useCache) {
     let type2;
     if (isBoolean(typeOrUseCache)) {
@@ -10771,6 +10089,29 @@ var DialogBox = class {
   }
 };
 
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/typeChecks.ts
+function isMesh(obj2) {
+  return isDefined(obj2) && obj2.isMesh;
+}
+function isMaterial(obj2) {
+  return isDefined(obj2) && obj2.isMaterial;
+}
+function isNamedMaterial(name2, obj2) {
+  return isMaterial(obj2) && obj2.type === name2;
+}
+function isMeshBasicMaterial(obj2) {
+  return isNamedMaterial("MeshBasicMaterial", obj2);
+}
+function isObject3D(obj2) {
+  return isDefined(obj2) && obj2.isObject3D;
+}
+function isQuaternion(obj2) {
+  return isDefined(obj2) && obj2.isQuaternion;
+}
+function isEuler(obj2) {
+  return isDefined(obj2) && obj2.isEuler;
+}
+
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/objects.ts
 function isErsatzObject(obj2) {
   return isDefined(obj2) && isObject3D(obj2.object);
@@ -10930,6 +10271,665 @@ function cleanup(obj2) {
   }
   cleanupSeen.clear();
 }
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/examples/lines/LineMaterial.js
+THREE.UniformsLib.line = {
+  worldUnits: { value: 1 },
+  linewidth: { value: 1 },
+  resolution: { value: new THREE.Vector2(1, 1) },
+  dashOffset: { value: 0 },
+  dashScale: { value: 1 },
+  dashSize: { value: 1 },
+  gapSize: { value: 1 }
+};
+THREE.ShaderLib["line"] = {
+  uniforms: THREE.UniformsUtils.merge([
+    THREE.UniformsLib.common,
+    THREE.UniformsLib.fog,
+    THREE.UniformsLib.line
+  ]),
+  vertexShader: `
+		#include <common>
+		#include <color_pars_vertex>
+		#include <fog_pars_vertex>
+		#include <logdepthbuf_pars_vertex>
+		#include <clipping_planes_pars_vertex>
+
+		uniform float linewidth;
+		uniform vec2 resolution;
+
+		attribute vec3 instanceStart;
+		attribute vec3 instanceEnd;
+
+		attribute vec3 instanceColorStart;
+		attribute vec3 instanceColorEnd;
+
+		#ifdef WORLD_UNITS
+
+			varying vec4 worldPos;
+			varying vec3 worldStart;
+			varying vec3 worldEnd;
+
+			#ifdef USE_DASH
+
+				varying vec2 vUv;
+
+			#endif
+
+		#else
+
+			varying vec2 vUv;
+
+		#endif
+
+		#ifdef USE_DASH
+
+			uniform float dashScale;
+			attribute float instanceDistanceStart;
+			attribute float instanceDistanceEnd;
+			varying float vLineDistance;
+
+		#endif
+
+		void trimSegment( const in vec4 start, inout vec4 end ) {
+
+			// trim end segment so it terminates between the camera plane and the near plane
+
+			// conservative estimate of the near plane
+			float a = projectionMatrix[ 2 ][ 2 ]; // 3nd entry in 3th column
+			float b = projectionMatrix[ 3 ][ 2 ]; // 3nd entry in 4th column
+			float nearEstimate = - 0.5 * b / a;
+
+			float alpha = ( nearEstimate - start.z ) / ( end.z - start.z );
+
+			end.xyz = mix( start.xyz, end.xyz, alpha );
+
+		}
+
+		void main() {
+
+			#ifdef USE_COLOR
+
+				vColor.xyz = ( position.y < 0.5 ) ? instanceColorStart : instanceColorEnd;
+
+			#endif
+
+			#ifdef USE_DASH
+
+				vLineDistance = ( position.y < 0.5 ) ? dashScale * instanceDistanceStart : dashScale * instanceDistanceEnd;
+				vUv = uv;
+
+			#endif
+
+			float aspect = resolution.x / resolution.y;
+
+			// camera space
+			vec4 start = modelViewMatrix * vec4( instanceStart, 1.0 );
+			vec4 end = modelViewMatrix * vec4( instanceEnd, 1.0 );
+
+			#ifdef WORLD_UNITS
+
+				worldStart = start.xyz;
+				worldEnd = end.xyz;
+
+			#else
+
+				vUv = uv;
+
+			#endif
+
+			// special case for perspective projection, and segments that terminate either in, or behind, the camera plane
+			// clearly the gpu firmware has a way of addressing this issue when projecting into ndc space
+			// but we need to perform ndc-space calculations in the shader, so we must address this issue directly
+			// perhaps there is a more elegant solution -- WestLangley
+
+			bool perspective = ( projectionMatrix[ 2 ][ 3 ] == - 1.0 ); // 4th entry in the 3rd column
+
+			if ( perspective ) {
+
+				if ( start.z < 0.0 && end.z >= 0.0 ) {
+
+					trimSegment( start, end );
+
+				} else if ( end.z < 0.0 && start.z >= 0.0 ) {
+
+					trimSegment( end, start );
+
+				}
+
+			}
+
+			// clip space
+			vec4 clipStart = projectionMatrix * start;
+			vec4 clipEnd = projectionMatrix * end;
+
+			// ndc space
+			vec3 ndcStart = clipStart.xyz / clipStart.w;
+			vec3 ndcEnd = clipEnd.xyz / clipEnd.w;
+
+			// direction
+			vec2 dir = ndcEnd.xy - ndcStart.xy;
+
+			// account for clip-space aspect ratio
+			dir.x *= aspect;
+			dir = normalize( dir );
+
+			#ifdef WORLD_UNITS
+
+				// get the offset direction as perpendicular to the view vector
+				vec3 worldDir = normalize( end.xyz - start.xyz );
+				vec3 offset;
+				if ( position.y < 0.5 ) {
+
+					offset = normalize( cross( start.xyz, worldDir ) );
+
+				} else {
+
+					offset = normalize( cross( end.xyz, worldDir ) );
+
+				}
+
+				// sign flip
+				if ( position.x < 0.0 ) offset *= - 1.0;
+
+				float forwardOffset = dot( worldDir, vec3( 0.0, 0.0, 1.0 ) );
+
+				// don't extend the line if we're rendering dashes because we
+				// won't be rendering the endcaps
+				#ifndef USE_DASH
+
+					// extend the line bounds to encompass  endcaps
+					start.xyz += - worldDir * linewidth * 0.5;
+					end.xyz += worldDir * linewidth * 0.5;
+
+					// shift the position of the quad so it hugs the forward edge of the line
+					offset.xy -= dir * forwardOffset;
+					offset.z += 0.5;
+
+				#endif
+
+				// endcaps
+				if ( position.y > 1.0 || position.y < 0.0 ) {
+
+					offset.xy += dir * 2.0 * forwardOffset;
+
+				}
+
+				// adjust for linewidth
+				offset *= linewidth * 0.5;
+
+				// set the world position
+				worldPos = ( position.y < 0.5 ) ? start : end;
+				worldPos.xyz += offset;
+
+				// project the worldpos
+				vec4 clip = projectionMatrix * worldPos;
+
+				// shift the depth of the projected points so the line
+				// segements overlap neatly
+				vec3 clipPose = ( position.y < 0.5 ) ? ndcStart : ndcEnd;
+				clip.z = clipPose.z * clip.w;
+
+			#else
+
+				vec2 offset = vec2( dir.y, - dir.x );
+				// undo aspect ratio adjustment
+				dir.x /= aspect;
+				offset.x /= aspect;
+
+				// sign flip
+				if ( position.x < 0.0 ) offset *= - 1.0;
+
+				// endcaps
+				if ( position.y < 0.0 ) {
+
+					offset += - dir;
+
+				} else if ( position.y > 1.0 ) {
+
+					offset += dir;
+
+				}
+
+				// adjust for linewidth
+				offset *= linewidth;
+
+				// adjust for clip-space to screen-space conversion // maybe resolution should be based on viewport ...
+				offset /= resolution.y;
+
+				// select end
+				vec4 clip = ( position.y < 0.5 ) ? clipStart : clipEnd;
+
+				// back to clip space
+				offset *= clip.w;
+
+				clip.xy += offset;
+
+			#endif
+
+			gl_Position = clip;
+
+			vec4 mvPosition = ( position.y < 0.5 ) ? start : end; // this is an approximation
+
+			#include <logdepthbuf_vertex>
+			#include <clipping_planes_vertex>
+			#include <fog_vertex>
+
+		}
+		`,
+  fragmentShader: `
+		uniform vec3 diffuse;
+		uniform float opacity;
+		uniform float linewidth;
+
+		#ifdef USE_DASH
+
+			uniform float dashOffset;
+			uniform float dashSize;
+			uniform float gapSize;
+
+		#endif
+
+		varying float vLineDistance;
+
+		#ifdef WORLD_UNITS
+
+			varying vec4 worldPos;
+			varying vec3 worldStart;
+			varying vec3 worldEnd;
+
+			#ifdef USE_DASH
+
+				varying vec2 vUv;
+
+			#endif
+
+		#else
+
+			varying vec2 vUv;
+
+		#endif
+
+		#include <common>
+		#include <color_pars_fragment>
+		#include <fog_pars_fragment>
+		#include <logdepthbuf_pars_fragment>
+		#include <clipping_planes_pars_fragment>
+
+		vec2 closestLineToLine(vec3 p1, vec3 p2, vec3 p3, vec3 p4) {
+
+			float mua;
+			float mub;
+
+			vec3 p13 = p1 - p3;
+			vec3 p43 = p4 - p3;
+
+			vec3 p21 = p2 - p1;
+
+			float d1343 = dot( p13, p43 );
+			float d4321 = dot( p43, p21 );
+			float d1321 = dot( p13, p21 );
+			float d4343 = dot( p43, p43 );
+			float d2121 = dot( p21, p21 );
+
+			float denom = d2121 * d4343 - d4321 * d4321;
+
+			float numer = d1343 * d4321 - d1321 * d4343;
+
+			mua = numer / denom;
+			mua = clamp( mua, 0.0, 1.0 );
+			mub = ( d1343 + d4321 * ( mua ) ) / d4343;
+			mub = clamp( mub, 0.0, 1.0 );
+
+			return vec2( mua, mub );
+
+		}
+
+		void main() {
+
+			#include <clipping_planes_fragment>
+
+			#ifdef USE_DASH
+
+				if ( vUv.y < - 1.0 || vUv.y > 1.0 ) discard; // discard endcaps
+
+				if ( mod( vLineDistance + dashOffset, dashSize + gapSize ) > dashSize ) discard; // todo - FIX
+
+			#endif
+
+			float alpha = opacity;
+
+			#ifdef WORLD_UNITS
+
+				// Find the closest points on the view ray and the line segment
+				vec3 rayEnd = normalize( worldPos.xyz ) * 1e5;
+				vec3 lineDir = worldEnd - worldStart;
+				vec2 params = closestLineToLine( worldStart, worldEnd, vec3( 0.0, 0.0, 0.0 ), rayEnd );
+
+				vec3 p1 = worldStart + lineDir * params.x;
+				vec3 p2 = rayEnd * params.y;
+				vec3 delta = p1 - p2;
+				float len = length( delta );
+				float norm = len / linewidth;
+
+				#ifndef USE_DASH
+
+					#ifdef USE_ALPHA_TO_COVERAGE
+
+						float dnorm = fwidth( norm );
+						alpha = 1.0 - smoothstep( 0.5 - dnorm, 0.5 + dnorm, norm );
+
+					#else
+
+						if ( norm > 0.5 ) {
+
+							discard;
+
+						}
+
+					#endif
+
+				#endif
+
+			#else
+
+				#ifdef USE_ALPHA_TO_COVERAGE
+
+					// artifacts appear on some hardware if a derivative is taken within a conditional
+					float a = vUv.x;
+					float b = ( vUv.y > 0.0 ) ? vUv.y - 1.0 : vUv.y + 1.0;
+					float len2 = a * a + b * b;
+					float dlen = fwidth( len2 );
+
+					if ( abs( vUv.y ) > 1.0 ) {
+
+						alpha = 1.0 - smoothstep( 1.0 - dlen, 1.0 + dlen, len2 );
+
+					}
+
+				#else
+
+					if ( abs( vUv.y ) > 1.0 ) {
+
+						float a = vUv.x;
+						float b = ( vUv.y > 0.0 ) ? vUv.y - 1.0 : vUv.y + 1.0;
+						float len2 = a * a + b * b;
+
+						if ( len2 > 1.0 ) discard;
+
+					}
+
+				#endif
+
+			#endif
+
+			vec4 diffuseColor = vec4( diffuse, alpha );
+
+			#include <logdepthbuf_fragment>
+			#include <color_fragment>
+
+			gl_FragColor = vec4( diffuseColor.rgb, alpha );
+
+			#include <tonemapping_fragment>
+			#include <encodings_fragment>
+			#include <fog_fragment>
+			#include <premultiplied_alpha_fragment>
+
+		}
+		`
+};
+var LineMaterial = class extends THREE.ShaderMaterial {
+  constructor(parameters) {
+    super({
+      type: "LineMaterial",
+      uniforms: THREE.UniformsUtils.clone(THREE.ShaderLib["line"].uniforms),
+      vertexShader: THREE.ShaderLib["line"].vertexShader,
+      fragmentShader: THREE.ShaderLib["line"].fragmentShader,
+      clipping: true
+    });
+    Object.defineProperties(this, {
+      color: {
+        enumerable: true,
+        get: function() {
+          return this.uniforms.diffuse.value;
+        },
+        set: function(value2) {
+          this.uniforms.diffuse.value = value2;
+        }
+      },
+      worldUnits: {
+        enumerable: true,
+        get: function() {
+          return "WORLD_UNITS" in this.defines;
+        },
+        set: function(value2) {
+          if (value2 === true) {
+            this.defines.WORLD_UNITS = "";
+          } else {
+            delete this.defines.WORLD_UNITS;
+          }
+        }
+      },
+      linewidth: {
+        enumerable: true,
+        get: function() {
+          return this.uniforms.linewidth.value;
+        },
+        set: function(value2) {
+          this.uniforms.linewidth.value = value2;
+        }
+      },
+      dashed: {
+        enumerable: true,
+        get: function() {
+          return Boolean("USE_DASH" in this.defines);
+        },
+        set(value2) {
+          if (Boolean(value2) !== Boolean("USE_DASH" in this.defines)) {
+            this.needsUpdate = true;
+          }
+          if (value2 === true) {
+            this.defines.USE_DASH = "";
+          } else {
+            delete this.defines.USE_DASH;
+          }
+        }
+      },
+      dashScale: {
+        enumerable: true,
+        get: function() {
+          return this.uniforms.dashScale.value;
+        },
+        set: function(value2) {
+          this.uniforms.dashScale.value = value2;
+        }
+      },
+      dashSize: {
+        enumerable: true,
+        get: function() {
+          return this.uniforms.dashSize.value;
+        },
+        set: function(value2) {
+          this.uniforms.dashSize.value = value2;
+        }
+      },
+      dashOffset: {
+        enumerable: true,
+        get: function() {
+          return this.uniforms.dashOffset.value;
+        },
+        set: function(value2) {
+          this.uniforms.dashOffset.value = value2;
+        }
+      },
+      gapSize: {
+        enumerable: true,
+        get: function() {
+          return this.uniforms.gapSize.value;
+        },
+        set: function(value2) {
+          this.uniforms.gapSize.value = value2;
+        }
+      },
+      opacity: {
+        enumerable: true,
+        get: function() {
+          return this.uniforms.opacity.value;
+        },
+        set: function(value2) {
+          this.uniforms.opacity.value = value2;
+        }
+      },
+      resolution: {
+        enumerable: true,
+        get: function() {
+          return this.uniforms.resolution.value;
+        },
+        set: function(value2) {
+          this.uniforms.resolution.value.copy(value2);
+        }
+      },
+      alphaToCoverage: {
+        enumerable: true,
+        get: function() {
+          return Boolean("USE_ALPHA_TO_COVERAGE" in this.defines);
+        },
+        set: function(value2) {
+          if (Boolean(value2) !== Boolean("USE_ALPHA_TO_COVERAGE" in this.defines)) {
+            this.needsUpdate = true;
+          }
+          if (value2 === true) {
+            this.defines.USE_ALPHA_TO_COVERAGE = "";
+            this.extensions.derivatives = true;
+          } else {
+            delete this.defines.USE_ALPHA_TO_COVERAGE;
+            this.extensions.derivatives = false;
+          }
+        }
+      }
+    });
+    this.setValues(parameters);
+  }
+};
+LineMaterial.prototype.isLineMaterial = true;
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/materials.ts
+var materials = singleton("Juniper:Three:Materials", () => /* @__PURE__ */ new Map());
+function del(obj2, name2) {
+  if (name2 in obj2) {
+    delete obj2[name2];
+  }
+}
+function makeMaterial(slug, material, options) {
+  const key = `${slug}_${Object.keys(options).map((k) => `${k}:${options[k]}`).join(",")}`;
+  if (!materials.has(key)) {
+    del(options, "name");
+    materials.set(key, new material(options));
+  }
+  return materials.get(key);
+}
+function trans(options) {
+  return Object.assign(options, {
+    transparent: true
+  });
+}
+function solid(options) {
+  return makeMaterial("solid", THREE.MeshBasicMaterial, options);
+}
+function solidTransparent(options) {
+  return makeMaterial("solidTransparent", THREE.MeshBasicMaterial, trans(options));
+}
+function lit(options) {
+  return makeMaterial("lit", THREE.MeshPhongMaterial, options);
+}
+function line2(options) {
+  return makeMaterial("line2", LineMaterial, options);
+}
+function convertMaterials(root, convertMaterial) {
+  const oldMats = /* @__PURE__ */ new Set();
+  root.traverse((obj2) => {
+    if (isMesh(obj2) && isMaterial(obj2.material)) {
+      const oldMat = obj2.material;
+      const newMat = convertMaterial(oldMat);
+      if (oldMat !== newMat) {
+        oldMats.add(oldMat);
+        obj2.material = newMat;
+      }
+    }
+  });
+  for (const oldMat of oldMats) {
+    oldMat.dispose();
+  }
+}
+function materialStandardToBasic(oldMat) {
+  if (oldMat.type !== "MeshStandardMaterial") {
+    throw new Error("Input material is not MeshStandardMaterial");
+  }
+  const params = {
+    alphaMap: oldMat.alphaMap,
+    alphaTest: oldMat.alphaTest,
+    alphaToCoverage: oldMat.alphaToCoverage,
+    aoMap: oldMat.aoMap,
+    aoMapIntensity: oldMat.aoMapIntensity,
+    blendDst: oldMat.blendDst,
+    blendDstAlpha: oldMat.blendDstAlpha,
+    blendEquation: oldMat.blendEquation,
+    blendEquationAlpha: oldMat.blendEquationAlpha,
+    blending: oldMat.blending,
+    blendSrc: oldMat.blendSrc,
+    blendSrcAlpha: oldMat.blendSrcAlpha,
+    clipIntersection: oldMat.clipIntersection,
+    clippingPlanes: oldMat.clippingPlanes,
+    clipShadows: oldMat.clipShadows,
+    color: oldMat.color,
+    colorWrite: oldMat.colorWrite,
+    depthFunc: oldMat.depthFunc,
+    depthTest: oldMat.depthTest,
+    depthWrite: oldMat.depthWrite,
+    dithering: oldMat.dithering,
+    envMap: oldMat.envMap,
+    fog: oldMat.fog,
+    lightMap: oldMat.lightMap,
+    lightMapIntensity: oldMat.lightMapIntensity,
+    map: oldMat.emissiveMap || oldMat.map,
+    name: oldMat.name + "-Standard-To-Basic",
+    opacity: oldMat.opacity,
+    polygonOffset: oldMat.polygonOffset,
+    polygonOffsetFactor: oldMat.polygonOffsetFactor,
+    polygonOffsetUnits: oldMat.polygonOffsetUnits,
+    precision: oldMat.precision,
+    premultipliedAlpha: oldMat.premultipliedAlpha,
+    shadowSide: oldMat.shadowSide,
+    side: oldMat.side,
+    stencilFail: oldMat.stencilFail,
+    stencilFunc: oldMat.stencilFunc,
+    stencilFuncMask: oldMat.stencilFuncMask,
+    stencilRef: oldMat.stencilRef,
+    stencilWrite: oldMat.stencilWrite,
+    stencilWriteMask: oldMat.stencilWriteMask,
+    stencilZFail: oldMat.stencilZFail,
+    stencilZPass: oldMat.stencilZPass,
+    toneMapped: oldMat.toneMapped,
+    transparent: oldMat.transparent,
+    userData: oldMat.userData,
+    vertexColors: oldMat.vertexColors,
+    visible: oldMat.visible,
+    wireframe: oldMat.wireframe,
+    wireframeLinecap: oldMat.wireframeLinecap,
+    wireframeLinejoin: oldMat.wireframeLinejoin,
+    wireframeLinewidth: oldMat.wireframeLinewidth
+  };
+  for (const [key, value2] of Object.entries(params)) {
+    if (isNullOrUndefined(value2)) {
+      delete params[key];
+    }
+  }
+  return new THREE.MeshBasicMaterial(params);
+}
+var grey = 12632256;
+var white = 16777215;
+var litGrey = /* @__PURE__ */ lit({ color: grey });
+var litWhite = /* @__PURE__ */ lit({ color: white });
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/objectGetRelativePose.ts
 var M = new THREE.Matrix4();
@@ -22211,9 +22211,8 @@ function isMeshNamed(name2) {
   return (obj2) => isMesh(obj2) && obj2.name === name2;
 }
 var Forest = class {
-  constructor(env2, convertMaterial) {
+  constructor(env2) {
     this.env = env2;
-    this.convertMaterial = convertMaterial;
     this.assets = [
       this.skybox = new AssetImage("/skyboxes/BearfenceMountain.jpeg", Image_Jpeg, false),
       this.forest = new AssetGltfModel("/models/Forest-Ground.glb", Model_Gltf_Binary, false),
@@ -22245,7 +22244,7 @@ var Forest = class {
   assets;
   convertMesh(oldMesh) {
     const oldMat = oldMesh.material;
-    const newMat = this.convertMaterial(oldMesh.material, false);
+    const newMat = materialStandardToBasic(oldMesh.material);
     if (newMat === oldMat) {
       return oldMesh;
     }
@@ -22274,7 +22273,7 @@ var Forest = class {
     const matrices = this.makeTrees();
     const treeMesh = objectScan(this.tree.result.scene, isMesh);
     const treeGeom = treeMesh.geometry;
-    const treeMat = this.convertMaterial(treeMesh.material, false);
+    const treeMat = materialStandardToBasic(treeMesh.material);
     this._trees = new THREE.InstancedMesh(treeGeom, treeMat, matrices.length);
     for (let i = 0; i < matrices.length; ++i) {
       this._trees.setMatrixAt(i, matrices[i]);
@@ -22322,7 +22321,7 @@ var Forest = class {
 // src/forest-app/index.ts
 var env = await createTestEnvironment();
 await env.fadeOut();
-var forest = new Forest(env, materialStandardToBasic);
+var forest = new Forest(env);
 await env.load(...forest.assets);
 await env.fadeIn();
 //# sourceMappingURL=index.js.map

@@ -5274,6 +5274,296 @@ function using(val, thunk) {
   }
 }
 
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/util.ts
+var typePattern = /([^\/]+)\/(.+)/;
+var subTypePattern = /(?:([^\.]+)\.)?([^\+;]+)(?:\+([^;]+))?((?:; *([^=]+)=([^;]+))*)/;
+var MediaType = class {
+  constructor(_type, _fullSubType, extensions) {
+    this._type = _type;
+    this._fullSubType = _fullSubType;
+    this._primaryExtension = null;
+    this.depMessage = null;
+    const parameters = /* @__PURE__ */ new Map();
+    this._parameters = parameters;
+    const subTypeParts = this._fullSubType.match(subTypePattern);
+    this._tree = subTypeParts[1];
+    this._subType = subTypeParts[2];
+    this._suffix = subTypeParts[3];
+    const paramStr = subTypeParts[4];
+    this._value = this._fullValue = this._type + "/";
+    if (isDefined(this._tree)) {
+      this._value = this._fullValue += this._tree + ".";
+    }
+    this._value = this._fullValue += this._subType;
+    if (isDefined(this._suffix)) {
+      this._value = this._fullValue += "+" + this._suffix;
+    }
+    if (isDefined(paramStr)) {
+      const pairs = paramStr.split(";").map((p) => p.trim()).filter((p) => p.length > 0).map((p) => p.split("="));
+      for (const [key, ...values] of pairs) {
+        const value2 = values.join("=");
+        parameters.set(key, value2);
+        const slug = `; ${key}=${value2}`;
+        this._fullValue += slug;
+        if (key !== "q") {
+          this._value += slug;
+        }
+      }
+    }
+    this._extensions = extensions || [];
+    this._primaryExtension = this._extensions[0] || null;
+  }
+  static parse(value2) {
+    if (!value2) {
+      return null;
+    }
+    const match = value2.match(typePattern);
+    if (!match) {
+      return null;
+    }
+    const type2 = match[1];
+    const subType = match[2];
+    return new MediaType(type2, subType);
+  }
+  deprecate(message) {
+    this.depMessage = message;
+    return this;
+  }
+  check() {
+    if (isDefined(this.depMessage)) {
+      console.warn(`${this._value} is deprecated ${this.depMessage}`);
+    }
+  }
+  matches(value2) {
+    if (isNullOrUndefined(value2)) {
+      return false;
+    }
+    if (this.typeName === "*" && this.subTypeName === "*") {
+      return true;
+    }
+    let typeName = null;
+    let subTypeName = null;
+    if (isString(value2)) {
+      const match = value2.match(typePattern);
+      if (!match) {
+        return false;
+      }
+      typeName = match[1];
+      subTypeName = match[2];
+    } else {
+      typeName = value2.typeName;
+      subTypeName = value2._fullSubType;
+    }
+    return this.typeName === typeName && (this._fullSubType === "*" || this._fullSubType === subTypeName);
+  }
+  withParameter(key, value2) {
+    const newSubType = `${this._fullSubType}; ${key}=${value2}`;
+    return new MediaType(this.typeName, newSubType, this.extensions);
+  }
+  get typeName() {
+    this.check();
+    return this._type;
+  }
+  get tree() {
+    this.check();
+    return this._tree;
+  }
+  get suffix() {
+    return this._suffix;
+  }
+  get subTypeName() {
+    this.check();
+    return this._subType;
+  }
+  get value() {
+    this.check();
+    return this._value;
+  }
+  __getValueUnsafe() {
+    return this._value;
+  }
+  get fullValue() {
+    this.check();
+    return this._fullValue;
+  }
+  get parameters() {
+    this.check();
+    return this._parameters;
+  }
+  get extensions() {
+    this.check();
+    return this._extensions;
+  }
+  __getExtensionsUnsafe() {
+    return this._extensions;
+  }
+  get primaryExtension() {
+    this.check();
+    return this._primaryExtension;
+  }
+  toString() {
+    if (this.parameters.get("q") === "1") {
+      return this.value;
+    } else {
+      return this.fullValue;
+    }
+  }
+  addExtension(fileName) {
+    if (!fileName) {
+      throw new Error("File name is not defined");
+    }
+    if (this.primaryExtension) {
+      const idx = fileName.lastIndexOf(".");
+      if (idx > -1) {
+        const currentExtension = fileName.substring(idx + 1);
+        ;
+        if (this.extensions.indexOf(currentExtension) > -1) {
+          fileName = fileName.substring(0, idx);
+        }
+      }
+      fileName = `${fileName}.${this.primaryExtension}`;
+    }
+    return fileName;
+  }
+};
+function create2(group2, value2, ...extensions) {
+  return new MediaType(group2, value2, extensions);
+}
+function specialize(group2) {
+  return create2.bind(null, group2);
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/application.ts
+var application = /* @__PURE__ */ specialize("application");
+var Application_Javascript = /* @__PURE__ */ application("javascript", "js");
+var Application_Json = /* @__PURE__ */ application("json", "json");
+var Application_Wasm = /* @__PURE__ */ application("wasm", "wasm");
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/audio.ts
+var audio = /* @__PURE__ */ specialize("audio");
+var Audio_Mpeg = /* @__PURE__ */ audio("mpeg", "mp3", "mp2", "mp2a", "mpga", "m2a", "m3a");
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/image.ts
+var image = /* @__PURE__ */ specialize("image");
+var Image_Jpeg = /* @__PURE__ */ image("jpeg", "jpeg", "jpg", "jpe");
+var Image_Png = /* @__PURE__ */ image("png", "png");
+var Image_Vendor_Google_StreetView_Pano = image("vnd.google.streetview.pano");
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/model.ts
+var model = /* @__PURE__ */ specialize("model");
+var Model_Gltf_Binary = /* @__PURE__ */ model("gltf-binary", "glb");
+var Model_Gltf_Json = /* @__PURE__ */ model("gltf+json", "gltf");
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/text.ts
+var text = /* @__PURE__ */ specialize("text");
+var Text_Plain = /* @__PURE__ */ text("plain", "txt", "text", "conf", "def", "list", "log", "in");
+var Text_Xml = /* @__PURE__ */ text("xml");
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/video.ts
+var video = /* @__PURE__ */ specialize("video");
+var Video_Vendor_Mpeg_Dash_Mpd = /* @__PURE__ */ video("vnd.mpeg.dash.mpd", "mpd");
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/Asset.ts
+var BaseAsset = class {
+  constructor(path, type2) {
+    this.path = path;
+    this.type = type2;
+    this._result = null;
+    this._error = null;
+    this._started = false;
+    this._finished = false;
+    this.resolve = null;
+    this.reject = null;
+    this.promise = new Promise((resolve, reject) => {
+      this.resolve = (value2) => {
+        this._result = value2;
+        this._finished = true;
+        resolve(value2);
+      };
+      this.reject = (reason) => {
+        this._error = reason;
+        this._finished = true;
+        reject(reason);
+      };
+    });
+  }
+  get result() {
+    if (isDefined(this.error)) {
+      throw this.error;
+    }
+    return this._result;
+  }
+  get error() {
+    return this._error;
+  }
+  get started() {
+    return this._started;
+  }
+  get finished() {
+    return this._finished;
+  }
+  async getSize(fetcher) {
+    try {
+      const { contentLength } = await fetcher.head(this.path).accept(this.type).exec();
+      return [this, contentLength || 1];
+    } catch (exp) {
+      console.warn(exp);
+      return [this, 1];
+    }
+    ;
+  }
+  async fetch(fetcher, prog) {
+    try {
+      const result = await this.getResult(fetcher, prog);
+      this.resolve(result);
+    } catch (err) {
+      this.reject(err);
+    }
+  }
+  get [Symbol.toStringTag]() {
+    return this.promise.toString();
+  }
+  then(onfulfilled, onrejected) {
+    return this.promise.then(onfulfilled, onrejected);
+  }
+  catch(onrejected) {
+    return this.promise.catch(onrejected);
+  }
+  finally(onfinally) {
+    return this.promise.finally(onfinally);
+  }
+};
+var BaseFetchedAsset = class extends BaseAsset {
+  constructor(path, typeOrUseCache, useCache) {
+    let type2;
+    if (isBoolean(typeOrUseCache)) {
+      useCache = typeOrUseCache;
+    } else {
+      type2 = typeOrUseCache;
+    }
+    super(path, type2);
+    this.useCache = !!useCache;
+  }
+  async getResult(fetcher, prog) {
+    const response = await this.getRequest(fetcher, prog);
+    return response.content;
+  }
+  getRequest(fetcher, prog) {
+    const request = fetcher.get(this.path).useCache(this.useCache).progress(prog);
+    return this.getResponse(request);
+  }
+};
+var AssetAudio = class extends BaseFetchedAsset {
+  getResponse(request) {
+    return request.audio(false, false, this.type);
+  }
+};
+var AssetImage = class extends BaseFetchedAsset {
+  getResponse(request) {
+    return request.image(this.type);
+  }
+};
+
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/attrs.ts
 var Attr = class {
   constructor(key, value2, bySetAttribute, ...tags) {
@@ -5283,6 +5573,7 @@ var Attr = class {
     this.tags = tags.map((t2) => t2.toLocaleUpperCase());
     Object.freeze(this);
   }
+  tags;
   applyToElement(elem) {
     const isDataSet = this.key.startsWith("data-");
     const isValid = this.tags.length === 0 || this.tags.indexOf(elem.tagName) > -1 || isDataSet;
@@ -5763,2841 +6054,6 @@ function BackgroundAudio(autoplay, mute, looping, ...rest) {
 function BackgroundVideo(autoplay, mute, looping, ...rest) {
   return Video(playsInline(true), controls(false), muted(mute), autoPlay(autoplay), loop(looping), styles(display("none")), ...rest);
 }
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/typeChecks.ts
-function isMesh(obj2) {
-  return isDefined(obj2) && obj2.isMesh;
-}
-function isMaterial(obj2) {
-  return isDefined(obj2) && obj2.isMaterial;
-}
-function isNamedMaterial(name2, obj2) {
-  return isMaterial(obj2) && obj2.type === name2;
-}
-function isMeshBasicMaterial(obj2) {
-  return isNamedMaterial("MeshBasicMaterial", obj2);
-}
-function isObject3D(obj2) {
-  return isDefined(obj2) && obj2.isObject3D;
-}
-function isQuaternion(obj2) {
-  return isDefined(obj2) && obj2.isQuaternion;
-}
-function isEuler(obj2) {
-  return isDefined(obj2) && obj2.isEuler;
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/objects.ts
-function isErsatzObject(obj2) {
-  return isDefined(obj2) && isObject3D(obj2.object);
-}
-function objectResolve(obj2) {
-  if (isErsatzObject(obj2)) {
-    return obj2.object;
-  }
-  return obj2;
-}
-function objectSetVisible(obj2, visible) {
-  obj2 = objectResolve(obj2);
-  obj2.visible = visible;
-  return visible;
-}
-function objectIsVisible(obj2) {
-  obj2 = objectResolve(obj2);
-  return obj2.visible;
-}
-function objectIsFullyVisible(obj2) {
-  obj2 = objectResolve(obj2);
-  while (obj2) {
-    if (!obj2.visible) {
-      return false;
-    }
-    obj2 = obj2.parent;
-  }
-  return true;
-}
-function objGraph(obj2, ...children) {
-  const toAdd = children.filter(isDefined).map(objectResolve);
-  if (toAdd.length > 0) {
-    objectResolve(obj2).add(...toAdd);
-  }
-  return obj2;
-}
-function obj(name2, ...rest) {
-  const obj2 = new THREE.Object3D();
-  obj2.name = name2;
-  objGraph(obj2, ...rest);
-  return obj2;
-}
-function objectSetEnabled(obj2, enabled) {
-  obj2 = objectResolve(obj2);
-  if (isDisableable(obj2)) {
-    obj2.disabled = !enabled;
-  }
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/RayTarget.ts
-var RAY_TARGET_KEY = "Juniper:ThreeJS:EventSystem:RayTarget";
-var RayTarget = class extends TypedEventBase {
-  constructor(object) {
-    super();
-    this.object = object;
-    this.object.userData[RAY_TARGET_KEY] = this;
-  }
-  meshes = new Array();
-  _disabled = false;
-  _clickable = false;
-  _draggable = false;
-  addMesh(mesh) {
-    mesh.userData[RAY_TARGET_KEY] = this;
-    this.meshes.push(mesh);
-    return this;
-  }
-  get disabled() {
-    return this._disabled;
-  }
-  set disabled(v) {
-    this._disabled = v;
-  }
-  get enabled() {
-    return !this.disabled;
-  }
-  set enabled(v) {
-    this.disabled = !v;
-  }
-  get clickable() {
-    return this._clickable;
-  }
-  set clickable(v) {
-    this._clickable = v;
-  }
-  get draggable() {
-    return this._draggable;
-  }
-  set draggable(v) {
-    this._draggable = v;
-  }
-};
-function isRayTarget(obj2) {
-  return obj2 instanceof RayTarget;
-}
-function getRayTarget(obj2) {
-  let target = null;
-  if (obj2) {
-    if (isRayTarget(obj2)) {
-      target = obj2;
-    } else {
-      obj2 = objectResolve(obj2);
-      if (obj2) {
-        target = obj2.userData[RAY_TARGET_KEY];
-      }
-    }
-    if (target && !objectIsFullyVisible(target)) {
-      target = null;
-    }
-  }
-  return target;
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/examples/lines/LineMaterial.js
-THREE.UniformsLib.line = {
-  worldUnits: { value: 1 },
-  linewidth: { value: 1 },
-  resolution: { value: new THREE.Vector2(1, 1) },
-  dashOffset: { value: 0 },
-  dashScale: { value: 1 },
-  dashSize: { value: 1 },
-  gapSize: { value: 1 }
-};
-THREE.ShaderLib["line"] = {
-  uniforms: THREE.UniformsUtils.merge([
-    THREE.UniformsLib.common,
-    THREE.UniformsLib.fog,
-    THREE.UniformsLib.line
-  ]),
-  vertexShader: `
-		#include <common>
-		#include <color_pars_vertex>
-		#include <fog_pars_vertex>
-		#include <logdepthbuf_pars_vertex>
-		#include <clipping_planes_pars_vertex>
-
-		uniform float linewidth;
-		uniform vec2 resolution;
-
-		attribute vec3 instanceStart;
-		attribute vec3 instanceEnd;
-
-		attribute vec3 instanceColorStart;
-		attribute vec3 instanceColorEnd;
-
-		#ifdef WORLD_UNITS
-
-			varying vec4 worldPos;
-			varying vec3 worldStart;
-			varying vec3 worldEnd;
-
-			#ifdef USE_DASH
-
-				varying vec2 vUv;
-
-			#endif
-
-		#else
-
-			varying vec2 vUv;
-
-		#endif
-
-		#ifdef USE_DASH
-
-			uniform float dashScale;
-			attribute float instanceDistanceStart;
-			attribute float instanceDistanceEnd;
-			varying float vLineDistance;
-
-		#endif
-
-		void trimSegment( const in vec4 start, inout vec4 end ) {
-
-			// trim end segment so it terminates between the camera plane and the near plane
-
-			// conservative estimate of the near plane
-			float a = projectionMatrix[ 2 ][ 2 ]; // 3nd entry in 3th column
-			float b = projectionMatrix[ 3 ][ 2 ]; // 3nd entry in 4th column
-			float nearEstimate = - 0.5 * b / a;
-
-			float alpha = ( nearEstimate - start.z ) / ( end.z - start.z );
-
-			end.xyz = mix( start.xyz, end.xyz, alpha );
-
-		}
-
-		void main() {
-
-			#ifdef USE_COLOR
-
-				vColor.xyz = ( position.y < 0.5 ) ? instanceColorStart : instanceColorEnd;
-
-			#endif
-
-			#ifdef USE_DASH
-
-				vLineDistance = ( position.y < 0.5 ) ? dashScale * instanceDistanceStart : dashScale * instanceDistanceEnd;
-				vUv = uv;
-
-			#endif
-
-			float aspect = resolution.x / resolution.y;
-
-			// camera space
-			vec4 start = modelViewMatrix * vec4( instanceStart, 1.0 );
-			vec4 end = modelViewMatrix * vec4( instanceEnd, 1.0 );
-
-			#ifdef WORLD_UNITS
-
-				worldStart = start.xyz;
-				worldEnd = end.xyz;
-
-			#else
-
-				vUv = uv;
-
-			#endif
-
-			// special case for perspective projection, and segments that terminate either in, or behind, the camera plane
-			// clearly the gpu firmware has a way of addressing this issue when projecting into ndc space
-			// but we need to perform ndc-space calculations in the shader, so we must address this issue directly
-			// perhaps there is a more elegant solution -- WestLangley
-
-			bool perspective = ( projectionMatrix[ 2 ][ 3 ] == - 1.0 ); // 4th entry in the 3rd column
-
-			if ( perspective ) {
-
-				if ( start.z < 0.0 && end.z >= 0.0 ) {
-
-					trimSegment( start, end );
-
-				} else if ( end.z < 0.0 && start.z >= 0.0 ) {
-
-					trimSegment( end, start );
-
-				}
-
-			}
-
-			// clip space
-			vec4 clipStart = projectionMatrix * start;
-			vec4 clipEnd = projectionMatrix * end;
-
-			// ndc space
-			vec3 ndcStart = clipStart.xyz / clipStart.w;
-			vec3 ndcEnd = clipEnd.xyz / clipEnd.w;
-
-			// direction
-			vec2 dir = ndcEnd.xy - ndcStart.xy;
-
-			// account for clip-space aspect ratio
-			dir.x *= aspect;
-			dir = normalize( dir );
-
-			#ifdef WORLD_UNITS
-
-				// get the offset direction as perpendicular to the view vector
-				vec3 worldDir = normalize( end.xyz - start.xyz );
-				vec3 offset;
-				if ( position.y < 0.5 ) {
-
-					offset = normalize( cross( start.xyz, worldDir ) );
-
-				} else {
-
-					offset = normalize( cross( end.xyz, worldDir ) );
-
-				}
-
-				// sign flip
-				if ( position.x < 0.0 ) offset *= - 1.0;
-
-				float forwardOffset = dot( worldDir, vec3( 0.0, 0.0, 1.0 ) );
-
-				// don't extend the line if we're rendering dashes because we
-				// won't be rendering the endcaps
-				#ifndef USE_DASH
-
-					// extend the line bounds to encompass  endcaps
-					start.xyz += - worldDir * linewidth * 0.5;
-					end.xyz += worldDir * linewidth * 0.5;
-
-					// shift the position of the quad so it hugs the forward edge of the line
-					offset.xy -= dir * forwardOffset;
-					offset.z += 0.5;
-
-				#endif
-
-				// endcaps
-				if ( position.y > 1.0 || position.y < 0.0 ) {
-
-					offset.xy += dir * 2.0 * forwardOffset;
-
-				}
-
-				// adjust for linewidth
-				offset *= linewidth * 0.5;
-
-				// set the world position
-				worldPos = ( position.y < 0.5 ) ? start : end;
-				worldPos.xyz += offset;
-
-				// project the worldpos
-				vec4 clip = projectionMatrix * worldPos;
-
-				// shift the depth of the projected points so the line
-				// segements overlap neatly
-				vec3 clipPose = ( position.y < 0.5 ) ? ndcStart : ndcEnd;
-				clip.z = clipPose.z * clip.w;
-
-			#else
-
-				vec2 offset = vec2( dir.y, - dir.x );
-				// undo aspect ratio adjustment
-				dir.x /= aspect;
-				offset.x /= aspect;
-
-				// sign flip
-				if ( position.x < 0.0 ) offset *= - 1.0;
-
-				// endcaps
-				if ( position.y < 0.0 ) {
-
-					offset += - dir;
-
-				} else if ( position.y > 1.0 ) {
-
-					offset += dir;
-
-				}
-
-				// adjust for linewidth
-				offset *= linewidth;
-
-				// adjust for clip-space to screen-space conversion // maybe resolution should be based on viewport ...
-				offset /= resolution.y;
-
-				// select end
-				vec4 clip = ( position.y < 0.5 ) ? clipStart : clipEnd;
-
-				// back to clip space
-				offset *= clip.w;
-
-				clip.xy += offset;
-
-			#endif
-
-			gl_Position = clip;
-
-			vec4 mvPosition = ( position.y < 0.5 ) ? start : end; // this is an approximation
-
-			#include <logdepthbuf_vertex>
-			#include <clipping_planes_vertex>
-			#include <fog_vertex>
-
-		}
-		`,
-  fragmentShader: `
-		uniform vec3 diffuse;
-		uniform float opacity;
-		uniform float linewidth;
-
-		#ifdef USE_DASH
-
-			uniform float dashOffset;
-			uniform float dashSize;
-			uniform float gapSize;
-
-		#endif
-
-		varying float vLineDistance;
-
-		#ifdef WORLD_UNITS
-
-			varying vec4 worldPos;
-			varying vec3 worldStart;
-			varying vec3 worldEnd;
-
-			#ifdef USE_DASH
-
-				varying vec2 vUv;
-
-			#endif
-
-		#else
-
-			varying vec2 vUv;
-
-		#endif
-
-		#include <common>
-		#include <color_pars_fragment>
-		#include <fog_pars_fragment>
-		#include <logdepthbuf_pars_fragment>
-		#include <clipping_planes_pars_fragment>
-
-		vec2 closestLineToLine(vec3 p1, vec3 p2, vec3 p3, vec3 p4) {
-
-			float mua;
-			float mub;
-
-			vec3 p13 = p1 - p3;
-			vec3 p43 = p4 - p3;
-
-			vec3 p21 = p2 - p1;
-
-			float d1343 = dot( p13, p43 );
-			float d4321 = dot( p43, p21 );
-			float d1321 = dot( p13, p21 );
-			float d4343 = dot( p43, p43 );
-			float d2121 = dot( p21, p21 );
-
-			float denom = d2121 * d4343 - d4321 * d4321;
-
-			float numer = d1343 * d4321 - d1321 * d4343;
-
-			mua = numer / denom;
-			mua = clamp( mua, 0.0, 1.0 );
-			mub = ( d1343 + d4321 * ( mua ) ) / d4343;
-			mub = clamp( mub, 0.0, 1.0 );
-
-			return vec2( mua, mub );
-
-		}
-
-		void main() {
-
-			#include <clipping_planes_fragment>
-
-			#ifdef USE_DASH
-
-				if ( vUv.y < - 1.0 || vUv.y > 1.0 ) discard; // discard endcaps
-
-				if ( mod( vLineDistance + dashOffset, dashSize + gapSize ) > dashSize ) discard; // todo - FIX
-
-			#endif
-
-			float alpha = opacity;
-
-			#ifdef WORLD_UNITS
-
-				// Find the closest points on the view ray and the line segment
-				vec3 rayEnd = normalize( worldPos.xyz ) * 1e5;
-				vec3 lineDir = worldEnd - worldStart;
-				vec2 params = closestLineToLine( worldStart, worldEnd, vec3( 0.0, 0.0, 0.0 ), rayEnd );
-
-				vec3 p1 = worldStart + lineDir * params.x;
-				vec3 p2 = rayEnd * params.y;
-				vec3 delta = p1 - p2;
-				float len = length( delta );
-				float norm = len / linewidth;
-
-				#ifndef USE_DASH
-
-					#ifdef USE_ALPHA_TO_COVERAGE
-
-						float dnorm = fwidth( norm );
-						alpha = 1.0 - smoothstep( 0.5 - dnorm, 0.5 + dnorm, norm );
-
-					#else
-
-						if ( norm > 0.5 ) {
-
-							discard;
-
-						}
-
-					#endif
-
-				#endif
-
-			#else
-
-				#ifdef USE_ALPHA_TO_COVERAGE
-
-					// artifacts appear on some hardware if a derivative is taken within a conditional
-					float a = vUv.x;
-					float b = ( vUv.y > 0.0 ) ? vUv.y - 1.0 : vUv.y + 1.0;
-					float len2 = a * a + b * b;
-					float dlen = fwidth( len2 );
-
-					if ( abs( vUv.y ) > 1.0 ) {
-
-						alpha = 1.0 - smoothstep( 1.0 - dlen, 1.0 + dlen, len2 );
-
-					}
-
-				#else
-
-					if ( abs( vUv.y ) > 1.0 ) {
-
-						float a = vUv.x;
-						float b = ( vUv.y > 0.0 ) ? vUv.y - 1.0 : vUv.y + 1.0;
-						float len2 = a * a + b * b;
-
-						if ( len2 > 1.0 ) discard;
-
-					}
-
-				#endif
-
-			#endif
-
-			vec4 diffuseColor = vec4( diffuse, alpha );
-
-			#include <logdepthbuf_fragment>
-			#include <color_fragment>
-
-			gl_FragColor = vec4( diffuseColor.rgb, alpha );
-
-			#include <tonemapping_fragment>
-			#include <encodings_fragment>
-			#include <fog_fragment>
-			#include <premultiplied_alpha_fragment>
-
-		}
-		`
-};
-var LineMaterial = class extends THREE.ShaderMaterial {
-  constructor(parameters) {
-    super({
-      type: "LineMaterial",
-      uniforms: THREE.UniformsUtils.clone(THREE.ShaderLib["line"].uniforms),
-      vertexShader: THREE.ShaderLib["line"].vertexShader,
-      fragmentShader: THREE.ShaderLib["line"].fragmentShader,
-      clipping: true
-    });
-    Object.defineProperties(this, {
-      color: {
-        enumerable: true,
-        get: function() {
-          return this.uniforms.diffuse.value;
-        },
-        set: function(value2) {
-          this.uniforms.diffuse.value = value2;
-        }
-      },
-      worldUnits: {
-        enumerable: true,
-        get: function() {
-          return "WORLD_UNITS" in this.defines;
-        },
-        set: function(value2) {
-          if (value2 === true) {
-            this.defines.WORLD_UNITS = "";
-          } else {
-            delete this.defines.WORLD_UNITS;
-          }
-        }
-      },
-      linewidth: {
-        enumerable: true,
-        get: function() {
-          return this.uniforms.linewidth.value;
-        },
-        set: function(value2) {
-          this.uniforms.linewidth.value = value2;
-        }
-      },
-      dashed: {
-        enumerable: true,
-        get: function() {
-          return Boolean("USE_DASH" in this.defines);
-        },
-        set(value2) {
-          if (Boolean(value2) !== Boolean("USE_DASH" in this.defines)) {
-            this.needsUpdate = true;
-          }
-          if (value2 === true) {
-            this.defines.USE_DASH = "";
-          } else {
-            delete this.defines.USE_DASH;
-          }
-        }
-      },
-      dashScale: {
-        enumerable: true,
-        get: function() {
-          return this.uniforms.dashScale.value;
-        },
-        set: function(value2) {
-          this.uniforms.dashScale.value = value2;
-        }
-      },
-      dashSize: {
-        enumerable: true,
-        get: function() {
-          return this.uniforms.dashSize.value;
-        },
-        set: function(value2) {
-          this.uniforms.dashSize.value = value2;
-        }
-      },
-      dashOffset: {
-        enumerable: true,
-        get: function() {
-          return this.uniforms.dashOffset.value;
-        },
-        set: function(value2) {
-          this.uniforms.dashOffset.value = value2;
-        }
-      },
-      gapSize: {
-        enumerable: true,
-        get: function() {
-          return this.uniforms.gapSize.value;
-        },
-        set: function(value2) {
-          this.uniforms.gapSize.value = value2;
-        }
-      },
-      opacity: {
-        enumerable: true,
-        get: function() {
-          return this.uniforms.opacity.value;
-        },
-        set: function(value2) {
-          this.uniforms.opacity.value = value2;
-        }
-      },
-      resolution: {
-        enumerable: true,
-        get: function() {
-          return this.uniforms.resolution.value;
-        },
-        set: function(value2) {
-          this.uniforms.resolution.value.copy(value2);
-        }
-      },
-      alphaToCoverage: {
-        enumerable: true,
-        get: function() {
-          return Boolean("USE_ALPHA_TO_COVERAGE" in this.defines);
-        },
-        set: function(value2) {
-          if (Boolean(value2) !== Boolean("USE_ALPHA_TO_COVERAGE" in this.defines)) {
-            this.needsUpdate = true;
-          }
-          if (value2 === true) {
-            this.defines.USE_ALPHA_TO_COVERAGE = "";
-            this.extensions.derivatives = true;
-          } else {
-            delete this.defines.USE_ALPHA_TO_COVERAGE;
-            this.extensions.derivatives = false;
-          }
-        }
-      }
-    });
-    this.setValues(parameters);
-  }
-};
-LineMaterial.prototype.isLineMaterial = true;
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/materials.ts
-var materials = singleton("Juniper:Three:Materials", () => /* @__PURE__ */ new Map());
-function del(obj2, name2) {
-  if (name2 in obj2) {
-    delete obj2[name2];
-  }
-}
-function makeMaterial(slug, material, options) {
-  const key = `${slug}_${Object.keys(options).map((k) => `${k}:${options[k]}`).join(",")}`;
-  if (!materials.has(key)) {
-    del(options, "name");
-    materials.set(key, new material(options));
-  }
-  return materials.get(key);
-}
-function trans(options) {
-  return Object.assign(options, {
-    transparent: true
-  });
-}
-function solid(options) {
-  return makeMaterial("solid", THREE.MeshBasicMaterial, options);
-}
-function solidTransparent(options) {
-  return makeMaterial("solidTransparent", THREE.MeshBasicMaterial, trans(options));
-}
-function lit(options) {
-  return makeMaterial("lit", THREE.MeshPhongMaterial, options);
-}
-function line2(options) {
-  return makeMaterial("line2", LineMaterial, options);
-}
-function convertMaterials(root, convertMaterial) {
-  const oldMats = /* @__PURE__ */ new Set();
-  root.traverse((obj2) => {
-    if (isMesh(obj2) && isMaterial(obj2.material)) {
-      const oldMat = obj2.material;
-      const newMat = convertMaterial(oldMat);
-      if (oldMat !== newMat) {
-        oldMats.add(oldMat);
-        obj2.material = newMat;
-      }
-    }
-  });
-  for (const oldMat of oldMats) {
-    oldMat.dispose();
-  }
-}
-function materialStandardToBasic(oldMat) {
-  if (oldMat.type !== "MeshStandardMaterial") {
-    throw new Error("Input material is not MeshStandardMaterial");
-  }
-  const params = {
-    alphaMap: oldMat.alphaMap,
-    alphaTest: oldMat.alphaTest,
-    alphaToCoverage: oldMat.alphaToCoverage,
-    aoMap: oldMat.aoMap,
-    aoMapIntensity: oldMat.aoMapIntensity,
-    blendDst: oldMat.blendDst,
-    blendDstAlpha: oldMat.blendDstAlpha,
-    blendEquation: oldMat.blendEquation,
-    blendEquationAlpha: oldMat.blendEquationAlpha,
-    blending: oldMat.blending,
-    blendSrc: oldMat.blendSrc,
-    blendSrcAlpha: oldMat.blendSrcAlpha,
-    clipIntersection: oldMat.clipIntersection,
-    clippingPlanes: oldMat.clippingPlanes,
-    clipShadows: oldMat.clipShadows,
-    color: oldMat.color,
-    colorWrite: oldMat.colorWrite,
-    depthFunc: oldMat.depthFunc,
-    depthTest: oldMat.depthTest,
-    depthWrite: oldMat.depthWrite,
-    dithering: oldMat.dithering,
-    envMap: oldMat.envMap,
-    fog: oldMat.fog,
-    lightMap: oldMat.lightMap,
-    lightMapIntensity: oldMat.lightMapIntensity,
-    map: oldMat.emissiveMap || oldMat.map,
-    name: oldMat.name + "-Standard-To-Basic",
-    opacity: oldMat.opacity,
-    polygonOffset: oldMat.polygonOffset,
-    polygonOffsetFactor: oldMat.polygonOffsetFactor,
-    polygonOffsetUnits: oldMat.polygonOffsetUnits,
-    precision: oldMat.precision,
-    premultipliedAlpha: oldMat.premultipliedAlpha,
-    shadowSide: oldMat.shadowSide,
-    side: oldMat.side,
-    stencilFail: oldMat.stencilFail,
-    stencilFunc: oldMat.stencilFunc,
-    stencilFuncMask: oldMat.stencilFuncMask,
-    stencilRef: oldMat.stencilRef,
-    stencilWrite: oldMat.stencilWrite,
-    stencilWriteMask: oldMat.stencilWriteMask,
-    stencilZFail: oldMat.stencilZFail,
-    stencilZPass: oldMat.stencilZPass,
-    toneMapped: oldMat.toneMapped,
-    transparent: oldMat.transparent,
-    userData: oldMat.userData,
-    vertexColors: oldMat.vertexColors,
-    visible: oldMat.visible,
-    wireframe: oldMat.wireframe,
-    wireframeLinecap: oldMat.wireframeLinecap,
-    wireframeLinejoin: oldMat.wireframeLinejoin,
-    wireframeLinewidth: oldMat.wireframeLinewidth
-  };
-  for (const [key, value2] of Object.entries(params)) {
-    if (isNullOrUndefined(value2)) {
-      delete params[key];
-    }
-  }
-  return new THREE.MeshBasicMaterial(params);
-}
-function materialStandardToPhong(oldMat) {
-  if (oldMat.type !== "MeshStandardMaterial") {
-    throw new Error("Input material is not MeshStandardMaterial");
-  }
-  const params = {
-    alphaMap: oldMat.alphaMap,
-    alphaTest: oldMat.alphaTest,
-    alphaToCoverage: oldMat.alphaToCoverage,
-    aoMap: oldMat.aoMap,
-    aoMapIntensity: oldMat.aoMapIntensity,
-    blendDst: oldMat.blendDst,
-    blendDstAlpha: oldMat.blendDstAlpha,
-    blendEquation: oldMat.blendEquation,
-    blendEquationAlpha: oldMat.blendEquationAlpha,
-    blending: oldMat.blending,
-    blendSrc: oldMat.blendSrc,
-    blendSrcAlpha: oldMat.blendSrcAlpha,
-    bumpMap: oldMat.bumpMap,
-    bumpScale: oldMat.bumpScale,
-    clipIntersection: oldMat.clipIntersection,
-    clippingPlanes: oldMat.clippingPlanes,
-    clipShadows: oldMat.clipShadows,
-    color: oldMat.color,
-    colorWrite: oldMat.colorWrite,
-    depthFunc: oldMat.depthFunc,
-    depthTest: oldMat.depthTest,
-    depthWrite: oldMat.depthWrite,
-    displacementBias: oldMat.displacementBias,
-    displacementMap: oldMat.displacementMap,
-    displacementScale: oldMat.displacementScale,
-    dithering: oldMat.dithering,
-    emissive: oldMat.emissive,
-    emissiveIntensity: oldMat.emissiveIntensity,
-    emissiveMap: oldMat.emissiveMap,
-    envMap: oldMat.envMap,
-    flatShading: oldMat.flatShading,
-    fog: oldMat.fog,
-    lightMap: oldMat.lightMap,
-    lightMapIntensity: oldMat.lightMapIntensity,
-    map: oldMat.map,
-    name: oldMat.name + "-Standard-To-Phong",
-    normalMap: oldMat.normalMap,
-    normalMapType: oldMat.normalMapType,
-    normalScale: oldMat.normalScale,
-    opacity: oldMat.opacity,
-    polygonOffset: oldMat.polygonOffset,
-    polygonOffsetFactor: oldMat.polygonOffsetFactor,
-    polygonOffsetUnits: oldMat.polygonOffsetUnits,
-    precision: oldMat.precision,
-    premultipliedAlpha: oldMat.premultipliedAlpha,
-    shadowSide: oldMat.shadowSide,
-    side: oldMat.side,
-    stencilFail: oldMat.stencilFail,
-    stencilFunc: oldMat.stencilFunc,
-    stencilFuncMask: oldMat.stencilFuncMask,
-    stencilRef: oldMat.stencilRef,
-    stencilWrite: oldMat.stencilWrite,
-    stencilWriteMask: oldMat.stencilWriteMask,
-    stencilZFail: oldMat.stencilZFail,
-    stencilZPass: oldMat.stencilZPass,
-    toneMapped: oldMat.toneMapped,
-    transparent: oldMat.transparent,
-    userData: oldMat.userData,
-    vertexColors: oldMat.vertexColors,
-    visible: oldMat.visible,
-    wireframe: oldMat.wireframe,
-    wireframeLinecap: oldMat.wireframeLinecap,
-    wireframeLinejoin: oldMat.wireframeLinejoin,
-    wireframeLinewidth: oldMat.wireframeLinewidth
-  };
-  for (const [key, value2] of Object.entries(params)) {
-    if (isNullOrUndefined(value2)) {
-      delete params[key];
-    }
-  }
-  return new THREE.MeshPhongMaterial(params);
-}
-var grey = 12632256;
-var white = 16777215;
-var litGrey = /* @__PURE__ */ lit({ color: grey });
-var litWhite = /* @__PURE__ */ lit({ color: white });
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/onUserGesture.ts
-var gestures = [
-  "change",
-  "click",
-  "contextmenu",
-  "dblclick",
-  "mouseup",
-  "pointerup",
-  "reset",
-  "submit",
-  "touchend"
-];
-function onUserGesture(callback, test) {
-  const realTest = test || (async () => true);
-  const check = async (evt) => {
-    if (evt.isTrusted && await realTest()) {
-      for (const gesture of gestures) {
-        window.removeEventListener(gesture, check);
-      }
-      await callback();
-    }
-  };
-  for (const gesture of gestures) {
-    window.addEventListener(gesture, check);
-  }
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/nodes.ts
-var hasAudioContext = "AudioContext" in globalThis;
-var hasAudioListener = hasAudioContext && "AudioListener" in globalThis;
-var hasOldAudioListener = hasAudioListener && "setPosition" in AudioListener.prototype;
-var hasNewAudioListener = hasAudioListener && "positionX" in AudioListener.prototype;
-var canCaptureStream = /* @__PURE__ */ isFunction(HTMLMediaElement.prototype.captureStream) || isFunction(HTMLMediaElement.prototype.mozCaptureStream);
-function isWrappedAudioNode(value2) {
-  return isDefined(value2) && value2.node instanceof AudioNode;
-}
-function isErsatzAudioNode(value2) {
-  return isDefined(value2) && value2.input instanceof AudioNode && value2.output instanceof AudioNode;
-}
-var connections = singleton("Juniper:Audio:connections", () => /* @__PURE__ */ new Map());
-var names = singleton("Juniper:Audio:names", () => /* @__PURE__ */ new Map());
-function resolveOutput(node) {
-  if (isErsatzAudioNode(node)) {
-    return node.output;
-  } else if (isWrappedAudioNode(node)) {
-    return node.node;
-  }
-  return node;
-}
-function resolveInput(node) {
-  if (isNullOrUndefined(node)) {
-    return void 0;
-  }
-  let n2 = null;
-  if (isArray(node)) {
-    if (node.length === 2) {
-      n2 = node[1];
-    } else {
-      n2 = node[2];
-    }
-  } else {
-    n2 = node;
-  }
-  let n22 = null;
-  if (isErsatzAudioNode(n2)) {
-    n22 = n2.input;
-  } else if (isWrappedAudioNode(n2)) {
-    n22 = n2.node;
-  } else {
-    n22 = n2;
-  }
-  return n22;
-}
-function resolveArray(node) {
-  if (!isArray(node)) {
-    return [];
-  } else if (node.length === 2) {
-    return [node[0]];
-  } else {
-    return [node[0], node[1]];
-  }
-}
-function isAudioNode(a) {
-  return isDefined(a) && isDefined(a.context);
-}
-function nameVertex(name2, v) {
-  names.set(v, name2);
-}
-function removeVertex(v) {
-  names.delete(v);
-  if (isAudioNode(v)) {
-    disconnect(v);
-  }
-}
-function chain(...nodes2) {
-  for (let i = 1; i < nodes2.length; ++i) {
-    connect(nodes2[i - 1], nodes2[i]);
-  }
-}
-function connect(left2, right) {
-  const a = resolveOutput(left2);
-  const b = resolveInput(right);
-  const c = resolveArray(right);
-  if (isNullOrUndefined(b)) {
-    throw new Error("Must have a target to connect to");
-  } else if (b instanceof AudioParam) {
-    a.connect(b, c[0]);
-  } else if (b instanceof AudioNode) {
-    a.connect(b, c[0], c[1]);
-  } else {
-    assertNever(b);
-  }
-  if (!connections.has(a)) {
-    connections.set(a, /* @__PURE__ */ new Set());
-  }
-  const g = connections.get(a);
-  if (g.has(b)) {
-    return false;
-  }
-  g.add(b);
-  return true;
-}
-function disconnect(left2, right) {
-  const a = resolveOutput(left2);
-  const b = resolveInput(right);
-  const c = resolveArray(right);
-  if (isNullOrUndefined(b)) {
-    a.disconnect();
-  } else if (b instanceof AudioParam) {
-    a.disconnect(b, c[0]);
-  } else if (b instanceof AudioNode) {
-    a.disconnect(b, c[0], c[1]);
-  } else {
-    assertNever(b);
-  }
-  if (!connections.has(a)) {
-    return false;
-  }
-  const g = connections.get(a);
-  let removed = false;
-  if (isNullOrUndefined(b)) {
-    removed = g.size > 0;
-    g.clear();
-  } else if (g.has(b)) {
-    removed = true;
-    g.delete(b);
-  }
-  if (g.size === 0) {
-    connections.delete(a);
-  }
-  return removed;
-}
-function getAudioGraph() {
-  const nodes2 = /* @__PURE__ */ new Map();
-  function maybeAdd(node) {
-    if (!nodes2.has(node)) {
-      nodes2.set(node, new GraphNode(node));
-    }
-  }
-  for (const node of names.keys()) {
-    maybeAdd(node);
-  }
-  for (const [parent, children] of connections) {
-    maybeAdd(parent);
-    for (const child of children) {
-      maybeAdd(child);
-    }
-  }
-  for (const [parent, children] of connections) {
-    const branch = nodes2.get(parent);
-    for (const child of children) {
-      if (nodes2.has(child)) {
-        branch.connectTo(nodes2.get(child));
-      }
-    }
-  }
-  return Array.from(nodes2.values());
-}
-globalThis.getAudioGraph = getAudioGraph;
-async function audioReady(audioCtx) {
-  nameVertex("speakers", audioCtx.destination);
-  if (audioCtx.state !== "running") {
-    if (audioCtx.state === "closed") {
-      await audioCtx.resume();
-    } else if (audioCtx.state === "suspended") {
-      const stateChange = once(audioCtx, "statechange");
-      onUserGesture(() => audioCtx.resume());
-      await stateChange;
-    } else {
-      assertNever(audioCtx.state);
-    }
-  }
-}
-function initAudio(name2, left2, ...rest) {
-  nameVertex(name2, left2);
-  for (const right of rest) {
-    if (isDefined(right)) {
-      connect(left2, right);
-    }
-  }
-  return left2;
-}
-function Analyser(name2, audioCtx, options, ...rest) {
-  return initAudio(name2, new AnalyserNode(audioCtx, options), ...rest);
-}
-function BiquadFilter(name2, audioCtx, options, ...rest) {
-  return initAudio(name2, new BiquadFilterNode(audioCtx, options), ...rest);
-}
-function Delay(name2, audioCtx, options, ...rest) {
-  return initAudio(name2, new DelayNode(audioCtx, options), ...rest);
-}
-function DynamicsCompressor(name2, audioCtx, options, ...rest) {
-  return initAudio(name2, new DynamicsCompressorNode(audioCtx, options), ...rest);
-}
-function Gain(name2, audioCtx, options, ...rest) {
-  return initAudio(name2, new GainNode(audioCtx, options), ...rest);
-}
-function MediaElementSource(name2, audioCtx, mediaElement, ...rest) {
-  return initAudio(name2, audioCtx.createMediaElementSource(mediaElement), ...rest);
-}
-function MediaStreamDestination(name2, audioCtx, options, ...rest) {
-  return initAudio(name2, new MediaStreamAudioDestinationNode(audioCtx, options), ...rest);
-}
-function MediaStreamSource(name2, audioCtx, mediaStream, ...rest) {
-  return initAudio(name2, audioCtx.createMediaStreamSource(mediaStream), ...rest);
-}
-function Panner(name2, audioCtx, options, ...rest) {
-  return initAudio(name2, new PannerNode(audioCtx, options), ...rest);
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/Pose.ts
-var Pose = class {
-  constructor() {
-    this.t = 0;
-    this.p = vec3_exports.create();
-    this.f = vec3_exports.set(vec3_exports.create(), 0, 0, -1);
-    this.u = vec3_exports.set(vec3_exports.create(), 0, 1, 0);
-    Object.seal(this);
-  }
-  set(px, py, pz, fx, fy, fz, ux, uy, uz) {
-    this.setPosition(px, py, pz);
-    this.setOrientation(fx, fy, fz, ux, uy, uz);
-  }
-  setPosition(px, py, pz) {
-    vec3_exports.set(this.p, px, py, pz);
-  }
-  setOrientation(fx, fy, fz, ux, uy, uz) {
-    vec3_exports.set(this.f, fx, fy, fz);
-    vec3_exports.set(this.u, ux, uy, uz);
-  }
-  copy(other) {
-    vec3_exports.copy(this.p, other.p);
-    vec3_exports.copy(this.f, other.f);
-    vec3_exports.copy(this.u, other.u);
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/BaseAudioElement.ts
-var BaseAudioElement = class extends TypedEventBase {
-  constructor(id2, audioCtx, spatializer) {
-    super();
-    this.id = id2;
-    this.audioCtx = audioCtx;
-    this.spatializer = spatializer;
-    this.pose = new Pose();
-    this.disposed = false;
-    this.volumeControl = Gain(`volume-control-${this.id}`, audioCtx);
-  }
-  get volume() {
-    return this.volumeControl.gain.value;
-  }
-  set volume(v) {
-    this.volumeControl.gain.value = v;
-  }
-  dispose() {
-    if (!this.disposed) {
-      this.onDisposing();
-      this.disposed = true;
-    }
-  }
-  onDisposing() {
-    removeVertex(this.volumeControl);
-    if (isDisposable(this.spatializer)) {
-      this.spatializer.dispose();
-    }
-  }
-  audioTick(t2) {
-    this.spatializer.setPose(this.pose, t2);
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/BaseSpatializer.ts
-var BaseSpatializer = class {
-  constructor(id2) {
-    this.id = id2;
-    this.minDistance = 1;
-    this.maxDistance = 10;
-    this.algorithm = "inverse";
-  }
-  setAudioProperties(minDistance, maxDistance, algorithm) {
-    this.minDistance = minDistance;
-    this.maxDistance = maxDistance;
-    this.algorithm = algorithm;
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/sources/spatializers/BaseEmitter.ts
-var BaseEmitter = class extends BaseSpatializer {
-  constructor() {
-    super(...arguments);
-    this.disposed = false;
-  }
-  dispose() {
-    if (!this.disposed) {
-      this.onDisposing();
-      this.disposed = true;
-    }
-  }
-  onDisposing() {
-    removeVertex(this.input);
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/sources/spatializers/NoSpatializationNode.ts
-var nodes = singleton("Juniper:Audio:Destinations:Spatializers:NoSpatializationNode:nodes", () => /* @__PURE__ */ new WeakMap());
-var NoSpatializationNode = class extends BaseEmitter {
-  static instance(audioCtx) {
-    if (!nodes.has(audioCtx)) {
-      const id2 = `no-spatialization-hook-${stringRandom(8)}`;
-      nodes.set(audioCtx, new NoSpatializationNode(id2, audioCtx));
-    }
-    return nodes.get(audioCtx);
-  }
-  constructor(id2, audioCtx) {
-    super(id2);
-    this.input = this.output = Gain(this.id, audioCtx);
-    Object.seal(this);
-  }
-  setPose(_loc, _t) {
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/destinations/AudioDestination.ts
-var AudioDestination = class extends BaseAudioElement {
-  constructor(audioCtx, _trueDestination, listener) {
-    super("final", audioCtx, listener);
-    this._trueDestination = _trueDestination;
-    this._remoteUserInput = Gain("remote-user-input", this.audioCtx, null, this._spatializedInput = Gain("spatialized-input", this.audioCtx, null, this.volumeControl));
-    this._nonSpatializedInput = Gain("non-spatialized-input", this.audioCtx, null, this.volumeControl);
-    connect(this.volumeControl, this._trueDestination);
-    connect(NoSpatializationNode.instance(this.audioCtx), this.nonSpatializedInput);
-  }
-  onDisposing() {
-    removeVertex(this._remoteUserInput);
-    removeVertex(this._spatializedInput);
-    removeVertex(this._nonSpatializedInput);
-    super.onDisposing();
-  }
-  get remoteUserInput() {
-    return this._remoteUserInput;
-  }
-  get spatializedInput() {
-    return this._spatializedInput;
-  }
-  get nonSpatializedInput() {
-    return this._nonSpatializedInput;
-  }
-  get trueDestination() {
-    return this._trueDestination;
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/destinations/spatializers/BaseListener.ts
-var BaseListener = class extends BaseSpatializer {
-  constructor(audioCtx) {
-    super("listener");
-    this.audioCtx = audioCtx;
-  }
-  get listener() {
-    return this.audioCtx.listener;
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/destinations/spatializers/WebAudioListenerNew.ts
-var WebAudioListenerNew = class extends BaseListener {
-  constructor(audioCtx) {
-    super(audioCtx);
-    if (!hasNewAudioListener) {
-      throw new Error("Latest WebAudio Listener API is not supported");
-    }
-    Object.seal(this);
-  }
-  setPose(loc, t2) {
-    const { p, f, u } = loc;
-    this.listener.positionX.setValueAtTime(p[0], t2);
-    this.listener.positionY.setValueAtTime(p[1], t2);
-    this.listener.positionZ.setValueAtTime(p[2], t2);
-    this.listener.forwardX.setValueAtTime(f[0], t2);
-    this.listener.forwardY.setValueAtTime(f[1], t2);
-    this.listener.forwardZ.setValueAtTime(f[2], t2);
-    this.listener.upX.setValueAtTime(u[0], t2);
-    this.listener.upY.setValueAtTime(u[1], t2);
-    this.listener.upZ.setValueAtTime(u[2], t2);
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/destinations/spatializers/WebAudioListenerOld.ts
-var WebAudioListenerOld = class extends BaseListener {
-  constructor(audioCtx) {
-    super(audioCtx);
-    if (!hasOldAudioListener) {
-      throw new Error("WebAudio Listener API is not supported");
-    }
-    Object.seal(this);
-  }
-  setPose(loc, _t) {
-    const { p, f, u } = loc;
-    this.listener.setPosition(p[0], p[1], p[2]);
-    this.listener.setOrientation(f[0], f[1], f[2], u[0], u[1], u[2]);
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/DeviceManager.ts
-var canChangeAudioOutput = /* @__PURE__ */ isFunction(HTMLAudioElement.prototype.setSinkId);
-function filterDeviceDuplicates(devices) {
-  const filtered = [];
-  for (let i = 0; i < devices.length; ++i) {
-    const a = devices[i];
-    let found = false;
-    for (let j = 0; j < filtered.length && !found; ++j) {
-      const b = filtered[j];
-      found = a.kind === b.kind && b.label.indexOf(a.label) > 0;
-    }
-    if (!found) {
-      filtered.push(a);
-    }
-  }
-  return filtered;
-}
-var DeviceManagerAudioOutputChangedEvent = class extends TypedEvent {
-  constructor(device) {
-    super("audiooutputchanged");
-    this.device = device;
-  }
-};
-var DeviceManagerAudioInputChangedEvent = class extends TypedEvent {
-  constructor(audio2) {
-    super("audioinputchanged");
-    this.audio = audio2;
-  }
-};
-var DeviceManagerVideoInputChangedEvent = class extends TypedEvent {
-  constructor(video2) {
-    super("videoinputchanged");
-    this.video = video2;
-  }
-};
-var PREFERRED_AUDIO_OUTPUT_ID_KEY = "calla:preferredAudioOutputID";
-var PREFERRED_AUDIO_INPUT_ID_KEY = "calla:preferredAudioInputID";
-var PREFERRED_VIDEO_INPUT_ID_KEY = "calla:preferredVideoInputID";
-var DeviceManager = class extends TypedEventBase {
-  constructor(element, needsVideoDevice = false) {
-    super();
-    this.element = element;
-    this.needsVideoDevice = needsVideoDevice;
-    this._hasAudioPermission = false;
-    this._hasVideoPermission = false;
-    this._currentStream = null;
-    this.ready = this.start();
-    Object.seal(this);
-  }
-  get hasAudioPermission() {
-    return this._hasAudioPermission;
-  }
-  get hasVideoPermission() {
-    return this._hasVideoPermission;
-  }
-  get currentStream() {
-    return this._currentStream;
-  }
-  set currentStream(v) {
-    if (v !== this.currentStream) {
-      if (isDefined(this.currentStream) && this.currentStream.active) {
-        for (const track of this.currentStream.getTracks()) {
-          track.stop();
-        }
-      }
-      this._currentStream = v;
-    }
-  }
-  async start() {
-    if (canChangeAudioOutput) {
-      const device = await this.getPreferredAudioOutput();
-      if (device) {
-        await this.setAudioOutputDevice(device);
-      }
-    }
-  }
-  async startPreferredAudioInput() {
-    const device = await this.getPreferredAudioInput();
-    if (device) {
-      await this.setAudioInputDevice(device);
-      this.currentStream = await this.startStream();
-    }
-  }
-  async startPreferredVideoInput() {
-    const device = await this.getPreferredVideoInput();
-    if (device) {
-      await this.setVideoInputDevice(device);
-      this.currentStream = await this.startStream();
-    }
-  }
-  get preferredAudioOutputID() {
-    if (!canChangeAudioOutput) {
-      return null;
-    }
-    return localStorage.getItem(PREFERRED_AUDIO_OUTPUT_ID_KEY);
-  }
-  get preferredAudioInputID() {
-    return localStorage.getItem(PREFERRED_AUDIO_INPUT_ID_KEY);
-  }
-  get preferredVideoInputID() {
-    return localStorage.getItem(PREFERRED_VIDEO_INPUT_ID_KEY);
-  }
-  async getAudioOutputDevices(filterDuplicates = false) {
-    if (!canChangeAudioOutput) {
-      return [];
-    }
-    const devices = await this.getAvailableDevices(filterDuplicates);
-    return devices && devices.audioOutput || [];
-  }
-  async getAudioInputDevices(filterDuplicates = false) {
-    const devices = await this.getAvailableDevices(filterDuplicates);
-    return devices && devices.audioInput || [];
-  }
-  async getVideoInputDevices(filterDuplicates = false) {
-    const devices = await this.getAvailableDevices(filterDuplicates);
-    return devices && devices.videoInput || [];
-  }
-  async getAudioOutputDevice() {
-    if (!canChangeAudioOutput) {
-      return null;
-    }
-    const curId = this.element && this.element.sinkId;
-    if (isNullOrUndefined(curId)) {
-      return null;
-    }
-    const devices = await this.getAudioOutputDevices(), device = arrayScan(devices, (d) => d.deviceId === curId);
-    return device;
-  }
-  async getAudioInputDevice() {
-    if (isNullOrUndefined(this.currentStream) || !this.currentStream.active) {
-      return null;
-    }
-    const curTracks = this.currentStream.getAudioTracks();
-    if (curTracks.length === 0) {
-      return null;
-    }
-    const testTrack = curTracks[0];
-    const devices = await this.getAudioInputDevices();
-    const device = arrayScan(devices, (d) => testTrack.label === d.label);
-    return device;
-  }
-  async getVideoInputDevice() {
-    if (isNullOrUndefined(this.currentStream) || !this.currentStream.active) {
-      return null;
-    }
-    const curTracks = this.currentStream.getVideoTracks();
-    if (curTracks.length === 0) {
-      return null;
-    }
-    const testTrack = curTracks[0];
-    const devices = await this.getVideoInputDevices();
-    const device = arrayScan(devices, (d) => testTrack.label === d.label);
-    return device;
-  }
-  async getPreferredAudioOutput() {
-    if (!canChangeAudioOutput) {
-      return null;
-    }
-    const devices = await this.getAudioOutputDevices();
-    const device = arrayScan(devices, (d) => d.deviceId === this.preferredAudioOutputID, (d) => d.deviceId === "default", (d) => d.deviceId.length > 0);
-    return device;
-  }
-  async getPreferredAudioInput() {
-    const devices = await this.getAudioInputDevices();
-    const device = arrayScan(devices, (d) => d.deviceId === this.preferredAudioInputID, (d) => d.deviceId === "default", (d) => d.deviceId.length > 0);
-    return device;
-  }
-  async getPreferredVideoInput() {
-    const devices = await this.getVideoInputDevices();
-    const device = arrayScan(devices, (d) => d.deviceId === this.preferredVideoInputID, (d) => this.needsVideoDevice && d.deviceId.length > 0);
-    return device;
-  }
-  async setAudioOutputDevice(device) {
-    if (canChangeAudioOutput) {
-      if (isDefined(device) && device.kind !== "audiooutput") {
-        throw new Error(`Device is not an audio output device. Was: ${device.kind}. Label: ${device.label}`);
-      }
-      localStorage.setItem(PREFERRED_AUDIO_OUTPUT_ID_KEY, device && device.deviceId || null);
-      const curDevice = this.element;
-      const curDeviceID = curDevice && curDevice.sinkId;
-      if (this.preferredAudioOutputID !== curDeviceID) {
-        if (isDefined(this.preferredAudioOutputID)) {
-          await this.element.setSinkId(this.preferredAudioOutputID);
-        }
-        this.dispatchEvent(new DeviceManagerAudioOutputChangedEvent(device));
-      }
-    }
-  }
-  async setAudioInputDevice(device) {
-    if (isDefined(device) && device.kind !== "audioinput") {
-      throw new Error(`Device is not an audio input device. Was: ${device.kind}. Label: ${device.label}`);
-    }
-    localStorage.setItem(PREFERRED_AUDIO_INPUT_ID_KEY, device && device.deviceId || null);
-    const curAudio = await this.getAudioInputDevice();
-    const curAudioID = curAudio && curAudio.deviceId;
-    if (this.preferredAudioInputID !== curAudioID) {
-      this.dispatchEvent(new DeviceManagerAudioInputChangedEvent(device));
-    }
-  }
-  async setVideoInputDevice(device) {
-    if (isDefined(device) && device.kind !== "videoinput") {
-      throw new Error(`Device is not an video input device. Was: ${device.kind}. Label: ${device.label}`);
-    }
-    localStorage.setItem(PREFERRED_VIDEO_INPUT_ID_KEY, device && device.deviceId || null);
-    const curVideo = await this.getVideoInputDevice();
-    const curVideoID = curVideo && curVideo.deviceId;
-    if (this.preferredVideoInputID !== curVideoID) {
-      this.dispatchEvent(new DeviceManagerVideoInputChangedEvent(device));
-    }
-  }
-  async getAvailableDevices(filterDuplicates = false) {
-    let devices = await this.getDevices();
-    if (filterDuplicates) {
-      devices = filterDeviceDuplicates(devices);
-    }
-    return {
-      audioOutput: canChangeAudioOutput ? devices.filter((d) => d.kind === "audiooutput") : [],
-      audioInput: devices.filter((d) => d.kind === "audioinput"),
-      videoInput: devices.filter((d) => d.kind === "videoinput")
-    };
-  }
-  async getDevices() {
-    let devices = null;
-    let testStream = null;
-    for (let i = 0; i < 3; ++i) {
-      devices = await navigator.mediaDevices.enumerateDevices();
-      for (const device of devices) {
-        if (device.deviceId.length > 0) {
-          if (!this.hasAudioPermission) {
-            this._hasAudioPermission = device.kind === "audioinput" && device.label.length > 0;
-          }
-          if (this.needsVideoDevice && !this.hasVideoPermission) {
-            this._hasVideoPermission = device.kind === "videoinput" && device.label.length > 0;
-          }
-        }
-      }
-      if (this.hasAudioPermission && (!this.needsVideoDevice || this.hasVideoPermission)) {
-        break;
-      }
-      try {
-        if (!this.hasAudioPermission || this.needsVideoDevice && !this.hasVideoPermission) {
-          testStream = await this.startStream();
-        }
-      } catch (exp) {
-        console.warn(exp);
-      }
-    }
-    if (testStream) {
-      for (const track of testStream.getTracks()) {
-        track.stop();
-      }
-    }
-    devices = arraySortByKey(devices || [], (d) => d.label);
-    return devices;
-  }
-  startStream() {
-    return navigator.mediaDevices.getUserMedia({
-      audio: this.preferredAudioInputID && { deviceId: this.preferredAudioInputID } || true,
-      video: this.needsVideoDevice && (this.preferredVideoInputID && { deviceId: this.preferredVideoInputID } || true) || false
-    });
-  }
-  async getMediaPermissions() {
-    await this.getDevices();
-    return {
-      audio: this.hasAudioPermission,
-      video: this.hasVideoPermission
-    };
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/effects/EchoEffect.ts
-function* fibGen(a, b, count2 = -1) {
-  let i = 0;
-  while (count2 < 0 || i < count2) {
-    yield a;
-    ++i;
-    const c = a + b;
-    a = b;
-    b = c;
-  }
-}
-function EchoEffect(name2, audioCtx, connectTo) {
-  return new EchoEffectNode(name2, audioCtx, 3, connectTo);
-}
-var EchoEffectLayerNode = class {
-  constructor(name2, audioCtx, volume, delay, connectTo) {
-    this.input = Gain(`${name2}-input`, audioCtx, {
-      gain: volume
-    }, this.output = Delay(`${name2}-delay`, audioCtx, {
-      maxDelayTime: delay,
-      delayTime: delay
-    }, connectTo));
-  }
-  dispose() {
-    removeVertex(this.input);
-    removeVertex(this.output);
-  }
-};
-var EchoEffectNode = class {
-  constructor(name2, audioCtx, numLayers, connectTo) {
-    this.output = Gain(`${name2}-output`, audioCtx, null, connectTo);
-    const delays = Array.from(fibGen(1, 2, numLayers));
-    this.layers = delays.map((delay) => new EchoEffectLayerNode(`${name2}-echo-layer-${delay}`, audioCtx, 0.5 / delay, delay, this.output));
-    this.input = Gain(`${name2}-input`, audioCtx, null, ...this.layers);
-  }
-  dispose() {
-    removeVertex(this.input);
-    for (const layer of this.layers) {
-      layer.dispose();
-    }
-    removeVertex(this.output);
-    arrayClear(this.layers);
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/effects/RadioEffect.ts
-function RadioEffect(name2, audioCtx, connectTo) {
-  return new RadioEffectNode(name2, audioCtx, connectTo);
-}
-var RadioEffectNode = class {
-  constructor(name2, audioCtx, connectTo) {
-    this.node = BiquadFilter(`${name2}-biquad-filter`, audioCtx, {
-      type: "bandpass",
-      frequency: 2500,
-      Q: 4.5
-    }, connectTo);
-  }
-  dispose() {
-    removeVertex(this.node);
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/effects/WallEffect.ts
-function WallEffect(name2, audioCtx, connectTo) {
-  return new WallEffectNode(name2, audioCtx, connectTo);
-}
-var WallEffectNode = class {
-  constructor(name2, audioCtx, connectTo) {
-    this.node = BiquadFilter(`${name2}-biquad-filter`, audioCtx, {
-      type: "bandpass",
-      frequency: 400,
-      Q: 4.5
-    }, connectTo);
-  }
-  dispose() {
-    removeVertex(this.node);
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/effects/index.ts
-var effectStore = /* @__PURE__ */ new Map([
-  ["Radio", RadioEffect],
-  ["Wall", WallEffect],
-  ["Echo", EchoEffect]
-]);
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/sources/BaseAudioSource.ts
-var AudioSourceAddedEvent = class extends TypedEvent {
-  constructor(source) {
-    super("sourceadded");
-    this.source = source;
-  }
-};
-var BaseAudioSource = class extends BaseAudioElement {
-  constructor(id2, audioCtx, spatializer, ...effectNames) {
-    super(id2, audioCtx, spatializer);
-    this.source = null;
-    this.effects = new Array();
-    this._connected = false;
-    this.setEffects(...effectNames);
-  }
-  onDisposing() {
-    for (const effect of this.effects) {
-      if (isDisposable(effect)) {
-        effect.dispose();
-      }
-    }
-    arrayClear(this.effects);
-    super.onDisposing();
-  }
-  setEffects(...effectNames) {
-    disconnect(this.volumeControl);
-    for (const effect of this.effects) {
-      if (isDisposable(effect)) {
-        effect.dispose();
-      }
-    }
-    arrayClear(this.effects);
-    for (const effectName of effectNames) {
-      if (isDefined(effectName)) {
-        const effect = effectStore.get(effectName);
-        if (isDefined(effect)) {
-          this.effects.push(effect(`${effectName}-${this.id}`, this.audioCtx));
-        }
-      }
-    }
-    chain(this.volumeControl, ...this.effects, this.spatializer);
-  }
-  get spatialized() {
-    return !(this.spatializer instanceof NoSpatializationNode);
-  }
-  get input() {
-    return this.source;
-  }
-  get connected() {
-    return this._connected;
-  }
-  connect() {
-    if (!this.connected) {
-      connect(this.source, this.volumeControl);
-    }
-  }
-  disconnect() {
-    if (this.connected) {
-      disconnect(this.source, this.volumeControl);
-    }
-  }
-  set input(v) {
-    if (v !== this.input) {
-      if (this.source) {
-        removeVertex(this.source);
-      }
-      if (v) {
-        this.source = v;
-        this.connect();
-        this.dispatchEvent(new AudioSourceAddedEvent(this.source));
-      }
-    }
-  }
-  get output() {
-    return this.volumeControl;
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/sources/IPlayable.ts
-var MediaElementSourceEvent = class extends TypedEvent {
-  constructor(type2, source) {
-    super(type2);
-    this.source = source;
-  }
-};
-var MediaElementSourceLoadedEvent = class extends MediaElementSourceEvent {
-  constructor(source) {
-    super("loaded", source);
-  }
-};
-var MediaElementSourceErroredEvent = class extends MediaElementSourceEvent {
-  constructor(source, error) {
-    super("errored", source);
-    this.error = error;
-  }
-};
-var MediaElementSourcePlayedEvent = class extends MediaElementSourceEvent {
-  constructor(source) {
-    super("played", source);
-  }
-};
-var MediaElementSourcePausedEvent = class extends MediaElementSourceEvent {
-  constructor(source) {
-    super("paused", source);
-  }
-};
-var MediaElementSourceStoppedEvent = class extends MediaElementSourceEvent {
-  constructor(source) {
-    super("stopped", source);
-  }
-};
-var MediaElementSourceProgressEvent = class extends MediaElementSourceEvent {
-  constructor(source) {
-    super("progress", source);
-    this.value = 0;
-    this.total = 0;
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/sources/AudioElementSource.ts
-var elementRefCounts = /* @__PURE__ */ new WeakMap();
-var nodeRefCounts = /* @__PURE__ */ new WeakMap();
-function count(source, delta2) {
-  const nodeCount = (nodeRefCounts.get(source) || 0) + delta2;
-  nodeRefCounts.set(source, nodeCount);
-  const elem = source.mediaElement;
-  const elementCount = (elementRefCounts.get(elem) || 0) + delta2;
-  elementRefCounts.set(elem, elementCount);
-  return elementCount;
-}
-function inc(source) {
-  count(source, 1);
-}
-function dec(source) {
-  count(source, -1);
-  if (nodeRefCounts.get(source) === 0) {
-    nodeRefCounts.delete(source);
-    removeVertex(source);
-  }
-  if (elementRefCounts.get(source.mediaElement) === 0) {
-    elementRefCounts.delete(source.mediaElement);
-    if (source.mediaElement.isConnected) {
-      source.mediaElement.remove();
-    }
-  }
-}
-var AudioElementSource = class extends BaseAudioSource {
-  constructor(id2, audioCtx, source, randomize, spatializer, ...effectNames) {
-    super(id2, audioCtx, spatializer, ...effectNames);
-    this.randomize = randomize;
-    inc(this.input = source);
-    this.audio = source.mediaElement;
-    this.disconnect();
-    this.loadEvt = new MediaElementSourceLoadedEvent(this);
-    this.playEvt = new MediaElementSourcePlayedEvent(this);
-    this.pauseEvt = new MediaElementSourcePausedEvent(this);
-    this.stopEvt = new MediaElementSourceStoppedEvent(this);
-    this.progEvt = new MediaElementSourceProgressEvent(this);
-    const halt = (evt) => {
-      this.disconnect();
-      if (this.audio.currentTime === 0 || evt.type === "ended") {
-        this.dispatchEvent(this.stopEvt);
-      } else {
-        this.dispatchEvent(this.pauseEvt);
-      }
-    };
-    this.audio.addEventListener("ended", halt);
-    this.audio.addEventListener("pause", halt);
-    this.audio.addEventListener("play", () => {
-      this.connect();
-      if (this.randomize && this.audio.loop && this.audio.duration > 1) {
-        const startTime = this.audio.duration * Math.random();
-        this.audio.currentTime = startTime;
-      }
-      this.dispatchEvent(this.playEvt);
-    });
-    this.audio.addEventListener("timeupdate", () => {
-      this.progEvt.value = this.audio.currentTime;
-      this.progEvt.total = this.audio.duration;
-      this.dispatchEvent(this.progEvt);
-    });
-    mediaElementCanPlay(this.audio).then((success2) => this.dispatchEvent(success2 ? this.loadEvt : new MediaElementSourceErroredEvent(this, this.audio.error)));
-  }
-  get playbackState() {
-    if (this.audio.error) {
-      return "errored";
-    }
-    if (this.audio.ended || this.audio.paused && this.audio.currentTime === 0) {
-      return "stopped";
-    }
-    if (this.audio.paused) {
-      return "paused";
-    }
-    return "playing";
-  }
-  async play() {
-    await audioReady(this.audioCtx);
-    await this.audio.play();
-  }
-  async playThrough() {
-    const endTask = once(this, "stopped");
-    await this.play();
-    await endTask;
-  }
-  pause() {
-    this.audio.pause();
-  }
-  stop() {
-    this.audio.currentTime = 0;
-    this.pause();
-  }
-  restart() {
-    this.stop();
-    return this.play();
-  }
-  onDisposing() {
-    this.disconnect();
-    dec(this.input);
-    super.onDisposing();
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/sources/AudioStreamSource.ts
-var AudioStreamSource = class extends BaseAudioSource {
-  constructor(id2, audioCtx, spatializer, ...effectNames) {
-    super(id2, audioCtx, spatializer, ...effectNames);
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/sources/spatializers/BaseWebAudioPanner.ts
-var BaseWebAudioPanner = class extends BaseEmitter {
-  constructor(id2, audioCtx) {
-    super(id2);
-    this.lpx = 0;
-    this.lpy = 0;
-    this.lpz = 0;
-    this.lox = 0;
-    this.loy = 0;
-    this.loz = 0;
-    this.input = this.output = this.panner = Panner(this.id, audioCtx, {
-      panningModel: "HRTF",
-      distanceModel: "inverse",
-      coneInnerAngle: 360,
-      coneOuterAngle: 0,
-      coneOuterGain: 0
-    });
-  }
-  setAudioProperties(minDistance, maxDistance, algorithm) {
-    super.setAudioProperties(minDistance, maxDistance, algorithm);
-    this.panner.refDistance = this.minDistance;
-    this.panner.distanceModel = algorithm;
-    if (this.maxDistance <= 0) {
-      this.panner.rolloffFactor = Infinity;
-    } else {
-      this.panner.rolloffFactor = 1 / this.maxDistance;
-    }
-  }
-  setPose(loc, t2) {
-    const { p, f } = loc;
-    const [px, py, pz] = p;
-    const [ox, oy, oz] = f;
-    if (px !== this.lpx || py !== this.lpy || pz !== this.lpz) {
-      this.lpx = px;
-      this.lpy = py;
-      this.lpz = pz;
-      this.setPosition(px, py, pz, t2);
-    }
-    if (ox !== this.lox || oy !== this.loy || oz !== this.loz) {
-      this.lox = ox;
-      this.loy = oy;
-      this.loz = oz;
-      this.setOrientation(ox, oy, oz, t2);
-    }
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/sources/spatializers/WebAudioPannerNew.ts
-var WebAudioPannerNew = class extends BaseWebAudioPanner {
-  constructor(id2, audioCtx) {
-    super(id2, audioCtx);
-    Object.seal(this);
-  }
-  setPosition(x, y, z, t2) {
-    if (isGoodNumber(x) && isGoodNumber(y) && isGoodNumber(z) && isGoodNumber(t2)) {
-      this.panner.positionX.setValueAtTime(x, t2);
-      this.panner.positionY.setValueAtTime(y, t2);
-      this.panner.positionZ.setValueAtTime(z, t2);
-    }
-  }
-  setOrientation(x, y, z, t2) {
-    if (isGoodNumber(x) && isGoodNumber(y) && isGoodNumber(z) && isGoodNumber(t2)) {
-      this.panner.orientationX.setValueAtTime(-x, t2);
-      this.panner.orientationY.setValueAtTime(-y, t2);
-      this.panner.orientationZ.setValueAtTime(-z, t2);
-    }
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/sources/spatializers/WebAudioPannerOld.ts
-var WebAudioPannerOld = class extends BaseWebAudioPanner {
-  constructor(id2, audioCtx) {
-    super(id2, audioCtx);
-    Object.seal(this);
-  }
-  setPosition(x, y, z, _t) {
-    this.panner.setPosition(x, y, z);
-  }
-  setOrientation(x, y, z, _t) {
-    this.panner.setOrientation(x, y, z);
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/AudioManager.ts
-if (!("AudioContext" in globalThis) && "webkitAudioContext" in globalThis) {
-  globalThis.AudioContext = globalThis.webkitAudioContext;
-}
-if (!("OfflineAudioContext" in globalThis) && "webkitOfflineAudioContext" in globalThis) {
-  globalThis.OfflineAudioContext = globalThis.webkitOfflineAudioContext;
-}
-var USE_HEADPHONES_KEY = "juniper::useHeadphones";
-var useHeadphonesToggledEvt = new TypedEvent("useheadphonestoggled");
-var hasStreamSources = "createMediaStreamSource" in AudioContext.prototype;
-var useElementSourceForUsers = !hasStreamSources;
-var AudioManager = class extends TypedEventBase {
-  users = /* @__PURE__ */ new Map();
-  clips = /* @__PURE__ */ new Map();
-  clipPaths = /* @__PURE__ */ new Map();
-  pathSources = /* @__PURE__ */ new Map();
-  pathCounts = /* @__PURE__ */ new Map();
-  localFilter;
-  localCompressor;
-  _minDistance = 1;
-  _maxDistance = 10;
-  _useHeadphones = false;
-  _algorithm = "inverse";
-  get algorithm() {
-    return this._algorithm;
-  }
-  element = null;
-  audioDestination = null;
-  devices;
-  input;
-  localAutoControlledGain;
-  output;
-  audioCtx;
-  ready;
-  localUserID = null;
-  constructor(defaultLocalUserID) {
-    super();
-    this.audioCtx = new AudioContext();
-    let destination = null;
-    if (canChangeAudioOutput) {
-      destination = MediaStreamDestination("final-destination", this.audioCtx);
-      this.element = Audio2(id("Audio-Device-Manager"), playsInline(true), autoPlay(true), srcObject(destination.stream), styles(display("none")));
-      elementApply(document.body, this);
-    } else {
-      destination = this.audioCtx.destination;
-    }
-    this.devices = new DeviceManager(this.element);
-    this.input = Gain("local-mic-user-gain", this.audioCtx, null, this.localAutoControlledGain = Gain("local-mic-auto-gain", this.audioCtx, null, this.localFilter = BiquadFilter("local-mic-filter", this.audioCtx, {
-      type: "bandpass",
-      frequency: 1500,
-      Q: 0.25
-    }, this.localCompressor = DynamicsCompressor("local-mic-compressor", this.audioCtx, {
-      threshold: -15,
-      knee: 40,
-      ratio: 17
-    }, this.output = MediaStreamDestination("local-mic-destination", this.audioCtx)))));
-    this.audioDestination = new AudioDestination(this.audioCtx, destination, hasNewAudioListener ? new WebAudioListenerNew(this.audioCtx) : new WebAudioListenerOld(this.audioCtx));
-    NoSpatializationNode.instance(this.audioCtx).setAudioProperties(this._minDistance, this._maxDistance, this.algorithm);
-    this.setLocalUserID(defaultLocalUserID);
-    const useHeadphones = localStorage.getItem(USE_HEADPHONES_KEY);
-    if (isDefined(useHeadphones)) {
-      this._useHeadphones = useHeadphones === "true";
-    } else {
-      this._useHeadphones = isMobileVR();
-    }
-    this.ready = this.start();
-    Object.seal(this);
-  }
-  get useHeadphones() {
-    return this._useHeadphones;
-  }
-  set useHeadphones(v) {
-    if (v !== this.useHeadphones) {
-      this._useHeadphones = v;
-      localStorage.setItem(USE_HEADPHONES_KEY, this.useHeadphones.toString());
-      this.dispatchEvent(useHeadphonesToggledEvt);
-    }
-  }
-  dispose() {
-    for (const userID of this.users.keys()) {
-      this.removeUser(userID);
-    }
-    for (const clipID of this.clips.keys()) {
-      this.removeClip(clipID);
-    }
-    disconnect(this.input);
-    disconnect(this.localAutoControlledGain);
-    disconnect(this.localFilter);
-    disconnect(this.localCompressor);
-    disconnect(this.output);
-    this.audioDestination.dispose();
-    this.audioCtx.suspend();
-  }
-  async start() {
-    await audioReady(this.audioCtx);
-    if (this.element) {
-      await this.element.play();
-    }
-    await this.devices.ready;
-  }
-  get filter() {
-    return this.localFilter;
-  }
-  get filterFrequency() {
-    return this.localFilter.frequency.value;
-  }
-  set filterFrequency(v) {
-    this.localFilter.frequency.value = v;
-  }
-  get compressor() {
-    return this.localCompressor;
-  }
-  get isReady() {
-    return this.audioCtx.state === "running";
-  }
-  get currentTime() {
-    return this.audioCtx.currentTime;
-  }
-  update() {
-    const t2 = this.currentTime;
-    this.audioDestination.audioTick(t2);
-    for (const clip of this.clips.values()) {
-      clip.audioTick(t2);
-    }
-    for (const user of this.users.values()) {
-      user.audioTick(t2);
-    }
-  }
-  counter = 0;
-  newSpatializer(id2, spatialize, isRemoteStream) {
-    if (spatialize) {
-      const destination = isRemoteStream ? this.audioDestination.remoteUserInput : this.audioDestination.spatializedInput;
-      const slug = `spatializer-${++this.counter}-${id2}`;
-      const spatializer = hasNewAudioListener ? new WebAudioPannerNew(slug + "-new-wa", this.audioCtx) : new WebAudioPannerOld(id2 + "-old-wa", this.audioCtx);
-      connect(spatializer, destination);
-      return spatializer;
-    } else {
-      return NoSpatializationNode.instance(this.audioCtx);
-    }
-  }
-  createSpatializer(id2, spatialize, isRemoteStream) {
-    const spatializer = this.newSpatializer(id2, spatialize, isRemoteStream);
-    spatializer.setAudioProperties(this._minDistance, this._maxDistance, this._algorithm);
-    return spatializer;
-  }
-  createUser(userID, userName) {
-    if (!this.users.has(userID)) {
-      const id2 = stringToName(userName, userID);
-      const spatializer = this.createSpatializer(id2, true, true);
-      const user = new AudioStreamSource(id2, this.audioCtx, spatializer);
-      this.users.set(userID, user);
-    }
-    return this.users.get(userID);
-  }
-  setLocalUserID(id2) {
-    if (this.audioDestination) {
-      this.localUserID = id2;
-    }
-    return this.audioDestination;
-  }
-  loadBasicClip(id2, path, vol, prog) {
-    return this.loadClip(id2, path, false, false, false, false, vol, [], prog);
-  }
-  createBasicClip(id2, element, vol) {
-    return this.createClip(id2, element, false, false, false, vol, []);
-  }
-  async loadClip(id2, path, looping, autoPlaying, spatialize, randomize, vol, effectNames, prog) {
-    if (isNullOrUndefined(path) || isString(path) && path.length === 0) {
-      throw new Error("No clip source path provided");
-    }
-    if (isDefined(prog)) {
-      prog.start(path);
-    }
-    const source = await this.getSourceTask(id2, path, path, looping, autoPlaying, prog);
-    const clip = this.makeClip(source, id2, path, spatialize, randomize, autoPlaying, vol, ...effectNames);
-    this.clips.set(id2, clip);
-    if (isDefined(prog)) {
-      prog.end(path);
-    }
-    return clip;
-  }
-  createClip(id2, element, autoPlaying, spatialize, randomize, vol, effectNames) {
-    if (isNullOrUndefined(element) || isString(element) && element.length === 0) {
-      throw new Error("No clip source path provided");
-    }
-    const curPath = element.currentSrc;
-    const source = this.createSourceFromElement(id2, element);
-    const clip = this.makeClip(source, id2, curPath, spatialize, randomize, autoPlaying, vol, ...effectNames);
-    this.clips.set(id2, clip);
-    return clip;
-  }
-  getSourceTask(id2, curPath, path, looping, autoPlaying, prog) {
-    this.clipPaths.set(id2, curPath);
-    let sourceTask = this.pathSources.get(curPath);
-    if (isDefined(sourceTask)) {
-      this.pathCounts.set(curPath, this.pathCounts.get(curPath) + 1);
-    } else {
-      sourceTask = this.createSourceFromFile(id2, path, looping, autoPlaying, prog);
-      this.pathSources.set(curPath, sourceTask);
-      this.pathCounts.set(curPath, 1);
-    }
-    return sourceTask;
-  }
-  async createSourceFromFile(id2, path, looping, autoPlaying, prog) {
-    if (isDefined(prog)) {
-      prog.start(id2);
-    }
-    const elem = BackgroundAudio(autoPlaying, false, looping, src(path));
-    if (!await mediaElementCanPlay(elem)) {
-      throw elem.error;
-    }
-    if (isDefined(prog)) {
-      prog.end(id2);
-    }
-    return this.createSourceFromElement(id2, elem);
-  }
-  createSourceFromStream(id2, stream) {
-    const elem = BackgroundAudio(true, !useElementSourceForUsers, false, srcObject(stream));
-    if (useElementSourceForUsers) {
-      return this.createSourceFromElement(id2, elem);
-    } else {
-      return MediaStreamSource(stringToName("media-stream-source", id2, stream.id), this.audioCtx, stream);
-    }
-  }
-  createSourceFromElement(id2, elem) {
-    return MediaElementSource(stringToName("media-element-source", id2), this.audioCtx, elem);
-  }
-  makeClip(source, id2, path, spatialize, randomize, autoPlaying, vol, ...effectNames) {
-    const nodeID = stringToName(id2, path);
-    const spatializer = this.createSpatializer(nodeID, spatialize, false);
-    const clip = new AudioElementSource(stringToName("audio-clip-element", nodeID), this.audioCtx, source, randomize, spatializer, ...effectNames);
-    if (autoPlaying) {
-      clip.play();
-    }
-    clip.volume = vol;
-    return clip;
-  }
-  hasClip(id2) {
-    return this.clips.has(id2);
-  }
-  async playClip(id2) {
-    if (this.isReady && this.hasClip(id2)) {
-      const clip = this.clips.get(id2);
-      await clip.play();
-    }
-  }
-  async playClipThrough(id2) {
-    if (this.isReady && this.hasClip(id2)) {
-      const clip = this.clips.get(id2);
-      await clip.playThrough();
-    }
-  }
-  stopClip(id2) {
-    if (this.isReady && this.hasClip(id2)) {
-      const clip = this.clips.get(id2);
-      clip.stop();
-    }
-  }
-  getUser(userID) {
-    return this.users.get(userID);
-  }
-  getClip(id2) {
-    return this.clips.get(id2);
-  }
-  removeSource(sources, id2) {
-    const source = sources.get(id2);
-    if (isDefined(source)) {
-      sources.delete(id2);
-      source.dispose();
-    }
-    return source;
-  }
-  removeUser(userID) {
-    const user = this.removeSource(this.users, userID);
-    if (isDefined(user.input)) {
-      user.input = null;
-    }
-  }
-  removeClip(id2) {
-    const path = this.clipPaths.get(id2);
-    this.pathCounts.set(path, this.pathCounts.get(path) - 1);
-    if (this.pathCounts.get(path) === 0) {
-      this.pathCounts.delete(path);
-      this.pathSources.delete(path);
-    }
-    return this.removeSource(this.clips, id2);
-  }
-  setUserStream(userID, userName, stream) {
-    if (this.users.has(userID)) {
-      const user = this.users.get(userID);
-      if (stream) {
-        user.input = this.createSourceFromStream(stringToName(userName, userID), stream);
-      } else if (isDefined(user.input)) {
-        user.input = null;
-      }
-    }
-  }
-  setAudioProperties(minDistance, maxDistance, algorithm) {
-    this._minDistance = minDistance;
-    this._maxDistance = maxDistance;
-    this._algorithm = algorithm;
-    NoSpatializationNode.instance(this.audioCtx).setAudioProperties(this._minDistance, this._maxDistance, this.algorithm);
-    for (const user of this.users.values()) {
-      user.spatializer.setAudioProperties(this._minDistance, this._maxDistance, this.algorithm);
-    }
-    for (const clip of this.clips.values()) {
-      clip.spatializer.setAudioProperties(clip.spatializer.minDistance, clip.spatializer.maxDistance, this.algorithm);
-    }
-  }
-  withPose(sources, id2, poseCallback) {
-    const source = sources.get(id2);
-    let pose = null;
-    if (source) {
-      pose = source.pose;
-    } else if (id2 === this.localUserID) {
-      pose = this.audioDestination.pose;
-    }
-    if (!pose) {
-      return null;
-    }
-    return poseCallback(pose);
-  }
-  withUser(id2, poseCallback) {
-    return this.withPose(this.users, id2, poseCallback);
-  }
-  setUserPose(id2, px, py, pz, fx, fy, fz, ux, uy, uz) {
-    this.withUser(id2, (pose) => {
-      pose.set(px, py, pz, fx, fy, fz, ux, uy, uz);
-    });
-  }
-  withClip(id2, poseCallback) {
-    return this.withPose(this.clips, id2, poseCallback);
-  }
-  setClipPosition(id2, x, y, z) {
-    this.withClip(id2, (pose) => {
-      pose.setPosition(x, y, z);
-    });
-  }
-  setClipOrientation(id2, fx, fy, fz, ux, uy, uz) {
-    this.withClip(id2, (pose) => {
-      pose.setOrientation(fx, fy, fz, ux, uy, uz);
-    });
-  }
-  setClipPose(id2, px, py, pz, fx, fy, fz, ux, uy, uz) {
-    this.withClip(id2, (pose) => {
-      pose.set(px, py, pz, fx, fy, fz, ux, uy, uz);
-    });
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/sources/IPlayer.ts
-var MediaPlayerEvent = class extends MediaElementSourceEvent {
-  constructor(type2, source) {
-    super(type2, source);
-  }
-};
-var MediaPlayerLoadingEvent = class extends MediaPlayerEvent {
-  constructor(source) {
-    super("loading", source);
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/sources/AudioPlayer.ts
-var AudioPlayer = class extends BaseAudioSource {
-  loadingEvt;
-  loadEvt;
-  playEvt;
-  pauseEvt;
-  stopEvt;
-  progEvt;
-  onError;
-  onPlay;
-  onCanPlay;
-  onWaiting;
-  onPause;
-  onTimeUpdate;
-  _data = null;
-  get data() {
-    return this._data;
-  }
-  _loaded = false;
-  get loaded() {
-    return this._loaded;
-  }
-  element;
-  audioSource;
-  get title() {
-    return this.element.title;
-  }
-  setTitle(v) {
-    this.element.title = v;
-  }
-  sourcesByURL = /* @__PURE__ */ new Map();
-  sources = new Array();
-  potatoes = new Array();
-  constructor(audioCtx) {
-    super("JuniperAudioPlayer", audioCtx, NoSpatializationNode.instance(audioCtx));
-    this.element = Audio2(playsInline(true), autoPlay(false), loop(false), controls(true));
-    this.input = MediaElementSource("JuniperAudioPlayer-Input", audioCtx, this.element);
-    this.loadingEvt = new MediaPlayerLoadingEvent(this);
-    this.loadEvt = new MediaElementSourceLoadedEvent(this);
-    this.playEvt = new MediaElementSourcePlayedEvent(this);
-    this.pauseEvt = new MediaElementSourcePausedEvent(this);
-    this.stopEvt = new MediaElementSourceStoppedEvent(this);
-    this.progEvt = new MediaElementSourceProgressEvent(this);
-    this.onPlay = async () => {
-      this.connect();
-      this.dispatchEvent(this.playEvt);
-    };
-    this.onPause = (evt) => {
-      this.disconnect();
-      if (this.element.currentTime === 0 || evt.type === "ended") {
-        this.dispatchEvent(this.stopEvt);
-      } else {
-        this.dispatchEvent(this.pauseEvt);
-      }
-    };
-    this.onTimeUpdate = async () => {
-      this.progEvt.value = this.element.currentTime;
-      this.progEvt.total = this.element.duration;
-      this.dispatchEvent(this.progEvt);
-    };
-    this.onError = () => this.loadAudio();
-    this.element.addEventListener("play", this.onPlay);
-    this.element.addEventListener("pause", this.onPause);
-    this.element.addEventListener("ended", this.onPause);
-    this.element.addEventListener("error", this.onError);
-    this.element.addEventListener("waiting", this.onWaiting);
-    this.element.addEventListener("canplay", this.onCanPlay);
-    this.element.addEventListener("timeupdate", this.onTimeUpdate);
-    Object.assign(window, { audioPlayer: this });
-  }
-  get hasAudio() {
-    const source = this.sourcesByURL.get(this.element.src);
-    return isDefined(source) && source.acodec !== "none" || isDefined(this.element.audioTracks) && this.element.audioTracks.length > 0 || isDefined(this.element.webkitAudioDecodedByteCount) && this.element.webkitAudioDecodedByteCount > 0 || isDefined(this.element.mozHasAudio) && this.element.mozHasAudio;
-  }
-  onDisposing() {
-    super.onDisposing();
-    this.clear();
-    removeVertex(this.input);
-    removeVertex(this.audioSource);
-    this.element.removeEventListener("play", this.onPlay);
-    this.element.removeEventListener("pause", this.onPause);
-    this.element.removeEventListener("ended", this.onPause);
-    this.element.removeEventListener("error", this.onError);
-    this.element.removeEventListener("waiting", this.onWaiting);
-    this.element.removeEventListener("canplay", this.onCanPlay);
-    this.element.removeEventListener("timeupdate", this.onTimeUpdate);
-  }
-  clear() {
-    this.stop();
-    this.sourcesByURL.clear();
-    arrayClear(this.sources);
-    arrayClear(this.potatoes);
-    this.element.src = "";
-    this._data = null;
-    this._loaded = false;
-  }
-  async load(data, prog) {
-    this.clear();
-    this._data = data;
-    if (isString(data)) {
-      this.setTitle(data);
-      this.potatoes.push(data);
-    } else {
-      this.setTitle(data.title);
-      arraySortByKeyInPlace(data.audios, (f) => -f.resolution);
-      arrayReplace(this.sources, ...data.audios);
-    }
-    for (const audio2 of this.sources) {
-      this.sourcesByURL.set(audio2.url, audio2);
-    }
-    if (!this.hasSources) {
-      throw new Error("No audio sources");
-    }
-    this.dispatchEvent(this.loadingEvt);
-    await this.loadAudio(prog);
-    if (!this.hasSources) {
-      throw new Error("No audio sources");
-    }
-    this._loaded = true;
-    this.dispatchEvent(this.loadEvt);
-    return this;
-  }
-  async getMediaCapabilities(source) {
-    const config = {
-      type: "file",
-      audio: {
-        contentType: source.contentType,
-        bitrate: source.abr * 1024,
-        samplerate: source.asr
-      }
-    };
-    try {
-      return await navigator.mediaCapabilities.decodingInfo(config);
-    } catch {
-      return {
-        supported: true,
-        powerEfficient: false,
-        smooth: false,
-        configuration: config
-      };
-    }
-  }
-  get hasSources() {
-    return this.sources.length > 0 || this.potatoes.length > 0;
-  }
-  async loadAudio(prog) {
-    if (isDefined(prog)) {
-      prog.start();
-    }
-    this.element.removeEventListener("error", this.onError);
-    while (this.hasSources) {
-      let url = null;
-      const source = this.sources.shift();
-      if (isDefined(source)) {
-        const caps = await this.getMediaCapabilities(source);
-        if (!caps.smooth || !caps.powerEfficient) {
-          this.potatoes.push(source.url);
-          continue;
-        } else {
-          url = source.url;
-        }
-      } else {
-        url = this.potatoes.shift();
-      }
-      this.element.src = url;
-      this.element.load();
-      if (await mediaElementCanPlayThrough(this.element)) {
-        if (isDefined(source)) {
-          this.sources.unshift(source);
-        } else {
-          this.potatoes.unshift(url);
-        }
-        this.element.addEventListener("error", this.onError);
-        if (isDefined(prog)) {
-          prog.end();
-        }
-        return;
-      }
-    }
-  }
-  get playbackState() {
-    if (isNullOrUndefined(this.data)) {
-      return "empty";
-    }
-    if (!this.loaded) {
-      return "loading";
-    }
-    if (this.element.error) {
-      return "errored";
-    }
-    if (this.element.ended || this.element.paused && this.element.currentTime === 0) {
-      return "stopped";
-    }
-    if (this.element.paused) {
-      return "paused";
-    }
-    return "playing";
-  }
-  async play() {
-    await audioReady(this.audioCtx);
-    await this.element.play();
-  }
-  async playThrough() {
-    const endTask = once(this, "stopped");
-    await this.play();
-    await endTask;
-  }
-  pause() {
-    this.element.pause();
-  }
-  stop() {
-    this.pause();
-    this.element.currentTime = 0;
-  }
-  restart() {
-    this.stop();
-    return this.play();
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/util.ts
-var typePattern = /([^\/]+)\/(.+)/;
-var subTypePattern = /(?:([^\.]+)\.)?([^\+;]+)(?:\+([^;]+))?((?:; *([^=]+)=([^;]+))*)/;
-var MediaType = class {
-  constructor(_type, _fullSubType, extensions) {
-    this._type = _type;
-    this._fullSubType = _fullSubType;
-    this._primaryExtension = null;
-    this.depMessage = null;
-    const parameters = /* @__PURE__ */ new Map();
-    this._parameters = parameters;
-    const subTypeParts = this._fullSubType.match(subTypePattern);
-    this._tree = subTypeParts[1];
-    this._subType = subTypeParts[2];
-    this._suffix = subTypeParts[3];
-    const paramStr = subTypeParts[4];
-    this._value = this._fullValue = this._type + "/";
-    if (isDefined(this._tree)) {
-      this._value = this._fullValue += this._tree + ".";
-    }
-    this._value = this._fullValue += this._subType;
-    if (isDefined(this._suffix)) {
-      this._value = this._fullValue += "+" + this._suffix;
-    }
-    if (isDefined(paramStr)) {
-      const pairs = paramStr.split(";").map((p) => p.trim()).filter((p) => p.length > 0).map((p) => p.split("="));
-      for (const [key, ...values] of pairs) {
-        const value2 = values.join("=");
-        parameters.set(key, value2);
-        const slug = `; ${key}=${value2}`;
-        this._fullValue += slug;
-        if (key !== "q") {
-          this._value += slug;
-        }
-      }
-    }
-    this._extensions = extensions || [];
-    this._primaryExtension = this._extensions[0] || null;
-  }
-  static parse(value2) {
-    if (!value2) {
-      return null;
-    }
-    const match = value2.match(typePattern);
-    if (!match) {
-      return null;
-    }
-    const type2 = match[1];
-    const subType = match[2];
-    return new MediaType(type2, subType);
-  }
-  deprecate(message) {
-    this.depMessage = message;
-    return this;
-  }
-  check() {
-    if (isDefined(this.depMessage)) {
-      console.warn(`${this._value} is deprecated ${this.depMessage}`);
-    }
-  }
-  matches(value2) {
-    if (isNullOrUndefined(value2)) {
-      return false;
-    }
-    if (this.typeName === "*" && this.subTypeName === "*") {
-      return true;
-    }
-    let typeName = null;
-    let subTypeName = null;
-    if (isString(value2)) {
-      const match = value2.match(typePattern);
-      if (!match) {
-        return false;
-      }
-      typeName = match[1];
-      subTypeName = match[2];
-    } else {
-      typeName = value2.typeName;
-      subTypeName = value2._fullSubType;
-    }
-    return this.typeName === typeName && (this._fullSubType === "*" || this._fullSubType === subTypeName);
-  }
-  withParameter(key, value2) {
-    const newSubType = `${this._fullSubType}; ${key}=${value2}`;
-    return new MediaType(this.typeName, newSubType, this.extensions);
-  }
-  get typeName() {
-    this.check();
-    return this._type;
-  }
-  get tree() {
-    this.check();
-    return this._tree;
-  }
-  get suffix() {
-    return this._suffix;
-  }
-  get subTypeName() {
-    this.check();
-    return this._subType;
-  }
-  get value() {
-    this.check();
-    return this._value;
-  }
-  __getValueUnsafe() {
-    return this._value;
-  }
-  get fullValue() {
-    this.check();
-    return this._fullValue;
-  }
-  get parameters() {
-    this.check();
-    return this._parameters;
-  }
-  get extensions() {
-    this.check();
-    return this._extensions;
-  }
-  __getExtensionsUnsafe() {
-    return this._extensions;
-  }
-  get primaryExtension() {
-    this.check();
-    return this._primaryExtension;
-  }
-  toString() {
-    if (this.parameters.get("q") === "1") {
-      return this.value;
-    } else {
-      return this.fullValue;
-    }
-  }
-  addExtension(fileName) {
-    if (!fileName) {
-      throw new Error("File name is not defined");
-    }
-    if (this.primaryExtension) {
-      const idx = fileName.lastIndexOf(".");
-      if (idx > -1) {
-        const currentExtension = fileName.substring(idx + 1);
-        ;
-        if (this.extensions.indexOf(currentExtension) > -1) {
-          fileName = fileName.substring(0, idx);
-        }
-      }
-      fileName = `${fileName}.${this.primaryExtension}`;
-    }
-    return fileName;
-  }
-};
-function create2(group2, value2, ...extensions) {
-  return new MediaType(group2, value2, extensions);
-}
-function specialize(group2) {
-  return create2.bind(null, group2);
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/application.ts
-var application = /* @__PURE__ */ specialize("application");
-var Application_Javascript = /* @__PURE__ */ application("javascript", "js");
-var Application_Json = /* @__PURE__ */ application("json", "json");
-var Application_Wasm = /* @__PURE__ */ application("wasm", "wasm");
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/audio.ts
-var audio = /* @__PURE__ */ specialize("audio");
-var Audio_Mpeg = /* @__PURE__ */ audio("mpeg", "mp3", "mp2", "mp2a", "mpga", "m2a", "m3a");
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/image.ts
-var image = /* @__PURE__ */ specialize("image");
-var Image_Jpeg = /* @__PURE__ */ image("jpeg", "jpeg", "jpg", "jpe");
-var Image_Png = /* @__PURE__ */ image("png", "png");
-var Image_Vendor_Google_StreetView_Pano = image("vnd.google.streetview.pano");
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/model.ts
-var model = /* @__PURE__ */ specialize("model");
-var Model_Gltf_Binary = /* @__PURE__ */ model("gltf-binary", "glb");
-var Model_Gltf_Json = /* @__PURE__ */ model("gltf+json", "gltf");
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/text.ts
-var text = /* @__PURE__ */ specialize("text");
-var Text_Plain = /* @__PURE__ */ text("plain", "txt", "text", "conf", "def", "list", "log", "in");
-var Text_Xml = /* @__PURE__ */ text("xml");
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/video.ts
-var video = /* @__PURE__ */ specialize("video");
-var Video_Vendor_Mpeg_Dash_Mpd = /* @__PURE__ */ video("vnd.mpeg.dash.mpd", "mpd");
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/Asset.ts
-var BaseAsset = class {
-  constructor(path, type2) {
-    this.path = path;
-    this.type = type2;
-    this.promise = new Promise((resolve, reject) => {
-      this.resolve = (value2) => {
-        this._result = value2;
-        this._finished = true;
-        resolve(value2);
-      };
-      this.reject = (reason) => {
-        this._error = reason;
-        this._finished = true;
-        reject(reason);
-      };
-    });
-  }
-  promise;
-  _result = null;
-  _error = null;
-  _started = false;
-  _finished = false;
-  get result() {
-    if (isDefined(this.error)) {
-      throw this.error;
-    }
-    return this._result;
-  }
-  get error() {
-    return this._error;
-  }
-  get started() {
-    return this._started;
-  }
-  get finished() {
-    return this._finished;
-  }
-  resolve = null;
-  reject = null;
-  async getSize(fetcher) {
-    try {
-      const { contentLength } = await fetcher.head(this.path).accept(this.type).exec();
-      return [this, contentLength || 1];
-    } catch (exp) {
-      console.warn(exp);
-      return [this, 1];
-    }
-    ;
-  }
-  async fetch(fetcher, prog) {
-    try {
-      const result = await this.getResult(fetcher, prog);
-      this.resolve(result);
-    } catch (err) {
-      this.reject(err);
-    }
-  }
-  get [Symbol.toStringTag]() {
-    return this.promise.toString();
-  }
-  then(onfulfilled, onrejected) {
-    return this.promise.then(onfulfilled, onrejected);
-  }
-  catch(onrejected) {
-    return this.promise.catch(onrejected);
-  }
-  finally(onfinally) {
-    return this.promise.finally(onfinally);
-  }
-};
-var BaseFetchedAsset = class extends BaseAsset {
-  useCache;
-  constructor(path, typeOrUseCache, useCache) {
-    let type2;
-    if (isBoolean(typeOrUseCache)) {
-      useCache = typeOrUseCache;
-    } else {
-      type2 = typeOrUseCache;
-    }
-    super(path, type2);
-    this.useCache = !!useCache;
-  }
-  async getResult(fetcher, prog) {
-    const response = await this.getRequest(fetcher, prog);
-    return response.content;
-  }
-  getRequest(fetcher, prog) {
-    const request = fetcher.get(this.path).useCache(this.useCache).progress(prog);
-    return this.getResponse(request);
-  }
-};
-var AssetAudio = class extends BaseFetchedAsset {
-  getResponse(request) {
-    return request.audio(false, false, this.type);
-  }
-};
-var AssetImage = class extends BaseFetchedAsset {
-  getResponse(request) {
-    return request.image(this.type);
-  }
-};
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/canvas.ts
 var hasHTMLCanvas = "HTMLCanvasElement" in globalThis;
@@ -10044,6 +7500,1814 @@ var BaseFetchingServicePool = class extends WorkerPool {
 var FetchingServicePool = class extends BaseFetchingServicePool {
 };
 
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/typeChecks.ts
+function isMesh(obj2) {
+  return isDefined(obj2) && obj2.isMesh;
+}
+function isMaterial(obj2) {
+  return isDefined(obj2) && obj2.isMaterial;
+}
+function isNamedMaterial(name2, obj2) {
+  return isMaterial(obj2) && obj2.type === name2;
+}
+function isMeshBasicMaterial(obj2) {
+  return isNamedMaterial("MeshBasicMaterial", obj2);
+}
+function isObject3D(obj2) {
+  return isDefined(obj2) && obj2.isObject3D;
+}
+function isQuaternion(obj2) {
+  return isDefined(obj2) && obj2.isQuaternion;
+}
+function isEuler(obj2) {
+  return isDefined(obj2) && obj2.isEuler;
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/objects.ts
+function isErsatzObject(obj2) {
+  return isDefined(obj2) && isObject3D(obj2.object);
+}
+function objectResolve(obj2) {
+  if (isErsatzObject(obj2)) {
+    return obj2.object;
+  }
+  return obj2;
+}
+function objectSetVisible(obj2, visible) {
+  obj2 = objectResolve(obj2);
+  obj2.visible = visible;
+  return visible;
+}
+function objectIsVisible(obj2) {
+  obj2 = objectResolve(obj2);
+  return obj2.visible;
+}
+function objectIsFullyVisible(obj2) {
+  obj2 = objectResolve(obj2);
+  while (obj2) {
+    if (!obj2.visible) {
+      return false;
+    }
+    obj2 = obj2.parent;
+  }
+  return true;
+}
+function objGraph(obj2, ...children) {
+  const toAdd = children.filter(isDefined).map(objectResolve);
+  if (toAdd.length > 0) {
+    objectResolve(obj2).add(...toAdd);
+  }
+  return obj2;
+}
+function obj(name2, ...rest) {
+  const obj2 = new THREE.Object3D();
+  obj2.name = name2;
+  objGraph(obj2, ...rest);
+  return obj2;
+}
+function objectSetEnabled(obj2, enabled) {
+  obj2 = objectResolve(obj2);
+  if (isDisableable(obj2)) {
+    obj2.disabled = !enabled;
+  }
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/RayTarget.ts
+var RAY_TARGET_KEY = "Juniper:ThreeJS:EventSystem:RayTarget";
+var RayTarget = class extends TypedEventBase {
+  constructor(object) {
+    super();
+    this.object = object;
+    this.object.userData[RAY_TARGET_KEY] = this;
+  }
+  meshes = new Array();
+  _disabled = false;
+  _clickable = false;
+  _draggable = false;
+  addMesh(mesh) {
+    mesh.userData[RAY_TARGET_KEY] = this;
+    this.meshes.push(mesh);
+    return this;
+  }
+  get disabled() {
+    return this._disabled;
+  }
+  set disabled(v) {
+    this._disabled = v;
+  }
+  get enabled() {
+    return !this.disabled;
+  }
+  set enabled(v) {
+    this.disabled = !v;
+  }
+  get clickable() {
+    return this._clickable;
+  }
+  set clickable(v) {
+    this._clickable = v;
+  }
+  get draggable() {
+    return this._draggable;
+  }
+  set draggable(v) {
+    this._draggable = v;
+  }
+};
+function isRayTarget(obj2) {
+  return obj2 instanceof RayTarget;
+}
+function getRayTarget(obj2) {
+  let target = null;
+  if (obj2) {
+    if (isRayTarget(obj2)) {
+      target = obj2;
+    } else {
+      obj2 = objectResolve(obj2);
+      if (obj2) {
+        target = obj2.userData[RAY_TARGET_KEY];
+      }
+    }
+    if (target && !objectIsFullyVisible(target)) {
+      target = null;
+    }
+  }
+  return target;
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/onUserGesture.ts
+var gestures = [
+  "change",
+  "click",
+  "contextmenu",
+  "dblclick",
+  "mouseup",
+  "pointerup",
+  "reset",
+  "submit",
+  "touchend"
+];
+function onUserGesture(callback, test) {
+  const realTest = test || (async () => true);
+  const check = async (evt) => {
+    if (evt.isTrusted && await realTest()) {
+      for (const gesture of gestures) {
+        window.removeEventListener(gesture, check);
+      }
+      await callback();
+    }
+  };
+  for (const gesture of gestures) {
+    window.addEventListener(gesture, check);
+  }
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/nodes.ts
+var hasAudioContext = "AudioContext" in globalThis;
+var hasAudioListener = hasAudioContext && "AudioListener" in globalThis;
+var hasOldAudioListener = hasAudioListener && "setPosition" in AudioListener.prototype;
+var hasNewAudioListener = hasAudioListener && "positionX" in AudioListener.prototype;
+var canCaptureStream = /* @__PURE__ */ isFunction(HTMLMediaElement.prototype.captureStream) || isFunction(HTMLMediaElement.prototype.mozCaptureStream);
+function isWrappedAudioNode(value2) {
+  return isDefined(value2) && value2.node instanceof AudioNode;
+}
+function isErsatzAudioNode(value2) {
+  return isDefined(value2) && value2.input instanceof AudioNode && value2.output instanceof AudioNode;
+}
+var connections = singleton("Juniper:Audio:connections", () => /* @__PURE__ */ new Map());
+var names = singleton("Juniper:Audio:names", () => /* @__PURE__ */ new Map());
+function resolveOutput(node) {
+  if (isErsatzAudioNode(node)) {
+    return node.output;
+  } else if (isWrappedAudioNode(node)) {
+    return node.node;
+  }
+  return node;
+}
+function resolveInput(node) {
+  if (isNullOrUndefined(node)) {
+    return void 0;
+  }
+  let n2 = null;
+  if (isArray(node)) {
+    if (node.length === 2) {
+      n2 = node[1];
+    } else {
+      n2 = node[2];
+    }
+  } else {
+    n2 = node;
+  }
+  let n22 = null;
+  if (isErsatzAudioNode(n2)) {
+    n22 = n2.input;
+  } else if (isWrappedAudioNode(n2)) {
+    n22 = n2.node;
+  } else {
+    n22 = n2;
+  }
+  return n22;
+}
+function resolveArray(node) {
+  if (!isArray(node)) {
+    return [];
+  } else if (node.length === 2) {
+    return [node[0]];
+  } else {
+    return [node[0], node[1]];
+  }
+}
+function isAudioNode(a) {
+  return isDefined(a) && isDefined(a.context);
+}
+function nameVertex(name2, v) {
+  names.set(v, name2);
+}
+function removeVertex(v) {
+  names.delete(v);
+  if (isAudioNode(v)) {
+    disconnect(v);
+  }
+}
+function chain(...nodes2) {
+  for (let i = 1; i < nodes2.length; ++i) {
+    connect(nodes2[i - 1], nodes2[i]);
+  }
+}
+function connect(left2, right) {
+  const a = resolveOutput(left2);
+  const b = resolveInput(right);
+  const c = resolveArray(right);
+  if (isNullOrUndefined(b)) {
+    throw new Error("Must have a target to connect to");
+  } else if (b instanceof AudioParam) {
+    a.connect(b, c[0]);
+  } else if (b instanceof AudioNode) {
+    a.connect(b, c[0], c[1]);
+  } else {
+    assertNever(b);
+  }
+  if (!connections.has(a)) {
+    connections.set(a, /* @__PURE__ */ new Set());
+  }
+  const g = connections.get(a);
+  if (g.has(b)) {
+    return false;
+  }
+  g.add(b);
+  return true;
+}
+function disconnect(left2, right) {
+  const a = resolveOutput(left2);
+  const b = resolveInput(right);
+  const c = resolveArray(right);
+  if (isNullOrUndefined(b)) {
+    a.disconnect();
+  } else if (b instanceof AudioParam) {
+    a.disconnect(b, c[0]);
+  } else if (b instanceof AudioNode) {
+    a.disconnect(b, c[0], c[1]);
+  } else {
+    assertNever(b);
+  }
+  if (!connections.has(a)) {
+    return false;
+  }
+  const g = connections.get(a);
+  let removed = false;
+  if (isNullOrUndefined(b)) {
+    removed = g.size > 0;
+    g.clear();
+  } else if (g.has(b)) {
+    removed = true;
+    g.delete(b);
+  }
+  if (g.size === 0) {
+    connections.delete(a);
+  }
+  return removed;
+}
+function getAudioGraph() {
+  const nodes2 = /* @__PURE__ */ new Map();
+  function maybeAdd(node) {
+    if (!nodes2.has(node)) {
+      nodes2.set(node, new GraphNode(node));
+    }
+  }
+  for (const node of names.keys()) {
+    maybeAdd(node);
+  }
+  for (const [parent, children] of connections) {
+    maybeAdd(parent);
+    for (const child of children) {
+      maybeAdd(child);
+    }
+  }
+  for (const [parent, children] of connections) {
+    const branch = nodes2.get(parent);
+    for (const child of children) {
+      if (nodes2.has(child)) {
+        branch.connectTo(nodes2.get(child));
+      }
+    }
+  }
+  return Array.from(nodes2.values());
+}
+globalThis.getAudioGraph = getAudioGraph;
+async function audioReady(audioCtx) {
+  nameVertex("speakers", audioCtx.destination);
+  if (audioCtx.state !== "running") {
+    if (audioCtx.state === "closed") {
+      await audioCtx.resume();
+    } else if (audioCtx.state === "suspended") {
+      const stateChange = once(audioCtx, "statechange");
+      onUserGesture(() => audioCtx.resume());
+      await stateChange;
+    } else {
+      assertNever(audioCtx.state);
+    }
+  }
+}
+function initAudio(name2, left2, ...rest) {
+  nameVertex(name2, left2);
+  for (const right of rest) {
+    if (isDefined(right)) {
+      connect(left2, right);
+    }
+  }
+  return left2;
+}
+function Analyser(name2, audioCtx, options, ...rest) {
+  return initAudio(name2, new AnalyserNode(audioCtx, options), ...rest);
+}
+function BiquadFilter(name2, audioCtx, options, ...rest) {
+  return initAudio(name2, new BiquadFilterNode(audioCtx, options), ...rest);
+}
+function Delay(name2, audioCtx, options, ...rest) {
+  return initAudio(name2, new DelayNode(audioCtx, options), ...rest);
+}
+function DynamicsCompressor(name2, audioCtx, options, ...rest) {
+  return initAudio(name2, new DynamicsCompressorNode(audioCtx, options), ...rest);
+}
+function Gain(name2, audioCtx, options, ...rest) {
+  return initAudio(name2, new GainNode(audioCtx, options), ...rest);
+}
+function MediaElementSource(name2, audioCtx, mediaElement, ...rest) {
+  return initAudio(name2, audioCtx.createMediaElementSource(mediaElement), ...rest);
+}
+function MediaStreamDestination(name2, audioCtx, options, ...rest) {
+  return initAudio(name2, new MediaStreamAudioDestinationNode(audioCtx, options), ...rest);
+}
+function MediaStreamSource(name2, audioCtx, mediaStream, ...rest) {
+  return initAudio(name2, audioCtx.createMediaStreamSource(mediaStream), ...rest);
+}
+function Panner(name2, audioCtx, options, ...rest) {
+  return initAudio(name2, new PannerNode(audioCtx, options), ...rest);
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/Pose.ts
+var Pose = class {
+  constructor() {
+    this.t = 0;
+    this.p = vec3_exports.create();
+    this.f = vec3_exports.set(vec3_exports.create(), 0, 0, -1);
+    this.u = vec3_exports.set(vec3_exports.create(), 0, 1, 0);
+    Object.seal(this);
+  }
+  set(px, py, pz, fx, fy, fz, ux, uy, uz) {
+    this.setPosition(px, py, pz);
+    this.setOrientation(fx, fy, fz, ux, uy, uz);
+  }
+  setPosition(px, py, pz) {
+    vec3_exports.set(this.p, px, py, pz);
+  }
+  setOrientation(fx, fy, fz, ux, uy, uz) {
+    vec3_exports.set(this.f, fx, fy, fz);
+    vec3_exports.set(this.u, ux, uy, uz);
+  }
+  copy(other) {
+    vec3_exports.copy(this.p, other.p);
+    vec3_exports.copy(this.f, other.f);
+    vec3_exports.copy(this.u, other.u);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/BaseAudioElement.ts
+var BaseAudioElement = class extends TypedEventBase {
+  constructor(id2, audioCtx, spatializer) {
+    super();
+    this.id = id2;
+    this.audioCtx = audioCtx;
+    this.spatializer = spatializer;
+    this.pose = new Pose();
+    this.disposed = false;
+    this.volumeControl = Gain(`volume-control-${this.id}`, audioCtx);
+  }
+  get volume() {
+    return this.volumeControl.gain.value;
+  }
+  set volume(v) {
+    this.volumeControl.gain.value = v;
+  }
+  dispose() {
+    if (!this.disposed) {
+      this.onDisposing();
+      this.disposed = true;
+    }
+  }
+  onDisposing() {
+    removeVertex(this.volumeControl);
+    if (isDisposable(this.spatializer)) {
+      this.spatializer.dispose();
+    }
+  }
+  audioTick(t2) {
+    this.spatializer.setPose(this.pose, t2);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/BaseSpatializer.ts
+var BaseSpatializer = class {
+  constructor(id2) {
+    this.id = id2;
+    this.minDistance = 1;
+    this.maxDistance = 10;
+    this.algorithm = "inverse";
+  }
+  setAudioProperties(minDistance, maxDistance, algorithm) {
+    this.minDistance = minDistance;
+    this.maxDistance = maxDistance;
+    this.algorithm = algorithm;
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/sources/spatializers/BaseEmitter.ts
+var BaseEmitter = class extends BaseSpatializer {
+  constructor() {
+    super(...arguments);
+    this.disposed = false;
+  }
+  dispose() {
+    if (!this.disposed) {
+      this.onDisposing();
+      this.disposed = true;
+    }
+  }
+  onDisposing() {
+    removeVertex(this.input);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/sources/spatializers/NoSpatializationNode.ts
+var nodes = singleton("Juniper:Audio:Destinations:Spatializers:NoSpatializationNode:nodes", () => /* @__PURE__ */ new WeakMap());
+var NoSpatializationNode = class extends BaseEmitter {
+  static instance(audioCtx) {
+    if (!nodes.has(audioCtx)) {
+      const id2 = `no-spatialization-hook-${stringRandom(8)}`;
+      nodes.set(audioCtx, new NoSpatializationNode(id2, audioCtx));
+    }
+    return nodes.get(audioCtx);
+  }
+  constructor(id2, audioCtx) {
+    super(id2);
+    this.input = this.output = Gain(this.id, audioCtx);
+    Object.seal(this);
+  }
+  setPose(_loc, _t) {
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/destinations/AudioDestination.ts
+var AudioDestination = class extends BaseAudioElement {
+  constructor(audioCtx, _trueDestination, listener) {
+    super("final", audioCtx, listener);
+    this._trueDestination = _trueDestination;
+    this._remoteUserInput = Gain("remote-user-input", this.audioCtx, null, this._spatializedInput = Gain("spatialized-input", this.audioCtx, null, this.volumeControl));
+    this._nonSpatializedInput = Gain("non-spatialized-input", this.audioCtx, null, this.volumeControl);
+    connect(this.volumeControl, this._trueDestination);
+    connect(NoSpatializationNode.instance(this.audioCtx), this.nonSpatializedInput);
+  }
+  onDisposing() {
+    removeVertex(this._remoteUserInput);
+    removeVertex(this._spatializedInput);
+    removeVertex(this._nonSpatializedInput);
+    super.onDisposing();
+  }
+  get remoteUserInput() {
+    return this._remoteUserInput;
+  }
+  get spatializedInput() {
+    return this._spatializedInput;
+  }
+  get nonSpatializedInput() {
+    return this._nonSpatializedInput;
+  }
+  get trueDestination() {
+    return this._trueDestination;
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/destinations/spatializers/BaseListener.ts
+var BaseListener = class extends BaseSpatializer {
+  constructor(audioCtx) {
+    super("listener");
+    this.audioCtx = audioCtx;
+  }
+  get listener() {
+    return this.audioCtx.listener;
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/destinations/spatializers/WebAudioListenerNew.ts
+var WebAudioListenerNew = class extends BaseListener {
+  constructor(audioCtx) {
+    super(audioCtx);
+    if (!hasNewAudioListener) {
+      throw new Error("Latest WebAudio Listener API is not supported");
+    }
+    Object.seal(this);
+  }
+  setPose(loc, t2) {
+    const { p, f, u } = loc;
+    this.listener.positionX.setValueAtTime(p[0], t2);
+    this.listener.positionY.setValueAtTime(p[1], t2);
+    this.listener.positionZ.setValueAtTime(p[2], t2);
+    this.listener.forwardX.setValueAtTime(f[0], t2);
+    this.listener.forwardY.setValueAtTime(f[1], t2);
+    this.listener.forwardZ.setValueAtTime(f[2], t2);
+    this.listener.upX.setValueAtTime(u[0], t2);
+    this.listener.upY.setValueAtTime(u[1], t2);
+    this.listener.upZ.setValueAtTime(u[2], t2);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/destinations/spatializers/WebAudioListenerOld.ts
+var WebAudioListenerOld = class extends BaseListener {
+  constructor(audioCtx) {
+    super(audioCtx);
+    if (!hasOldAudioListener) {
+      throw new Error("WebAudio Listener API is not supported");
+    }
+    Object.seal(this);
+  }
+  setPose(loc, _t) {
+    const { p, f, u } = loc;
+    this.listener.setPosition(p[0], p[1], p[2]);
+    this.listener.setOrientation(f[0], f[1], f[2], u[0], u[1], u[2]);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/DeviceManager.ts
+var canChangeAudioOutput = /* @__PURE__ */ isFunction(HTMLAudioElement.prototype.setSinkId);
+function filterDeviceDuplicates(devices) {
+  const filtered = [];
+  for (let i = 0; i < devices.length; ++i) {
+    const a = devices[i];
+    let found = false;
+    for (let j = 0; j < filtered.length && !found; ++j) {
+      const b = filtered[j];
+      found = a.kind === b.kind && b.label.indexOf(a.label) > 0;
+    }
+    if (!found) {
+      filtered.push(a);
+    }
+  }
+  return filtered;
+}
+var DeviceManagerAudioOutputChangedEvent = class extends TypedEvent {
+  constructor(device) {
+    super("audiooutputchanged");
+    this.device = device;
+  }
+};
+var DeviceManagerAudioInputChangedEvent = class extends TypedEvent {
+  constructor(audio2) {
+    super("audioinputchanged");
+    this.audio = audio2;
+  }
+};
+var DeviceManagerVideoInputChangedEvent = class extends TypedEvent {
+  constructor(video2) {
+    super("videoinputchanged");
+    this.video = video2;
+  }
+};
+var PREFERRED_AUDIO_OUTPUT_ID_KEY = "calla:preferredAudioOutputID";
+var PREFERRED_AUDIO_INPUT_ID_KEY = "calla:preferredAudioInputID";
+var PREFERRED_VIDEO_INPUT_ID_KEY = "calla:preferredVideoInputID";
+var DeviceManager = class extends TypedEventBase {
+  constructor(element, needsVideoDevice = false) {
+    super();
+    this.element = element;
+    this.needsVideoDevice = needsVideoDevice;
+    this.ready = this.start();
+    Object.seal(this);
+  }
+  _hasAudioPermission = false;
+  get hasAudioPermission() {
+    return this._hasAudioPermission;
+  }
+  _hasVideoPermission = false;
+  get hasVideoPermission() {
+    return this._hasVideoPermission;
+  }
+  _currentStream = null;
+  get currentStream() {
+    return this._currentStream;
+  }
+  set currentStream(v) {
+    if (v !== this.currentStream) {
+      if (isDefined(this.currentStream) && this.currentStream.active) {
+        for (const track of this.currentStream.getTracks()) {
+          track.stop();
+        }
+      }
+      this._currentStream = v;
+    }
+  }
+  ready;
+  async start() {
+    if (canChangeAudioOutput) {
+      const device = await this.getPreferredAudioOutput();
+      if (device) {
+        await this.setAudioOutputDevice(device);
+      }
+    }
+  }
+  async startPreferredAudioInput() {
+    const device = await this.getPreferredAudioInput();
+    if (device) {
+      await this.setAudioInputDevice(device);
+      this.currentStream = await this.startStream();
+    }
+  }
+  async startPreferredVideoInput() {
+    const device = await this.getPreferredVideoInput();
+    if (device) {
+      await this.setVideoInputDevice(device);
+      this.currentStream = await this.startStream();
+    }
+  }
+  get preferredAudioOutputID() {
+    if (!canChangeAudioOutput) {
+      return null;
+    }
+    return localStorage.getItem(PREFERRED_AUDIO_OUTPUT_ID_KEY);
+  }
+  get preferredAudioInputID() {
+    return localStorage.getItem(PREFERRED_AUDIO_INPUT_ID_KEY);
+  }
+  get preferredVideoInputID() {
+    return localStorage.getItem(PREFERRED_VIDEO_INPUT_ID_KEY);
+  }
+  async getAudioOutputDevices(filterDuplicates = false) {
+    if (!canChangeAudioOutput) {
+      return [];
+    }
+    const devices = await this.getAvailableDevices(filterDuplicates);
+    return devices && devices.audioOutput || [];
+  }
+  async getAudioInputDevices(filterDuplicates = false) {
+    const devices = await this.getAvailableDevices(filterDuplicates);
+    return devices && devices.audioInput || [];
+  }
+  async getVideoInputDevices(filterDuplicates = false) {
+    const devices = await this.getAvailableDevices(filterDuplicates);
+    return devices && devices.videoInput || [];
+  }
+  async getAudioOutputDevice() {
+    if (!canChangeAudioOutput) {
+      return null;
+    }
+    const curId = this.element && this.element.sinkId;
+    if (isNullOrUndefined(curId)) {
+      return null;
+    }
+    const devices = await this.getAudioOutputDevices(), device = arrayScan(devices, (d) => d.deviceId === curId);
+    return device;
+  }
+  async getAudioInputDevice() {
+    if (isNullOrUndefined(this.currentStream) || !this.currentStream.active) {
+      return null;
+    }
+    const curTracks = this.currentStream.getAudioTracks();
+    if (curTracks.length === 0) {
+      return null;
+    }
+    const testTrack = curTracks[0];
+    const devices = await this.getAudioInputDevices();
+    const device = arrayScan(devices, (d) => testTrack.label === d.label);
+    return device;
+  }
+  async getVideoInputDevice() {
+    if (isNullOrUndefined(this.currentStream) || !this.currentStream.active) {
+      return null;
+    }
+    const curTracks = this.currentStream.getVideoTracks();
+    if (curTracks.length === 0) {
+      return null;
+    }
+    const testTrack = curTracks[0];
+    const devices = await this.getVideoInputDevices();
+    const device = arrayScan(devices, (d) => testTrack.label === d.label);
+    return device;
+  }
+  async getPreferredAudioOutput() {
+    if (!canChangeAudioOutput) {
+      return null;
+    }
+    const devices = await this.getAudioOutputDevices();
+    const device = arrayScan(devices, (d) => d.deviceId === this.preferredAudioOutputID, (d) => d.deviceId === "default", (d) => d.deviceId.length > 0);
+    return device;
+  }
+  async getPreferredAudioInput() {
+    const devices = await this.getAudioInputDevices();
+    const device = arrayScan(devices, (d) => d.deviceId === this.preferredAudioInputID, (d) => d.deviceId === "default", (d) => d.deviceId.length > 0);
+    return device;
+  }
+  async getPreferredVideoInput() {
+    const devices = await this.getVideoInputDevices();
+    const device = arrayScan(devices, (d) => d.deviceId === this.preferredVideoInputID, (d) => this.needsVideoDevice && d.deviceId.length > 0);
+    return device;
+  }
+  async setAudioOutputDevice(device) {
+    if (canChangeAudioOutput) {
+      if (isDefined(device) && device.kind !== "audiooutput") {
+        throw new Error(`Device is not an audio output device. Was: ${device.kind}. Label: ${device.label}`);
+      }
+      localStorage.setItem(PREFERRED_AUDIO_OUTPUT_ID_KEY, device && device.deviceId || null);
+      const curDevice = this.element;
+      const curDeviceID = curDevice && curDevice.sinkId;
+      if (this.preferredAudioOutputID !== curDeviceID) {
+        if (isDefined(this.preferredAudioOutputID)) {
+          await this.element.setSinkId(this.preferredAudioOutputID);
+        }
+        this.dispatchEvent(new DeviceManagerAudioOutputChangedEvent(device));
+      }
+    }
+  }
+  async setAudioInputDevice(device) {
+    if (isDefined(device) && device.kind !== "audioinput") {
+      throw new Error(`Device is not an audio input device. Was: ${device.kind}. Label: ${device.label}`);
+    }
+    localStorage.setItem(PREFERRED_AUDIO_INPUT_ID_KEY, device && device.deviceId || null);
+    const curAudio = await this.getAudioInputDevice();
+    const curAudioID = curAudio && curAudio.deviceId;
+    if (this.preferredAudioInputID !== curAudioID) {
+      this.dispatchEvent(new DeviceManagerAudioInputChangedEvent(device));
+    }
+  }
+  async setVideoInputDevice(device) {
+    if (isDefined(device) && device.kind !== "videoinput") {
+      throw new Error(`Device is not an video input device. Was: ${device.kind}. Label: ${device.label}`);
+    }
+    localStorage.setItem(PREFERRED_VIDEO_INPUT_ID_KEY, device && device.deviceId || null);
+    const curVideo = await this.getVideoInputDevice();
+    const curVideoID = curVideo && curVideo.deviceId;
+    if (this.preferredVideoInputID !== curVideoID) {
+      this.dispatchEvent(new DeviceManagerVideoInputChangedEvent(device));
+    }
+  }
+  async getAvailableDevices(filterDuplicates = false) {
+    let devices = await this.getDevices();
+    if (filterDuplicates) {
+      devices = filterDeviceDuplicates(devices);
+    }
+    return {
+      audioOutput: canChangeAudioOutput ? devices.filter((d) => d.kind === "audiooutput") : [],
+      audioInput: devices.filter((d) => d.kind === "audioinput"),
+      videoInput: devices.filter((d) => d.kind === "videoinput")
+    };
+  }
+  async getDevices() {
+    let devices = null;
+    let testStream = null;
+    for (let i = 0; i < 3; ++i) {
+      devices = await navigator.mediaDevices.enumerateDevices();
+      for (const device of devices) {
+        if (device.deviceId.length > 0) {
+          if (!this.hasAudioPermission) {
+            this._hasAudioPermission = device.kind === "audioinput" && device.label.length > 0;
+          }
+          if (this.needsVideoDevice && !this.hasVideoPermission) {
+            this._hasVideoPermission = device.kind === "videoinput" && device.label.length > 0;
+          }
+        }
+      }
+      if (this.hasAudioPermission && (!this.needsVideoDevice || this.hasVideoPermission)) {
+        break;
+      }
+      try {
+        if (!this.hasAudioPermission || this.needsVideoDevice && !this.hasVideoPermission) {
+          testStream = await this.startStream();
+        }
+      } catch (exp) {
+        console.warn(exp);
+      }
+    }
+    if (testStream) {
+      for (const track of testStream.getTracks()) {
+        track.stop();
+      }
+    }
+    devices = arraySortByKey(devices || [], (d) => d.label);
+    return devices;
+  }
+  startStream() {
+    return navigator.mediaDevices.getUserMedia({
+      audio: this.preferredAudioInputID && { deviceId: this.preferredAudioInputID } || true,
+      video: this.needsVideoDevice && (this.preferredVideoInputID && { deviceId: this.preferredVideoInputID } || true) || false
+    });
+  }
+  async getMediaPermissions() {
+    await this.getDevices();
+    return {
+      audio: this.hasAudioPermission,
+      video: this.hasVideoPermission
+    };
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/effects/EchoEffect.ts
+function* fibGen(a, b, count2 = -1) {
+  let i = 0;
+  while (count2 < 0 || i < count2) {
+    yield a;
+    ++i;
+    const c = a + b;
+    a = b;
+    b = c;
+  }
+}
+function EchoEffect(name2, audioCtx, connectTo) {
+  return new EchoEffectNode(name2, audioCtx, 3, connectTo);
+}
+var EchoEffectLayerNode = class {
+  constructor(name2, audioCtx, volume, delay, connectTo) {
+    this.input = Gain(`${name2}-input`, audioCtx, {
+      gain: volume
+    }, this.output = Delay(`${name2}-delay`, audioCtx, {
+      maxDelayTime: delay,
+      delayTime: delay
+    }, connectTo));
+  }
+  dispose() {
+    removeVertex(this.input);
+    removeVertex(this.output);
+  }
+};
+var EchoEffectNode = class {
+  constructor(name2, audioCtx, numLayers, connectTo) {
+    this.output = Gain(`${name2}-output`, audioCtx, null, connectTo);
+    const delays = Array.from(fibGen(1, 2, numLayers));
+    this.layers = delays.map((delay) => new EchoEffectLayerNode(`${name2}-echo-layer-${delay}`, audioCtx, 0.5 / delay, delay, this.output));
+    this.input = Gain(`${name2}-input`, audioCtx, null, ...this.layers);
+  }
+  dispose() {
+    removeVertex(this.input);
+    for (const layer of this.layers) {
+      layer.dispose();
+    }
+    removeVertex(this.output);
+    arrayClear(this.layers);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/effects/RadioEffect.ts
+function RadioEffect(name2, audioCtx, connectTo) {
+  return new RadioEffectNode(name2, audioCtx, connectTo);
+}
+var RadioEffectNode = class {
+  constructor(name2, audioCtx, connectTo) {
+    this.node = BiquadFilter(`${name2}-biquad-filter`, audioCtx, {
+      type: "bandpass",
+      frequency: 2500,
+      Q: 4.5
+    }, connectTo);
+  }
+  dispose() {
+    removeVertex(this.node);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/effects/WallEffect.ts
+function WallEffect(name2, audioCtx, connectTo) {
+  return new WallEffectNode(name2, audioCtx, connectTo);
+}
+var WallEffectNode = class {
+  constructor(name2, audioCtx, connectTo) {
+    this.node = BiquadFilter(`${name2}-biquad-filter`, audioCtx, {
+      type: "bandpass",
+      frequency: 400,
+      Q: 4.5
+    }, connectTo);
+  }
+  dispose() {
+    removeVertex(this.node);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/effects/index.ts
+var effectStore = /* @__PURE__ */ new Map([
+  ["Radio", RadioEffect],
+  ["Wall", WallEffect],
+  ["Echo", EchoEffect]
+]);
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/sources/BaseAudioSource.ts
+var AudioSourceAddedEvent = class extends TypedEvent {
+  constructor(source) {
+    super("sourceadded");
+    this.source = source;
+  }
+};
+var BaseAudioSource = class extends BaseAudioElement {
+  constructor(id2, audioCtx, spatializer, ...effectNames) {
+    super(id2, audioCtx, spatializer);
+    this.source = null;
+    this.effects = new Array();
+    this._connected = false;
+    this.setEffects(...effectNames);
+  }
+  onDisposing() {
+    for (const effect of this.effects) {
+      if (isDisposable(effect)) {
+        effect.dispose();
+      }
+    }
+    arrayClear(this.effects);
+    super.onDisposing();
+  }
+  setEffects(...effectNames) {
+    disconnect(this.volumeControl);
+    for (const effect of this.effects) {
+      if (isDisposable(effect)) {
+        effect.dispose();
+      }
+    }
+    arrayClear(this.effects);
+    for (const effectName of effectNames) {
+      if (isDefined(effectName)) {
+        const effect = effectStore.get(effectName);
+        if (isDefined(effect)) {
+          this.effects.push(effect(`${effectName}-${this.id}`, this.audioCtx));
+        }
+      }
+    }
+    chain(this.volumeControl, ...this.effects, this.spatializer);
+  }
+  get spatialized() {
+    return !(this.spatializer instanceof NoSpatializationNode);
+  }
+  get input() {
+    return this.source;
+  }
+  get connected() {
+    return this._connected;
+  }
+  connect() {
+    if (!this.connected) {
+      connect(this.source, this.volumeControl);
+    }
+  }
+  disconnect() {
+    if (this.connected) {
+      disconnect(this.source, this.volumeControl);
+    }
+  }
+  set input(v) {
+    if (v !== this.input) {
+      if (this.source) {
+        removeVertex(this.source);
+      }
+      if (v) {
+        this.source = v;
+        this.connect();
+        this.dispatchEvent(new AudioSourceAddedEvent(this.source));
+      }
+    }
+  }
+  get output() {
+    return this.volumeControl;
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/sources/IPlayable.ts
+var MediaElementSourceEvent = class extends TypedEvent {
+  constructor(type2, source) {
+    super(type2);
+    this.source = source;
+  }
+};
+var MediaElementSourceLoadedEvent = class extends MediaElementSourceEvent {
+  constructor(source) {
+    super("loaded", source);
+  }
+};
+var MediaElementSourceErroredEvent = class extends MediaElementSourceEvent {
+  constructor(source, error) {
+    super("errored", source);
+    this.error = error;
+  }
+};
+var MediaElementSourcePlayedEvent = class extends MediaElementSourceEvent {
+  constructor(source) {
+    super("played", source);
+  }
+};
+var MediaElementSourcePausedEvent = class extends MediaElementSourceEvent {
+  constructor(source) {
+    super("paused", source);
+  }
+};
+var MediaElementSourceStoppedEvent = class extends MediaElementSourceEvent {
+  constructor(source) {
+    super("stopped", source);
+  }
+};
+var MediaElementSourceProgressEvent = class extends MediaElementSourceEvent {
+  constructor(source) {
+    super("progress", source);
+    this.value = 0;
+    this.total = 0;
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/sources/AudioElementSource.ts
+var elementRefCounts = /* @__PURE__ */ new WeakMap();
+var nodeRefCounts = /* @__PURE__ */ new WeakMap();
+function count(source, delta2) {
+  const nodeCount = (nodeRefCounts.get(source) || 0) + delta2;
+  nodeRefCounts.set(source, nodeCount);
+  const elem = source.mediaElement;
+  const elementCount = (elementRefCounts.get(elem) || 0) + delta2;
+  elementRefCounts.set(elem, elementCount);
+  return elementCount;
+}
+function inc(source) {
+  count(source, 1);
+}
+function dec(source) {
+  count(source, -1);
+  if (nodeRefCounts.get(source) === 0) {
+    nodeRefCounts.delete(source);
+    removeVertex(source);
+  }
+  if (elementRefCounts.get(source.mediaElement) === 0) {
+    elementRefCounts.delete(source.mediaElement);
+    if (source.mediaElement.isConnected) {
+      source.mediaElement.remove();
+    }
+  }
+}
+var AudioElementSource = class extends BaseAudioSource {
+  constructor(id2, audioCtx, source, randomize, spatializer, ...effectNames) {
+    super(id2, audioCtx, spatializer, ...effectNames);
+    this.randomize = randomize;
+    inc(this.input = source);
+    this.audio = source.mediaElement;
+    this.disconnect();
+    this.loadEvt = new MediaElementSourceLoadedEvent(this);
+    this.playEvt = new MediaElementSourcePlayedEvent(this);
+    this.pauseEvt = new MediaElementSourcePausedEvent(this);
+    this.stopEvt = new MediaElementSourceStoppedEvent(this);
+    this.progEvt = new MediaElementSourceProgressEvent(this);
+    const halt = (evt) => {
+      this.disconnect();
+      if (this.audio.currentTime === 0 || evt.type === "ended") {
+        this.dispatchEvent(this.stopEvt);
+      } else {
+        this.dispatchEvent(this.pauseEvt);
+      }
+    };
+    this.audio.addEventListener("ended", halt);
+    this.audio.addEventListener("pause", halt);
+    this.audio.addEventListener("play", () => {
+      this.connect();
+      if (this.randomize && this.audio.loop && this.audio.duration > 1) {
+        const startTime = this.audio.duration * Math.random();
+        this.audio.currentTime = startTime;
+      }
+      this.dispatchEvent(this.playEvt);
+    });
+    this.audio.addEventListener("timeupdate", () => {
+      this.progEvt.value = this.audio.currentTime;
+      this.progEvt.total = this.audio.duration;
+      this.dispatchEvent(this.progEvt);
+    });
+    mediaElementCanPlay(this.audio).then((success2) => this.dispatchEvent(success2 ? this.loadEvt : new MediaElementSourceErroredEvent(this, this.audio.error)));
+  }
+  get playbackState() {
+    if (this.audio.error) {
+      return "errored";
+    }
+    if (this.audio.ended || this.audio.paused && this.audio.currentTime === 0) {
+      return "stopped";
+    }
+    if (this.audio.paused) {
+      return "paused";
+    }
+    return "playing";
+  }
+  async play() {
+    await audioReady(this.audioCtx);
+    await this.audio.play();
+  }
+  async playThrough() {
+    const endTask = once(this, "stopped");
+    await this.play();
+    await endTask;
+  }
+  pause() {
+    this.audio.pause();
+  }
+  stop() {
+    this.audio.currentTime = 0;
+    this.pause();
+  }
+  restart() {
+    this.stop();
+    return this.play();
+  }
+  onDisposing() {
+    this.disconnect();
+    dec(this.input);
+    super.onDisposing();
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/sources/AudioStreamSource.ts
+var AudioStreamSource = class extends BaseAudioSource {
+  constructor(id2, audioCtx, spatializer, ...effectNames) {
+    super(id2, audioCtx, spatializer, ...effectNames);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/sources/spatializers/BaseWebAudioPanner.ts
+var BaseWebAudioPanner = class extends BaseEmitter {
+  constructor(id2, audioCtx) {
+    super(id2);
+    this.lpx = 0;
+    this.lpy = 0;
+    this.lpz = 0;
+    this.lox = 0;
+    this.loy = 0;
+    this.loz = 0;
+    this.input = this.output = this.panner = Panner(this.id, audioCtx, {
+      panningModel: "HRTF",
+      distanceModel: "inverse",
+      coneInnerAngle: 360,
+      coneOuterAngle: 0,
+      coneOuterGain: 0
+    });
+  }
+  setAudioProperties(minDistance, maxDistance, algorithm) {
+    super.setAudioProperties(minDistance, maxDistance, algorithm);
+    this.panner.refDistance = this.minDistance;
+    this.panner.distanceModel = algorithm;
+    if (this.maxDistance <= 0) {
+      this.panner.rolloffFactor = Infinity;
+    } else {
+      this.panner.rolloffFactor = 1 / this.maxDistance;
+    }
+  }
+  setPose(loc, t2) {
+    const { p, f } = loc;
+    const [px, py, pz] = p;
+    const [ox, oy, oz] = f;
+    if (px !== this.lpx || py !== this.lpy || pz !== this.lpz) {
+      this.lpx = px;
+      this.lpy = py;
+      this.lpz = pz;
+      this.setPosition(px, py, pz, t2);
+    }
+    if (ox !== this.lox || oy !== this.loy || oz !== this.loz) {
+      this.lox = ox;
+      this.loy = oy;
+      this.loz = oz;
+      this.setOrientation(ox, oy, oz, t2);
+    }
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/sources/spatializers/WebAudioPannerNew.ts
+var WebAudioPannerNew = class extends BaseWebAudioPanner {
+  constructor(id2, audioCtx) {
+    super(id2, audioCtx);
+    Object.seal(this);
+  }
+  setPosition(x, y, z, t2) {
+    if (isGoodNumber(x) && isGoodNumber(y) && isGoodNumber(z) && isGoodNumber(t2)) {
+      this.panner.positionX.setValueAtTime(x, t2);
+      this.panner.positionY.setValueAtTime(y, t2);
+      this.panner.positionZ.setValueAtTime(z, t2);
+    }
+  }
+  setOrientation(x, y, z, t2) {
+    if (isGoodNumber(x) && isGoodNumber(y) && isGoodNumber(z) && isGoodNumber(t2)) {
+      this.panner.orientationX.setValueAtTime(-x, t2);
+      this.panner.orientationY.setValueAtTime(-y, t2);
+      this.panner.orientationZ.setValueAtTime(-z, t2);
+    }
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/sources/spatializers/WebAudioPannerOld.ts
+var WebAudioPannerOld = class extends BaseWebAudioPanner {
+  constructor(id2, audioCtx) {
+    super(id2, audioCtx);
+    Object.seal(this);
+  }
+  setPosition(x, y, z, _t) {
+    this.panner.setPosition(x, y, z);
+  }
+  setOrientation(x, y, z, _t) {
+    this.panner.setOrientation(x, y, z);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/AudioManager.ts
+if (!("AudioContext" in globalThis) && "webkitAudioContext" in globalThis) {
+  globalThis.AudioContext = globalThis.webkitAudioContext;
+}
+if (!("OfflineAudioContext" in globalThis) && "webkitOfflineAudioContext" in globalThis) {
+  globalThis.OfflineAudioContext = globalThis.webkitOfflineAudioContext;
+}
+var USE_HEADPHONES_KEY = "juniper::useHeadphones";
+var useHeadphonesToggledEvt = new TypedEvent("useheadphonestoggled");
+var hasStreamSources = "createMediaStreamSource" in AudioContext.prototype;
+var useElementSourceForUsers = !hasStreamSources;
+var AudioManager = class extends TypedEventBase {
+  users = /* @__PURE__ */ new Map();
+  clips = /* @__PURE__ */ new Map();
+  clipPaths = /* @__PURE__ */ new Map();
+  pathSources = /* @__PURE__ */ new Map();
+  pathCounts = /* @__PURE__ */ new Map();
+  localFilter;
+  localCompressor;
+  _minDistance = 1;
+  _maxDistance = 10;
+  _useHeadphones = false;
+  _algorithm = "inverse";
+  get algorithm() {
+    return this._algorithm;
+  }
+  element = null;
+  audioDestination = null;
+  devices;
+  input;
+  localAutoControlledGain;
+  output;
+  audioCtx;
+  ready;
+  localUserID = null;
+  constructor(defaultLocalUserID) {
+    super();
+    this.audioCtx = new AudioContext();
+    let destination = null;
+    if (canChangeAudioOutput) {
+      destination = MediaStreamDestination("final-destination", this.audioCtx);
+      this.element = Audio2(id("Audio-Device-Manager"), playsInline(true), autoPlay(true), srcObject(destination.stream), styles(display("none")));
+      elementApply(document.body, this);
+    } else {
+      destination = this.audioCtx.destination;
+    }
+    this.devices = new DeviceManager(this.element);
+    this.input = Gain("local-mic-user-gain", this.audioCtx, null, this.localAutoControlledGain = Gain("local-mic-auto-gain", this.audioCtx, null, this.localFilter = BiquadFilter("local-mic-filter", this.audioCtx, {
+      type: "bandpass",
+      frequency: 1500,
+      Q: 0.25
+    }, this.localCompressor = DynamicsCompressor("local-mic-compressor", this.audioCtx, {
+      threshold: -15,
+      knee: 40,
+      ratio: 17
+    }, this.output = MediaStreamDestination("local-mic-destination", this.audioCtx)))));
+    this.audioDestination = new AudioDestination(this.audioCtx, destination, hasNewAudioListener ? new WebAudioListenerNew(this.audioCtx) : new WebAudioListenerOld(this.audioCtx));
+    NoSpatializationNode.instance(this.audioCtx).setAudioProperties(this._minDistance, this._maxDistance, this.algorithm);
+    this.setLocalUserID(defaultLocalUserID);
+    const useHeadphones = localStorage.getItem(USE_HEADPHONES_KEY);
+    if (isDefined(useHeadphones)) {
+      this._useHeadphones = useHeadphones === "true";
+    } else {
+      this._useHeadphones = isMobileVR();
+    }
+    this.ready = this.start();
+    Object.seal(this);
+  }
+  get useHeadphones() {
+    return this._useHeadphones;
+  }
+  set useHeadphones(v) {
+    if (v !== this.useHeadphones) {
+      this._useHeadphones = v;
+      localStorage.setItem(USE_HEADPHONES_KEY, this.useHeadphones.toString());
+      this.dispatchEvent(useHeadphonesToggledEvt);
+    }
+  }
+  dispose() {
+    for (const userID of this.users.keys()) {
+      this.removeUser(userID);
+    }
+    for (const clipID of this.clips.keys()) {
+      this.removeClip(clipID);
+    }
+    disconnect(this.input);
+    disconnect(this.localAutoControlledGain);
+    disconnect(this.localFilter);
+    disconnect(this.localCompressor);
+    disconnect(this.output);
+    this.audioDestination.dispose();
+    this.audioCtx.suspend();
+  }
+  async start() {
+    await audioReady(this.audioCtx);
+    if (this.element) {
+      await this.element.play();
+    }
+    await this.devices.ready;
+  }
+  get filter() {
+    return this.localFilter;
+  }
+  get filterFrequency() {
+    return this.localFilter.frequency.value;
+  }
+  set filterFrequency(v) {
+    this.localFilter.frequency.value = v;
+  }
+  get compressor() {
+    return this.localCompressor;
+  }
+  get isReady() {
+    return this.audioCtx.state === "running";
+  }
+  get currentTime() {
+    return this.audioCtx.currentTime;
+  }
+  update() {
+    const t2 = this.currentTime;
+    this.audioDestination.audioTick(t2);
+    for (const clip of this.clips.values()) {
+      clip.audioTick(t2);
+    }
+    for (const user of this.users.values()) {
+      user.audioTick(t2);
+    }
+  }
+  counter = 0;
+  newSpatializer(id2, spatialize, isRemoteStream) {
+    if (spatialize) {
+      const destination = isRemoteStream ? this.audioDestination.remoteUserInput : this.audioDestination.spatializedInput;
+      const slug = `spatializer-${++this.counter}-${id2}`;
+      const spatializer = hasNewAudioListener ? new WebAudioPannerNew(slug + "-new-wa", this.audioCtx) : new WebAudioPannerOld(id2 + "-old-wa", this.audioCtx);
+      connect(spatializer, destination);
+      return spatializer;
+    } else {
+      return NoSpatializationNode.instance(this.audioCtx);
+    }
+  }
+  createSpatializer(id2, spatialize, isRemoteStream) {
+    const spatializer = this.newSpatializer(id2, spatialize, isRemoteStream);
+    spatializer.setAudioProperties(this._minDistance, this._maxDistance, this._algorithm);
+    return spatializer;
+  }
+  createUser(userID, userName) {
+    if (!this.users.has(userID)) {
+      const id2 = stringToName(userName, userID);
+      const spatializer = this.createSpatializer(id2, true, true);
+      const user = new AudioStreamSource(id2, this.audioCtx, spatializer);
+      this.users.set(userID, user);
+    }
+    return this.users.get(userID);
+  }
+  setLocalUserID(id2) {
+    if (this.audioDestination) {
+      this.localUserID = id2;
+    }
+    return this.audioDestination;
+  }
+  loadBasicClip(id2, path, vol, prog) {
+    return this.loadClip(id2, path, false, false, false, false, vol, [], prog);
+  }
+  createBasicClip(id2, element, vol) {
+    return this.createClip(id2, element, false, false, false, vol, []);
+  }
+  async loadClip(id2, path, looping, autoPlaying, spatialize, randomize, vol, effectNames, prog) {
+    if (isNullOrUndefined(path) || isString(path) && path.length === 0) {
+      throw new Error("No clip source path provided");
+    }
+    if (isDefined(prog)) {
+      prog.start(path);
+    }
+    const source = await this.getSourceTask(id2, path, path, looping, autoPlaying, prog);
+    const clip = this.makeClip(source, id2, path, spatialize, randomize, autoPlaying, vol, ...effectNames);
+    this.clips.set(id2, clip);
+    if (isDefined(prog)) {
+      prog.end(path);
+    }
+    return clip;
+  }
+  createClip(id2, element, autoPlaying, spatialize, randomize, vol, effectNames) {
+    if (isNullOrUndefined(element) || isString(element) && element.length === 0) {
+      throw new Error("No clip source path provided");
+    }
+    const curPath = element.currentSrc;
+    const source = this.createSourceFromElement(id2, element);
+    const clip = this.makeClip(source, id2, curPath, spatialize, randomize, autoPlaying, vol, ...effectNames);
+    this.clips.set(id2, clip);
+    return clip;
+  }
+  getSourceTask(id2, curPath, path, looping, autoPlaying, prog) {
+    this.clipPaths.set(id2, curPath);
+    let sourceTask = this.pathSources.get(curPath);
+    if (isDefined(sourceTask)) {
+      this.pathCounts.set(curPath, this.pathCounts.get(curPath) + 1);
+    } else {
+      sourceTask = this.createSourceFromFile(id2, path, looping, autoPlaying, prog);
+      this.pathSources.set(curPath, sourceTask);
+      this.pathCounts.set(curPath, 1);
+    }
+    return sourceTask;
+  }
+  async createSourceFromFile(id2, path, looping, autoPlaying, prog) {
+    if (isDefined(prog)) {
+      prog.start(id2);
+    }
+    const elem = BackgroundAudio(autoPlaying, false, looping, src(path));
+    if (!await mediaElementCanPlay(elem)) {
+      throw elem.error;
+    }
+    if (isDefined(prog)) {
+      prog.end(id2);
+    }
+    return this.createSourceFromElement(id2, elem);
+  }
+  createSourceFromStream(id2, stream) {
+    const elem = BackgroundAudio(true, !useElementSourceForUsers, false, srcObject(stream));
+    if (useElementSourceForUsers) {
+      return this.createSourceFromElement(id2, elem);
+    } else {
+      return MediaStreamSource(stringToName("media-stream-source", id2, stream.id), this.audioCtx, stream);
+    }
+  }
+  createSourceFromElement(id2, elem) {
+    return MediaElementSource(stringToName("media-element-source", id2), this.audioCtx, elem);
+  }
+  makeClip(source, id2, path, spatialize, randomize, autoPlaying, vol, ...effectNames) {
+    const nodeID = stringToName(id2, path);
+    const spatializer = this.createSpatializer(nodeID, spatialize, false);
+    const clip = new AudioElementSource(stringToName("audio-clip-element", nodeID), this.audioCtx, source, randomize, spatializer, ...effectNames);
+    if (autoPlaying) {
+      clip.play();
+    }
+    clip.volume = vol;
+    return clip;
+  }
+  hasClip(id2) {
+    return this.clips.has(id2);
+  }
+  async playClip(id2) {
+    if (this.isReady && this.hasClip(id2)) {
+      const clip = this.clips.get(id2);
+      await clip.play();
+    }
+  }
+  async playClipThrough(id2) {
+    if (this.isReady && this.hasClip(id2)) {
+      const clip = this.clips.get(id2);
+      await clip.playThrough();
+    }
+  }
+  stopClip(id2) {
+    if (this.isReady && this.hasClip(id2)) {
+      const clip = this.clips.get(id2);
+      clip.stop();
+    }
+  }
+  getUser(userID) {
+    return this.users.get(userID);
+  }
+  getClip(id2) {
+    return this.clips.get(id2);
+  }
+  removeSource(sources, id2) {
+    const source = sources.get(id2);
+    if (isDefined(source)) {
+      sources.delete(id2);
+      source.dispose();
+    }
+    return source;
+  }
+  removeUser(userID) {
+    const user = this.removeSource(this.users, userID);
+    if (isDefined(user.input)) {
+      user.input = null;
+    }
+  }
+  removeClip(id2) {
+    const path = this.clipPaths.get(id2);
+    this.pathCounts.set(path, this.pathCounts.get(path) - 1);
+    if (this.pathCounts.get(path) === 0) {
+      this.pathCounts.delete(path);
+      this.pathSources.delete(path);
+    }
+    return this.removeSource(this.clips, id2);
+  }
+  setUserStream(userID, userName, stream) {
+    if (this.users.has(userID)) {
+      const user = this.users.get(userID);
+      if (stream) {
+        user.input = this.createSourceFromStream(stringToName(userName, userID), stream);
+      } else if (isDefined(user.input)) {
+        user.input = null;
+      }
+    }
+  }
+  setAudioProperties(minDistance, maxDistance, algorithm) {
+    this._minDistance = minDistance;
+    this._maxDistance = maxDistance;
+    this._algorithm = algorithm;
+    NoSpatializationNode.instance(this.audioCtx).setAudioProperties(this._minDistance, this._maxDistance, this.algorithm);
+    for (const user of this.users.values()) {
+      user.spatializer.setAudioProperties(this._minDistance, this._maxDistance, this.algorithm);
+    }
+    for (const clip of this.clips.values()) {
+      clip.spatializer.setAudioProperties(clip.spatializer.minDistance, clip.spatializer.maxDistance, this.algorithm);
+    }
+  }
+  withPose(sources, id2, poseCallback) {
+    const source = sources.get(id2);
+    let pose = null;
+    if (source) {
+      pose = source.pose;
+    } else if (id2 === this.localUserID) {
+      pose = this.audioDestination.pose;
+    }
+    if (!pose) {
+      return null;
+    }
+    return poseCallback(pose);
+  }
+  withUser(id2, poseCallback) {
+    return this.withPose(this.users, id2, poseCallback);
+  }
+  setUserPose(id2, px, py, pz, fx, fy, fz, ux, uy, uz) {
+    this.withUser(id2, (pose) => {
+      pose.set(px, py, pz, fx, fy, fz, ux, uy, uz);
+    });
+  }
+  withClip(id2, poseCallback) {
+    return this.withPose(this.clips, id2, poseCallback);
+  }
+  setClipPosition(id2, x, y, z) {
+    this.withClip(id2, (pose) => {
+      pose.setPosition(x, y, z);
+    });
+  }
+  setClipOrientation(id2, fx, fy, fz, ux, uy, uz) {
+    this.withClip(id2, (pose) => {
+      pose.setOrientation(fx, fy, fz, ux, uy, uz);
+    });
+  }
+  setClipPose(id2, px, py, pz, fx, fy, fz, ux, uy, uz) {
+    this.withClip(id2, (pose) => {
+      pose.set(px, py, pz, fx, fy, fz, ux, uy, uz);
+    });
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/sources/IPlayer.ts
+var MediaPlayerEvent = class extends MediaElementSourceEvent {
+  constructor(type2, source) {
+    super(type2, source);
+  }
+};
+var MediaPlayerLoadingEvent = class extends MediaPlayerEvent {
+  constructor(source) {
+    super("loading", source);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/sources/AudioPlayer.ts
+var AudioPlayer = class extends BaseAudioSource {
+  loadingEvt;
+  loadEvt;
+  playEvt;
+  pauseEvt;
+  stopEvt;
+  progEvt;
+  onError;
+  onPlay;
+  onCanPlay;
+  onWaiting;
+  onPause;
+  onTimeUpdate;
+  _data = null;
+  get data() {
+    return this._data;
+  }
+  _loaded = false;
+  get loaded() {
+    return this._loaded;
+  }
+  element;
+  audioSource;
+  get title() {
+    return this.element.title;
+  }
+  setTitle(v) {
+    this.element.title = v;
+  }
+  sourcesByURL = /* @__PURE__ */ new Map();
+  sources = new Array();
+  potatoes = new Array();
+  constructor(audioCtx) {
+    super("JuniperAudioPlayer", audioCtx, NoSpatializationNode.instance(audioCtx));
+    this.element = Audio2(playsInline(true), autoPlay(false), loop(false), controls(true));
+    this.input = MediaElementSource("JuniperAudioPlayer-Input", audioCtx, this.element);
+    this.loadingEvt = new MediaPlayerLoadingEvent(this);
+    this.loadEvt = new MediaElementSourceLoadedEvent(this);
+    this.playEvt = new MediaElementSourcePlayedEvent(this);
+    this.pauseEvt = new MediaElementSourcePausedEvent(this);
+    this.stopEvt = new MediaElementSourceStoppedEvent(this);
+    this.progEvt = new MediaElementSourceProgressEvent(this);
+    this.onPlay = async () => {
+      this.connect();
+      this.dispatchEvent(this.playEvt);
+    };
+    this.onPause = (evt) => {
+      this.disconnect();
+      if (this.element.currentTime === 0 || evt.type === "ended") {
+        this.dispatchEvent(this.stopEvt);
+      } else {
+        this.dispatchEvent(this.pauseEvt);
+      }
+    };
+    this.onTimeUpdate = async () => {
+      this.progEvt.value = this.element.currentTime;
+      this.progEvt.total = this.element.duration;
+      this.dispatchEvent(this.progEvt);
+    };
+    this.onError = () => this.loadAudio();
+    this.element.addEventListener("play", this.onPlay);
+    this.element.addEventListener("pause", this.onPause);
+    this.element.addEventListener("ended", this.onPause);
+    this.element.addEventListener("error", this.onError);
+    this.element.addEventListener("waiting", this.onWaiting);
+    this.element.addEventListener("canplay", this.onCanPlay);
+    this.element.addEventListener("timeupdate", this.onTimeUpdate);
+    Object.assign(window, { audioPlayer: this });
+  }
+  get hasAudio() {
+    const source = this.sourcesByURL.get(this.element.src);
+    return isDefined(source) && source.acodec !== "none" || isDefined(this.element.audioTracks) && this.element.audioTracks.length > 0 || isDefined(this.element.webkitAudioDecodedByteCount) && this.element.webkitAudioDecodedByteCount > 0 || isDefined(this.element.mozHasAudio) && this.element.mozHasAudio;
+  }
+  onDisposing() {
+    super.onDisposing();
+    this.clear();
+    removeVertex(this.input);
+    removeVertex(this.audioSource);
+    this.element.removeEventListener("play", this.onPlay);
+    this.element.removeEventListener("pause", this.onPause);
+    this.element.removeEventListener("ended", this.onPause);
+    this.element.removeEventListener("error", this.onError);
+    this.element.removeEventListener("waiting", this.onWaiting);
+    this.element.removeEventListener("canplay", this.onCanPlay);
+    this.element.removeEventListener("timeupdate", this.onTimeUpdate);
+  }
+  clear() {
+    this.stop();
+    this.sourcesByURL.clear();
+    arrayClear(this.sources);
+    arrayClear(this.potatoes);
+    this.element.src = "";
+    this._data = null;
+    this._loaded = false;
+  }
+  async load(data, prog) {
+    this.clear();
+    this._data = data;
+    if (isString(data)) {
+      this.setTitle(data);
+      this.potatoes.push(data);
+    } else {
+      this.setTitle(data.title);
+      arraySortByKeyInPlace(data.audios, (f) => -f.resolution);
+      arrayReplace(this.sources, ...data.audios);
+    }
+    for (const audio2 of this.sources) {
+      this.sourcesByURL.set(audio2.url, audio2);
+    }
+    if (!this.hasSources) {
+      throw new Error("No audio sources");
+    }
+    this.dispatchEvent(this.loadingEvt);
+    await this.loadAudio(prog);
+    if (!this.hasSources) {
+      throw new Error("No audio sources");
+    }
+    this._loaded = true;
+    this.dispatchEvent(this.loadEvt);
+    return this;
+  }
+  async getMediaCapabilities(source) {
+    const config = {
+      type: "file",
+      audio: {
+        contentType: source.contentType,
+        bitrate: source.abr * 1024,
+        samplerate: source.asr
+      }
+    };
+    try {
+      return await navigator.mediaCapabilities.decodingInfo(config);
+    } catch {
+      return {
+        supported: true,
+        powerEfficient: false,
+        smooth: false,
+        configuration: config
+      };
+    }
+  }
+  get hasSources() {
+    return this.sources.length > 0 || this.potatoes.length > 0;
+  }
+  async loadAudio(prog) {
+    if (isDefined(prog)) {
+      prog.start();
+    }
+    this.element.removeEventListener("error", this.onError);
+    while (this.hasSources) {
+      let url = null;
+      const source = this.sources.shift();
+      if (isDefined(source)) {
+        const caps = await this.getMediaCapabilities(source);
+        if (!caps.smooth || !caps.powerEfficient) {
+          this.potatoes.push(source.url);
+          continue;
+        } else {
+          url = source.url;
+        }
+      } else {
+        url = this.potatoes.shift();
+      }
+      this.element.src = url;
+      this.element.load();
+      if (await mediaElementCanPlayThrough(this.element)) {
+        if (isDefined(source)) {
+          this.sources.unshift(source);
+        } else {
+          this.potatoes.unshift(url);
+        }
+        this.element.addEventListener("error", this.onError);
+        if (isDefined(prog)) {
+          prog.end();
+        }
+        return;
+      }
+    }
+  }
+  get playbackState() {
+    if (isNullOrUndefined(this.data)) {
+      return "empty";
+    }
+    if (!this.loaded) {
+      return "loading";
+    }
+    if (this.element.error) {
+      return "errored";
+    }
+    if (this.element.ended || this.element.paused && this.element.currentTime === 0) {
+      return "stopped";
+    }
+    if (this.element.paused) {
+      return "paused";
+    }
+    return "playing";
+  }
+  async play() {
+    await audioReady(this.audioCtx);
+    await this.element.play();
+  }
+  async playThrough() {
+    const endTask = once(this, "stopped");
+    await this.play();
+    await endTask;
+  }
+  pause() {
+    this.element.pause();
+  }
+  stop() {
+    this.pause();
+    this.element.currentTime = 0;
+  }
+  restart() {
+    this.stop();
+    return this.play();
+  }
+};
+
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/graphics2d/CanvasImage.ts
 var CanvasImage = class extends TypedEventBase {
   constructor(width2, height2, options) {
@@ -11070,6 +10334,665 @@ function cleanup(obj2) {
   }
   cleanupSeen.clear();
 }
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/examples/lines/LineMaterial.js
+THREE.UniformsLib.line = {
+  worldUnits: { value: 1 },
+  linewidth: { value: 1 },
+  resolution: { value: new THREE.Vector2(1, 1) },
+  dashOffset: { value: 0 },
+  dashScale: { value: 1 },
+  dashSize: { value: 1 },
+  gapSize: { value: 1 }
+};
+THREE.ShaderLib["line"] = {
+  uniforms: THREE.UniformsUtils.merge([
+    THREE.UniformsLib.common,
+    THREE.UniformsLib.fog,
+    THREE.UniformsLib.line
+  ]),
+  vertexShader: `
+		#include <common>
+		#include <color_pars_vertex>
+		#include <fog_pars_vertex>
+		#include <logdepthbuf_pars_vertex>
+		#include <clipping_planes_pars_vertex>
+
+		uniform float linewidth;
+		uniform vec2 resolution;
+
+		attribute vec3 instanceStart;
+		attribute vec3 instanceEnd;
+
+		attribute vec3 instanceColorStart;
+		attribute vec3 instanceColorEnd;
+
+		#ifdef WORLD_UNITS
+
+			varying vec4 worldPos;
+			varying vec3 worldStart;
+			varying vec3 worldEnd;
+
+			#ifdef USE_DASH
+
+				varying vec2 vUv;
+
+			#endif
+
+		#else
+
+			varying vec2 vUv;
+
+		#endif
+
+		#ifdef USE_DASH
+
+			uniform float dashScale;
+			attribute float instanceDistanceStart;
+			attribute float instanceDistanceEnd;
+			varying float vLineDistance;
+
+		#endif
+
+		void trimSegment( const in vec4 start, inout vec4 end ) {
+
+			// trim end segment so it terminates between the camera plane and the near plane
+
+			// conservative estimate of the near plane
+			float a = projectionMatrix[ 2 ][ 2 ]; // 3nd entry in 3th column
+			float b = projectionMatrix[ 3 ][ 2 ]; // 3nd entry in 4th column
+			float nearEstimate = - 0.5 * b / a;
+
+			float alpha = ( nearEstimate - start.z ) / ( end.z - start.z );
+
+			end.xyz = mix( start.xyz, end.xyz, alpha );
+
+		}
+
+		void main() {
+
+			#ifdef USE_COLOR
+
+				vColor.xyz = ( position.y < 0.5 ) ? instanceColorStart : instanceColorEnd;
+
+			#endif
+
+			#ifdef USE_DASH
+
+				vLineDistance = ( position.y < 0.5 ) ? dashScale * instanceDistanceStart : dashScale * instanceDistanceEnd;
+				vUv = uv;
+
+			#endif
+
+			float aspect = resolution.x / resolution.y;
+
+			// camera space
+			vec4 start = modelViewMatrix * vec4( instanceStart, 1.0 );
+			vec4 end = modelViewMatrix * vec4( instanceEnd, 1.0 );
+
+			#ifdef WORLD_UNITS
+
+				worldStart = start.xyz;
+				worldEnd = end.xyz;
+
+			#else
+
+				vUv = uv;
+
+			#endif
+
+			// special case for perspective projection, and segments that terminate either in, or behind, the camera plane
+			// clearly the gpu firmware has a way of addressing this issue when projecting into ndc space
+			// but we need to perform ndc-space calculations in the shader, so we must address this issue directly
+			// perhaps there is a more elegant solution -- WestLangley
+
+			bool perspective = ( projectionMatrix[ 2 ][ 3 ] == - 1.0 ); // 4th entry in the 3rd column
+
+			if ( perspective ) {
+
+				if ( start.z < 0.0 && end.z >= 0.0 ) {
+
+					trimSegment( start, end );
+
+				} else if ( end.z < 0.0 && start.z >= 0.0 ) {
+
+					trimSegment( end, start );
+
+				}
+
+			}
+
+			// clip space
+			vec4 clipStart = projectionMatrix * start;
+			vec4 clipEnd = projectionMatrix * end;
+
+			// ndc space
+			vec3 ndcStart = clipStart.xyz / clipStart.w;
+			vec3 ndcEnd = clipEnd.xyz / clipEnd.w;
+
+			// direction
+			vec2 dir = ndcEnd.xy - ndcStart.xy;
+
+			// account for clip-space aspect ratio
+			dir.x *= aspect;
+			dir = normalize( dir );
+
+			#ifdef WORLD_UNITS
+
+				// get the offset direction as perpendicular to the view vector
+				vec3 worldDir = normalize( end.xyz - start.xyz );
+				vec3 offset;
+				if ( position.y < 0.5 ) {
+
+					offset = normalize( cross( start.xyz, worldDir ) );
+
+				} else {
+
+					offset = normalize( cross( end.xyz, worldDir ) );
+
+				}
+
+				// sign flip
+				if ( position.x < 0.0 ) offset *= - 1.0;
+
+				float forwardOffset = dot( worldDir, vec3( 0.0, 0.0, 1.0 ) );
+
+				// don't extend the line if we're rendering dashes because we
+				// won't be rendering the endcaps
+				#ifndef USE_DASH
+
+					// extend the line bounds to encompass  endcaps
+					start.xyz += - worldDir * linewidth * 0.5;
+					end.xyz += worldDir * linewidth * 0.5;
+
+					// shift the position of the quad so it hugs the forward edge of the line
+					offset.xy -= dir * forwardOffset;
+					offset.z += 0.5;
+
+				#endif
+
+				// endcaps
+				if ( position.y > 1.0 || position.y < 0.0 ) {
+
+					offset.xy += dir * 2.0 * forwardOffset;
+
+				}
+
+				// adjust for linewidth
+				offset *= linewidth * 0.5;
+
+				// set the world position
+				worldPos = ( position.y < 0.5 ) ? start : end;
+				worldPos.xyz += offset;
+
+				// project the worldpos
+				vec4 clip = projectionMatrix * worldPos;
+
+				// shift the depth of the projected points so the line
+				// segements overlap neatly
+				vec3 clipPose = ( position.y < 0.5 ) ? ndcStart : ndcEnd;
+				clip.z = clipPose.z * clip.w;
+
+			#else
+
+				vec2 offset = vec2( dir.y, - dir.x );
+				// undo aspect ratio adjustment
+				dir.x /= aspect;
+				offset.x /= aspect;
+
+				// sign flip
+				if ( position.x < 0.0 ) offset *= - 1.0;
+
+				// endcaps
+				if ( position.y < 0.0 ) {
+
+					offset += - dir;
+
+				} else if ( position.y > 1.0 ) {
+
+					offset += dir;
+
+				}
+
+				// adjust for linewidth
+				offset *= linewidth;
+
+				// adjust for clip-space to screen-space conversion // maybe resolution should be based on viewport ...
+				offset /= resolution.y;
+
+				// select end
+				vec4 clip = ( position.y < 0.5 ) ? clipStart : clipEnd;
+
+				// back to clip space
+				offset *= clip.w;
+
+				clip.xy += offset;
+
+			#endif
+
+			gl_Position = clip;
+
+			vec4 mvPosition = ( position.y < 0.5 ) ? start : end; // this is an approximation
+
+			#include <logdepthbuf_vertex>
+			#include <clipping_planes_vertex>
+			#include <fog_vertex>
+
+		}
+		`,
+  fragmentShader: `
+		uniform vec3 diffuse;
+		uniform float opacity;
+		uniform float linewidth;
+
+		#ifdef USE_DASH
+
+			uniform float dashOffset;
+			uniform float dashSize;
+			uniform float gapSize;
+
+		#endif
+
+		varying float vLineDistance;
+
+		#ifdef WORLD_UNITS
+
+			varying vec4 worldPos;
+			varying vec3 worldStart;
+			varying vec3 worldEnd;
+
+			#ifdef USE_DASH
+
+				varying vec2 vUv;
+
+			#endif
+
+		#else
+
+			varying vec2 vUv;
+
+		#endif
+
+		#include <common>
+		#include <color_pars_fragment>
+		#include <fog_pars_fragment>
+		#include <logdepthbuf_pars_fragment>
+		#include <clipping_planes_pars_fragment>
+
+		vec2 closestLineToLine(vec3 p1, vec3 p2, vec3 p3, vec3 p4) {
+
+			float mua;
+			float mub;
+
+			vec3 p13 = p1 - p3;
+			vec3 p43 = p4 - p3;
+
+			vec3 p21 = p2 - p1;
+
+			float d1343 = dot( p13, p43 );
+			float d4321 = dot( p43, p21 );
+			float d1321 = dot( p13, p21 );
+			float d4343 = dot( p43, p43 );
+			float d2121 = dot( p21, p21 );
+
+			float denom = d2121 * d4343 - d4321 * d4321;
+
+			float numer = d1343 * d4321 - d1321 * d4343;
+
+			mua = numer / denom;
+			mua = clamp( mua, 0.0, 1.0 );
+			mub = ( d1343 + d4321 * ( mua ) ) / d4343;
+			mub = clamp( mub, 0.0, 1.0 );
+
+			return vec2( mua, mub );
+
+		}
+
+		void main() {
+
+			#include <clipping_planes_fragment>
+
+			#ifdef USE_DASH
+
+				if ( vUv.y < - 1.0 || vUv.y > 1.0 ) discard; // discard endcaps
+
+				if ( mod( vLineDistance + dashOffset, dashSize + gapSize ) > dashSize ) discard; // todo - FIX
+
+			#endif
+
+			float alpha = opacity;
+
+			#ifdef WORLD_UNITS
+
+				// Find the closest points on the view ray and the line segment
+				vec3 rayEnd = normalize( worldPos.xyz ) * 1e5;
+				vec3 lineDir = worldEnd - worldStart;
+				vec2 params = closestLineToLine( worldStart, worldEnd, vec3( 0.0, 0.0, 0.0 ), rayEnd );
+
+				vec3 p1 = worldStart + lineDir * params.x;
+				vec3 p2 = rayEnd * params.y;
+				vec3 delta = p1 - p2;
+				float len = length( delta );
+				float norm = len / linewidth;
+
+				#ifndef USE_DASH
+
+					#ifdef USE_ALPHA_TO_COVERAGE
+
+						float dnorm = fwidth( norm );
+						alpha = 1.0 - smoothstep( 0.5 - dnorm, 0.5 + dnorm, norm );
+
+					#else
+
+						if ( norm > 0.5 ) {
+
+							discard;
+
+						}
+
+					#endif
+
+				#endif
+
+			#else
+
+				#ifdef USE_ALPHA_TO_COVERAGE
+
+					// artifacts appear on some hardware if a derivative is taken within a conditional
+					float a = vUv.x;
+					float b = ( vUv.y > 0.0 ) ? vUv.y - 1.0 : vUv.y + 1.0;
+					float len2 = a * a + b * b;
+					float dlen = fwidth( len2 );
+
+					if ( abs( vUv.y ) > 1.0 ) {
+
+						alpha = 1.0 - smoothstep( 1.0 - dlen, 1.0 + dlen, len2 );
+
+					}
+
+				#else
+
+					if ( abs( vUv.y ) > 1.0 ) {
+
+						float a = vUv.x;
+						float b = ( vUv.y > 0.0 ) ? vUv.y - 1.0 : vUv.y + 1.0;
+						float len2 = a * a + b * b;
+
+						if ( len2 > 1.0 ) discard;
+
+					}
+
+				#endif
+
+			#endif
+
+			vec4 diffuseColor = vec4( diffuse, alpha );
+
+			#include <logdepthbuf_fragment>
+			#include <color_fragment>
+
+			gl_FragColor = vec4( diffuseColor.rgb, alpha );
+
+			#include <tonemapping_fragment>
+			#include <encodings_fragment>
+			#include <fog_fragment>
+			#include <premultiplied_alpha_fragment>
+
+		}
+		`
+};
+var LineMaterial = class extends THREE.ShaderMaterial {
+  constructor(parameters) {
+    super({
+      type: "LineMaterial",
+      uniforms: THREE.UniformsUtils.clone(THREE.ShaderLib["line"].uniforms),
+      vertexShader: THREE.ShaderLib["line"].vertexShader,
+      fragmentShader: THREE.ShaderLib["line"].fragmentShader,
+      clipping: true
+    });
+    Object.defineProperties(this, {
+      color: {
+        enumerable: true,
+        get: function() {
+          return this.uniforms.diffuse.value;
+        },
+        set: function(value2) {
+          this.uniforms.diffuse.value = value2;
+        }
+      },
+      worldUnits: {
+        enumerable: true,
+        get: function() {
+          return "WORLD_UNITS" in this.defines;
+        },
+        set: function(value2) {
+          if (value2 === true) {
+            this.defines.WORLD_UNITS = "";
+          } else {
+            delete this.defines.WORLD_UNITS;
+          }
+        }
+      },
+      linewidth: {
+        enumerable: true,
+        get: function() {
+          return this.uniforms.linewidth.value;
+        },
+        set: function(value2) {
+          this.uniforms.linewidth.value = value2;
+        }
+      },
+      dashed: {
+        enumerable: true,
+        get: function() {
+          return Boolean("USE_DASH" in this.defines);
+        },
+        set(value2) {
+          if (Boolean(value2) !== Boolean("USE_DASH" in this.defines)) {
+            this.needsUpdate = true;
+          }
+          if (value2 === true) {
+            this.defines.USE_DASH = "";
+          } else {
+            delete this.defines.USE_DASH;
+          }
+        }
+      },
+      dashScale: {
+        enumerable: true,
+        get: function() {
+          return this.uniforms.dashScale.value;
+        },
+        set: function(value2) {
+          this.uniforms.dashScale.value = value2;
+        }
+      },
+      dashSize: {
+        enumerable: true,
+        get: function() {
+          return this.uniforms.dashSize.value;
+        },
+        set: function(value2) {
+          this.uniforms.dashSize.value = value2;
+        }
+      },
+      dashOffset: {
+        enumerable: true,
+        get: function() {
+          return this.uniforms.dashOffset.value;
+        },
+        set: function(value2) {
+          this.uniforms.dashOffset.value = value2;
+        }
+      },
+      gapSize: {
+        enumerable: true,
+        get: function() {
+          return this.uniforms.gapSize.value;
+        },
+        set: function(value2) {
+          this.uniforms.gapSize.value = value2;
+        }
+      },
+      opacity: {
+        enumerable: true,
+        get: function() {
+          return this.uniforms.opacity.value;
+        },
+        set: function(value2) {
+          this.uniforms.opacity.value = value2;
+        }
+      },
+      resolution: {
+        enumerable: true,
+        get: function() {
+          return this.uniforms.resolution.value;
+        },
+        set: function(value2) {
+          this.uniforms.resolution.value.copy(value2);
+        }
+      },
+      alphaToCoverage: {
+        enumerable: true,
+        get: function() {
+          return Boolean("USE_ALPHA_TO_COVERAGE" in this.defines);
+        },
+        set: function(value2) {
+          if (Boolean(value2) !== Boolean("USE_ALPHA_TO_COVERAGE" in this.defines)) {
+            this.needsUpdate = true;
+          }
+          if (value2 === true) {
+            this.defines.USE_ALPHA_TO_COVERAGE = "";
+            this.extensions.derivatives = true;
+          } else {
+            delete this.defines.USE_ALPHA_TO_COVERAGE;
+            this.extensions.derivatives = false;
+          }
+        }
+      }
+    });
+    this.setValues(parameters);
+  }
+};
+LineMaterial.prototype.isLineMaterial = true;
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/materials.ts
+var materials = singleton("Juniper:Three:Materials", () => /* @__PURE__ */ new Map());
+function del(obj2, name2) {
+  if (name2 in obj2) {
+    delete obj2[name2];
+  }
+}
+function makeMaterial(slug, material, options) {
+  const key = `${slug}_${Object.keys(options).map((k) => `${k}:${options[k]}`).join(",")}`;
+  if (!materials.has(key)) {
+    del(options, "name");
+    materials.set(key, new material(options));
+  }
+  return materials.get(key);
+}
+function trans(options) {
+  return Object.assign(options, {
+    transparent: true
+  });
+}
+function solid(options) {
+  return makeMaterial("solid", THREE.MeshBasicMaterial, options);
+}
+function solidTransparent(options) {
+  return makeMaterial("solidTransparent", THREE.MeshBasicMaterial, trans(options));
+}
+function lit(options) {
+  return makeMaterial("lit", THREE.MeshPhongMaterial, options);
+}
+function line2(options) {
+  return makeMaterial("line2", LineMaterial, options);
+}
+function convertMaterials(root, convertMaterial) {
+  const oldMats = /* @__PURE__ */ new Set();
+  root.traverse((obj2) => {
+    if (isMesh(obj2) && isMaterial(obj2.material)) {
+      const oldMat = obj2.material;
+      const newMat = convertMaterial(oldMat);
+      if (oldMat !== newMat) {
+        oldMats.add(oldMat);
+        obj2.material = newMat;
+      }
+    }
+  });
+  for (const oldMat of oldMats) {
+    oldMat.dispose();
+  }
+}
+function materialStandardToBasic(oldMat) {
+  if (oldMat.type !== "MeshStandardMaterial") {
+    throw new Error("Input material is not MeshStandardMaterial");
+  }
+  const params = {
+    alphaMap: oldMat.alphaMap,
+    alphaTest: oldMat.alphaTest,
+    alphaToCoverage: oldMat.alphaToCoverage,
+    aoMap: oldMat.aoMap,
+    aoMapIntensity: oldMat.aoMapIntensity,
+    blendDst: oldMat.blendDst,
+    blendDstAlpha: oldMat.blendDstAlpha,
+    blendEquation: oldMat.blendEquation,
+    blendEquationAlpha: oldMat.blendEquationAlpha,
+    blending: oldMat.blending,
+    blendSrc: oldMat.blendSrc,
+    blendSrcAlpha: oldMat.blendSrcAlpha,
+    clipIntersection: oldMat.clipIntersection,
+    clippingPlanes: oldMat.clippingPlanes,
+    clipShadows: oldMat.clipShadows,
+    color: oldMat.color,
+    colorWrite: oldMat.colorWrite,
+    depthFunc: oldMat.depthFunc,
+    depthTest: oldMat.depthTest,
+    depthWrite: oldMat.depthWrite,
+    dithering: oldMat.dithering,
+    envMap: oldMat.envMap,
+    fog: oldMat.fog,
+    lightMap: oldMat.lightMap,
+    lightMapIntensity: oldMat.lightMapIntensity,
+    map: oldMat.emissiveMap || oldMat.map,
+    name: oldMat.name + "-Standard-To-Basic",
+    opacity: oldMat.opacity,
+    polygonOffset: oldMat.polygonOffset,
+    polygonOffsetFactor: oldMat.polygonOffsetFactor,
+    polygonOffsetUnits: oldMat.polygonOffsetUnits,
+    precision: oldMat.precision,
+    premultipliedAlpha: oldMat.premultipliedAlpha,
+    shadowSide: oldMat.shadowSide,
+    side: oldMat.side,
+    stencilFail: oldMat.stencilFail,
+    stencilFunc: oldMat.stencilFunc,
+    stencilFuncMask: oldMat.stencilFuncMask,
+    stencilRef: oldMat.stencilRef,
+    stencilWrite: oldMat.stencilWrite,
+    stencilWriteMask: oldMat.stencilWriteMask,
+    stencilZFail: oldMat.stencilZFail,
+    stencilZPass: oldMat.stencilZPass,
+    toneMapped: oldMat.toneMapped,
+    transparent: oldMat.transparent,
+    userData: oldMat.userData,
+    vertexColors: oldMat.vertexColors,
+    visible: oldMat.visible,
+    wireframe: oldMat.wireframe,
+    wireframeLinecap: oldMat.wireframeLinecap,
+    wireframeLinejoin: oldMat.wireframeLinejoin,
+    wireframeLinewidth: oldMat.wireframeLinewidth
+  };
+  for (const [key, value2] of Object.entries(params)) {
+    if (isNullOrUndefined(value2)) {
+      delete params[key];
+    }
+  }
+  return new THREE.MeshBasicMaterial(params);
+}
+var grey = 12632256;
+var white = 16777215;
+var litGrey = /* @__PURE__ */ lit({ color: grey });
+var litWhite = /* @__PURE__ */ lit({ color: white });
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/objectGetRelativePose.ts
 var M = new THREE.Matrix4();
@@ -22309,51 +22232,49 @@ var Dirt = class extends TypedEventBase {
   fg;
   bg;
   updateEvt = new TypedEvent("update");
-  pressed = false;
   pointerId = null;
   x = null;
   y = null;
   lx = null;
   ly = null;
   update() {
-    const dx = this.lx - this.x;
-    const dy = this.ly - this.y;
-    if (Math.abs(dx) + Math.abs(dy) > 0 && this.pressed) {
-      const a = Math.atan2(dy, dx) + Math.PI;
-      const d = Math.round(Math.sqrt(dx * dx + dy * dy));
-      this.bg.save();
-      this.bg.translate(this.lx, this.ly);
-      this.bg.rotate(a);
-      this.bg.translate(-0.5 * this.finger.width * this.fingerScale, -0.5 * this.finger.height * this.fingerScale);
-      for (let i = 0; i <= d; ++i) {
-        this.bg.drawImage(this.finger, 0, 0, this.finger.width, this.finger.height, i, 0, this.finger.width * this.fingerScale, this.finger.height * this.fingerScale);
+    if (this.pointerId !== null) {
+      const dx = this.lx - this.x;
+      const dy = this.ly - this.y;
+      if (Math.abs(dx) + Math.abs(dy) > 0) {
+        const a = Math.atan2(dy, dx) + Math.PI;
+        const d = Math.round(Math.sqrt(dx * dx + dy * dy));
+        this.bg.save();
+        this.bg.translate(this.lx, this.ly);
+        this.bg.rotate(a);
+        this.bg.translate(-0.5 * this.finger.width * this.fingerScale, -0.5 * this.finger.height * this.fingerScale);
+        for (let i = 0; i <= d; ++i) {
+          this.bg.drawImage(this.finger, 0, 0, this.finger.width, this.finger.height, i, 0, this.finger.width * this.fingerScale, this.finger.height * this.fingerScale);
+        }
+        this.bg.restore();
+        this.fg.drawImage(this.bcanvas, 0, 0);
+        this.dispatchEvent(this.updateEvt);
       }
-      this.bg.restore();
     }
-    this.fg.drawImage(this.bcanvas, 0, 0);
     this.lx = this.x;
     this.ly = this.y;
-    this.dispatchEvent(this.updateEvt);
-  }
-  stop() {
-    this.pressed = false;
   }
   checkPointer(id2, x, y, type2) {
     const action = actionTypes.get(type2) || type2;
-    const start2 = action === "down" && this.pointerId === null;
-    const sustain = action === "move" && id2 === this.pointerId && this.pressed;
-    this.x = x;
-    this.y = y;
-    if (start2) {
-      this.lx = x;
-      this.ly = y;
-    }
-    this.pressed = start2 || sustain;
-    if (this.pressed) {
-      this.pointerId = id2;
+    if (this.pointerId === null) {
+      if (action === "down") {
+        this.pointerId = id2;
+        this.lx = this.x = x;
+        this.ly = this.y = y;
+        this.update();
+      }
+    } else if (id2 === this.pointerId) {
+      this.x = x;
+      this.y = y;
       this.update();
-    } else {
-      this.pointerId = null;
+      if (action === "up") {
+        this.pointerId = null;
+      }
     }
   }
   checkPointerUV(id2, x, y, type2) {
@@ -22381,9 +22302,8 @@ function isMeshNamed(name2) {
   return (obj2) => isMesh(obj2) && obj2.name === name2;
 }
 var Forest = class {
-  constructor(env2, convertMaterial) {
+  constructor(env2) {
     this.env = env2;
-    this.convertMaterial = convertMaterial;
     this.assets = [
       this.skybox = new AssetImage("/skyboxes/BearfenceMountain.jpeg", Image_Jpeg, false),
       this.forest = new AssetGltfModel("/models/Forest-Ground.glb", Model_Gltf_Binary, false),
@@ -22415,7 +22335,7 @@ var Forest = class {
   assets;
   convertMesh(oldMesh) {
     const oldMat = oldMesh.material;
-    const newMat = this.convertMaterial(oldMesh.material, false);
+    const newMat = materialStandardToBasic(oldMesh.material);
     if (newMat === oldMat) {
       return oldMesh;
     }
@@ -22444,7 +22364,7 @@ var Forest = class {
     const matrices = this.makeTrees();
     const treeMesh = objectScan(this.tree.result.scene, isMesh);
     const treeGeom = treeMesh.geometry;
-    const treeMat = this.convertMaterial(treeMesh.material, false);
+    const treeMat = materialStandardToBasic(treeMesh.material);
     this._trees = new THREE.InstancedMesh(treeGeom, treeMat, matrices.length);
     for (let i = 0; i < matrices.length; ++i) {
       this._trees.setMatrixAt(i, matrices[i]);
@@ -22490,30 +22410,44 @@ var Forest = class {
 };
 
 // src/forest-and-dirt-app/index.ts
+var S2 = 1024;
 var env = await createTestEnvironment();
 await env.fadeOut();
-var forest = new Forest(env, materialStandardToPhong);
-await env.load(...forest.assets);
-var S2 = isMobile() ? 2048 : 4096;
-var dirt = new Dirt(S2, S2, S2 / 8192);
-var dirtMap = new THREE.Texture(dirt.element);
-dirtMap.minFilter = THREE.LinearMipmapLinearFilter;
-dirtMap.magFilter = THREE.LinearFilter;
-dirtMap.needsUpdate = true;
-dirt.addEventListener("update", () => dirtMap.needsUpdate = true);
-var surface = forest.ground;
-surface.material.precision = "highp";
-surface.material.bumpMap = dirtMap;
-surface.material.bumpScale = 0.1;
-surface.material.needsUpdate = true;
-var surfaceTarget = new RayTarget(surface);
-surfaceTarget.addMesh(surface);
-surfaceTarget.draggable = true;
-surfaceTarget.addEventListener("down", checkPointer);
-surfaceTarget.addEventListener("move", checkPointer);
-surfaceTarget.addEventListener("up", checkPointer);
-function checkPointer(evt) {
-  dirt.checkPointerUV(evt.pointer.id, evt.hit.uv.x, 1 - evt.hit.uv.y, evt.type);
-}
+var dirtMapAsset = new AssetImage("/img/dirt.jpg", Image_Jpeg, false);
+var forest = new Forest(env);
+await env.load(dirtMapAsset, ...forest.assets);
+var dirtMapTex = new THREE.Texture(dirtMapAsset.result);
+dirtMapTex.minFilter = THREE.LinearMipmapLinearFilter;
+dirtMapTex.magFilter = THREE.LinearFilter;
+dirtMapTex.needsUpdate = true;
+var dirtBumpMap = new Dirt(S2, S2, 2);
+var dirtBumpMapTex = new THREE.Texture(dirtBumpMap.element);
+dirtBumpMapTex.minFilter = THREE.LinearMipmapLinearFilter;
+dirtBumpMapTex.magFilter = THREE.LinearFilter;
+dirtBumpMapTex.needsUpdate = true;
+dirtBumpMap.addEventListener("update", () => dirtBumpMapTex.needsUpdate = true);
+var dirtGeom = new THREE.BoxBufferGeometry(1, 0.02, 1, 1, 1, 1);
+var dirtMat = new THREE.MeshPhongMaterial({
+  precision: "highp",
+  map: dirtMapTex,
+  bumpMap: dirtBumpMapTex,
+  bumpScale: 0.01,
+  shininess: 0,
+  flatShading: false,
+  reflectivity: 0
+});
+var dirt = new THREE.Mesh(dirtGeom, dirtMat);
+dirt.position.set(0, 0, -1);
+var dirtTarget = new RayTarget(dirt);
+dirtTarget.addMesh(dirt);
+dirtTarget.draggable = true;
+dirtTarget.addEventListener("down", checkPointer);
+dirtTarget.addEventListener("move", checkPointer);
+dirtTarget.addEventListener("up", checkPointer);
+Object.assign(window, { dirt });
+forest.ground.attach(dirt);
 await env.fadeIn();
+function checkPointer(evt) {
+  dirtBumpMap.checkPointerUV(evt.pointer.id, evt.hit.uv.x, 1 - evt.hit.uv.y, evt.type);
+}
 //# sourceMappingURL=index.js.map
