@@ -22411,7 +22411,7 @@ var Forest = class {
 
 // src/forest-and-dirt-app/index.ts
 var S2 = 1024;
-var env = await createTestEnvironment();
+var env = await createTestEnvironment(true);
 await env.fadeOut();
 var dirtMapAsset = new AssetImage("/img/dirt.jpg", Image_Jpeg, false);
 var forest = new Forest(env);
@@ -22420,24 +22420,28 @@ var dirtMapTex = new THREE.Texture(dirtMapAsset.result);
 dirtMapTex.minFilter = THREE.LinearMipmapLinearFilter;
 dirtMapTex.magFilter = THREE.LinearFilter;
 dirtMapTex.needsUpdate = true;
-var dirtBumpMap = new Dirt(S2, S2, 2);
+var dirtBumpMap = new Dirt(S2, S2, 0.5);
 var dirtBumpMapTex = new THREE.Texture(dirtBumpMap.element);
 dirtBumpMapTex.minFilter = THREE.LinearMipmapLinearFilter;
 dirtBumpMapTex.magFilter = THREE.LinearFilter;
 dirtBumpMapTex.needsUpdate = true;
 dirtBumpMap.addEventListener("update", () => dirtBumpMapTex.needsUpdate = true);
-var dirtGeom = new THREE.BoxBufferGeometry(1, 0.02, 1, 1, 1, 1);
+var dirtGeom = new THREE.PlaneBufferGeometry(5, 5, 100, 100);
 var dirtMat = new THREE.MeshPhongMaterial({
   precision: "highp",
   map: dirtMapTex,
   bumpMap: dirtBumpMapTex,
-  bumpScale: 0.01,
+  bumpScale: 0.1,
+  displacementMap: dirtBumpMapTex,
+  displacementScale: 0.1,
+  displacementBias: -0.05,
   shininess: 0,
-  flatShading: false,
-  reflectivity: 0
+  reflectivity: 0,
+  side: THREE.FrontSide
 });
 var dirt = new THREE.Mesh(dirtGeom, dirtMat);
-dirt.position.set(0, 0, -1);
+dirt.position.set(0, 0.1, 1);
+dirt.rotation.x = -Math.PI / 2;
 var dirtTarget = new RayTarget(dirt);
 dirtTarget.addMesh(dirt);
 dirtTarget.draggable = true;
@@ -22445,7 +22449,8 @@ dirtTarget.addEventListener("down", checkPointer);
 dirtTarget.addEventListener("move", checkPointer);
 dirtTarget.addEventListener("up", checkPointer);
 Object.assign(window, { dirt });
-forest.ground.attach(dirt);
+env.foreground.add(dirt);
+env.sun.position.set(-1, 3, -2);
 await env.fadeIn();
 function checkPointer(evt) {
   dirtBumpMap.checkPointerUV(evt.pointer.id, evt.hit.uv.x, 1 - evt.hit.uv.y, evt.type);
