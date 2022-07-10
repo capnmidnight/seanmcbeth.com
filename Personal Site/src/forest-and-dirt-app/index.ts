@@ -8,7 +8,7 @@ import { Forest } from "../forest-app/Forest";
 
 const S = 1024;
 
-const env = await createTestEnvironment();
+const env = await createTestEnvironment(DEBUG);
 await env.fadeOut();
 
 const dirtMapAsset = new AssetImage("/img/dirt.jpg", Image_Jpeg, !DEBUG);
@@ -21,27 +21,31 @@ dirtMapTex.minFilter = THREE.LinearMipmapLinearFilter;
 dirtMapTex.magFilter = THREE.LinearFilter;
 dirtMapTex.needsUpdate = true;
 
-const dirtBumpMap = new Dirt(S, S, 2);
+const dirtBumpMap = new Dirt(S, S, 0.5);
 const dirtBumpMapTex = new THREE.Texture(dirtBumpMap.element);
 dirtBumpMapTex.minFilter = THREE.LinearMipmapLinearFilter;
 dirtBumpMapTex.magFilter = THREE.LinearFilter;
 dirtBumpMapTex.needsUpdate = true;
 dirtBumpMap.addEventListener("update", () => dirtBumpMapTex.needsUpdate = true);
 
-const dirtGeom = new THREE.BoxBufferGeometry(1, 0.02, 1, 1, 1, 1);
+const dirtGeom = new THREE.PlaneBufferGeometry(5, 5, 100, 100);
 
 const dirtMat = new THREE.MeshPhongMaterial({
     precision: "highp",
     map: dirtMapTex,
     bumpMap: dirtBumpMapTex,
-    bumpScale: 0.01,
+    bumpScale: 0.1,
+    displacementMap: dirtBumpMapTex,
+    displacementScale: 0.1,
+    displacementBias: -0.05,
     shininess: 0,
-    flatShading: false,
-    reflectivity: 0
+    reflectivity: 0,
+    side: THREE.FrontSide
 });
 
 const dirt = new THREE.Mesh(dirtGeom, dirtMat);
-dirt.position.set(0, 0, -1);
+dirt.position.set(0, 0.1, 1);
+dirt.rotation.x = -Math.PI / 2;
 
 const dirtTarget = new RayTarget(dirt);
 dirtTarget.addMesh(dirt);
@@ -52,7 +56,9 @@ dirtTarget.addEventListener("up", checkPointer);
 
 Object.assign(window, { dirt });
 
-forest.ground.attach(dirt);
+env.foreground.add(dirt);
+
+env.sun.position.set(-1, 3, -2);
 
 await env.fadeIn();
 
