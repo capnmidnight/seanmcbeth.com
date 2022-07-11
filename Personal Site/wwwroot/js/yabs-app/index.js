@@ -1214,7 +1214,7 @@ var gestures = [
   "touchend"
 ];
 function onUserGesture(callback, test) {
-  const realTest = test || (async () => true);
+  const realTest = test || alwaysTrue;
   const check = async (evt) => {
     if (evt.isTrusted && await realTest()) {
       for (const gesture of gestures) {

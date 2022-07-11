@@ -5468,12 +5468,6 @@ var BaseAsset = class {
   constructor(path, type2) {
     this.path = path;
     this.type = type2;
-    this._result = null;
-    this._error = null;
-    this._started = false;
-    this._finished = false;
-    this.resolve = null;
-    this.reject = null;
     this.promise = new Promise((resolve, reject) => {
       this.resolve = (value2) => {
         this._result = value2;
@@ -5487,6 +5481,11 @@ var BaseAsset = class {
       };
     });
   }
+  promise;
+  _result = null;
+  _error = null;
+  _started = false;
+  _finished = false;
   get result() {
     if (isDefined(this.error)) {
       throw this.error;
@@ -5502,6 +5501,8 @@ var BaseAsset = class {
   get finished() {
     return this._finished;
   }
+  resolve = null;
+  reject = null;
   async getSize(fetcher) {
     try {
       const { contentLength } = await fetcher.head(this.path).accept(this.type).exec();
@@ -5534,6 +5535,7 @@ var BaseAsset = class {
   }
 };
 var BaseFetchedAsset = class extends BaseAsset {
+  useCache;
   constructor(path, typeOrUseCache, useCache) {
     let type2;
     if (isBoolean(typeOrUseCache)) {
@@ -8561,7 +8563,7 @@ var gestures = [
   "touchend"
 ];
 function onUserGesture(callback, test) {
-  const realTest = test || (async () => true);
+  const realTest = test || alwaysTrue;
   const check = async (evt) => {
     if (evt.isTrusted && await realTest()) {
       for (const gesture of gestures) {
@@ -8970,8 +8972,7 @@ var WebAudioListenerOld = class extends BaseListener {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/DeviceManager.ts
-var canChangeAudioOutput = /* @__PURE__ */ isFunction(HTMLAudioElement.prototype.setSinkId);
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/filterDeviceDuplicates.ts
 function filterDeviceDuplicates(devices) {
   const filtered = [];
   for (let i = 0; i < devices.length; ++i) {
@@ -8987,32 +8988,20 @@ function filterDeviceDuplicates(devices) {
   }
   return filtered;
 }
-var DeviceManagerAudioOutputChangedEvent = class extends TypedEvent {
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/SpeakerManager.ts
+var canChangeAudioOutput = /* @__PURE__ */ isFunction(HTMLAudioElement.prototype.setSinkId);
+var AudioOutputChangedEvent = class extends TypedEvent {
   constructor(device) {
     super("audiooutputchanged");
     this.device = device;
   }
 };
-var DeviceManagerAudioInputChangedEvent = class extends TypedEvent {
-  constructor(audio2) {
-    super("audioinputchanged");
-    this.audio = audio2;
-  }
-};
-var DeviceManagerVideoInputChangedEvent = class extends TypedEvent {
-  constructor(video2) {
-    super("videoinputchanged");
-    this.video = video2;
-  }
-};
 var PREFERRED_AUDIO_OUTPUT_ID_KEY = "calla:preferredAudioOutputID";
-var PREFERRED_AUDIO_INPUT_ID_KEY = "calla:preferredAudioInputID";
-var PREFERRED_VIDEO_INPUT_ID_KEY = "calla:preferredVideoInputID";
-var DeviceManager = class extends TypedEventBase {
-  constructor(element, needsVideoDevice = false) {
+var SpeakerManager = class extends TypedEventBase {
+  constructor(element) {
     super();
     this.element = element;
-    this.needsVideoDevice = needsVideoDevice;
     this.ready = this.start();
     Object.seal(this);
   }
@@ -9020,45 +9009,18 @@ var DeviceManager = class extends TypedEventBase {
   get hasAudioPermission() {
     return this._hasAudioPermission;
   }
-  _hasVideoPermission = false;
-  get hasVideoPermission() {
-    return this._hasVideoPermission;
-  }
-  _currentStream = null;
-  get currentStream() {
-    return this._currentStream;
-  }
-  set currentStream(v) {
-    if (v !== this.currentStream) {
-      if (isDefined(this.currentStream) && this.currentStream.active) {
-        for (const track of this.currentStream.getTracks()) {
-          track.stop();
-        }
-      }
-      this._currentStream = v;
-    }
-  }
   ready;
   async start() {
     if (canChangeAudioOutput) {
-      const device = await this.getPreferredAudioOutput();
-      if (device) {
-        await this.setAudioOutputDevice(device);
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const anyDevice = arrayScan(devices, (dev) => dev.kind === "audiooutput" && dev.label.length > 0);
+      if (isDefined(anyDevice)) {
+        this._hasAudioPermission = true;
+        const device = await this.getPreferredAudioOutput();
+        if (device) {
+          await this.setAudioOutputDevice(device);
+        }
       }
-    }
-  }
-  async startPreferredAudioInput() {
-    const device = await this.getPreferredAudioInput();
-    if (device) {
-      await this.setAudioInputDevice(device);
-      this.currentStream = await this.startStream();
-    }
-  }
-  async startPreferredVideoInput() {
-    const device = await this.getPreferredVideoInput();
-    if (device) {
-      await this.setVideoInputDevice(device);
-      this.currentStream = await this.startStream();
     }
   }
   get preferredAudioOutputID() {
@@ -9067,26 +9029,12 @@ var DeviceManager = class extends TypedEventBase {
     }
     return localStorage.getItem(PREFERRED_AUDIO_OUTPUT_ID_KEY);
   }
-  get preferredAudioInputID() {
-    return localStorage.getItem(PREFERRED_AUDIO_INPUT_ID_KEY);
-  }
-  get preferredVideoInputID() {
-    return localStorage.getItem(PREFERRED_VIDEO_INPUT_ID_KEY);
-  }
   async getAudioOutputDevices(filterDuplicates = false) {
     if (!canChangeAudioOutput) {
       return [];
     }
     const devices = await this.getAvailableDevices(filterDuplicates);
-    return devices && devices.audioOutput || [];
-  }
-  async getAudioInputDevices(filterDuplicates = false) {
-    const devices = await this.getAvailableDevices(filterDuplicates);
-    return devices && devices.audioInput || [];
-  }
-  async getVideoInputDevices(filterDuplicates = false) {
-    const devices = await this.getAvailableDevices(filterDuplicates);
-    return devices && devices.videoInput || [];
+    return devices || [];
   }
   async getAudioOutputDevice() {
     if (!canChangeAudioOutput) {
@@ -9099,48 +9047,12 @@ var DeviceManager = class extends TypedEventBase {
     const devices = await this.getAudioOutputDevices(), device = arrayScan(devices, (d) => d.deviceId === curId);
     return device;
   }
-  async getAudioInputDevice() {
-    if (isNullOrUndefined(this.currentStream) || !this.currentStream.active) {
-      return null;
-    }
-    const curTracks = this.currentStream.getAudioTracks();
-    if (curTracks.length === 0) {
-      return null;
-    }
-    const testTrack = curTracks[0];
-    const devices = await this.getAudioInputDevices();
-    const device = arrayScan(devices, (d) => testTrack.label === d.label);
-    return device;
-  }
-  async getVideoInputDevice() {
-    if (isNullOrUndefined(this.currentStream) || !this.currentStream.active) {
-      return null;
-    }
-    const curTracks = this.currentStream.getVideoTracks();
-    if (curTracks.length === 0) {
-      return null;
-    }
-    const testTrack = curTracks[0];
-    const devices = await this.getVideoInputDevices();
-    const device = arrayScan(devices, (d) => testTrack.label === d.label);
-    return device;
-  }
   async getPreferredAudioOutput() {
     if (!canChangeAudioOutput) {
       return null;
     }
     const devices = await this.getAudioOutputDevices();
     const device = arrayScan(devices, (d) => d.deviceId === this.preferredAudioOutputID, (d) => d.deviceId === "default", (d) => d.deviceId.length > 0);
-    return device;
-  }
-  async getPreferredAudioInput() {
-    const devices = await this.getAudioInputDevices();
-    const device = arrayScan(devices, (d) => d.deviceId === this.preferredAudioInputID, (d) => d.deviceId === "default", (d) => d.deviceId.length > 0);
-    return device;
-  }
-  async getPreferredVideoInput() {
-    const devices = await this.getVideoInputDevices();
-    const device = arrayScan(devices, (d) => d.deviceId === this.preferredVideoInputID, (d) => this.needsVideoDevice && d.deviceId.length > 0);
     return device;
   }
   async setAudioOutputDevice(device) {
@@ -9155,44 +9067,11 @@ var DeviceManager = class extends TypedEventBase {
         if (isDefined(this.preferredAudioOutputID)) {
           await this.element.setSinkId(this.preferredAudioOutputID);
         }
-        this.dispatchEvent(new DeviceManagerAudioOutputChangedEvent(device));
+        this.dispatchEvent(new AudioOutputChangedEvent(device));
       }
     }
   }
-  async setAudioInputDevice(device) {
-    if (isDefined(device) && device.kind !== "audioinput") {
-      throw new Error(`Device is not an audio input device. Was: ${device.kind}. Label: ${device.label}`);
-    }
-    localStorage.setItem(PREFERRED_AUDIO_INPUT_ID_KEY, device && device.deviceId || null);
-    const curAudio = await this.getAudioInputDevice();
-    const curAudioID = curAudio && curAudio.deviceId;
-    if (this.preferredAudioInputID !== curAudioID) {
-      this.dispatchEvent(new DeviceManagerAudioInputChangedEvent(device));
-    }
-  }
-  async setVideoInputDevice(device) {
-    if (isDefined(device) && device.kind !== "videoinput") {
-      throw new Error(`Device is not an video input device. Was: ${device.kind}. Label: ${device.label}`);
-    }
-    localStorage.setItem(PREFERRED_VIDEO_INPUT_ID_KEY, device && device.deviceId || null);
-    const curVideo = await this.getVideoInputDevice();
-    const curVideoID = curVideo && curVideo.deviceId;
-    if (this.preferredVideoInputID !== curVideoID) {
-      this.dispatchEvent(new DeviceManagerVideoInputChangedEvent(device));
-    }
-  }
   async getAvailableDevices(filterDuplicates = false) {
-    let devices = await this.getDevices();
-    if (filterDuplicates) {
-      devices = filterDeviceDuplicates(devices);
-    }
-    return {
-      audioOutput: canChangeAudioOutput ? devices.filter((d) => d.kind === "audiooutput") : [],
-      audioInput: devices.filter((d) => d.kind === "audioinput"),
-      videoInput: devices.filter((d) => d.kind === "videoinput")
-    };
-  }
-  async getDevices() {
     let devices = null;
     let testStream = null;
     for (let i = 0; i < 3; ++i) {
@@ -9202,18 +9081,13 @@ var DeviceManager = class extends TypedEventBase {
           if (!this.hasAudioPermission) {
             this._hasAudioPermission = device.kind === "audioinput" && device.label.length > 0;
           }
-          if (this.needsVideoDevice && !this.hasVideoPermission) {
-            this._hasVideoPermission = device.kind === "videoinput" && device.label.length > 0;
-          }
         }
       }
-      if (this.hasAudioPermission && (!this.needsVideoDevice || this.hasVideoPermission)) {
+      if (this.hasAudioPermission) {
         break;
       }
       try {
-        if (!this.hasAudioPermission || this.needsVideoDevice && !this.hasVideoPermission) {
-          testStream = await this.startStream();
-        }
+        testStream = await this.startStream();
       } catch (exp) {
         console.warn(exp);
       }
@@ -9224,20 +9098,15 @@ var DeviceManager = class extends TypedEventBase {
       }
     }
     devices = arraySortByKey(devices || [], (d) => d.label);
-    return devices;
+    if (filterDuplicates) {
+      devices = filterDeviceDuplicates(devices);
+    }
+    return canChangeAudioOutput ? devices.filter((d) => d.kind === "audiooutput") : [];
   }
   startStream() {
     return navigator.mediaDevices.getUserMedia({
-      audio: this.preferredAudioInputID && { deviceId: this.preferredAudioInputID } || true,
-      video: this.needsVideoDevice && (this.preferredVideoInputID && { deviceId: this.preferredVideoInputID } || true) || false
+      audio: true
     });
-  }
-  async getMediaPermissions() {
-    await this.getDevices();
-    return {
-      audio: this.hasAudioPermission,
-      video: this.hasVideoPermission
-    };
   }
 };
 
@@ -9667,7 +9536,7 @@ var AudioManager = class extends TypedEventBase {
   }
   element = null;
   audioDestination = null;
-  devices;
+  speakers;
   input;
   localAutoControlledGain;
   output;
@@ -9685,7 +9554,7 @@ var AudioManager = class extends TypedEventBase {
     } else {
       destination = this.audioCtx.destination;
     }
-    this.devices = new DeviceManager(this.element);
+    this.speakers = new SpeakerManager(this.element);
     this.input = Gain("local-mic-user-gain", this.audioCtx, null, this.localAutoControlledGain = Gain("local-mic-auto-gain", this.audioCtx, null, this.localFilter = BiquadFilter("local-mic-filter", this.audioCtx, {
       type: "bandpass",
       frequency: 1500,
@@ -9737,7 +9606,7 @@ var AudioManager = class extends TypedEventBase {
     if (this.element) {
       await this.element.play();
     }
-    await this.devices.ready;
+    await this.speakers.ready;
   }
   get filter() {
     return this.localFilter;
@@ -12907,6 +12776,20 @@ var ApplicationLoader = class extends TypedEventBase {
   }
   get(name2) {
     return this.currentApps.get(name2);
+  }
+  waitFor(name2) {
+    if (this.isLoaded(name2)) {
+      return Promise.resolve(this.get(name2));
+    }
+    return new Promise((resolve) => {
+      const onLoaded = (evt) => {
+        if (evt.appName === name2) {
+          this.removeEventListener("apploaded", onLoaded);
+          resolve(evt.app);
+        }
+      };
+      this.addEventListener("apploaded", onLoaded);
+    });
   }
   async loadAppConstructor(name2, prog) {
     if (!this.loadedModules.has(name2)) {
@@ -21959,16 +21842,17 @@ var DeviceDialog = class extends DialogBox {
     this.ready = null;
     this.speakers = null;
     this.timer = new SetTimeoutTimer(30);
-    this._showMic = true;
+    this.tele = null;
     this.cancelButton.style.display = "none";
     const clipLoaded = this.env.audio.loadBasicClip("test-audio", "/audio/test-clip.mp3", 0.5);
     elementApply(this.container, styles(minWidth("max-content")));
     elementApply(this.contentArea, this.properties = new PropertyList(group(MIC_GROUP, "Input", [
       "Microphones",
       this.microphones = Select(onInput(async () => {
+        const tele = this.env.apps.get("tele");
         const deviceId = this.microphones.value;
         const device = this.micLookup.get(deviceId);
-        await this.env.audio.devices.setAudioInputDevice(device);
+        await tele.conference.microphones.setAudioInputDevice(device);
       }))
     ], [
       "Input level",
@@ -21976,19 +21860,16 @@ var DeviceDialog = class extends DialogBox {
     ], ["Volume", this.micVolumeControl = InputRangeWithNumber(min2(0), max2(100), step(1), value(0), onInput(() => {
       env2.audio.input.gain.setValueAtTime(this.micVolumeControl.valueAsNumber / 100, 0);
     }))], "Output")));
-    this.env.audio.devices.addEventListener("audioinputchanged", (evt) => {
-      this.microphones.value = evt.audio && evt.audio.deviceId || "";
-    });
     if (canChangeAudioOutput) {
       this.properties.append([
         "Speakers",
         this.speakers = Select(onInput(async () => {
           const deviceId = this.speakers.value;
           const device = this.spkrLookup.get(deviceId);
-          await this.env.audio.devices.setAudioOutputDevice(device);
+          await this.env.audio.speakers.setAudioOutputDevice(device);
         }))
       ]);
-      this.env.audio.devices.addEventListener("audiooutputchanged", (evt) => {
+      this.env.audio.speakers.addEventListener("audiooutputchanged", (evt) => {
         this.speakers.value = evt.device && evt.device.deviceId || "";
       });
     }
@@ -22012,30 +21893,48 @@ var DeviceDialog = class extends DialogBox {
     this.timer.addTickHandler(() => {
       this.micScenario.value = this.activity.level;
     });
+    this.properties.setGroupVisible(MIC_GROUP, false);
+    this.waitForTele();
+    Object.seal(this);
+  }
+  async waitForTele() {
+    this.tele = await this.env.apps.waitFor("tele");
+    this.properties.setGroupVisible(MIC_GROUP, true);
+    this.tele.conference.microphones.addEventListener("audioinputchanged", (evt) => {
+      this.microphones.value = evt.audio && evt.audio.deviceId || "";
+    });
+    connect(this.env.audio.input, this.activity);
   }
   async load() {
     await this.env.audio.ready;
-    await this.env.audio.devices.ready;
-    const mics = await this.env.audio.devices.getAudioInputDevices();
-    this.micLookup = makeLookup(mics, (m) => m.deviceId);
-    elementApply(this.microphones, Option(value(""), "NONE"), ...mics.map((device) => Option(value(device.deviceId), device.label)));
-    if (canChangeAudioOutput) {
-      const spkrs = await this.env.audio.devices.getAudioOutputDevices();
-      this.spkrLookup = makeLookup(spkrs, (device) => device.deviceId);
-      elementApply(this.speakers, ...spkrs.map((device) => Option(value(device.deviceId), device.label)));
-    }
-    connect(this.env.audio.input, this.activity);
   }
   async onShowing() {
     if (this.ready === null) {
       this.ready = this.load();
     }
     await this.ready;
-    const curMic = await this.env.audio.devices.getAudioInputDevice();
-    this.microphones.value = curMic && curMic.deviceId || "";
-    this.micVolumeControl.valueAsNumber = this.env.audio.input.gain.value * 100;
+    if (this.tele) {
+      await this.tele.ready;
+      await this.tele.conference.microphones.ready;
+      const mics = await this.tele.conference.microphones.getAudioInputDevices();
+      this.micLookup = makeLookup(mics, (m) => m.deviceId);
+      elementClearChildren(this.microphones);
+      elementApply(this.microphones, Option(value(""), "NONE"), ...mics.map((device) => Option(value(device.deviceId), device.label)));
+      const curMic = await this.tele.conference.microphones.getAudioInputDevice();
+      this.microphones.value = curMic && curMic.deviceId || "";
+      this.micVolumeControl.valueAsNumber = this.env.audio.input.gain.value * 100;
+    }
     if (canChangeAudioOutput) {
-      const curSpker = await this.env.audio.devices.getAudioOutputDevice();
+      await this.env.audio.speakers.ready;
+      const spkrs = await this.env.audio.speakers.getAudioOutputDevices();
+      this.spkrLookup = makeLookup(spkrs, (device) => device.deviceId);
+      elementClearChildren(this.speakers);
+      elementApply(this.speakers, ...spkrs.map((device) => Option(value(device.deviceId), device.label)));
+      let curSpker = await this.env.audio.speakers.getAudioOutputDevice();
+      if (!curSpker) {
+        curSpker = await this.env.audio.speakers.getPreferredAudioOutput();
+        await this.env.audio.speakers.setAudioOutputDevice(curSpker);
+      }
       this.speakers.value = curSpker && curSpker.deviceId || "";
     }
     this.spkrVolumeControl.valueAsNumber = this.env.audio.audioDestination.volume * 100;
@@ -22047,15 +21946,6 @@ var DeviceDialog = class extends DialogBox {
   onClosed() {
     this.timer.stop();
     super.onClosed();
-  }
-  get showMic() {
-    return this._showMic;
-  }
-  set showMic(v) {
-    if (v !== this.showMic) {
-      this._showMic = v;
-      this.properties.setGroupVisible(MIC_GROUP, this.showMic);
-    }
   }
 };
 
