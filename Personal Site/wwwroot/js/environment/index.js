@@ -6758,9 +6758,6 @@ var AudioManager = class extends TypedEventBase {
   get compressor() {
     return this.localCompressor;
   }
-  get isReady() {
-    return this.audioCtx.state === "running";
-  }
   get currentTime() {
     return this.audioCtx.currentTime;
   }
@@ -6886,19 +6883,19 @@ var AudioManager = class extends TypedEventBase {
     return this.clips.has(id2);
   }
   async playClip(id2) {
-    if (this.isReady && this.hasClip(id2)) {
+    if (this.hasClip(id2)) {
       const clip = this.clips.get(id2);
       await clip.play();
     }
   }
   async playClipThrough(id2) {
-    if (this.isReady && this.hasClip(id2)) {
+    if (this.hasClip(id2)) {
       const clip = this.clips.get(id2);
       await clip.playThrough();
     }
   }
   stopClip(id2) {
-    if (this.isReady && this.hasClip(id2)) {
+    if (this.hasClip(id2)) {
       const clip = this.clips.get(id2);
       clip.stop();
     }
@@ -10011,6 +10008,7 @@ var BaseVideoPlayer = class extends BaseAudioSource {
       this.connect();
       this.onSeeked();
       if (this.useAudioElement) {
+        await audioReady(this.audioCtx);
         await this.audio.play();
       }
       this.dispatchEvent(this.playEvt);
@@ -10036,6 +10034,7 @@ var BaseVideoPlayer = class extends BaseAudioSource {
     };
     this.onCanPlay = async () => {
       if (this.useAudioElement && wasWaiting) {
+        await audioReady(this.audioCtx);
         await this.audio.play();
         wasWaiting = false;
       }
@@ -10253,8 +10252,9 @@ var BaseVideoPlayer = class extends BaseAudioSource {
     }
     return "playing";
   }
-  play() {
-    return this.video.play();
+  async play() {
+    await audioReady(this.audioCtx);
+    await this.video.play();
   }
   async playThrough() {
     const endTask = once(this, "stopped");
@@ -20370,6 +20370,8 @@ var Environment = class extends BaseEnvironment {
     this.lobbyButton = new ButtonImageWidget(this.uiButtons, "ui", "lobby");
     this.muteMicButton = new ToggleButton(this.uiButtons, "microphone", "mute", "unmute");
     this.muteEnvAudioButton = new ToggleButton(this.uiButtons, "environment-audio", "mute", "unmute");
+    this.muteEnvAudioButton.active = true;
+    this.audio.ready.then(() => this.muteEnvAudioButton.active = false);
     this.vrButton = new ScreenModeToggleButton(this.uiButtons, "VR" /* VR */);
     this.fullscreenButton = new ScreenModeToggleButton(this.uiButtons, "Fullscreen" /* Fullscreen */);
     this.xrUI = new SpaceUI();
