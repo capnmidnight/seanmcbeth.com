@@ -1296,7 +1296,6 @@ var Application_Wasm = /* @__PURE__ */ application("wasm", "wasm");
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/image.ts
 var image = /* @__PURE__ */ specialize("image");
 var Image_Png = /* @__PURE__ */ image("png", "png");
-var Image_Vendor_Google_StreetView_Pano = image("vnd.google.streetview.pano");
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/text.ts
 var text = /* @__PURE__ */ specialize("text");
@@ -1383,7 +1382,6 @@ var Attr = class {
     this.tags = tags.map((t2) => t2.toLocaleUpperCase());
     Object.freeze(this);
   }
-  tags;
   applyToElement(elem) {
     const isDataSet = this.key.startsWith("data-");
     const isValid = this.tags.length === 0 || this.tags.indexOf(elem.tagName) > -1 || isDataSet;
@@ -1444,13 +1442,11 @@ var CssProp = class {
     this.value = value;
     this.name = key.replace(/[A-Z]/g, (m) => `-${m.toLocaleLowerCase()}`);
   }
-  name;
   applyToElement(elem) {
     elem.style[this.key] = this.value;
   }
 };
 var CssPropSet = class {
-  rest;
   constructor(...rest) {
     this.rest = rest;
   }
@@ -2964,7 +2960,9 @@ var logos = [
   "primrose",
   "wormwood"
 ];
-var responses = await Promise.all(logos.map((logo) => fetcher.get(`/img/logo_${logo}.min.png`).image(Image_Png)));
-var images = responses.map((response) => response.content);
-document.body.append(...images);
+(async function() {
+  const responses = await Promise.all(logos.map((logo) => fetcher.get(`/img/logo_${logo}.min.png`).image(Image_Png)));
+  const images = responses.map((response) => response.content);
+  document.body.append(...images);
+})();
 //# sourceMappingURL=index.js.map

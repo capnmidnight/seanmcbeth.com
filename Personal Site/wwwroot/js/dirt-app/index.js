@@ -739,13 +739,11 @@ var CssProp = class {
     this.value = value;
     this.name = key.replace(/[A-Z]/g, (m) => `-${m.toLocaleLowerCase()}`);
   }
-  name;
   applyToElement(elem) {
     elem.style[this.key] = this.value;
   }
 };
 var CssPropSet = class {
-  rest;
   constructor(...rest) {
     this.rest = rest;
   }
@@ -771,7 +769,6 @@ var Attr = class {
     this.tags = tags.map((t2) => t2.toLocaleUpperCase());
     Object.freeze(this);
   }
-  tags;
   applyToElement(elem) {
     const isDataSet = this.key.startsWith("data-");
     const isValid = this.tags.length === 0 || this.tags.indexOf(elem.tagName) > -1 || isDataSet;
@@ -884,7 +881,6 @@ var HtmlEvt = class {
     this.opts = opts;
     Object.freeze(this);
   }
-  opts;
   applyToElement(elem) {
     this.add(elem);
   }
@@ -978,6 +974,12 @@ var Dirt = class extends TypedEventBase {
   constructor(width, height, fingerScale = 1) {
     super();
     this.fingerScale = fingerScale;
+    this.updateEvt = new TypedEvent("update");
+    this.pointerId = null;
+    this.x = null;
+    this.y = null;
+    this.lx = null;
+    this.ly = null;
     this.element = createCanvas(width, height);
     this.bcanvas = createUICanvas(this.element.width, this.element.height);
     this.fg = this.element.getContext("2d");
@@ -987,17 +989,6 @@ var Dirt = class extends TypedEventBase {
     this.fg.drawImage(this.bcanvas, 0, 0);
     this.finger = Img(src("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAAXNSR0IArs4c6QAAAqhJREFUOE+VVE1PE1EUPbfvDdOZUiwtdAr9pqQhZBIJQoCwYGX8SlgIaUgIEqb8AxQ2JP0Nuta1rtS4UH6CmBDcGqP+gS4waV3YwDP32akdLAl9yc3M3HnvvPt1DuGKpZSyARQBlAGU2s9oe/tXAK+J6PPl43TZoZQSAJK1Wq1Sr9cfSClnR0dH47lc7rxYLP5mcxwnZBgGg78F8JiIvvs4AUAG29nZmT89PX0WDofnk8kkxsbGkE6nkc1mkclk9HsqlUI8HvcxfgLYIKIjdnQAlVLkuu6der3+MhqNxhKJBCzLghBCG7/zBeVyGYuLi1heXgZR5/g5gIdE9K7jcRzHbTabx7Zt25FIBFJKTE9Po1QqIRr9W7pWq6UtFAphYmIC6+vr3ZE2ANzyAckwjGPTNOc5EgZYXV1FLBbr2TKllI6OL97d3e3ed+QD3hVCfAiHwzBNE1tbWxgeHr5qAAL+8fFxDeqn7wM+F0JUGWxhYQErKyvXAvM3ra2twXVd/ekD/hBCFAzDgOd5uvj9rMnJSWxubv4DJKKWEEJyN/f393VX+1mDg4PY29sLRPhLSmlx9w4ODvoG5AAODw8DgF+EEGX+wQXuN+VeEb6QUno8e0tLS3035b8aArgnpXw/MDAAtu3t7WuPDefZq8s82J9M05zjeRoZGdGDfdUsXlxcaLbw6jmHzONUKuU2Go2PTD1mAtdlZmZGU6wX9ZhRzJRqtdp9cYcpYKWZmpq6fXZ29ioSidxgUE6fgYeGhgLGPr6oUql0064JYDagNgBsz/NunpycPLUsa862bZ0aD7yvNtyAa6kN10MpJQEwiWO1Wu1+t8Dm83ktsIVCgQVWtAWWj7HKPCKiNwE99JnhKzaAHCs3171tWQAZAGkADoAEAAZ5QkTf/PN/ACV4rJ9AdCf3AAAAAElFTkSuQmCC"));
   }
-  element;
-  finger;
-  bcanvas;
-  fg;
-  bg;
-  updateEvt = new TypedEvent("update");
-  pointerId = null;
-  x = null;
-  y = null;
-  lx = null;
-  ly = null;
   update() {
     if (this.pointerId !== null) {
       const dx = this.lx - this.x;

@@ -4,7 +4,6 @@ var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __defNormalProp = (obj3, key, value2) => key in obj3 ? __defProp(obj3, key, { enumerable: true, configurable: true, writable: true, value: value2 }) : obj3[key] = value2;
 var __commonJS = (cb, mod) => function __require() {
   return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
 };
@@ -21,10 +20,6 @@ var __copyProps = (to, from, except, desc) => {
   return to;
 };
 var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target, mod));
-var __publicField = (obj3, key, value2) => {
-  __defNormalProp(obj3, typeof key !== "symbol" ? key + "" : key, value2);
-  return value2;
-};
 
 // ../Juniper/src/Juniper.TypeScript/node_modules/cardboard-vr-display/dist/cardboard-vr-display.js
 var require_cardboard_vr_display = __commonJS({
@@ -1788,13 +1783,13 @@ var require_cardboard_vr_display = __commonJS({
         if (url) {
           this.onDeviceParamsUpdated = onDeviceParamsUpdated;
           var xhr = new XMLHttpRequest();
-          var obj3 = this;
+          var obj2 = this;
           xhr.open("GET", url, true);
           xhr.addEventListener("load", function() {
-            obj3.loading = false;
+            obj2.loading = false;
             if (xhr.status >= 200 && xhr.status <= 299) {
-              obj3.dpdb = JSON.parse(xhr.response);
-              obj3.recalculateDeviceParams_();
+              obj2.dpdb = JSON.parse(xhr.response);
+              obj2.recalculateDeviceParams_();
             } else {
               console.error("Error loading online DPDB!");
             }
@@ -3318,8 +3313,8 @@ var require_cardboard_vr_display = __commonJS({
 });
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/arrayBinarySearch.ts
-function defaultKeySelector(obj3) {
-  return obj3;
+function defaultKeySelector(obj2) {
+  return obj2;
 }
 function arrayBinarySearchByKey(arr, itemKey, keySelector) {
   let left2 = 0;
@@ -4087,41 +4082,41 @@ var Promisifier = class {
 function t(o, s, c) {
   return typeof o === s || o instanceof c;
 }
-function isFunction(obj3) {
-  return t(obj3, "function", Function);
+function isFunction(obj2) {
+  return t(obj2, "function", Function);
 }
-function isString(obj3) {
-  return t(obj3, "string", String);
+function isString(obj2) {
+  return t(obj2, "string", String);
 }
-function isBoolean(obj3) {
-  return t(obj3, "boolean", Boolean);
+function isBoolean(obj2) {
+  return t(obj2, "boolean", Boolean);
 }
-function isNumber(obj3) {
-  return t(obj3, "number", Number);
+function isNumber(obj2) {
+  return t(obj2, "number", Number);
 }
-function isGoodNumber(obj3) {
-  return isNumber(obj3) && Number.isFinite(obj3) && !Number.isNaN(obj3);
+function isGoodNumber(obj2) {
+  return isNumber(obj2) && Number.isFinite(obj2) && !Number.isNaN(obj2);
 }
-function isObject(obj3) {
-  return isDefined(obj3) && t(obj3, "object", Object);
+function isObject(obj2) {
+  return isDefined(obj2) && t(obj2, "object", Object);
 }
-function isDate(obj3) {
-  return obj3 instanceof Date;
+function isDate(obj2) {
+  return obj2 instanceof Date;
 }
-function isArray(obj3) {
-  return obj3 instanceof Array;
+function isArray(obj2) {
+  return obj2 instanceof Array;
 }
 function assertNever(x, msg) {
   throw new Error((msg || "Unexpected object: ") + x);
 }
-function isNullOrUndefined(obj3) {
-  return obj3 === null || obj3 === void 0;
+function isNullOrUndefined(obj2) {
+  return obj2 === null || obj2 === void 0;
 }
-function isDefined(obj3) {
-  return !isNullOrUndefined(obj3);
+function isDefined(obj2) {
+  return !isNullOrUndefined(obj2);
 }
-function isArrayBufferView(obj3) {
-  return obj3 instanceof Uint8Array || obj3 instanceof Uint8ClampedArray || obj3 instanceof Int8Array || obj3 instanceof Uint16Array || obj3 instanceof Int16Array || obj3 instanceof Uint32Array || obj3 instanceof Int32Array || obj3 instanceof Float32Array || obj3 instanceof Float64Array || "BigUint64Array" in globalThis && obj3 instanceof globalThis["BigUint64Array"] || "BigInt64Array" in globalThis && obj3 instanceof globalThis["BigInt64Array"];
+function isArrayBufferView(obj2) {
+  return obj2 instanceof Uint8Array || obj2 instanceof Uint8ClampedArray || obj2 instanceof Int8Array || obj2 instanceof Uint16Array || obj2 instanceof Int16Array || obj2 instanceof Uint32Array || obj2 instanceof Int32Array || obj2 instanceof Float32Array || obj2 instanceof Float64Array || "BigUint64Array" in globalThis && obj2 instanceof globalThis["BigUint64Array"] || "BigInt64Array" in globalThis && obj2 instanceof globalThis["BigInt64Array"];
 }
 function isArrayBuffer(val) {
   return val && typeof ArrayBuffer !== "undefined" && (val instanceof ArrayBuffer || val.constructor && val.constructor.name === "ArrayBuffer");
@@ -4751,8 +4746,8 @@ var BaseParentProgressCallback = class {
 };
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/progress/IProgress.ts
-function isProgressCallback(obj3) {
-  return isDefined(obj3) && isFunction(obj3.report) && isFunction(obj3.attach) && isFunction(obj3.end);
+function isProgressCallback(obj2) {
+  return isDefined(obj2) && isFunction(obj2.report) && isFunction(obj2.attach) && isFunction(obj2.end);
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/progress/progressSplit.ts
@@ -5230,30 +5225,30 @@ var URLBuilder = class {
 };
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/using.ts
-function interfaceSigCheck(obj3, ...funcNames) {
-  if (!isObject(obj3)) {
+function interfaceSigCheck(obj2, ...funcNames) {
+  if (!isObject(obj2)) {
     return false;
   }
-  obj3 = obj3;
+  obj2 = obj2;
   for (const funcName of funcNames) {
-    if (!(funcName in obj3)) {
+    if (!(funcName in obj2)) {
       return false;
     }
-    const func = obj3[funcName];
+    const func = obj2[funcName];
     if (!isFunction(func)) {
       return false;
     }
   }
   return true;
 }
-function isDisposable(obj3) {
-  return interfaceSigCheck(obj3, "dispose");
+function isDisposable(obj2) {
+  return interfaceSigCheck(obj2, "dispose");
 }
-function isDestroyable(obj3) {
-  return interfaceSigCheck(obj3, "destroy");
+function isDestroyable(obj2) {
+  return interfaceSigCheck(obj2, "destroy");
 }
-function isClosable(obj3) {
-  return interfaceSigCheck(obj3, "close");
+function isClosable(obj2) {
+  return interfaceSigCheck(obj2, "close");
 }
 function dispose(val) {
   if (isDisposable(val)) {
@@ -5447,7 +5442,6 @@ var Audio_Mpeg = /* @__PURE__ */ audio("mpeg", "mp3", "mp2", "mp2a", "mpga", "m2
 var image = /* @__PURE__ */ specialize("image");
 var Image_Jpeg = /* @__PURE__ */ image("jpeg", "jpeg", "jpg", "jpe");
 var Image_Png = /* @__PURE__ */ image("png", "png");
-var Image_Vendor_Google_StreetView_Pano = image("vnd.google.streetview.pano");
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/model.ts
 var model = /* @__PURE__ */ specialize("model");
@@ -5573,7 +5567,6 @@ var Attr = class {
     this.tags = tags.map((t2) => t2.toLocaleUpperCase());
     Object.freeze(this);
   }
-  tags;
   applyToElement(elem) {
     const isDataSet = this.key.startsWith("data-");
     const isValid = this.tags.length === 0 || this.tags.indexOf(elem.tagName) > -1 || isDataSet;
@@ -5673,13 +5666,11 @@ var CssProp = class {
     this.value = value2;
     this.name = key.replace(/[A-Z]/g, (m) => `-${m.toLocaleLowerCase()}`);
   }
-  name;
   applyToElement(elem) {
     elem.style[this.key] = this.value;
   }
 };
 var CssPropSet = class {
-  rest;
   constructor(...rest) {
     this.rest = rest;
   }
@@ -5821,15 +5812,15 @@ function rule(selector, ...props) {
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/tags.ts
-function isErsatzElement(obj3) {
-  if (!isObject(obj3)) {
+function isErsatzElement(obj2) {
+  if (!isObject(obj2)) {
     return false;
   }
-  const elem = obj3;
+  const elem = obj2;
   return elem.element instanceof Node;
 }
-function isErsatzElements(obj3) {
-  return isObject(obj3) && "elements" in obj3 && obj3.elements instanceof Array;
+function isErsatzElements(obj2) {
+  return isObject(obj2) && "elements" in obj2 && obj2.elements instanceof Array;
 }
 function resolveElement(elem) {
   if (isErsatzElement(elem)) {
@@ -5837,8 +5828,8 @@ function resolveElement(elem) {
   }
   return elem;
 }
-function isIElementAppliable(obj3) {
-  return isObject(obj3) && "applyToElement" in obj3 && isFunction(obj3.applyToElement);
+function isIElementAppliable(obj2) {
+  return isObject(obj2) && "applyToElement" in obj2 && isFunction(obj2.applyToElement);
 }
 function elementSetDisplay(elem, visible, visibleDisplayType = "block") {
   elem = resolveElement(elem);
@@ -5887,8 +5878,8 @@ function tag(name2, ...rest) {
   elementApply(elem, ...rest);
   return elem;
 }
-function isDisableable(obj3) {
-  return "disabled" in obj3 && isBoolean(obj3.disabled);
+function isDisableable(obj2) {
+  return "disabled" in obj2 && isBoolean(obj2.disabled);
 }
 function elementClearChildren(elem) {
   elem = resolveElement(elem);
@@ -6061,11 +6052,11 @@ var hasHTMLImage = "HTMLImageElement" in globalThis;
 var disableAdvancedSettings = false;
 var hasOffscreenCanvas = !disableAdvancedSettings && "OffscreenCanvas" in globalThis;
 var hasImageBitmap = !disableAdvancedSettings && "createImageBitmap" in globalThis;
-function isHTMLCanvas(obj3) {
-  return hasHTMLCanvas && obj3 instanceof HTMLCanvasElement;
+function isHTMLCanvas(obj2) {
+  return hasHTMLCanvas && obj2 instanceof HTMLCanvasElement;
 }
-function isOffscreenCanvas(obj3) {
-  return hasOffscreenCanvas && obj3 instanceof OffscreenCanvas;
+function isOffscreenCanvas(obj2) {
+  return hasOffscreenCanvas && obj2 instanceof OffscreenCanvas;
 }
 function isImageBitmap(img) {
   return hasImageBitmap && img instanceof ImageBitmap;
@@ -7143,8 +7134,8 @@ var IDexStore = class {
 };
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/FetchingServiceImplXHR.ts
-function isXHRBodyInit(obj3) {
-  return isString(obj3) || isArrayBufferView(obj3) || obj3 instanceof Blob || obj3 instanceof FormData || isArrayBuffer(obj3) || obj3 instanceof ReadableStream || "Document" in globalThis && obj3 instanceof Document;
+function isXHRBodyInit(obj2) {
+  return isString(obj2) || isArrayBufferView(obj2) || obj2 instanceof Blob || obj2 instanceof FormData || isArrayBuffer(obj2) || obj2 instanceof ReadableStream || "Document" in globalThis && obj2 instanceof Document;
 }
 function trackProgress(name2, xhr, target, prog, skipLoading, prevTask) {
   let prevDone = !prevTask;
@@ -7429,8 +7420,8 @@ var BaseFetchingServicePool = class extends WorkerPool {
     super(options, WorkerClientClass);
     this.fetcher = fetcher;
   }
-  getFetcher(obj3) {
-    if (obj3 instanceof FormData) {
+  getFetcher(obj2) {
+    if (obj2 instanceof FormData) {
       return this.fetcher;
     } else {
       return this.nextWorker();
@@ -8137,33 +8128,33 @@ var LineMaterial = class extends THREE.ShaderMaterial {
 LineMaterial.prototype.isLineMaterial = true;
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/typeChecks.ts
-function isMesh(obj3) {
-  return isDefined(obj3) && obj3.isMesh;
+function isMesh(obj2) {
+  return isDefined(obj2) && obj2.isMesh;
 }
-function isMaterial(obj3) {
-  return isDefined(obj3) && obj3.isMaterial;
+function isMaterial(obj2) {
+  return isDefined(obj2) && obj2.isMaterial;
 }
-function isNamedMaterial(name2, obj3) {
-  return isMaterial(obj3) && obj3.type === name2;
+function isNamedMaterial(name2, obj2) {
+  return isMaterial(obj2) && obj2.type === name2;
 }
-function isMeshBasicMaterial(obj3) {
-  return isNamedMaterial("MeshBasicMaterial", obj3);
+function isMeshBasicMaterial(obj2) {
+  return isNamedMaterial("MeshBasicMaterial", obj2);
 }
-function isObject3D(obj3) {
-  return isDefined(obj3) && obj3.isObject3D;
+function isObject3D(obj2) {
+  return isDefined(obj2) && obj2.isObject3D;
 }
-function isQuaternion(obj3) {
-  return isDefined(obj3) && obj3.isQuaternion;
+function isQuaternion(obj2) {
+  return isDefined(obj2) && obj2.isQuaternion;
 }
-function isEuler(obj3) {
-  return isDefined(obj3) && obj3.isEuler;
+function isEuler(obj2) {
+  return isDefined(obj2) && obj2.isEuler;
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/materials.ts
 var materials = singleton("Juniper:Three:Materials", () => /* @__PURE__ */ new Map());
-function del(obj3, name2) {
-  if (name2 in obj3) {
-    delete obj3[name2];
+function del(obj2, name2) {
+  if (name2 in obj2) {
+    delete obj2[name2];
   }
 }
 function makeMaterial(slug, material, options) {
@@ -8193,13 +8184,13 @@ function line2(options) {
 }
 function convertMaterials(root, convertMaterial) {
   const oldMats = /* @__PURE__ */ new Set();
-  root.traverse((obj3) => {
-    if (isMesh(obj3) && isMaterial(obj3.material)) {
-      const oldMat = obj3.material;
+  root.traverse((obj2) => {
+    if (isMesh(obj2) && isMaterial(obj2.material)) {
+      const oldMat = obj2.material;
       const newMat = convertMaterial(oldMat);
       if (oldMat !== newMat) {
         oldMats.add(oldMat);
-        obj3.material = newMat;
+        obj2.material = newMat;
       }
     }
   });
@@ -8284,51 +8275,51 @@ var litGrey = /* @__PURE__ */ lit({ color: grey });
 var litWhite = /* @__PURE__ */ lit({ color: white });
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/objects.ts
-function isErsatzObject(obj3) {
-  return isDefined(obj3) && isObject3D(obj3.object);
+function isErsatzObject(obj2) {
+  return isDefined(obj2) && isObject3D(obj2.object);
 }
-function objectResolve(obj3) {
-  if (isErsatzObject(obj3)) {
-    return obj3.object;
+function objectResolve(obj2) {
+  if (isErsatzObject(obj2)) {
+    return obj2.object;
   }
-  return obj3;
+  return obj2;
 }
-function objectSetVisible(obj3, visible) {
-  obj3 = objectResolve(obj3);
-  obj3.visible = visible;
+function objectSetVisible(obj2, visible) {
+  obj2 = objectResolve(obj2);
+  obj2.visible = visible;
   return visible;
 }
-function objectIsVisible(obj3) {
-  obj3 = objectResolve(obj3);
-  return obj3.visible;
+function objectIsVisible(obj2) {
+  obj2 = objectResolve(obj2);
+  return obj2.visible;
 }
-function objectIsFullyVisible(obj3) {
-  obj3 = objectResolve(obj3);
-  while (obj3) {
-    if (!obj3.visible) {
+function objectIsFullyVisible(obj2) {
+  obj2 = objectResolve(obj2);
+  while (obj2) {
+    if (!obj2.visible) {
       return false;
     }
-    obj3 = obj3.parent;
+    obj2 = obj2.parent;
   }
   return true;
 }
-function objGraph(obj3, ...children) {
+function objGraph(obj2, ...children) {
   const toAdd = children.filter(isDefined).map(objectResolve);
   if (toAdd.length > 0) {
-    objectResolve(obj3).add(...toAdd);
+    objectResolve(obj2).add(...toAdd);
   }
-  return obj3;
+  return obj2;
 }
 function obj(name2, ...rest) {
-  const obj3 = new THREE.Object3D();
-  obj3.name = name2;
-  objGraph(obj3, ...rest);
-  return obj3;
+  const obj2 = new THREE.Object3D();
+  obj2.name = name2;
+  objGraph(obj2, ...rest);
+  return obj2;
 }
-function objectSetEnabled(obj3, enabled) {
-  obj3 = objectResolve(obj3);
-  if (isDisableable(obj3)) {
-    obj3.disabled = !enabled;
+function objectSetEnabled(obj2, enabled) {
+  obj2 = objectResolve(obj2);
+  if (isDisableable(obj2)) {
+    obj2.disabled = !enabled;
   }
 }
 
@@ -8338,12 +8329,12 @@ var RayTarget = class extends TypedEventBase {
   constructor(object) {
     super();
     this.object = object;
+    this.meshes = new Array();
+    this._disabled = false;
+    this._clickable = false;
+    this._draggable = false;
     this.object.userData[RAY_TARGET_KEY] = this;
   }
-  meshes = new Array();
-  _disabled = false;
-  _clickable = false;
-  _draggable = false;
   addMesh(mesh) {
     mesh.userData[RAY_TARGET_KEY] = this;
     this.meshes.push(mesh);
@@ -8374,18 +8365,18 @@ var RayTarget = class extends TypedEventBase {
     this._draggable = v;
   }
 };
-function isRayTarget(obj3) {
-  return obj3 instanceof RayTarget;
+function isRayTarget(obj2) {
+  return obj2 instanceof RayTarget;
 }
-function getRayTarget(obj3) {
+function getRayTarget(obj2) {
   let target = null;
-  if (obj3) {
-    if (isRayTarget(obj3)) {
-      target = obj3;
+  if (obj2) {
+    if (isRayTarget(obj2)) {
+      target = obj2;
     } else {
-      obj3 = objectResolve(obj3);
-      if (obj3) {
-        target = obj3.userData[RAY_TARGET_KEY];
+      obj2 = objectResolve(obj2);
+      if (obj2) {
+        target = obj2.userData[RAY_TARGET_KEY];
       }
     }
     if (target && !objectIsFullyVisible(target)) {
@@ -8488,13 +8479,11 @@ var TransformEditorMovedEvent = class extends TypedEvent {
   }
 };
 var TransformEditor = class extends TypedEventBase {
-  object;
-  translators;
-  _size = 1;
-  movingEvt = new TransformEditorMovingEvent();
-  movedEvt = new TransformEditorMovedEvent();
   constructor(orbitTranslate, defaultAvatarHeight2) {
     super();
+    this._size = 1;
+    this.movingEvt = new TransformEditorMovingEvent();
+    this.movedEvt = new TransformEditorMovedEvent();
     this.object = obj("Translator", ...this.translators = [
       this.setTranslator("+X", 1, 0, 0, solidRed, defaultAvatarHeight2),
       this.setTranslator("-X", -1, 0, 0, solidRed, defaultAvatarHeight2),
@@ -9000,14 +8989,13 @@ var SpeakerManager = class extends TypedEventBase {
   constructor(element) {
     super();
     this.element = element;
+    this._hasAudioPermission = false;
     this.ready = this.start();
     Object.seal(this);
   }
-  _hasAudioPermission = false;
   get hasAudioPermission() {
     return this._hasAudioPermission;
   }
-  ready;
   async start() {
     if (canChangeAudioOutput) {
       const devices = await navigator.mediaDevices.enumerateDevices();
@@ -9518,31 +9506,21 @@ var useHeadphonesToggledEvt = new TypedEvent("useheadphonestoggled");
 var hasStreamSources = "createMediaStreamSource" in AudioContext.prototype;
 var useElementSourceForUsers = !hasStreamSources;
 var AudioManager = class extends TypedEventBase {
-  users = /* @__PURE__ */ new Map();
-  clips = /* @__PURE__ */ new Map();
-  clipPaths = /* @__PURE__ */ new Map();
-  pathSources = /* @__PURE__ */ new Map();
-  pathCounts = /* @__PURE__ */ new Map();
-  localFilter;
-  localCompressor;
-  _minDistance = 1;
-  _maxDistance = 10;
-  _useHeadphones = false;
-  _algorithm = "inverse";
-  get algorithm() {
-    return this._algorithm;
-  }
-  element = null;
-  audioDestination = null;
-  speakers;
-  input;
-  localAutoControlledGain;
-  output;
-  audioCtx;
-  ready;
-  localUserID = null;
   constructor(defaultLocalUserID) {
     super();
+    this.users = /* @__PURE__ */ new Map();
+    this.clips = /* @__PURE__ */ new Map();
+    this.clipPaths = /* @__PURE__ */ new Map();
+    this.pathSources = /* @__PURE__ */ new Map();
+    this.pathCounts = /* @__PURE__ */ new Map();
+    this._minDistance = 1;
+    this._maxDistance = 10;
+    this._useHeadphones = false;
+    this._algorithm = "inverse";
+    this.element = null;
+    this.audioDestination = null;
+    this.localUserID = null;
+    this.counter = 0;
     this.audioCtx = new AudioContext();
     let destination = null;
     if (canChangeAudioOutput) {
@@ -9573,6 +9551,9 @@ var AudioManager = class extends TypedEventBase {
     }
     this.ready = this.start();
     Object.seal(this);
+  }
+  get algorithm() {
+    return this._algorithm;
   }
   get useHeadphones() {
     return this._useHeadphones;
@@ -9634,7 +9615,6 @@ var AudioManager = class extends TypedEventBase {
       user.audioTick(t2);
     }
   }
-  counter = 0;
   newSpatializer(id2, spatialize, isRemoteStream) {
     if (spatialize) {
       const destination = isRemoteStream ? this.audioDestination.remoteUserInput : this.audioDestination.spatializedInput;
@@ -9870,39 +9850,13 @@ var MediaPlayerLoadingEvent = class extends MediaPlayerEvent {
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/sources/AudioPlayer.ts
 var AudioPlayer = class extends BaseAudioSource {
-  loadingEvt;
-  loadEvt;
-  playEvt;
-  pauseEvt;
-  stopEvt;
-  progEvt;
-  onError;
-  onPlay;
-  onCanPlay;
-  onWaiting;
-  onPause;
-  onTimeUpdate;
-  _data = null;
-  get data() {
-    return this._data;
-  }
-  _loaded = false;
-  get loaded() {
-    return this._loaded;
-  }
-  element;
-  audioSource;
-  get title() {
-    return this.element.title;
-  }
-  setTitle(v) {
-    this.element.title = v;
-  }
-  sourcesByURL = /* @__PURE__ */ new Map();
-  sources = new Array();
-  potatoes = new Array();
   constructor(audioCtx) {
     super("JuniperAudioPlayer", audioCtx, NoSpatializationNode.instance(audioCtx));
+    this._data = null;
+    this._loaded = false;
+    this.sourcesByURL = /* @__PURE__ */ new Map();
+    this.sources = new Array();
+    this.potatoes = new Array();
     this.element = Audio2(playsInline(true), autoPlay(false), loop(false), controls(true));
     this.input = MediaElementSource("JuniperAudioPlayer-Input", audioCtx, this.element);
     this.loadingEvt = new MediaPlayerLoadingEvent(this);
@@ -9937,6 +9891,18 @@ var AudioPlayer = class extends BaseAudioSource {
     this.element.addEventListener("canplay", this.onCanPlay);
     this.element.addEventListener("timeupdate", this.onTimeUpdate);
     Object.assign(window, { audioPlayer: this });
+  }
+  get data() {
+    return this._data;
+  }
+  get loaded() {
+    return this._loaded;
+  }
+  get title() {
+    return this.element.title;
+  }
+  setTitle(v) {
+    this.element.title = v;
   }
   get hasAudio() {
     const source = this.sourcesByURL.get(this.element.src);
@@ -10167,10 +10133,10 @@ var CanvasImage = class extends TypedEventBase {
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/graphics2d/ArtificialHorizon.ts
 var ArtificialHorizon = class extends CanvasImage {
-  _pitch = 0;
-  _heading = 0;
   constructor() {
     super(128, 128);
+    this._pitch = 0;
+    this._heading = 0;
     this.redraw();
   }
   get pitch() {
@@ -10316,13 +10282,13 @@ var chargeLabels = [
   "charging"
 ];
 var BatteryImage = class extends CanvasImage {
-  battery = null;
-  lastChargeDirection = null;
-  lastLevel = null;
-  chargeDirection = 0;
-  level = 0.5;
   constructor() {
     super(256, 128);
+    this.battery = null;
+    this.lastChargeDirection = null;
+    this.lastLevel = null;
+    this.chargeDirection = 0;
+    this.level = 0.5;
     if (isBatteryNavigator(navigator)) {
       this.readBattery(navigator);
     } else {
@@ -10389,7 +10355,7 @@ var BatteryImage = class extends CanvasImage {
     redraw();
   }
 };
-__publicField(BatteryImage, "isAvailable", isBatteryNavigator(navigator));
+BatteryImage.isAvailable = isBatteryNavigator(navigator);
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/graphics2d/TextImage.ts
 var TextImage = class extends CanvasImage {
@@ -10840,9 +10806,6 @@ var TextImage = class extends CanvasImage {
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/graphics2d/ClockImage.ts
 var ClockImage = class extends TextImage {
-  fps = null;
-  drawCalls = null;
-  triangles = null;
   constructor() {
     super({
       textFillColor: "#ffffff",
@@ -10856,6 +10819,9 @@ var ClockImage = class extends TextImage {
       wrapWords: false,
       freezeDimensions: true
     });
+    this.fps = null;
+    this.drawCalls = null;
+    this.triangles = null;
     const updater = this.update.bind(this);
     setInterval(updater, 500);
     updater();
@@ -10886,11 +10852,11 @@ function isDead(task) {
   return !task.started || task.finished;
 }
 var AnimationTask = class extends Task {
-  time = 0;
-  duration = 0;
-  onTick = null;
   constructor() {
     super(false);
+    this.time = 0;
+    this.duration = 0;
+    this.onTick = null;
   }
   begin(delay, duration, onTick) {
     this.reset();
@@ -10913,7 +10879,9 @@ var AnimationTask = class extends Task {
   }
 };
 var Animator = class {
-  animations = new Array();
+  constructor() {
+    this.animations = new Array();
+  }
   update(dt) {
     dt = 1e-3 * dt;
     for (const animation of this.animations) {
@@ -10948,15 +10916,8 @@ function jump(t2, k) {
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/widgets/DialogBox.ts
 Style(rule(".dialog, .dialog-container", position("fixed")), rule(".dialog", top(0), left(0), width("100%"), height("100%"), backgroundColor("rgba(0, 0, 0, 0.5)"), zIndex(100)), rule(".dialog-container", top("50%"), left("50%"), maxWidth("100%"), maxHeight("100%"), transform("translateX(-50%) translateY(-50%)"), backgroundColor("white"), boxShadow("rgba(0,0,0,0.5) 0px 5px 30px"), display("grid"), gridTemplateColumns("2em auto 2em"), gridTemplateRows("auto 1fr auto 2em")), rule(".dialog .title-bar", gridArea(1, 1, 2, -1), padding("0.25em")), rule(".dialog-content", gridArea(2, 2, -4, -2), overflow("auto")), rule(".dialog-controls", gridArea(-2, 2, -3, -2)), rule(".dialog .confirm-button", float("right")), rule(".dialog h1, .dialog h2, .dialog h3, .dialog h4, .dialog h5, .dialog h6", textAlign("left")), rule(".dialog select", maxWidth("10em")));
 var DialogBox = class {
-  element;
-  subEventer = new TypedEventBase();
-  _title;
-  titleElement;
-  container;
-  contentArea;
-  confirmButton;
-  cancelButton;
   constructor(title2) {
+    this.subEventer = new TypedEventBase();
     this.element = Div(className("dialog"), customData("dialogname", title2), styles(display("none")), this.container = Div(className("dialog-container"), this.titleElement = H1(className("title-bar"), title2), this.contentArea = Div(className("dialog-content")), Div(className("dialog-controls"), this.confirmButton = ButtonPrimary("Confirm", classList("confirm-button")), this.cancelButton = ButtonSecondary("Cancel", classList("cancel-button")))));
     this.confirmButton.addEventListener("click", () => this.subEventer.dispatchEvent(new TypedEvent("confirm")));
     this.cancelButton.addEventListener("click", () => this.subEventer.dispatchEvent(new TypedEvent("cancel")));
@@ -11065,10 +11026,10 @@ function updateScalings(dt) {
     state.updateScaling(dt);
   }
 }
-function removeScaledObj(obj3) {
-  const state = scaledItems.get(obj3);
+function removeScaledObj(obj2) {
+  const state = scaledItems.get(obj2);
   if (state) {
-    scaledItems.delete(obj3);
+    scaledItems.delete(obj2);
     state.dispose();
   }
 }
@@ -11087,10 +11048,10 @@ function scaleOnHover(target, enabled) {
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/cleanup.ts
-function cleanup(obj3) {
+function cleanup(obj2) {
   const cleanupQ = new Array();
   const cleanupSeen = /* @__PURE__ */ new Set();
-  cleanupQ.push(obj3);
+  cleanupQ.push(obj2);
   while (cleanupQ.length > 0) {
     const here = cleanupQ.shift();
     if (here && !cleanupSeen.has(here)) {
@@ -11118,8 +11079,8 @@ function cleanup(obj3) {
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/objectGetRelativePose.ts
 var M = new THREE.Matrix4();
 var P2 = new THREE.Vector3();
-function objectGetRelativePose(ref, obj3, position2, quaternion, scale4) {
-  M.copy(ref.matrixWorld).invert().multiply(obj3.matrixWorld).decompose(P2, quaternion, scale4);
+function objectGetRelativePose(ref, obj2, position2, quaternion, scale4) {
+  M.copy(ref.matrixWorld).invert().multiply(obj2.matrixWorld).decompose(P2, quaternion, scale4);
   position2.set(P2.x, P2.y, P2.z, 1);
 }
 
@@ -11139,7 +11100,7 @@ var Q = new THREE.Quaternion();
 var S = new THREE.Vector3();
 var copyCounter = 0;
 var Image2D = class extends THREE.Object3D {
-  constructor(env2, name2, isStatic, materialOrOptions = null) {
+  constructor(env, name2, isStatic, materialOrOptions = null) {
     super();
     this.isStatic = isStatic;
     this.lastMatrixWorld = new THREE.Matrix4();
@@ -11156,8 +11117,8 @@ var Image2D = class extends THREE.Object3D {
     this.mesh = null;
     this.webXRLayersEnabled = true;
     this.sizeMode = "none";
-    if (env2) {
-      this.setEnvAndName(env2, name2);
+    if (env) {
+      this.setEnvAndName(env, name2);
       let material = isMeshBasicMaterial(materialOrOptions) ? materialOrOptions : solidTransparent(Object.assign({}, materialOrOptions, { name: this.name }));
       this.mesh = new THREE.Mesh(plane, material);
       objGraph(this, this.mesh);
@@ -11222,8 +11183,8 @@ var Image2D = class extends THREE.Object3D {
     const meters = inches2Meters(inches);
     this.objectWidth = meters;
   }
-  setEnvAndName(env2, name2) {
-    this.env = env2;
+  setEnvAndName(env, name2) {
+    this.env = env;
     this.name = name2;
     this.tryWebXRLayers &&= this.env && this.env.hasXRCompositionLayers;
   }
@@ -11358,8 +11319,8 @@ var Image2D = class extends THREE.Object3D {
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/widgets/CanvasImageMesh.ts
 var redrawnEvt = { type: "redrawn" };
 var CanvasImageMesh = class extends Image2D {
-  constructor(env2, name2, image2, materialOptions) {
-    super(env2, name2, false, materialOptions);
+  constructor(env, name2, image2, materialOptions) {
+    super(env, name2, false, materialOptions);
     this._image = null;
     this._onRedrawn = this.onRedrawn.bind(this);
     this.image = image2;
@@ -11416,14 +11377,14 @@ var CanvasImageMesh = class extends Image2D {
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/widgets/TextMesh.ts
 var TextMesh = class extends CanvasImageMesh {
-  constructor(env2, name2, textOptions, materialOptions) {
+  constructor(env, name2, textOptions, materialOptions) {
     let image2;
     if (textOptions instanceof TextImage) {
       image2 = textOptions;
     } else {
       image2 = new TextImage(textOptions);
     }
-    super(env2, name2, image2, materialOptions);
+    super(env, name2, image2, materialOptions);
   }
   onRedrawn() {
     this.objectHeight = this.imageHeight;
@@ -11433,10 +11394,10 @@ var TextMesh = class extends CanvasImageMesh {
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/widgets/TextMeshButton.ts
 var TextMeshButton = class extends RayTarget {
-  constructor(fetcher, env2, name2, value2, textImageOptions) {
+  constructor(fetcher, env, name2, value2, textImageOptions) {
     super(obj(name2));
     this.fetcher = fetcher;
-    this.env = env2;
+    this.env = env;
     if (isDefined(value2)) {
       textImageOptions = Object.assign({
         textFillColor: "#ffffff",
@@ -11521,9 +11482,9 @@ function newStyle(baseStyle, fontFamily) {
   return Object.assign({}, baseStyle, { fontFamily });
 }
 var ConfirmationDialog = class extends DialogBox {
-  constructor(env2, fontFamily) {
+  constructor(env, fontFamily) {
     super("Confirm action");
-    this.env = env2;
+    this.env = env;
     this.object = new THREE.Object3D();
     this.name = "ConfirmationDialog";
     this.root = new THREE.Object3D();
@@ -11689,50 +11650,22 @@ var SpaceUI = class extends THREE.Object3D {
 };
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/video/data.ts
-function isVideoRecord(obj3) {
-  return isString(obj3.vcodec);
+function isVideoRecord(obj2) {
+  return isString(obj2.vcodec);
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/video/BaseVideoPlayer.ts
 var BaseVideoPlayer = class extends BaseAudioSource {
-  loadingEvt;
-  loadEvt;
-  playEvt;
-  pauseEvt;
-  stopEvt;
-  progEvt;
-  onPlay;
-  onSeeked;
-  onCanPlay;
-  onWaiting;
-  onPause;
-  onTimeUpdate = null;
-  wasUsingAudioElement = false;
-  _data = null;
-  get data() {
-    return this._data;
-  }
-  _loaded = false;
-  get loaded() {
-    return this._loaded;
-  }
-  video;
-  audio;
-  videoSource;
-  audioSource;
-  get title() {
-    return this.video.title;
-  }
-  setTitle(v) {
-    this.video.title = v;
-    this.audio.title = v;
-  }
-  onError = /* @__PURE__ */ new Map();
-  sourcesByURL = /* @__PURE__ */ new Map();
-  sources = new PriorityList();
-  potatoes = new PriorityList();
   constructor(audioCtx) {
     super("JuniperVideoPlayer", audioCtx, NoSpatializationNode.instance(audioCtx));
+    this.onTimeUpdate = null;
+    this.wasUsingAudioElement = false;
+    this._data = null;
+    this._loaded = false;
+    this.onError = /* @__PURE__ */ new Map();
+    this.sourcesByURL = /* @__PURE__ */ new Map();
+    this.sources = new PriorityList();
+    this.potatoes = new PriorityList();
     this.video = this.createMediaElement(Video, controls(true));
     this.audio = this.createMediaElement(Audio2, controls(false));
     this.input = Gain("JuniperVideoPlayer-combiner", audioCtx);
@@ -11812,6 +11745,19 @@ var BaseVideoPlayer = class extends BaseAudioSource {
     this.video.addEventListener("canplay", this.onCanPlay);
     this.video.addEventListener("timeupdate", this.onTimeUpdate);
     Object.assign(window, { videoPlayer: this });
+  }
+  get data() {
+    return this._data;
+  }
+  get loaded() {
+    return this._loaded;
+  }
+  get title() {
+    return this.video.title;
+  }
+  setTitle(v) {
+    this.video.title = v;
+    this.audio.title = v;
   }
   elementHasAudio(elem) {
     const source = this.sourcesByURL.get(elem.src);
@@ -12709,11 +12655,11 @@ var ScreenModeToggleButton = class extends ToggleButton {
 };
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/widgets/widgets.ts
-function widgetSetEnabled(obj3, enabled, buttonType) {
-  if (obj3.element instanceof HTMLButtonElement) {
-    buttonSetEnabled(obj3, enabled, buttonType);
+function widgetSetEnabled(obj2, enabled, buttonType) {
+  if (obj2.element instanceof HTMLButtonElement) {
+    buttonSetEnabled(obj2, enabled, buttonType);
   }
-  objectSetEnabled(obj3, enabled);
+  objectSetEnabled(obj2, enabled);
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/environment/ApplicationLoader.ts
@@ -12757,9 +12703,9 @@ var ApplicationLoadRequest = class {
   }
 };
 var ApplicationLoader = class extends TypedEventBase {
-  constructor(env2, JS_EXT2) {
+  constructor(env, JS_EXT2) {
     super();
-    this.env = env2;
+    this.env = env;
     this.JS_EXT = JS_EXT2;
     this.loadedModules = /* @__PURE__ */ new Map();
     this.loadingApps = /* @__PURE__ */ new Map();
@@ -12832,11 +12778,11 @@ var ApplicationLoader = class extends TypedEventBase {
       return app;
     });
   }
-  async loadAppInstance(env2, name2, params, prog) {
+  async loadAppInstance(env, name2, params, prog) {
     if (!this.currentApps.has(name2)) {
       const [appLoad, assetLoad] = progressSplitWeighted(prog, [1, 10]);
       const App = await this.loadAppConstructor(name2, appLoad);
-      const app = new App(env2);
+      const app = new App(env);
       app.addEventListener("quit", () => this.unloadApp(name2));
       if (isDefined(params)) {
         await app.init(params);
@@ -15244,7 +15190,7 @@ var _AssetGltfModel = class extends BaseFetchedAsset {
   }
 };
 var AssetGltfModel = _AssetGltfModel;
-__publicField(AssetGltfModel, "loader", new GLTFLoader());
+AssetGltfModel.loader = new GLTFLoader();
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/evts.ts
 function isModifierless(evt) {
@@ -15260,7 +15206,6 @@ var HtmlEvt = class {
     this.opts = opts;
     Object.freeze(this);
   }
-  opts;
   applyToElement(elem) {
     this.add(elem);
   }
@@ -15280,20 +15225,20 @@ function onInput(callback, opts) {
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/AvatarMovedEvent.ts
 var AvatarMovedEvent = class extends TypedEvent {
-  px = 0;
-  py = 0;
-  pz = 0;
-  fx = 0;
-  fy = 0;
-  fz = 0;
-  ux = 0;
-  uy = 0;
-  uz = 0;
-  height = 0;
-  changed = false;
-  pointerID = 0 /* LocalUser */;
   constructor() {
     super("avatarmoved");
+    this.px = 0;
+    this.py = 0;
+    this.pz = 0;
+    this.fx = 0;
+    this.fy = 0;
+    this.fz = 0;
+    this.ux = 0;
+    this.uy = 0;
+    this.uz = 0;
+    this.height = 0;
+    this.changed = false;
+    this.pointerID = 0 /* LocalUser */;
   }
   set(px, py, pz, fx, fy, fz, ux, uy, uz, height2) {
     this.changed = this.px !== px || this.py !== py || this.pz !== pz || this.fx !== fx || this.fy !== fy || this.fz !== fz || this.ux !== ux || this.uy !== uy || this.uz !== uz;
@@ -15332,13 +15277,13 @@ function setRightUpFwdPosFromMatrix(matrix, R, U2, F, P4) {
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/AvatarLocal.ts
-function isPermissionedDeviceOrientationEvent(obj3) {
-  return obj3 === DeviceOrientationEvent && "requestPermission" in obj3 && isFunction(obj3.requestPermission);
+function isPermissionedDeviceOrientationEvent(obj2) {
+  return obj2 === DeviceOrientationEvent && "requestPermission" in obj2 && isFunction(obj2.requestPermission);
 }
 var AvatarLocal = class extends TypedEventBase {
-  constructor(env2, fader, defaultAvatarHeight2) {
+  constructor(env, fader, defaultAvatarHeight2) {
     super();
-    this.env = env2;
+    this.env = env;
     this.controlMode = "none" /* None */;
     this.snapTurnAngle = deg2rad(30);
     this.sensitivities = /* @__PURE__ */ new Map([
@@ -15727,19 +15672,19 @@ var AvatarLocal = class extends TypedEventBase {
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/layers.ts
 var FOREGROUND = 0;
 var PURGATORY = 3;
-function deepSetLayer(obj3, level) {
-  obj3 = objectResolve(obj3);
-  obj3.traverse((o) => o.layers.set(level));
+function deepSetLayer(obj2, level) {
+  obj2 = objectResolve(obj2);
+  obj2.traverse((o) => o.layers.set(level));
 }
-function deepEnableLayer(obj3, level) {
-  obj3 = objectResolve(obj3);
-  obj3.traverse((o) => o.layers.enable(level));
+function deepEnableLayer(obj2, level) {
+  obj2 = objectResolve(obj2);
+  obj2.traverse((o) => o.layers.enable(level));
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/BaseCursor.ts
 var BaseCursor = class {
-  constructor(env2) {
-    this.env = env2;
+  constructor(env) {
+    this.env = env;
     this._object = null;
     this._visible = true;
     this._style = "default";
@@ -15792,16 +15737,16 @@ var BaseCursor = class {
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/Cursor3D.ts
 var Cursor3D = class extends BaseCursor {
-  constructor(env2, cursorSystem) {
-    super(env2);
+  constructor(env, cursorSystem) {
+    super(env);
     this.cursorSystem = null;
     this.object = new THREE.Object3D();
     this.cursorSystem = cursorSystem;
   }
-  add(name2, obj3) {
-    objGraph(this, obj3);
-    deepEnableLayer(obj3, PURGATORY);
-    obj3.visible = name2 === "default";
+  add(name2, obj2) {
+    objGraph(this, obj2);
+    deepEnableLayer(obj2, PURGATORY);
+    obj2.visible = name2 === "default";
   }
   get position() {
     return this.object.position;
@@ -15838,11 +15783,11 @@ var Cursor3D = class extends BaseCursor {
     this.object.lookAt(v);
   }
   clone() {
-    const obj3 = new Cursor3D(this.env);
+    const obj2 = new Cursor3D(this.env);
     for (const child of this.object.children) {
-      obj3.add(child.name, child.clone());
+      obj2.add(child.name, child.clone());
     }
-    return obj3;
+    return obj2;
   }
 };
 
@@ -15876,18 +15821,18 @@ var GamepadAxisMaxedEvent = class extends GamepadAxisEvent {
   }
 };
 var EventedGamepad = class extends TypedEventBase {
-  lastAxisValues = new Array();
-  btnDownEvts = new Array();
-  btnUpEvts = new Array();
-  wasPressed = new Array();
-  axisMaxEvts = new Array();
-  wasAxisMaxed = new Array();
-  sticks = new Array();
-  axisThresholdMax = 0.9;
-  axisThresholdMin = 0.1;
-  _pad = null;
   constructor() {
     super();
+    this.lastAxisValues = new Array();
+    this.btnDownEvts = new Array();
+    this.btnUpEvts = new Array();
+    this.wasPressed = new Array();
+    this.axisMaxEvts = new Array();
+    this.wasAxisMaxed = new Array();
+    this.sticks = new Array();
+    this.axisThresholdMax = 0.9;
+    this.axisThresholdMin = 0.1;
+    this._pad = null;
     Object.seal(this);
   }
   get pad() {
@@ -16603,8 +16548,8 @@ var XRHandModelFactory = class {
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/CursorColor.ts
 var CursorColor = class extends BaseCursor {
-  constructor(env2) {
-    super(env2);
+  constructor(env) {
+    super(env);
     this.material = solid({
       name: "CursorMat",
       color: 16776960
@@ -16659,8 +16604,8 @@ var CursorColor = class extends BaseCursor {
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/CursorSystem.ts
 var CursorSystem = class extends BaseCursor {
-  constructor(env2, element) {
-    super(env2);
+  constructor(env, element) {
+    super(env);
     this.element = element;
     this._hidden = false;
     this.visible = true;
@@ -16694,9 +16639,9 @@ var CursorSystem = class extends BaseCursor {
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/CursorXRMouse.ts
 var CursorXRMouse = class extends BaseCursor {
-  constructor(env2) {
-    super(env2);
-    this.xr = env2.cursor3D && env2.cursor3D.clone() || new CursorColor(this.env);
+  constructor(env) {
+    super(env);
+    this.xr = env.cursor3D && env.cursor3D.clone() || new CursorColor(this.env);
     this.system = new CursorSystem(this.env, this.env.renderer.domElement);
     this.visible = false;
   }
@@ -16781,11 +16726,11 @@ var Pointer3DEvent = class extends TypedEvent {
 var MAX_DRAG_DISTANCE = 5;
 var ZERO = new THREE.Vector3();
 var BasePointer = class extends TypedEventBase {
-  constructor(type2, id2, env2, cursor) {
+  constructor(type2, id2, env, cursor) {
     super();
     this.type = type2;
     this.id = id2;
-    this.env = env2;
+    this.env = env;
     this.origin = new THREE.Vector3();
     this.direction = new THREE.Vector3();
     this.up = new THREE.Vector3(0, 1, 0);
@@ -17392,8 +17337,8 @@ var questToVirtualMap = /* @__PURE__ */ new Map([
   [4 /* X_A */, 3 /* Info */]
 ]);
 var PointerHand = class extends BasePointer {
-  constructor(env2, index) {
-    super("hand", 4 /* MotionController */, env2, new CursorColor(env2));
+  constructor(env, index) {
+    super("hand", 4 /* MotionController */, env, new CursorColor(env));
     this.laser = new Laser(white, 2e-3);
     this.object = new THREE.Object3D();
     this._handedness = "none";
@@ -17506,10 +17451,10 @@ var PointerHand = class extends BasePointer {
     this.updateCursorSide();
   }
   updateCursorSide() {
-    const obj3 = this.cursor.object;
-    if (obj3) {
+    const obj2 = this.cursor.object;
+    if (obj2) {
       const sx = this.handedness === "left" ? -1 : 1;
-      obj3.scale.set(sx, 1, 1);
+      obj2.scale.set(sx, 1, 1);
     }
   }
   updatePointerOrientation() {
@@ -17531,8 +17476,8 @@ var PointerHand = class extends BasePointer {
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/BaseScreenPointer.ts
 var BaseScreenPointer = class extends BasePointer {
-  constructor(type2, id2, env2, cursor) {
-    super(type2, id2, env2, cursor);
+  constructor(type2, id2, env, cursor) {
+    super(type2, id2, env, cursor);
     this.position = new THREE.Vector2();
     this.motion = new THREE.Vector2();
     this.uv = new THREE.Vector2();
@@ -17592,7 +17537,7 @@ var BaseScreenPointer = class extends BasePointer {
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/BaseScreenPointerSinglePoint.ts
 var BaseScreenPointerSinglePoint = class extends BaseScreenPointer {
-  constructor(type2, id2, env2) {
+  constructor(type2, id2, env) {
     const onPrep = (evt) => {
       if (evt.pointerType === type2 && this.pointerID == null) {
         this.pointerID = evt.pointerId;
@@ -17603,10 +17548,10 @@ var BaseScreenPointerSinglePoint = class extends BaseScreenPointer {
         this.pointerID = null;
       }
     };
-    const element = env2.renderer.domElement;
+    const element = env.renderer.domElement;
     element.addEventListener("pointerdown", onPrep);
     element.addEventListener("pointermove", onPrep);
-    super(type2, id2, env2, new CursorXRMouse(env2));
+    super(type2, id2, env, new CursorXRMouse(env));
     this.pointerID = null;
     element.addEventListener("pointerup", unPrep);
     element.addEventListener("pointercancel", unPrep);
@@ -17628,8 +17573,8 @@ var BaseScreenPointerSinglePoint = class extends BaseScreenPointer {
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/PointerMouse.ts
 var PointerMouse = class extends BaseScreenPointerSinglePoint {
-  constructor(env2) {
-    super("mouse", 1 /* Mouse */, env2);
+  constructor(env) {
+    super("mouse", 1 /* Mouse */, env);
     this.allowPointerLock = false;
     this.dz = 0;
     this.keyMap = /* @__PURE__ */ new Map([
@@ -17687,13 +17632,23 @@ var PointerMouse = class extends BaseScreenPointerSinglePoint {
   }
 };
 
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/PointerPen.ts
+var PointerPen = class extends BaseScreenPointerSinglePoint {
+  constructor(env) {
+    super("pen", 2 /* Pen */, env);
+    Object.seal(this);
+  }
+  vibrate() {
+  }
+};
+
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/PointerTouch.ts
 function getPointerID(evt) {
   return evt.pointerId;
 }
 var PointerTouch = class extends BaseScreenPointer {
-  constructor(env2) {
-    super("touch", 3 /* Touch */, env2, null);
+  constructor(env) {
+    super("touch", 3 /* Touch */, env, null);
     this.dz = 0;
     this.lastZ = 0;
     this.points = new Array();
@@ -17768,22 +17723,15 @@ var PointerTouch = class extends BaseScreenPointer {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/PointerPen.ts
-var PointerPen = class extends BaseScreenPointerSinglePoint {
-  constructor(env2) {
-    super("pen", 2 /* Pen */, env2);
-    Object.seal(this);
-  }
-  vibrate() {
-  }
-};
-
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/PointerManager.ts
 var PointerManager = class extends TypedEventBase {
-  constructor(env2) {
+  constructor(env) {
     super();
-    this.env = env2;
+    this.env = env;
     this.raycaster = new THREE.Raycaster();
+    this.queue = new Array();
+    this.targetsFound = /* @__PURE__ */ new Set();
+    this.targets = new Array();
     this.hands = new Array();
     this.raycaster.camera = this.env.camera;
     this.raycaster.layers.set(FOREGROUND);
@@ -17830,9 +17778,23 @@ var PointerManager = class extends TypedEventBase {
   fireRay(origin, direction, hits) {
     this.raycaster.ray.origin.copy(origin);
     this.raycaster.ray.direction.copy(direction);
-    this.raycaster.intersectObject(this.env.scene, true, hits);
+    this.raycaster.intersectObjects(this.targets, false, hits);
   }
   update() {
+    this.targetsFound.clear();
+    arrayClear(this.targets);
+    this.queue.push(this.env.scene);
+    while (this.queue.length > 0) {
+      const here = this.queue.shift();
+      if (here.children.length > 0) {
+        this.queue.push(...here.children);
+      }
+      const target = getRayTarget(here);
+      if (target && !this.targetsFound.has(target)) {
+        this.targetsFound.add(target);
+        this.targets.push(...target.meshes);
+      }
+    }
     for (const pointer of this.pointers) {
       if (pointer.needsUpdate) {
         pointer.update();
@@ -21149,8 +21111,8 @@ var CUBEMAP_PATTERN = {
 };
 var black = new THREE.Color(0);
 var Skybox = class {
-  constructor(env2) {
-    this.env = env2;
+  constructor(env) {
+    this.env = env;
     this.rt = new THREE.WebGLCubeRenderTarget(FACE_SIZE);
     this.rtScene = new THREE.Scene();
     this.rtCamera = new THREE.CubeCamera(0.01, 10, this.rt);
@@ -21628,15 +21590,6 @@ var BaseEnvironment = class extends TypedEventBase {
       await this.fader.fadeIn();
     }
   }
-  async loadModel(path, prog) {
-    const loader = new GLTFLoader();
-    const model2 = await loader.loadAsync(path, (evt) => {
-      if (isDefined(prog)) {
-        prog.report(evt.loaded, evt.total, path);
-      }
-    });
-    return model2.scene;
-  }
   set3DCursor(model2) {
     const children = model2.children.slice(0);
     for (const child of children) {
@@ -21664,16 +21617,14 @@ var BaseEnvironment = class extends TypedEventBase {
 var ActivityDetector = class {
   constructor(name2, audioCtx) {
     this.name = name2;
+    this._level = 0;
+    this.maxLevel = 0;
     this.analyzer = Analyser(this.name, audioCtx, {
       fftSize: 32,
       minDecibels: -70
     });
     this.buffer = new Uint8Array(this.analyzer.frequencyBinCount);
   }
-  _level = 0;
-  maxLevel = 0;
-  analyzer;
-  buffer;
   dispose() {
     removeVertex(this.analyzer);
   }
@@ -21699,9 +21650,6 @@ var ActivityDetector = class {
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/widgets/InputRangeWithNumber.ts
 Style(rule(".input-range-with-number", display("grid"), gridAutoFlow("column"), columnGap("5px"), gridTemplateColumns("1fr auto")));
 var InputRangeWithNumberElement = class extends TypedEventBase {
-  element;
-  rangeInput;
-  numberInput;
   constructor(...rest) {
     super();
     this.element = Div(className("input-range-with-number"), this.rangeInput = InputRange(...rest), this.numberInput = InputNumber());
@@ -21749,7 +21697,6 @@ var PropertyGroup = class {
     this.name = name2;
     this.properties = properties;
   }
-  properties;
 };
 function group(name2, ...properties) {
   return new PropertyGroup(name2, ...properties);
@@ -21757,9 +21704,8 @@ function group(name2, ...properties) {
 Style(rule("dl", display("grid"), gridAutoFlow("row"), gridTemplateColumns("auto 1fr"), margin("1em")), rule("dt", gridColumn(1), textAlign("right"), paddingRight("1em")), rule("dd", textAlign("left"), gridColumn(2), marginInlineStart("0")), rule("dl > span, dl > div", gridColumn(1, 3)), rule("dl .alert", width("20em")));
 var DEFAULT_PROPERTY_GROUP = "DefaultPropertyGroup" + stringRandom(16);
 var PropertyList = class {
-  element;
-  rowGroups = /* @__PURE__ */ new Map();
   constructor(...rest) {
+    this.rowGroups = /* @__PURE__ */ new Map();
     this.element = DL(...this.createElements(rest));
   }
   append(...rest) {
@@ -21831,9 +21777,9 @@ var PropertyList = class {
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/environment/DeviceDialog.ts
 var MIC_GROUP = "micFields" + stringRandom(8);
 var DeviceDialog = class extends DialogBox {
-  constructor(env2) {
+  constructor(env) {
     super("Configure devices");
-    this.env = env2;
+    this.env = env;
     this.micLookup = null;
     this.spkrLookup = null;
     this.spkrVolumeControl = null;
@@ -21856,7 +21802,7 @@ var DeviceDialog = class extends DialogBox {
       "Input level",
       this.micScenario = Meter()
     ], ["Volume", this.micVolumeControl = InputRangeWithNumber(min2(0), max2(100), step(1), value(0), onInput(() => {
-      env2.audio.input.gain.setValueAtTime(this.micVolumeControl.valueAsNumber / 100, 0);
+      env.audio.input.gain.setValueAtTime(this.micVolumeControl.valueAsNumber / 100, 0);
     }))], "Output")));
     if (canChangeAudioOutput) {
       this.properties.append([
@@ -21885,7 +21831,7 @@ var DeviceDialog = class extends DialogBox {
       }))
     ], this.headphoneWarning = Div(className("alert alert-warning"), "\u{1F3A7}\u{1F399}\uFE0F This site has a voice chat feature. Voice chat is best experienced using headphones."), [
       "Volume",
-      this.spkrVolumeControl = InputRangeWithNumber(min2(0), max2(100), step(1), value(0), onInput(() => env2.audio.audioDestination.volume = this.spkrVolumeControl.valueAsNumber / 100))
+      this.spkrVolumeControl = InputRangeWithNumber(min2(0), max2(100), step(1), value(0), onInput(() => env.audio.audioDestination.volume = this.spkrVolumeControl.valueAsNumber / 100))
     ]);
     this.activity = new ActivityDetector("device-settings-dialog-activity", this.env.audio.audioCtx);
     this.timer.addTickHandler(() => {
@@ -21955,33 +21901,15 @@ var EnvironmentRoomJoinedEvent = class extends TypedEvent {
   }
 };
 var Environment = class extends BaseEnvironment {
-  audio;
-  interactionAudio;
-  xrUI;
-  screenUISpace = new ScreenUI();
-  confirmationDialog;
-  compassImage;
-  clockImage;
-  batteryImage;
-  settingsButton;
-  muteMicButton;
-  muteEnvAudioButton;
-  quitButton;
-  lobbyButton;
-  vrButton;
-  fullscreenButton;
-  devicesDialog;
-  apps;
-  uiButtons;
-  audioPlayer;
-  videoPlayer;
-  envAudioToggleEvt = new TypedEvent("environmentaudiotoggled");
-  _currentRoom = null;
-  get currentRoom() {
-    return this._currentRoom;
-  }
   constructor(canvas, fetcher, dialogFontFamily, uiImagePaths, defaultAvatarHeight2, enableFullResolution2, options) {
     super(canvas, fetcher, defaultAvatarHeight2, enableFullResolution2, options && options.DEBUG);
+    this.screenUISpace = new ScreenUI();
+    this.envAudioToggleEvt = new TypedEvent("environmentaudiotoggled");
+    this._currentRoom = null;
+    this._testSpaceLayout = false;
+    this.countTick = 0;
+    this.fpses = new Array();
+    this.avgFPS = 0;
     this.compassImage = new ArtificialHorizon();
     this.clockImage = new CanvasImageMesh(this, "Clock", new ClockImage());
     this.clockImage.sizeMode = "fixed-height";
@@ -22077,11 +22005,13 @@ var Environment = class extends BaseEnvironment {
     });
     this.avatar.addEventListener("avatarmoved", (evt) => this.audio.setUserPose(this.audio.localUserID, evt.px, evt.py, evt.pz, evt.fx, evt.fy, evt.fz, evt.ux, evt.uy, evt.uz));
   }
+  get currentRoom() {
+    return this._currentRoom;
+  }
   refreshSpaceUI() {
     this.xrUI.visible = this.renderer.xr.isPresenting || this.testSpaceLayout;
     this.clockImage.isVisible = this.xrUI.visible || this.DEBUG;
   }
-  _testSpaceLayout = false;
   get testSpaceLayout() {
     return this._testSpaceLayout;
   }
@@ -22091,9 +22021,6 @@ var Environment = class extends BaseEnvironment {
       this.refreshSpaceUI();
     }
   }
-  countTick = 0;
-  fpses = new Array();
-  avgFPS = 0;
   preRender(evt) {
     super.preRender(evt);
     this.audio.update();
@@ -22239,18 +22166,20 @@ async function createTestEnvironment(debug = true) {
 }
 
 // src/dragging-app/index.ts
-var env = await createTestEnvironment();
-var skybox = new AssetImage("/skyboxes/BearfenceMountain.jpeg", Image_Jpeg, false);
-await env.fadeOut();
-await env.load(skybox);
-env.skybox.setImage(skybox.path, skybox.result);
-env.skybox.rotation = deg2rad(176);
-var obj2 = new Cube(0.25, 0.25, 0.25, lit({
-  color: "yellow"
-}));
-var transformer = new TransformEditor(true, 1.75);
-transformer.size = 2;
-obj2.position.set(0, 1.75, -2);
-objGraph(env.foreground, objGraph(obj2, transformer));
-await env.fadeIn();
+(async function() {
+  const env = await createTestEnvironment();
+  const skybox = new AssetImage("/skyboxes/BearfenceMountain.jpeg", Image_Jpeg, false);
+  await env.fadeOut();
+  await env.load(skybox);
+  env.skybox.setImage(skybox.path, skybox.result);
+  env.skybox.rotation = deg2rad(176);
+  const obj2 = new Cube(0.25, 0.25, 0.25, lit({
+    color: "yellow"
+  }));
+  const transformer = new TransformEditor(true, 1.75);
+  transformer.size = 2;
+  obj2.position.set(0, 1.75, -2);
+  objGraph(env.foreground, objGraph(obj2, transformer));
+  await env.fadeIn();
+})();
 //# sourceMappingURL=index.js.map

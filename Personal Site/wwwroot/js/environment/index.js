@@ -4,7 +4,6 @@ var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __defNormalProp = (obj2, key, value2) => key in obj2 ? __defProp(obj2, key, { enumerable: true, configurable: true, writable: true, value: value2 }) : obj2[key] = value2;
 var __commonJS = (cb, mod) => function __require() {
   return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
 };
@@ -21,10 +20,6 @@ var __copyProps = (to, from, except, desc) => {
   return to;
 };
 var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target, mod));
-var __publicField = (obj2, key, value2) => {
-  __defNormalProp(obj2, typeof key !== "symbol" ? key + "" : key, value2);
-  return value2;
-};
 
 // ../Juniper/src/Juniper.TypeScript/node_modules/cardboard-vr-display/dist/cardboard-vr-display.js
 var require_cardboard_vr_display = __commonJS({
@@ -5234,7 +5229,6 @@ var Attr = class {
     this.tags = tags.map((t2) => t2.toLocaleUpperCase());
     Object.freeze(this);
   }
-  tags;
   applyToElement(elem) {
     const isDataSet = this.key.startsWith("data-");
     const isValid = this.tags.length === 0 || this.tags.indexOf(elem.tagName) > -1 || isDataSet;
@@ -5334,13 +5328,11 @@ var CssProp = class {
     this.value = value2;
     this.name = key.replace(/[A-Z]/g, (m) => `-${m.toLocaleLowerCase()}`);
   }
-  name;
   applyToElement(elem) {
     elem.style[this.key] = this.value;
   }
 };
 var CssPropSet = class {
-  rest;
   constructor(...rest) {
     this.rest = rest;
   }
@@ -6156,14 +6148,13 @@ var SpeakerManager = class extends TypedEventBase {
   constructor(element) {
     super();
     this.element = element;
+    this._hasAudioPermission = false;
     this.ready = this.start();
     Object.seal(this);
   }
-  _hasAudioPermission = false;
   get hasAudioPermission() {
     return this._hasAudioPermission;
   }
-  ready;
   async start() {
     if (canChangeAudioOutput) {
       const devices = await navigator.mediaDevices.enumerateDevices();
@@ -6674,31 +6665,21 @@ var useHeadphonesToggledEvt = new TypedEvent("useheadphonestoggled");
 var hasStreamSources = "createMediaStreamSource" in AudioContext.prototype;
 var useElementSourceForUsers = !hasStreamSources;
 var AudioManager = class extends TypedEventBase {
-  users = /* @__PURE__ */ new Map();
-  clips = /* @__PURE__ */ new Map();
-  clipPaths = /* @__PURE__ */ new Map();
-  pathSources = /* @__PURE__ */ new Map();
-  pathCounts = /* @__PURE__ */ new Map();
-  localFilter;
-  localCompressor;
-  _minDistance = 1;
-  _maxDistance = 10;
-  _useHeadphones = false;
-  _algorithm = "inverse";
-  get algorithm() {
-    return this._algorithm;
-  }
-  element = null;
-  audioDestination = null;
-  speakers;
-  input;
-  localAutoControlledGain;
-  output;
-  audioCtx;
-  ready;
-  localUserID = null;
   constructor(defaultLocalUserID) {
     super();
+    this.users = /* @__PURE__ */ new Map();
+    this.clips = /* @__PURE__ */ new Map();
+    this.clipPaths = /* @__PURE__ */ new Map();
+    this.pathSources = /* @__PURE__ */ new Map();
+    this.pathCounts = /* @__PURE__ */ new Map();
+    this._minDistance = 1;
+    this._maxDistance = 10;
+    this._useHeadphones = false;
+    this._algorithm = "inverse";
+    this.element = null;
+    this.audioDestination = null;
+    this.localUserID = null;
+    this.counter = 0;
     this.audioCtx = new AudioContext();
     let destination = null;
     if (canChangeAudioOutput) {
@@ -6729,6 +6710,9 @@ var AudioManager = class extends TypedEventBase {
     }
     this.ready = this.start();
     Object.seal(this);
+  }
+  get algorithm() {
+    return this._algorithm;
   }
   get useHeadphones() {
     return this._useHeadphones;
@@ -6790,7 +6774,6 @@ var AudioManager = class extends TypedEventBase {
       user.audioTick(t2);
     }
   }
-  counter = 0;
   newSpatializer(id2, spatialize, isRemoteStream) {
     if (spatialize) {
       const destination = isRemoteStream ? this.audioDestination.remoteUserInput : this.audioDestination.spatializedInput;
@@ -7026,39 +7009,13 @@ var MediaPlayerLoadingEvent = class extends MediaPlayerEvent {
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/sources/AudioPlayer.ts
 var AudioPlayer = class extends BaseAudioSource {
-  loadingEvt;
-  loadEvt;
-  playEvt;
-  pauseEvt;
-  stopEvt;
-  progEvt;
-  onError;
-  onPlay;
-  onCanPlay;
-  onWaiting;
-  onPause;
-  onTimeUpdate;
-  _data = null;
-  get data() {
-    return this._data;
-  }
-  _loaded = false;
-  get loaded() {
-    return this._loaded;
-  }
-  element;
-  audioSource;
-  get title() {
-    return this.element.title;
-  }
-  setTitle(v) {
-    this.element.title = v;
-  }
-  sourcesByURL = /* @__PURE__ */ new Map();
-  sources = new Array();
-  potatoes = new Array();
   constructor(audioCtx) {
     super("JuniperAudioPlayer", audioCtx, NoSpatializationNode.instance(audioCtx));
+    this._data = null;
+    this._loaded = false;
+    this.sourcesByURL = /* @__PURE__ */ new Map();
+    this.sources = new Array();
+    this.potatoes = new Array();
     this.element = Audio2(playsInline(true), autoPlay(false), loop(false), controls(true));
     this.input = MediaElementSource("JuniperAudioPlayer-Input", audioCtx, this.element);
     this.loadingEvt = new MediaPlayerLoadingEvent(this);
@@ -7093,6 +7050,18 @@ var AudioPlayer = class extends BaseAudioSource {
     this.element.addEventListener("canplay", this.onCanPlay);
     this.element.addEventListener("timeupdate", this.onTimeUpdate);
     Object.assign(window, { audioPlayer: this });
+  }
+  get data() {
+    return this._data;
+  }
+  get loaded() {
+    return this._loaded;
+  }
+  get title() {
+    return this.element.title;
+  }
+  setTitle(v) {
+    this.element.title = v;
   }
   get hasAudio() {
     const source = this.sourcesByURL.get(this.element.src);
@@ -7410,7 +7379,6 @@ var Audio_Mpeg = /* @__PURE__ */ audio("mpeg", "mp3", "mp2", "mp2a", "mpga", "m2
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/image.ts
 var image = /* @__PURE__ */ specialize("image");
 var Image_Png = /* @__PURE__ */ image("png", "png");
-var Image_Vendor_Google_StreetView_Pano = image("vnd.google.streetview.pano");
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/model.ts
 var model = /* @__PURE__ */ specialize("model");
@@ -7717,10 +7685,10 @@ var CanvasImage = class extends TypedEventBase {
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/graphics2d/ArtificialHorizon.ts
 var ArtificialHorizon = class extends CanvasImage {
-  _pitch = 0;
-  _heading = 0;
   constructor() {
     super(128, 128);
+    this._pitch = 0;
+    this._heading = 0;
     this.redraw();
   }
   get pitch() {
@@ -7845,13 +7813,13 @@ var chargeLabels = [
   "charging"
 ];
 var BatteryImage = class extends CanvasImage {
-  battery = null;
-  lastChargeDirection = null;
-  lastLevel = null;
-  chargeDirection = 0;
-  level = 0.5;
   constructor() {
     super(256, 128);
+    this.battery = null;
+    this.lastChargeDirection = null;
+    this.lastLevel = null;
+    this.chargeDirection = 0;
+    this.level = 0.5;
     if (isBatteryNavigator(navigator)) {
       this.readBattery(navigator);
     } else {
@@ -7918,7 +7886,7 @@ var BatteryImage = class extends CanvasImage {
     redraw();
   }
 };
-__publicField(BatteryImage, "isAvailable", isBatteryNavigator(navigator));
+BatteryImage.isAvailable = isBatteryNavigator(navigator);
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/graphics2d/TextImage.ts
 var TextImage = class extends CanvasImage {
@@ -8369,9 +8337,6 @@ var TextImage = class extends CanvasImage {
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/graphics2d/ClockImage.ts
 var ClockImage = class extends TextImage {
-  fps = null;
-  drawCalls = null;
-  triangles = null;
   constructor() {
     super({
       textFillColor: "#ffffff",
@@ -8385,6 +8350,9 @@ var ClockImage = class extends TextImage {
       wrapWords: false,
       freezeDimensions: true
     });
+    this.fps = null;
+    this.drawCalls = null;
+    this.triangles = null;
     const updater = this.update.bind(this);
     setInterval(updater, 500);
     updater();
@@ -8415,11 +8383,11 @@ function isDead(task) {
   return !task.started || task.finished;
 }
 var AnimationTask = class extends Task {
-  time = 0;
-  duration = 0;
-  onTick = null;
   constructor() {
     super(false);
+    this.time = 0;
+    this.duration = 0;
+    this.onTick = null;
   }
   begin(delay, duration, onTick) {
     this.reset();
@@ -8442,7 +8410,9 @@ var AnimationTask = class extends Task {
   }
 };
 var Animator = class {
-  animations = new Array();
+  constructor() {
+    this.animations = new Array();
+  }
   update(dt) {
     dt = 1e-3 * dt;
     for (const animation of this.animations) {
@@ -8477,15 +8447,8 @@ function jump(t2, k) {
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/widgets/DialogBox.ts
 Style(rule(".dialog, .dialog-container", position("fixed")), rule(".dialog", top(0), left(0), width("100%"), height("100%"), backgroundColor("rgba(0, 0, 0, 0.5)"), zIndex(100)), rule(".dialog-container", top("50%"), left("50%"), maxWidth("100%"), maxHeight("100%"), transform("translateX(-50%) translateY(-50%)"), backgroundColor("white"), boxShadow("rgba(0,0,0,0.5) 0px 5px 30px"), display("grid"), gridTemplateColumns("2em auto 2em"), gridTemplateRows("auto 1fr auto 2em")), rule(".dialog .title-bar", gridArea(1, 1, 2, -1), padding("0.25em")), rule(".dialog-content", gridArea(2, 2, -4, -2), overflow("auto")), rule(".dialog-controls", gridArea(-2, 2, -3, -2)), rule(".dialog .confirm-button", float("right")), rule(".dialog h1, .dialog h2, .dialog h3, .dialog h4, .dialog h5, .dialog h6", textAlign("left")), rule(".dialog select", maxWidth("10em")));
 var DialogBox = class {
-  element;
-  subEventer = new TypedEventBase();
-  _title;
-  titleElement;
-  container;
-  contentArea;
-  confirmButton;
-  cancelButton;
   constructor(title2) {
+    this.subEventer = new TypedEventBase();
     this.element = Div(className("dialog"), customData("dialogname", title2), styles(display("none")), this.container = Div(className("dialog-container"), this.titleElement = H1(className("title-bar"), title2), this.contentArea = Div(className("dialog-content")), Div(className("dialog-controls"), this.confirmButton = ButtonPrimary("Confirm", classList("confirm-button")), this.cancelButton = ButtonSecondary("Cancel", classList("cancel-button")))));
     this.confirmButton.addEventListener("click", () => this.subEventer.dispatchEvent(new TypedEvent("confirm")));
     this.cancelButton.addEventListener("click", () => this.subEventer.dispatchEvent(new TypedEvent("cancel")));
@@ -9697,12 +9660,12 @@ var RayTarget = class extends TypedEventBase {
   constructor(object) {
     super();
     this.object = object;
+    this.meshes = new Array();
+    this._disabled = false;
+    this._clickable = false;
+    this._draggable = false;
     this.object.userData[RAY_TARGET_KEY] = this;
   }
-  meshes = new Array();
-  _disabled = false;
-  _clickable = false;
-  _draggable = false;
   addMesh(mesh) {
     mesh.userData[RAY_TARGET_KEY] = this;
     this.meshes.push(mesh);
@@ -10018,44 +9981,16 @@ function isVideoRecord(obj2) {
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/video/BaseVideoPlayer.ts
 var BaseVideoPlayer = class extends BaseAudioSource {
-  loadingEvt;
-  loadEvt;
-  playEvt;
-  pauseEvt;
-  stopEvt;
-  progEvt;
-  onPlay;
-  onSeeked;
-  onCanPlay;
-  onWaiting;
-  onPause;
-  onTimeUpdate = null;
-  wasUsingAudioElement = false;
-  _data = null;
-  get data() {
-    return this._data;
-  }
-  _loaded = false;
-  get loaded() {
-    return this._loaded;
-  }
-  video;
-  audio;
-  videoSource;
-  audioSource;
-  get title() {
-    return this.video.title;
-  }
-  setTitle(v) {
-    this.video.title = v;
-    this.audio.title = v;
-  }
-  onError = /* @__PURE__ */ new Map();
-  sourcesByURL = /* @__PURE__ */ new Map();
-  sources = new PriorityList();
-  potatoes = new PriorityList();
   constructor(audioCtx) {
     super("JuniperVideoPlayer", audioCtx, NoSpatializationNode.instance(audioCtx));
+    this.onTimeUpdate = null;
+    this.wasUsingAudioElement = false;
+    this._data = null;
+    this._loaded = false;
+    this.onError = /* @__PURE__ */ new Map();
+    this.sourcesByURL = /* @__PURE__ */ new Map();
+    this.sources = new PriorityList();
+    this.potatoes = new PriorityList();
     this.video = this.createMediaElement(Video, controls(true));
     this.audio = this.createMediaElement(Audio2, controls(false));
     this.input = Gain("JuniperVideoPlayer-combiner", audioCtx);
@@ -10135,6 +10070,19 @@ var BaseVideoPlayer = class extends BaseAudioSource {
     this.video.addEventListener("canplay", this.onCanPlay);
     this.video.addEventListener("timeupdate", this.onTimeUpdate);
     Object.assign(window, { videoPlayer: this });
+  }
+  get data() {
+    return this._data;
+  }
+  get loaded() {
+    return this._loaded;
+  }
+  get title() {
+    return this.video.title;
+  }
+  setTitle(v) {
+    this.video.title = v;
+    this.audio.title = v;
   }
   elementHasAudio(elem) {
     const source = this.sourcesByURL.get(elem.src);
@@ -13567,7 +13515,7 @@ var _AssetGltfModel = class extends BaseFetchedAsset {
   }
 };
 var AssetGltfModel = _AssetGltfModel;
-__publicField(AssetGltfModel, "loader", new GLTFLoader());
+AssetGltfModel.loader = new GLTFLoader();
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/evts.ts
 function isModifierless(evt) {
@@ -13583,7 +13531,6 @@ var HtmlEvt = class {
     this.opts = opts;
     Object.freeze(this);
   }
-  opts;
   applyToElement(elem) {
     this.add(elem);
   }
@@ -13603,20 +13550,20 @@ function onInput(callback, opts) {
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/AvatarMovedEvent.ts
 var AvatarMovedEvent = class extends TypedEvent {
-  px = 0;
-  py = 0;
-  pz = 0;
-  fx = 0;
-  fy = 0;
-  fz = 0;
-  ux = 0;
-  uy = 0;
-  uz = 0;
-  height = 0;
-  changed = false;
-  pointerID = 0 /* LocalUser */;
   constructor() {
     super("avatarmoved");
+    this.px = 0;
+    this.py = 0;
+    this.pz = 0;
+    this.fx = 0;
+    this.fy = 0;
+    this.fz = 0;
+    this.ux = 0;
+    this.uy = 0;
+    this.uz = 0;
+    this.height = 0;
+    this.changed = false;
+    this.pointerID = 0 /* LocalUser */;
   }
   set(px, py, pz, fx, fy, fz, ux, uy, uz, height2) {
     this.changed = this.px !== px || this.py !== py || this.pz !== pz || this.fx !== fx || this.fy !== fy || this.fz !== fz || this.ux !== ux || this.uy !== uy || this.uz !== uz;
@@ -14199,18 +14146,18 @@ var GamepadAxisMaxedEvent = class extends GamepadAxisEvent {
   }
 };
 var EventedGamepad = class extends TypedEventBase {
-  lastAxisValues = new Array();
-  btnDownEvts = new Array();
-  btnUpEvts = new Array();
-  wasPressed = new Array();
-  axisMaxEvts = new Array();
-  wasAxisMaxed = new Array();
-  sticks = new Array();
-  axisThresholdMax = 0.9;
-  axisThresholdMin = 0.1;
-  _pad = null;
   constructor() {
     super();
+    this.lastAxisValues = new Array();
+    this.btnDownEvts = new Array();
+    this.btnUpEvts = new Array();
+    this.wasPressed = new Array();
+    this.axisMaxEvts = new Array();
+    this.wasAxisMaxed = new Array();
+    this.sticks = new Array();
+    this.axisThresholdMax = 0.9;
+    this.axisThresholdMin = 0.1;
+    this._pad = null;
     Object.seal(this);
   }
   get pad() {
@@ -16105,6 +16052,16 @@ var PointerMouse = class extends BaseScreenPointerSinglePoint {
   }
 };
 
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/PointerPen.ts
+var PointerPen = class extends BaseScreenPointerSinglePoint {
+  constructor(env) {
+    super("pen", 2 /* Pen */, env);
+    Object.seal(this);
+  }
+  vibrate() {
+  }
+};
+
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/PointerTouch.ts
 function getPointerID(evt) {
   return evt.pointerId;
@@ -16186,22 +16143,15 @@ var PointerTouch = class extends BaseScreenPointer {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/PointerPen.ts
-var PointerPen = class extends BaseScreenPointerSinglePoint {
-  constructor(env) {
-    super("pen", 2 /* Pen */, env);
-    Object.seal(this);
-  }
-  vibrate() {
-  }
-};
-
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/PointerManager.ts
 var PointerManager = class extends TypedEventBase {
   constructor(env) {
     super();
     this.env = env;
     this.raycaster = new THREE.Raycaster();
+    this.queue = new Array();
+    this.targetsFound = /* @__PURE__ */ new Set();
+    this.targets = new Array();
     this.hands = new Array();
     this.raycaster.camera = this.env.camera;
     this.raycaster.layers.set(FOREGROUND);
@@ -16248,9 +16198,23 @@ var PointerManager = class extends TypedEventBase {
   fireRay(origin, direction, hits) {
     this.raycaster.ray.origin.copy(origin);
     this.raycaster.ray.direction.copy(direction);
-    this.raycaster.intersectObject(this.env.scene, true, hits);
+    this.raycaster.intersectObjects(this.targets, false, hits);
   }
   update() {
+    this.targetsFound.clear();
+    arrayClear(this.targets);
+    this.queue.push(this.env.scene);
+    while (this.queue.length > 0) {
+      const here = this.queue.shift();
+      if (here.children.length > 0) {
+        this.queue.push(...here.children);
+      }
+      const target = getRayTarget(here);
+      if (target && !this.targetsFound.has(target)) {
+        this.targetsFound.add(target);
+        this.targets.push(...target.meshes);
+      }
+    }
     for (const pointer of this.pointers) {
       if (pointer.needsUpdate) {
         pointer.update();
@@ -20046,15 +20010,6 @@ var BaseEnvironment = class extends TypedEventBase {
       await this.fader.fadeIn();
     }
   }
-  async loadModel(path, prog) {
-    const loader = new GLTFLoader();
-    const model2 = await loader.loadAsync(path, (evt) => {
-      if (isDefined(prog)) {
-        prog.report(evt.loaded, evt.total, path);
-      }
-    });
-    return model2.scene;
-  }
   set3DCursor(model2) {
     const children = model2.children.slice(0);
     for (const child of children) {
@@ -20082,16 +20037,14 @@ var BaseEnvironment = class extends TypedEventBase {
 var ActivityDetector = class {
   constructor(name2, audioCtx) {
     this.name = name2;
+    this._level = 0;
+    this.maxLevel = 0;
     this.analyzer = Analyser(this.name, audioCtx, {
       fftSize: 32,
       minDecibels: -70
     });
     this.buffer = new Uint8Array(this.analyzer.frequencyBinCount);
   }
-  _level = 0;
-  maxLevel = 0;
-  analyzer;
-  buffer;
   dispose() {
     removeVertex(this.analyzer);
   }
@@ -20117,9 +20070,6 @@ var ActivityDetector = class {
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/widgets/InputRangeWithNumber.ts
 Style(rule(".input-range-with-number", display("grid"), gridAutoFlow("column"), columnGap("5px"), gridTemplateColumns("1fr auto")));
 var InputRangeWithNumberElement = class extends TypedEventBase {
-  element;
-  rangeInput;
-  numberInput;
   constructor(...rest) {
     super();
     this.element = Div(className("input-range-with-number"), this.rangeInput = InputRange(...rest), this.numberInput = InputNumber());
@@ -20167,7 +20117,6 @@ var PropertyGroup = class {
     this.name = name2;
     this.properties = properties;
   }
-  properties;
 };
 function group(name2, ...properties) {
   return new PropertyGroup(name2, ...properties);
@@ -20175,9 +20124,8 @@ function group(name2, ...properties) {
 Style(rule("dl", display("grid"), gridAutoFlow("row"), gridTemplateColumns("auto 1fr"), margin("1em")), rule("dt", gridColumn(1), textAlign("right"), paddingRight("1em")), rule("dd", textAlign("left"), gridColumn(2), marginInlineStart("0")), rule("dl > span, dl > div", gridColumn(1, 3)), rule("dl .alert", width("20em")));
 var DEFAULT_PROPERTY_GROUP = "DefaultPropertyGroup" + stringRandom(16);
 var PropertyList = class {
-  element;
-  rowGroups = /* @__PURE__ */ new Map();
   constructor(...rest) {
+    this.rowGroups = /* @__PURE__ */ new Map();
     this.element = DL(...this.createElements(rest));
   }
   append(...rest) {
@@ -20373,33 +20321,15 @@ var EnvironmentRoomJoinedEvent = class extends TypedEvent {
   }
 };
 var Environment = class extends BaseEnvironment {
-  audio;
-  interactionAudio;
-  xrUI;
-  screenUISpace = new ScreenUI();
-  confirmationDialog;
-  compassImage;
-  clockImage;
-  batteryImage;
-  settingsButton;
-  muteMicButton;
-  muteEnvAudioButton;
-  quitButton;
-  lobbyButton;
-  vrButton;
-  fullscreenButton;
-  devicesDialog;
-  apps;
-  uiButtons;
-  audioPlayer;
-  videoPlayer;
-  envAudioToggleEvt = new TypedEvent("environmentaudiotoggled");
-  _currentRoom = null;
-  get currentRoom() {
-    return this._currentRoom;
-  }
   constructor(canvas, fetcher, dialogFontFamily, uiImagePaths, defaultAvatarHeight, enableFullResolution, options) {
     super(canvas, fetcher, defaultAvatarHeight, enableFullResolution, options && options.DEBUG);
+    this.screenUISpace = new ScreenUI();
+    this.envAudioToggleEvt = new TypedEvent("environmentaudiotoggled");
+    this._currentRoom = null;
+    this._testSpaceLayout = false;
+    this.countTick = 0;
+    this.fpses = new Array();
+    this.avgFPS = 0;
     this.compassImage = new ArtificialHorizon();
     this.clockImage = new CanvasImageMesh(this, "Clock", new ClockImage());
     this.clockImage.sizeMode = "fixed-height";
@@ -20495,11 +20425,13 @@ var Environment = class extends BaseEnvironment {
     });
     this.avatar.addEventListener("avatarmoved", (evt) => this.audio.setUserPose(this.audio.localUserID, evt.px, evt.py, evt.pz, evt.fx, evt.fy, evt.fz, evt.ux, evt.uy, evt.uz));
   }
+  get currentRoom() {
+    return this._currentRoom;
+  }
   refreshSpaceUI() {
     this.xrUI.visible = this.renderer.xr.isPresenting || this.testSpaceLayout;
     this.clockImage.isVisible = this.xrUI.visible || this.DEBUG;
   }
-  _testSpaceLayout = false;
   get testSpaceLayout() {
     return this._testSpaceLayout;
   }
@@ -20509,9 +20441,6 @@ var Environment = class extends BaseEnvironment {
       this.refreshSpaceUI();
     }
   }
-  countTick = 0;
-  fpses = new Array();
-  avgFPS = 0;
   preRender(evt) {
     super.preRender(evt);
     this.audio.update();

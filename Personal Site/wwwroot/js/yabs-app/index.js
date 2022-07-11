@@ -923,7 +923,6 @@ var Attr = class {
     this.tags = tags.map((t2) => t2.toLocaleUpperCase());
     Object.freeze(this);
   }
-  tags;
   applyToElement(elem) {
     const isDataSet = this.key.startsWith("data-");
     const isValid = this.tags.length === 0 || this.tags.indexOf(elem.tagName) > -1 || isDataSet;
@@ -969,13 +968,11 @@ var CssProp = class {
     this.value = value;
     this.name = key.replace(/[A-Z]/g, (m) => `-${m.toLocaleLowerCase()}`);
   }
-  name;
   applyToElement(elem) {
     elem.style[this.key] = this.value;
   }
 };
 var CssPropSet = class {
-  rest;
   constructor(...rest) {
     this.rest = rest;
   }
@@ -1180,7 +1177,6 @@ var HtmlEvt = class {
     this.opts = opts;
     Object.freeze(this);
   }
-  opts;
   applyToElement(elem) {
     this.add(elem);
   }
@@ -1422,26 +1418,6 @@ function isFace(obj) {
   return obj instanceof Face;
 }
 var Face = class {
-  element;
-  boop;
-  shadow;
-  alive;
-  hits;
-  onground;
-  x;
-  y;
-  z;
-  f;
-  dx;
-  dy;
-  df;
-  width;
-  height;
-  boopFor;
-  boopX;
-  boopY;
-  boopDX;
-  boopDY;
   constructor() {
     this.alive = true;
     this.hits = 0;
@@ -1527,10 +1503,6 @@ var Face = class {
   }
 };
 var Cloud = class {
-  element;
-  x;
-  y;
-  dx;
   constructor() {
     this.element = document.createElement("div");
     this.element.className = "cloud";
@@ -1560,14 +1532,6 @@ var Cloud = class {
   }
 };
 var Beam = class {
-  element;
-  subBeam;
-  x;
-  y;
-  t;
-  charging;
-  firing;
-  enabled;
   constructor() {
     this.x = 0;
     this.y = 0;
@@ -1769,13 +1733,15 @@ function animate(t2) {
 out.connect(audio.destination);
 inst.style.opacity = "1";
 starter.style.display = "block";
-await audioReady(audio);
-starter.style.display = "none";
-inst.style.display = "block";
-requestAnimationFrame(animate);
-setTimeout(function() {
-  fading = true;
-}, 5e3);
+(async function() {
+  await audioReady(audio);
+  starter.style.display = "none";
+  inst.style.display = "block";
+  requestAnimationFrame(animate);
+  setTimeout(function() {
+    fading = true;
+  }, 5e3);
+})();
 var goodEndingTimer = setTimeout(function() {
   messages[messages.length - 1].style.display = "block";
   beam.disable();
