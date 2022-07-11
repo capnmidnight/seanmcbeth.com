@@ -50,8 +50,12 @@ import { Forest } from "../forest-app/Forest";
     dirt.position.set(0, 0.1, 1);
     dirt.rotation.x = -Math.PI / 2;
 
+    const dirtSurface = new THREE.Mesh(new THREE.PlaneBufferGeometry(5, 5, 1, 1));
+    dirtSurface.visible = false;
+    dirt.add(dirtSurface);
+
     const dirtTarget = new RayTarget(dirt);
-    dirtTarget.addMesh(dirt);
+    dirtTarget.addMesh(dirtSurface);
     dirtTarget.draggable = true;
     dirtTarget.addEventListener("down", checkPointer);
     dirtTarget.addEventListener("move", checkPointer);
