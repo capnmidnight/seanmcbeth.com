@@ -7426,6 +7426,12 @@ var BaseAsset = class {
   constructor(path, type2) {
     this.path = path;
     this.type = type2;
+    this._result = null;
+    this._error = null;
+    this._started = false;
+    this._finished = false;
+    this.resolve = null;
+    this.reject = null;
     this.promise = new Promise((resolve, reject) => {
       this.resolve = (value2) => {
         this._result = value2;
@@ -7439,11 +7445,6 @@ var BaseAsset = class {
       };
     });
   }
-  promise;
-  _result = null;
-  _error = null;
-  _started = false;
-  _finished = false;
   get result() {
     if (isDefined(this.error)) {
       throw this.error;
@@ -7459,8 +7460,6 @@ var BaseAsset = class {
   get finished() {
     return this._finished;
   }
-  resolve = null;
-  reject = null;
   async getSize(fetcher) {
     try {
       const { contentLength } = await fetcher.head(this.path).accept(this.type).exec();
@@ -7493,7 +7492,6 @@ var BaseAsset = class {
   }
 };
 var BaseFetchedAsset = class extends BaseAsset {
-  useCache;
   constructor(path, typeOrUseCache, useCache) {
     let type2;
     if (isBoolean(typeOrUseCache)) {

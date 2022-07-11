@@ -6,7 +6,7 @@ import { createTestEnvironment } from "../createTestEnvironment";
 import { Dirt } from "../dirt-app/Dirt";
 import { Forest } from "../forest-app/Forest";
 
-const S = 1024;
+const S = 100;
 
 const env = await createTestEnvironment(DEBUG);
 await env.fadeOut();
@@ -21,14 +21,16 @@ dirtMapTex.minFilter = THREE.LinearMipmapLinearFilter;
 dirtMapTex.magFilter = THREE.LinearFilter;
 dirtMapTex.needsUpdate = true;
 
-const dirtBumpMap = new Dirt(S, S, 0.5);
+const dirtBumpMap = new Dirt(S, S, 0.125);
 const dirtBumpMapTex = new THREE.Texture(dirtBumpMap.element);
 dirtBumpMapTex.minFilter = THREE.LinearMipmapLinearFilter;
 dirtBumpMapTex.magFilter = THREE.LinearFilter;
 dirtBumpMapTex.needsUpdate = true;
 dirtBumpMap.addEventListener("update", () => dirtBumpMapTex.needsUpdate = true);
 
-const dirtGeom = new THREE.PlaneBufferGeometry(5, 5, 100, 100);
+
+
+const dirtGeom = new THREE.PlaneBufferGeometry(5, 5, S, S);
 
 const dirtMat = new THREE.MeshPhongMaterial({
     precision: "highp",
