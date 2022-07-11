@@ -22298,7 +22298,7 @@ var Forest = class {
 };
 
 // src/forest-and-dirt-app/index.ts
-var S2 = 100;
+var S2 = 200;
 var env = await createTestEnvironment(true);
 await env.fadeOut();
 var dirtMapAsset = new AssetImage("/img/dirt.jpg", Image_Jpeg, false);
