@@ -4,14 +4,16 @@ import { createTestEnvironment } from "../createTestEnvironment";
 import { Forest } from "../forest-app/Forest";
 import { makeGrass } from "./makeGrass";
 
-const env = await createTestEnvironment();
-await env.fadeOut();
-const forest = new Forest(env);
-const spatter = new AssetImage("/img/spatter.png", Image_Png, !DEBUG);
-await env.load(spatter, ...forest.assets);
+(async function () {
+    const env = await createTestEnvironment();
+    await env.fadeOut();
+    const forest = new Forest(env);
+    const spatter = new AssetImage("/img/spatter.png", Image_Png, !DEBUG);
+    await env.load(spatter, ...forest.assets);
 
-forest.trees.removeFromParent();
+    forest.trees.removeFromParent();
 
-makeGrass(env, spatter.result);
+    makeGrass(env, spatter.result);
 
-await env.fadeIn();
+    await env.fadeIn();
+})();

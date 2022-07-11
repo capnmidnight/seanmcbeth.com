@@ -9,10 +9,12 @@ const logos = [
     "poplar",
     "primrose",
     "wormwood"
-]
+];
 
-const responses = await Promise.all(logos.map(logo =>
-    fetcher.get(`/img/logo_${logo}.min.png`)
-        .image(Image_Png)));
-const images = responses.map(response => response.content);
-document.body.append(...images);
+(async function () {
+    const responses = await Promise.all(logos.map(logo =>
+        fetcher.get(`/img/logo_${logo}.min.png`)
+            .image(Image_Png)));
+    const images = responses.map(response => response.content);
+    document.body.append(...images);
+})();

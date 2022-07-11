@@ -696,14 +696,17 @@ function animate(t: number) {
 out.connect(audio.destination);
 inst.style.opacity = "1";
 starter.style.display = "block";
-await audioReady(audio);
-starter.style.display = "none";
-inst.style.display = "block";
-requestAnimationFrame(animate);
 
-setTimeout(function () {
-    fading = true;
-}, 5000);
+(async function () {
+    await audioReady(audio);
+    starter.style.display = "none";
+    inst.style.display = "block";
+    requestAnimationFrame(animate);
+
+    setTimeout(function () {
+        fading = true;
+    }, 5000);
+})();
 
 const goodEndingTimer = setTimeout(function () {
     messages[messages.length - 1].style.display = "block";
