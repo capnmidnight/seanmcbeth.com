@@ -15265,13 +15265,13 @@ function resolveCamera(renderer, camera) {
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/setRightUpFwdPosFromMatrix.ts
-function setRightUpFwdPosFromMatrix(matrix, R, U2, F, P4) {
+function setRightUpFwdPosFromMatrix(matrix, R2, U2, F, P4) {
   const m = matrix.elements;
-  R.set(m[0], m[1], m[2]);
+  R2.set(m[0], m[1], m[2]);
   U2.set(m[4], m[5], m[6]);
   F.set(-m[8], -m[9], -m[10]);
   P4.set(m[12], m[13], m[14]);
-  R.normalize();
+  R2.normalize();
   U2.normalize();
   F.normalize();
 }
@@ -15681,6 +15681,17 @@ function deepEnableLayer(obj2, level) {
   obj2.traverse((o) => o.layers.enable(level));
 }
 
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/setMatrixFromUpFwdPos.ts
+var R = new THREE.Vector3();
+function setMatrixFromUpFwdPos(U2, F, P4, matrix) {
+  R.crossVectors(F, U2);
+  U2.crossVectors(R, F);
+  R.normalize();
+  U2.normalize();
+  F.normalize();
+  matrix.set(R.x, U2.x, -F.x, P4.x, R.y, U2.y, -F.y, P4.y, R.z, U2.z, -F.z, P4.z, 0, 0, 0, 1);
+}
+
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/BaseCursor.ts
 var BaseCursor = class {
   constructor(env) {
@@ -15727,11 +15738,10 @@ var BaseCursor = class {
       }
       this.V.copy(this.env.avatar.worldPos);
     }
-    this.object.parent.worldToLocal(this.position);
-    this.lookAt(this.V);
+    this.lookAt(this.position, this.V);
     this.style = target ? !target.enabled ? "not-allowed" : target.draggable ? isPrimaryPressed ? "grabbing" : "move" : target.clickable ? "pointer" : "default" : canMoveView ? isPrimaryPressed ? "grabbing" : "grab" : "default";
   }
-  lookAt(_v) {
+  lookAt(_p, _v) {
   }
 };
 
@@ -15742,6 +15752,7 @@ var Cursor3D = class extends BaseCursor {
     this.cursorSystem = null;
     this.object = new THREE.Object3D();
     this.cursorSystem = cursorSystem;
+    this.object.matrixAutoUpdate = false;
   }
   add(name2, obj2) {
     objGraph(this, obj2);
@@ -15779,8 +15790,13 @@ var Cursor3D = class extends BaseCursor {
   set visible(v) {
     objectSetVisible(this, v);
   }
-  lookAt(v) {
-    this.object.lookAt(v);
+  lookAt(p, v) {
+    const f = new THREE.Vector3().copy(v).sub(p).normalize();
+    const up = new THREE.Vector3(0, 1, 0).applyQuaternion(this.env.avatar.worldQuat);
+    const right = new THREE.Vector3().crossVectors(up, f);
+    up.crossVectors(f, right);
+    setMatrixFromUpFwdPos(up, f, p, this.object.matrixWorld);
+    this.object.matrix.copy(this.object.parent.matrixWorld).invert().multiply(this.object.matrixWorld).decompose(this.object.position, this.object.quaternion, this.object.scale);
   }
   clone() {
     const obj2 = new Cursor3D(this.env);
@@ -16679,8 +16695,8 @@ var CursorXRMouse = class extends BaseCursor {
     objectSetVisible(this.xr, this.visible && showXR);
     this.system.visible = this.visible && !showXR;
   }
-  lookAt(v) {
-    this.xr.lookAt(v);
+  lookAt(p, v) {
+    this.xr.lookAt(p, v);
   }
 };
 
