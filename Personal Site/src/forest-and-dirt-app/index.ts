@@ -2,6 +2,7 @@
 import { Image_Jpeg } from "@juniper-lib/mediatypes";
 import { Pointer3DEvent } from "@juniper-lib/threejs/eventSystem/Pointer3DEvent";
 import { RayTarget } from "@juniper-lib/threejs/eventSystem/RayTarget";
+import { mesh } from "@juniper-lib/threejs/objects";
 import { createTestEnvironment } from "../createTestEnvironment";
 import { Dirt } from "../dirt-app/Dirt";
 import { Forest } from "../forest-app/Forest";
@@ -46,11 +47,11 @@ import { Forest } from "../forest-app/Forest";
         side: THREE.FrontSide
     });
 
-    const dirt = new THREE.Mesh(dirtGeom, dirtMat);
+    const dirt = mesh("Dirt", dirtGeom, dirtMat);
     dirt.position.set(0, 0.1, 1);
     dirt.rotation.x = -Math.PI / 2;
 
-    const dirtSurface = new THREE.Mesh(new THREE.PlaneBufferGeometry(5, 5, 1, 1));
+    const dirtSurface = mesh("DirtSurface", new THREE.PlaneBufferGeometry(5, 5, 1, 1));
     dirtSurface.visible = false;
     dirt.add(dirtSurface);
 

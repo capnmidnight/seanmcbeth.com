@@ -1,4 +1,5 @@
 ﻿import { Environment } from "@juniper-lib/threejs/environment/Environment";
+import { obj } from "@juniper-lib/threejs/objects";
 
 export function makeGrass(env: Environment, spatter: HTMLImageElement | HTMLCanvasElement | HTMLVideoElement | ImageBitmap): void {
     const grassGeom = new THREE.PlaneBufferGeometry(5, 5, 1, 1);
@@ -12,7 +13,7 @@ export function makeGrass(env: Environment, spatter: HTMLImageElement | HTMLCanv
 
     const grass = new THREE.InstancedMesh(grassGeom, grassMat, 25);
 
-    const dummy = new THREE.Object3D();
+    const dummy = obj("Dummy");
     dummy.rotation.set(Math.PI / 2, 0, 0);
     for (let i = 0; i < grass.count; ++i) {
         dummy.position.set(0, i / (5 * grass.count), 0);
