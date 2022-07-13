@@ -5473,6 +5473,49 @@ function rule(selector, ...props) {
   return new CSSInJSRule(selector, props);
 }
 
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/onUserGesture.ts
+var gestures = [
+  "change",
+  "click",
+  "contextmenu",
+  "dblclick",
+  "mouseup",
+  "pointerup",
+  "reset",
+  "submit",
+  "touchend"
+];
+function onUserGesture(callback, test) {
+  const realTest = test || alwaysTrue;
+  const check = async (evt) => {
+    if (evt.isTrusted && await realTest()) {
+      for (const gesture of gestures) {
+        window.removeEventListener(gesture, check);
+      }
+      await callback();
+    }
+  };
+  for (const gesture of gestures) {
+    window.addEventListener(gesture, check);
+  }
+}
+function waitForUserGesture(callback, test) {
+  const realTest = test || alwaysTrue;
+  return new Promise((resolve) => {
+    const check = async (evt) => {
+      if (evt.isTrusted && await realTest()) {
+        for (const gesture of gestures) {
+          window.removeEventListener(gesture, check);
+        }
+        resolve(await callback());
+      }
+    };
+    for (const gesture of gestures) {
+      window.addEventListener(gesture, check);
+    }
+  });
+}
+
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/tags.ts
 function isErsatzElement(obj2) {
   if (!isObject(obj2)) {
@@ -5694,33 +5737,6 @@ function Style(...rest) {
 }
 function BackgroundAudio(autoplay, mute, looping, ...rest) {
   return Audio2(playsInline(true), controls(false), muted(mute), autoPlay(autoplay), loop(looping), styles(display("none")), ...rest);
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/onUserGesture.ts
-var gestures = [
-  "change",
-  "click",
-  "contextmenu",
-  "dblclick",
-  "mouseup",
-  "pointerup",
-  "reset",
-  "submit",
-  "touchend"
-];
-function onUserGesture(callback, test) {
-  const realTest = test || alwaysTrue;
-  const check = async (evt) => {
-    if (evt.isTrusted && await realTest()) {
-      for (const gesture of gestures) {
-        window.removeEventListener(gesture, check);
-      }
-      await callback();
-    }
-  };
-  for (const gesture of gestures) {
-    window.addEventListener(gesture, check);
-  }
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/nodes.ts
@@ -6115,143 +6131,6 @@ var WebAudioListenerOld = class extends BaseListener {
     const { p, f, u } = loc;
     this.listener.setPosition(p[0], p[1], p[2]);
     this.listener.setOrientation(f[0], f[1], f[2], u[0], u[1], u[2]);
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/filterDeviceDuplicates.ts
-function filterDeviceDuplicates(devices) {
-  const filtered = [];
-  for (let i = 0; i < devices.length; ++i) {
-    const a = devices[i];
-    let found = false;
-    for (let j = 0; j < filtered.length && !found; ++j) {
-      const b = filtered[j];
-      found = a.kind === b.kind && b.label.indexOf(a.label) > 0;
-    }
-    if (!found) {
-      filtered.push(a);
-    }
-  }
-  return filtered;
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/SpeakerManager.ts
-var canChangeAudioOutput = /* @__PURE__ */ isFunction(HTMLAudioElement.prototype.setSinkId);
-var AudioOutputChangedEvent = class extends TypedEvent {
-  constructor(device) {
-    super("audiooutputchanged");
-    this.device = device;
-  }
-};
-var PREFERRED_AUDIO_OUTPUT_ID_KEY = "calla:preferredAudioOutputID";
-var SpeakerManager = class extends TypedEventBase {
-  constructor(element) {
-    super();
-    this.element = element;
-    this._hasAudioPermission = false;
-    this.ready = this.start();
-    Object.seal(this);
-  }
-  get hasAudioPermission() {
-    return this._hasAudioPermission;
-  }
-  async start() {
-    if (canChangeAudioOutput) {
-      const devices = await navigator.mediaDevices.enumerateDevices();
-      const anyDevice = arrayScan(devices, (dev) => dev.kind === "audiooutput" && dev.label.length > 0);
-      if (isDefined(anyDevice)) {
-        this._hasAudioPermission = true;
-        const device = await this.getPreferredAudioOutput();
-        if (device) {
-          await this.setAudioOutputDevice(device);
-        }
-      }
-    }
-  }
-  get preferredAudioOutputID() {
-    if (!canChangeAudioOutput) {
-      return null;
-    }
-    return localStorage.getItem(PREFERRED_AUDIO_OUTPUT_ID_KEY);
-  }
-  async getAudioOutputDevices(filterDuplicates = false) {
-    if (!canChangeAudioOutput) {
-      return [];
-    }
-    const devices = await this.getAvailableDevices(filterDuplicates);
-    return devices || [];
-  }
-  async getAudioOutputDevice() {
-    if (!canChangeAudioOutput) {
-      return null;
-    }
-    const curId = this.element && this.element.sinkId;
-    if (isNullOrUndefined(curId)) {
-      return null;
-    }
-    const devices = await this.getAudioOutputDevices(), device = arrayScan(devices, (d) => d.deviceId === curId);
-    return device;
-  }
-  async getPreferredAudioOutput() {
-    if (!canChangeAudioOutput) {
-      return null;
-    }
-    const devices = await this.getAudioOutputDevices();
-    const device = arrayScan(devices, (d) => d.deviceId === this.preferredAudioOutputID, (d) => d.deviceId === "default", (d) => d.deviceId.length > 0);
-    return device;
-  }
-  async setAudioOutputDevice(device) {
-    if (canChangeAudioOutput) {
-      if (isDefined(device) && device.kind !== "audiooutput") {
-        throw new Error(`Device is not an audio output device. Was: ${device.kind}. Label: ${device.label}`);
-      }
-      localStorage.setItem(PREFERRED_AUDIO_OUTPUT_ID_KEY, device && device.deviceId || null);
-      const curDevice = this.element;
-      const curDeviceID = curDevice && curDevice.sinkId;
-      if (this.preferredAudioOutputID !== curDeviceID) {
-        if (isDefined(this.preferredAudioOutputID)) {
-          await this.element.setSinkId(this.preferredAudioOutputID);
-        }
-        this.dispatchEvent(new AudioOutputChangedEvent(device));
-      }
-    }
-  }
-  async getAvailableDevices(filterDuplicates = false) {
-    let devices = null;
-    let testStream = null;
-    for (let i = 0; i < 3; ++i) {
-      devices = await navigator.mediaDevices.enumerateDevices();
-      for (const device of devices) {
-        if (device.deviceId.length > 0) {
-          if (!this.hasAudioPermission) {
-            this._hasAudioPermission = device.kind === "audioinput" && device.label.length > 0;
-          }
-        }
-      }
-      if (this.hasAudioPermission) {
-        break;
-      }
-      try {
-        testStream = await this.startStream();
-      } catch (exp) {
-        console.warn(exp);
-      }
-    }
-    if (testStream) {
-      for (const track of testStream.getTracks()) {
-        track.stop();
-      }
-    }
-    devices = arraySortByKey(devices || [], (d) => d.label);
-    if (filterDuplicates) {
-      devices = filterDeviceDuplicates(devices);
-    }
-    return canChangeAudioOutput ? devices.filter((d) => d.kind === "audiooutput") : [];
-  }
-  startStream() {
-    return navigator.mediaDevices.getUserMedia({
-      audio: true
-    });
   }
 };
 
@@ -6653,6 +6532,143 @@ var WebAudioPannerOld = class extends BaseWebAudioPanner {
   }
 };
 
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/filterDeviceDuplicates.ts
+function filterDeviceDuplicates(devices) {
+  const filtered = [];
+  for (let i = 0; i < devices.length; ++i) {
+    const a = devices[i];
+    let found = false;
+    for (let j = 0; j < filtered.length && !found; ++j) {
+      const b = filtered[j];
+      found = a.kind === b.kind && b.label.indexOf(a.label) > 0;
+    }
+    if (!found) {
+      filtered.push(a);
+    }
+  }
+  return filtered;
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/SpeakerManager.ts
+var canChangeAudioOutput = /* @__PURE__ */ isFunction(HTMLAudioElement.prototype.setSinkId);
+var AudioOutputChangedEvent = class extends TypedEvent {
+  constructor(device) {
+    super("audiooutputchanged");
+    this.device = device;
+  }
+};
+var PREFERRED_AUDIO_OUTPUT_ID_KEY = "calla:preferredAudioOutputID";
+var SpeakerManager = class extends TypedEventBase {
+  constructor(element) {
+    super();
+    this.element = element;
+    this._hasAudioPermission = false;
+    this.ready = this.start();
+    Object.seal(this);
+  }
+  get hasAudioPermission() {
+    return this._hasAudioPermission;
+  }
+  async start() {
+    if (canChangeAudioOutput) {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const anyDevice = arrayScan(devices, (dev) => dev.kind === "audiooutput" && dev.label.length > 0);
+      if (isDefined(anyDevice)) {
+        this._hasAudioPermission = true;
+        const device = await this.getPreferredAudioOutput();
+        if (device) {
+          await this.setAudioOutputDevice(device);
+        }
+      }
+    }
+  }
+  get preferredAudioOutputID() {
+    if (!canChangeAudioOutput) {
+      return null;
+    }
+    return localStorage.getItem(PREFERRED_AUDIO_OUTPUT_ID_KEY);
+  }
+  async getAudioOutputDevices(filterDuplicates = false) {
+    if (!canChangeAudioOutput) {
+      return [];
+    }
+    const devices = await this.getAvailableDevices(filterDuplicates);
+    return devices || [];
+  }
+  async getAudioOutputDevice() {
+    if (!canChangeAudioOutput) {
+      return null;
+    }
+    const curId = this.element && this.element.sinkId;
+    if (isNullOrUndefined(curId)) {
+      return null;
+    }
+    const devices = await this.getAudioOutputDevices(), device = arrayScan(devices, (d) => d.deviceId === curId);
+    return device;
+  }
+  async getPreferredAudioOutput() {
+    if (!canChangeAudioOutput) {
+      return null;
+    }
+    const devices = await this.getAudioOutputDevices();
+    const device = arrayScan(devices, (d) => d.deviceId === this.preferredAudioOutputID, (d) => d.deviceId === "default", (d) => d.deviceId.length > 0);
+    return device;
+  }
+  async setAudioOutputDevice(device) {
+    if (canChangeAudioOutput) {
+      if (isDefined(device) && device.kind !== "audiooutput") {
+        throw new Error(`Device is not an audio output device. Was: ${device.kind}. Label: ${device.label}`);
+      }
+      localStorage.setItem(PREFERRED_AUDIO_OUTPUT_ID_KEY, device && device.deviceId || null);
+      const curDevice = this.element;
+      const curDeviceID = curDevice && curDevice.sinkId;
+      if (this.preferredAudioOutputID !== curDeviceID) {
+        if (isDefined(this.preferredAudioOutputID)) {
+          await this.element.setSinkId(this.preferredAudioOutputID);
+        }
+        this.dispatchEvent(new AudioOutputChangedEvent(device));
+      }
+    }
+  }
+  async getAvailableDevices(filterDuplicates = false) {
+    let devices = null;
+    let testStream = null;
+    for (let i = 0; i < 3; ++i) {
+      devices = await navigator.mediaDevices.enumerateDevices();
+      for (const device of devices) {
+        if (device.deviceId.length > 0) {
+          if (!this.hasAudioPermission) {
+            this._hasAudioPermission = device.kind === "audioinput" && device.label.length > 0;
+          }
+        }
+      }
+      if (this.hasAudioPermission) {
+        break;
+      }
+      try {
+        testStream = await this.startStream();
+      } catch (exp) {
+        console.warn(exp);
+      }
+    }
+    if (testStream) {
+      for (const track of testStream.getTracks()) {
+        track.stop();
+      }
+    }
+    devices = arraySortByKey(devices || [], (d) => d.label);
+    if (filterDuplicates) {
+      devices = filterDeviceDuplicates(devices);
+    }
+    return canChangeAudioOutput ? devices.filter((d) => d.kind === "audiooutput") : [];
+  }
+  startStream() {
+    return navigator.mediaDevices.getUserMedia({
+      audio: true
+    });
+  }
+};
+
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/AudioManager.ts
 if (!("AudioContext" in globalThis) && "webkitAudioContext" in globalThis) {
   globalThis.AudioContext = globalThis.webkitAudioContext;
@@ -6681,14 +6697,9 @@ var AudioManager = class extends TypedEventBase {
     this.localUserID = null;
     this.counter = 0;
     this.audioCtx = new AudioContext();
-    let destination = null;
-    if (canChangeAudioOutput) {
-      destination = MediaStreamDestination("final-destination", this.audioCtx);
-      this.element = Audio2(id("Audio-Device-Manager"), playsInline(true), autoPlay(true), srcObject(destination.stream), styles(display("none")));
-      elementApply(document.body, this);
-    } else {
-      destination = this.audioCtx.destination;
-    }
+    const destination = MediaStreamDestination("final-destination", this.audioCtx);
+    this.element = Audio2(id("Audio-Device-Manager"), playsInline(true), autoPlay(true), srcObject(destination.stream), styles(display("none")));
+    elementApply(document.body, this);
     this.speakers = new SpeakerManager(this.element);
     this.input = Gain("local-mic-user-gain", this.audioCtx, null, this.localAutoControlledGain = Gain("local-mic-auto-gain", this.audioCtx, null, this.localFilter = BiquadFilter("local-mic-filter", this.audioCtx, {
       type: "bandpass",
@@ -6740,11 +6751,11 @@ var AudioManager = class extends TypedEventBase {
     this.audioCtx.suspend();
   }
   async start() {
-    await audioReady(this.audioCtx);
-    if (this.element) {
-      await this.element.play();
-    }
-    await this.speakers.ready;
+    await Promise.all([
+      audioReady(this.audioCtx),
+      waitForUserGesture(() => this.element.play()),
+      this.speakers.ready
+    ]);
   }
   get filter() {
     return this.localFilter;
@@ -11028,10 +11039,9 @@ var ApplicationLoadRequest = class {
   }
 };
 var ApplicationLoader = class extends TypedEventBase {
-  constructor(env, JS_EXT) {
+  constructor(env) {
     super();
     this.env = env;
-    this.JS_EXT = JS_EXT;
     this.loadedModules = /* @__PURE__ */ new Map();
     this.loadingApps = /* @__PURE__ */ new Map();
     this.currentApps = /* @__PURE__ */ new Map();
@@ -11062,7 +11072,8 @@ var ApplicationLoader = class extends TypedEventBase {
   }
   async loadAppConstructor(name2, prog) {
     if (!this.loadedModules.has(name2)) {
-      let url = `/js/${name2}/index${this.JS_EXT}`;
+      const JS_EXT = this.env.DEBUG ? ".js" : ".min.js";
+      let url = `/js/${name2}/index${JS_EXT}`;
       if (isDefined(this.cacheBustString)) {
         const uri = new URLBuilder(url, location.href);
         uri.query("v", this.cacheBustString);
@@ -14075,6 +14086,9 @@ var Cursor3D = class extends BaseCursor {
   constructor(env, cursorSystem) {
     super(env);
     this.cursorSystem = null;
+    this.f = new THREE.Vector3();
+    this.up = new THREE.Vector3();
+    this.right = new THREE.Vector3();
     this.object = new THREE.Object3D();
     this.cursorSystem = cursorSystem;
     this.object.matrixAutoUpdate = false;
@@ -14116,11 +14130,11 @@ var Cursor3D = class extends BaseCursor {
     objectSetVisible(this, v);
   }
   lookAt(p, v) {
-    const f = new THREE.Vector3().copy(v).sub(p).normalize();
-    const up = new THREE.Vector3(0, 1, 0).applyQuaternion(this.env.avatar.worldQuat);
-    const right = new THREE.Vector3().crossVectors(up, f);
-    up.crossVectors(f, right);
-    setMatrixFromUpFwdPos(up, f, p, this.object.matrixWorld);
+    this.f.copy(v).sub(p).normalize();
+    this.up.set(0, 1, 0).applyQuaternion(this.env.avatar.worldQuat);
+    this.right.crossVectors(this.up, this.f);
+    this.up.crossVectors(this.f, this.right);
+    setMatrixFromUpFwdPos(this.up, this.f, p, this.object.matrixWorld);
     this.object.matrix.copy(this.object.parent.matrixWorld).invert().multiply(this.object.matrixWorld).decompose(this.object.position, this.object.quaternion, this.object.scale);
   }
   clone() {
@@ -14175,6 +14189,12 @@ var EventedGamepad = class extends TypedEventBase {
     this.axisThresholdMin = 0.1;
     this._pad = null;
     Object.seal(this);
+  }
+  get displayId() {
+    if ("displayId" in this.pad) {
+      return this.pad.displayId;
+    }
+    return void 0;
   }
   get pad() {
     return this._pad;
@@ -19849,6 +19869,7 @@ var BaseEnvironment = class extends TypedEventBase {
       stencil: false,
       preserveDrawingBuffer: false
     });
+    this.renderer.domElement.setAttribute("touch-action", "none");
     this.renderer.domElement.tabIndex = 1;
     this.screenControl = new ScreenControl(this.renderer, this.camera, this.renderer.domElement.parentElement, enableFullResolution);
     this.fader = new Fader("ViewFader");
@@ -20351,8 +20372,7 @@ var Environment = class extends BaseEnvironment {
     this.clockImage.sizeMode = "fixed-height";
     this.clockImage.mesh.renderOrder = 5;
     options = options || {};
-    const JS_EXT = options.JS_EXT || ".js";
-    this.apps = new ApplicationLoader(this, JS_EXT);
+    this.apps = new ApplicationLoader(this);
     this.apps.addEventListener("apploading", (evt) => {
       evt.preLoadTask = this.fadeOut().then(() => {
         this.clearScene();
