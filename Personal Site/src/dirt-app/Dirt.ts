@@ -38,9 +38,7 @@ export class Dirt
     element: HTMLCanvasElement;
 
     private readonly finger: CanvasImageTypes;
-    private readonly bcanvas: HTMLCanvasElement | OffscreenCanvas;
-    private readonly fg: Context2D;
-    private readonly bg: Context2D
+    private readonly g: Context2D;
     private readonly updateEvt = new TypedEvent("update");
 
     private pointerId: number | string = null;
@@ -53,13 +51,9 @@ export class Dirt
         super();
         this.element = createCanvas(width, height);
 
-        this.bcanvas = createUICanvas(this.element.width, this.element.height);
-        this.fg = this.element.getContext("2d");
-        this.bg = this.bcanvas.getContext("2d");
-
-        this.bg.fillStyle = "rgb(50%, 50%, 50%)";
-        this.bg.fillRect(0, 0, this.bcanvas.width, this.bcanvas.height);
-        this.fg.drawImage(this.bcanvas, 0, 0);
+        this.g = this.element.getContext("2d");
+        this.g.fillStyle = "rgb(50%, 50%, 50%)";
+        this.g.fillRect(0, 0, this.element.width, this.element.height);
 
         this.finger = Img(src("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNi\
 R0NAAAAAXNSR0IArs4c6QAAAqhJREFUOE+VVE1PE1EUPbfvDdOZUiwtdAr9pqQhZBIJQoCwYGX8SlgIaUgIEqb8AxQ2\
@@ -82,17 +76,16 @@ ZAGkADoAEAAZ5QkTf/PN/ACV4rJ9AdCf3AAAAAElFTkSuQmCC"));
             if ((Math.abs(dx) + Math.abs(dy)) > 0) {
                 const a = Math.atan2(dy, dx) + Math.PI;
                 const d = Math.round(Math.sqrt(dx * dx + dy * dy));
-                this.bg.save();
-                this.bg.translate(this.lx, this.ly);
-                this.bg.rotate(a);
-                this.bg.translate(-0.5 * this.finger.width * this.fingerScale, -0.5 * this.finger.height * this.fingerScale);
+                this.g.save();
+                this.g.translate(this.lx, this.ly);
+                this.g.rotate(a);
+                this.g.translate(-0.5 * this.finger.width * this.fingerScale, -0.5 * this.finger.height * this.fingerScale);
                 for (let i = 0; i <= d; ++i) {
-                    this.bg.drawImage(this.finger,
+                    this.g.drawImage(this.finger,
                         0, 0, this.finger.width, this.finger.height,
                         i, 0, this.finger.width * this.fingerScale, this.finger.height * this.fingerScale);
                 }
-                this.bg.restore();
-                this.fg.drawImage(this.bcanvas, 0, 0);
+                this.g.restore();
                 this.dispatchEvent(this.updateEvt);
             }
         }
