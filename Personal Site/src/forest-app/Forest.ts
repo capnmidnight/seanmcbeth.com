@@ -6,6 +6,7 @@ import { materialStandardToBasic } from "@juniper-lib/threejs/materials";
 import { objectScan } from "@juniper-lib/threejs/objectScan";
 import { isMesh } from "@juniper-lib/threejs/typeChecks";
 import { arrayClear, arrayScan, isDefined } from "@juniper-lib/tslib";
+import { isDebug } from "../isDebug";
 
 function isMeshNamed(name: string) {
     return (obj: THREE.Object3D) => isMesh(obj) && obj.name === name;
@@ -39,10 +40,10 @@ export class Forest {
 
     constructor(private readonly env: Environment) {
         this.assets = [
-            this.skybox = new AssetImage("/skyboxes/BearfenceMountain.jpeg", Image_Jpeg, !DEBUG),
-            this.forest = new AssetGltfModel("/models/Forest-Ground.glb", Model_Gltf_Binary, !DEBUG),
-            this.bgAudio = new AssetAudio("/audio/forest.mp3", Audio_Mpeg, !DEBUG),
-            this.tree = new AssetGltfModel("/models/Forest-Tree.glb", Model_Gltf_Binary, !DEBUG)
+            this.skybox = new AssetImage("/skyboxes/BearfenceMountain.jpeg", Image_Jpeg, !isDebug),
+            this.forest = new AssetGltfModel("/models/Forest-Ground.glb", Model_Gltf_Binary, !isDebug),
+            this.bgAudio = new AssetAudio("/audio/forest.mp3", Audio_Mpeg, !isDebug),
+            this.tree = new AssetGltfModel("/models/Forest-Tree.glb", Model_Gltf_Binary, !isDebug)
         ];
 
         this.raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0), 0.1, 100);

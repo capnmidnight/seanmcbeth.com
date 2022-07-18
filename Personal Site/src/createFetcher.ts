@@ -1,5 +1,6 @@
 ﻿import type { IFetcher } from "@juniper-lib/fetcher";
 import { Fetcher, FetchingService, FetchingServiceClient, FetchingServiceImplXHR as FetchingServiceImpl, FetchingServicePool, IFetchingService } from "@juniper-lib/fetcher";
+import { isDebug, JS_EXT } from "./isDebug";
 import { version } from "./settings";
 
 export function createFetcher(enableWorkers = true): IFetcher {
@@ -11,5 +12,5 @@ export function createFetcher(enableWorkers = true): IFetcher {
         }, FetchingServiceClient, fallback);
     }
 
-    return new Fetcher(fallback, !DEBUG);
+    return new Fetcher(fallback, !isDebug);
 }

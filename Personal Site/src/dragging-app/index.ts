@@ -6,10 +6,11 @@ import { objGraph } from "@juniper-lib/threejs/objects";
 import { TransformEditor } from "@juniper-lib/threejs/TransformEditor";
 import { deg2rad } from "@juniper-lib/tslib";
 import { createTestEnvironment } from "../createTestEnvironment";
+import { isDebug } from "../isDebug";
 
 (async function () {
     const env = await createTestEnvironment();
-    const skybox = new AssetImage("/skyboxes/BearfenceMountain.jpeg", Image_Jpeg, !DEBUG);
+    const skybox = new AssetImage("/skyboxes/BearfenceMountain.jpeg", Image_Jpeg, !isDebug);
     await env.fadeOut();
     await env.load(skybox);
 
