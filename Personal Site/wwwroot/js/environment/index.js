@@ -8575,6 +8575,11 @@ function objectSetEnabled(obj2, enabled) {
     obj2.disabled = !enabled;
   }
 }
+function mesh(name2, geom2, mat) {
+  const mesh2 = new THREE.Mesh(geom2, mat);
+  mesh2.name = name2;
+  return mesh2;
+}
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/animation/scaleOnHover.ts
 var scaledItems = singleton("Juniper:ScaledItems", () => /* @__PURE__ */ new Map());
@@ -9390,8 +9395,7 @@ var Image2D = class extends THREE.Object3D {
     if (env) {
       this.setEnvAndName(env, name2);
       let material = isMeshBasicMaterial(materialOrOptions) ? materialOrOptions : solidTransparent(Object.assign({}, materialOrOptions, { name: this.name }));
-      this.mesh = new THREE.Mesh(plane, material);
-      objGraph(this, this.mesh);
+      objGraph(this, this.mesh = mesh(name2 + "-Mesh", plane, material));
     }
   }
   copy(source, recursive = true) {
@@ -9674,9 +9678,9 @@ var RayTarget = class extends TypedEventBase {
     this._draggable = false;
     this.object.userData[RAY_TARGET_KEY] = this;
   }
-  addMesh(mesh) {
-    mesh.userData[RAY_TARGET_KEY] = this;
-    this.meshes.push(mesh);
+  addMesh(mesh2) {
+    mesh2.userData[RAY_TARGET_KEY] = this;
+    this.meshes.push(mesh2);
     return this;
   }
   get disabled() {
@@ -9818,9 +9822,8 @@ var ConfirmationDialog = class extends DialogBox {
   constructor(env, fontFamily) {
     super("Confirm action");
     this.env = env;
-    this.object = new THREE.Object3D();
-    this.name = "ConfirmationDialog";
-    this.root = new THREE.Object3D();
+    this.object = obj("ConfirmationDialog");
+    this.root = obj("Root");
     this.animator = new Animator();
     this.a = 0;
     this.b = 0;
@@ -9842,6 +9845,9 @@ var ConfirmationDialog = class extends DialogBox {
       const scale4 = jump(this.a + this.b * t2, JUMP_FACTOR);
       this.root.scale.set(scale4, scale4, 0.01);
     };
+  }
+  get name() {
+    return this.object.name;
   }
   get visible() {
     return elementIsDisplayed(this);
@@ -9993,6 +9999,7 @@ var BaseVideoPlayer = class extends BaseAudioSource {
     super("JuniperVideoPlayer", audioCtx, NoSpatializationNode.instance(audioCtx));
     this.onTimeUpdate = null;
     this.wasUsingAudioElement = false;
+    this.nextStartTime = null;
     this._data = null;
     this._loaded = false;
     this.onError = /* @__PURE__ */ new Map();
@@ -10146,6 +10153,11 @@ var BaseVideoPlayer = class extends BaseAudioSource {
     }
     this.dispatchEvent(this.loadingEvt);
     await progressTasks(prog, (prog2) => this.loadMediaElement(this.audio, prog2), (prog2) => this.loadMediaElement(this.video, prog2));
+    if (isString(data)) {
+      this.nextStartTime = null;
+    } else {
+      this.nextStartTime = data.startTime;
+    }
     if (!this.hasSources(this.video)) {
       throw new Error("No video playable sources");
     }
@@ -10265,6 +10277,11 @@ var BaseVideoPlayer = class extends BaseAudioSource {
   }
   async play() {
     await audioReady(this.audioCtx);
+    if (isDefined(this.nextStartTime) && this.nextStartTime > 0) {
+      this.video.pause();
+      this.video.currentTime = this.nextStartTime;
+      this.nextStartTime = null;
+    }
     await this.video.play();
   }
   async playThrough() {
@@ -10816,8 +10833,8 @@ var MeshButton = class extends RayTarget {
   constructor(name2, geometry, enabledMaterial, disabledMaterial, size) {
     name2 = name2 + stringRandom(16);
     super(obj(name2));
-    this.enabledMesh = this.createMesh(`${name2}-enabled`, geometry, enabledMaterial);
-    this.disabledMesh = this.createMesh(`${name2}-disabled`, geometry, disabledMaterial);
+    this.enabledMesh = mesh(`Mesh-${name2}-enabled`, geometry, enabledMaterial);
+    this.disabledMesh = mesh(`Mesh-${name2}-disabled`, geometry, disabledMaterial);
     this.disabledMesh.visible = false;
     this.size = size;
     objGraph(this, this.enabledMesh, this.disabledMesh);
@@ -10833,11 +10850,6 @@ var MeshButton = class extends RayTarget {
   set size(v) {
     this.enabledMesh.scale.setScalar(v);
     this.disabledMesh.scale.setScalar(v);
-  }
-  createMesh(id2, geometry, material) {
-    const mesh = new THREE.Mesh(geometry, material);
-    mesh.name = "Mesh-" + id2;
-    return mesh;
   }
   get disabled() {
     return super.disabled;
@@ -12386,19 +12398,19 @@ function addMorphTargets(geometry, targets, parser) {
     return geometry;
   });
 }
-function updateMorphTargets(mesh, meshDef) {
-  mesh.updateMorphTargets();
+function updateMorphTargets(mesh2, meshDef) {
+  mesh2.updateMorphTargets();
   if (meshDef.weights !== void 0) {
     for (let i = 0, il = meshDef.weights.length; i < il; i++) {
-      mesh.morphTargetInfluences[i] = meshDef.weights[i];
+      mesh2.morphTargetInfluences[i] = meshDef.weights[i];
     }
   }
   if (meshDef.extras && Array.isArray(meshDef.extras.targetNames)) {
     const targetNames = meshDef.extras.targetNames;
-    if (mesh.morphTargetInfluences.length === targetNames.length) {
-      mesh.morphTargetDictionary = {};
+    if (mesh2.morphTargetInfluences.length === targetNames.length) {
+      mesh2.morphTargetDictionary = {};
       for (let i = 0, il = targetNames.length; i < il; i++) {
-        mesh.morphTargetDictionary[targetNames[i]] = i;
+        mesh2.morphTargetDictionary[targetNames[i]] = i;
       }
     } else {
       console.warn("THREE.GLTFLoader: Invalid extras.targetNames length. Ignoring names.");
@@ -12821,13 +12833,13 @@ var GLTFParser = class {
       return texture;
     });
   }
-  assignFinalMaterial(mesh) {
-    const geometry = mesh.geometry;
-    let material = mesh.material;
+  assignFinalMaterial(mesh2) {
+    const geometry = mesh2.geometry;
+    let material = mesh2.material;
     const useDerivativeTangents = geometry.attributes.tangent === void 0;
     const useVertexColors = geometry.attributes.color !== void 0;
     const useFlatShading = geometry.attributes.normal === void 0;
-    if (mesh.isPoints) {
+    if (mesh2.isPoints) {
       const cacheKey = "THREE.PointsMaterial:" + material.uuid;
       let pointsMaterial = this.cache.get(cacheKey);
       if (!pointsMaterial) {
@@ -12839,7 +12851,7 @@ var GLTFParser = class {
         this.cache.add(cacheKey, pointsMaterial);
       }
       material = pointsMaterial;
-    } else if (mesh.isLine) {
+    } else if (mesh2.isLine) {
       const cacheKey = "THREE.LineBasicMaterial:" + material.uuid;
       let lineMaterial = this.cache.get(cacheKey);
       if (!lineMaterial) {
@@ -12881,7 +12893,7 @@ var GLTFParser = class {
     if (material.aoMap && geometry.attributes.uv2 === void 0 && geometry.attributes.uv !== void 0) {
       geometry.setAttribute("uv2", geometry.attributes.uv);
     }
-    mesh.material = material;
+    mesh2.material = material;
   }
   getMaterialType() {
     return THREE.MeshStandardMaterial;
@@ -13038,38 +13050,38 @@ var GLTFParser = class {
       for (let i = 0, il = geometries.length; i < il; i++) {
         const geometry = geometries[i];
         const primitive = primitives[i];
-        let mesh;
+        let mesh2;
         const material = materials2[i];
         if (primitive.mode === WEBGL_CONSTANTS.TRIANGLES || primitive.mode === WEBGL_CONSTANTS.TRIANGLE_STRIP || primitive.mode === WEBGL_CONSTANTS.TRIANGLE_FAN || primitive.mode === void 0) {
-          mesh = meshDef.isSkinnedMesh === true ? new THREE.SkinnedMesh(geometry, material) : new THREE.Mesh(geometry, material);
-          if (mesh.isSkinnedMesh === true && !mesh.geometry.attributes.skinWeight.normalized) {
-            mesh.normalizeSkinWeights();
+          mesh2 = meshDef.isSkinnedMesh === true ? new THREE.SkinnedMesh(geometry, material) : new THREE.Mesh(geometry, material);
+          if (mesh2.isSkinnedMesh === true && !mesh2.geometry.attributes.skinWeight.normalized) {
+            mesh2.normalizeSkinWeights();
           }
           if (primitive.mode === WEBGL_CONSTANTS.TRIANGLE_STRIP) {
-            mesh.geometry = toTrianglesDrawMode(mesh.geometry, THREE.TriangleStripDrawMode);
+            mesh2.geometry = toTrianglesDrawMode(mesh2.geometry, THREE.TriangleStripDrawMode);
           } else if (primitive.mode === WEBGL_CONSTANTS.TRIANGLE_FAN) {
-            mesh.geometry = toTrianglesDrawMode(mesh.geometry, THREE.TriangleFanDrawMode);
+            mesh2.geometry = toTrianglesDrawMode(mesh2.geometry, THREE.TriangleFanDrawMode);
           }
         } else if (primitive.mode === WEBGL_CONSTANTS.LINES) {
-          mesh = new THREE.LineSegments(geometry, material);
+          mesh2 = new THREE.LineSegments(geometry, material);
         } else if (primitive.mode === WEBGL_CONSTANTS.LINE_STRIP) {
-          mesh = new THREE.Line(geometry, material);
+          mesh2 = new THREE.Line(geometry, material);
         } else if (primitive.mode === WEBGL_CONSTANTS.LINE_LOOP) {
-          mesh = new THREE.LineLoop(geometry, material);
+          mesh2 = new THREE.LineLoop(geometry, material);
         } else if (primitive.mode === WEBGL_CONSTANTS.POINTS) {
-          mesh = new THREE.Points(geometry, material);
+          mesh2 = new THREE.Points(geometry, material);
         } else {
           throw new Error("THREE.GLTFLoader: Primitive mode unsupported: " + primitive.mode);
         }
-        if (Object.keys(mesh.geometry.morphAttributes).length > 0) {
-          updateMorphTargets(mesh, meshDef);
+        if (Object.keys(mesh2.geometry.morphAttributes).length > 0) {
+          updateMorphTargets(mesh2, meshDef);
         }
-        mesh.name = parser.createUniqueName(meshDef.name || "mesh_" + meshIndex);
-        assignExtrasToUserData(mesh, meshDef);
+        mesh2.name = parser.createUniqueName(meshDef.name || "mesh_" + meshIndex);
+        assignExtrasToUserData(mesh2, meshDef);
         if (primitive.extensions)
-          addUnknownExtensionsToUserData(extensions, mesh, primitive);
-        parser.assignFinalMaterial(mesh);
-        meshes.push(mesh);
+          addUnknownExtensionsToUserData(extensions, mesh2, primitive);
+        parser.assignFinalMaterial(mesh2);
+        meshes.push(mesh2);
       }
       for (let i = 0, il = meshes.length; i < il; i++) {
         parser.associations.set(meshes[i], {
@@ -13218,8 +13230,8 @@ var GLTFParser = class {
     const nodeDef = json.nodes[nodeIndex];
     if (nodeDef.mesh === void 0)
       return null;
-    return parser.getDependency("mesh", nodeDef.mesh).then(function(mesh) {
-      const node = parser._getNodeRef(parser.meshCache, nodeDef.mesh, mesh);
+    return parser.getDependency("mesh", nodeDef.mesh).then(function(mesh2) {
+      const node = parser._getNodeRef(parser.meshCache, nodeDef.mesh, mesh2);
       if (nodeDef.weights !== void 0) {
         node.traverse(function(o) {
           if (!o.isMesh)
@@ -13353,8 +13365,8 @@ function buildNodeHierarchy(nodeId, parentObject, json, parser) {
       }
       return Promise.all(pendingJoints);
     }).then(function(jointNodes) {
-      node.traverse(function(mesh) {
-        if (!mesh.isMesh)
+      node.traverse(function(mesh2) {
+        if (!mesh2.isMesh)
           return;
         const bones = [];
         const boneInverses = [];
@@ -13371,7 +13383,7 @@ function buildNodeHierarchy(nodeId, parentObject, json, parser) {
             console.warn('THREE.GLTFLoader: Joint "%s" could not be found.', skinEntry.joints[j]);
           }
         }
-        mesh.bind(new THREE.Skeleton(bones, boneInverses), mesh.matrixWorld);
+        mesh2.bind(new THREE.Skeleton(bones, boneInverses), mesh2.matrixWorld);
       });
       return node;
     });
@@ -14057,7 +14069,7 @@ var BaseCursor = class {
   set visible(v) {
     this._visible = v;
   }
-  update(avatarHeadPos, comfortOffset, hit, target, defaultDistance, isLocal, canMoveView, origin, direction, isPrimaryPressed) {
+  update(avatarHeadPos, comfortOffset, hit, target, defaultDistance, isLocal, canDragView, origin, direction, isPrimaryPressed) {
     if (hit && hit.face) {
       this.position.copy(hit.point);
       hit.object.getWorldQuaternion(this.Q);
@@ -14075,7 +14087,7 @@ var BaseCursor = class {
       this.V.copy(this.env.avatar.worldPos);
     }
     this.lookAt(this.position, this.V);
-    this.style = target ? !target.enabled ? "not-allowed" : target.draggable ? isPrimaryPressed ? "grabbing" : "move" : target.clickable ? "pointer" : "default" : canMoveView ? isPrimaryPressed ? "grabbing" : "grab" : "default";
+    this.style = target ? !target.enabled ? "not-allowed" : target.draggable ? isPrimaryPressed ? "grabbing" : "move" : target.clickable ? "pointer" : "default" : canDragView ? isPrimaryPressed ? "grabbing" : "grab" : "default";
   }
   lookAt(_p, _v) {
   }
@@ -14089,7 +14101,7 @@ var Cursor3D = class extends BaseCursor {
     this.f = new THREE.Vector3();
     this.up = new THREE.Vector3();
     this.right = new THREE.Vector3();
-    this.object = new THREE.Object3D();
+    this.object = obj("Cursor3D");
     this.cursorSystem = cursorSystem;
     this.object.matrixAutoUpdate = false;
   }
@@ -14800,10 +14812,10 @@ var XRHandMeshModel = class {
     loader.load(`${handedness}.glb`, (gltf) => {
       const object = gltf.scene.children[0];
       this.handModel.add(object);
-      const mesh = object.getObjectByProperty("type", "SkinnedMesh");
-      mesh.frustumCulled = false;
-      mesh.castShadow = true;
-      mesh.receiveShadow = true;
+      const mesh2 = object.getObjectByProperty("type", "SkinnedMesh");
+      mesh2.frustumCulled = false;
+      mesh2.castShadow = true;
+      mesh2.receiveShadow = true;
       const joints = [
         "wrist",
         "thumb-metacarpal",
@@ -15407,9 +15419,12 @@ var BasePointer = class extends TypedEventBase {
     }
     this.updateCursor(this.env.avatar.worldPos, ZERO, true, 2);
   }
+  get canDragView() {
+    return this.canMoveView;
+  }
   updateCursor(avatarHeadPos, comfortOffset, isLocal, defaultDistance) {
     if (this.cursor) {
-      this.cursor.update(avatarHeadPos, comfortOffset, this.hoveredHit || this.curHit, this.rayTarget || this.curTarget, defaultDistance, isLocal, this.canMoveView, this.origin, this.direction, this.isPressed(0 /* Primary */));
+      this.cursor.update(avatarHeadPos, comfortOffset, this.hoveredHit || this.curHit, this.rayTarget || this.curTarget, defaultDistance, isLocal, this.canDragView, this.origin, this.direction, this.isPressed(0 /* Primary */));
     }
   }
 };
@@ -15478,8 +15493,8 @@ var LineSegmentsGeometry = class extends THREE.InstancedBufferGeometry {
     this.setPositions(geometry.attributes.position.array);
     return this;
   }
-  fromMesh(mesh) {
-    this.fromWireframeGeometry(new THREE.WireframeGeometry(mesh.geometry));
+  fromMesh(mesh2) {
+    this.fromWireframeGeometry(new THREE.WireframeGeometry(mesh2.geometry));
     return this;
   }
   fromLineSegments(lineSegments) {
@@ -15796,7 +15811,6 @@ var PointerHand = class extends BasePointer {
   constructor(env, index) {
     super("hand", 4 /* MotionController */, env, new CursorColor(env));
     this.laser = new Laser(white, 2e-3);
-    this.object = new THREE.Object3D();
     this._handedness = "none";
     this._isHand = false;
     this.inputSource = null;
@@ -15806,6 +15820,7 @@ var PointerHand = class extends BasePointer {
     this.quaternion = new THREE.Quaternion();
     this.newQuat = new THREE.Quaternion();
     this.useHaptics = true;
+    this.object = obj("PointerHand" + index);
     this.quaternion.identity();
     objGraph(this, this.controller = this.env.renderer.xr.getController(index), this.grip = this.env.renderer.xr.getControllerGrip(index), this.hand = this.env.renderer.xr.getHand(index));
     if (isDesktop() && isChrome() && !isOculusBrowser) {
@@ -16078,6 +16093,9 @@ var PointerMouse = class extends BaseScreenPointerSinglePoint {
   get isPointerLocked() {
     return document.pointerLockElement != null;
   }
+  get canDragView() {
+    return super.canDragView && !this.isPointerLocked;
+  }
   lockPointer() {
     this.element.requestPointerLock();
   }
@@ -16271,8 +16289,7 @@ var Fader = class extends TypedEventBase {
       color: 0,
       side: THREE.BackSide
     });
-    this.object = new THREE.Mesh(cube, this.material);
-    this.object.name = name2;
+    this.object = mesh(name2, cube, this.material);
     this.object.renderOrder = Number.MAX_VALUE;
     this.speed = 1 / t2;
     this.object.layers.enableAll();
@@ -16319,11 +16336,11 @@ var LoadingBar = class extends BaseProgress {
     super();
     this.value = 0;
     this.targetValue = 0;
-    this.object = new THREE.Object3D();
+    this.object = obj("LoadingBar");
     this._enabled = true;
     this.valueBar = new Cube(0, 1, 1, litGrey);
     this.valueBar.scale.set(0, 1, 1);
-    const valueBarContainer = new THREE.Object3D();
+    const valueBarContainer = obj("ValueBarContainer");
     valueBarContainer.scale.set(1, 0.1, 0.1);
     objGraph(this, objGraph(valueBarContainer, this.valueBar), chrome(-0.5, 0, -0.05, 0.01, 0.1, 0.01), chrome(-0.5, 0, 0.05, 0.01, 0.1, 0.01), chrome(0.5, 0, -0.05, 0.01, 0.1, 0.01), chrome(0.5, 0, 0.05, 0.01, 0.1, 0.01), chrome(-0.5, -0.05, 0, 0.01, 0.01, 0.1), chrome(0.5, -0.05, 0, 0.01, 0.01, 0.1), chrome(-0.5, 0.05, 0, 0.01, 0.01, 0.1), chrome(0.5, 0.05, 0, 0.01, 0.01, 0.1), chrome(0, -0.05, -0.05, 1, 0.01, 0.01), chrome(0, 0.05, -0.05, 1, 0.01, 0.01), chrome(0, -0.05, 0.05, 1, 0.01, 0.01), chrome(0, 0.05, 0.05, 1, 0.01, 0.01));
     deepSetLayer(this, PURGATORY);
@@ -20435,7 +20452,6 @@ var Environment = class extends BaseEnvironment {
     this.lobbyButton.visible = false;
     this.muteMicButton.visible = false;
     this.screenControl.setUI(this.screenUISpace, this.fullscreenButton, this.vrButton);
-    this.refreshSpaceUI();
     this.quitButton.addEventListener("click", () => this.withConfirmation("Confirm quit", "Are you sure you want to quit?", async () => {
       if (this.renderer.xr.isPresenting) {
         this.screenControl.stop();
@@ -20454,9 +20470,6 @@ var Environment = class extends BaseEnvironment {
         await this.screenControl.start(mode);
       }
     });
-    const onSessionChange = () => this.refreshSpaceUI();
-    this.screenControl.addEventListener("sessionstarted", onSessionChange);
-    this.screenControl.addEventListener("sessionstopped", onSessionChange);
     this.muteEnvAudioButton.addEventListener("click", () => {
       this.muteEnvAudioButton.active = !this.muteEnvAudioButton.active;
       this.dispatchEvent(this.envAudioToggleEvt);
@@ -20466,23 +20479,20 @@ var Environment = class extends BaseEnvironment {
   get currentRoom() {
     return this._currentRoom;
   }
-  refreshSpaceUI() {
-    this.xrUI.visible = this.renderer.xr.isPresenting || this.testSpaceLayout;
-    this.clockImage.isVisible = this.xrUI.visible || this.DEBUG;
-  }
   get testSpaceLayout() {
     return this._testSpaceLayout;
   }
   set testSpaceLayout(v) {
     if (v !== this.testSpaceLayout) {
       this._testSpaceLayout = v;
-      this.refreshSpaceUI();
     }
   }
   preRender(evt) {
     super.preRender(evt);
     this.audio.update();
     this.videoPlayer.update(evt.dt, evt.frame);
+    this.xrUI.visible = this.renderer.xr.isPresenting || this.testSpaceLayout;
+    this.clockImage.isVisible = this.xrUI.visible || this.DEBUG;
     if (!this.renderer.xr.isPresenting) {
       this.compassImage.setPitchAndHeading(rad2deg(this.avatar.worldPitch), rad2deg(this.avatar.worldHeading));
     }

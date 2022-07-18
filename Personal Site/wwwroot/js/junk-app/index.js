@@ -28,6 +28,25 @@ function arrayRemove(arr, value) {
   return false;
 }
 
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/arrayScan.ts
+function _arrayScan(forward, arr, tests) {
+  const start = forward ? 0 : arr.length - 1;
+  const end = forward ? arr.length : -1;
+  const inc = forward ? 1 : -1;
+  for (const test of tests) {
+    for (let i = start; i != end; i += inc) {
+      const item = arr[i];
+      if (test(item)) {
+        return item;
+      }
+    }
+  }
+  return null;
+}
+function arrayScan(arr, ...tests) {
+  return _arrayScan(true, arr, tests);
+}
+
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/mapMap.ts
 function mapMap(items, makeID, makeValue) {
   return new Map(items.map((item) => [makeID(item), makeValue(item)]));
@@ -909,7 +928,7 @@ function parsePort(portString) {
   return null;
 }
 var URLBuilder = class {
-  constructor(url, base) {
+  constructor(url2, base) {
     this._url = null;
     this._base = void 0;
     this._protocol = null;
@@ -921,8 +940,8 @@ var URLBuilder = class {
     this._pathName = null;
     this._hash = null;
     this._query = /* @__PURE__ */ new Map();
-    if (url !== void 0) {
-      this._url = new URL(url, base);
+    if (url2 !== void 0) {
+      this._url = new URL(url2, base);
       this.rehydrate();
     }
   }
@@ -2045,6 +2064,7 @@ var WorkerClient = class extends TypedEventBase {
     this.worker = worker;
     this.taskCounter = 0;
     this.invocations = /* @__PURE__ */ new Map();
+    this.tasks = new Array();
     if (!isWorkerSupported) {
       console.warn("Workers are not supported on this system.");
     }
@@ -2096,13 +2116,13 @@ var WorkerClient = class extends TypedEventBase {
   }
   methodReturned(data) {
     const messageHandler = this.removeInvocation(data.taskID);
-    const { resolve } = messageHandler;
-    resolve(data.returnValue);
+    const { task } = messageHandler;
+    task.resolve(data.returnValue);
   }
   invocationError(data) {
     const messageHandler = this.removeInvocation(data.taskID);
-    const { reject, methodName } = messageHandler;
-    reject(new Error(`${methodName} failed. Reason: ${data.errorMessage}`));
+    const { task, methodName } = messageHandler;
+    task.reject(new Error(`${methodName} failed. Reason: ${data.errorMessage}`));
   }
   removeInvocation(taskID) {
     const invocation = this.invocations.get(taskID);
@@ -2131,12 +2151,17 @@ var WorkerClient = class extends TypedEventBase {
       tfers = transferables;
     }
     const taskID = this.taskCounter++;
-    const task = new Task();
+    let task = arrayScan(this.tasks, (t2) => t2.finished);
+    if (task) {
+      task.reset();
+    } else {
+      task = new Task();
+      this.tasks.push(task);
+    }
     const invocation = {
-      prog,
-      resolve: task.resolve,
-      reject: task.reject,
-      methodName
+      methodName,
+      task,
+      prog
     };
     this.invocations.set(taskID, invocation);
     let message = null;
@@ -2933,6 +2958,11 @@ var BaseFetchingServicePool = class extends WorkerPool {
 var FetchingServicePool = class extends BaseFetchingServicePool {
 };
 
+// src/isDebug.ts
+var url = /* @__PURE__ */ new URL(globalThis.location.href);
+var isDebug = !url.searchParams.has("RELEASE");
+var JS_EXT = isDebug ? ".js" : ".min.js";
+
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/fonts.ts
 var loadedFonts = singleton("juniper::loadedFonts", () => []);
 
@@ -2944,10 +2974,10 @@ function createFetcher(enableWorkers = true) {
   let fallback = new FetchingService(new FetchingServiceImplXHR());
   if (enableWorkers) {
     fallback = new FetchingServicePool({
-      scriptPath: `/js/fetcher-worker/index${".js"}?${version}`
+      scriptPath: `/js/fetcher-worker/index${JS_EXT}?${version}`
     }, FetchingServiceClient, fallback);
   }
-  return new Fetcher(fallback, false);
+  return new Fetcher(fallback, !isDebug);
 }
 
 // src/junk-app/index.ts

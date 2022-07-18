@@ -515,19 +515,19 @@ var require_cardboard_vr_display = __commonJS({
         var thisOrigin = getOriginFromUrl(window.location.href);
         return isFramed && refOrigin !== thisOrigin;
       };
-      var getOriginFromUrl = function getOriginFromUrl2(url) {
+      var getOriginFromUrl = function getOriginFromUrl2(url2) {
         var domainIdx;
-        var protoSepIdx = url.indexOf("://");
+        var protoSepIdx = url2.indexOf("://");
         if (protoSepIdx !== -1) {
           domainIdx = protoSepIdx + 3;
         } else {
           domainIdx = 0;
         }
-        var domainEndIdx = url.indexOf("/", domainIdx);
+        var domainEndIdx = url2.indexOf("/", domainIdx);
         if (domainEndIdx === -1) {
-          domainEndIdx = url.length;
+          domainEndIdx = url2.length;
         }
-        return url.substring(0, domainEndIdx);
+        return url2.substring(0, domainEndIdx);
       };
       var getQuaternionAngle = function getQuaternionAngle2(quat) {
         if (quat.w > 1) {
@@ -1777,14 +1777,14 @@ var require_cardboard_vr_display = __commonJS({
         last_updated,
         devices
       };
-      function Dpdb(url, onDeviceParamsUpdated) {
+      function Dpdb(url2, onDeviceParamsUpdated) {
         this.dpdb = DPDB_CACHE;
         this.recalculateDeviceParams_();
-        if (url) {
+        if (url2) {
           this.onDeviceParamsUpdated = onDeviceParamsUpdated;
           var xhr = new XMLHttpRequest();
           var obj2 = this;
-          xhr.open("GET", url, true);
+          xhr.open("GET", url2, true);
           xhr.addEventListener("load", function() {
             obj2.loading = false;
             if (xhr.status >= 200 && xhr.status <= 299) {
@@ -1894,9 +1894,9 @@ var require_cardboard_vr_display = __commonJS({
       SensorSample.prototype.copy = function(sensorSample) {
         this.set(sensorSample.sample, sensorSample.timestampS);
       };
-      function ComplementaryFilter(kFilter, isDebug) {
+      function ComplementaryFilter(kFilter, isDebug2) {
         this.kFilter = kFilter;
-        this.isDebug = isDebug;
+        this.isDebug = isDebug2;
         this.currentAccelMeasurement = new SensorSample();
         this.currentGyroMeasurement = new SensorSample();
         this.previousGyroMeasurement = new SensorSample();
@@ -1976,9 +1976,9 @@ var require_cardboard_vr_display = __commonJS({
         quat.setFromAxisAngle(axis, gyro.length() * dt);
         return quat;
       };
-      function PosePredictor(predictionTimeS, isDebug) {
+      function PosePredictor(predictionTimeS, isDebug2) {
         this.predictionTimeS = predictionTimeS;
-        this.isDebug = isDebug;
+        this.isDebug = isDebug2;
         this.previousQ = new Quaternion();
         this.previousTimestampS = null;
         this.deltaQ = new Quaternion();
@@ -2010,12 +2010,12 @@ var require_cardboard_vr_display = __commonJS({
         this.previousTimestampS = timestampS;
         return this.outQ;
       };
-      function FusionPoseSensor(kFilter, predictionTime, yawOnly, isDebug) {
+      function FusionPoseSensor(kFilter, predictionTime, yawOnly, isDebug2) {
         this.yawOnly = yawOnly;
         this.accelerometer = new Vector3();
         this.gyroscope = new Vector3();
-        this.filter = new ComplementaryFilter(kFilter, isDebug);
-        this.posePredictor = new PosePredictor(predictionTime, isDebug);
+        this.filter = new ComplementaryFilter(kFilter, isDebug2);
+        this.posePredictor = new PosePredictor(predictionTime, isDebug2);
         this.isFirefoxAndroid = isFirefoxAndroid();
         this.isIOS = isIOS2();
         var chromeVersion = getChromeVersion();
@@ -5050,7 +5050,7 @@ function parsePort(portString) {
   return null;
 }
 var URLBuilder = class {
-  constructor(url, base) {
+  constructor(url2, base) {
     this._url = null;
     this._base = void 0;
     this._protocol = null;
@@ -5062,8 +5062,8 @@ var URLBuilder = class {
     this._pathName = null;
     this._hash = null;
     this._query = /* @__PURE__ */ new Map();
-    if (url !== void 0) {
-      this._url = new URL(url, base);
+    if (url2 !== void 0) {
+      this._url = new URL(url2, base);
       this.rehydrate();
     }
   }
@@ -6603,6 +6603,7 @@ var WorkerClient = class extends TypedEventBase {
     this.worker = worker;
     this.taskCounter = 0;
     this.invocations = /* @__PURE__ */ new Map();
+    this.tasks = new Array();
     if (!isWorkerSupported) {
       console.warn("Workers are not supported on this system.");
     }
@@ -6654,13 +6655,13 @@ var WorkerClient = class extends TypedEventBase {
   }
   methodReturned(data) {
     const messageHandler = this.removeInvocation(data.taskID);
-    const { resolve } = messageHandler;
-    resolve(data.returnValue);
+    const { task } = messageHandler;
+    task.resolve(data.returnValue);
   }
   invocationError(data) {
     const messageHandler = this.removeInvocation(data.taskID);
-    const { reject, methodName } = messageHandler;
-    reject(new Error(`${methodName} failed. Reason: ${data.errorMessage}`));
+    const { task, methodName } = messageHandler;
+    task.reject(new Error(`${methodName} failed. Reason: ${data.errorMessage}`));
   }
   removeInvocation(taskID) {
     const invocation = this.invocations.get(taskID);
@@ -6689,12 +6690,17 @@ var WorkerClient = class extends TypedEventBase {
       tfers = transferables;
     }
     const taskID = this.taskCounter++;
-    const task = new Task();
+    let task = arrayScan(this.tasks, (t2) => t2.finished);
+    if (task) {
+      task.reset();
+    } else {
+      task = new Task();
+      this.tasks.push(task);
+    }
     const invocation = {
-      prog,
-      resolve: task.resolve,
-      reject: task.reject,
-      methodName
+      methodName,
+      task,
+      prog
     };
     this.invocations.set(taskID, invocation);
     let message = null;
@@ -7562,6 +7568,11 @@ function objectSetEnabled(obj2, enabled) {
     obj2.disabled = !enabled;
   }
 }
+function mesh(name2, geom2, mat) {
+  const mesh2 = new THREE.Mesh(geom2, mat);
+  mesh2.name = name2;
+  return mesh2;
+}
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/RayTarget.ts
 var RAY_TARGET_KEY = "Juniper:ThreeJS:EventSystem:RayTarget";
@@ -7575,9 +7586,9 @@ var RayTarget = class extends TypedEventBase {
     this._draggable = false;
     this.object.userData[RAY_TARGET_KEY] = this;
   }
-  addMesh(mesh) {
-    mesh.userData[RAY_TARGET_KEY] = this;
-    this.meshes.push(mesh);
+  addMesh(mesh2) {
+    mesh2.userData[RAY_TARGET_KEY] = this;
+    this.meshes.push(mesh2);
     return this;
   }
   get disabled() {
@@ -9082,7 +9093,7 @@ var AudioPlayer = class extends BaseAudioSource {
     }
     this.element.removeEventListener("error", this.onError);
     while (this.hasSources) {
-      let url = null;
+      let url2 = null;
       const source = this.sources.shift();
       if (isDefined(source)) {
         const caps = await this.getMediaCapabilities(source);
@@ -9090,18 +9101,18 @@ var AudioPlayer = class extends BaseAudioSource {
           this.potatoes.push(source.url);
           continue;
         } else {
-          url = source.url;
+          url2 = source.url;
         }
       } else {
-        url = this.potatoes.shift();
+        url2 = this.potatoes.shift();
       }
-      this.element.src = url;
+      this.element.src = url2;
       this.element.load();
       if (await mediaElementCanPlayThrough(this.element)) {
         if (isDefined(source)) {
           this.sources.unshift(source);
         } else {
-          this.potatoes.unshift(url);
+          this.potatoes.unshift(url2);
         }
         this.element.addEventListener("error", this.onError);
         if (isDefined(prog)) {
@@ -10876,8 +10887,7 @@ var Image2D = class extends THREE.Object3D {
     if (env) {
       this.setEnvAndName(env, name2);
       let material = isMeshBasicMaterial(materialOrOptions) ? materialOrOptions : solidTransparent(Object.assign({}, materialOrOptions, { name: this.name }));
-      this.mesh = new THREE.Mesh(plane, material);
-      objGraph(this, this.mesh);
+      objGraph(this, this.mesh = mesh(name2 + "-Mesh", plane, material));
     }
   }
   copy(source, recursive = true) {
@@ -11241,9 +11251,8 @@ var ConfirmationDialog = class extends DialogBox {
   constructor(env, fontFamily) {
     super("Confirm action");
     this.env = env;
-    this.object = new THREE.Object3D();
-    this.name = "ConfirmationDialog";
-    this.root = new THREE.Object3D();
+    this.object = obj("ConfirmationDialog");
+    this.root = obj("Root");
     this.animator = new Animator();
     this.a = 0;
     this.b = 0;
@@ -11265,6 +11274,9 @@ var ConfirmationDialog = class extends DialogBox {
       const scale4 = jump(this.a + this.b * t2, JUMP_FACTOR);
       this.root.scale.set(scale4, scale4, 0.01);
     };
+  }
+  get name() {
+    return this.object.name;
   }
   get visible() {
     return elementIsDisplayed(this);
@@ -11416,6 +11428,7 @@ var BaseVideoPlayer = class extends BaseAudioSource {
     super("JuniperVideoPlayer", audioCtx, NoSpatializationNode.instance(audioCtx));
     this.onTimeUpdate = null;
     this.wasUsingAudioElement = false;
+    this.nextStartTime = null;
     this._data = null;
     this._loaded = false;
     this.onError = /* @__PURE__ */ new Map();
@@ -11569,6 +11582,11 @@ var BaseVideoPlayer = class extends BaseAudioSource {
     }
     this.dispatchEvent(this.loadingEvt);
     await progressTasks(prog, (prog2) => this.loadMediaElement(this.audio, prog2), (prog2) => this.loadMediaElement(this.video, prog2));
+    if (isString(data)) {
+      this.nextStartTime = null;
+    } else {
+      this.nextStartTime = data.startTime;
+    }
     if (!this.hasSources(this.video)) {
       throw new Error("No video playable sources");
     }
@@ -11630,7 +11648,7 @@ var BaseVideoPlayer = class extends BaseAudioSource {
       this.onError.delete(elem);
     }
     while (this.hasSources(elem)) {
-      let url = null;
+      let url2 = null;
       const source = this.sources.get(elem).shift();
       if (isDefined(source)) {
         const caps = await this.getMediaCapabilities(source);
@@ -11638,18 +11656,18 @@ var BaseVideoPlayer = class extends BaseAudioSource {
           this.potatoes.add(elem, source.url);
           continue;
         } else {
-          url = source.url;
+          url2 = source.url;
         }
       } else {
-        url = this.potatoes.get(elem).shift();
+        url2 = this.potatoes.get(elem).shift();
       }
-      elem.src = url;
+      elem.src = url2;
       elem.load();
       if (await mediaElementCanPlayThrough(elem)) {
         if (isDefined(source)) {
           this.sources.get(elem).unshift(source);
         } else {
-          this.potatoes.get(elem).unshift(url);
+          this.potatoes.get(elem).unshift(url2);
         }
         const onError = () => this.loadMediaElement(elem, prog);
         elem.addEventListener("error", onError);
@@ -11688,6 +11706,11 @@ var BaseVideoPlayer = class extends BaseAudioSource {
   }
   async play() {
     await audioReady(this.audioCtx);
+    if (isDefined(this.nextStartTime) && this.nextStartTime > 0) {
+      this.video.pause();
+      this.video.currentTime = this.nextStartTime;
+      this.nextStartTime = null;
+    }
     await this.video.play();
   }
   async playThrough() {
@@ -12239,8 +12262,8 @@ var MeshButton = class extends RayTarget {
   constructor(name2, geometry, enabledMaterial, disabledMaterial, size) {
     name2 = name2 + stringRandom(16);
     super(obj(name2));
-    this.enabledMesh = this.createMesh(`${name2}-enabled`, geometry, enabledMaterial);
-    this.disabledMesh = this.createMesh(`${name2}-disabled`, geometry, disabledMaterial);
+    this.enabledMesh = mesh(`Mesh-${name2}-enabled`, geometry, enabledMaterial);
+    this.disabledMesh = mesh(`Mesh-${name2}-disabled`, geometry, disabledMaterial);
     this.disabledMesh.visible = false;
     this.size = size;
     objGraph(this, this.enabledMesh, this.disabledMesh);
@@ -12256,11 +12279,6 @@ var MeshButton = class extends RayTarget {
   set size(v) {
     this.enabledMesh.scale.setScalar(v);
     this.disabledMesh.scale.setScalar(v);
-  }
-  createMesh(id2, geometry, material) {
-    const mesh = new THREE.Mesh(geometry, material);
-    mesh.name = "Mesh-" + id2;
-    return mesh;
   }
   get disabled() {
     return super.disabled;
@@ -12496,13 +12514,13 @@ var ApplicationLoader = class extends TypedEventBase {
   async loadAppConstructor(name2, prog) {
     if (!this.loadedModules.has(name2)) {
       const JS_EXT2 = this.env.DEBUG ? ".js" : ".min.js";
-      let url = `/js/${name2}/index${JS_EXT2}`;
+      let url2 = `/js/${name2}/index${JS_EXT2}`;
       if (isDefined(this.cacheBustString)) {
-        const uri = new URLBuilder(url, location.href);
+        const uri = new URLBuilder(url2, location.href);
         uri.query("v", this.cacheBustString);
-        url = uri.toString();
+        url2 = uri.toString();
       }
-      const task = this.env.fetcher.get(url).progress(prog).useCache(!this.env.DEBUG).module();
+      const task = this.env.fetcher.get(url2).progress(prog).useCache(!this.env.DEBUG).module();
       this.loadedModules.set(name2, task);
     } else if (isDefined(prog)) {
       prog.end();
@@ -12709,7 +12727,7 @@ var GLTFLoader = class extends THREE.Loader {
       return new GLTFMeshoptCompression(parser);
     });
   }
-  load(url, onLoad, onProgress, onError) {
+  load(url2, onLoad, onProgress, onError) {
     const scope = this;
     let resourcePath;
     if (this.resourcePath !== "") {
@@ -12717,28 +12735,28 @@ var GLTFLoader = class extends THREE.Loader {
     } else if (this.path !== "") {
       resourcePath = this.path;
     } else {
-      resourcePath = THREE.LoaderUtils.extractUrlBase(url);
+      resourcePath = THREE.LoaderUtils.extractUrlBase(url2);
     }
-    this.manager.itemStart(url);
+    this.manager.itemStart(url2);
     const _onError = function(e2) {
       if (onError) {
         onError(e2);
       } else {
         console.error(e2);
       }
-      scope.manager.itemError(url);
-      scope.manager.itemEnd(url);
+      scope.manager.itemError(url2);
+      scope.manager.itemEnd(url2);
     };
     const loader = new THREE.FileLoader(this.manager);
     loader.setPath(this.path);
     loader.setResponseType("arraybuffer");
     loader.setRequestHeader(this.requestHeader);
     loader.setWithCredentials(this.withCredentials);
-    loader.load(url, function(data) {
+    loader.load(url2, function(data) {
       try {
         scope.parse(data, resourcePath, function(gltf) {
           onLoad(gltf);
-          scope.manager.itemEnd(url);
+          scope.manager.itemEnd(url2);
         }, _onError);
       } catch (e2) {
         _onError(e2);
@@ -13809,19 +13827,19 @@ function addMorphTargets(geometry, targets, parser) {
     return geometry;
   });
 }
-function updateMorphTargets(mesh, meshDef) {
-  mesh.updateMorphTargets();
+function updateMorphTargets(mesh2, meshDef) {
+  mesh2.updateMorphTargets();
   if (meshDef.weights !== void 0) {
     for (let i = 0, il = meshDef.weights.length; i < il; i++) {
-      mesh.morphTargetInfluences[i] = meshDef.weights[i];
+      mesh2.morphTargetInfluences[i] = meshDef.weights[i];
     }
   }
   if (meshDef.extras && Array.isArray(meshDef.extras.targetNames)) {
     const targetNames = meshDef.extras.targetNames;
-    if (mesh.morphTargetInfluences.length === targetNames.length) {
-      mesh.morphTargetDictionary = {};
+    if (mesh2.morphTargetInfluences.length === targetNames.length) {
+      mesh2.morphTargetDictionary = {};
       for (let i = 0, il = targetNames.length; i < il; i++) {
-        mesh.morphTargetDictionary[targetNames[i]] = i;
+        mesh2.morphTargetDictionary[targetNames[i]] = i;
       }
     } else {
       console.warn("THREE.GLTFLoader: Invalid extras.targetNames length. Ignoring names.");
@@ -14244,13 +14262,13 @@ var GLTFParser = class {
       return texture;
     });
   }
-  assignFinalMaterial(mesh) {
-    const geometry = mesh.geometry;
-    let material = mesh.material;
+  assignFinalMaterial(mesh2) {
+    const geometry = mesh2.geometry;
+    let material = mesh2.material;
     const useDerivativeTangents = geometry.attributes.tangent === void 0;
     const useVertexColors = geometry.attributes.color !== void 0;
     const useFlatShading = geometry.attributes.normal === void 0;
-    if (mesh.isPoints) {
+    if (mesh2.isPoints) {
       const cacheKey = "THREE.PointsMaterial:" + material.uuid;
       let pointsMaterial = this.cache.get(cacheKey);
       if (!pointsMaterial) {
@@ -14262,7 +14280,7 @@ var GLTFParser = class {
         this.cache.add(cacheKey, pointsMaterial);
       }
       material = pointsMaterial;
-    } else if (mesh.isLine) {
+    } else if (mesh2.isLine) {
       const cacheKey = "THREE.LineBasicMaterial:" + material.uuid;
       let lineMaterial = this.cache.get(cacheKey);
       if (!lineMaterial) {
@@ -14304,7 +14322,7 @@ var GLTFParser = class {
     if (material.aoMap && geometry.attributes.uv2 === void 0 && geometry.attributes.uv !== void 0) {
       geometry.setAttribute("uv2", geometry.attributes.uv);
     }
-    mesh.material = material;
+    mesh2.material = material;
   }
   getMaterialType() {
     return THREE.MeshStandardMaterial;
@@ -14461,38 +14479,38 @@ var GLTFParser = class {
       for (let i = 0, il = geometries.length; i < il; i++) {
         const geometry = geometries[i];
         const primitive = primitives[i];
-        let mesh;
+        let mesh2;
         const material = materials2[i];
         if (primitive.mode === WEBGL_CONSTANTS.TRIANGLES || primitive.mode === WEBGL_CONSTANTS.TRIANGLE_STRIP || primitive.mode === WEBGL_CONSTANTS.TRIANGLE_FAN || primitive.mode === void 0) {
-          mesh = meshDef.isSkinnedMesh === true ? new THREE.SkinnedMesh(geometry, material) : new THREE.Mesh(geometry, material);
-          if (mesh.isSkinnedMesh === true && !mesh.geometry.attributes.skinWeight.normalized) {
-            mesh.normalizeSkinWeights();
+          mesh2 = meshDef.isSkinnedMesh === true ? new THREE.SkinnedMesh(geometry, material) : new THREE.Mesh(geometry, material);
+          if (mesh2.isSkinnedMesh === true && !mesh2.geometry.attributes.skinWeight.normalized) {
+            mesh2.normalizeSkinWeights();
           }
           if (primitive.mode === WEBGL_CONSTANTS.TRIANGLE_STRIP) {
-            mesh.geometry = toTrianglesDrawMode(mesh.geometry, THREE.TriangleStripDrawMode);
+            mesh2.geometry = toTrianglesDrawMode(mesh2.geometry, THREE.TriangleStripDrawMode);
           } else if (primitive.mode === WEBGL_CONSTANTS.TRIANGLE_FAN) {
-            mesh.geometry = toTrianglesDrawMode(mesh.geometry, THREE.TriangleFanDrawMode);
+            mesh2.geometry = toTrianglesDrawMode(mesh2.geometry, THREE.TriangleFanDrawMode);
           }
         } else if (primitive.mode === WEBGL_CONSTANTS.LINES) {
-          mesh = new THREE.LineSegments(geometry, material);
+          mesh2 = new THREE.LineSegments(geometry, material);
         } else if (primitive.mode === WEBGL_CONSTANTS.LINE_STRIP) {
-          mesh = new THREE.Line(geometry, material);
+          mesh2 = new THREE.Line(geometry, material);
         } else if (primitive.mode === WEBGL_CONSTANTS.LINE_LOOP) {
-          mesh = new THREE.LineLoop(geometry, material);
+          mesh2 = new THREE.LineLoop(geometry, material);
         } else if (primitive.mode === WEBGL_CONSTANTS.POINTS) {
-          mesh = new THREE.Points(geometry, material);
+          mesh2 = new THREE.Points(geometry, material);
         } else {
           throw new Error("THREE.GLTFLoader: Primitive mode unsupported: " + primitive.mode);
         }
-        if (Object.keys(mesh.geometry.morphAttributes).length > 0) {
-          updateMorphTargets(mesh, meshDef);
+        if (Object.keys(mesh2.geometry.morphAttributes).length > 0) {
+          updateMorphTargets(mesh2, meshDef);
         }
-        mesh.name = parser.createUniqueName(meshDef.name || "mesh_" + meshIndex);
-        assignExtrasToUserData(mesh, meshDef);
+        mesh2.name = parser.createUniqueName(meshDef.name || "mesh_" + meshIndex);
+        assignExtrasToUserData(mesh2, meshDef);
         if (primitive.extensions)
-          addUnknownExtensionsToUserData(extensions, mesh, primitive);
-        parser.assignFinalMaterial(mesh);
-        meshes.push(mesh);
+          addUnknownExtensionsToUserData(extensions, mesh2, primitive);
+        parser.assignFinalMaterial(mesh2);
+        meshes.push(mesh2);
       }
       for (let i = 0, il = meshes.length; i < il; i++) {
         parser.associations.set(meshes[i], {
@@ -14641,8 +14659,8 @@ var GLTFParser = class {
     const nodeDef = json.nodes[nodeIndex];
     if (nodeDef.mesh === void 0)
       return null;
-    return parser.getDependency("mesh", nodeDef.mesh).then(function(mesh) {
-      const node = parser._getNodeRef(parser.meshCache, nodeDef.mesh, mesh);
+    return parser.getDependency("mesh", nodeDef.mesh).then(function(mesh2) {
+      const node = parser._getNodeRef(parser.meshCache, nodeDef.mesh, mesh2);
       if (nodeDef.weights !== void 0) {
         node.traverse(function(o) {
           if (!o.isMesh)
@@ -14776,8 +14794,8 @@ function buildNodeHierarchy(nodeId, parentObject, json, parser) {
       }
       return Promise.all(pendingJoints);
     }).then(function(jointNodes) {
-      node.traverse(function(mesh) {
-        if (!mesh.isMesh)
+      node.traverse(function(mesh2) {
+        if (!mesh2.isMesh)
           return;
         const bones = [];
         const boneInverses = [];
@@ -14794,7 +14812,7 @@ function buildNodeHierarchy(nodeId, parentObject, json, parser) {
             console.warn('THREE.GLTFLoader: Joint "%s" could not be found.', skinEntry.joints[j]);
           }
         }
-        mesh.bind(new THREE.Skeleton(bones, boneInverses), mesh.matrixWorld);
+        mesh2.bind(new THREE.Skeleton(bones, boneInverses), mesh2.matrixWorld);
       });
       return node;
     });
@@ -15480,7 +15498,7 @@ var BaseCursor = class {
   set visible(v) {
     this._visible = v;
   }
-  update(avatarHeadPos, comfortOffset, hit, target, defaultDistance, isLocal, canMoveView, origin, direction, isPrimaryPressed) {
+  update(avatarHeadPos, comfortOffset, hit, target, defaultDistance, isLocal, canDragView, origin, direction, isPrimaryPressed) {
     if (hit && hit.face) {
       this.position.copy(hit.point);
       hit.object.getWorldQuaternion(this.Q);
@@ -15498,7 +15516,7 @@ var BaseCursor = class {
       this.V.copy(this.env.avatar.worldPos);
     }
     this.lookAt(this.position, this.V);
-    this.style = target ? !target.enabled ? "not-allowed" : target.draggable ? isPrimaryPressed ? "grabbing" : "move" : target.clickable ? "pointer" : "default" : canMoveView ? isPrimaryPressed ? "grabbing" : "grab" : "default";
+    this.style = target ? !target.enabled ? "not-allowed" : target.draggable ? isPrimaryPressed ? "grabbing" : "move" : target.clickable ? "pointer" : "default" : canDragView ? isPrimaryPressed ? "grabbing" : "grab" : "default";
   }
   lookAt(_p, _v) {
   }
@@ -15512,7 +15530,7 @@ var Cursor3D = class extends BaseCursor {
     this.f = new THREE.Vector3();
     this.up = new THREE.Vector3();
     this.right = new THREE.Vector3();
-    this.object = new THREE.Object3D();
+    this.object = obj("Cursor3D");
     this.cursorSystem = cursorSystem;
     this.object.matrixAutoUpdate = false;
   }
@@ -16223,10 +16241,10 @@ var XRHandMeshModel = class {
     loader.load(`${handedness}.glb`, (gltf) => {
       const object = gltf.scene.children[0];
       this.handModel.add(object);
-      const mesh = object.getObjectByProperty("type", "SkinnedMesh");
-      mesh.frustumCulled = false;
-      mesh.castShadow = true;
-      mesh.receiveShadow = true;
+      const mesh2 = object.getObjectByProperty("type", "SkinnedMesh");
+      mesh2.frustumCulled = false;
+      mesh2.castShadow = true;
+      mesh2.receiveShadow = true;
       const joints = [
         "wrist",
         "thumb-metacarpal",
@@ -16830,9 +16848,12 @@ var BasePointer = class extends TypedEventBase {
     }
     this.updateCursor(this.env.avatar.worldPos, ZERO, true, 2);
   }
+  get canDragView() {
+    return this.canMoveView;
+  }
   updateCursor(avatarHeadPos, comfortOffset, isLocal, defaultDistance) {
     if (this.cursor) {
-      this.cursor.update(avatarHeadPos, comfortOffset, this.hoveredHit || this.curHit, this.rayTarget || this.curTarget, defaultDistance, isLocal, this.canMoveView, this.origin, this.direction, this.isPressed(0 /* Primary */));
+      this.cursor.update(avatarHeadPos, comfortOffset, this.hoveredHit || this.curHit, this.rayTarget || this.curTarget, defaultDistance, isLocal, this.canDragView, this.origin, this.direction, this.isPressed(0 /* Primary */));
     }
   }
 };
@@ -16901,8 +16922,8 @@ var LineSegmentsGeometry = class extends THREE.InstancedBufferGeometry {
     this.setPositions(geometry.attributes.position.array);
     return this;
   }
-  fromMesh(mesh) {
-    this.fromWireframeGeometry(new THREE.WireframeGeometry(mesh.geometry));
+  fromMesh(mesh2) {
+    this.fromWireframeGeometry(new THREE.WireframeGeometry(mesh2.geometry));
     return this;
   }
   fromLineSegments(lineSegments) {
@@ -17219,7 +17240,6 @@ var PointerHand = class extends BasePointer {
   constructor(env, index) {
     super("hand", 4 /* MotionController */, env, new CursorColor(env));
     this.laser = new Laser(white, 2e-3);
-    this.object = new THREE.Object3D();
     this._handedness = "none";
     this._isHand = false;
     this.inputSource = null;
@@ -17229,6 +17249,7 @@ var PointerHand = class extends BasePointer {
     this.quaternion = new THREE.Quaternion();
     this.newQuat = new THREE.Quaternion();
     this.useHaptics = true;
+    this.object = obj("PointerHand" + index);
     this.quaternion.identity();
     objGraph(this, this.controller = this.env.renderer.xr.getController(index), this.grip = this.env.renderer.xr.getControllerGrip(index), this.hand = this.env.renderer.xr.getHand(index));
     if (isDesktop() && isChrome() && !isOculusBrowser) {
@@ -17501,6 +17522,9 @@ var PointerMouse = class extends BaseScreenPointerSinglePoint {
   get isPointerLocked() {
     return document.pointerLockElement != null;
   }
+  get canDragView() {
+    return super.canDragView && !this.isPointerLocked;
+  }
   lockPointer() {
     this.element.requestPointerLock();
   }
@@ -17694,8 +17718,7 @@ var Fader = class extends TypedEventBase {
       color: 0,
       side: THREE.BackSide
     });
-    this.object = new THREE.Mesh(cube, this.material);
-    this.object.name = name2;
+    this.object = mesh(name2, cube, this.material);
     this.object.renderOrder = Number.MAX_VALUE;
     this.speed = 1 / t2;
     this.object.layers.enableAll();
@@ -17742,11 +17765,11 @@ var LoadingBar = class extends BaseProgress {
     super();
     this.value = 0;
     this.targetValue = 0;
-    this.object = new THREE.Object3D();
+    this.object = obj("LoadingBar");
     this._enabled = true;
     this.valueBar = new Cube(0, 1, 1, litGrey);
     this.valueBar.scale.set(0, 1, 1);
-    const valueBarContainer = new THREE.Object3D();
+    const valueBarContainer = obj("ValueBarContainer");
     valueBarContainer.scale.set(1, 0.1, 0.1);
     objGraph(this, objGraph(valueBarContainer, this.valueBar), chrome(-0.5, 0, -0.05, 0.01, 0.1, 0.01), chrome(-0.5, 0, 0.05, 0.01, 0.1, 0.01), chrome(0.5, 0, -0.05, 0.01, 0.1, 0.01), chrome(0.5, 0, 0.05, 0.01, 0.1, 0.01), chrome(-0.5, -0.05, 0, 0.01, 0.01, 0.1), chrome(0.5, -0.05, 0, 0.01, 0.01, 0.1), chrome(-0.5, 0.05, 0, 0.01, 0.01, 0.1), chrome(0.5, 0.05, 0, 0.01, 0.01, 0.1), chrome(0, -0.05, -0.05, 1, 0.01, 0.01), chrome(0, 0.05, -0.05, 1, 0.01, 0.01), chrome(0, -0.05, 0.05, 1, 0.01, 0.01), chrome(0, 0.05, 0.05, 1, 0.01, 0.01));
     deepSetLayer(this, PURGATORY);
@@ -21858,7 +21881,6 @@ var Environment = class extends BaseEnvironment {
     this.lobbyButton.visible = false;
     this.muteMicButton.visible = false;
     this.screenControl.setUI(this.screenUISpace, this.fullscreenButton, this.vrButton);
-    this.refreshSpaceUI();
     this.quitButton.addEventListener("click", () => this.withConfirmation("Confirm quit", "Are you sure you want to quit?", async () => {
       if (this.renderer.xr.isPresenting) {
         this.screenControl.stop();
@@ -21877,9 +21899,6 @@ var Environment = class extends BaseEnvironment {
         await this.screenControl.start(mode);
       }
     });
-    const onSessionChange = () => this.refreshSpaceUI();
-    this.screenControl.addEventListener("sessionstarted", onSessionChange);
-    this.screenControl.addEventListener("sessionstopped", onSessionChange);
     this.muteEnvAudioButton.addEventListener("click", () => {
       this.muteEnvAudioButton.active = !this.muteEnvAudioButton.active;
       this.dispatchEvent(this.envAudioToggleEvt);
@@ -21889,23 +21908,20 @@ var Environment = class extends BaseEnvironment {
   get currentRoom() {
     return this._currentRoom;
   }
-  refreshSpaceUI() {
-    this.xrUI.visible = this.renderer.xr.isPresenting || this.testSpaceLayout;
-    this.clockImage.isVisible = this.xrUI.visible || this.DEBUG;
-  }
   get testSpaceLayout() {
     return this._testSpaceLayout;
   }
   set testSpaceLayout(v) {
     if (v !== this.testSpaceLayout) {
       this._testSpaceLayout = v;
-      this.refreshSpaceUI();
     }
   }
   preRender(evt) {
     super.preRender(evt);
     this.audio.update();
     this.videoPlayer.update(evt.dt, evt.frame);
+    this.xrUI.visible = this.renderer.xr.isPresenting || this.testSpaceLayout;
+    this.clockImage.isVisible = this.xrUI.visible || this.DEBUG;
     if (!this.renderer.xr.isPresenting) {
       this.compassImage.setPitchAndHeading(rad2deg(this.avatar.worldPitch), rad2deg(this.avatar.worldHeading));
     }
@@ -21962,6 +21978,11 @@ var Environment = class extends BaseEnvironment {
     this.interactionAudio.create("click", click.result, 1);
   }
 };
+
+// src/isDebug.ts
+var url = /* @__PURE__ */ new URL(globalThis.location.href);
+var isDebug = !url.searchParams.has("RELEASE");
+var JS_EXT = isDebug ? ".js" : ".min.js";
 
 // src/settings.ts
 var version = true ? stringRandom(10) : pkgVersion;
@@ -22029,10 +22050,10 @@ function createFetcher(enableWorkers = true) {
   let fallback = new FetchingService(new FetchingServiceImplXHR());
   if (enableWorkers) {
     fallback = new FetchingServicePool({
-      scriptPath: `/js/fetcher-worker/index${".js"}?${version}`
+      scriptPath: `/js/fetcher-worker/index${JS_EXT}?${version}`
     }, FetchingServiceClient, fallback);
   }
-  return new Fetcher(fallback, false);
+  return new Fetcher(fallback, !isDebug);
 }
 
 // src/createTestEnvironment.ts
@@ -22046,86 +22067,21 @@ async function createTestEnvironment(debug = true) {
   });
 }
 
-// src/dirt-app/Dirt.ts
-var actionTypes = singleton("Juniper:Graphics2D:Dirt:StopTypes", () => /* @__PURE__ */ new Map([
-  ["mousedown", "down"],
-  ["mouseenter", "move"],
-  ["mouseleave", "up"],
-  ["mousemove", "move"],
-  ["mouseout", "up"],
-  ["mouseover", "move"],
-  ["mouseup", "up"],
-  ["pointerdown", "down"],
-  ["pointerenter", "move"],
-  ["pointerleave", "up"],
-  ["pointermove", "move"],
-  ["pointerrawupdate", "move"],
-  ["pointerout", "up"],
-  ["pointerup", "up"],
-  ["pointerover", "move"],
-  ["touchcancel", "up"],
-  ["touchend", "up"],
-  ["touchmove", "move"],
-  ["touchstart", "down"]
-]));
-var Dirt = class extends TypedEventBase {
-  constructor(width2, height2, fingerScale = 1) {
-    super();
-    this.fingerScale = fingerScale;
-    this.updateEvt = new TypedEvent("update");
-    this.pointerId = null;
-    this.x = null;
-    this.y = null;
-    this.lx = null;
-    this.ly = null;
-    this.element = createCanvas(width2, height2);
-    this.bcanvas = createUICanvas(this.element.width, this.element.height);
-    this.fg = this.element.getContext("2d");
-    this.bg = this.bcanvas.getContext("2d");
-    this.bg.fillStyle = "rgb(50%, 50%, 50%)";
-    this.bg.fillRect(0, 0, this.bcanvas.width, this.bcanvas.height);
-    this.fg.drawImage(this.bcanvas, 0, 0);
-    this.finger = Img(src("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAAXNSR0IArs4c6QAAAqhJREFUOE+VVE1PE1EUPbfvDdOZUiwtdAr9pqQhZBIJQoCwYGX8SlgIaUgIEqb8AxQ2JP0Nuta1rtS4UH6CmBDcGqP+gS4waV3YwDP32akdLAl9yc3M3HnvvPt1DuGKpZSyARQBlAGU2s9oe/tXAK+J6PPl43TZoZQSAJK1Wq1Sr9cfSClnR0dH47lc7rxYLP5mcxwnZBgGg78F8JiIvvs4AUAG29nZmT89PX0WDofnk8kkxsbGkE6nkc1mkclk9HsqlUI8HvcxfgLYIKIjdnQAlVLkuu6der3+MhqNxhKJBCzLghBCG7/zBeVyGYuLi1heXgZR5/g5gIdE9K7jcRzHbTabx7Zt25FIBFJKTE9Po1QqIRr9W7pWq6UtFAphYmIC6+vr3ZE2ANzyAckwjGPTNOc5EgZYXV1FLBbr2TKllI6OL97d3e3ed+QD3hVCfAiHwzBNE1tbWxgeHr5qAAL+8fFxDeqn7wM+F0JUGWxhYQErKyvXAvM3ra2twXVd/ekD/hBCFAzDgOd5uvj9rMnJSWxubv4DJKKWEEJyN/f393VX+1mDg4PY29sLRPhLSmlx9w4ODvoG5AAODw8DgF+EEGX+wQXuN+VeEb6QUno8e0tLS3035b8aArgnpXw/MDAAtu3t7WuPDefZq8s82J9M05zjeRoZGdGDfdUsXlxcaLbw6jmHzONUKuU2Go2PTD1mAtdlZmZGU6wX9ZhRzJRqtdp9cYcpYKWZmpq6fXZ29ioSidxgUE6fgYeGhgLGPr6oUql0064JYDagNgBsz/NunpycPLUsa862bZ0aD7yvNtyAa6kN10MpJQEwiWO1Wu1+t8Dm83ktsIVCgQVWtAWWj7HKPCKiNwE99JnhKzaAHCs3171tWQAZAGkADoAEAAZ5QkTf/PN/ACV4rJ9AdCf3AAAAAElFTkSuQmCC"));
-  }
-  update() {
-    if (this.pointerId !== null) {
-      const dx = this.lx - this.x;
-      const dy = this.ly - this.y;
-      if (Math.abs(dx) + Math.abs(dy) > 0) {
-        const a = Math.atan2(dy, dx) + Math.PI;
-        const d = Math.round(Math.sqrt(dx * dx + dy * dy));
-        this.bg.save();
-        this.bg.translate(this.lx, this.ly);
-        this.bg.rotate(a);
-        this.bg.translate(-0.5 * this.finger.width * this.fingerScale, -0.5 * this.finger.height * this.fingerScale);
-        for (let i = 0; i <= d; ++i) {
-          this.bg.drawImage(this.finger, 0, 0, this.finger.width, this.finger.height, i, 0, this.finger.width * this.fingerScale, this.finger.height * this.fingerScale);
-        }
-        this.bg.restore();
-        this.fg.drawImage(this.bcanvas, 0, 0);
-        this.dispatchEvent(this.updateEvt);
-      }
-    }
-    this.lx = this.x;
-    this.ly = this.y;
+// src/dirt-worker/DirtWorkerClient.ts
+var DirtWorkerClient = class extends WorkerClient {
+  constructor(n2, fr, pr, worker) {
+    super(worker);
+    this.checkPointerParams = [null, 0, 0, null];
+    this.element = createCanvas(n2, n2);
+    const offscreen = this.element.transferControlToOffscreen();
+    this.ready = this.callMethod("init", [offscreen, fr, pr], [offscreen]);
   }
   checkPointer(id2, x, y, type2) {
-    const action = actionTypes.get(type2) || type2;
-    if (this.pointerId === null) {
-      if (action === "down") {
-        this.pointerId = id2;
-        this.lx = this.x = x;
-        this.ly = this.y = y;
-        this.update();
-      }
-    } else if (id2 === this.pointerId) {
-      this.x = x;
-      this.y = y;
-      this.update();
-      if (action === "up") {
-        this.pointerId = null;
-      }
-    }
+    this.checkPointerParams[0] = id2;
+    this.checkPointerParams[1] = x;
+    this.checkPointerParams[2] = y;
+    this.checkPointerParams[3] = type2;
+    this.callMethod("checkPointer", this.checkPointerParams);
   }
   checkPointerUV(id2, x, y, type2) {
     this.checkPointer(id2, x * this.element.width, y * this.element.height, type2);
@@ -22155,10 +22111,10 @@ var Forest = class {
   constructor(env) {
     this.env = env;
     this.assets = [
-      this.skybox = new AssetImage("/skyboxes/BearfenceMountain.jpeg", Image_Jpeg, false),
-      this.forest = new AssetGltfModel("/models/Forest-Ground.glb", Model_Gltf_Binary, false),
-      this.bgAudio = new AssetAudio("/audio/forest.mp3", Audio_Mpeg, false),
-      this.tree = new AssetGltfModel("/models/Forest-Tree.glb", Model_Gltf_Binary, false)
+      this.skybox = new AssetImage("/skyboxes/BearfenceMountain.jpeg", Image_Jpeg, !isDebug),
+      this.forest = new AssetGltfModel("/models/Forest-Ground.glb", Model_Gltf_Binary, !isDebug),
+      this.bgAudio = new AssetAudio("/audio/forest.mp3", Audio_Mpeg, !isDebug),
+      this.tree = new AssetGltfModel("/models/Forest-Tree.glb", Model_Gltf_Binary, !isDebug)
     ];
     this.raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0), 0.1, 100);
     this.hits = new Array();
@@ -22258,23 +22214,28 @@ var Forest = class {
 
 // src/forest-and-dirt-app/index.ts
 (async function() {
-  const S2 = 200;
-  const env = await createTestEnvironment(true);
+  const S2 = 5;
+  const R2 = 200;
+  const F = 2;
+  const P3 = 1;
+  const env = await createTestEnvironment(isDebug);
   await env.fadeOut();
-  const dirtMapAsset = new AssetImage("/img/dirt.jpg", Image_Jpeg, false);
+  const dirtMapAsset = new AssetImage("/img/dirt.jpg", Image_Jpeg, !isDebug);
   const forest = new Forest(env);
   await env.load(dirtMapAsset, ...forest.assets);
   const dirtMapTex = new THREE.Texture(dirtMapAsset.result);
   dirtMapTex.minFilter = THREE.LinearMipmapLinearFilter;
   dirtMapTex.magFilter = THREE.LinearFilter;
   dirtMapTex.needsUpdate = true;
-  const dirtBumpMap = new Dirt(S2, S2, 0.125);
+  const dirtWorker = await env.fetcher.get("/js/dirt-worker/index" + JS_EXT).accept(Application_Javascript).worker();
+  const dirtBumpMap = new DirtWorkerClient(R2, F, P3, dirtWorker);
+  await dirtBumpMap.ready;
   const dirtBumpMapTex = new THREE.Texture(dirtBumpMap.element);
   dirtBumpMapTex.minFilter = THREE.LinearMipmapLinearFilter;
   dirtBumpMapTex.magFilter = THREE.LinearFilter;
   dirtBumpMapTex.needsUpdate = true;
   dirtBumpMap.addEventListener("update", () => dirtBumpMapTex.needsUpdate = true);
-  const dirtGeom = new THREE.PlaneBufferGeometry(5, 5, S2, S2);
+  const dirtGeom = new THREE.PlaneBufferGeometry(S2, S2, R2, R2);
   const dirtMat = new THREE.MeshPhongMaterial({
     precision: "highp",
     map: dirtMapTex,
@@ -22287,10 +22248,10 @@ var Forest = class {
     reflectivity: 0,
     side: THREE.FrontSide
   });
-  const dirt = new THREE.Mesh(dirtGeom, dirtMat);
+  const dirt = mesh("Dirt", dirtGeom, dirtMat);
   dirt.position.set(0, 0.1, 1);
   dirt.rotation.x = -Math.PI / 2;
-  const dirtSurface = new THREE.Mesh(new THREE.PlaneBufferGeometry(5, 5, 1, 1));
+  const dirtSurface = mesh("DirtSurface", new THREE.PlaneBufferGeometry(S2, S2, 1, 1));
   dirtSurface.visible = false;
   dirt.add(dirtSurface);
   const dirtTarget = new RayTarget(dirt);
