@@ -64,6 +64,19 @@ export class DirtService extends TypedEventBase<DirtEventMap> implements IDirtSe
         this.g = this.canvas.getContext("2d");
         this.g.fillStyle = "rgb(50%, 50%, 50%)";
         this.g.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        const imgData = this.g.getImageData(0, 0, this.canvas.width, this.canvas.height);
+        const { data, width, height } = imgData;
+        const components = data.length / (width * height);
+        for (let i = 0; i < data.length; i += components) {
+            const v = Math.floor(50 * (Math.random() - 0.5));
+            for (let c = 0; c < components - 1; ++c) {
+                data[i + c] += v;
+            }
+        }
+
+        this.g.putImageData(imgData, 0, 0);
+
         this.fr = fr;
         this.pr = pr;
         this.height = 2 * (this.fr + this.pr) + 1;
