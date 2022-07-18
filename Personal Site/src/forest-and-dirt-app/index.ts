@@ -1,19 +1,23 @@
 ﻿import { AssetImage } from "@juniper-lib/fetcher";
-import { Image_Jpeg } from "@juniper-lib/mediatypes";
+import { Application_Javascript, Image_Jpeg } from "@juniper-lib/mediatypes";
 import { Pointer3DEvent } from "@juniper-lib/threejs/eventSystem/Pointer3DEvent";
 import { RayTarget } from "@juniper-lib/threejs/eventSystem/RayTarget";
 import { mesh } from "@juniper-lib/threejs/objects";
 import { createTestEnvironment } from "../createTestEnvironment";
-import { Dirt } from "../dirt-app/Dirt";
+import { DirtWorkerClient } from "../dirt-worker/DirtWorkerClient";
 import { Forest } from "../forest-app/Forest";
+import { isDebug, JS_EXT } from "../isDebug";
 
 (async function () {
-    const S = 200;
+    const S = 5;
+    const R = 200;
+    const F = 2;
+    const P = 1;
 
-    const env = await createTestEnvironment(DEBUG);
+    const env = await createTestEnvironment(isDebug);
     await env.fadeOut();
 
-    const dirtMapAsset = new AssetImage("/img/dirt.jpg", Image_Jpeg, !DEBUG);
+    const dirtMapAsset = new AssetImage("/img/dirt.jpg", Image_Jpeg, !isDebug);
 
     const forest = new Forest(env);
     await env.load(dirtMapAsset, ...forest.assets);
@@ -23,7 +27,13 @@ import { Forest } from "../forest-app/Forest";
     dirtMapTex.magFilter = THREE.LinearFilter;
     dirtMapTex.needsUpdate = true;
 
-    const dirtBumpMap = new Dirt(S, S, 0.125);
+    const dirtWorker = await env.fetcher
+        .get("/js/dirt-worker/index" + JS_EXT)
+        .accept(Application_Javascript)
+        .worker();
+    const dirtBumpMap = new DirtWorkerClient(R, F, P, dirtWorker);
+    await dirtBumpMap.ready;
+
     const dirtBumpMapTex = new THREE.Texture(dirtBumpMap.element);
     dirtBumpMapTex.minFilter = THREE.LinearMipmapLinearFilter;
     dirtBumpMapTex.magFilter = THREE.LinearFilter;
@@ -32,7 +42,7 @@ import { Forest } from "../forest-app/Forest";
     dirtBumpMap.addEventListener("update", () =>
         dirtBumpMapTex.needsUpdate = true);
 
-    const dirtGeom = new THREE.PlaneBufferGeometry(5, 5, S, S);
+    const dirtGeom = new THREE.PlaneBufferGeometry(S, S, R, R);
 
     const dirtMat = new THREE.MeshPhongMaterial({
         precision: "highp",
@@ -51,7 +61,7 @@ import { Forest } from "../forest-app/Forest";
     dirt.position.set(0, 0.1, 1);
     dirt.rotation.x = -Math.PI / 2;
 
-    const dirtSurface = mesh("DirtSurface", new THREE.PlaneBufferGeometry(5, 5, 1, 1));
+    const dirtSurface = mesh("DirtSurface", new THREE.PlaneBufferGeometry(S, S, 1, 1));
     dirtSurface.visible = false;
     dirt.add(dirtSurface);
 
@@ -69,8 +79,6 @@ import { Forest } from "../forest-app/Forest";
     env.sun.position.set(-1, 3, -2);
 
     await env.fadeIn();
-
-
 
     function checkPointer(evt: Pointer3DEvent) {
         dirtBumpMap.checkPointerUV(
