@@ -1,6 +1,7 @@
 ﻿import { createCanvas } from "@juniper-lib/dom/canvas";
 import { ErsatzElement } from "@juniper-lib/dom/tags";
-import { WorkerClient } from "@juniper-lib/workers";
+import { assertNever, TypedEvent } from "@juniper-lib/tslib";
+import { WorkerClient, WorkerServerEventMessage } from "@juniper-lib/workers";
 import { DirtEventMap, IDirtService } from "./DirtService";
 
 export class DirtWorkerClient
@@ -9,12 +10,22 @@ export class DirtWorkerClient
 
     readonly element: HTMLCanvasElement;
     readonly ready: Promise<void>;
+    private readonly updateEvt = new TypedEvent("update");
 
     constructor(n: number, fr: number, pr: number, worker: Worker) {
         super(worker);
         this.element = createCanvas(n, n);
         const offscreen = this.element.transferControlToOffscreen();
         this.ready = this.callMethod("init", [offscreen, fr, pr], [offscreen]);
+    }
+
+    protected override propogateEvent(data: WorkerServerEventMessage<DirtEventMap>): void {
+        if (data.eventName === "update") {
+            this.dispatchEvent(this.updateEvt);
+        }
+        else {
+            assertNever(data.eventName);
+        }
     }
 
     private readonly checkPointerParams: [string | number, number, number, string] = [null, 0, 0, null];

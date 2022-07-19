@@ -1,7 +1,7 @@
 ﻿import { WorkerServer } from "@juniper-lib/workers";
-import { DirtService } from "./DirtService";
+import { DirtEventMap, DirtService } from "./DirtService";
 
-export class DirtWorkerServer extends WorkerServer {
+export class DirtWorkerServer extends WorkerServer<DirtEventMap> {
     constructor(self: DedicatedWorkerGlobalScope) {
         super(self);
 
