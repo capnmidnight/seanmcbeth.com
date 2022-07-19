@@ -15811,7 +15811,6 @@ var PointerHand = class extends BasePointer {
   constructor(env, index) {
     super("hand", 4 /* MotionController */, env, new CursorColor(env));
     this.laser = new Laser(white, 2e-3);
-    this._handedness = "none";
     this._isHand = false;
     this.inputSource = null;
     this._gamepad = new EventedGamepad();
@@ -15862,7 +15861,6 @@ var PointerHand = class extends BasePointer {
         this.inputSource = evt.data;
         this.gamepad.pad = this.inputSource.gamepad;
         this._isHand = isDefined(this.inputSource.hand);
-        this._handedness = this.inputSource.handedness;
         this.id = pointerIDs.get(this.handedness);
         this.updateCursorSide();
         this.grip.visible = !this.isHand;
@@ -15879,7 +15877,6 @@ var PointerHand = class extends BasePointer {
         this.inputSource = null;
         this.gamepad.pad = null;
         this._isHand = false;
-        this._handedness = "none";
         this.id = pointerIDs.get(this.handedness);
         this.updateCursorSide();
         this.grip.visible = false;
@@ -15909,7 +15906,10 @@ var PointerHand = class extends BasePointer {
     return this._gamepad;
   }
   get handedness() {
-    return this._handedness;
+    if (isNullOrUndefined(this.inputSource)) {
+      return null;
+    }
+    return this.inputSource.handedness;
   }
   get isHand() {
     return this._isHand;
@@ -15924,7 +15924,7 @@ var PointerHand = class extends BasePointer {
   updateCursorSide() {
     const obj2 = this.cursor.object;
     if (obj2) {
-      const sx = this.handedness === "left" ? -1 : 1;
+      const sx = this.handedness === "right" ? 1 : -1;
       obj2.scale.set(sx, 1, 1);
     }
   }

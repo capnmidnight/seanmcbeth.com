@@ -2143,10 +2143,6 @@ var WorkerClient = class extends TypedEventBase {
   dispose() {
     this.worker.terminate();
   }
-  propogateEvent(data) {
-    const evt = new TypedEvent(data.eventName);
-    this.dispatchEvent(Object.assign(evt, data.data));
-  }
   progressReport(data) {
     const invocation = this.invocations.get(data.taskID);
     if (invocation) {
@@ -2364,6 +2360,9 @@ var FetchingServiceClient = class extends WorkerClient {
   }
   clearCache() {
     return this.callMethod("clearCache");
+  }
+  propogateEvent(data) {
+    assertNever(data.eventName);
   }
   makeRequest(methodName, request, progress) {
     return this.callMethod(methodName, [cloneRequest(request)], progress);
@@ -2924,9 +2923,9 @@ var FetchingServiceImplXHR = class {
 };
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/FetchingServicePool.ts
-var BaseFetchingServicePool = class extends WorkerPool {
-  constructor(options, WorkerClientClass, fetcher2) {
-    super(options, WorkerClientClass);
+var FetchingServicePool = class extends WorkerPool {
+  constructor(options, fetcher2) {
+    super(options, FetchingServiceClient);
     this.fetcher = fetcher2;
   }
   getFetcher(obj) {
@@ -2997,8 +2996,6 @@ var BaseFetchingServicePool = class extends WorkerPool {
     return this.getFetcher(request.body).sendObjectGetImageBitmap(request, progress);
   }
 };
-var FetchingServicePool = class extends BaseFetchingServicePool {
-};
 
 // src/isDebug.ts
 var url = /* @__PURE__ */ new URL(globalThis.location.href);
@@ -3017,7 +3014,7 @@ function createFetcher(enableWorkers = true) {
   if (enableWorkers) {
     fallback = new FetchingServicePool({
       scriptPath: `/js/fetcher-worker/index${JS_EXT}?${version}`
-    }, FetchingServiceClient, fallback);
+    }, fallback);
   }
   return new Fetcher(fallback, !isDebug);
 }
@@ -3026,10 +3023,18 @@ function createFetcher(enableWorkers = true) {
 var DirtWorkerClient = class extends WorkerClient {
   constructor(n2, fr, pr, worker) {
     super(worker);
+    this.updateEvt = new TypedEvent("update");
     this.checkPointerParams = [null, 0, 0, null];
     this.element = createCanvas(n2, n2);
     const offscreen = this.element.transferControlToOffscreen();
     this.ready = this.callMethod("init", [offscreen, fr, pr], [offscreen]);
+  }
+  propogateEvent(data) {
+    if (data.eventName === "update") {
+      this.dispatchEvent(this.updateEvt);
+    } else {
+      assertNever(data.eventName);
+    }
   }
   checkPointer(id, x, y, type2) {
     this.checkPointerParams[0] = id;

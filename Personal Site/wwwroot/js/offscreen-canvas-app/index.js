@@ -5440,7 +5440,6 @@ var Audio_Mpeg = /* @__PURE__ */ audio("mpeg", "mp3", "mp2", "mp2a", "mpga", "m2
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/image.ts
 var image = /* @__PURE__ */ specialize("image");
-var Image_Jpeg = /* @__PURE__ */ image("jpeg", "jpeg", "jpg", "jpe");
 var Image_Png = /* @__PURE__ */ image("png", "png");
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/model.ts
@@ -5456,107 +5455,6 @@ var Text_Xml = /* @__PURE__ */ text("xml");
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/video.ts
 var video = /* @__PURE__ */ specialize("video");
 var Video_Vendor_Mpeg_Dash_Mpd = /* @__PURE__ */ video("vnd.mpeg.dash.mpd", "mpd");
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/Asset.ts
-var BaseAsset = class {
-  constructor(path, type2) {
-    this.path = path;
-    this.type = type2;
-    this._result = null;
-    this._error = null;
-    this._started = false;
-    this._finished = false;
-    this.resolve = null;
-    this.reject = null;
-    this.promise = new Promise((resolve, reject) => {
-      this.resolve = (value2) => {
-        this._result = value2;
-        this._finished = true;
-        resolve(value2);
-      };
-      this.reject = (reason) => {
-        this._error = reason;
-        this._finished = true;
-        reject(reason);
-      };
-    });
-  }
-  get result() {
-    if (isDefined(this.error)) {
-      throw this.error;
-    }
-    return this._result;
-  }
-  get error() {
-    return this._error;
-  }
-  get started() {
-    return this._started;
-  }
-  get finished() {
-    return this._finished;
-  }
-  async getSize(fetcher) {
-    try {
-      const { contentLength } = await fetcher.head(this.path).accept(this.type).exec();
-      return [this, contentLength || 1];
-    } catch (exp) {
-      console.warn(exp);
-      return [this, 1];
-    }
-    ;
-  }
-  async fetch(fetcher, prog) {
-    try {
-      const result = await this.getResult(fetcher, prog);
-      this.resolve(result);
-    } catch (err) {
-      this.reject(err);
-    }
-  }
-  get [Symbol.toStringTag]() {
-    return this.promise.toString();
-  }
-  then(onfulfilled, onrejected) {
-    return this.promise.then(onfulfilled, onrejected);
-  }
-  catch(onrejected) {
-    return this.promise.catch(onrejected);
-  }
-  finally(onfinally) {
-    return this.promise.finally(onfinally);
-  }
-};
-var BaseFetchedAsset = class extends BaseAsset {
-  constructor(path, typeOrUseCache, useCache) {
-    let type2;
-    if (isBoolean(typeOrUseCache)) {
-      useCache = typeOrUseCache;
-    } else {
-      type2 = typeOrUseCache;
-    }
-    super(path, type2);
-    this.useCache = !!useCache;
-  }
-  async getResult(fetcher, prog) {
-    const response = await this.getRequest(fetcher, prog);
-    return response.content;
-  }
-  getRequest(fetcher, prog) {
-    const request = fetcher.get(this.path).useCache(this.useCache).progress(prog);
-    return this.getResponse(request);
-  }
-};
-var AssetAudio = class extends BaseFetchedAsset {
-  getResponse(request) {
-    return request.audio(false, false, this.type);
-  }
-};
-var AssetImage = class extends BaseFetchedAsset {
-  getResponse(request) {
-    return request.image(this.type);
-  }
-};
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/attrs.ts
 var Attr = class {
@@ -6045,1454 +5943,6 @@ function BackgroundAudio(autoplay, mute, looping, ...rest) {
 function BackgroundVideo(autoplay, mute, looping, ...rest) {
   return Video(playsInline(true), controls(false), muted(mute), autoPlay(autoplay), loop(looping), styles(display("none")), ...rest);
 }
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/canvas.ts
-var hasHTMLCanvas = "HTMLCanvasElement" in globalThis;
-var hasHTMLImage = "HTMLImageElement" in globalThis;
-var disableAdvancedSettings = false;
-var hasOffscreenCanvas = !disableAdvancedSettings && "OffscreenCanvas" in globalThis;
-var hasImageBitmap = !disableAdvancedSettings && "createImageBitmap" in globalThis;
-function isHTMLCanvas(obj2) {
-  return hasHTMLCanvas && obj2 instanceof HTMLCanvasElement;
-}
-function isOffscreenCanvas(obj2) {
-  return hasOffscreenCanvas && obj2 instanceof OffscreenCanvas;
-}
-function isImageBitmap(img) {
-  return hasImageBitmap && img instanceof ImageBitmap;
-}
-function drawImageBitmapToCanvas(canv, img) {
-  const g = canv.getContext("2d");
-  if (isNullOrUndefined(g)) {
-    throw new Error("Could not create 2d context for canvas");
-  }
-  g.drawImage(img, 0, 0);
-}
-function testOffscreen2D() {
-  try {
-    const canv = new OffscreenCanvas(1, 1);
-    const g = canv.getContext("2d");
-    return g != null;
-  } catch (exp) {
-    return false;
-  }
-}
-var hasOffscreenCanvasRenderingContext2D = hasOffscreenCanvas && testOffscreen2D();
-var createUtilityCanvas = hasOffscreenCanvasRenderingContext2D && createOffscreenCanvas || hasHTMLCanvas && createCanvas || null;
-var createUICanvas = hasHTMLCanvas ? createCanvas : createUtilityCanvas;
-function testOffscreen3D() {
-  try {
-    const canv = new OffscreenCanvas(1, 1);
-    const g = canv.getContext("webgl2");
-    return g != null;
-  } catch (exp) {
-    return false;
-  }
-}
-var hasOffscreenCanvasRenderingContext3D = hasOffscreenCanvas && testOffscreen3D();
-function createOffscreenCanvas(width2, height2) {
-  return new OffscreenCanvas(width2, height2);
-}
-function createCanvas(w, h) {
-  if (false) {
-    throw new Error("HTML Canvas is not supported in workers");
-  }
-  return Canvas(htmlWidth(w), htmlHeight(h));
-}
-function createCanvasFromImageBitmap(img) {
-  if (false) {
-    throw new Error("HTML Canvas is not supported in workers");
-  }
-  const canv = createCanvas(img.width, img.height);
-  drawImageBitmapToCanvas(canv, img);
-  return canv;
-}
-function drawImageToCanvas(canv, img) {
-  const g = canv.getContext("2d");
-  if (isNullOrUndefined(g)) {
-    throw new Error("Could not create 2d context for canvas");
-  }
-  g.drawImage(img, 0, 0);
-}
-function setCanvasSize(canv, w, h, superscale = 1) {
-  w = Math.floor(w * superscale);
-  h = Math.floor(h * superscale);
-  if (canv.width != w || canv.height != h) {
-    canv.width = w;
-    canv.height = h;
-    return true;
-  }
-  return false;
-}
-function is2DRenderingContext(ctx) {
-  return isDefined(ctx.textBaseline);
-}
-function setCanvas2DContextSize(ctx, w, h, superscale = 1) {
-  const oldImageSmoothingEnabled = ctx.imageSmoothingEnabled, oldTextBaseline = ctx.textBaseline, oldTextAlign = ctx.textAlign, oldFont = ctx.font, resized = setCanvasSize(ctx.canvas, w, h, superscale);
-  if (resized) {
-    ctx.imageSmoothingEnabled = oldImageSmoothingEnabled;
-    ctx.textBaseline = oldTextBaseline;
-    ctx.textAlign = oldTextAlign;
-    ctx.font = oldFont;
-  }
-  return resized;
-}
-function setContextSize(ctx, w, h, superscale = 1) {
-  if (is2DRenderingContext(ctx)) {
-    return setCanvas2DContextSize(ctx, w, h, superscale);
-  } else {
-    return setCanvasSize(ctx.canvas, w, h, superscale);
-  }
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/RequestBuilder.ts
-var testAudio = null;
-function canPlay(type2) {
-  if (testAudio === null) {
-    testAudio = new Audio();
-  }
-  return testAudio.canPlayType(type2) !== "";
-}
-var RequestBuilder = class {
-  constructor(fetcher, useFileBlobsForModules, method, path) {
-    this.fetcher = fetcher;
-    this.useFileBlobsForModules = useFileBlobsForModules;
-    this.method = method;
-    this.prog = null;
-    this.path = path;
-    this.request = {
-      method,
-      path: this.path.href,
-      body: null,
-      headers: null,
-      timeout: null,
-      withCredentials: false,
-      useCache: false
-    };
-  }
-  query(name2, value2) {
-    this.path.searchParams.set(name2, value2);
-    this.request.path = this.path.href;
-    return this;
-  }
-  header(name2, value2) {
-    if (this.request.headers === null) {
-      this.request.headers = /* @__PURE__ */ new Map();
-    }
-    this.request.headers.set(name2.toLowerCase(), value2);
-    return this;
-  }
-  timeout(value2) {
-    this.request.timeout = value2;
-    return this;
-  }
-  progress(prog) {
-    this.prog = prog;
-    return this;
-  }
-  body(body, contentType) {
-    this.request.body = body;
-    this.content(contentType);
-    return this;
-  }
-  withCredentials() {
-    this.request.withCredentials = true;
-    return this;
-  }
-  useCache(enabled = true) {
-    this.request.useCache = enabled;
-    return this;
-  }
-  media(key, mediaType) {
-    if (isDefined(mediaType)) {
-      if (!isString(mediaType)) {
-        mediaType = mediaType.value;
-      }
-      this.header(key, mediaType);
-    }
-  }
-  content(contentType) {
-    this.media("content-type", contentType);
-  }
-  accept(acceptType) {
-    this.media("accept", acceptType);
-    return this;
-  }
-  blob(acceptType) {
-    this.accept(acceptType);
-    if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE") {
-      return this.fetcher.sendObjectGetBlob(this.request, this.prog);
-    } else if (this.method === "GET") {
-      return this.fetcher.sendNothingGetBlob(this.request, this.prog);
-    } else if (this.method === "HEAD" || this.method === "OPTIONS") {
-      throw new Error(`${this.method} responses do not contain bodies`);
-    } else {
-      assertNever(this.method);
-    }
-  }
-  buffer(acceptType) {
-    this.accept(acceptType);
-    if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE") {
-      return this.fetcher.sendObjectGetBuffer(this.request, this.prog);
-    } else if (this.method === "GET") {
-      return this.fetcher.sendNothingGetBuffer(this.request, this.prog);
-    } else if (this.method === "HEAD" || this.method === "OPTIONS") {
-      throw new Error(`${this.method} responses do not contain bodies`);
-    } else {
-      assertNever(this.method);
-    }
-  }
-  file(acceptType) {
-    this.accept(acceptType);
-    if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE") {
-      return this.fetcher.sendObjectGetFile(this.request, this.prog);
-    } else if (this.method === "GET") {
-      return this.fetcher.sendNothingGetFile(this.request, this.prog);
-    } else if (this.method === "HEAD" || this.method === "OPTIONS") {
-      throw new Error(`${this.method} responses do not contain bodies`);
-    } else {
-      assertNever(this.method);
-    }
-  }
-  text(acceptType) {
-    this.accept(acceptType || Text_Plain);
-    if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE") {
-      return this.fetcher.sendObjectGetText(this.request, this.prog);
-    } else if (this.method === "GET") {
-      return this.fetcher.sendNothingGetText(this.request, this.prog);
-    } else if (this.method === "HEAD" || this.method === "OPTIONS") {
-      throw new Error(`${this.method} responses do not contain bodies`);
-    } else {
-      assertNever(this.method);
-    }
-  }
-  object(acceptType) {
-    this.accept(acceptType || Application_Json);
-    if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE") {
-      return this.fetcher.sendObjectGetObject(this.request, this.prog);
-    } else if (this.method === "GET") {
-      return this.fetcher.sendNothingGetObject(this.request, this.prog);
-    } else if (this.method === "HEAD" || this.method === "OPTIONS") {
-      throw new Error(`${this.method} responses do not contain bodies`);
-    } else {
-      assertNever(this.method);
-    }
-  }
-  xml(acceptType) {
-    this.accept(acceptType || Text_Xml);
-    if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE") {
-      return this.fetcher.sendObjectGetXml(this.request, this.prog);
-    } else if (this.method === "GET") {
-      return this.fetcher.sendNothingGetXml(this.request, this.prog);
-    } else if (this.method === "HEAD" || this.method === "OPTIONS") {
-      throw new Error(`${this.method} responses do not contain bodies`);
-    } else {
-      assertNever(this.method);
-    }
-  }
-  imageBitmap(acceptType) {
-    this.accept(acceptType);
-    if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE") {
-      return this.fetcher.sendObjectGetImageBitmap(this.request, this.prog);
-    } else if (this.method === "GET") {
-      return this.fetcher.sendNothingGetImageBitmap(this.request, this.prog);
-    } else if (this.method === "HEAD" || this.method === "OPTIONS") {
-      throw new Error(`${this.method} responses do not contain bodies`);
-    } else {
-      assertNever(this.method);
-    }
-  }
-  exec() {
-    if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE") {
-      return this.fetcher.sendObjectGetNothing(this.request, this.prog);
-    } else if (this.method === "GET") {
-      throw new Exception("GET requests should expect a response type");
-    } else if (this.method === "HEAD" || this.method === "OPTIONS") {
-      return this.fetcher.sendNothingGetNothing(this.request);
-    } else {
-      assertNever(this.method);
-    }
-  }
-  async audioBlob(acceptType) {
-    if (isDefined(acceptType)) {
-      if (!isString(acceptType)) {
-        acceptType = acceptType.value;
-      }
-      if (!canPlay(acceptType)) {
-        throw new Error(`Probably can't play file of type "${acceptType}" at path: ${this.request.path}`);
-      }
-    }
-    const response = await this.blob(acceptType);
-    if (canPlay(response.contentType)) {
-      return response;
-    }
-    throw new Error(`Cannot play file of type "${response.contentType}" at path: ${this.request.path}`);
-  }
-  async audioBuffer(audioCtx, acceptType) {
-    return translateResponse(await this.audioBlob(acceptType), async (blob) => await audioCtx.decodeAudioData(await blob.arrayBuffer()));
-  }
-  async htmlElement(element, resolveEvt, acceptType) {
-    const response = await this.file(acceptType);
-    const task = once(element, resolveEvt, "error");
-    element.src = response.content;
-    await task;
-    return await translateResponse(response, () => element);
-  }
-  image(acceptType) {
-    return this.htmlElement(Img(), "load", acceptType);
-  }
-  async htmlCanvas(acceptType) {
-    if (false) {
-      throw new Error("HTMLCanvasElement not supported in Workers.");
-    }
-    const canvas = createCanvas(1, 1);
-    if (this.method === "GET") {
-      if (hasOffscreenCanvas) {
-        this.accept(acceptType);
-        const response = await this.fetcher.drawImageToCanvas(this.request, canvas.transferControlToOffscreen(), this.prog);
-        return await translateResponse(response, () => canvas);
-      } else {
-        const response = await (false ? this.imageBitmap(acceptType) : this.image(acceptType));
-        return await translateResponse(response, (img) => {
-          canvas.width = img.width;
-          canvas.height = img.height;
-          drawImageToCanvas(canvas, img);
-          dispose(img);
-          return canvas;
-        });
-      }
-    } else if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE" || this.method === "HEAD" || this.method === "OPTIONS") {
-      throw new Error(`${this.method} responses do not contain bodies`);
-    } else {
-      assertNever(this.method);
-    }
-  }
-  canvas(acceptType) {
-    if (hasOffscreenCanvas) {
-      return this.offscreenCanvas(acceptType);
-    } else {
-      return this.htmlCanvas(acceptType);
-    }
-  }
-  async offscreenCanvas(acceptType) {
-    if (!hasOffscreenCanvas) {
-      throw new Error("This system does not support OffscreenCanvas");
-    }
-    if (this.method === "GET") {
-      const response = await (false ? this.imageBitmap(acceptType) : this.image(acceptType));
-      return await translateResponse(response, (img) => {
-        const canvas = createOffscreenCanvas(img.width, img.height);
-        drawImageToCanvas(canvas, img);
-        dispose(img);
-        return canvas;
-      });
-    } else if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE" || this.method === "HEAD" || this.method === "OPTIONS") {
-      throw new Error(`${this.method} responses do not contain bodies`);
-    } else {
-      assertNever(this.method);
-    }
-  }
-  audio(autoPlaying, looping, acceptType) {
-    return this.htmlElement(BackgroundAudio(autoPlaying, false, looping), "canplay", acceptType);
-  }
-  video(autoPlaying, looping, acceptType) {
-    return this.htmlElement(BackgroundVideo(autoPlaying, false, looping), "canplay", acceptType);
-  }
-  async getScript() {
-    const tag2 = Script(type(Application_Javascript));
-    document.body.append(tag2);
-    if (this.useFileBlobsForModules) {
-      await this.htmlElement(tag2, "load", Application_Javascript);
-    } else {
-      tag2.src = this.request.path;
-    }
-  }
-  async script(test) {
-    const scriptPath = this.request.path;
-    if (!test) {
-      await this.getScript();
-    } else if (!test()) {
-      const scriptLoadTask = waitFor(test);
-      await this.getScript();
-      await scriptLoadTask;
-    }
-    if (this.prog) {
-      this.prog.end(scriptPath);
-    }
-  }
-  async module() {
-    const scriptPath = this.request.path;
-    let requestPath = scriptPath;
-    if (this.useFileBlobsForModules) {
-      const { content: file } = await this.file(Application_Javascript);
-      requestPath = file;
-    }
-    const value2 = await import(requestPath);
-    if (this.prog) {
-      this.prog.end(scriptPath);
-    }
-    return value2;
-  }
-  async wasm(imports) {
-    const { content: buffer, contentType } = await this.buffer(Application_Wasm);
-    if (!Application_Wasm.matches(contentType)) {
-      throw new Error(`Server did not respond with WASM file. Was: ${contentType}`);
-    }
-    const module = await WebAssembly.compile(buffer);
-    const instance = await WebAssembly.instantiate(module, imports);
-    return instance.exports;
-  }
-  async worker(type2 = "module") {
-    const scriptPath = this.request.path;
-    let requestPath = scriptPath;
-    if (this.useFileBlobsForModules) {
-      const { content: file } = await this.file(Application_Javascript);
-      requestPath = file;
-    }
-    this.prog = null;
-    this.request.timeout = null;
-    const worker = new Worker(requestPath, { type: type2 });
-    if (this.prog) {
-      this.prog.end(scriptPath);
-    }
-    return worker;
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/Fetcher.ts
-var Fetcher = class {
-  constructor(service, useFileBlobsForModules = true) {
-    this.service = service;
-    this.useFileBlobsForModules = useFileBlobsForModules;
-    if (true) {
-      const antiforgeryToken = getInput("input[name=__RequestVerificationToken]");
-      if (antiforgeryToken) {
-        this.service.setRequestVerificationToken(antiforgeryToken.value);
-      }
-    }
-  }
-  createRequest(method, path, base) {
-    return new RequestBuilder(this.service, this.useFileBlobsForModules, method, new URL(path, base || location.href));
-  }
-  clearCache() {
-    return this.service.clearCache();
-  }
-  head(path, base) {
-    return this.createRequest("HEAD", path, base);
-  }
-  options(path, base) {
-    return this.createRequest("OPTIONS", path, base);
-  }
-  get(path, base) {
-    return this.createRequest("GET", path, base);
-  }
-  post(path, base) {
-    return this.createRequest("POST", path, base);
-  }
-  put(path, base) {
-    return this.createRequest("PUT", path, base);
-  }
-  patch(path, base) {
-    return this.createRequest("PATCH", path, base);
-  }
-  delete(path, base) {
-    return this.createRequest("DELETE", path, base);
-  }
-  async assets(progress, ...assets) {
-    assets = assets.filter(isDefined);
-    const assetSizes = new Map(await Promise.all(assets.map((asset) => asset.getSize(this))));
-    await progressTasksWeighted(progress, assets.map((asset) => [assetSizes.get(asset), (prog) => asset.fetch(this, prog)]));
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/translateResponse.ts
-async function translateResponse(response, translate) {
-  const {
-    status,
-    path,
-    content,
-    contentType,
-    contentLength,
-    fileName,
-    headers,
-    date
-  } = response;
-  return {
-    status,
-    path,
-    content: await translate(content),
-    contentType,
-    contentLength,
-    fileName,
-    headers,
-    date
-  };
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/FetchingService.ts
-var FetchingService = class {
-  constructor(impl) {
-    this.impl = impl;
-    this.defaultPostHeaders = /* @__PURE__ */ new Map();
-  }
-  setRequestVerificationToken(value2) {
-    this.defaultPostHeaders.set("RequestVerificationToken", value2);
-  }
-  clearCache() {
-    return this.impl.clearCache();
-  }
-  sendNothingGetNothing(request) {
-    return this.impl.sendNothingGetNothing(request);
-  }
-  sendNothingGetBlob(request, progress) {
-    return this.impl.sendNothingGetSomething("blob", request, progress);
-  }
-  sendObjectGetBlob(request, progress) {
-    return this.impl.sendSomethingGetSomething("blob", request, this.defaultPostHeaders, progress);
-  }
-  sendNothingGetBuffer(request, progress) {
-    return this.impl.sendNothingGetSomething("arraybuffer", request, progress);
-  }
-  sendObjectGetBuffer(request, progress) {
-    return this.impl.sendSomethingGetSomething("arraybuffer", request, this.defaultPostHeaders, progress);
-  }
-  sendNothingGetText(request, progress) {
-    return this.impl.sendNothingGetSomething("text", request, progress);
-  }
-  sendObjectGetText(request, progress) {
-    return this.impl.sendSomethingGetSomething("text", request, this.defaultPostHeaders, progress);
-  }
-  async sendNothingGetObject(request, progress) {
-    const response = await this.impl.sendNothingGetSomething("json", request, progress);
-    return response.content;
-  }
-  async sendObjectGetObject(request, progress) {
-    const response = await this.impl.sendSomethingGetSomething("json", request, this.defaultPostHeaders, progress);
-    return response.content;
-  }
-  sendObjectGetNothing(request, progress) {
-    return this.impl.sendSomethingGetSomething("", request, this.defaultPostHeaders, progress);
-  }
-  drawImageToCanvas(request, canvas, progress) {
-    return this.impl.drawImageToCanvas(request, canvas, progress);
-  }
-  async sendNothingGetFile(request, progress) {
-    return translateResponse(await this.sendNothingGetBlob(request, progress), URL.createObjectURL);
-  }
-  async sendObjectGetFile(request, progress) {
-    return translateResponse(await this.sendObjectGetBlob(request, progress), URL.createObjectURL);
-  }
-  async sendNothingGetXml(request, progress) {
-    return translateResponse(await this.impl.sendNothingGetSomething("document", request, progress), (doc) => doc.documentElement);
-  }
-  async sendObjectGetXml(request, progress) {
-    return translateResponse(await this.impl.sendSomethingGetSomething("document", request, this.defaultPostHeaders, progress), (doc) => doc.documentElement);
-  }
-  async sendNothingGetImageBitmap(request, progress) {
-    return translateResponse(await this.sendNothingGetBlob(request, progress), createImageBitmap);
-  }
-  async sendObjectGetImageBitmap(request, progress) {
-    return translateResponse(await this.sendObjectGetBlob(request, progress), createImageBitmap);
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/workers/WorkerClient.ts
-var WorkerClient = class extends TypedEventBase {
-  constructor(worker) {
-    super();
-    this.worker = worker;
-    this.taskCounter = 0;
-    this.invocations = /* @__PURE__ */ new Map();
-    this.tasks = new Array();
-    if (!isWorkerSupported) {
-      console.warn("Workers are not supported on this system.");
-    }
-    this.worker.addEventListener("message", (evt) => {
-      const data = evt.data;
-      switch (data.type) {
-        case "event":
-          this.propogateEvent(data);
-          break;
-        case "progress":
-          this.progressReport(data);
-          break;
-        case "return":
-          this.methodReturned(data);
-          break;
-        case "error":
-          this.invocationError(data);
-          break;
-        default:
-          assertNever(data);
-      }
-    });
-  }
-  postMessage(message, transferables) {
-    if (message.type !== "methodCall") {
-      assertNever(message.type);
-    }
-    if (transferables) {
-      this.worker.postMessage(message, transferables);
-    } else {
-      this.worker.postMessage(message);
-    }
-  }
-  dispose() {
-    this.worker.terminate();
-  }
-  progressReport(data) {
-    const invocation = this.invocations.get(data.taskID);
-    if (invocation) {
-      const { prog } = invocation;
-      if (prog) {
-        prog.report(data.soFar, data.total, data.msg, data.est);
-      }
-    }
-  }
-  methodReturned(data) {
-    const messageHandler = this.removeInvocation(data.taskID);
-    const { task } = messageHandler;
-    task.resolve(data.returnValue);
-  }
-  invocationError(data) {
-    const messageHandler = this.removeInvocation(data.taskID);
-    const { task, methodName } = messageHandler;
-    task.reject(new Error(`${methodName} failed. Reason: ${data.errorMessage}`));
-  }
-  removeInvocation(taskID) {
-    const invocation = this.invocations.get(taskID);
-    this.invocations.delete(taskID);
-    return invocation;
-  }
-  callMethod(methodName, parameters, transferables, prog) {
-    if (!isWorkerSupported) {
-      return Promise.reject(new Error("Workers are not supported on this system."));
-    }
-    let params = null;
-    let tfers = null;
-    if (isProgressCallback(parameters)) {
-      prog = parameters;
-      parameters = null;
-      transferables = null;
-    }
-    if (isProgressCallback(transferables) && !prog) {
-      prog = transferables;
-      transferables = null;
-    }
-    if (isArray(parameters)) {
-      params = parameters;
-    }
-    if (isArray(transferables)) {
-      tfers = transferables;
-    }
-    const taskID = this.taskCounter++;
-    let task = arrayScan(this.tasks, (t2) => t2.finished);
-    if (task) {
-      task.reset();
-    } else {
-      task = new Task();
-      this.tasks.push(task);
-    }
-    const invocation = {
-      methodName,
-      task,
-      prog
-    };
-    this.invocations.set(taskID, invocation);
-    let message = null;
-    if (isDefined(parameters)) {
-      message = {
-        type: "methodCall",
-        taskID,
-        methodName,
-        params
-      };
-    } else {
-      message = {
-        type: "methodCall",
-        taskID,
-        methodName
-      };
-    }
-    this.postMessage(message, tfers);
-    return task;
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/workers/WorkerPool.ts
-var WorkerPool = class extends TypedEventBase {
-  constructor(options, WorkerClientClass) {
-    super();
-    this.scriptPath = options.scriptPath;
-    let workerPoolSize = -1;
-    const workersDef = options.workers;
-    let workers = null;
-    if (isNumber(workersDef)) {
-      workerPoolSize = workersDef;
-    } else if (isDefined(workersDef)) {
-      this.taskCounter = workersDef.curTaskCounter;
-      workers = workersDef.workers;
-      workerPoolSize = workers.length;
-    } else {
-      workerPoolSize = navigator.hardwareConcurrency || 4;
-    }
-    if (workerPoolSize < 1) {
-      throw new Error("Worker pool size must be a postive integer greater than 0");
-    }
-    this.workers = new Array(workerPoolSize);
-    if (isNullOrUndefined(workers)) {
-      this.taskCounter = 0;
-      for (let i = 0; i < workerPoolSize; ++i) {
-        this.workers[i] = new WorkerClientClass(new Worker(this.scriptPath, { type: "module" }));
-      }
-    } else {
-      for (let i = 0; i < workerPoolSize; ++i) {
-        this.workers[i] = new WorkerClientClass(workers[i]);
-      }
-    }
-    for (const worker of this.workers) {
-      worker.addBubbler(this);
-    }
-  }
-  dispose() {
-    for (const worker of this.workers) {
-      worker.dispose();
-    }
-    arrayClear(this.workers);
-  }
-  nextWorker() {
-    const worker = this.peekWorker();
-    this.taskCounter++;
-    return worker;
-  }
-  peekWorker() {
-    return this.workers[this.taskCounter % this.workers.length];
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/FetchingServiceClient.ts
-function isDOMParsersSupportedType(type2) {
-  return type2 === "application/xhtml+xml" || type2 === "application/xml" || type2 === "image/svg+xml" || type2 === "text/html" || type2 === "text/xml";
-}
-function bufferToXml(response) {
-  const {
-    status,
-    path,
-    content: buffer,
-    contentType,
-    contentLength,
-    fileName,
-    headers,
-    date
-  } = response;
-  if (!isDOMParsersSupportedType(contentType)) {
-    throw new Error(`Content-Type ${contentType} is not one supported by the DOM parser.`);
-  }
-  const decoder = new TextDecoder();
-  const text2 = decoder.decode(buffer);
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(text2, contentType);
-  return {
-    status,
-    path,
-    content: doc.documentElement,
-    contentType,
-    contentLength,
-    fileName,
-    date,
-    headers
-  };
-}
-function bufferToBlob(response) {
-  const {
-    status,
-    path,
-    content: buffer,
-    contentType,
-    contentLength,
-    fileName,
-    headers,
-    date
-  } = response;
-  const blob = new Blob([buffer], {
-    type: contentType
-  });
-  return {
-    status,
-    path,
-    content: blob,
-    contentType,
-    contentLength,
-    fileName,
-    date,
-    headers
-  };
-}
-function cloneRequest(request) {
-  request = {
-    method: request.method,
-    path: request.path,
-    timeout: request.timeout,
-    headers: request.headers,
-    withCredentials: request.withCredentials,
-    useCache: request.useCache
-  };
-  return request;
-}
-function cloneRequestWithBody(request) {
-  request = {
-    method: request.method,
-    path: request.path,
-    body: request.body,
-    timeout: request.timeout,
-    headers: request.headers,
-    withCredentials: request.withCredentials,
-    useCache: request.useCache
-  };
-  return request;
-}
-var FetchingServiceClient = class extends WorkerClient {
-  setRequestVerificationToken(value2) {
-    this.callMethod("setRequestVerificationToken", [value2]);
-  }
-  clearCache() {
-    return this.callMethod("clearCache");
-  }
-  propogateEvent(data) {
-    assertNever(data.eventName);
-  }
-  makeRequest(methodName, request, progress) {
-    return this.callMethod(methodName, [cloneRequest(request)], progress);
-  }
-  makeRequestWithBody(methodName, request, progress) {
-    return this.callMethod(methodName, [cloneRequestWithBody(request)], progress);
-  }
-  sendNothingGetNothing(request) {
-    return this.makeRequest("sendNothingGetNothing", request, null);
-  }
-  sendNothingGetBuffer(request, progress) {
-    return this.makeRequest("sendNothingGetBuffer", request, progress);
-  }
-  sendNothingGetText(request, progress) {
-    return this.makeRequest("sendNothingGetText", request, progress);
-  }
-  sendNothingGetObject(request, progress) {
-    return this.makeRequest("sendNothingGetObject", request, progress);
-  }
-  sendNothingGetFile(request, progress) {
-    return this.makeRequest("sendNothingGetFile", request, progress);
-  }
-  sendNothingGetImageBitmap(request, progress) {
-    return this.makeRequest("sendNothingGetImageBitmap", request, progress);
-  }
-  sendObjectGetNothing(request, progress) {
-    return this.makeRequestWithBody("sendObjectGetNothing", request, progress);
-  }
-  sendObjectGetBuffer(request, progress) {
-    return this.makeRequestWithBody("sendObjectGetBuffer", request, progress);
-  }
-  sendObjectGetText(request, progress) {
-    return this.makeRequestWithBody("sendObjectGetText", request, progress);
-  }
-  sendObjectGetObject(request, progress) {
-    return this.makeRequestWithBody("sendObjectGetObject", request, progress);
-  }
-  sendObjectGetFile(request, progress) {
-    return this.makeRequestWithBody("sendObjectGetFile", request, progress);
-  }
-  sendObjectGetImageBitmap(request, progress) {
-    return this.makeRequestWithBody("sendObjectGetImageBitmap", request, progress);
-  }
-  drawImageToCanvas(request, canvas, progress) {
-    return this.callMethod("drawImageToCanvas", [cloneRequest(request), canvas], [canvas], progress);
-  }
-  async sendNothingGetBlob(request, progress) {
-    const response = await this.sendNothingGetBuffer(request, progress);
-    return bufferToBlob(response);
-  }
-  async sendNothingGetXml(request, progress) {
-    const response = await this.sendNothingGetBuffer(request, progress);
-    return bufferToXml(response);
-  }
-  async sendObjectGetBlob(request, progress) {
-    const response = await this.sendObjectGetBuffer(request, progress);
-    return bufferToBlob(response);
-  }
-  async sendObjectGetXml(request, progress) {
-    const response = await this.sendObjectGetBuffer(request, progress);
-    return bufferToXml(response);
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/indexdb/index.ts
-var IDexDB = class {
-  constructor(db) {
-    this.db = db;
-  }
-  static async getCurrentVersion(dbName) {
-    if (isDefined(indexedDB.databases)) {
-      const databases = await indexedDB.databases();
-      for (const { name: name2, version: version2 } of databases) {
-        if (name2 === dbName) {
-          return version2;
-        }
-      }
-    }
-    return null;
-  }
-  static delete(dbName) {
-    const deleteRequest = indexedDB.deleteDatabase(dbName);
-    const task = once(deleteRequest, "success", "error", "blocked");
-    return success(task);
-  }
-  static async open(name2, ...storeDefs) {
-    const storesByName = mapMap(storeDefs, (v) => v.name, identity);
-    const indexesByName = new PriorityMap(storeDefs.filter((storeDef) => isDefined(storeDef.indexes)).flatMap((storeDef) => storeDef.indexes.map((indexDef) => [storeDef.name, indexDef.name, indexDef])));
-    const storesToAdd = new Array();
-    const storesToRemove = new Array();
-    const storesToChange = new Array();
-    const indexesToAdd = new PriorityList();
-    const indexesToRemove = new PriorityList();
-    let version2 = await this.getCurrentVersion(name2);
-    if (isNullOrUndefined(version2)) {
-      storesToAdd.push(...storesByName.keys());
-      for (const storeDef of storeDefs) {
-        if (isDefined(storeDef.indexes)) {
-          for (const indexDef of storeDef.indexes) {
-            indexesToAdd.add(storeDef.name, indexDef.name);
-          }
-        }
-      }
-    } else {
-      const D2 = indexedDB.open(name2);
-      if (await success(once(D2, "success", "error", "blocked"))) {
-        const db = D2.result;
-        const storesToScrutinize = new Array();
-        for (const storeName of Array.from(db.objectStoreNames)) {
-          if (!storesByName.has(storeName)) {
-            storesToRemove.push(storeName);
-          }
-        }
-        for (const storeName of storesByName.keys()) {
-          if (!db.objectStoreNames.contains(storeName)) {
-            storesToAdd.push(storeName);
-          } else {
-            storesToScrutinize.push(storeName);
-          }
-        }
-        if (storesToScrutinize.length > 0) {
-          const transaction = db.transaction(storesToScrutinize);
-          const transacting = once(transaction, "complete", "error", "abort");
-          const transacted = success(transacting);
-          for (const storeName of storesToScrutinize) {
-            const store = transaction.objectStore(storeName);
-            for (const indexName of Array.from(store.indexNames)) {
-              if (!indexesByName.has(storeName, indexName)) {
-                if (storesToChange.indexOf(storeName) === -1) {
-                  storesToChange.push(storeName);
-                }
-                indexesToRemove.add(storeName, indexName);
-              }
-            }
-            if (indexesByName.has(storeName)) {
-              for (const indexName of indexesByName.get(storeName).keys()) {
-                if (!store.indexNames.contains(indexName)) {
-                  if (storesToChange.indexOf(storeName) === -1) {
-                    storesToChange.push(storeName);
-                  }
-                  indexesToAdd.add(storeName, indexName);
-                } else {
-                  const indexDef = indexesByName.get(storeName, indexName);
-                  const index = store.index(indexName);
-                  if (isString(indexDef.keyPath) !== isString(index.keyPath) || isString(indexDef.keyPath) && isString(index.keyPath) && indexDef.keyPath !== index.keyPath || isArray(indexDef.keyPath) && isArray(index.keyPath) && arrayCompare(indexDef.keyPath, index.keyPath)) {
-                    if (storesToChange.indexOf(storeName) === -1) {
-                      storesToChange.push(storeName);
-                    }
-                    indexesToRemove.add(storeName, indexName);
-                    indexesToAdd.add(storeName, indexName);
-                  }
-                }
-              }
-            }
-          }
-          transaction.commit();
-          await transacted;
-        }
-        db.close();
-      }
-      if (storesToAdd.length > 0 || storesToRemove.length > 0 || indexesToAdd.size > 0 || indexesToRemove.size > 0) {
-        ++version2;
-      }
-    }
-    const upgrading = new Task();
-    const openRequest = isDefined(version2) ? indexedDB.open(name2, version2) : indexedDB.open(name2);
-    const opening = once(openRequest, "success", "error", "blocked");
-    const upgraded = success(upgrading);
-    const opened = success(opening);
-    const noUpgrade = () => upgrading.resolve(false);
-    openRequest.addEventListener("success", noUpgrade);
-    openRequest.addEventListener("upgradeneeded", () => {
-      const transacting = once(openRequest.transaction, "complete", "error", "abort");
-      const db = openRequest.result;
-      for (const storeName of storesToRemove) {
-        db.deleteObjectStore(storeName);
-      }
-      const stores = /* @__PURE__ */ new Map();
-      for (const storeName of storesToAdd) {
-        const storeDef = storesByName.get(storeName);
-        const store = db.createObjectStore(storeName, storeDef.options);
-        stores.set(storeName, store);
-      }
-      for (const storeName of storesToChange) {
-        const store = openRequest.transaction.objectStore(storeName);
-        stores.set(storeName, store);
-      }
-      for (const [storeName, store] of stores) {
-        for (const indexName of indexesToRemove.get(storeName)) {
-          store.deleteIndex(indexName);
-        }
-        for (const indexName of indexesToAdd.get(storeName)) {
-          const indexDef = indexesByName.get(storeName, indexName);
-          store.createIndex(indexName, indexDef.keyPath, indexDef.options);
-        }
-      }
-      success(transacting).then(upgrading.resolve).catch(upgrading.reject).finally(() => openRequest.removeEventListener("success", noUpgrade));
-    });
-    if (!await upgraded) {
-      throw upgrading.error;
-    }
-    if (!await opened) {
-      throw opening.error;
-    }
-    return new IDexDB(openRequest.result);
-  }
-  dispose() {
-    this.db.close();
-  }
-  get name() {
-    return this.db.name;
-  }
-  get version() {
-    return this.db.version;
-  }
-  get storeNames() {
-    return Array.from(this.db.objectStoreNames);
-  }
-  getStore(storeName) {
-    return new IDexStore(this.db, storeName);
-  }
-};
-var IDexStore = class {
-  constructor(db, storeName) {
-    this.db = db;
-    this.storeName = storeName;
-  }
-  async request(makeRequest, mode) {
-    const transaction = this.db.transaction(this.storeName, mode);
-    const transacting = once(transaction, "complete", "error");
-    const store = transaction.objectStore(this.storeName);
-    const request = makeRequest(store);
-    const requesting = once(request, "success", "error");
-    if (!await success(requesting)) {
-      transaction.abort();
-      throw requesting.error;
-    }
-    transaction.commit();
-    if (!await success(transacting)) {
-      throw transacting.error;
-    }
-    return request.result;
-  }
-  add(value2, key) {
-    return this.request((store) => store.add(value2, key), "readwrite");
-  }
-  clear() {
-    return this.request((store) => store.clear(), "readwrite");
-  }
-  getCount(query) {
-    return this.request((store) => store.count(query), "readonly");
-  }
-  delete(query) {
-    return this.request((store) => store.delete(query), "readwrite");
-  }
-  get(key) {
-    return this.request((store) => store.get(key), "readonly");
-  }
-  getAll() {
-    return this.request((store) => store.getAll(), "readonly");
-  }
-  getAllKeys() {
-    return this.request((store) => store.getAllKeys(), "readonly");
-  }
-  getKey(query) {
-    return this.request((store) => store.getKey(query), "readonly");
-  }
-  openCursor(query, direction) {
-    return this.request((store) => store.openCursor(query, direction), "readonly");
-  }
-  openKeyCursor(query, direction) {
-    return this.request((store) => store.openKeyCursor(query, direction), "readonly");
-  }
-  put(value2, key) {
-    return this.request((store) => store.put(value2, key), "readwrite");
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/FetchingServiceImplXHR.ts
-function isXHRBodyInit(obj2) {
-  return isString(obj2) || isArrayBufferView(obj2) || obj2 instanceof Blob || obj2 instanceof FormData || isArrayBuffer(obj2) || obj2 instanceof ReadableStream || "Document" in globalThis && obj2 instanceof Document;
-}
-function trackProgress(name2, xhr, target, prog, skipLoading, prevTask) {
-  let prevDone = !prevTask;
-  if (prevTask) {
-    prevTask.then(() => prevDone = true);
-  }
-  let done = false;
-  let loaded = skipLoading;
-  const requestComplete = new Task(() => loaded && done, () => prevDone);
-  target.addEventListener("loadstart", () => {
-    if (prevDone && !done && prog) {
-      prog.start(name2);
-    }
-  });
-  target.addEventListener("progress", (ev) => {
-    if (prevDone && !done) {
-      const evt = ev;
-      if (prog) {
-        prog.report(evt.loaded, Math.max(evt.loaded, evt.total), name2);
-      }
-      if (evt.loaded === evt.total) {
-        loaded = true;
-        requestComplete.resolve();
-      }
-    }
-  });
-  target.addEventListener("load", () => {
-    if (prevDone && !done) {
-      if (prog) {
-        prog.end(name2);
-      }
-      done = true;
-      requestComplete.resolve();
-    }
-  });
-  const onError = (msg) => () => requestComplete.reject(`${msg} (${xhr.status})`);
-  target.addEventListener("error", onError("error"));
-  target.addEventListener("abort", onError("abort"));
-  target.addEventListener("timeout", onError("timeout"));
-  return requestComplete;
-}
-function sendRequest(xhr, method, path, timeout, headers, body) {
-  xhr.open(method, path);
-  xhr.responseType = "blob";
-  xhr.timeout = timeout;
-  if (headers) {
-    for (const [key, value2] of headers) {
-      xhr.setRequestHeader(key, value2);
-    }
-  }
-  if (isDefined(body)) {
-    xhr.send(body);
-  } else {
-    xhr.send();
-  }
-}
-function readResponseHeader(headers, key, translate) {
-  if (!headers.has(key)) {
-    return null;
-  }
-  const value2 = headers.get(key);
-  try {
-    const translated = translate(value2);
-    headers.delete(key);
-    return translated;
-  } catch (exp) {
-    console.warn(key, exp);
-  }
-  return null;
-}
-var FILE_NAME_PATTERN = /filename=\"(.+)\"(;|$)/;
-var DB_NAME = "Juniper:Fetcher:Cache";
-var FetchingServiceImplXHR = class {
-  constructor() {
-    this.cache = null;
-    this.store = null;
-    this.tasks = new PriorityMap();
-    this.cacheReady = this.openCache();
-  }
-  async drawImageToCanvas(request, canvas, progress) {
-    const response = await this.sendNothingGetSomething("blob", request, progress);
-    const blob = response.content;
-    return using(await createImageBitmap(blob, {
-      imageOrientation: "none"
-    }), (img) => {
-      canvas.width = img.width;
-      canvas.height = img.height;
-      const g = canvas.getContext("2d");
-      g.drawImage(img, 0, 0);
-      return translateResponse(response, () => null);
-    });
-  }
-  async openCache() {
-    this.cache = await IDexDB.open(DB_NAME, {
-      name: "files",
-      options: {
-        keyPath: "path"
-      }
-    });
-    this.store = await this.cache.getStore("files");
-  }
-  async clearCache() {
-    await this.cacheReady;
-    await this.store.clear();
-  }
-  async readResponseHeaders(path, xhr) {
-    const headerParts = xhr.getAllResponseHeaders().split(/[\r\n]+/).map((v) => v.trim()).filter((v) => v.length > 0).map((line) => {
-      const parts = line.split(": ");
-      const key = parts.shift().toLowerCase();
-      const value2 = parts.join(": ");
-      return [key, value2];
-    });
-    const pList = new PriorityList(headerParts);
-    const normalizedHeaderParts = Array.from(pList.keys()).map((key) => [
-      key,
-      pList.get(key).join(", ")
-    ]);
-    const headers = new Map(normalizedHeaderParts);
-    const contentType = readResponseHeader(headers, "content-type", identity);
-    const contentLength = readResponseHeader(headers, "content-length", parseFloat);
-    const date = readResponseHeader(headers, "date", (v) => new Date(v));
-    const fileName = readResponseHeader(headers, "content-disposition", (v) => {
-      if (isDefined(v)) {
-        const match = v.match(FILE_NAME_PATTERN);
-        if (isDefined(match)) {
-          return match[1];
-        }
-      }
-      return null;
-    });
-    const response = {
-      status: xhr.status,
-      path,
-      content: void 0,
-      contentType,
-      contentLength,
-      fileName,
-      date,
-      headers
-    };
-    return response;
-  }
-  async readResponse(path, xhr) {
-    const {
-      status,
-      contentType,
-      contentLength,
-      fileName,
-      date,
-      headers
-    } = await this.readResponseHeaders(path, xhr);
-    const response = {
-      path,
-      status,
-      contentType,
-      contentLength,
-      fileName,
-      date,
-      headers,
-      content: xhr.response
-    };
-    if (isDefined(response.content)) {
-      response.contentType = response.contentType || response.content.type;
-      response.contentLength = response.contentLength || response.content.size;
-    }
-    return response;
-  }
-  async decodeContent(xhrType, response) {
-    return translateResponse(response, async (contentBlob) => {
-      if (xhrType === "") {
-        return null;
-      } else if (isNullOrUndefined(response.contentType)) {
-        const headerBlock = Array.from(response.headers.entries()).map((kv) => kv.join(": ")).join("\n  ");
-        throw new Error("No content type found in headers: \n  " + headerBlock);
-      } else if (xhrType === "blob") {
-        return contentBlob;
-      } else if (xhrType === "arraybuffer") {
-        return await contentBlob.arrayBuffer();
-      } else if (xhrType === "json") {
-        const text2 = await contentBlob.text();
-        if (text2.length > 0) {
-          return JSON.parse(text2);
-        } else {
-          return null;
-        }
-      } else if (xhrType === "document") {
-        const parser = new DOMParser();
-        if (response.contentType === "application/xhtml+xml" || response.contentType === "text/html" || response.contentType === "application/xml" || response.contentType === "image/svg+xml" || response.contentType === "text/xml") {
-          return parser.parseFromString(await contentBlob.text(), response.contentType);
-        } else {
-          throw new Error("Couldn't parse document");
-        }
-      } else if (xhrType === "text") {
-        return await contentBlob.text();
-      } else {
-        assertNever(xhrType);
-      }
-    });
-  }
-  async withCachedTask(request, action) {
-    if (request.method !== "GET" && request.method !== "HEAD" && request.method !== "OPTIONS") {
-      return await action();
-    }
-    if (!this.tasks.has(request.method, request.path)) {
-      this.tasks.add(request.method, request.path, action().finally(() => this.tasks.delete(request.method, request.path)));
-    }
-    return this.tasks.get(request.method, request.path);
-  }
-  sendNothingGetNothing(request) {
-    return this.withCachedTask(request, async () => {
-      const xhr = new XMLHttpRequest();
-      const download = trackProgress(`requesting: ${request.path}`, xhr, xhr, null, true);
-      sendRequest(xhr, request.method, request.path, request.timeout, request.headers);
-      await download;
-      return await this.readResponseHeaders(request.path, xhr);
-    });
-  }
-  sendNothingGetSomething(xhrType, request, progress) {
-    return this.withCachedTask(request, async () => {
-      let response = null;
-      const useCache = request.useCache && request.method === "GET";
-      if (useCache) {
-        if (isDefined(progress)) {
-          progress.start();
-        }
-        await this.cacheReady;
-        response = await this.store.get(request.path);
-      }
-      const noCachedResponse = isNullOrUndefined(response);
-      if (noCachedResponse) {
-        const xhr = new XMLHttpRequest();
-        const download = trackProgress(`requesting: ${request.path}`, xhr, xhr, progress, true);
-        sendRequest(xhr, request.method, request.path, request.timeout, request.headers);
-        await download;
-        response = await this.readResponse(request.path, xhr);
-        if (useCache) {
-          await this.store.add(response);
-        }
-      }
-      const value2 = await this.decodeContent(xhrType, response);
-      if (noCachedResponse && isDefined(progress)) {
-        progress.end();
-      }
-      return value2;
-    });
-  }
-  async sendSomethingGetSomething(xhrType, request, defaultPostHeaders, progress) {
-    let body = null;
-    const headers = mapJoin(/* @__PURE__ */ new Map(), defaultPostHeaders, request.headers);
-    if (request.body instanceof FormData && isDefined(headers)) {
-      const toDelete = new Array();
-      for (const key of headers.keys()) {
-        if (key.toLowerCase() === "content-type") {
-          toDelete.push(key);
-        }
-      }
-      for (const key of toDelete) {
-        headers.delete(key);
-      }
-    }
-    if (isXHRBodyInit(request.body) && !isString(request.body)) {
-      body = request.body;
-    } else if (isDefined(request.body)) {
-      body = JSON.stringify(request.body);
-    }
-    const progs = progressSplit(progress, 2);
-    const xhr = new XMLHttpRequest();
-    const upload = isDefined(body) ? trackProgress("uploading", xhr, xhr.upload, progs.shift(), false) : Promise.resolve();
-    const downloadProg = progs.shift();
-    const download = trackProgress("saving", xhr, xhr, downloadProg, true, upload);
-    sendRequest(xhr, request.method, request.path, request.timeout, headers, body);
-    await upload;
-    await download;
-    const response = await this.readResponse(request.path, xhr);
-    return await this.decodeContent(xhrType, response);
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/FetchingServicePool.ts
-var FetchingServicePool = class extends WorkerPool {
-  constructor(options, fetcher) {
-    super(options, FetchingServiceClient);
-    this.fetcher = fetcher;
-  }
-  getFetcher(obj2) {
-    if (obj2 instanceof FormData) {
-      return this.fetcher;
-    } else {
-      return this.nextWorker();
-    }
-  }
-  setRequestVerificationToken(value2) {
-    this.fetcher.setRequestVerificationToken(value2);
-    for (const worker of this.workers) {
-      worker.setRequestVerificationToken(value2);
-    }
-  }
-  async clearCache() {
-    await Promise.all(this.workers.map((w) => w.clearCache()));
-  }
-  sendNothingGetNothing(request) {
-    return this.nextWorker().sendNothingGetNothing(request);
-  }
-  sendNothingGetBlob(request, progress) {
-    return this.nextWorker().sendNothingGetBlob(request, progress);
-  }
-  sendNothingGetBuffer(request, progress) {
-    return this.nextWorker().sendNothingGetBuffer(request, progress);
-  }
-  sendNothingGetFile(request, progress) {
-    return this.nextWorker().sendNothingGetFile(request, progress);
-  }
-  sendNothingGetText(request, progress) {
-    return this.nextWorker().sendNothingGetText(request, progress);
-  }
-  sendNothingGetObject(request, progress) {
-    return this.nextWorker().sendNothingGetObject(request, progress);
-  }
-  sendNothingGetXml(request, progress) {
-    return this.nextWorker().sendNothingGetXml(request, progress);
-  }
-  sendNothingGetImageBitmap(request, progress) {
-    return this.nextWorker().sendNothingGetImageBitmap(request, progress);
-  }
-  drawImageToCanvas(request, canvas, progress) {
-    return this.nextWorker().drawImageToCanvas(request, canvas, progress);
-  }
-  sendObjectGetBlob(request, progress) {
-    return this.getFetcher(request.body).sendObjectGetBlob(request, progress);
-  }
-  sendObjectGetBuffer(request, progress) {
-    return this.getFetcher(request.body).sendObjectGetBuffer(request, progress);
-  }
-  sendObjectGetFile(request, progress) {
-    return this.getFetcher(request.body).sendObjectGetFile(request, progress);
-  }
-  sendObjectGetText(request, progress) {
-    return this.getFetcher(request.body).sendObjectGetText(request, progress);
-  }
-  sendObjectGetNothing(request, progress) {
-    return this.getFetcher(request.body).sendObjectGetNothing(request, progress);
-  }
-  sendObjectGetObject(request, progress) {
-    return this.getFetcher(request.body).sendObjectGetObject(request, progress);
-  }
-  sendObjectGetXml(request, progress) {
-    return this.getFetcher(request.body).sendObjectGetXml(request, progress);
-  }
-  sendObjectGetImageBitmap(request, progress) {
-    return this.getFetcher(request.body).sendObjectGetImageBitmap(request, progress);
-  }
-};
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/onUserGesture.ts
 var gestures = [
@@ -9016,6 +7466,1555 @@ var AudioPlayer = class extends BaseAudioSource {
   restart() {
     this.stop();
     return this.play();
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/Asset.ts
+var BaseAsset = class {
+  constructor(path, type2) {
+    this.path = path;
+    this.type = type2;
+    this._result = null;
+    this._error = null;
+    this._started = false;
+    this._finished = false;
+    this.resolve = null;
+    this.reject = null;
+    this.promise = new Promise((resolve, reject) => {
+      this.resolve = (value2) => {
+        this._result = value2;
+        this._finished = true;
+        resolve(value2);
+      };
+      this.reject = (reason) => {
+        this._error = reason;
+        this._finished = true;
+        reject(reason);
+      };
+    });
+  }
+  get result() {
+    if (isDefined(this.error)) {
+      throw this.error;
+    }
+    return this._result;
+  }
+  get error() {
+    return this._error;
+  }
+  get started() {
+    return this._started;
+  }
+  get finished() {
+    return this._finished;
+  }
+  async getSize(fetcher) {
+    try {
+      const { contentLength } = await fetcher.head(this.path).accept(this.type).exec();
+      return [this, contentLength || 1];
+    } catch (exp) {
+      console.warn(exp);
+      return [this, 1];
+    }
+    ;
+  }
+  async fetch(fetcher, prog) {
+    try {
+      const result = await this.getResult(fetcher, prog);
+      this.resolve(result);
+    } catch (err) {
+      this.reject(err);
+    }
+  }
+  get [Symbol.toStringTag]() {
+    return this.promise.toString();
+  }
+  then(onfulfilled, onrejected) {
+    return this.promise.then(onfulfilled, onrejected);
+  }
+  catch(onrejected) {
+    return this.promise.catch(onrejected);
+  }
+  finally(onfinally) {
+    return this.promise.finally(onfinally);
+  }
+};
+var BaseFetchedAsset = class extends BaseAsset {
+  constructor(path, typeOrUseCache, useCache) {
+    let type2;
+    if (isBoolean(typeOrUseCache)) {
+      useCache = typeOrUseCache;
+    } else {
+      type2 = typeOrUseCache;
+    }
+    super(path, type2);
+    this.useCache = !!useCache;
+  }
+  async getResult(fetcher, prog) {
+    const response = await this.getRequest(fetcher, prog);
+    return response.content;
+  }
+  getRequest(fetcher, prog) {
+    const request = fetcher.get(this.path).useCache(this.useCache).progress(prog);
+    return this.getResponse(request);
+  }
+};
+var AssetAudio = class extends BaseFetchedAsset {
+  getResponse(request) {
+    return request.audio(false, false, this.type);
+  }
+};
+var AssetImage = class extends BaseFetchedAsset {
+  getResponse(request) {
+    return request.image(this.type);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/canvas.ts
+var hasHTMLCanvas = "HTMLCanvasElement" in globalThis;
+var hasHTMLImage = "HTMLImageElement" in globalThis;
+var disableAdvancedSettings = false;
+var hasOffscreenCanvas = !disableAdvancedSettings && "OffscreenCanvas" in globalThis;
+var hasImageBitmap = !disableAdvancedSettings && "createImageBitmap" in globalThis;
+function isHTMLCanvas(obj2) {
+  return hasHTMLCanvas && obj2 instanceof HTMLCanvasElement;
+}
+function isOffscreenCanvas(obj2) {
+  return hasOffscreenCanvas && obj2 instanceof OffscreenCanvas;
+}
+function isImageBitmap(img) {
+  return hasImageBitmap && img instanceof ImageBitmap;
+}
+function drawImageBitmapToCanvas(canv, img) {
+  const g = canv.getContext("2d");
+  if (isNullOrUndefined(g)) {
+    throw new Error("Could not create 2d context for canvas");
+  }
+  g.drawImage(img, 0, 0);
+}
+function testOffscreen2D() {
+  try {
+    const canv = new OffscreenCanvas(1, 1);
+    const g = canv.getContext("2d");
+    return g != null;
+  } catch (exp) {
+    return false;
+  }
+}
+var hasOffscreenCanvasRenderingContext2D = hasOffscreenCanvas && testOffscreen2D();
+var createUtilityCanvas = hasOffscreenCanvasRenderingContext2D && createOffscreenCanvas || hasHTMLCanvas && createCanvas || null;
+var createUICanvas = hasHTMLCanvas ? createCanvas : createUtilityCanvas;
+function testOffscreen3D() {
+  try {
+    const canv = new OffscreenCanvas(1, 1);
+    const g = canv.getContext("webgl2");
+    return g != null;
+  } catch (exp) {
+    return false;
+  }
+}
+var hasOffscreenCanvasRenderingContext3D = hasOffscreenCanvas && testOffscreen3D();
+function createOffscreenCanvas(width2, height2) {
+  return new OffscreenCanvas(width2, height2);
+}
+function createCanvas(w, h) {
+  if (false) {
+    throw new Error("HTML Canvas is not supported in workers");
+  }
+  return Canvas(htmlWidth(w), htmlHeight(h));
+}
+function createCanvasFromImageBitmap(img) {
+  if (false) {
+    throw new Error("HTML Canvas is not supported in workers");
+  }
+  const canv = createCanvas(img.width, img.height);
+  drawImageBitmapToCanvas(canv, img);
+  return canv;
+}
+function drawImageToCanvas(canv, img) {
+  const g = canv.getContext("2d");
+  if (isNullOrUndefined(g)) {
+    throw new Error("Could not create 2d context for canvas");
+  }
+  g.drawImage(img, 0, 0);
+}
+function setCanvasSize(canv, w, h, superscale = 1) {
+  w = Math.floor(w * superscale);
+  h = Math.floor(h * superscale);
+  if (canv.width != w || canv.height != h) {
+    canv.width = w;
+    canv.height = h;
+    return true;
+  }
+  return false;
+}
+function is2DRenderingContext(ctx) {
+  return isDefined(ctx.textBaseline);
+}
+function setCanvas2DContextSize(ctx, w, h, superscale = 1) {
+  const oldImageSmoothingEnabled = ctx.imageSmoothingEnabled, oldTextBaseline = ctx.textBaseline, oldTextAlign = ctx.textAlign, oldFont = ctx.font, resized = setCanvasSize(ctx.canvas, w, h, superscale);
+  if (resized) {
+    ctx.imageSmoothingEnabled = oldImageSmoothingEnabled;
+    ctx.textBaseline = oldTextBaseline;
+    ctx.textAlign = oldTextAlign;
+    ctx.font = oldFont;
+  }
+  return resized;
+}
+function setContextSize(ctx, w, h, superscale = 1) {
+  if (is2DRenderingContext(ctx)) {
+    return setCanvas2DContextSize(ctx, w, h, superscale);
+  } else {
+    return setCanvasSize(ctx.canvas, w, h, superscale);
+  }
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/RequestBuilder.ts
+var testAudio = null;
+function canPlay(type2) {
+  if (testAudio === null) {
+    testAudio = new Audio();
+  }
+  return testAudio.canPlayType(type2) !== "";
+}
+var RequestBuilder = class {
+  constructor(fetcher, useFileBlobsForModules, method, path) {
+    this.fetcher = fetcher;
+    this.useFileBlobsForModules = useFileBlobsForModules;
+    this.method = method;
+    this.prog = null;
+    this.path = path;
+    this.request = {
+      method,
+      path: this.path.href,
+      body: null,
+      headers: null,
+      timeout: null,
+      withCredentials: false,
+      useCache: false
+    };
+  }
+  query(name2, value2) {
+    this.path.searchParams.set(name2, value2);
+    this.request.path = this.path.href;
+    return this;
+  }
+  header(name2, value2) {
+    if (this.request.headers === null) {
+      this.request.headers = /* @__PURE__ */ new Map();
+    }
+    this.request.headers.set(name2.toLowerCase(), value2);
+    return this;
+  }
+  timeout(value2) {
+    this.request.timeout = value2;
+    return this;
+  }
+  progress(prog) {
+    this.prog = prog;
+    return this;
+  }
+  body(body, contentType) {
+    this.request.body = body;
+    this.content(contentType);
+    return this;
+  }
+  withCredentials() {
+    this.request.withCredentials = true;
+    return this;
+  }
+  useCache(enabled = true) {
+    this.request.useCache = enabled;
+    return this;
+  }
+  media(key, mediaType) {
+    if (isDefined(mediaType)) {
+      if (!isString(mediaType)) {
+        mediaType = mediaType.value;
+      }
+      this.header(key, mediaType);
+    }
+  }
+  content(contentType) {
+    this.media("content-type", contentType);
+  }
+  accept(acceptType) {
+    this.media("accept", acceptType);
+    return this;
+  }
+  blob(acceptType) {
+    this.accept(acceptType);
+    if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE") {
+      return this.fetcher.sendObjectGetBlob(this.request, this.prog);
+    } else if (this.method === "GET") {
+      return this.fetcher.sendNothingGetBlob(this.request, this.prog);
+    } else if (this.method === "HEAD" || this.method === "OPTIONS") {
+      throw new Error(`${this.method} responses do not contain bodies`);
+    } else {
+      assertNever(this.method);
+    }
+  }
+  buffer(acceptType) {
+    this.accept(acceptType);
+    if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE") {
+      return this.fetcher.sendObjectGetBuffer(this.request, this.prog);
+    } else if (this.method === "GET") {
+      return this.fetcher.sendNothingGetBuffer(this.request, this.prog);
+    } else if (this.method === "HEAD" || this.method === "OPTIONS") {
+      throw new Error(`${this.method} responses do not contain bodies`);
+    } else {
+      assertNever(this.method);
+    }
+  }
+  file(acceptType) {
+    this.accept(acceptType);
+    if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE") {
+      return this.fetcher.sendObjectGetFile(this.request, this.prog);
+    } else if (this.method === "GET") {
+      return this.fetcher.sendNothingGetFile(this.request, this.prog);
+    } else if (this.method === "HEAD" || this.method === "OPTIONS") {
+      throw new Error(`${this.method} responses do not contain bodies`);
+    } else {
+      assertNever(this.method);
+    }
+  }
+  text(acceptType) {
+    this.accept(acceptType || Text_Plain);
+    if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE") {
+      return this.fetcher.sendObjectGetText(this.request, this.prog);
+    } else if (this.method === "GET") {
+      return this.fetcher.sendNothingGetText(this.request, this.prog);
+    } else if (this.method === "HEAD" || this.method === "OPTIONS") {
+      throw new Error(`${this.method} responses do not contain bodies`);
+    } else {
+      assertNever(this.method);
+    }
+  }
+  object(acceptType) {
+    this.accept(acceptType || Application_Json);
+    if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE") {
+      return this.fetcher.sendObjectGetObject(this.request, this.prog);
+    } else if (this.method === "GET") {
+      return this.fetcher.sendNothingGetObject(this.request, this.prog);
+    } else if (this.method === "HEAD" || this.method === "OPTIONS") {
+      throw new Error(`${this.method} responses do not contain bodies`);
+    } else {
+      assertNever(this.method);
+    }
+  }
+  xml(acceptType) {
+    this.accept(acceptType || Text_Xml);
+    if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE") {
+      return this.fetcher.sendObjectGetXml(this.request, this.prog);
+    } else if (this.method === "GET") {
+      return this.fetcher.sendNothingGetXml(this.request, this.prog);
+    } else if (this.method === "HEAD" || this.method === "OPTIONS") {
+      throw new Error(`${this.method} responses do not contain bodies`);
+    } else {
+      assertNever(this.method);
+    }
+  }
+  imageBitmap(acceptType) {
+    this.accept(acceptType);
+    if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE") {
+      return this.fetcher.sendObjectGetImageBitmap(this.request, this.prog);
+    } else if (this.method === "GET") {
+      return this.fetcher.sendNothingGetImageBitmap(this.request, this.prog);
+    } else if (this.method === "HEAD" || this.method === "OPTIONS") {
+      throw new Error(`${this.method} responses do not contain bodies`);
+    } else {
+      assertNever(this.method);
+    }
+  }
+  exec() {
+    if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE") {
+      return this.fetcher.sendObjectGetNothing(this.request, this.prog);
+    } else if (this.method === "GET") {
+      throw new Exception("GET requests should expect a response type");
+    } else if (this.method === "HEAD" || this.method === "OPTIONS") {
+      return this.fetcher.sendNothingGetNothing(this.request);
+    } else {
+      assertNever(this.method);
+    }
+  }
+  async audioBlob(acceptType) {
+    if (isDefined(acceptType)) {
+      if (!isString(acceptType)) {
+        acceptType = acceptType.value;
+      }
+      if (!canPlay(acceptType)) {
+        throw new Error(`Probably can't play file of type "${acceptType}" at path: ${this.request.path}`);
+      }
+    }
+    const response = await this.blob(acceptType);
+    if (canPlay(response.contentType)) {
+      return response;
+    }
+    throw new Error(`Cannot play file of type "${response.contentType}" at path: ${this.request.path}`);
+  }
+  async audioBuffer(audioCtx, acceptType) {
+    return translateResponse(await this.audioBlob(acceptType), async (blob) => await audioCtx.decodeAudioData(await blob.arrayBuffer()));
+  }
+  async htmlElement(element, resolveEvt, acceptType) {
+    const response = await this.file(acceptType);
+    const task = once(element, resolveEvt, "error");
+    element.src = response.content;
+    await task;
+    return await translateResponse(response, () => element);
+  }
+  image(acceptType) {
+    return this.htmlElement(Img(), "load", acceptType);
+  }
+  async htmlCanvas(acceptType) {
+    if (false) {
+      throw new Error("HTMLCanvasElement not supported in Workers.");
+    }
+    const canvas = createCanvas(1, 1);
+    if (this.method === "GET") {
+      if (hasOffscreenCanvas) {
+        this.accept(acceptType);
+        const response = await this.fetcher.drawImageToCanvas(this.request, canvas.transferControlToOffscreen(), this.prog);
+        return await translateResponse(response, () => canvas);
+      } else {
+        const response = await (false ? this.imageBitmap(acceptType) : this.image(acceptType));
+        return await translateResponse(response, (img) => {
+          canvas.width = img.width;
+          canvas.height = img.height;
+          drawImageToCanvas(canvas, img);
+          dispose(img);
+          return canvas;
+        });
+      }
+    } else if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE" || this.method === "HEAD" || this.method === "OPTIONS") {
+      throw new Error(`${this.method} responses do not contain bodies`);
+    } else {
+      assertNever(this.method);
+    }
+  }
+  canvas(acceptType) {
+    if (hasOffscreenCanvas) {
+      return this.offscreenCanvas(acceptType);
+    } else {
+      return this.htmlCanvas(acceptType);
+    }
+  }
+  async offscreenCanvas(acceptType) {
+    if (!hasOffscreenCanvas) {
+      throw new Error("This system does not support OffscreenCanvas");
+    }
+    if (this.method === "GET") {
+      const response = await (false ? this.imageBitmap(acceptType) : this.image(acceptType));
+      return await translateResponse(response, (img) => {
+        const canvas = createOffscreenCanvas(img.width, img.height);
+        drawImageToCanvas(canvas, img);
+        dispose(img);
+        return canvas;
+      });
+    } else if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE" || this.method === "HEAD" || this.method === "OPTIONS") {
+      throw new Error(`${this.method} responses do not contain bodies`);
+    } else {
+      assertNever(this.method);
+    }
+  }
+  audio(autoPlaying, looping, acceptType) {
+    return this.htmlElement(BackgroundAudio(autoPlaying, false, looping), "canplay", acceptType);
+  }
+  video(autoPlaying, looping, acceptType) {
+    return this.htmlElement(BackgroundVideo(autoPlaying, false, looping), "canplay", acceptType);
+  }
+  async getScript() {
+    const tag2 = Script(type(Application_Javascript));
+    document.body.append(tag2);
+    if (this.useFileBlobsForModules) {
+      await this.htmlElement(tag2, "load", Application_Javascript);
+    } else {
+      tag2.src = this.request.path;
+    }
+  }
+  async script(test) {
+    const scriptPath = this.request.path;
+    if (!test) {
+      await this.getScript();
+    } else if (!test()) {
+      const scriptLoadTask = waitFor(test);
+      await this.getScript();
+      await scriptLoadTask;
+    }
+    if (this.prog) {
+      this.prog.end(scriptPath);
+    }
+  }
+  async module() {
+    const scriptPath = this.request.path;
+    let requestPath = scriptPath;
+    if (this.useFileBlobsForModules) {
+      const { content: file } = await this.file(Application_Javascript);
+      requestPath = file;
+    }
+    const value2 = await import(requestPath);
+    if (this.prog) {
+      this.prog.end(scriptPath);
+    }
+    return value2;
+  }
+  async wasm(imports) {
+    const { content: buffer, contentType } = await this.buffer(Application_Wasm);
+    if (!Application_Wasm.matches(contentType)) {
+      throw new Error(`Server did not respond with WASM file. Was: ${contentType}`);
+    }
+    const module = await WebAssembly.compile(buffer);
+    const instance = await WebAssembly.instantiate(module, imports);
+    return instance.exports;
+  }
+  async worker(type2 = "module") {
+    const scriptPath = this.request.path;
+    let requestPath = scriptPath;
+    if (this.useFileBlobsForModules) {
+      const { content: file } = await this.file(Application_Javascript);
+      requestPath = file;
+    }
+    this.prog = null;
+    this.request.timeout = null;
+    const worker = new Worker(requestPath, { type: type2 });
+    if (this.prog) {
+      this.prog.end(scriptPath);
+    }
+    return worker;
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/Fetcher.ts
+var Fetcher = class {
+  constructor(service, useFileBlobsForModules = true) {
+    this.service = service;
+    this.useFileBlobsForModules = useFileBlobsForModules;
+    if (true) {
+      const antiforgeryToken = getInput("input[name=__RequestVerificationToken]");
+      if (antiforgeryToken) {
+        this.service.setRequestVerificationToken(antiforgeryToken.value);
+      }
+    }
+  }
+  createRequest(method, path, base) {
+    return new RequestBuilder(this.service, this.useFileBlobsForModules, method, new URL(path, base || location.href));
+  }
+  clearCache() {
+    return this.service.clearCache();
+  }
+  head(path, base) {
+    return this.createRequest("HEAD", path, base);
+  }
+  options(path, base) {
+    return this.createRequest("OPTIONS", path, base);
+  }
+  get(path, base) {
+    return this.createRequest("GET", path, base);
+  }
+  post(path, base) {
+    return this.createRequest("POST", path, base);
+  }
+  put(path, base) {
+    return this.createRequest("PUT", path, base);
+  }
+  patch(path, base) {
+    return this.createRequest("PATCH", path, base);
+  }
+  delete(path, base) {
+    return this.createRequest("DELETE", path, base);
+  }
+  async assets(progress, ...assets) {
+    assets = assets.filter(isDefined);
+    const assetSizes = new Map(await Promise.all(assets.map((asset) => asset.getSize(this))));
+    await progressTasksWeighted(progress, assets.map((asset) => [assetSizes.get(asset), (prog) => asset.fetch(this, prog)]));
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/translateResponse.ts
+async function translateResponse(response, translate) {
+  const {
+    status,
+    path,
+    content,
+    contentType,
+    contentLength,
+    fileName,
+    headers,
+    date
+  } = response;
+  return {
+    status,
+    path,
+    content: await translate(content),
+    contentType,
+    contentLength,
+    fileName,
+    headers,
+    date
+  };
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/FetchingService.ts
+var FetchingService = class {
+  constructor(impl) {
+    this.impl = impl;
+    this.defaultPostHeaders = /* @__PURE__ */ new Map();
+  }
+  setRequestVerificationToken(value2) {
+    this.defaultPostHeaders.set("RequestVerificationToken", value2);
+  }
+  clearCache() {
+    return this.impl.clearCache();
+  }
+  sendNothingGetNothing(request) {
+    return this.impl.sendNothingGetNothing(request);
+  }
+  sendNothingGetBlob(request, progress) {
+    return this.impl.sendNothingGetSomething("blob", request, progress);
+  }
+  sendObjectGetBlob(request, progress) {
+    return this.impl.sendSomethingGetSomething("blob", request, this.defaultPostHeaders, progress);
+  }
+  sendNothingGetBuffer(request, progress) {
+    return this.impl.sendNothingGetSomething("arraybuffer", request, progress);
+  }
+  sendObjectGetBuffer(request, progress) {
+    return this.impl.sendSomethingGetSomething("arraybuffer", request, this.defaultPostHeaders, progress);
+  }
+  sendNothingGetText(request, progress) {
+    return this.impl.sendNothingGetSomething("text", request, progress);
+  }
+  sendObjectGetText(request, progress) {
+    return this.impl.sendSomethingGetSomething("text", request, this.defaultPostHeaders, progress);
+  }
+  async sendNothingGetObject(request, progress) {
+    const response = await this.impl.sendNothingGetSomething("json", request, progress);
+    return response.content;
+  }
+  async sendObjectGetObject(request, progress) {
+    const response = await this.impl.sendSomethingGetSomething("json", request, this.defaultPostHeaders, progress);
+    return response.content;
+  }
+  sendObjectGetNothing(request, progress) {
+    return this.impl.sendSomethingGetSomething("", request, this.defaultPostHeaders, progress);
+  }
+  drawImageToCanvas(request, canvas, progress) {
+    return this.impl.drawImageToCanvas(request, canvas, progress);
+  }
+  async sendNothingGetFile(request, progress) {
+    return translateResponse(await this.sendNothingGetBlob(request, progress), URL.createObjectURL);
+  }
+  async sendObjectGetFile(request, progress) {
+    return translateResponse(await this.sendObjectGetBlob(request, progress), URL.createObjectURL);
+  }
+  async sendNothingGetXml(request, progress) {
+    return translateResponse(await this.impl.sendNothingGetSomething("document", request, progress), (doc) => doc.documentElement);
+  }
+  async sendObjectGetXml(request, progress) {
+    return translateResponse(await this.impl.sendSomethingGetSomething("document", request, this.defaultPostHeaders, progress), (doc) => doc.documentElement);
+  }
+  async sendNothingGetImageBitmap(request, progress) {
+    return translateResponse(await this.sendNothingGetBlob(request, progress), createImageBitmap);
+  }
+  async sendObjectGetImageBitmap(request, progress) {
+    return translateResponse(await this.sendObjectGetBlob(request, progress), createImageBitmap);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/workers/WorkerClient.ts
+var WorkerClient = class extends TypedEventBase {
+  constructor(worker) {
+    super();
+    this.worker = worker;
+    this.taskCounter = 0;
+    this.invocations = /* @__PURE__ */ new Map();
+    this.tasks = new Array();
+    if (!isWorkerSupported) {
+      console.warn("Workers are not supported on this system.");
+    }
+    this.worker.addEventListener("message", (evt) => {
+      const data = evt.data;
+      switch (data.type) {
+        case "event":
+          this.propogateEvent(data);
+          break;
+        case "progress":
+          this.progressReport(data);
+          break;
+        case "return":
+          this.methodReturned(data);
+          break;
+        case "error":
+          this.invocationError(data);
+          break;
+        default:
+          assertNever(data);
+      }
+    });
+  }
+  postMessage(message, transferables) {
+    if (message.type !== "methodCall") {
+      assertNever(message.type);
+    }
+    if (transferables) {
+      this.worker.postMessage(message, transferables);
+    } else {
+      this.worker.postMessage(message);
+    }
+  }
+  dispose() {
+    this.worker.terminate();
+  }
+  progressReport(data) {
+    const invocation = this.invocations.get(data.taskID);
+    if (invocation) {
+      const { prog } = invocation;
+      if (prog) {
+        prog.report(data.soFar, data.total, data.msg, data.est);
+      }
+    }
+  }
+  methodReturned(data) {
+    const messageHandler = this.removeInvocation(data.taskID);
+    const { task } = messageHandler;
+    task.resolve(data.returnValue);
+  }
+  invocationError(data) {
+    const messageHandler = this.removeInvocation(data.taskID);
+    const { task, methodName } = messageHandler;
+    task.reject(new Error(`${methodName} failed. Reason: ${data.errorMessage}`));
+  }
+  removeInvocation(taskID) {
+    const invocation = this.invocations.get(taskID);
+    this.invocations.delete(taskID);
+    return invocation;
+  }
+  callMethod(methodName, parameters, transferables, prog) {
+    if (!isWorkerSupported) {
+      return Promise.reject(new Error("Workers are not supported on this system."));
+    }
+    let params = null;
+    let tfers = null;
+    if (isProgressCallback(parameters)) {
+      prog = parameters;
+      parameters = null;
+      transferables = null;
+    }
+    if (isProgressCallback(transferables) && !prog) {
+      prog = transferables;
+      transferables = null;
+    }
+    if (isArray(parameters)) {
+      params = parameters;
+    }
+    if (isArray(transferables)) {
+      tfers = transferables;
+    }
+    const taskID = this.taskCounter++;
+    let task = arrayScan(this.tasks, (t2) => t2.finished);
+    if (task) {
+      task.reset();
+    } else {
+      task = new Task();
+      this.tasks.push(task);
+    }
+    const invocation = {
+      methodName,
+      task,
+      prog
+    };
+    this.invocations.set(taskID, invocation);
+    let message = null;
+    if (isDefined(parameters)) {
+      message = {
+        type: "methodCall",
+        taskID,
+        methodName,
+        params
+      };
+    } else {
+      message = {
+        type: "methodCall",
+        taskID,
+        methodName
+      };
+    }
+    this.postMessage(message, tfers);
+    return task;
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/workers/WorkerPool.ts
+var WorkerPool = class extends TypedEventBase {
+  constructor(options, WorkerClientClass) {
+    super();
+    this.scriptPath = options.scriptPath;
+    let workerPoolSize = -1;
+    const workersDef = options.workers;
+    let workers = null;
+    if (isNumber(workersDef)) {
+      workerPoolSize = workersDef;
+    } else if (isDefined(workersDef)) {
+      this.taskCounter = workersDef.curTaskCounter;
+      workers = workersDef.workers;
+      workerPoolSize = workers.length;
+    } else {
+      workerPoolSize = navigator.hardwareConcurrency || 4;
+    }
+    if (workerPoolSize < 1) {
+      throw new Error("Worker pool size must be a postive integer greater than 0");
+    }
+    this.workers = new Array(workerPoolSize);
+    if (isNullOrUndefined(workers)) {
+      this.taskCounter = 0;
+      for (let i = 0; i < workerPoolSize; ++i) {
+        this.workers[i] = new WorkerClientClass(new Worker(this.scriptPath, { type: "module" }));
+      }
+    } else {
+      for (let i = 0; i < workerPoolSize; ++i) {
+        this.workers[i] = new WorkerClientClass(workers[i]);
+      }
+    }
+    for (const worker of this.workers) {
+      worker.addBubbler(this);
+    }
+  }
+  dispose() {
+    for (const worker of this.workers) {
+      worker.dispose();
+    }
+    arrayClear(this.workers);
+  }
+  nextWorker() {
+    const worker = this.peekWorker();
+    this.taskCounter++;
+    return worker;
+  }
+  peekWorker() {
+    return this.workers[this.taskCounter % this.workers.length];
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/FetchingServiceClient.ts
+function isDOMParsersSupportedType(type2) {
+  return type2 === "application/xhtml+xml" || type2 === "application/xml" || type2 === "image/svg+xml" || type2 === "text/html" || type2 === "text/xml";
+}
+function bufferToXml(response) {
+  const {
+    status,
+    path,
+    content: buffer,
+    contentType,
+    contentLength,
+    fileName,
+    headers,
+    date
+  } = response;
+  if (!isDOMParsersSupportedType(contentType)) {
+    throw new Error(`Content-Type ${contentType} is not one supported by the DOM parser.`);
+  }
+  const decoder = new TextDecoder();
+  const text2 = decoder.decode(buffer);
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(text2, contentType);
+  return {
+    status,
+    path,
+    content: doc.documentElement,
+    contentType,
+    contentLength,
+    fileName,
+    date,
+    headers
+  };
+}
+function bufferToBlob(response) {
+  const {
+    status,
+    path,
+    content: buffer,
+    contentType,
+    contentLength,
+    fileName,
+    headers,
+    date
+  } = response;
+  const blob = new Blob([buffer], {
+    type: contentType
+  });
+  return {
+    status,
+    path,
+    content: blob,
+    contentType,
+    contentLength,
+    fileName,
+    date,
+    headers
+  };
+}
+function cloneRequest(request) {
+  request = {
+    method: request.method,
+    path: request.path,
+    timeout: request.timeout,
+    headers: request.headers,
+    withCredentials: request.withCredentials,
+    useCache: request.useCache
+  };
+  return request;
+}
+function cloneRequestWithBody(request) {
+  request = {
+    method: request.method,
+    path: request.path,
+    body: request.body,
+    timeout: request.timeout,
+    headers: request.headers,
+    withCredentials: request.withCredentials,
+    useCache: request.useCache
+  };
+  return request;
+}
+var FetchingServiceClient = class extends WorkerClient {
+  setRequestVerificationToken(value2) {
+    this.callMethod("setRequestVerificationToken", [value2]);
+  }
+  clearCache() {
+    return this.callMethod("clearCache");
+  }
+  propogateEvent(data) {
+    assertNever(data.eventName);
+  }
+  makeRequest(methodName, request, progress) {
+    return this.callMethod(methodName, [cloneRequest(request)], progress);
+  }
+  makeRequestWithBody(methodName, request, progress) {
+    return this.callMethod(methodName, [cloneRequestWithBody(request)], progress);
+  }
+  sendNothingGetNothing(request) {
+    return this.makeRequest("sendNothingGetNothing", request, null);
+  }
+  sendNothingGetBuffer(request, progress) {
+    return this.makeRequest("sendNothingGetBuffer", request, progress);
+  }
+  sendNothingGetText(request, progress) {
+    return this.makeRequest("sendNothingGetText", request, progress);
+  }
+  sendNothingGetObject(request, progress) {
+    return this.makeRequest("sendNothingGetObject", request, progress);
+  }
+  sendNothingGetFile(request, progress) {
+    return this.makeRequest("sendNothingGetFile", request, progress);
+  }
+  sendNothingGetImageBitmap(request, progress) {
+    return this.makeRequest("sendNothingGetImageBitmap", request, progress);
+  }
+  sendObjectGetNothing(request, progress) {
+    return this.makeRequestWithBody("sendObjectGetNothing", request, progress);
+  }
+  sendObjectGetBuffer(request, progress) {
+    return this.makeRequestWithBody("sendObjectGetBuffer", request, progress);
+  }
+  sendObjectGetText(request, progress) {
+    return this.makeRequestWithBody("sendObjectGetText", request, progress);
+  }
+  sendObjectGetObject(request, progress) {
+    return this.makeRequestWithBody("sendObjectGetObject", request, progress);
+  }
+  sendObjectGetFile(request, progress) {
+    return this.makeRequestWithBody("sendObjectGetFile", request, progress);
+  }
+  sendObjectGetImageBitmap(request, progress) {
+    return this.makeRequestWithBody("sendObjectGetImageBitmap", request, progress);
+  }
+  drawImageToCanvas(request, canvas, progress) {
+    return this.callMethod("drawImageToCanvas", [cloneRequest(request), canvas], [canvas], progress);
+  }
+  async sendNothingGetBlob(request, progress) {
+    const response = await this.sendNothingGetBuffer(request, progress);
+    return bufferToBlob(response);
+  }
+  async sendNothingGetXml(request, progress) {
+    const response = await this.sendNothingGetBuffer(request, progress);
+    return bufferToXml(response);
+  }
+  async sendObjectGetBlob(request, progress) {
+    const response = await this.sendObjectGetBuffer(request, progress);
+    return bufferToBlob(response);
+  }
+  async sendObjectGetXml(request, progress) {
+    const response = await this.sendObjectGetBuffer(request, progress);
+    return bufferToXml(response);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/indexdb/index.ts
+var IDexDB = class {
+  constructor(db) {
+    this.db = db;
+  }
+  static async getCurrentVersion(dbName) {
+    if (isDefined(indexedDB.databases)) {
+      const databases = await indexedDB.databases();
+      for (const { name: name2, version: version2 } of databases) {
+        if (name2 === dbName) {
+          return version2;
+        }
+      }
+    }
+    return null;
+  }
+  static delete(dbName) {
+    const deleteRequest = indexedDB.deleteDatabase(dbName);
+    const task = once(deleteRequest, "success", "error", "blocked");
+    return success(task);
+  }
+  static async open(name2, ...storeDefs) {
+    const storesByName = mapMap(storeDefs, (v) => v.name, identity);
+    const indexesByName = new PriorityMap(storeDefs.filter((storeDef) => isDefined(storeDef.indexes)).flatMap((storeDef) => storeDef.indexes.map((indexDef) => [storeDef.name, indexDef.name, indexDef])));
+    const storesToAdd = new Array();
+    const storesToRemove = new Array();
+    const storesToChange = new Array();
+    const indexesToAdd = new PriorityList();
+    const indexesToRemove = new PriorityList();
+    let version2 = await this.getCurrentVersion(name2);
+    if (isNullOrUndefined(version2)) {
+      storesToAdd.push(...storesByName.keys());
+      for (const storeDef of storeDefs) {
+        if (isDefined(storeDef.indexes)) {
+          for (const indexDef of storeDef.indexes) {
+            indexesToAdd.add(storeDef.name, indexDef.name);
+          }
+        }
+      }
+    } else {
+      const D2 = indexedDB.open(name2);
+      if (await success(once(D2, "success", "error", "blocked"))) {
+        const db = D2.result;
+        const storesToScrutinize = new Array();
+        for (const storeName of Array.from(db.objectStoreNames)) {
+          if (!storesByName.has(storeName)) {
+            storesToRemove.push(storeName);
+          }
+        }
+        for (const storeName of storesByName.keys()) {
+          if (!db.objectStoreNames.contains(storeName)) {
+            storesToAdd.push(storeName);
+          } else {
+            storesToScrutinize.push(storeName);
+          }
+        }
+        if (storesToScrutinize.length > 0) {
+          const transaction = db.transaction(storesToScrutinize);
+          const transacting = once(transaction, "complete", "error", "abort");
+          const transacted = success(transacting);
+          for (const storeName of storesToScrutinize) {
+            const store = transaction.objectStore(storeName);
+            for (const indexName of Array.from(store.indexNames)) {
+              if (!indexesByName.has(storeName, indexName)) {
+                if (storesToChange.indexOf(storeName) === -1) {
+                  storesToChange.push(storeName);
+                }
+                indexesToRemove.add(storeName, indexName);
+              }
+            }
+            if (indexesByName.has(storeName)) {
+              for (const indexName of indexesByName.get(storeName).keys()) {
+                if (!store.indexNames.contains(indexName)) {
+                  if (storesToChange.indexOf(storeName) === -1) {
+                    storesToChange.push(storeName);
+                  }
+                  indexesToAdd.add(storeName, indexName);
+                } else {
+                  const indexDef = indexesByName.get(storeName, indexName);
+                  const index = store.index(indexName);
+                  if (isString(indexDef.keyPath) !== isString(index.keyPath) || isString(indexDef.keyPath) && isString(index.keyPath) && indexDef.keyPath !== index.keyPath || isArray(indexDef.keyPath) && isArray(index.keyPath) && arrayCompare(indexDef.keyPath, index.keyPath)) {
+                    if (storesToChange.indexOf(storeName) === -1) {
+                      storesToChange.push(storeName);
+                    }
+                    indexesToRemove.add(storeName, indexName);
+                    indexesToAdd.add(storeName, indexName);
+                  }
+                }
+              }
+            }
+          }
+          transaction.commit();
+          await transacted;
+        }
+        db.close();
+      }
+      if (storesToAdd.length > 0 || storesToRemove.length > 0 || indexesToAdd.size > 0 || indexesToRemove.size > 0) {
+        ++version2;
+      }
+    }
+    const upgrading = new Task();
+    const openRequest = isDefined(version2) ? indexedDB.open(name2, version2) : indexedDB.open(name2);
+    const opening = once(openRequest, "success", "error", "blocked");
+    const upgraded = success(upgrading);
+    const opened = success(opening);
+    const noUpgrade = () => upgrading.resolve(false);
+    openRequest.addEventListener("success", noUpgrade);
+    openRequest.addEventListener("upgradeneeded", () => {
+      const transacting = once(openRequest.transaction, "complete", "error", "abort");
+      const db = openRequest.result;
+      for (const storeName of storesToRemove) {
+        db.deleteObjectStore(storeName);
+      }
+      const stores = /* @__PURE__ */ new Map();
+      for (const storeName of storesToAdd) {
+        const storeDef = storesByName.get(storeName);
+        const store = db.createObjectStore(storeName, storeDef.options);
+        stores.set(storeName, store);
+      }
+      for (const storeName of storesToChange) {
+        const store = openRequest.transaction.objectStore(storeName);
+        stores.set(storeName, store);
+      }
+      for (const [storeName, store] of stores) {
+        for (const indexName of indexesToRemove.get(storeName)) {
+          store.deleteIndex(indexName);
+        }
+        for (const indexName of indexesToAdd.get(storeName)) {
+          const indexDef = indexesByName.get(storeName, indexName);
+          store.createIndex(indexName, indexDef.keyPath, indexDef.options);
+        }
+      }
+      success(transacting).then(upgrading.resolve).catch(upgrading.reject).finally(() => openRequest.removeEventListener("success", noUpgrade));
+    });
+    if (!await upgraded) {
+      throw upgrading.error;
+    }
+    if (!await opened) {
+      throw opening.error;
+    }
+    return new IDexDB(openRequest.result);
+  }
+  dispose() {
+    this.db.close();
+  }
+  get name() {
+    return this.db.name;
+  }
+  get version() {
+    return this.db.version;
+  }
+  get storeNames() {
+    return Array.from(this.db.objectStoreNames);
+  }
+  getStore(storeName) {
+    return new IDexStore(this.db, storeName);
+  }
+};
+var IDexStore = class {
+  constructor(db, storeName) {
+    this.db = db;
+    this.storeName = storeName;
+  }
+  async request(makeRequest, mode) {
+    const transaction = this.db.transaction(this.storeName, mode);
+    const transacting = once(transaction, "complete", "error");
+    const store = transaction.objectStore(this.storeName);
+    const request = makeRequest(store);
+    const requesting = once(request, "success", "error");
+    if (!await success(requesting)) {
+      transaction.abort();
+      throw requesting.error;
+    }
+    transaction.commit();
+    if (!await success(transacting)) {
+      throw transacting.error;
+    }
+    return request.result;
+  }
+  add(value2, key) {
+    return this.request((store) => store.add(value2, key), "readwrite");
+  }
+  clear() {
+    return this.request((store) => store.clear(), "readwrite");
+  }
+  getCount(query) {
+    return this.request((store) => store.count(query), "readonly");
+  }
+  delete(query) {
+    return this.request((store) => store.delete(query), "readwrite");
+  }
+  get(key) {
+    return this.request((store) => store.get(key), "readonly");
+  }
+  getAll() {
+    return this.request((store) => store.getAll(), "readonly");
+  }
+  getAllKeys() {
+    return this.request((store) => store.getAllKeys(), "readonly");
+  }
+  getKey(query) {
+    return this.request((store) => store.getKey(query), "readonly");
+  }
+  openCursor(query, direction) {
+    return this.request((store) => store.openCursor(query, direction), "readonly");
+  }
+  openKeyCursor(query, direction) {
+    return this.request((store) => store.openKeyCursor(query, direction), "readonly");
+  }
+  put(value2, key) {
+    return this.request((store) => store.put(value2, key), "readwrite");
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/FetchingServiceImplXHR.ts
+function isXHRBodyInit(obj2) {
+  return isString(obj2) || isArrayBufferView(obj2) || obj2 instanceof Blob || obj2 instanceof FormData || isArrayBuffer(obj2) || obj2 instanceof ReadableStream || "Document" in globalThis && obj2 instanceof Document;
+}
+function trackProgress(name2, xhr, target, prog, skipLoading, prevTask) {
+  let prevDone = !prevTask;
+  if (prevTask) {
+    prevTask.then(() => prevDone = true);
+  }
+  let done = false;
+  let loaded = skipLoading;
+  const requestComplete = new Task(() => loaded && done, () => prevDone);
+  target.addEventListener("loadstart", () => {
+    if (prevDone && !done && prog) {
+      prog.start(name2);
+    }
+  });
+  target.addEventListener("progress", (ev) => {
+    if (prevDone && !done) {
+      const evt = ev;
+      if (prog) {
+        prog.report(evt.loaded, Math.max(evt.loaded, evt.total), name2);
+      }
+      if (evt.loaded === evt.total) {
+        loaded = true;
+        requestComplete.resolve();
+      }
+    }
+  });
+  target.addEventListener("load", () => {
+    if (prevDone && !done) {
+      if (prog) {
+        prog.end(name2);
+      }
+      done = true;
+      requestComplete.resolve();
+    }
+  });
+  const onError = (msg) => () => requestComplete.reject(`${msg} (${xhr.status})`);
+  target.addEventListener("error", onError("error"));
+  target.addEventListener("abort", onError("abort"));
+  target.addEventListener("timeout", onError("timeout"));
+  return requestComplete;
+}
+function sendRequest(xhr, method, path, timeout, headers, body) {
+  xhr.open(method, path);
+  xhr.responseType = "blob";
+  xhr.timeout = timeout;
+  if (headers) {
+    for (const [key, value2] of headers) {
+      xhr.setRequestHeader(key, value2);
+    }
+  }
+  if (isDefined(body)) {
+    xhr.send(body);
+  } else {
+    xhr.send();
+  }
+}
+function readResponseHeader(headers, key, translate) {
+  if (!headers.has(key)) {
+    return null;
+  }
+  const value2 = headers.get(key);
+  try {
+    const translated = translate(value2);
+    headers.delete(key);
+    return translated;
+  } catch (exp) {
+    console.warn(key, exp);
+  }
+  return null;
+}
+var FILE_NAME_PATTERN = /filename=\"(.+)\"(;|$)/;
+var DB_NAME = "Juniper:Fetcher:Cache";
+var FetchingServiceImplXHR = class {
+  constructor() {
+    this.cache = null;
+    this.store = null;
+    this.tasks = new PriorityMap();
+    this.cacheReady = this.openCache();
+  }
+  async drawImageToCanvas(request, canvas, progress) {
+    const response = await this.sendNothingGetSomething("blob", request, progress);
+    const blob = response.content;
+    return using(await createImageBitmap(blob, {
+      imageOrientation: "none"
+    }), (img) => {
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const g = canvas.getContext("2d");
+      g.drawImage(img, 0, 0);
+      return translateResponse(response, () => null);
+    });
+  }
+  async openCache() {
+    this.cache = await IDexDB.open(DB_NAME, {
+      name: "files",
+      options: {
+        keyPath: "path"
+      }
+    });
+    this.store = await this.cache.getStore("files");
+  }
+  async clearCache() {
+    await this.cacheReady;
+    await this.store.clear();
+  }
+  async readResponseHeaders(path, xhr) {
+    const headerParts = xhr.getAllResponseHeaders().split(/[\r\n]+/).map((v) => v.trim()).filter((v) => v.length > 0).map((line) => {
+      const parts = line.split(": ");
+      const key = parts.shift().toLowerCase();
+      const value2 = parts.join(": ");
+      return [key, value2];
+    });
+    const pList = new PriorityList(headerParts);
+    const normalizedHeaderParts = Array.from(pList.keys()).map((key) => [
+      key,
+      pList.get(key).join(", ")
+    ]);
+    const headers = new Map(normalizedHeaderParts);
+    const contentType = readResponseHeader(headers, "content-type", identity);
+    const contentLength = readResponseHeader(headers, "content-length", parseFloat);
+    const date = readResponseHeader(headers, "date", (v) => new Date(v));
+    const fileName = readResponseHeader(headers, "content-disposition", (v) => {
+      if (isDefined(v)) {
+        const match = v.match(FILE_NAME_PATTERN);
+        if (isDefined(match)) {
+          return match[1];
+        }
+      }
+      return null;
+    });
+    const response = {
+      status: xhr.status,
+      path,
+      content: void 0,
+      contentType,
+      contentLength,
+      fileName,
+      date,
+      headers
+    };
+    return response;
+  }
+  async readResponse(path, xhr) {
+    const {
+      status,
+      contentType,
+      contentLength,
+      fileName,
+      date,
+      headers
+    } = await this.readResponseHeaders(path, xhr);
+    const response = {
+      path,
+      status,
+      contentType,
+      contentLength,
+      fileName,
+      date,
+      headers,
+      content: xhr.response
+    };
+    if (isDefined(response.content)) {
+      response.contentType = response.contentType || response.content.type;
+      response.contentLength = response.contentLength || response.content.size;
+    }
+    return response;
+  }
+  async decodeContent(xhrType, response) {
+    return translateResponse(response, async (contentBlob) => {
+      if (xhrType === "") {
+        return null;
+      } else if (isNullOrUndefined(response.contentType)) {
+        const headerBlock = Array.from(response.headers.entries()).map((kv) => kv.join(": ")).join("\n  ");
+        throw new Error("No content type found in headers: \n  " + headerBlock);
+      } else if (xhrType === "blob") {
+        return contentBlob;
+      } else if (xhrType === "arraybuffer") {
+        return await contentBlob.arrayBuffer();
+      } else if (xhrType === "json") {
+        const text2 = await contentBlob.text();
+        if (text2.length > 0) {
+          return JSON.parse(text2);
+        } else {
+          return null;
+        }
+      } else if (xhrType === "document") {
+        const parser = new DOMParser();
+        if (response.contentType === "application/xhtml+xml" || response.contentType === "text/html" || response.contentType === "application/xml" || response.contentType === "image/svg+xml" || response.contentType === "text/xml") {
+          return parser.parseFromString(await contentBlob.text(), response.contentType);
+        } else {
+          throw new Error("Couldn't parse document");
+        }
+      } else if (xhrType === "text") {
+        return await contentBlob.text();
+      } else {
+        assertNever(xhrType);
+      }
+    });
+  }
+  async withCachedTask(request, action) {
+    if (request.method !== "GET" && request.method !== "HEAD" && request.method !== "OPTIONS") {
+      return await action();
+    }
+    if (!this.tasks.has(request.method, request.path)) {
+      this.tasks.add(request.method, request.path, action().finally(() => this.tasks.delete(request.method, request.path)));
+    }
+    return this.tasks.get(request.method, request.path);
+  }
+  sendNothingGetNothing(request) {
+    return this.withCachedTask(request, async () => {
+      const xhr = new XMLHttpRequest();
+      const download = trackProgress(`requesting: ${request.path}`, xhr, xhr, null, true);
+      sendRequest(xhr, request.method, request.path, request.timeout, request.headers);
+      await download;
+      return await this.readResponseHeaders(request.path, xhr);
+    });
+  }
+  sendNothingGetSomething(xhrType, request, progress) {
+    return this.withCachedTask(request, async () => {
+      let response = null;
+      const useCache = request.useCache && request.method === "GET";
+      if (useCache) {
+        if (isDefined(progress)) {
+          progress.start();
+        }
+        await this.cacheReady;
+        response = await this.store.get(request.path);
+      }
+      const noCachedResponse = isNullOrUndefined(response);
+      if (noCachedResponse) {
+        const xhr = new XMLHttpRequest();
+        const download = trackProgress(`requesting: ${request.path}`, xhr, xhr, progress, true);
+        sendRequest(xhr, request.method, request.path, request.timeout, request.headers);
+        await download;
+        response = await this.readResponse(request.path, xhr);
+        if (useCache) {
+          await this.store.add(response);
+        }
+      }
+      const value2 = await this.decodeContent(xhrType, response);
+      if (noCachedResponse && isDefined(progress)) {
+        progress.end();
+      }
+      return value2;
+    });
+  }
+  async sendSomethingGetSomething(xhrType, request, defaultPostHeaders, progress) {
+    let body = null;
+    const headers = mapJoin(/* @__PURE__ */ new Map(), defaultPostHeaders, request.headers);
+    if (request.body instanceof FormData && isDefined(headers)) {
+      const toDelete = new Array();
+      for (const key of headers.keys()) {
+        if (key.toLowerCase() === "content-type") {
+          toDelete.push(key);
+        }
+      }
+      for (const key of toDelete) {
+        headers.delete(key);
+      }
+    }
+    if (isXHRBodyInit(request.body) && !isString(request.body)) {
+      body = request.body;
+    } else if (isDefined(request.body)) {
+      body = JSON.stringify(request.body);
+    }
+    const progs = progressSplit(progress, 2);
+    const xhr = new XMLHttpRequest();
+    const upload = isDefined(body) ? trackProgress("uploading", xhr, xhr.upload, progs.shift(), false) : Promise.resolve();
+    const downloadProg = progs.shift();
+    const download = trackProgress("saving", xhr, xhr, downloadProg, true, upload);
+    sendRequest(xhr, request.method, request.path, request.timeout, headers, body);
+    await upload;
+    await download;
+    const response = await this.readResponse(request.path, xhr);
+    return await this.decodeContent(xhrType, response);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/FetchingServicePool.ts
+var FetchingServicePool = class extends WorkerPool {
+  constructor(options, fetcher) {
+    super(options, FetchingServiceClient);
+    this.fetcher = fetcher;
+  }
+  getFetcher(obj2) {
+    if (obj2 instanceof FormData) {
+      return this.fetcher;
+    } else {
+      return this.nextWorker();
+    }
+  }
+  setRequestVerificationToken(value2) {
+    this.fetcher.setRequestVerificationToken(value2);
+    for (const worker of this.workers) {
+      worker.setRequestVerificationToken(value2);
+    }
+  }
+  async clearCache() {
+    await Promise.all(this.workers.map((w) => w.clearCache()));
+  }
+  sendNothingGetNothing(request) {
+    return this.nextWorker().sendNothingGetNothing(request);
+  }
+  sendNothingGetBlob(request, progress) {
+    return this.nextWorker().sendNothingGetBlob(request, progress);
+  }
+  sendNothingGetBuffer(request, progress) {
+    return this.nextWorker().sendNothingGetBuffer(request, progress);
+  }
+  sendNothingGetFile(request, progress) {
+    return this.nextWorker().sendNothingGetFile(request, progress);
+  }
+  sendNothingGetText(request, progress) {
+    return this.nextWorker().sendNothingGetText(request, progress);
+  }
+  sendNothingGetObject(request, progress) {
+    return this.nextWorker().sendNothingGetObject(request, progress);
+  }
+  sendNothingGetXml(request, progress) {
+    return this.nextWorker().sendNothingGetXml(request, progress);
+  }
+  sendNothingGetImageBitmap(request, progress) {
+    return this.nextWorker().sendNothingGetImageBitmap(request, progress);
+  }
+  drawImageToCanvas(request, canvas, progress) {
+    return this.nextWorker().drawImageToCanvas(request, canvas, progress);
+  }
+  sendObjectGetBlob(request, progress) {
+    return this.getFetcher(request.body).sendObjectGetBlob(request, progress);
+  }
+  sendObjectGetBuffer(request, progress) {
+    return this.getFetcher(request.body).sendObjectGetBuffer(request, progress);
+  }
+  sendObjectGetFile(request, progress) {
+    return this.getFetcher(request.body).sendObjectGetFile(request, progress);
+  }
+  sendObjectGetText(request, progress) {
+    return this.getFetcher(request.body).sendObjectGetText(request, progress);
+  }
+  sendObjectGetNothing(request, progress) {
+    return this.getFetcher(request.body).sendObjectGetNothing(request, progress);
+  }
+  sendObjectGetObject(request, progress) {
+    return this.getFetcher(request.body).sendObjectGetObject(request, progress);
+  }
+  sendObjectGetXml(request, progress) {
+    return this.getFetcher(request.body).sendObjectGetXml(request, progress);
+  }
+  sendObjectGetImageBitmap(request, progress) {
+    return this.getFetcher(request.body).sendObjectGetImageBitmap(request, progress);
   }
 };
 
@@ -16900,13 +16899,13 @@ var LineSegmentsGeometry = class extends THREE.InstancedBufferGeometry {
     return this;
   }
   setColors(array) {
-    let colors;
+    let colors2;
     if (array instanceof Float32Array) {
-      colors = array;
+      colors2 = array;
     } else if (Array.isArray(array)) {
-      colors = new Float32Array(array);
+      colors2 = new Float32Array(array);
     }
-    const instanceColorBuffer = new THREE.InstancedInterleavedBuffer(colors, 6, 1);
+    const instanceColorBuffer = new THREE.InstancedInterleavedBuffer(colors2, 6, 1);
     this.setAttribute("instanceColorStart", new THREE.InterleavedBufferAttribute(instanceColorBuffer, 3, 0));
     this.setAttribute("instanceColorEnd", new THREE.InterleavedBufferAttribute(instanceColorBuffer, 3, 3));
     return this;
@@ -17156,16 +17155,16 @@ var LineGeometry = class extends LineSegmentsGeometry {
   }
   setColors(array) {
     var length4 = array.length - 3;
-    var colors = new Float32Array(2 * length4);
+    var colors2 = new Float32Array(2 * length4);
     for (var i = 0; i < length4; i += 3) {
-      colors[2 * i] = array[i];
-      colors[2 * i + 1] = array[i + 1];
-      colors[2 * i + 2] = array[i + 2];
-      colors[2 * i + 3] = array[i + 3];
-      colors[2 * i + 4] = array[i + 4];
-      colors[2 * i + 5] = array[i + 5];
+      colors2[2 * i] = array[i];
+      colors2[2 * i + 1] = array[i + 1];
+      colors2[2 * i + 2] = array[i + 2];
+      colors2[2 * i + 3] = array[i + 3];
+      colors2[2 * i + 4] = array[i + 4];
+      colors2[2 * i + 5] = array[i + 5];
     }
-    super.setColors(colors);
+    super.setColors(colors2);
     return this;
   }
   fromLine(line) {
@@ -22064,169 +22063,99 @@ async function createTestEnvironment(debug = true) {
   });
 }
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/objectScan.ts
-function objectScan(obj2, test) {
-  const queue = [obj2];
-  while (queue.length > 0) {
-    const here = queue.shift();
-    if (test(here)) {
-      return here;
-    }
-    if (here.children.length > 0) {
-      queue.push(...here.children);
-    }
-  }
-  return null;
+// src/offscreen-canvas-app/index.ts
+var colors = [
+  "red",
+  "green",
+  "blue",
+  "yellow"
+];
+function rect(g, color, x, y) {
+  const { width: width2, height: height2 } = g.canvas;
+  const w = width2 / 2;
+  const h = height2 / 2;
+  g.fillStyle = color;
+  g.fillRect(x * w, y * h, w, h);
+}
+var workerScript = `
+const colors = [
+  "red",
+  "green",
+  "blue",
+  "yellow"
+];
+
+function rect(g, color, x, y) {
+  const { width, height } = g.canvas;
+  const w = width / 2;
+  const h = height / 2;
+  g.fillStyle = color;
+  g.fillRect(x * w, y * h, w, h);
 }
 
-// src/forest-app/Forest.ts
-function isMeshNamed(name2) {
-  return (obj2) => isMesh(obj2) && obj2.name === name2;
-}
-var Forest = class {
-  constructor(env) {
-    this.env = env;
-    this.assets = [
-      this.skybox = new AssetImage("/skyboxes/BearfenceMountain.jpeg", Image_Jpeg, !isDebug),
-      this.forest = new AssetGltfModel("/models/Forest-Ground.glb", Model_Gltf_Binary, !isDebug),
-      this.bgAudio = new AssetAudio("/audio/forest.mp3", Audio_Mpeg, !isDebug),
-      this.tree = new AssetGltfModel("/models/Forest-Tree.glb", Model_Gltf_Binary, !isDebug)
-    ];
-    this.raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0), 0.1, 100);
-    this.hits = new Array();
-    Promise.all(this.assets).then(() => this.finish());
+addEventListener("message", (evt) => {
+  if (evt.data instanceof OffscreenCanvas) {
+    const g = evt.data.getContext("2d");
+    const drawRect = (i2, x, y) => rect(g, colors[i2 % colors.length], x, y);
+    const draw = (i2) => {
+      drawRect(i2, 0, 0);
+      drawRect(i2 + 1, 0, 1);
+      drawRect(i2 + 2, 1, 0);
+      drawRect(i2 + 3, 1, 1);
+      postMessage("update");
+    };
+    let i = 0;
+    draw(i);
+    setInterval(() => draw(++i), 1000);
   }
-  get ground() {
-    return this._ground;
-  }
-  get water() {
-    return this._water;
-  }
-  get trees() {
-    return this._trees;
-  }
-  convertMesh(oldMesh) {
-    const oldMat = oldMesh.material;
-    const newMat = materialStandardToBasic(oldMesh.material);
-    if (newMat === oldMat) {
-      return oldMesh;
-    }
-    const newMesh = oldMesh;
-    newMesh.material = newMat;
-    oldMat.dispose();
-    return newMesh;
-  }
-  finish() {
-    this.env.skybox.setImage("forest", this.skybox.result);
-    const clip = this.env.audio.createClip("forest", this.bgAudio.result, true, true, true, 1, []);
-    this.env.addEventListener("environmentaudiotoggled", () => {
-      if (this.env.environmentAudioMuted) {
-        clip.stop();
-      } else {
-        clip.play();
-      }
-    });
-    this.env.audio.setClipPosition("forest", 25, 5, 25);
-    this.env.foreground.add(this.forest.result.scene);
-    this.forest.result.scene.updateMatrixWorld();
-    this.raycaster.camera = this.env.camera;
-    const ground = objectScan(this.forest.result.scene, isMeshNamed("Ground"));
-    this._ground = this.convertMesh(ground);
-    this.env.timer.addTickHandler(() => {
-      const groundHit = this.groundTest(this.env.avatar.worldPos);
-      if (groundHit) {
-        this.env.avatar.stage.position.y = groundHit.point.y;
-      }
-    });
-    const water = objectScan(this.forest.result.scene, isMeshNamed("Water"));
-    this._water = this.convertMesh(water);
-    const matrices = this.makeTrees();
-    const treeMesh = objectScan(this.tree.result.scene, isMesh);
-    const treeGeom = treeMesh.geometry;
-    const treeMat = materialStandardToBasic(treeMesh.material);
-    this._trees = new THREE.InstancedMesh(treeGeom, treeMat, matrices.length);
-    for (let i = 0; i < matrices.length; ++i) {
-      this._trees.setMatrixAt(i, matrices[i]);
-    }
-    this.env.foreground.add(this._trees);
-  }
-  makeTrees() {
-    const matrices = new Array();
-    const q = new THREE.Quaternion();
-    const right = new THREE.Vector3(1, 0, 0);
-    const p = new THREE.Vector3();
-    const q2 = new THREE.Quaternion().setFromAxisAngle(right, Math.PI / 2);
-    const up = new THREE.Vector3(0, 1, 0);
-    const s = new THREE.Vector3();
-    for (let dz = -25; dz <= 25; ++dz) {
-      for (let dx = -25; dx <= 25; ++dx) {
-        if ((dx !== 0 || dx !== 0) && Math.random() <= 0.02) {
-          const x = Math.random() * 0.1 + dx;
-          const z = Math.random() * 0.1 + dz;
-          p.set(x, 0, z);
-          const groundHit = this.groundTest(p);
-          if (groundHit) {
-            const w = THREE.MathUtils.randFloat(0.6, 1.3);
-            const h = THREE.MathUtils.randFloat(0.6, 1.3);
-            s.set(w, h, w);
-            const a = THREE.MathUtils.randFloat(0, 2 * Math.PI);
-            const m = new THREE.Matrix4().compose(groundHit.point, q.setFromAxisAngle(up, a).multiply(q2), s);
-            matrices.push(m);
-          }
-        }
-      }
-    }
-    return matrices;
-  }
-  groundTest(p) {
-    this.raycaster.ray.origin.copy(p);
-    this.raycaster.ray.origin.y += 10;
-    this.raycaster.intersectObject(this.ground, true, this.hits);
-    const groundHit = arrayScan(this.hits, isDefined);
-    arrayClear(this.hits);
-    return groundHit;
-  }
-};
-
-// src/grass-app/makeGrass.ts
-function makeGrass(env, spatter) {
-  const grassGeom = new THREE.PlaneBufferGeometry(5, 5, 1, 1);
-  const grassTex = new THREE.CanvasTexture(spatter);
-  const grassMat = new THREE.MeshBasicMaterial({
-    map: grassTex,
-    transparent: true,
-    opacity: 1,
-    side: THREE.DoubleSide
-  });
-  const grass = new THREE.InstancedMesh(grassGeom, grassMat, 25);
-  const dummy = obj("Dummy");
-  dummy.rotation.set(Math.PI / 2, 0, 0);
-  for (let i = 0; i < grass.count; ++i) {
-    dummy.position.set(0, i / (5 * grass.count), 0);
-    dummy.updateMatrix();
-    grass.setMatrixAt(i, dummy.matrix);
-    grass.setColorAt(i, new THREE.Color(0.25, 0.25 + i / (2 * grass.count), 0));
-  }
-  env.foreground.add(grass);
-  env.timer.addTickHandler((evt) => {
-    for (let i = 0; i < grass.count; ++i) {
-      dummy.position.set(0.08 + 0.05 * Math.cos(evt.t / 1e3) * i / grass.count, i / (5 * grass.count), 0);
-      dummy.updateMatrix();
-      grass.setMatrixAt(i, dummy.matrix);
-    }
-    grass.instanceMatrix.needsUpdate = true;
-  });
-}
-
-// src/grass-app/index.ts
+});
+`;
+var workerScriptBlob = new Blob([workerScript], { type: Application_Javascript.value });
+var workerScriptBlobUrl = URL.createObjectURL(workerScriptBlob);
 (async function() {
-  const env = await createTestEnvironment();
+  const env = await createTestEnvironment(isDebug);
   await env.fadeOut();
-  const forest = new Forest(env);
-  const spatter = new AssetImage("/img/spatter.png", Image_Png, !isDebug);
-  await env.load(spatter, ...forest.assets);
-  forest.trees.removeFromParent();
-  makeGrass(env, spatter.result);
+  await env.load();
+  const canvas1 = document.createElement("canvas");
+  canvas1.width = 100;
+  canvas1.height = 100;
+  const map2 = makeMesh(env, canvas1, -1);
+  const g = canvas1.getContext("2d");
+  const drawRect = (i2, x, y) => rect(g, colors[i2 % colors.length], x, y);
+  const draw = (i2) => {
+    drawRect(i2, 0, 0);
+    drawRect(i2 + 1, 0, 1);
+    drawRect(i2 + 2, 1, 0);
+    drawRect(i2 + 3, 1, 1);
+    postMessage("update");
+  };
+  let i = 0;
+  draw(i);
+  setInterval(() => {
+    draw(++i);
+    map2.needsUpdate = true;
+  }, 1e3);
+  const canvas2 = document.createElement("canvas");
+  canvas2.width = 100;
+  canvas2.height = 100;
+  const map1 = makeMesh(env, canvas2, 1);
+  const worker = new Worker(workerScriptBlobUrl);
+  const offscreen = canvas2.transferControlToOffscreen();
+  worker.postMessage(offscreen, [offscreen]);
+  worker.addEventListener("message", (evt) => {
+    if (evt.data === "update") {
+      map1.needsUpdate = true;
+    }
+  });
   await env.fadeIn();
 })();
+function makeMesh(env, canvas1, x) {
+  const geom2 = new THREE.PlaneBufferGeometry(1, 1, 1, 1);
+  const map = new THREE.CanvasTexture(canvas1);
+  const mat = new THREE.MeshBasicMaterial({ map });
+  const mesh2 = new THREE.Mesh(geom2, mat);
+  env.foreground.add(mesh2);
+  mesh2.position.set(x, 1.75, -3);
+  return map;
+}
 //# sourceMappingURL=index.js.map

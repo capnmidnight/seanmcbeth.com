@@ -6640,10 +6640,6 @@ var WorkerClient = class extends TypedEventBase {
   dispose() {
     this.worker.terminate();
   }
-  propogateEvent(data) {
-    const evt = new TypedEvent(data.eventName);
-    this.dispatchEvent(Object.assign(evt, data.data));
-  }
   progressReport(data) {
     const invocation = this.invocations.get(data.taskID);
     if (invocation) {
@@ -6861,6 +6857,9 @@ var FetchingServiceClient = class extends WorkerClient {
   }
   clearCache() {
     return this.callMethod("clearCache");
+  }
+  propogateEvent(data) {
+    assertNever(data.eventName);
   }
   makeRequest(methodName, request, progress) {
     return this.callMethod(methodName, [cloneRequest(request)], progress);
@@ -7421,9 +7420,9 @@ var FetchingServiceImplXHR = class {
 };
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/FetchingServicePool.ts
-var BaseFetchingServicePool = class extends WorkerPool {
-  constructor(options, WorkerClientClass, fetcher) {
-    super(options, WorkerClientClass);
+var FetchingServicePool = class extends WorkerPool {
+  constructor(options, fetcher) {
+    super(options, FetchingServiceClient);
     this.fetcher = fetcher;
   }
   getFetcher(obj2) {
@@ -7493,8 +7492,6 @@ var BaseFetchingServicePool = class extends WorkerPool {
   sendObjectGetImageBitmap(request, progress) {
     return this.getFetcher(request.body).sendObjectGetImageBitmap(request, progress);
   }
-};
-var FetchingServicePool = class extends BaseFetchingServicePool {
 };
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/typeChecks.ts
@@ -17240,7 +17237,6 @@ var PointerHand = class extends BasePointer {
   constructor(env, index) {
     super("hand", 4 /* MotionController */, env, new CursorColor(env));
     this.laser = new Laser(white, 2e-3);
-    this._handedness = "none";
     this._isHand = false;
     this.inputSource = null;
     this._gamepad = new EventedGamepad();
@@ -17291,7 +17287,6 @@ var PointerHand = class extends BasePointer {
         this.inputSource = evt.data;
         this.gamepad.pad = this.inputSource.gamepad;
         this._isHand = isDefined(this.inputSource.hand);
-        this._handedness = this.inputSource.handedness;
         this.id = pointerIDs.get(this.handedness);
         this.updateCursorSide();
         this.grip.visible = !this.isHand;
@@ -17308,7 +17303,6 @@ var PointerHand = class extends BasePointer {
         this.inputSource = null;
         this.gamepad.pad = null;
         this._isHand = false;
-        this._handedness = "none";
         this.id = pointerIDs.get(this.handedness);
         this.updateCursorSide();
         this.grip.visible = false;
@@ -17338,7 +17332,10 @@ var PointerHand = class extends BasePointer {
     return this._gamepad;
   }
   get handedness() {
-    return this._handedness;
+    if (isNullOrUndefined(this.inputSource)) {
+      return null;
+    }
+    return this.inputSource.handedness;
   }
   get isHand() {
     return this._isHand;
@@ -17353,7 +17350,7 @@ var PointerHand = class extends BasePointer {
   updateCursorSide() {
     const obj2 = this.cursor.object;
     if (obj2) {
-      const sx = this.handedness === "left" ? -1 : 1;
+      const sx = this.handedness === "right" ? 1 : -1;
       obj2.scale.set(sx, 1, 1);
     }
   }
@@ -22051,7 +22048,7 @@ function createFetcher(enableWorkers = true) {
   if (enableWorkers) {
     fallback = new FetchingServicePool({
       scriptPath: `/js/fetcher-worker/index${JS_EXT}?${version}`
-    }, FetchingServiceClient, fallback);
+    }, fallback);
   }
   return new Fetcher(fallback, !isDebug);
 }
@@ -22071,10 +22068,18 @@ async function createTestEnvironment(debug = true) {
 var DirtWorkerClient = class extends WorkerClient {
   constructor(n2, fr, pr, worker) {
     super(worker);
+    this.updateEvt = new TypedEvent("update");
     this.checkPointerParams = [null, 0, 0, null];
     this.element = createCanvas(n2, n2);
     const offscreen = this.element.transferControlToOffscreen();
     this.ready = this.callMethod("init", [offscreen, fr, pr], [offscreen]);
+  }
+  propogateEvent(data) {
+    if (data.eventName === "update") {
+      this.dispatchEvent(this.updateEvt);
+    } else {
+      assertNever(data.eventName);
+    }
   }
   checkPointer(id2, x, y, type2) {
     this.checkPointerParams[0] = id2;
@@ -22234,7 +22239,10 @@ var Forest = class {
   dirtBumpMapTex.minFilter = THREE.LinearMipmapLinearFilter;
   dirtBumpMapTex.magFilter = THREE.LinearFilter;
   dirtBumpMapTex.needsUpdate = true;
-  dirtBumpMap.addEventListener("update", () => dirtBumpMapTex.needsUpdate = true);
+  dirtBumpMap.addEventListener("update", (evt) => {
+    console.log(evt);
+    dirtBumpMapTex.needsUpdate = true;
+  });
   const dirtGeom = new THREE.PlaneBufferGeometry(S2, S2, R2, R2);
   const dirtMat = new THREE.MeshPhongMaterial({
     precision: "highp",
