@@ -3881,13 +3881,57 @@ function and(a, b) {
   return a && b;
 }
 
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/typeChecks.ts
+function t(o, s, c) {
+  return typeof o === s || o instanceof c;
+}
+function isFunction(obj2) {
+  return t(obj2, "function", Function);
+}
+function isString(obj2) {
+  return t(obj2, "string", String);
+}
+function isBoolean(obj2) {
+  return t(obj2, "boolean", Boolean);
+}
+function isNumber(obj2) {
+  return t(obj2, "number", Number);
+}
+function isGoodNumber(obj2) {
+  return isNumber(obj2) && Number.isFinite(obj2) && !Number.isNaN(obj2);
+}
+function isObject(obj2) {
+  return isDefined(obj2) && t(obj2, "object", Object);
+}
+function isDate(obj2) {
+  return obj2 instanceof Date;
+}
+function isArray(obj2) {
+  return obj2 instanceof Array;
+}
+function assertNever(x, msg) {
+  throw new Error((msg || "Unexpected object: ") + x);
+}
+function isNullOrUndefined(obj2) {
+  return obj2 === null || obj2 === void 0;
+}
+function isDefined(obj2) {
+  return !isNullOrUndefined(obj2);
+}
+function isArrayBufferView(obj2) {
+  return obj2 instanceof Uint8Array || obj2 instanceof Uint8ClampedArray || obj2 instanceof Int8Array || obj2 instanceof Uint16Array || obj2 instanceof Int16Array || obj2 instanceof Uint32Array || obj2 instanceof Int32Array || obj2 instanceof Float32Array || obj2 instanceof Float64Array || "BigUint64Array" in globalThis && obj2 instanceof globalThis["BigUint64Array"] || "BigInt64Array" in globalThis && obj2 instanceof globalThis["BigInt64Array"];
+}
+function isArrayBuffer(val) {
+  return val && typeof ArrayBuffer !== "undefined" && (val instanceof ArrayBuffer || val.constructor && val.constructor.name === "ArrayBuffer");
+}
+
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/events/Task.ts
 var Task = class {
   constructor(resolveTestOrAutoStart, rejectTestOrAutoStart, autoStart = true) {
     this.onThens = new Array();
     this.onCatches = new Array();
-    this._result = null;
-    this._error = null;
+    this._result = void 0;
+    this._error = void 0;
     this._started = false;
     this._errored = false;
     this._finished = false;
@@ -3910,11 +3954,37 @@ var Task = class {
     } else {
       this.autoStart = false;
     }
+    this.resolve = (value2) => {
+      if (this.running && this.resolveTest(value2)) {
+        this._result = value2;
+        for (const thenner of this.onThens) {
+          thenner(value2);
+        }
+        this.clear();
+        this._finished = true;
+      }
+    };
+    this.reject = (reason) => {
+      if (this.running && this.rejectTest(reason)) {
+        this._error = reason;
+        this._errored = true;
+        for (const catcher of this.onCatches) {
+          catcher(reason);
+        }
+        this.clear();
+        this._finished = true;
+      }
+    };
     if (this.autoStart) {
       this.start();
     }
-    this.resolve = this._resolve.bind(this);
-    this.reject = this._reject.bind(this);
+  }
+  clear() {
+    arrayClear(this.onThens);
+    arrayClear(this.onCatches);
+  }
+  start() {
+    this._started = true;
   }
   get result() {
     if (isDefined(this.error)) {
@@ -3931,30 +4001,11 @@ var Task = class {
   get finished() {
     return this._finished;
   }
+  get running() {
+    return this.started && !this.finished;
+  }
   get errored() {
     return this._errored;
-  }
-  start() {
-    this._started = true;
-  }
-  _resolve(value2) {
-    if (this.started && !this.finished && this.resolveTest(value2)) {
-      this._result = value2;
-      for (const thenner of this.onThens) {
-        thenner(value2);
-      }
-      this._finished = true;
-    }
-  }
-  _reject(reason) {
-    if (this.started && !this.finished && this.rejectTest(reason)) {
-      this._error = reason;
-      this._errored = true;
-      for (const catcher of this.onCatches) {
-        catcher(reason);
-      }
-      this._finished = true;
-    }
   }
   get [Symbol.toStringTag]() {
     return this.toString();
@@ -3981,14 +4032,18 @@ var Task = class {
     return this.project().finally(onfinally);
   }
   reset() {
-    if (this.started && !this.finished) {
+    if (this.running) {
       this.reject("Resetting previous invocation");
     }
-    arrayClear(this.onThens);
-    arrayClear(this.onCatches);
-    this._started = this.autoStart;
+    this.clear();
+    this._result = void 0;
+    this._error = void 0;
     this._errored = false;
     this._finished = false;
+    this._started = false;
+    if (this.autoStart) {
+      this.start();
+    }
   }
 };
 
@@ -4077,50 +4132,6 @@ var Promisifier = class {
     return this.promise.finally(onfinally);
   }
 };
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/typeChecks.ts
-function t(o, s, c) {
-  return typeof o === s || o instanceof c;
-}
-function isFunction(obj2) {
-  return t(obj2, "function", Function);
-}
-function isString(obj2) {
-  return t(obj2, "string", String);
-}
-function isBoolean(obj2) {
-  return t(obj2, "boolean", Boolean);
-}
-function isNumber(obj2) {
-  return t(obj2, "number", Number);
-}
-function isGoodNumber(obj2) {
-  return isNumber(obj2) && Number.isFinite(obj2) && !Number.isNaN(obj2);
-}
-function isObject(obj2) {
-  return isDefined(obj2) && t(obj2, "object", Object);
-}
-function isDate(obj2) {
-  return obj2 instanceof Date;
-}
-function isArray(obj2) {
-  return obj2 instanceof Array;
-}
-function assertNever(x, msg) {
-  throw new Error((msg || "Unexpected object: ") + x);
-}
-function isNullOrUndefined(obj2) {
-  return obj2 === null || obj2 === void 0;
-}
-function isDefined(obj2) {
-  return !isNullOrUndefined(obj2);
-}
-function isArrayBufferView(obj2) {
-  return obj2 instanceof Uint8Array || obj2 instanceof Uint8ClampedArray || obj2 instanceof Int8Array || obj2 instanceof Uint16Array || obj2 instanceof Int16Array || obj2 instanceof Uint32Array || obj2 instanceof Int32Array || obj2 instanceof Float32Array || obj2 instanceof Float64Array || "BigUint64Array" in globalThis && obj2 instanceof globalThis["BigUint64Array"] || "BigInt64Array" in globalThis && obj2 instanceof globalThis["BigInt64Array"];
-}
-function isArrayBuffer(val) {
-  return val && typeof ArrayBuffer !== "undefined" && (val instanceof ArrayBuffer || val.constructor && val.constructor.name === "ArrayBuffer");
-}
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/events/waitFor.ts
 function waitFor(test) {
@@ -20817,16 +20828,14 @@ var ScreenControl = class extends TypedEventBase {
     this.screenUI = screenUI;
     this.buttons.set(fullscreenButton.mode, fullscreenButton);
     this.buttons.set(vrButton.mode, vrButton);
-    if (arButton) {
-      this.buttons.set(arButton.mode, arButton);
-      arButton.available = hasWebXR();
-    }
+    this.buttons.set(arButton.mode, arButton);
     for (const button of this.buttons.values()) {
       this.wasVisible.set(button, button.visible);
       button.addEventListener("click", this.toggleMode.bind(this, button.mode));
     }
     fullscreenButton.available = !isMobileVR() && hasFullscreenAPI();
     vrButton.available = hasVR();
+    arButton.available = hasWebXR();
   }
   get visible() {
     return elementIsDisplayed(this.renderer.domElement);
@@ -21853,6 +21862,7 @@ var Environment = class extends BaseEnvironment {
     this.audio.ready.then(() => this.muteEnvAudioButton.active = false);
     this.vrButton = new ScreenModeToggleButton(this.uiButtons, "VR" /* VR */);
     this.fullscreenButton = new ScreenModeToggleButton(this.uiButtons, "Fullscreen" /* Fullscreen */);
+    this.arButton = new ScreenModeToggleButton(this.uiButtons, "AR" /* AR */);
     this.xrUI = new SpaceUI();
     this.xrUI.addItem(this.clockImage, { x: -1, y: 1, height: 0.1 });
     this.xrUI.addItem(this.quitButton, { x: 1, y: 1, scale: 0.5 });
@@ -21863,11 +21873,12 @@ var Environment = class extends BaseEnvironment {
     this.xrUI.addItem(this.lobbyButton, { x: -0.473, y: -1, scale: 0.5 });
     this.xrUI.addItem(this.vrButton, { x: 1, y: -1, scale: 0.5 });
     this.xrUI.addItem(this.fullscreenButton, { x: 1, y: -1, scale: 0.5 });
+    this.xrUI.addItem(this.arButton, { x: 1, y: -1, scale: 0.5 });
     objGraph(this.worldUISpace, this.xrUI);
     elementApply(this.screenUISpace.topRowLeft, this.compassImage, this.clockImage);
     elementApply(this.screenUISpace.topRowRight, this.quitButton);
     elementApply(this.screenUISpace.bottomRowLeft, this.settingsButton, this.muteMicButton, this.muteEnvAudioButton, this.lobbyButton);
-    elementApply(this.screenUISpace.bottomRowRight, this.fullscreenButton, this.vrButton);
+    elementApply(this.screenUISpace.bottomRowRight, this.fullscreenButton, this.vrButton, this.arButton);
     if (BatteryImage.isAvailable && isMobile()) {
       this.batteryImage = new CanvasImageMesh(this, "Battery", new BatteryImage());
       this.batteryImage.sizeMode = "fixed-height";
@@ -21875,9 +21886,10 @@ var Environment = class extends BaseEnvironment {
       elementApply(this.screenUISpace.topRowRight, this.batteryImage);
     }
     this.vrButton.visible = isDesktop() && hasVR() || isMobileVR();
+    this.arButton.visible = false;
     this.lobbyButton.visible = false;
     this.muteMicButton.visible = false;
-    this.screenControl.setUI(this.screenUISpace, this.fullscreenButton, this.vrButton);
+    this.screenControl.setUI(this.screenUISpace, this.fullscreenButton, this.vrButton, this.arButton);
     this.quitButton.addEventListener("click", () => this.withConfirmation("Confirm quit", "Are you sure you want to quit?", async () => {
       if (this.renderer.xr.isPresenting) {
         this.screenControl.stop();

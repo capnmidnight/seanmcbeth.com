@@ -345,13 +345,51 @@ function alwaysFalse() {
   return false;
 }
 
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/typeChecks.ts
+function t(o, s, c) {
+  return typeof o === s || o instanceof c;
+}
+function isFunction(obj) {
+  return t(obj, "function", Function);
+}
+function isString(obj) {
+  return t(obj, "string", String);
+}
+function isBoolean(obj) {
+  return t(obj, "boolean", Boolean);
+}
+function isNumber(obj) {
+  return t(obj, "number", Number);
+}
+function isObject(obj) {
+  return isDefined(obj) && t(obj, "object", Object);
+}
+function isArray(obj) {
+  return obj instanceof Array;
+}
+function assertNever(x, msg) {
+  throw new Error((msg || "Unexpected object: ") + x);
+}
+function isNullOrUndefined(obj) {
+  return obj === null || obj === void 0;
+}
+function isDefined(obj) {
+  return !isNullOrUndefined(obj);
+}
+function isArrayBufferView(obj) {
+  return obj instanceof Uint8Array || obj instanceof Uint8ClampedArray || obj instanceof Int8Array || obj instanceof Uint16Array || obj instanceof Int16Array || obj instanceof Uint32Array || obj instanceof Int32Array || obj instanceof Float32Array || obj instanceof Float64Array || "BigUint64Array" in globalThis && obj instanceof globalThis["BigUint64Array"] || "BigInt64Array" in globalThis && obj instanceof globalThis["BigInt64Array"];
+}
+function isArrayBuffer(val) {
+  return val && typeof ArrayBuffer !== "undefined" && (val instanceof ArrayBuffer || val.constructor && val.constructor.name === "ArrayBuffer");
+}
+
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/events/Task.ts
 var Task = class {
   constructor(resolveTestOrAutoStart, rejectTestOrAutoStart, autoStart = true) {
     this.onThens = new Array();
     this.onCatches = new Array();
-    this._result = null;
-    this._error = null;
+    this._result = void 0;
+    this._error = void 0;
     this._started = false;
     this._errored = false;
     this._finished = false;
@@ -374,11 +412,37 @@ var Task = class {
     } else {
       this.autoStart = false;
     }
+    this.resolve = (value) => {
+      if (this.running && this.resolveTest(value)) {
+        this._result = value;
+        for (const thenner of this.onThens) {
+          thenner(value);
+        }
+        this.clear();
+        this._finished = true;
+      }
+    };
+    this.reject = (reason) => {
+      if (this.running && this.rejectTest(reason)) {
+        this._error = reason;
+        this._errored = true;
+        for (const catcher of this.onCatches) {
+          catcher(reason);
+        }
+        this.clear();
+        this._finished = true;
+      }
+    };
     if (this.autoStart) {
       this.start();
     }
-    this.resolve = this._resolve.bind(this);
-    this.reject = this._reject.bind(this);
+  }
+  clear() {
+    arrayClear(this.onThens);
+    arrayClear(this.onCatches);
+  }
+  start() {
+    this._started = true;
   }
   get result() {
     if (isDefined(this.error)) {
@@ -395,30 +459,11 @@ var Task = class {
   get finished() {
     return this._finished;
   }
+  get running() {
+    return this.started && !this.finished;
+  }
   get errored() {
     return this._errored;
-  }
-  start() {
-    this._started = true;
-  }
-  _resolve(value) {
-    if (this.started && !this.finished && this.resolveTest(value)) {
-      this._result = value;
-      for (const thenner of this.onThens) {
-        thenner(value);
-      }
-      this._finished = true;
-    }
-  }
-  _reject(reason) {
-    if (this.started && !this.finished && this.rejectTest(reason)) {
-      this._error = reason;
-      this._errored = true;
-      for (const catcher of this.onCatches) {
-        catcher(reason);
-      }
-      this._finished = true;
-    }
   }
   get [Symbol.toStringTag]() {
     return this.toString();
@@ -445,14 +490,18 @@ var Task = class {
     return this.project().finally(onfinally);
   }
   reset() {
-    if (this.started && !this.finished) {
+    if (this.running) {
       this.reject("Resetting previous invocation");
     }
-    arrayClear(this.onThens);
-    arrayClear(this.onCatches);
-    this._started = this.autoStart;
+    this.clear();
+    this._result = void 0;
+    this._error = void 0;
     this._errored = false;
     this._finished = false;
+    this._started = false;
+    if (this.autoStart) {
+      this.start();
+    }
   }
 };
 
@@ -528,44 +577,6 @@ var Promisifier = class {
     return this.promise.finally(onfinally);
   }
 };
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/typeChecks.ts
-function t(o, s, c) {
-  return typeof o === s || o instanceof c;
-}
-function isFunction(obj) {
-  return t(obj, "function", Function);
-}
-function isString(obj) {
-  return t(obj, "string", String);
-}
-function isBoolean(obj) {
-  return t(obj, "boolean", Boolean);
-}
-function isNumber(obj) {
-  return t(obj, "number", Number);
-}
-function isObject(obj) {
-  return isDefined(obj) && t(obj, "object", Object);
-}
-function isArray(obj) {
-  return obj instanceof Array;
-}
-function assertNever(x, msg) {
-  throw new Error((msg || "Unexpected object: ") + x);
-}
-function isNullOrUndefined(obj) {
-  return obj === null || obj === void 0;
-}
-function isDefined(obj) {
-  return !isNullOrUndefined(obj);
-}
-function isArrayBufferView(obj) {
-  return obj instanceof Uint8Array || obj instanceof Uint8ClampedArray || obj instanceof Int8Array || obj instanceof Uint16Array || obj instanceof Int16Array || obj instanceof Uint32Array || obj instanceof Int32Array || obj instanceof Float32Array || obj instanceof Float64Array || "BigUint64Array" in globalThis && obj instanceof globalThis["BigUint64Array"] || "BigInt64Array" in globalThis && obj instanceof globalThis["BigInt64Array"];
-}
-function isArrayBuffer(val) {
-  return val && typeof ArrayBuffer !== "undefined" && (val instanceof ArrayBuffer || val.constructor && val.constructor.name === "ArrayBuffer");
-}
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/Exception.ts
 var Exception = class extends Error {

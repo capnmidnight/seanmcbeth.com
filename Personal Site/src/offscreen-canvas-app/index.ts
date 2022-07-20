@@ -1,4 +1,5 @@
 ﻿import { Application_Javascript } from "@juniper-lib/mediatypes";
+import { hasWebXR } from "@juniper-lib/tslib";
 import { createTestEnvironment } from "../createTestEnvironment";
 import Environment from "../environment";
 import { isDebug } from "../isDebug";
@@ -59,6 +60,8 @@ const workerScriptBlobUrl = URL.createObjectURL(workerScriptBlob);
     const env = await createTestEnvironment(isDebug);
     await env.fadeOut();
     await env.load();
+
+    env.arButton.visible = hasWebXR();
 
     // regular canvas
     const canvas1 = document.createElement("canvas");
