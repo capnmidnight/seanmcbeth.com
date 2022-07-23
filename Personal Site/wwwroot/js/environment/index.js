@@ -19865,9 +19865,6 @@ var XRTimer = class {
 };
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/environment/BaseEnvironment.ts
-var spectator = new THREE.PerspectiveCamera();
-var lastViewport = new THREE.Vector4();
-var curViewport = new THREE.Vector4();
 var gridWidth = 15;
 var gridSize = feet2Meters(gridWidth);
 Style(rule("#frontBuffer", position("absolute"), left(0), top(0), width("100%"), height("100%"), margin(0), padding(0), border(0), touchAction("none")));
@@ -19879,6 +19876,9 @@ var BaseEnvironment = class extends TypedEventBase {
     this.DEBUG = DEBUG;
     this.layers = new Array();
     this.layerSortOrder = /* @__PURE__ */ new Map();
+    this.spectator = new THREE.PerspectiveCamera();
+    this.lastViewport = new THREE.Vector4();
+    this.curViewport = new THREE.Vector4();
     this.fadeDepth = 0;
     this.camera = new THREE.PerspectiveCamera(50, 1, 0.01, 1e3);
     this.scene = new THREE.Scene();
@@ -19902,7 +19902,7 @@ var BaseEnvironment = class extends TypedEventBase {
       powerPreference: "high-performance",
       precision: "lowp",
       antialias: true,
-      alpha: true,
+      alpha: false,
       premultipliedAlpha: true,
       depth: true,
       logarithmicDepthBuffer: true,
@@ -19992,23 +19992,33 @@ var BaseEnvironment = class extends TypedEventBase {
       this.renderer.render(this.scene, this.camera);
       if (this.enableSpectator) {
         if (!this.renderer.xr.isPresenting) {
-          lastViewport.copy(curViewport);
-          this.renderer.getViewport(curViewport);
+          this.lastViewport.copy(this.curViewport);
+          this.renderer.getViewport(this.curViewport);
         } else if (isDesktop() && !isFirefox()) {
-          spectator.projectionMatrix.copy(this.camera.projectionMatrix);
-          spectator.position.copy(cam.position);
-          spectator.quaternion.copy(cam.quaternion);
-          const curRT = this.renderer.getRenderTarget();
-          this.renderer.xr.isPresenting = false;
-          this.renderer.setRenderTarget(null);
-          this.renderer.setViewport(lastViewport);
-          this.renderer.clear();
-          this.renderer.render(this.scene, spectator);
-          this.renderer.setViewport(curViewport);
-          this.renderer.setRenderTarget(curRT);
-          this.renderer.xr.isPresenting = true;
+          this.drawSnapshot();
         }
       }
+    }
+  }
+  drawSnapshot() {
+    const isPresenting = this.renderer.xr.isPresenting;
+    let curRT = null;
+    if (isPresenting) {
+      const cam = resolveCamera(this.renderer, this.camera);
+      this.spectator.projectionMatrix.copy(this.camera.projectionMatrix);
+      this.spectator.position.copy(cam.position);
+      this.spectator.quaternion.copy(cam.quaternion);
+      curRT = this.renderer.getRenderTarget();
+      this.renderer.xr.isPresenting = false;
+      this.renderer.setRenderTarget(null);
+      this.renderer.setViewport(this.lastViewport);
+    }
+    this.renderer.clear();
+    this.renderer.render(this.scene, isPresenting ? this.spectator : this.camera);
+    if (isPresenting) {
+      this.renderer.setViewport(this.curViewport);
+      this.renderer.setRenderTarget(curRT);
+      this.renderer.xr.isPresenting = true;
     }
   }
   preRender(_evt) {

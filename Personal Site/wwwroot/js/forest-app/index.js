@@ -4961,6 +4961,12 @@ function mapInvert(map) {
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/units/fileSize.ts
+function isBase2Units(label) {
+  return label !== "B" && label[1] === "i";
+}
+function isBase10Units(label) {
+  return label !== "B" && !isBase10Units(label);
+}
 var base2Labels = /* @__PURE__ */ new Map([
   [1, "KiB"],
   [2, "MiB"],
@@ -4975,6 +4981,25 @@ var base10Labels = /* @__PURE__ */ new Map([
 ]);
 var base2Sizes = mapInvert(base2Labels);
 var base10Sizes = mapInvert(base10Labels);
+function toBytes(value2, units) {
+  if (units === "B") {
+    return value2;
+  } else {
+    let systemBase;
+    let size;
+    if (isBase2Units(units)) {
+      systemBase = 1024;
+      size = base2Sizes.get(units);
+    } else if (isBase10Units(units)) {
+      systemBase = 1e3;
+      size = base10Sizes.get(units);
+    } else {
+      assertNever(units);
+    }
+    const multiplier = Math.pow(systemBase, size);
+    return value2 * multiplier;
+  }
+}
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/units/length.ts
 var MICROMETERS_PER_MILLIMETER = 1e3;
@@ -5767,6 +5792,304 @@ function BackgroundAudio(autoplay, mute, looping, ...rest) {
 function BackgroundVideo(autoplay, mute, looping, ...rest) {
   return Video(playsInline(true), controls(false), muted(mute), autoPlay(autoplay), loop(looping), styles(display("none")), ...rest);
 }
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/canvas.ts
+var hasHTMLCanvas = "HTMLCanvasElement" in globalThis;
+var hasHTMLImage = "HTMLImageElement" in globalThis;
+var disableAdvancedSettings = false;
+var hasOffscreenCanvas = !disableAdvancedSettings && "OffscreenCanvas" in globalThis;
+var hasImageBitmap = !disableAdvancedSettings && "createImageBitmap" in globalThis;
+function isHTMLCanvas(obj2) {
+  return hasHTMLCanvas && obj2 instanceof HTMLCanvasElement;
+}
+function isOffscreenCanvas(obj2) {
+  return hasOffscreenCanvas && obj2 instanceof OffscreenCanvas;
+}
+function isImageBitmap(img) {
+  return hasImageBitmap && img instanceof ImageBitmap;
+}
+function drawImageBitmapToCanvas(canv, img) {
+  const g = canv.getContext("2d");
+  if (isNullOrUndefined(g)) {
+    throw new Error("Could not create 2d context for canvas");
+  }
+  g.drawImage(img, 0, 0);
+}
+function testOffscreen2D() {
+  try {
+    const canv = new OffscreenCanvas(1, 1);
+    const g = canv.getContext("2d");
+    return g != null;
+  } catch (exp) {
+    return false;
+  }
+}
+var hasOffscreenCanvasRenderingContext2D = hasOffscreenCanvas && testOffscreen2D();
+var createUtilityCanvas = hasOffscreenCanvasRenderingContext2D && createOffscreenCanvas || hasHTMLCanvas && createCanvas || null;
+var createUICanvas = hasHTMLCanvas ? createCanvas : createUtilityCanvas;
+function testOffscreen3D() {
+  try {
+    const canv = new OffscreenCanvas(1, 1);
+    const g = canv.getContext("webgl2");
+    return g != null;
+  } catch (exp) {
+    return false;
+  }
+}
+var hasOffscreenCanvasRenderingContext3D = hasOffscreenCanvas && testOffscreen3D();
+function createOffscreenCanvas(width2, height2) {
+  return new OffscreenCanvas(width2, height2);
+}
+function createCanvas(w, h) {
+  if (false) {
+    throw new Error("HTML Canvas is not supported in workers");
+  }
+  return Canvas(htmlWidth(w), htmlHeight(h));
+}
+function createCanvasFromImageBitmap(img) {
+  if (false) {
+    throw new Error("HTML Canvas is not supported in workers");
+  }
+  const canv = createCanvas(img.width, img.height);
+  drawImageBitmapToCanvas(canv, img);
+  return canv;
+}
+function drawImageToCanvas(canv, img) {
+  const g = canv.getContext("2d");
+  if (isNullOrUndefined(g)) {
+    throw new Error("Could not create 2d context for canvas");
+  }
+  g.drawImage(img, 0, 0);
+}
+function setCanvasSize(canv, w, h, superscale = 1) {
+  w = Math.floor(w * superscale);
+  h = Math.floor(h * superscale);
+  if (canv.width != w || canv.height != h) {
+    canv.width = w;
+    canv.height = h;
+    return true;
+  }
+  return false;
+}
+function is2DRenderingContext(ctx) {
+  return isDefined(ctx.textBaseline);
+}
+function setCanvas2DContextSize(ctx, w, h, superscale = 1) {
+  const oldImageSmoothingEnabled = ctx.imageSmoothingEnabled, oldTextBaseline = ctx.textBaseline, oldTextAlign = ctx.textAlign, oldFont = ctx.font, resized = setCanvasSize(ctx.canvas, w, h, superscale);
+  if (resized) {
+    ctx.imageSmoothingEnabled = oldImageSmoothingEnabled;
+    ctx.textBaseline = oldTextBaseline;
+    ctx.textAlign = oldTextAlign;
+    ctx.font = oldFont;
+  }
+  return resized;
+}
+function setContextSize(ctx, w, h, superscale = 1) {
+  if (is2DRenderingContext(ctx)) {
+    return setCanvas2DContextSize(ctx, w, h, superscale);
+  } else {
+    return setCanvasSize(ctx.canvas, w, h, superscale);
+  }
+}
+function canvasToBlob(canvas, type2, quality) {
+  if (isOffscreenCanvas(canvas)) {
+    return canvas.convertToBlob({ type: type2, quality });
+  } else if (isHTMLCanvas(canvas)) {
+    const blobCreated = new Task();
+    canvas.toBlob(blobCreated.resolve, type2, quality);
+    return blobCreated;
+  } else {
+    throw new Error("Cannot save image from canvas");
+  }
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/util.ts
+var typePattern = /([^\/]+)\/(.+)/;
+var subTypePattern = /(?:([^\.]+)\.)?([^\+;]+)(?:\+([^;]+))?((?:; *([^=]+)=([^;]+))*)/;
+var MediaType = class {
+  constructor(_type, _fullSubType, extensions) {
+    this._type = _type;
+    this._fullSubType = _fullSubType;
+    this._primaryExtension = null;
+    this.depMessage = null;
+    const parameters = /* @__PURE__ */ new Map();
+    this._parameters = parameters;
+    const subTypeParts = this._fullSubType.match(subTypePattern);
+    this._tree = subTypeParts[1];
+    this._subType = subTypeParts[2];
+    this._suffix = subTypeParts[3];
+    const paramStr = subTypeParts[4];
+    this._value = this._fullValue = this._type + "/";
+    if (isDefined(this._tree)) {
+      this._value = this._fullValue += this._tree + ".";
+    }
+    this._value = this._fullValue += this._subType;
+    if (isDefined(this._suffix)) {
+      this._value = this._fullValue += "+" + this._suffix;
+    }
+    if (isDefined(paramStr)) {
+      const pairs = paramStr.split(";").map((p) => p.trim()).filter((p) => p.length > 0).map((p) => p.split("="));
+      for (const [key, ...values] of pairs) {
+        const value2 = values.join("=");
+        parameters.set(key, value2);
+        const slug = `; ${key}=${value2}`;
+        this._fullValue += slug;
+        if (key !== "q") {
+          this._value += slug;
+        }
+      }
+    }
+    this._extensions = extensions || [];
+    this._primaryExtension = this._extensions[0] || null;
+  }
+  static parse(value2) {
+    if (!value2) {
+      return null;
+    }
+    const match = value2.match(typePattern);
+    if (!match) {
+      return null;
+    }
+    const type2 = match[1];
+    const subType = match[2];
+    return new MediaType(type2, subType);
+  }
+  deprecate(message) {
+    this.depMessage = message;
+    return this;
+  }
+  check() {
+    if (isDefined(this.depMessage)) {
+      console.warn(`${this._value} is deprecated ${this.depMessage}`);
+    }
+  }
+  matches(value2) {
+    if (isNullOrUndefined(value2)) {
+      return false;
+    }
+    if (this.typeName === "*" && this.subTypeName === "*") {
+      return true;
+    }
+    let typeName = null;
+    let subTypeName = null;
+    if (isString(value2)) {
+      const match = value2.match(typePattern);
+      if (!match) {
+        return false;
+      }
+      typeName = match[1];
+      subTypeName = match[2];
+    } else {
+      typeName = value2.typeName;
+      subTypeName = value2._fullSubType;
+    }
+    return this.typeName === typeName && (this._fullSubType === "*" || this._fullSubType === subTypeName);
+  }
+  withParameter(key, value2) {
+    const newSubType = `${this._fullSubType}; ${key}=${value2}`;
+    return new MediaType(this.typeName, newSubType, this.extensions);
+  }
+  get typeName() {
+    this.check();
+    return this._type;
+  }
+  get tree() {
+    this.check();
+    return this._tree;
+  }
+  get suffix() {
+    return this._suffix;
+  }
+  get subTypeName() {
+    this.check();
+    return this._subType;
+  }
+  get value() {
+    this.check();
+    return this._value;
+  }
+  __getValueUnsafe() {
+    return this._value;
+  }
+  get fullValue() {
+    this.check();
+    return this._fullValue;
+  }
+  get parameters() {
+    this.check();
+    return this._parameters;
+  }
+  get extensions() {
+    this.check();
+    return this._extensions;
+  }
+  __getExtensionsUnsafe() {
+    return this._extensions;
+  }
+  get primaryExtension() {
+    this.check();
+    return this._primaryExtension;
+  }
+  toString() {
+    if (this.parameters.get("q") === "1") {
+      return this.value;
+    } else {
+      return this.fullValue;
+    }
+  }
+  addExtension(fileName) {
+    if (!fileName) {
+      throw new Error("File name is not defined");
+    }
+    if (this.primaryExtension) {
+      const idx = fileName.lastIndexOf(".");
+      if (idx > -1) {
+        const currentExtension = fileName.substring(idx + 1);
+        ;
+        if (this.extensions.indexOf(currentExtension) > -1) {
+          fileName = fileName.substring(0, idx);
+        }
+      }
+      fileName = `${fileName}.${this.primaryExtension}`;
+    }
+    return fileName;
+  }
+};
+function create2(group2, value2, ...extensions) {
+  return new MediaType(group2, value2, extensions);
+}
+function specialize(group2) {
+  return create2.bind(null, group2);
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/application.ts
+var application = /* @__PURE__ */ specialize("application");
+var Application_Javascript = /* @__PURE__ */ application("javascript", "js");
+var Application_Json = /* @__PURE__ */ application("json", "json");
+var Application_Wasm = /* @__PURE__ */ application("wasm", "wasm");
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/audio.ts
+var audio = /* @__PURE__ */ specialize("audio");
+var Audio_Mpeg = /* @__PURE__ */ audio("mpeg", "mp3", "mp2", "mp2a", "mpga", "m2a", "m3a");
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/image.ts
+var image = /* @__PURE__ */ specialize("image");
+var Image_Jpeg = /* @__PURE__ */ image("jpeg", "jpeg", "jpg", "jpe");
+var Image_Png = /* @__PURE__ */ image("png", "png");
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/model.ts
+var model = /* @__PURE__ */ specialize("model");
+var Model_Gltf_Binary = /* @__PURE__ */ model("gltf-binary", "glb");
+var Model_Gltf_Json = /* @__PURE__ */ model("gltf+json", "gltf");
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/text.ts
+var text = /* @__PURE__ */ specialize("text");
+var Text_Plain = /* @__PURE__ */ text("plain", "txt", "text", "conf", "def", "list", "log", "in");
+var Text_Xml = /* @__PURE__ */ text("xml");
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/video.ts
+var video = /* @__PURE__ */ specialize("video");
+var Video_Vendor_Mpeg_Dash_Mpd = /* @__PURE__ */ video("vnd.mpeg.dash.mpd", "mpd");
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/onUserGesture.ts
 var gestures = [
@@ -7293,194 +7616,6 @@ var AudioPlayer = class extends BaseAudioSource {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/util.ts
-var typePattern = /([^\/]+)\/(.+)/;
-var subTypePattern = /(?:([^\.]+)\.)?([^\+;]+)(?:\+([^;]+))?((?:; *([^=]+)=([^;]+))*)/;
-var MediaType = class {
-  constructor(_type, _fullSubType, extensions) {
-    this._type = _type;
-    this._fullSubType = _fullSubType;
-    this._primaryExtension = null;
-    this.depMessage = null;
-    const parameters = /* @__PURE__ */ new Map();
-    this._parameters = parameters;
-    const subTypeParts = this._fullSubType.match(subTypePattern);
-    this._tree = subTypeParts[1];
-    this._subType = subTypeParts[2];
-    this._suffix = subTypeParts[3];
-    const paramStr = subTypeParts[4];
-    this._value = this._fullValue = this._type + "/";
-    if (isDefined(this._tree)) {
-      this._value = this._fullValue += this._tree + ".";
-    }
-    this._value = this._fullValue += this._subType;
-    if (isDefined(this._suffix)) {
-      this._value = this._fullValue += "+" + this._suffix;
-    }
-    if (isDefined(paramStr)) {
-      const pairs = paramStr.split(";").map((p) => p.trim()).filter((p) => p.length > 0).map((p) => p.split("="));
-      for (const [key, ...values] of pairs) {
-        const value2 = values.join("=");
-        parameters.set(key, value2);
-        const slug = `; ${key}=${value2}`;
-        this._fullValue += slug;
-        if (key !== "q") {
-          this._value += slug;
-        }
-      }
-    }
-    this._extensions = extensions || [];
-    this._primaryExtension = this._extensions[0] || null;
-  }
-  static parse(value2) {
-    if (!value2) {
-      return null;
-    }
-    const match = value2.match(typePattern);
-    if (!match) {
-      return null;
-    }
-    const type2 = match[1];
-    const subType = match[2];
-    return new MediaType(type2, subType);
-  }
-  deprecate(message) {
-    this.depMessage = message;
-    return this;
-  }
-  check() {
-    if (isDefined(this.depMessage)) {
-      console.warn(`${this._value} is deprecated ${this.depMessage}`);
-    }
-  }
-  matches(value2) {
-    if (isNullOrUndefined(value2)) {
-      return false;
-    }
-    if (this.typeName === "*" && this.subTypeName === "*") {
-      return true;
-    }
-    let typeName = null;
-    let subTypeName = null;
-    if (isString(value2)) {
-      const match = value2.match(typePattern);
-      if (!match) {
-        return false;
-      }
-      typeName = match[1];
-      subTypeName = match[2];
-    } else {
-      typeName = value2.typeName;
-      subTypeName = value2._fullSubType;
-    }
-    return this.typeName === typeName && (this._fullSubType === "*" || this._fullSubType === subTypeName);
-  }
-  withParameter(key, value2) {
-    const newSubType = `${this._fullSubType}; ${key}=${value2}`;
-    return new MediaType(this.typeName, newSubType, this.extensions);
-  }
-  get typeName() {
-    this.check();
-    return this._type;
-  }
-  get tree() {
-    this.check();
-    return this._tree;
-  }
-  get suffix() {
-    return this._suffix;
-  }
-  get subTypeName() {
-    this.check();
-    return this._subType;
-  }
-  get value() {
-    this.check();
-    return this._value;
-  }
-  __getValueUnsafe() {
-    return this._value;
-  }
-  get fullValue() {
-    this.check();
-    return this._fullValue;
-  }
-  get parameters() {
-    this.check();
-    return this._parameters;
-  }
-  get extensions() {
-    this.check();
-    return this._extensions;
-  }
-  __getExtensionsUnsafe() {
-    return this._extensions;
-  }
-  get primaryExtension() {
-    this.check();
-    return this._primaryExtension;
-  }
-  toString() {
-    if (this.parameters.get("q") === "1") {
-      return this.value;
-    } else {
-      return this.fullValue;
-    }
-  }
-  addExtension(fileName) {
-    if (!fileName) {
-      throw new Error("File name is not defined");
-    }
-    if (this.primaryExtension) {
-      const idx = fileName.lastIndexOf(".");
-      if (idx > -1) {
-        const currentExtension = fileName.substring(idx + 1);
-        ;
-        if (this.extensions.indexOf(currentExtension) > -1) {
-          fileName = fileName.substring(0, idx);
-        }
-      }
-      fileName = `${fileName}.${this.primaryExtension}`;
-    }
-    return fileName;
-  }
-};
-function create2(group2, value2, ...extensions) {
-  return new MediaType(group2, value2, extensions);
-}
-function specialize(group2) {
-  return create2.bind(null, group2);
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/application.ts
-var application = /* @__PURE__ */ specialize("application");
-var Application_Javascript = /* @__PURE__ */ application("javascript", "js");
-var Application_Json = /* @__PURE__ */ application("json", "json");
-var Application_Wasm = /* @__PURE__ */ application("wasm", "wasm");
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/audio.ts
-var audio = /* @__PURE__ */ specialize("audio");
-var Audio_Mpeg = /* @__PURE__ */ audio("mpeg", "mp3", "mp2", "mp2a", "mpga", "m2a", "m3a");
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/image.ts
-var image = /* @__PURE__ */ specialize("image");
-var Image_Jpeg = /* @__PURE__ */ image("jpeg", "jpeg", "jpg", "jpe");
-var Image_Png = /* @__PURE__ */ image("png", "png");
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/model.ts
-var model = /* @__PURE__ */ specialize("model");
-var Model_Gltf_Binary = /* @__PURE__ */ model("gltf-binary", "glb");
-var Model_Gltf_Json = /* @__PURE__ */ model("gltf+json", "gltf");
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/text.ts
-var text = /* @__PURE__ */ specialize("text");
-var Text_Plain = /* @__PURE__ */ text("plain", "txt", "text", "conf", "def", "list", "log", "in");
-var Text_Xml = /* @__PURE__ */ text("xml");
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/video.ts
-var video = /* @__PURE__ */ specialize("video");
-var Video_Vendor_Mpeg_Dash_Mpd = /* @__PURE__ */ video("vnd.mpeg.dash.mpd", "mpd");
-
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/Asset.ts
 var BaseAsset = class {
   constructor(path, type2) {
@@ -7581,105 +7716,6 @@ var AssetImage = class extends BaseFetchedAsset {
     return request.image(this.type);
   }
 };
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/canvas.ts
-var hasHTMLCanvas = "HTMLCanvasElement" in globalThis;
-var hasHTMLImage = "HTMLImageElement" in globalThis;
-var disableAdvancedSettings = false;
-var hasOffscreenCanvas = !disableAdvancedSettings && "OffscreenCanvas" in globalThis;
-var hasImageBitmap = !disableAdvancedSettings && "createImageBitmap" in globalThis;
-function isHTMLCanvas(obj2) {
-  return hasHTMLCanvas && obj2 instanceof HTMLCanvasElement;
-}
-function isOffscreenCanvas(obj2) {
-  return hasOffscreenCanvas && obj2 instanceof OffscreenCanvas;
-}
-function isImageBitmap(img) {
-  return hasImageBitmap && img instanceof ImageBitmap;
-}
-function drawImageBitmapToCanvas(canv, img) {
-  const g = canv.getContext("2d");
-  if (isNullOrUndefined(g)) {
-    throw new Error("Could not create 2d context for canvas");
-  }
-  g.drawImage(img, 0, 0);
-}
-function testOffscreen2D() {
-  try {
-    const canv = new OffscreenCanvas(1, 1);
-    const g = canv.getContext("2d");
-    return g != null;
-  } catch (exp) {
-    return false;
-  }
-}
-var hasOffscreenCanvasRenderingContext2D = hasOffscreenCanvas && testOffscreen2D();
-var createUtilityCanvas = hasOffscreenCanvasRenderingContext2D && createOffscreenCanvas || hasHTMLCanvas && createCanvas || null;
-var createUICanvas = hasHTMLCanvas ? createCanvas : createUtilityCanvas;
-function testOffscreen3D() {
-  try {
-    const canv = new OffscreenCanvas(1, 1);
-    const g = canv.getContext("webgl2");
-    return g != null;
-  } catch (exp) {
-    return false;
-  }
-}
-var hasOffscreenCanvasRenderingContext3D = hasOffscreenCanvas && testOffscreen3D();
-function createOffscreenCanvas(width2, height2) {
-  return new OffscreenCanvas(width2, height2);
-}
-function createCanvas(w, h) {
-  if (false) {
-    throw new Error("HTML Canvas is not supported in workers");
-  }
-  return Canvas(htmlWidth(w), htmlHeight(h));
-}
-function createCanvasFromImageBitmap(img) {
-  if (false) {
-    throw new Error("HTML Canvas is not supported in workers");
-  }
-  const canv = createCanvas(img.width, img.height);
-  drawImageBitmapToCanvas(canv, img);
-  return canv;
-}
-function drawImageToCanvas(canv, img) {
-  const g = canv.getContext("2d");
-  if (isNullOrUndefined(g)) {
-    throw new Error("Could not create 2d context for canvas");
-  }
-  g.drawImage(img, 0, 0);
-}
-function setCanvasSize(canv, w, h, superscale = 1) {
-  w = Math.floor(w * superscale);
-  h = Math.floor(h * superscale);
-  if (canv.width != w || canv.height != h) {
-    canv.width = w;
-    canv.height = h;
-    return true;
-  }
-  return false;
-}
-function is2DRenderingContext(ctx) {
-  return isDefined(ctx.textBaseline);
-}
-function setCanvas2DContextSize(ctx, w, h, superscale = 1) {
-  const oldImageSmoothingEnabled = ctx.imageSmoothingEnabled, oldTextBaseline = ctx.textBaseline, oldTextAlign = ctx.textAlign, oldFont = ctx.font, resized = setCanvasSize(ctx.canvas, w, h, superscale);
-  if (resized) {
-    ctx.imageSmoothingEnabled = oldImageSmoothingEnabled;
-    ctx.textBaseline = oldTextBaseline;
-    ctx.textAlign = oldTextAlign;
-    ctx.font = oldFont;
-  }
-  return resized;
-}
-function setContextSize(ctx, w, h, superscale = 1) {
-  if (is2DRenderingContext(ctx)) {
-    return setCanvas2DContextSize(ctx, w, h, superscale);
-  } else {
-    return setCanvasSize(ctx.canvas, w, h, superscale);
-  }
-}
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/RequestBuilder.ts
 var testAudio = null;
@@ -21291,9 +21327,6 @@ var XRTimer = class {
 };
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/environment/BaseEnvironment.ts
-var spectator = new THREE.PerspectiveCamera();
-var lastViewport = new THREE.Vector4();
-var curViewport = new THREE.Vector4();
 var gridWidth = 15;
 var gridSize = feet2Meters(gridWidth);
 Style(rule("#frontBuffer", position("absolute"), left(0), top(0), width("100%"), height("100%"), margin(0), padding(0), border(0), touchAction("none")));
@@ -21305,6 +21338,9 @@ var BaseEnvironment = class extends TypedEventBase {
     this.DEBUG = DEBUG2;
     this.layers = new Array();
     this.layerSortOrder = /* @__PURE__ */ new Map();
+    this.spectator = new THREE.PerspectiveCamera();
+    this.lastViewport = new THREE.Vector4();
+    this.curViewport = new THREE.Vector4();
     this.fadeDepth = 0;
     this.camera = new THREE.PerspectiveCamera(50, 1, 0.01, 1e3);
     this.scene = new THREE.Scene();
@@ -21328,7 +21364,7 @@ var BaseEnvironment = class extends TypedEventBase {
       powerPreference: "high-performance",
       precision: "lowp",
       antialias: true,
-      alpha: true,
+      alpha: false,
       premultipliedAlpha: true,
       depth: true,
       logarithmicDepthBuffer: true,
@@ -21418,23 +21454,33 @@ var BaseEnvironment = class extends TypedEventBase {
       this.renderer.render(this.scene, this.camera);
       if (this.enableSpectator) {
         if (!this.renderer.xr.isPresenting) {
-          lastViewport.copy(curViewport);
-          this.renderer.getViewport(curViewport);
+          this.lastViewport.copy(this.curViewport);
+          this.renderer.getViewport(this.curViewport);
         } else if (isDesktop() && !isFirefox()) {
-          spectator.projectionMatrix.copy(this.camera.projectionMatrix);
-          spectator.position.copy(cam.position);
-          spectator.quaternion.copy(cam.quaternion);
-          const curRT = this.renderer.getRenderTarget();
-          this.renderer.xr.isPresenting = false;
-          this.renderer.setRenderTarget(null);
-          this.renderer.setViewport(lastViewport);
-          this.renderer.clear();
-          this.renderer.render(this.scene, spectator);
-          this.renderer.setViewport(curViewport);
-          this.renderer.setRenderTarget(curRT);
-          this.renderer.xr.isPresenting = true;
+          this.drawSnapshot();
         }
       }
+    }
+  }
+  drawSnapshot() {
+    const isPresenting = this.renderer.xr.isPresenting;
+    let curRT = null;
+    if (isPresenting) {
+      const cam = resolveCamera(this.renderer, this.camera);
+      this.spectator.projectionMatrix.copy(this.camera.projectionMatrix);
+      this.spectator.position.copy(cam.position);
+      this.spectator.quaternion.copy(cam.quaternion);
+      curRT = this.renderer.getRenderTarget();
+      this.renderer.xr.isPresenting = false;
+      this.renderer.setRenderTarget(null);
+      this.renderer.setViewport(this.lastViewport);
+    }
+    this.renderer.clear();
+    this.renderer.render(this.scene, isPresenting ? this.spectator : this.camera);
+    if (isPresenting) {
+      this.renderer.setViewport(this.curViewport);
+      this.renderer.setRenderTarget(curRT);
+      this.renderer.xr.isPresenting = true;
     }
   }
   preRender(_evt) {
@@ -22085,9 +22131,43 @@ async function createTestEnvironment(debug = true) {
   document.body.append(Div(id("appContainer"), canvas));
   await loadFonts();
   const fetcher = createFetcher(!debug);
-  return new Environment(canvas, fetcher, defaultFont.fontFamily, getUIImagePaths(), defaultAvatarHeight, enableFullResolution, {
+  const env = new Environment(canvas, fetcher, defaultFont.fontFamily, getUIImagePaths(), defaultAvatarHeight, enableFullResolution, {
     DEBUG: debug
   });
+  if (isDebug) {
+    const MAX_IMAGE_SIZE = toBytes(9, "MiB");
+    window.addEventListener("keypress", async (evt) => {
+      if (evt.key === "`") {
+        env.drawSnapshot();
+        const canv = env.renderer.domElement;
+        const canvResize = createUICanvas(Math.floor(canv.width / 2), Math.floor(canv.height / 2));
+        console.log(canvResize);
+        const gResize = canvResize.getContext("2d", { alpha: false, desynchronized: true });
+        gResize.drawImage(canv, 0, 0, canv.width, canv.height, 0, 0, canvResize.width, canvResize.height);
+        let blob = null;
+        for (let quality = 1; quality >= 0.25; quality -= 0.05) {
+          blob = await canvasToBlob(canvResize, Image_Jpeg.value, quality);
+          if (blob.size <= MAX_IMAGE_SIZE) {
+            break;
+          }
+        }
+        if (isNullOrUndefined(blob)) {
+          console.error("No image");
+        } else {
+          if (blob.size > MAX_IMAGE_SIZE) {
+            console.warn("Image was pretty big");
+          }
+          const file = URL.createObjectURL(blob);
+          window.open(file);
+          const form = new FormData();
+          form.append("File", blob, "thumbnail.jpg");
+          const result = await fetcher.post(location.href).body(form).exec();
+          console.log(result);
+        }
+      }
+    });
+  }
+  return env;
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/objectScan.ts

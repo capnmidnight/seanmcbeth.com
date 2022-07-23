@@ -4961,6 +4961,12 @@ function mapInvert(map) {
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/units/fileSize.ts
+function isBase2Units(label) {
+  return label !== "B" && label[1] === "i";
+}
+function isBase10Units(label) {
+  return label !== "B" && !isBase10Units(label);
+}
 var base2Labels = /* @__PURE__ */ new Map([
   [1, "KiB"],
   [2, "MiB"],
@@ -4975,6 +4981,25 @@ var base10Labels = /* @__PURE__ */ new Map([
 ]);
 var base2Sizes = mapInvert(base2Labels);
 var base10Sizes = mapInvert(base10Labels);
+function toBytes(value2, units) {
+  if (units === "B") {
+    return value2;
+  } else {
+    let systemBase;
+    let size;
+    if (isBase2Units(units)) {
+      systemBase = 1024;
+      size = base2Sizes.get(units);
+    } else if (isBase10Units(units)) {
+      systemBase = 1e3;
+      size = base10Sizes.get(units);
+    } else {
+      assertNever(units);
+    }
+    const multiplier = Math.pow(systemBase, size);
+    return value2 * multiplier;
+  }
+}
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/units/length.ts
 var MICROMETERS_PER_MILLIMETER = 1e3;
@@ -5451,6 +5476,7 @@ var Audio_Mpeg = /* @__PURE__ */ audio("mpeg", "mp3", "mp2", "mp2a", "mpga", "m2
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/image.ts
 var image = /* @__PURE__ */ specialize("image");
+var Image_Jpeg = /* @__PURE__ */ image("jpeg", "jpeg", "jpg", "jpe");
 var Image_Png = /* @__PURE__ */ image("png", "png");
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/model.ts
@@ -5953,6 +5979,116 @@ function BackgroundAudio(autoplay, mute, looping, ...rest) {
 }
 function BackgroundVideo(autoplay, mute, looping, ...rest) {
   return Video(playsInline(true), controls(false), muted(mute), autoPlay(autoplay), loop(looping), styles(display("none")), ...rest);
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/canvas.ts
+var hasHTMLCanvas = "HTMLCanvasElement" in globalThis;
+var hasHTMLImage = "HTMLImageElement" in globalThis;
+var disableAdvancedSettings = false;
+var hasOffscreenCanvas = !disableAdvancedSettings && "OffscreenCanvas" in globalThis;
+var hasImageBitmap = !disableAdvancedSettings && "createImageBitmap" in globalThis;
+function isHTMLCanvas(obj2) {
+  return hasHTMLCanvas && obj2 instanceof HTMLCanvasElement;
+}
+function isOffscreenCanvas(obj2) {
+  return hasOffscreenCanvas && obj2 instanceof OffscreenCanvas;
+}
+function isImageBitmap(img) {
+  return hasImageBitmap && img instanceof ImageBitmap;
+}
+function drawImageBitmapToCanvas(canv, img) {
+  const g = canv.getContext("2d");
+  if (isNullOrUndefined(g)) {
+    throw new Error("Could not create 2d context for canvas");
+  }
+  g.drawImage(img, 0, 0);
+}
+function testOffscreen2D() {
+  try {
+    const canv = new OffscreenCanvas(1, 1);
+    const g = canv.getContext("2d");
+    return g != null;
+  } catch (exp) {
+    return false;
+  }
+}
+var hasOffscreenCanvasRenderingContext2D = hasOffscreenCanvas && testOffscreen2D();
+var createUtilityCanvas = hasOffscreenCanvasRenderingContext2D && createOffscreenCanvas || hasHTMLCanvas && createCanvas || null;
+var createUICanvas = hasHTMLCanvas ? createCanvas : createUtilityCanvas;
+function testOffscreen3D() {
+  try {
+    const canv = new OffscreenCanvas(1, 1);
+    const g = canv.getContext("webgl2");
+    return g != null;
+  } catch (exp) {
+    return false;
+  }
+}
+var hasOffscreenCanvasRenderingContext3D = hasOffscreenCanvas && testOffscreen3D();
+function createOffscreenCanvas(width2, height2) {
+  return new OffscreenCanvas(width2, height2);
+}
+function createCanvas(w, h) {
+  if (false) {
+    throw new Error("HTML Canvas is not supported in workers");
+  }
+  return Canvas(htmlWidth(w), htmlHeight(h));
+}
+function createCanvasFromImageBitmap(img) {
+  if (false) {
+    throw new Error("HTML Canvas is not supported in workers");
+  }
+  const canv = createCanvas(img.width, img.height);
+  drawImageBitmapToCanvas(canv, img);
+  return canv;
+}
+function drawImageToCanvas(canv, img) {
+  const g = canv.getContext("2d");
+  if (isNullOrUndefined(g)) {
+    throw new Error("Could not create 2d context for canvas");
+  }
+  g.drawImage(img, 0, 0);
+}
+function setCanvasSize(canv, w, h, superscale = 1) {
+  w = Math.floor(w * superscale);
+  h = Math.floor(h * superscale);
+  if (canv.width != w || canv.height != h) {
+    canv.width = w;
+    canv.height = h;
+    return true;
+  }
+  return false;
+}
+function is2DRenderingContext(ctx) {
+  return isDefined(ctx.textBaseline);
+}
+function setCanvas2DContextSize(ctx, w, h, superscale = 1) {
+  const oldImageSmoothingEnabled = ctx.imageSmoothingEnabled, oldTextBaseline = ctx.textBaseline, oldTextAlign = ctx.textAlign, oldFont = ctx.font, resized = setCanvasSize(ctx.canvas, w, h, superscale);
+  if (resized) {
+    ctx.imageSmoothingEnabled = oldImageSmoothingEnabled;
+    ctx.textBaseline = oldTextBaseline;
+    ctx.textAlign = oldTextAlign;
+    ctx.font = oldFont;
+  }
+  return resized;
+}
+function setContextSize(ctx, w, h, superscale = 1) {
+  if (is2DRenderingContext(ctx)) {
+    return setCanvas2DContextSize(ctx, w, h, superscale);
+  } else {
+    return setCanvasSize(ctx.canvas, w, h, superscale);
+  }
+}
+function canvasToBlob(canvas, type2, quality) {
+  if (isOffscreenCanvas(canvas)) {
+    return canvas.convertToBlob({ type: type2, quality });
+  } else if (isHTMLCanvas(canvas)) {
+    const blobCreated = new Task();
+    canvas.toBlob(blobCreated.resolve, type2, quality);
+    return blobCreated;
+  } else {
+    throw new Error("Cannot save image from canvas");
+  }
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/onUserGesture.ts
@@ -7580,105 +7716,6 @@ var AssetImage = class extends BaseFetchedAsset {
     return request.image(this.type);
   }
 };
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/canvas.ts
-var hasHTMLCanvas = "HTMLCanvasElement" in globalThis;
-var hasHTMLImage = "HTMLImageElement" in globalThis;
-var disableAdvancedSettings = false;
-var hasOffscreenCanvas = !disableAdvancedSettings && "OffscreenCanvas" in globalThis;
-var hasImageBitmap = !disableAdvancedSettings && "createImageBitmap" in globalThis;
-function isHTMLCanvas(obj2) {
-  return hasHTMLCanvas && obj2 instanceof HTMLCanvasElement;
-}
-function isOffscreenCanvas(obj2) {
-  return hasOffscreenCanvas && obj2 instanceof OffscreenCanvas;
-}
-function isImageBitmap(img) {
-  return hasImageBitmap && img instanceof ImageBitmap;
-}
-function drawImageBitmapToCanvas(canv, img) {
-  const g = canv.getContext("2d");
-  if (isNullOrUndefined(g)) {
-    throw new Error("Could not create 2d context for canvas");
-  }
-  g.drawImage(img, 0, 0);
-}
-function testOffscreen2D() {
-  try {
-    const canv = new OffscreenCanvas(1, 1);
-    const g = canv.getContext("2d");
-    return g != null;
-  } catch (exp) {
-    return false;
-  }
-}
-var hasOffscreenCanvasRenderingContext2D = hasOffscreenCanvas && testOffscreen2D();
-var createUtilityCanvas = hasOffscreenCanvasRenderingContext2D && createOffscreenCanvas || hasHTMLCanvas && createCanvas || null;
-var createUICanvas = hasHTMLCanvas ? createCanvas : createUtilityCanvas;
-function testOffscreen3D() {
-  try {
-    const canv = new OffscreenCanvas(1, 1);
-    const g = canv.getContext("webgl2");
-    return g != null;
-  } catch (exp) {
-    return false;
-  }
-}
-var hasOffscreenCanvasRenderingContext3D = hasOffscreenCanvas && testOffscreen3D();
-function createOffscreenCanvas(width2, height2) {
-  return new OffscreenCanvas(width2, height2);
-}
-function createCanvas(w, h) {
-  if (false) {
-    throw new Error("HTML Canvas is not supported in workers");
-  }
-  return Canvas(htmlWidth(w), htmlHeight(h));
-}
-function createCanvasFromImageBitmap(img) {
-  if (false) {
-    throw new Error("HTML Canvas is not supported in workers");
-  }
-  const canv = createCanvas(img.width, img.height);
-  drawImageBitmapToCanvas(canv, img);
-  return canv;
-}
-function drawImageToCanvas(canv, img) {
-  const g = canv.getContext("2d");
-  if (isNullOrUndefined(g)) {
-    throw new Error("Could not create 2d context for canvas");
-  }
-  g.drawImage(img, 0, 0);
-}
-function setCanvasSize(canv, w, h, superscale = 1) {
-  w = Math.floor(w * superscale);
-  h = Math.floor(h * superscale);
-  if (canv.width != w || canv.height != h) {
-    canv.width = w;
-    canv.height = h;
-    return true;
-  }
-  return false;
-}
-function is2DRenderingContext(ctx) {
-  return isDefined(ctx.textBaseline);
-}
-function setCanvas2DContextSize(ctx, w, h, superscale = 1) {
-  const oldImageSmoothingEnabled = ctx.imageSmoothingEnabled, oldTextBaseline = ctx.textBaseline, oldTextAlign = ctx.textAlign, oldFont = ctx.font, resized = setCanvasSize(ctx.canvas, w, h, superscale);
-  if (resized) {
-    ctx.imageSmoothingEnabled = oldImageSmoothingEnabled;
-    ctx.textBaseline = oldTextBaseline;
-    ctx.textAlign = oldTextAlign;
-    ctx.font = oldFont;
-  }
-  return resized;
-}
-function setContextSize(ctx, w, h, superscale = 1) {
-  if (is2DRenderingContext(ctx)) {
-    return setCanvas2DContextSize(ctx, w, h, superscale);
-  } else {
-    return setCanvasSize(ctx.canvas, w, h, superscale);
-  }
-}
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/RequestBuilder.ts
 var testAudio = null;
@@ -21290,9 +21327,6 @@ var XRTimer = class {
 };
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/environment/BaseEnvironment.ts
-var spectator = new THREE.PerspectiveCamera();
-var lastViewport = new THREE.Vector4();
-var curViewport = new THREE.Vector4();
 var gridWidth = 15;
 var gridSize = feet2Meters(gridWidth);
 Style(rule("#frontBuffer", position("absolute"), left(0), top(0), width("100%"), height("100%"), margin(0), padding(0), border(0), touchAction("none")));
@@ -21304,6 +21338,9 @@ var BaseEnvironment = class extends TypedEventBase {
     this.DEBUG = DEBUG2;
     this.layers = new Array();
     this.layerSortOrder = /* @__PURE__ */ new Map();
+    this.spectator = new THREE.PerspectiveCamera();
+    this.lastViewport = new THREE.Vector4();
+    this.curViewport = new THREE.Vector4();
     this.fadeDepth = 0;
     this.camera = new THREE.PerspectiveCamera(50, 1, 0.01, 1e3);
     this.scene = new THREE.Scene();
@@ -21327,7 +21364,7 @@ var BaseEnvironment = class extends TypedEventBase {
       powerPreference: "high-performance",
       precision: "lowp",
       antialias: true,
-      alpha: true,
+      alpha: false,
       premultipliedAlpha: true,
       depth: true,
       logarithmicDepthBuffer: true,
@@ -21417,23 +21454,33 @@ var BaseEnvironment = class extends TypedEventBase {
       this.renderer.render(this.scene, this.camera);
       if (this.enableSpectator) {
         if (!this.renderer.xr.isPresenting) {
-          lastViewport.copy(curViewport);
-          this.renderer.getViewport(curViewport);
+          this.lastViewport.copy(this.curViewport);
+          this.renderer.getViewport(this.curViewport);
         } else if (isDesktop() && !isFirefox()) {
-          spectator.projectionMatrix.copy(this.camera.projectionMatrix);
-          spectator.position.copy(cam.position);
-          spectator.quaternion.copy(cam.quaternion);
-          const curRT = this.renderer.getRenderTarget();
-          this.renderer.xr.isPresenting = false;
-          this.renderer.setRenderTarget(null);
-          this.renderer.setViewport(lastViewport);
-          this.renderer.clear();
-          this.renderer.render(this.scene, spectator);
-          this.renderer.setViewport(curViewport);
-          this.renderer.setRenderTarget(curRT);
-          this.renderer.xr.isPresenting = true;
+          this.drawSnapshot();
         }
       }
+    }
+  }
+  drawSnapshot() {
+    const isPresenting = this.renderer.xr.isPresenting;
+    let curRT = null;
+    if (isPresenting) {
+      const cam = resolveCamera(this.renderer, this.camera);
+      this.spectator.projectionMatrix.copy(this.camera.projectionMatrix);
+      this.spectator.position.copy(cam.position);
+      this.spectator.quaternion.copy(cam.quaternion);
+      curRT = this.renderer.getRenderTarget();
+      this.renderer.xr.isPresenting = false;
+      this.renderer.setRenderTarget(null);
+      this.renderer.setViewport(this.lastViewport);
+    }
+    this.renderer.clear();
+    this.renderer.render(this.scene, isPresenting ? this.spectator : this.camera);
+    if (isPresenting) {
+      this.renderer.setViewport(this.curViewport);
+      this.renderer.setRenderTarget(curRT);
+      this.renderer.xr.isPresenting = true;
     }
   }
   preRender(_evt) {
@@ -22084,9 +22131,43 @@ async function createTestEnvironment(debug = true) {
   document.body.append(Div(id("appContainer"), canvas));
   await loadFonts();
   const fetcher = createFetcher(!debug);
-  return new Environment(canvas, fetcher, defaultFont.fontFamily, getUIImagePaths(), defaultAvatarHeight, enableFullResolution, {
+  const env = new Environment(canvas, fetcher, defaultFont.fontFamily, getUIImagePaths(), defaultAvatarHeight, enableFullResolution, {
     DEBUG: debug
   });
+  if (isDebug) {
+    const MAX_IMAGE_SIZE = toBytes(9, "MiB");
+    window.addEventListener("keypress", async (evt) => {
+      if (evt.key === "`") {
+        env.drawSnapshot();
+        const canv = env.renderer.domElement;
+        const canvResize = createUICanvas(Math.floor(canv.width / 2), Math.floor(canv.height / 2));
+        console.log(canvResize);
+        const gResize = canvResize.getContext("2d", { alpha: false, desynchronized: true });
+        gResize.drawImage(canv, 0, 0, canv.width, canv.height, 0, 0, canvResize.width, canvResize.height);
+        let blob = null;
+        for (let quality = 1; quality >= 0.25; quality -= 0.05) {
+          blob = await canvasToBlob(canvResize, Image_Jpeg.value, quality);
+          if (blob.size <= MAX_IMAGE_SIZE) {
+            break;
+          }
+        }
+        if (isNullOrUndefined(blob)) {
+          console.error("No image");
+        } else {
+          if (blob.size > MAX_IMAGE_SIZE) {
+            console.warn("Image was pretty big");
+          }
+          const file = URL.createObjectURL(blob);
+          window.open(file);
+          const form = new FormData();
+          form.append("File", blob, "thumbnail.jpg");
+          const result = await fetcher.post(location.href).body(form).exec();
+          console.log(result);
+        }
+      }
+    });
+  }
+  return env;
 }
 
 // src/offscreen-canvas-app/index.ts
