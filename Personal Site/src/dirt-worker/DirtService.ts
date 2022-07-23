@@ -37,7 +37,7 @@ export interface IDirtService extends TypedEventBase<DirtEventMap> {
     checkPointerUV(id: number | string, x: number, y: number, type: string): void;
 }
 
-export class DirtService 
+export class DirtService
     extends TypedEventBase<DirtEventMap>
     implements IDirtService {
     private readonly sub: OffscreenCanvas;
@@ -55,16 +55,23 @@ export class DirtService
     private lx: number = null;
     private ly: number = null;
 
+    private components: number = null;
+    private data: Uint8ClampedArray = null;
+
     constructor() {
         super();
 
         this.sub = new OffscreenCanvas(this.height, this.height);
-        this.subg = this.sub.getContext("2d");
+        this.subg = this.sub.getContext("2d", {
+            alpha: false,
+            desynchronized: true,
+            willReadFrequently: true
+        });
     }
 
     init(canvas: CanvasTypes, fr: number, pr: number): Promise<void> {
         this.canvas = canvas;
-        this.g = this.canvas.getContext("2d");
+        this.g = this.canvas.getContext("2d", { alpha: false });
         this.g.fillStyle = "rgb(50%, 50%, 50%)";
         this.g.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
@@ -86,6 +93,18 @@ export class DirtService
         return Promise.resolve();
     }
 
+    private I(x: number, y: number) {
+        return xy2i(x, y + this.fr + this.pr, this.sub.width, this.components);
+    }
+
+    private GET(x: number, y: number) {
+        return this.data[this.I(x, y)] / 255;
+    }
+
+    private SET(x: number, y: number, v: number) {
+        return this.data[this.I(x, y)] = 255 * v;
+    }
+
     private update() {
         if (this.pointerId !== null && this.canvas) {
             const dx = this.lx - this.x;
@@ -93,8 +112,7 @@ export class DirtService
             if ((Math.abs(dx) + Math.abs(dy)) > 0) {
                 const a = Math.atan2(dy, dx) + Math.PI;
                 const d = Math.round(Math.sqrt(dx * dx + dy * dy));
-                const width = d + this.fr + this.pr;
-                this.sub.width = width;
+                this.sub.width = d + this.fr + this.pr;;
                 this.sub.height = this.height;
                 this.subg.save();
                 this.subg.translate(0, this.fr + this.pr);
@@ -105,35 +123,32 @@ export class DirtService
 
                 const imgData = this.subg.getImageData(0, 0, this.sub.width, this.sub.height);
 
-                const { data } = imgData;
-                const components = data.length / (width * this.height);
+                this.data = imgData.data;
+                this.components = this.data.length / (this.sub.width * this.height);
 
-                const I = (x: number, y: number) => xy2i(x, y + this.fr + this.pr, width, components);
-                const GET = (x: number, y: number) => data[I(x, y)] / 255;
-                const SET = (x: number, y: number, v: number) => data[I(x, y)] = 255 * v;
 
-                const start = GET(0, 0);
+                const start = this.GET(0, 0);
                 const level = Math.max(0, start - 0.25);
 
                 let accum = 0;
                 for (let x = 0; x < d; ++x) {
-                    const here = GET(x, 0);
+                    const here = this.GET(x, 0);
                     accum += here - level
-                    SET(x, 0, level);
+                    this.SET(x, 0, level);
                     for (let y = -this.fr; y <= this.fr; ++y) {
                         const dx = this.fr - Math.abs(y);
-                        const here = GET(x + dx, y);
+                        const here = this.GET(x + dx, y);
                         accum += here - level;
-                        SET(x + dx, y, level);
+                        this.SET(x + dx, y, level);
                     }
 
                     const deposit = level / (2 * this.fr * this.pr);
                     for (let y = -this.fr - this.pr; y <= this.fr + this.pr && accum > 0; ++y) {
                         if (y < -this.fr || this.fr < y) {
                             const dx = this.fr - Math.abs(y);
-                            const there = GET(x + dx, y);
+                            const there = this.GET(x + dx, y);
                             const v = Math.min(accum, deposit);
-                            SET(x + dx, y, there + v);
+                            this.SET(x + dx, y, there + v);
                             accum -= v;
                         }
                     }
@@ -144,21 +159,21 @@ export class DirtService
                     for (let y = -this.fr - this.pr; y <= this.fr + this.pr && accum > 0; ++y) {
                         if (y < -this.fr || this.fr < y) {
                             const dx = this.fr - Math.abs(y);
-                            const there = GET(d + dx, y);
+                            const there = this.GET(d + dx, y);
                             const v = Math.min(accum, deposit);
-                            SET(d + dx, y, there + v);
+                            this.SET(d + dx, y, there + v);
                             accum -= v;
                         }
                     }
                 }
 
-                
+
 
                 // normalize green and blue channels
-                for (let i = 0; i < data.length; i += components) {
-                    const p = data[i];
-                    data[i + 1] = p;
-                    data[i + 2] = p;
+                for (let i = 0; i < this.data.length; i += this.components) {
+                    const p = this.data[i];
+                    this.data[i + 1] = p;
+                    this.data[i + 2] = p;
                 }
 
                 this.subg.putImageData(imgData, 0, 0);
