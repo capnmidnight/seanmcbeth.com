@@ -12174,7 +12174,7 @@ var ButtonFactory = class {
     const du = iconWidth / canvWidth;
     const dv = iconHeight / canvHeight;
     this.canvas = createUICanvas(canvWidth, canvHeight);
-    const g = this.canvas.getContext("2d");
+    const g = this.canvas.getContext("2d", { alpha: false });
     g.fillStyle = "#1e4388";
     g.fillRect(0, 0, canvWidth, canvHeight);
     let i = 0;
@@ -21044,7 +21044,7 @@ var Skybox = class {
     this.env.scene.background = black;
     for (let i = 0; i < this.canvases.length; ++i) {
       const f = this.canvases[i] = createUtilityCanvas(FACE_SIZE, FACE_SIZE);
-      this.contexts[i] = f.getContext("2d");
+      this.contexts[i] = f.getContext("2d", { alpha: false });
     }
     for (let row = 0; row < CUBEMAP_PATTERN.rows; ++row) {
       const indices = CUBEMAP_PATTERN.indices[row];
@@ -21069,7 +21069,7 @@ var Skybox = class {
     this.rt.texture.name = "SkyboxOutput";
     this.rtScene.add(this.rtCamera);
     this.flipped = createUtilityCanvas(FACE_SIZE, FACE_SIZE);
-    this.flipper = this.flipped.getContext("2d");
+    this.flipper = this.flipped.getContext("2d", { alpha: false });
     this.flipper.fillStyle = black.getHexString();
     this.flipper.scale(-1, 1);
     this.flipper.translate(-FACE_SIZE, 0);

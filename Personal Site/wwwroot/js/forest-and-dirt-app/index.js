@@ -4659,6 +4659,11 @@ function truncate(v) {
   return 0;
 }
 
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math/xy2i.ts
+function xy2i(x, y, width2, components = 1) {
+  return components * (x + width2 * y);
+}
+
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/progress/BaseProgress.ts
 var BaseProgress = class extends TypedEventBase {
   constructor() {
@@ -5280,295 +5285,6 @@ function using(val, thunk) {
   }
 }
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/util.ts
-var typePattern = /([^\/]+)\/(.+)/;
-var subTypePattern = /(?:([^\.]+)\.)?([^\+;]+)(?:\+([^;]+))?((?:; *([^=]+)=([^;]+))*)/;
-var MediaType = class {
-  constructor(_type, _fullSubType, extensions) {
-    this._type = _type;
-    this._fullSubType = _fullSubType;
-    this._primaryExtension = null;
-    this.depMessage = null;
-    const parameters = /* @__PURE__ */ new Map();
-    this._parameters = parameters;
-    const subTypeParts = this._fullSubType.match(subTypePattern);
-    this._tree = subTypeParts[1];
-    this._subType = subTypeParts[2];
-    this._suffix = subTypeParts[3];
-    const paramStr = subTypeParts[4];
-    this._value = this._fullValue = this._type + "/";
-    if (isDefined(this._tree)) {
-      this._value = this._fullValue += this._tree + ".";
-    }
-    this._value = this._fullValue += this._subType;
-    if (isDefined(this._suffix)) {
-      this._value = this._fullValue += "+" + this._suffix;
-    }
-    if (isDefined(paramStr)) {
-      const pairs = paramStr.split(";").map((p) => p.trim()).filter((p) => p.length > 0).map((p) => p.split("="));
-      for (const [key, ...values] of pairs) {
-        const value2 = values.join("=");
-        parameters.set(key, value2);
-        const slug = `; ${key}=${value2}`;
-        this._fullValue += slug;
-        if (key !== "q") {
-          this._value += slug;
-        }
-      }
-    }
-    this._extensions = extensions || [];
-    this._primaryExtension = this._extensions[0] || null;
-  }
-  static parse(value2) {
-    if (!value2) {
-      return null;
-    }
-    const match = value2.match(typePattern);
-    if (!match) {
-      return null;
-    }
-    const type2 = match[1];
-    const subType = match[2];
-    return new MediaType(type2, subType);
-  }
-  deprecate(message) {
-    this.depMessage = message;
-    return this;
-  }
-  check() {
-    if (isDefined(this.depMessage)) {
-      console.warn(`${this._value} is deprecated ${this.depMessage}`);
-    }
-  }
-  matches(value2) {
-    if (isNullOrUndefined(value2)) {
-      return false;
-    }
-    if (this.typeName === "*" && this.subTypeName === "*") {
-      return true;
-    }
-    let typeName = null;
-    let subTypeName = null;
-    if (isString(value2)) {
-      const match = value2.match(typePattern);
-      if (!match) {
-        return false;
-      }
-      typeName = match[1];
-      subTypeName = match[2];
-    } else {
-      typeName = value2.typeName;
-      subTypeName = value2._fullSubType;
-    }
-    return this.typeName === typeName && (this._fullSubType === "*" || this._fullSubType === subTypeName);
-  }
-  withParameter(key, value2) {
-    const newSubType = `${this._fullSubType}; ${key}=${value2}`;
-    return new MediaType(this.typeName, newSubType, this.extensions);
-  }
-  get typeName() {
-    this.check();
-    return this._type;
-  }
-  get tree() {
-    this.check();
-    return this._tree;
-  }
-  get suffix() {
-    return this._suffix;
-  }
-  get subTypeName() {
-    this.check();
-    return this._subType;
-  }
-  get value() {
-    this.check();
-    return this._value;
-  }
-  __getValueUnsafe() {
-    return this._value;
-  }
-  get fullValue() {
-    this.check();
-    return this._fullValue;
-  }
-  get parameters() {
-    this.check();
-    return this._parameters;
-  }
-  get extensions() {
-    this.check();
-    return this._extensions;
-  }
-  __getExtensionsUnsafe() {
-    return this._extensions;
-  }
-  get primaryExtension() {
-    this.check();
-    return this._primaryExtension;
-  }
-  toString() {
-    if (this.parameters.get("q") === "1") {
-      return this.value;
-    } else {
-      return this.fullValue;
-    }
-  }
-  addExtension(fileName) {
-    if (!fileName) {
-      throw new Error("File name is not defined");
-    }
-    if (this.primaryExtension) {
-      const idx = fileName.lastIndexOf(".");
-      if (idx > -1) {
-        const currentExtension = fileName.substring(idx + 1);
-        ;
-        if (this.extensions.indexOf(currentExtension) > -1) {
-          fileName = fileName.substring(0, idx);
-        }
-      }
-      fileName = `${fileName}.${this.primaryExtension}`;
-    }
-    return fileName;
-  }
-};
-function create2(group2, value2, ...extensions) {
-  return new MediaType(group2, value2, extensions);
-}
-function specialize(group2) {
-  return create2.bind(null, group2);
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/application.ts
-var application = /* @__PURE__ */ specialize("application");
-var Application_Javascript = /* @__PURE__ */ application("javascript", "js");
-var Application_Json = /* @__PURE__ */ application("json", "json");
-var Application_Wasm = /* @__PURE__ */ application("wasm", "wasm");
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/audio.ts
-var audio = /* @__PURE__ */ specialize("audio");
-var Audio_Mpeg = /* @__PURE__ */ audio("mpeg", "mp3", "mp2", "mp2a", "mpga", "m2a", "m3a");
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/image.ts
-var image = /* @__PURE__ */ specialize("image");
-var Image_Jpeg = /* @__PURE__ */ image("jpeg", "jpeg", "jpg", "jpe");
-var Image_Png = /* @__PURE__ */ image("png", "png");
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/model.ts
-var model = /* @__PURE__ */ specialize("model");
-var Model_Gltf_Binary = /* @__PURE__ */ model("gltf-binary", "glb");
-var Model_Gltf_Json = /* @__PURE__ */ model("gltf+json", "gltf");
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/text.ts
-var text = /* @__PURE__ */ specialize("text");
-var Text_Plain = /* @__PURE__ */ text("plain", "txt", "text", "conf", "def", "list", "log", "in");
-var Text_Xml = /* @__PURE__ */ text("xml");
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/video.ts
-var video = /* @__PURE__ */ specialize("video");
-var Video_Vendor_Mpeg_Dash_Mpd = /* @__PURE__ */ video("vnd.mpeg.dash.mpd", "mpd");
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/Asset.ts
-var BaseAsset = class {
-  constructor(path, type2) {
-    this.path = path;
-    this.type = type2;
-    this._result = null;
-    this._error = null;
-    this._started = false;
-    this._finished = false;
-    this.resolve = null;
-    this.reject = null;
-    this.promise = new Promise((resolve, reject) => {
-      this.resolve = (value2) => {
-        this._result = value2;
-        this._finished = true;
-        resolve(value2);
-      };
-      this.reject = (reason) => {
-        this._error = reason;
-        this._finished = true;
-        reject(reason);
-      };
-    });
-  }
-  get result() {
-    if (isDefined(this.error)) {
-      throw this.error;
-    }
-    return this._result;
-  }
-  get error() {
-    return this._error;
-  }
-  get started() {
-    return this._started;
-  }
-  get finished() {
-    return this._finished;
-  }
-  async getSize(fetcher) {
-    try {
-      const { contentLength } = await fetcher.head(this.path).accept(this.type).exec();
-      return [this, contentLength || 1];
-    } catch (exp) {
-      console.warn(exp);
-      return [this, 1];
-    }
-    ;
-  }
-  async fetch(fetcher, prog) {
-    try {
-      const result = await this.getResult(fetcher, prog);
-      this.resolve(result);
-    } catch (err) {
-      this.reject(err);
-    }
-  }
-  get [Symbol.toStringTag]() {
-    return this.promise.toString();
-  }
-  then(onfulfilled, onrejected) {
-    return this.promise.then(onfulfilled, onrejected);
-  }
-  catch(onrejected) {
-    return this.promise.catch(onrejected);
-  }
-  finally(onfinally) {
-    return this.promise.finally(onfinally);
-  }
-};
-var BaseFetchedAsset = class extends BaseAsset {
-  constructor(path, typeOrUseCache, useCache) {
-    let type2;
-    if (isBoolean(typeOrUseCache)) {
-      useCache = typeOrUseCache;
-    } else {
-      type2 = typeOrUseCache;
-    }
-    super(path, type2);
-    this.useCache = !!useCache;
-  }
-  async getResult(fetcher, prog) {
-    const response = await this.getRequest(fetcher, prog);
-    return response.content;
-  }
-  getRequest(fetcher, prog) {
-    const request = fetcher.get(this.path).useCache(this.useCache).progress(prog);
-    return this.getResponse(request);
-  }
-};
-var AssetAudio = class extends BaseFetchedAsset {
-  getResponse(request) {
-    return request.audio(false, false, this.type);
-  }
-};
-var AssetImage = class extends BaseFetchedAsset {
-  getResponse(request) {
-    return request.image(this.type);
-  }
-};
-
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/attrs.ts
 var Attr = class {
   constructor(key, value2, bySetAttribute, ...tags) {
@@ -6155,6 +5871,295 @@ function setContextSize(ctx, w, h, superscale = 1) {
     return setCanvasSize(ctx.canvas, w, h, superscale);
   }
 }
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/util.ts
+var typePattern = /([^\/]+)\/(.+)/;
+var subTypePattern = /(?:([^\.]+)\.)?([^\+;]+)(?:\+([^;]+))?((?:; *([^=]+)=([^;]+))*)/;
+var MediaType = class {
+  constructor(_type, _fullSubType, extensions) {
+    this._type = _type;
+    this._fullSubType = _fullSubType;
+    this._primaryExtension = null;
+    this.depMessage = null;
+    const parameters = /* @__PURE__ */ new Map();
+    this._parameters = parameters;
+    const subTypeParts = this._fullSubType.match(subTypePattern);
+    this._tree = subTypeParts[1];
+    this._subType = subTypeParts[2];
+    this._suffix = subTypeParts[3];
+    const paramStr = subTypeParts[4];
+    this._value = this._fullValue = this._type + "/";
+    if (isDefined(this._tree)) {
+      this._value = this._fullValue += this._tree + ".";
+    }
+    this._value = this._fullValue += this._subType;
+    if (isDefined(this._suffix)) {
+      this._value = this._fullValue += "+" + this._suffix;
+    }
+    if (isDefined(paramStr)) {
+      const pairs = paramStr.split(";").map((p) => p.trim()).filter((p) => p.length > 0).map((p) => p.split("="));
+      for (const [key, ...values] of pairs) {
+        const value2 = values.join("=");
+        parameters.set(key, value2);
+        const slug = `; ${key}=${value2}`;
+        this._fullValue += slug;
+        if (key !== "q") {
+          this._value += slug;
+        }
+      }
+    }
+    this._extensions = extensions || [];
+    this._primaryExtension = this._extensions[0] || null;
+  }
+  static parse(value2) {
+    if (!value2) {
+      return null;
+    }
+    const match = value2.match(typePattern);
+    if (!match) {
+      return null;
+    }
+    const type2 = match[1];
+    const subType = match[2];
+    return new MediaType(type2, subType);
+  }
+  deprecate(message) {
+    this.depMessage = message;
+    return this;
+  }
+  check() {
+    if (isDefined(this.depMessage)) {
+      console.warn(`${this._value} is deprecated ${this.depMessage}`);
+    }
+  }
+  matches(value2) {
+    if (isNullOrUndefined(value2)) {
+      return false;
+    }
+    if (this.typeName === "*" && this.subTypeName === "*") {
+      return true;
+    }
+    let typeName = null;
+    let subTypeName = null;
+    if (isString(value2)) {
+      const match = value2.match(typePattern);
+      if (!match) {
+        return false;
+      }
+      typeName = match[1];
+      subTypeName = match[2];
+    } else {
+      typeName = value2.typeName;
+      subTypeName = value2._fullSubType;
+    }
+    return this.typeName === typeName && (this._fullSubType === "*" || this._fullSubType === subTypeName);
+  }
+  withParameter(key, value2) {
+    const newSubType = `${this._fullSubType}; ${key}=${value2}`;
+    return new MediaType(this.typeName, newSubType, this.extensions);
+  }
+  get typeName() {
+    this.check();
+    return this._type;
+  }
+  get tree() {
+    this.check();
+    return this._tree;
+  }
+  get suffix() {
+    return this._suffix;
+  }
+  get subTypeName() {
+    this.check();
+    return this._subType;
+  }
+  get value() {
+    this.check();
+    return this._value;
+  }
+  __getValueUnsafe() {
+    return this._value;
+  }
+  get fullValue() {
+    this.check();
+    return this._fullValue;
+  }
+  get parameters() {
+    this.check();
+    return this._parameters;
+  }
+  get extensions() {
+    this.check();
+    return this._extensions;
+  }
+  __getExtensionsUnsafe() {
+    return this._extensions;
+  }
+  get primaryExtension() {
+    this.check();
+    return this._primaryExtension;
+  }
+  toString() {
+    if (this.parameters.get("q") === "1") {
+      return this.value;
+    } else {
+      return this.fullValue;
+    }
+  }
+  addExtension(fileName) {
+    if (!fileName) {
+      throw new Error("File name is not defined");
+    }
+    if (this.primaryExtension) {
+      const idx = fileName.lastIndexOf(".");
+      if (idx > -1) {
+        const currentExtension = fileName.substring(idx + 1);
+        ;
+        if (this.extensions.indexOf(currentExtension) > -1) {
+          fileName = fileName.substring(0, idx);
+        }
+      }
+      fileName = `${fileName}.${this.primaryExtension}`;
+    }
+    return fileName;
+  }
+};
+function create2(group2, value2, ...extensions) {
+  return new MediaType(group2, value2, extensions);
+}
+function specialize(group2) {
+  return create2.bind(null, group2);
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/application.ts
+var application = /* @__PURE__ */ specialize("application");
+var Application_Javascript = /* @__PURE__ */ application("javascript", "js");
+var Application_Json = /* @__PURE__ */ application("json", "json");
+var Application_Wasm = /* @__PURE__ */ application("wasm", "wasm");
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/audio.ts
+var audio = /* @__PURE__ */ specialize("audio");
+var Audio_Mpeg = /* @__PURE__ */ audio("mpeg", "mp3", "mp2", "mp2a", "mpga", "m2a", "m3a");
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/image.ts
+var image = /* @__PURE__ */ specialize("image");
+var Image_Jpeg = /* @__PURE__ */ image("jpeg", "jpeg", "jpg", "jpe");
+var Image_Png = /* @__PURE__ */ image("png", "png");
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/model.ts
+var model = /* @__PURE__ */ specialize("model");
+var Model_Gltf_Binary = /* @__PURE__ */ model("gltf-binary", "glb");
+var Model_Gltf_Json = /* @__PURE__ */ model("gltf+json", "gltf");
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/text.ts
+var text = /* @__PURE__ */ specialize("text");
+var Text_Plain = /* @__PURE__ */ text("plain", "txt", "text", "conf", "def", "list", "log", "in");
+var Text_Xml = /* @__PURE__ */ text("xml");
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/video.ts
+var video = /* @__PURE__ */ specialize("video");
+var Video_Vendor_Mpeg_Dash_Mpd = /* @__PURE__ */ video("vnd.mpeg.dash.mpd", "mpd");
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/Asset.ts
+var BaseAsset = class {
+  constructor(path, type2) {
+    this.path = path;
+    this.type = type2;
+    this._result = null;
+    this._error = null;
+    this._started = false;
+    this._finished = false;
+    this.resolve = null;
+    this.reject = null;
+    this.promise = new Promise((resolve, reject) => {
+      this.resolve = (value2) => {
+        this._result = value2;
+        this._finished = true;
+        resolve(value2);
+      };
+      this.reject = (reason) => {
+        this._error = reason;
+        this._finished = true;
+        reject(reason);
+      };
+    });
+  }
+  get result() {
+    if (isDefined(this.error)) {
+      throw this.error;
+    }
+    return this._result;
+  }
+  get error() {
+    return this._error;
+  }
+  get started() {
+    return this._started;
+  }
+  get finished() {
+    return this._finished;
+  }
+  async getSize(fetcher) {
+    try {
+      const { contentLength } = await fetcher.head(this.path).accept(this.type).exec();
+      return [this, contentLength || 1];
+    } catch (exp) {
+      console.warn(exp);
+      return [this, 1];
+    }
+    ;
+  }
+  async fetch(fetcher, prog) {
+    try {
+      const result = await this.getResult(fetcher, prog);
+      this.resolve(result);
+    } catch (err) {
+      this.reject(err);
+    }
+  }
+  get [Symbol.toStringTag]() {
+    return this.promise.toString();
+  }
+  then(onfulfilled, onrejected) {
+    return this.promise.then(onfulfilled, onrejected);
+  }
+  catch(onrejected) {
+    return this.promise.catch(onrejected);
+  }
+  finally(onfinally) {
+    return this.promise.finally(onfinally);
+  }
+};
+var BaseFetchedAsset = class extends BaseAsset {
+  constructor(path, typeOrUseCache, useCache) {
+    let type2;
+    if (isBoolean(typeOrUseCache)) {
+      useCache = typeOrUseCache;
+    } else {
+      type2 = typeOrUseCache;
+    }
+    super(path, type2);
+    this.useCache = !!useCache;
+  }
+  async getResult(fetcher, prog) {
+    const response = await this.getRequest(fetcher, prog);
+    return response.content;
+  }
+  getRequest(fetcher, prog) {
+    const request = fetcher.get(this.path).useCache(this.useCache).progress(prog);
+    return this.getResponse(request);
+  }
+};
+var AssetAudio = class extends BaseFetchedAsset {
+  getResponse(request) {
+    return request.audio(false, false, this.type);
+  }
+};
+var AssetImage = class extends BaseFetchedAsset {
+  getResponse(request) {
+    return request.image(this.type);
+  }
+};
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/RequestBuilder.ts
 var testAudio = null;
@@ -12175,7 +12180,7 @@ var ButtonFactory = class {
     const du = iconWidth / canvWidth;
     const dv = iconHeight / canvHeight;
     this.canvas = createUICanvas(canvWidth, canvHeight);
-    const g = this.canvas.getContext("2d");
+    const g = this.canvas.getContext("2d", { alpha: false });
     g.fillStyle = "#1e4388";
     g.fillRect(0, 0, canvWidth, canvHeight);
     let i = 0;
@@ -21045,7 +21050,7 @@ var Skybox = class {
     this.env.scene.background = black;
     for (let i = 0; i < this.canvases.length; ++i) {
       const f = this.canvases[i] = createUtilityCanvas(FACE_SIZE, FACE_SIZE);
-      this.contexts[i] = f.getContext("2d");
+      this.contexts[i] = f.getContext("2d", { alpha: false });
     }
     for (let row = 0; row < CUBEMAP_PATTERN.rows; ++row) {
       const indices = CUBEMAP_PATTERN.indices[row];
@@ -21070,7 +21075,7 @@ var Skybox = class {
     this.rt.texture.name = "SkyboxOutput";
     this.rtScene.add(this.rtCamera);
     this.flipped = createUtilityCanvas(FACE_SIZE, FACE_SIZE);
-    this.flipper = this.flipped.getContext("2d");
+    this.flipper = this.flipped.getContext("2d", { alpha: false });
     this.flipper.fillStyle = black.getHexString();
     this.flipper.scale(-1, 1);
     this.flipper.translate(-FACE_SIZE, 0);
@@ -22076,32 +22081,173 @@ async function createTestEnvironment(debug = true) {
   });
 }
 
-// src/dirt-worker/DirtWorkerClient.ts
-var DirtWorkerClient = class extends WorkerClient {
-  constructor(n2, fr, pr, worker) {
-    super(worker);
+// src/dirt-worker/DirtService.ts
+var actionTypes = singleton("Juniper:Graphics2D:Dirt:StopTypes", () => /* @__PURE__ */ new Map([
+  ["mousedown", "down"],
+  ["mouseenter", "move"],
+  ["mouseleave", "up"],
+  ["mousemove", "move"],
+  ["mouseout", "up"],
+  ["mouseover", "move"],
+  ["mouseup", "up"],
+  ["pointerdown", "down"],
+  ["pointerenter", "move"],
+  ["pointerleave", "up"],
+  ["pointermove", "move"],
+  ["pointerrawupdate", "move"],
+  ["pointerout", "up"],
+  ["pointerup", "up"],
+  ["pointerover", "move"],
+  ["touchcancel", "up"],
+  ["touchend", "up"],
+  ["touchmove", "move"],
+  ["touchstart", "down"]
+]));
+var DirtService = class extends TypedEventBase {
+  constructor() {
+    super();
     this.updateEvt = new TypedEvent("update");
-    this.checkPointerParams = [null, 0, 0, null];
-    this.element = createCanvas(n2, n2);
-    const offscreen = this.element.transferControlToOffscreen();
-    this.ready = this.callMethod("init", [offscreen, fr, pr], [offscreen]);
+    this.canvas = null;
+    this.g = null;
+    this.pointerId = null;
+    this.fr = null;
+    this.pr = null;
+    this.height = null;
+    this.x = null;
+    this.y = null;
+    this.lx = null;
+    this.ly = null;
+    this.components = null;
+    this.data = null;
+    this.sub = new OffscreenCanvas(this.height, this.height);
+    this.subg = this.sub.getContext("2d", {
+      alpha: false,
+      desynchronized: true,
+      willReadFrequently: true
+    });
   }
-  propogateEvent(data) {
-    if (data.eventName === "update") {
-      this.dispatchEvent(this.updateEvt);
-    } else {
-      assertNever(data.eventName);
+  init(canvas, fr, pr) {
+    this.canvas = canvas;
+    this.g = this.canvas.getContext("2d", { alpha: false });
+    this.g.fillStyle = "rgb(50%, 50%, 50%)";
+    this.g.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    const imgData = this.g.getImageData(0, 0, this.canvas.width, this.canvas.height);
+    const { data, width: width2, height: height2 } = imgData;
+    const components = data.length / (width2 * height2);
+    for (let i = 0; i < data.length; i += components) {
+      const v = Math.floor(50 * (Math.random() - 0.5));
+      for (let c = 0; c < components - 1; ++c) {
+        data[i + c] += v;
+      }
     }
+    this.g.putImageData(imgData, 0, 0);
+    this.fr = fr;
+    this.pr = pr;
+    this.height = 2 * (this.fr + this.pr) + 1;
+    return Promise.resolve();
+  }
+  I(x, y) {
+    return xy2i(x, y + this.fr + this.pr, this.sub.width, this.components);
+  }
+  GET(x, y) {
+    return this.data[this.I(x, y)] / 255;
+  }
+  SET(x, y, v) {
+    return this.data[this.I(x, y)] = 255 * v;
+  }
+  update() {
+    if (this.pointerId !== null && this.canvas) {
+      const dx = this.lx - this.x;
+      const dy = this.ly - this.y;
+      if (Math.abs(dx) + Math.abs(dy) > 0) {
+        const a = Math.atan2(dy, dx) + Math.PI;
+        const d = Math.round(Math.sqrt(dx * dx + dy * dy));
+        this.sub.width = d + this.fr + this.pr;
+        ;
+        this.sub.height = this.height;
+        this.subg.save();
+        this.subg.translate(0, this.fr + this.pr);
+        this.subg.rotate(-a);
+        this.subg.translate(-this.lx, -this.ly);
+        this.subg.drawImage(this.canvas, 0, 0);
+        this.subg.restore();
+        const imgData = this.subg.getImageData(0, 0, this.sub.width, this.sub.height);
+        this.data = imgData.data;
+        this.components = this.data.length / (this.sub.width * this.height);
+        const start2 = this.GET(0, 0);
+        const level = Math.max(0, start2 - 0.25);
+        let accum = 0;
+        for (let x = 0; x < d; ++x) {
+          const here = this.GET(x, 0);
+          accum += here - level;
+          this.SET(x, 0, level);
+          for (let y = -this.fr; y <= this.fr; ++y) {
+            const dx2 = this.fr - Math.abs(y);
+            const here2 = this.GET(x + dx2, y);
+            accum += here2 - level;
+            this.SET(x + dx2, y, level);
+          }
+          const deposit = level / (2 * this.fr * this.pr);
+          for (let y = -this.fr - this.pr; y <= this.fr + this.pr && accum > 0; ++y) {
+            if (y < -this.fr || this.fr < y) {
+              const dx2 = this.fr - Math.abs(y);
+              const there = this.GET(x + dx2, y);
+              const v = Math.min(accum, deposit);
+              this.SET(x + dx2, y, there + v);
+              accum -= v;
+            }
+          }
+        }
+        if (accum > 0) {
+          const deposit = accum / (2 * this.fr * this.pr);
+          for (let y = -this.fr - this.pr; y <= this.fr + this.pr && accum > 0; ++y) {
+            if (y < -this.fr || this.fr < y) {
+              const dx2 = this.fr - Math.abs(y);
+              const there = this.GET(d + dx2, y);
+              const v = Math.min(accum, deposit);
+              this.SET(d + dx2, y, there + v);
+              accum -= v;
+            }
+          }
+        }
+        for (let i = 0; i < this.data.length; i += this.components) {
+          const p = this.data[i];
+          this.data[i + 1] = p;
+          this.data[i + 2] = p;
+        }
+        this.subg.putImageData(imgData, 0, 0);
+        this.g.save();
+        this.g.translate(this.lx, this.ly);
+        this.g.rotate(a);
+        this.g.translate(-0, -this.fr - this.pr);
+        this.g.drawImage(this.sub, 0, 0);
+        this.g.restore();
+        this.dispatchEvent(this.updateEvt);
+      }
+    }
+    this.lx = this.x;
+    this.ly = this.y;
   }
   checkPointer(id2, x, y, type2) {
-    this.checkPointerParams[0] = id2;
-    this.checkPointerParams[1] = x;
-    this.checkPointerParams[2] = y;
-    this.checkPointerParams[3] = type2;
-    this.callMethod("checkPointer", this.checkPointerParams);
+    const action = actionTypes.get(type2) || type2;
+    if (this.pointerId === null) {
+      if (action === "down") {
+        this.pointerId = id2;
+        this.lx = this.x = x;
+        this.ly = this.y = y;
+        this.update();
+      }
+    } else if (id2 === this.pointerId) {
+      this.x = x;
+      this.y = y;
+      this.update();
+      if (action === "up") {
+        this.pointerId = null;
+      }
+    }
   }
   checkPointerUV(id2, x, y, type2) {
-    this.checkPointer(id2, x * this.element.width, y * this.element.height, type2);
+    this.checkPointer(id2, x * this.canvas.width, y * this.canvas.height, type2);
   }
 };
 
@@ -22244,10 +22390,9 @@ var Forest = class {
   dirtMapTex.minFilter = THREE.LinearMipmapLinearFilter;
   dirtMapTex.magFilter = THREE.LinearFilter;
   dirtMapTex.needsUpdate = true;
-  const dirtWorker = await env.fetcher.get("/js/dirt-worker/index" + JS_EXT).accept(Application_Javascript).worker();
-  const dirtBumpMap = new DirtWorkerClient(R2, F, P3, dirtWorker);
-  await dirtBumpMap.ready;
-  const dirtBumpMapTex = new THREE.Texture(dirtBumpMap.element);
+  const dirtBumpMap = new DirtService();
+  await dirtBumpMap.init(createUtilityCanvas(R2, R2), F, P3);
+  const dirtBumpMapTex = new THREE.Texture(dirtBumpMap.canvas);
   dirtBumpMapTex.minFilter = THREE.LinearMipmapLinearFilter;
   dirtBumpMapTex.magFilter = THREE.LinearFilter;
   dirtBumpMapTex.needsUpdate = true;
