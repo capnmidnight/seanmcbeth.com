@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
+using SeanMcBeth.Models;
+
 namespace SeanMcBeth.Pages
 {
     public class AppModel : PageModel
@@ -18,10 +20,18 @@ namespace SeanMcBeth.Pages
                 .OrderBy(d => d)
                 .ToArray();
 
+        private readonly IWebHostEnvironment env;
+
+        public AppModel(IWebHostEnvironment env)
+        {
+            this.env = env;
+        }
+
         [BindProperty(SupportsGet = true), FromRoute]
         public string? Name { get; set; }
 
-        public string ScriptPath => string.Join('/', "js", Name + "-app", "index.js");
+        public string ThumbnailPath => string.Join('/', "", "js", Name + "-app", "thumbnail.jpg");
+        private FileInfo ThumbnailFile => appRoot.CD(Name + "-app").Touch("thumbnail.jpg");
 
         public IActionResult OnGet()
         {
@@ -32,5 +42,22 @@ namespace SeanMcBeth.Pages
 
             return Page();
         }
+
+#if DEBUG
+        public async Task<IActionResult> OnPostAsync([FromForm] FileInput input)
+        {
+            if (!env.IsDevelopment()
+                || input is null
+                || input.File is null)
+            {
+                return NotFound();
+            }
+
+            using var fileStream = ThumbnailFile.OpenWrite();
+            await input.File.CopyToAsync(fileStream);
+            await fileStream.FlushAsync();
+            return new OkResult();
+        }
+#endif
     }
 }
