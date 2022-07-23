@@ -11113,6 +11113,7 @@ var RayTarget = class extends TypedEventBase {
     this._disabled = false;
     this._clickable = false;
     this._draggable = false;
+    this._navigable = false;
     this.object.userData[RAY_TARGET_KEY] = this;
   }
   addMesh(mesh2) {
@@ -11143,6 +11144,12 @@ var RayTarget = class extends TypedEventBase {
   }
   set draggable(v) {
     this._draggable = v;
+  }
+  get navigable() {
+    return this._navigable;
+  }
+  set navigable(v) {
+    this._navigable = v;
   }
 };
 function isRayTarget(obj2) {
@@ -15506,7 +15513,7 @@ var BaseCursor = class {
   set visible(v) {
     this._visible = v;
   }
-  update(avatarHeadPos, comfortOffset, hit, target, defaultDistance, isLocal, canDragView, origin, direction, isPrimaryPressed) {
+  update(avatarHeadPos, comfortOffset, hit, target, defaultDistance, isLocal, canDragView, canTeleport, origin, direction, isPrimaryPressed) {
     if (hit && hit.face) {
       this.position.copy(hit.point);
       hit.object.getWorldQuaternion(this.Q);
@@ -15524,7 +15531,7 @@ var BaseCursor = class {
       this.V.copy(this.env.avatar.worldPos);
     }
     this.lookAt(this.position, this.V);
-    this.style = target ? !target.enabled ? "not-allowed" : target.draggable ? isPrimaryPressed ? "grabbing" : "move" : target.clickable ? "pointer" : "default" : canDragView ? isPrimaryPressed ? "grabbing" : "grab" : "default";
+    this.style = !target || target.navigable && !canTeleport ? canDragView ? isPrimaryPressed ? "grabbing" : "grab" : "default" : !target.enabled ? "not-allowed" : target.draggable ? isPrimaryPressed ? "grabbing" : "move" : target.navigable ? "cell" : target.clickable ? "pointer" : "default";
   }
   lookAt(_p, _v) {
   }
@@ -16640,6 +16647,7 @@ var BasePointer = class extends TypedEventBase {
     this.direction = new THREE.Vector3();
     this.up = new THREE.Vector3(0, 1, 0);
     this.canMoveView = false;
+    this.mayTeleport = false;
     this.buttons = 0;
     this.isActive = false;
     this.moveDistance = 0;
@@ -16658,7 +16666,6 @@ var BasePointer = class extends TypedEventBase {
     if (this.cursor) {
       this.cursor.visible = false;
     }
-    this.canMoveView = false;
   }
   get curHit() {
     return this._curHit;
@@ -16846,8 +16853,8 @@ var BasePointer = class extends TypedEventBase {
     }
     const evt = this.getEvent(eventType);
     this.dispatchEvent(evt);
-    if (evt.rayTarget) {
-      if (eventType === "click") {
+    if (evt.rayTarget && (eventType !== "click" || evt.rayTarget.clickable || evt.rayTarget.navigable)) {
+      if (eventType === "click" && evt.rayTarget.clickable) {
         this.vibrate();
       }
       if (evt.rayTarget.enabled) {
@@ -16859,9 +16866,12 @@ var BasePointer = class extends TypedEventBase {
   get canDragView() {
     return this.canMoveView;
   }
+  get canTeleport() {
+    return this.mayTeleport;
+  }
   updateCursor(avatarHeadPos, comfortOffset, isLocal, defaultDistance) {
     if (this.cursor) {
-      this.cursor.update(avatarHeadPos, comfortOffset, this.hoveredHit || this.curHit, this.rayTarget || this.curTarget, defaultDistance, isLocal, this.canDragView, this.origin, this.direction, this.isPressed(0 /* Primary */));
+      this.cursor.update(avatarHeadPos, comfortOffset, this.hoveredHit || this.curHit, this.rayTarget || this.curTarget, defaultDistance, isLocal, this.canDragView, this.canTeleport, this.origin, this.direction, this.isPressed(0 /* Primary */));
     }
   }
 };
@@ -17256,6 +17266,7 @@ var PointerHand = class extends BasePointer {
     this.quaternion = new THREE.Quaternion();
     this.newQuat = new THREE.Quaternion();
     this.useHaptics = true;
+    this.mayTeleport = true;
     this.object = obj("PointerHand" + index);
     this.quaternion.identity();
     objGraph(this, this.controller = this.env.renderer.xr.getController(index), this.grip = this.env.renderer.xr.getControllerGrip(index), this.hand = this.env.renderer.xr.getHand(index));
@@ -17463,7 +17474,6 @@ var BaseScreenPointerSinglePoint = class extends BaseScreenPointer {
     this.pointerID = null;
     element.addEventListener("pointerup", unPrep);
     element.addEventListener("pointercancel", unPrep);
-    this.canMoveView = true;
   }
   onCheckEvent(evt) {
     return super.onCheckEvent(evt) && evt.pointerId === this.pointerID;
@@ -17514,6 +17524,7 @@ var PointerMouse = class extends BaseScreenPointerSinglePoint {
         this.setButton(this.keyMap.get(evt.key), false);
       }
     });
+    this.mayTeleport = true;
     Object.seal(this);
   }
   updatePointerOrientation() {
@@ -17532,6 +17543,9 @@ var PointerMouse = class extends BaseScreenPointerSinglePoint {
   }
   get canDragView() {
     return super.canDragView && !this.isPointerLocked;
+  }
+  get canTeleport() {
+    return super.canTeleport && this.isPointerLocked;
   }
   lockPointer() {
     this.element.requestPointerLock();
@@ -22144,6 +22158,17 @@ var Forest = class {
     this.raycaster.camera = this.env.camera;
     const ground = objectScan(this.forest.result.scene, isMeshNamed("Ground"));
     this._ground = this.convertMesh(ground);
+    this.navMesh = new RayTarget(this._ground);
+    this.navMesh.addMesh(this._ground);
+    this.navMesh.navigable = true;
+    this.navMesh.addEventListener("click", async (evt) => {
+      if (evt.pointer.canTeleport) {
+        await this.env.fadeOut();
+        this.env.avatar.stage.position.copy(evt.hit.point);
+        this.env.avatar.stage.position.y += defaultAvatarHeight;
+        await this.env.fadeIn();
+      }
+    });
     this.env.timer.addTickHandler(() => {
       const groundHit = this.groundTest(this.env.avatar.worldPos);
       if (groundHit) {
