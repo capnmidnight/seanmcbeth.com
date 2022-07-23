@@ -35,7 +35,7 @@ export async function createTestEnvironment(debug = true): Promise<Environment> 
     });
 
     if (isDebug) {
-        const MAX_IMAGE_SIZE = toBytes(9, "MiB");
+        const MAX_IMAGE_SIZE = toBytes(200, "KiB");
         window.addEventListener("keypress", async (evt) => {
             if (evt.key === "`") {
                 env.drawSnapshot();
@@ -45,7 +45,7 @@ export async function createTestEnvironment(debug = true): Promise<Environment> 
                 const gResize = canvResize.getContext("2d", { alpha: false, desynchronized: true });
                 gResize.drawImage(canv, 0, 0, canv.width, canv.height, 0, 0, canvResize.width, canvResize.height);
                 let blob: Blob = null;
-                for (let quality = 1; quality >= 0.25; quality -= 0.05) {
+                for (let quality = 1; quality >= 0.05; quality -= 0.05) {
                     blob = await canvasToBlob(canvResize, Image_Jpeg.value, quality);
                     if (blob.size <= MAX_IMAGE_SIZE) {
                         break;
