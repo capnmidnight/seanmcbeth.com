@@ -1,4 +1,5 @@
-﻿import { TypedEvent, TypedEventBase, xy2i } from "@juniper-lib/tslib";
+﻿import { CanvasTypes, Context2D } from "@juniper-lib/dom/canvas";
+import { TypedEvent, TypedEventBase, xy2i } from "@juniper-lib/tslib";
 
 import { singleton } from "@juniper-lib/tslib";
 
@@ -36,13 +37,15 @@ export interface IDirtService extends TypedEventBase<DirtEventMap> {
     checkPointerUV(id: number | string, x: number, y: number, type: string): void;
 }
 
-export class DirtService extends TypedEventBase<DirtEventMap> implements IDirtService {
+export class DirtService 
+    extends TypedEventBase<DirtEventMap>
+    implements IDirtService {
     private readonly sub: OffscreenCanvas;
     private readonly subg: OffscreenCanvasRenderingContext2D;
     private readonly updateEvt = new TypedEvent("update");
 
-    private canvas: OffscreenCanvas = null;
-    private g: OffscreenCanvasRenderingContext2D = null;
+    canvas: CanvasTypes = null;
+    private g: Context2D = null;
     private pointerId: number | string = null;
     private fr: number = null;
     private pr: number = null;
@@ -59,7 +62,7 @@ export class DirtService extends TypedEventBase<DirtEventMap> implements IDirtSe
         this.subg = this.sub.getContext("2d");
     }
 
-    init(canvas: OffscreenCanvas, fr: number, pr: number): Promise<void> {
+    init(canvas: CanvasTypes, fr: number, pr: number): Promise<void> {
         this.canvas = canvas;
         this.g = this.canvas.getContext("2d");
         this.g.fillStyle = "rgb(50%, 50%, 50%)";

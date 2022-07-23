@@ -1,12 +1,13 @@
-﻿import { AssetImage } from "@juniper-lib/fetcher";
-import { Application_Javascript, Image_Jpeg } from "@juniper-lib/mediatypes";
+﻿import { createUtilityCanvas } from "@juniper-lib/dom/canvas";
+import { AssetImage } from "@juniper-lib/fetcher";
+import { Image_Jpeg } from "@juniper-lib/mediatypes";
 import { Pointer3DEvent } from "@juniper-lib/threejs/eventSystem/Pointer3DEvent";
 import { RayTarget } from "@juniper-lib/threejs/eventSystem/RayTarget";
 import { mesh } from "@juniper-lib/threejs/objects";
 import { createTestEnvironment } from "../createTestEnvironment";
-import { DirtWorkerClient } from "../dirt-worker/DirtWorkerClient";
+import { DirtService } from "../dirt-worker/DirtService";
 import { Forest } from "../forest-app/Forest";
-import { isDebug, JS_EXT } from "../isDebug";
+import { isDebug } from "../isDebug";
 
 (async function () {
     const S = 5;
@@ -27,14 +28,10 @@ import { isDebug, JS_EXT } from "../isDebug";
     dirtMapTex.magFilter = THREE.LinearFilter;
     dirtMapTex.needsUpdate = true;
 
-    const dirtWorker = await env.fetcher
-        .get("/js/dirt-worker/index" + JS_EXT)
-        .accept(Application_Javascript)
-        .worker();
-    const dirtBumpMap = new DirtWorkerClient(R, F, P, dirtWorker);
-    await dirtBumpMap.ready;
+    const dirtBumpMap = new DirtService();
+    await dirtBumpMap.init(createUtilityCanvas(R, R), F, P);
 
-    const dirtBumpMapTex = new THREE.Texture(dirtBumpMap.element);
+    const dirtBumpMapTex = new THREE.Texture(dirtBumpMap.canvas as any);
     dirtBumpMapTex.minFilter = THREE.LinearMipmapLinearFilter;
     dirtBumpMapTex.magFilter = THREE.LinearFilter;
     dirtBumpMapTex.needsUpdate = true;
