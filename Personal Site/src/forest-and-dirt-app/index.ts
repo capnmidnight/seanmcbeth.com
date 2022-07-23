@@ -36,10 +36,8 @@ import { isDebug } from "../isDebug";
     dirtBumpMapTex.magFilter = THREE.LinearFilter;
     dirtBumpMapTex.needsUpdate = true;
 
-    dirtBumpMap.addEventListener("update", (evt) => {
-        console.log(evt);
-        dirtBumpMapTex.needsUpdate = true;
-    });
+    dirtBumpMap.addEventListener("update", () =>
+        dirtBumpMapTex.needsUpdate = true);
 
     const dirtGeom = new THREE.PlaneBufferGeometry(S, S, R, R);
 

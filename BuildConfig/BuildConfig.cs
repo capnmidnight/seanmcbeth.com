@@ -10,7 +10,9 @@ namespace SeanMcBeth
             Dependencies = new ()
             {
                 { "Three.js", ("node_modules/three/build/three.js", "wwwroot/js/three/index.js") },
-                { "Three.js min", ("node_modules/three/build/three.min.js", "wwwroot/js/three/index.min.js") }
+                { "Three.js min", ("node_modules/three/build/three.min.js", "wwwroot/js/three/index.min.js") },
+
+                { "Cursor", ("../Juniper/etc/Assets/Models/Cursors/Cursors.glb", "wwwroot/models/Cursors.glb") }
             }
         };
     }

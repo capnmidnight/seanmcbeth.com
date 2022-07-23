@@ -2,11 +2,13 @@
 import { Audio_Mpeg, Image_Jpeg, Model_Gltf_Binary } from "@juniper-lib/mediatypes";
 import { AssetGltfModel } from "@juniper-lib/threejs/AssetGltfModel";
 import { Environment } from "@juniper-lib/threejs/environment/Environment";
+import { RayTarget } from "@juniper-lib/threejs/eventSystem/RayTarget";
 import { materialStandardToBasic } from "@juniper-lib/threejs/materials";
 import { objectScan } from "@juniper-lib/threejs/objectScan";
 import { isMesh } from "@juniper-lib/threejs/typeChecks";
 import { arrayClear, arrayScan, isDefined } from "@juniper-lib/tslib";
 import { isDebug } from "../isDebug";
+import { defaultAvatarHeight } from "../settings";
 
 function isMeshNamed(name: string) {
     return (obj: THREE.Object3D) => isMesh(obj) && obj.name === name;
@@ -23,6 +25,7 @@ export class Forest {
     private _ground: THREE.Mesh<THREE.BufferGeometry, THREE.MeshBasicMaterial>;
     private _water: THREE.Mesh<THREE.BufferGeometry, THREE.MeshBasicMaterial>;
     private _trees: THREE.InstancedMesh;
+    private navMesh: RayTarget;
 
     get ground() {
         return this._ground;
@@ -86,6 +89,18 @@ export class Forest {
 
         const ground = objectScan<THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>>(this.forest.result.scene, isMeshNamed("Ground"));
         this._ground = this.convertMesh(ground);
+
+        this.navMesh = new RayTarget(this._ground);
+        this.navMesh.addMesh(this._ground);
+        this.navMesh.navigable = true;
+        this.navMesh.addEventListener("click", async (evt) => {
+            if (evt.pointer.canTeleport) {
+                await this.env.fadeOut();
+                this.env.avatar.stage.position.copy(evt.hit.point);
+                this.env.avatar.stage.position.y += defaultAvatarHeight;
+                await this.env.fadeIn();
+            }
+        });
 
         this.env.timer.addTickHandler(() => {
             const groundHit = this.groundTest(this.env.avatar.worldPos);

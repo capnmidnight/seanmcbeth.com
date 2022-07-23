@@ -6,7 +6,7 @@ import { Forest } from "./Forest";
     await env.fadeOut();
 
     const forest = new Forest(env);
-    await env.load(...forest.assets)
+    await env.load(...forest.assets);
 
     await env.fadeIn();
 })();

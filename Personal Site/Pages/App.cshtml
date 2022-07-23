@@ -5,10 +5,7 @@
 }
 
 @section Head {
-    @if (Model.IncludeThreeJS)
-    {
-        <bundle-js name="three" versioned />
-    }
+    <bundle-js name="three" versioned />
     <bundle-js name="@(Model.Name + "-app")" versioned />
 }
 
