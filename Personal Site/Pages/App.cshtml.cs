@@ -32,7 +32,7 @@ namespace SeanMcBeth.Pages
 
         private DirectoryInfo AppRoot => appsRoot.CD(Name + "-app");
 
-        public string ThumbnailPath => string.Join('/', "", "js", Name + "-app", "thumbnail.jpg");
+        public string ThumbnailPath => string.Join('/', "js", Name + "-app", "thumbnail.jpg");
         private FileInfo ThumbnailFile => AppRoot.Touch("thumbnail.jpg");
 
         private FileInfo DescriptionFile => AppRoot.Touch("description.txt");
