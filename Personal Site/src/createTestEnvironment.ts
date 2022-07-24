@@ -22,7 +22,7 @@ export async function createTestEnvironment(debug = true): Promise<Environment> 
     );
 
     await loadFonts();
-    
+
     const fetcher = createFetcher(!debug);
     const env = new Environment(
         canvas,
@@ -40,8 +40,16 @@ export async function createTestEnvironment(debug = true): Promise<Environment> 
             if (evt.key === "`") {
                 env.drawSnapshot();
                 const canv = env.renderer.domElement;
-                const canvResize = createUICanvas(Math.floor(canv.width / 2), Math.floor(canv.height / 2));
-                console.log(canvResize);
+                const aspectRatio = canv.width / canv.height;
+                let width = 640;
+                let height = 480;
+                if (aspectRatio >= 1) {
+                    width = height * aspectRatio;
+                }
+                else {
+                    height = width / aspectRatio;
+                }
+                const canvResize = createUICanvas(width, height);
                 const gResize = canvResize.getContext("2d", { alpha: false, desynchronized: true });
                 gResize.drawImage(canv, 0, 0, canv.width, canv.height, 0, 0, canvResize.width, canvResize.height);
                 let blob: Blob = null;
@@ -60,16 +68,15 @@ export async function createTestEnvironment(debug = true): Promise<Environment> 
                         console.warn("Image was pretty big");
                     }
 
-                    const file = URL.createObjectURL(blob);
-                    window.open(file);
-
                     const form = new FormData();
                     form.append("File", blob, "thumbnail.jpg");
-                    const result = await fetcher.post(location.href)
+                    await fetcher.post(location.href)
                         .body(form)
                         .exec();
 
-                    console.log(result);
+                    const path = location.href.replace("/app/", "/js/") + "-app/thumbnail.jpg";
+                    console.log(path);
+                    window.open(path);
                 }
             }
         });

@@ -22145,8 +22145,15 @@ async function createTestEnvironment(debug = true) {
       if (evt.key === "`") {
         env.drawSnapshot();
         const canv = env.renderer.domElement;
-        const canvResize = createUICanvas(Math.floor(canv.width / 2), Math.floor(canv.height / 2));
-        console.log(canvResize);
+        const aspectRatio = canv.width / canv.height;
+        let width2 = 640;
+        let height2 = 480;
+        if (aspectRatio >= 1) {
+          width2 = height2 * aspectRatio;
+        } else {
+          height2 = width2 / aspectRatio;
+        }
+        const canvResize = createUICanvas(width2, height2);
         const gResize = canvResize.getContext("2d", { alpha: false, desynchronized: true });
         gResize.drawImage(canv, 0, 0, canv.width, canv.height, 0, 0, canvResize.width, canvResize.height);
         let blob = null;
@@ -22162,12 +22169,12 @@ async function createTestEnvironment(debug = true) {
           if (blob.size > MAX_IMAGE_SIZE) {
             console.warn("Image was pretty big");
           }
-          const file = URL.createObjectURL(blob);
-          window.open(file);
           const form = new FormData();
           form.append("File", blob, "thumbnail.jpg");
-          const result = await fetcher.post(location.href).body(form).exec();
-          console.log(result);
+          await fetcher.post(location.href).body(form).exec();
+          const path = location.href.replace("/app/", "/js/") + "-app/thumbnail.jpg";
+          console.log(path);
+          window.open(path);
         }
       }
     });
