@@ -5,12 +5,17 @@
 }
 
 @section Head {
-    <meta property="og:site_name" content="Sean T. McBeth - @Model.Name">
-    <meta property="og:image" content="@Model.ThumbnailPath" data-rh="true">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta property="og:image" content="https://seanmcbeth.com/@Model.ThumbnailPath" data-rh="true">
+    <meta property="og:title" content="Sean T. McBeth - @Model.Name">
+    @if (Model.Description is not null)
+    {
+        <meta property="og:description" content="@Model.Description">
+    }
     <bundle-js name="three" versioned />
     <bundle-js name="@(Model.Name + "-app")" versioned />
     <style>
-        body{ 
+        body {
             background: fixed center/cover url(@Model.ThumbnailPath);
         }
     </style>

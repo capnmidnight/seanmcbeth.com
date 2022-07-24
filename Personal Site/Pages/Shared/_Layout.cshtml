@@ -1,10 +1,12 @@
 ﻿<!DOCTYPE html>
-<html lang="en-us">
+<html lang="en-us"  prefix="og: http://ogp.me/ns#">
 
 <head>
     <meta charset="utf-8" />
     <title>@ViewData["Title"]</title>
     <meta name="viewport" content="width=device-width, shrink-to-fit=0, initial-scale=1.0" />
+    <meta name="twitter:creator" content="@@Sean_McBeth">
+    <meta property="og:site_name" content="Sean T. McBeth's Personal Site">
     @if (ViewData["Keywords"] is not null)
     {
         <meta name="keywords" content="@ViewData["Keywords"]" />

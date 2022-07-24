@@ -7,11 +7,11 @@ namespace SeanMcBeth.Pages
 {
     public class AppModel : PageModel
     {
-        private static readonly DirectoryInfo appRoot =
+        private static readonly DirectoryInfo appsRoot =
             new DirectoryInfo("wwwroot").CD("js");
 
         public static readonly string[] AppNames =
-            appRoot
+            appsRoot
                 .EnumerateDirectories()
                 .Where(d => d.Name.EndsWith("-app")
                     && d.Name.ToLowerInvariant() != "junk-app"
@@ -30,8 +30,14 @@ namespace SeanMcBeth.Pages
         [BindProperty(SupportsGet = true), FromRoute]
         public string? Name { get; set; }
 
+        private DirectoryInfo AppRoot => appsRoot.CD(Name + "-app");
+
         public string ThumbnailPath => string.Join('/', "", "js", Name + "-app", "thumbnail.jpg");
-        private FileInfo ThumbnailFile => appRoot.CD(Name + "-app").Touch("thumbnail.jpg");
+        private FileInfo ThumbnailFile => AppRoot.Touch("thumbnail.jpg");
+
+        private FileInfo DescriptionFile => AppRoot.Touch("description.txt");
+
+        public string? Description => DescriptionFile.MaybeReadText();
 
         public IActionResult OnGet()
         {
