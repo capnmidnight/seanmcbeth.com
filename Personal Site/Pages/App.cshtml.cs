@@ -7,14 +7,13 @@ namespace SeanMcBeth.Pages
 {
     public class AppModel : PageModel
     {
-        private static readonly DirectoryInfo appsRoot =
+        private static readonly DirectoryInfo AppsRoot =
             new DirectoryInfo("wwwroot").CD("js");
 
         public static readonly string[] AppNames =
-            appsRoot
+            AppsRoot
                 .EnumerateDirectories()
                 .Where(d => d.Name.EndsWith("-app")
-                    && d.Name.ToLowerInvariant() != "junk-app"
                     && d.Touch("index.js").Exists)
                 .Select(d => d.Name[0..^4])
                 .OrderBy(d => d)
@@ -30,10 +29,9 @@ namespace SeanMcBeth.Pages
         [BindProperty(SupportsGet = true), FromRoute]
         public string? Name { get; set; }
 
-        private DirectoryInfo AppRoot => appsRoot.CD(Name + "-app");
+        private DirectoryInfo AppRoot => AppsRoot.CD(Name + "-app");
 
         public string ThumbnailPath => string.Join('/', "js", Name + "-app", "thumbnail.jpg");
-        private FileInfo ThumbnailFile => AppRoot.Touch("thumbnail.jpg");
 
         private FileInfo DescriptionFile => AppRoot.Touch("description.txt");
 
@@ -50,6 +48,11 @@ namespace SeanMcBeth.Pages
         }
 
 #if DEBUG
+        private static readonly DirectoryInfo SrcsRoot =
+            new DirectoryInfo("src");
+        private DirectoryInfo SrcRoot => SrcsRoot.CD(Name + "-app");
+        private FileInfo ThumbnailFile => SrcRoot.Touch("thumbnail.jpg");
+
         public async Task<IActionResult> OnPostAsync([FromForm] FileInput input)
         {
             if (!env.IsDevelopment()
