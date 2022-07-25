@@ -1,1 +1,1 @@
-﻿A test of drawing dirt heightmaps
+﻿A test of drawing dirt heightmaps.

@@ -7,19 +7,14 @@ namespace SeanMcBeth
         public static readonly string ProjectName = "Personal Site";
         public static readonly BuildSystemOptions BuildSystemOptions;
 
+        private static readonly string[] FilesToTry =
+        {
+            "description.txt",
+            "thumbnail.jpg"
+        };
+
         static BuildConfig()
         {
-            BuildSystemOptions = new()
-            {
-                Dependencies = new()
-                {
-                    { "Three.js", ("node_modules/three/build/three.js", "wwwroot/js/three/index.js") },
-                    { "Three.js min", ("node_modules/three/build/three.min.js", "wwwroot/js/three/index.min.js") },
-
-                    { "Cursor", ("../Juniper/etc/Assets/Models/Cursors/Cursors.glb", "wwwroot/models/Cursors.glb") }
-                }
-            };
-
             var workingDir = new DirectoryInfo(".");
             var here = workingDir;
             while (here is not null && !here.CD(ProjectName, "src").Exists)
@@ -27,18 +22,65 @@ namespace SeanMcBeth
                 here = here.Parent;
             }
 
-            if(here is not null)
+            if (here is not null)
             {
-                here = here.CD(ProjectName, "src");
+                var juniperAssets = here.CD("Juniper", "etc", "Assets");
+                var projectDir = here.CD(ProjectName);
+                var nodeModules = projectDir.CD("node_modules");
+                var threeJsIn = nodeModules.CD("three", "build");
+                var jsInput = projectDir.CD("src");
+                var wwwRoot = projectDir.CD("wwwroot");
+                var jsOutput = wwwRoot.CD("js");
+                var threeJsOut = jsOutput.CD("three");
+                var modelOutput = wwwRoot.CD("models");
+                var audioOutput = wwwRoot.CD("audio");
+                var imgOutput = wwwRoot.CD("img");
+                var uiImgOUtput = imgOutput.CD("ui");
+                var juniperTextures = juniperAssets.CD("Textures");
+                var juniperAudio = juniperAssets.CD("Audio");
+                var juniperModels = juniperAssets.CD("Models");
+                var juniperModelsForest = juniperModels.CD("Forest");
 
-                foreach(var there in here.EnumerateDirectories())
+                BuildSystemOptions = new()
                 {
-                    var desc = there.Touch("description.txt");
-                    if (desc.Exists)
+                    Dependencies = new()
                     {
-                        var source = PathExt.Abs2Rel(desc.FullName, workingDir.FullName);
+                        { "Three.js", (threeJsIn.Touch("three.js"), threeJsOut.Touch("index.js")) },
+                        { "Three.js min", (threeJsIn.Touch("three.min.js"), threeJsOut.Touch("index.min.js")) },
+                        { "Cursor", (juniperModels.CD("Cursors").Touch("Cursors.glb"), modelOutput.Touch("Cursors.glb")) },
+                        { "Forest-Ground", (juniperModelsForest.Touch("Forest-Ground.glb"), modelOutput.Touch("Forest-Ground.glb")) },
+                        { "Forest-Tree", (juniperModelsForest.Touch("Forest-Tree.glb"), modelOutput.Touch("Forest-Tree.glb")) },
+                        { "Test Audio", (juniperAudio.CD("Star Trek").Touch("computerbeep_55.mp3"),  audioOutput.Touch("test-clip.mp3")) }
+                    }
+                };
 
-                        BuildSystemOptions.Dependencies.Add(there.Name + " Description", (source, $"wwwroot/js/{there.Name}/description.txt"));
+                foreach(var file in juniperAudio.EnumerateFiles())
+                {
+                    if(file.Name.StartsWith("basic_")
+                        && file.Extension == ".mp3")
+                    {
+                        BuildSystemOptions.Dependencies.Add("Audio: " + file.Name, (file, audioOutput.Touch(file.Name)));
+                    }
+                }
+
+                foreach (var file in juniperTextures.CD("UI").EnumerateFiles())
+                {
+                    BuildSystemOptions.Dependencies.Add(file.Name, (file, uiImgOUtput.Touch(file.Name)));
+                }
+
+                foreach (var appInDir in jsInput.EnumerateDirectories())
+                {
+                    if (appInDir.Name.EndsWith("-app")
+                        && appInDir.Touch("index.ts").Exists)
+                    {
+                        var appOutDir = jsOutput.CD(appInDir.Name);
+                        foreach (var fileName in FilesToTry)
+                        {
+                            var file = appInDir.Touch(fileName);
+                            BuildSystemOptions.Dependencies.Add(
+                                $"{appInDir.Name} {Path.GetFileNameWithoutExtension(file.Name)}",
+                                (file, appOutDir.Touch(file.Name)));
+                        }
                     }
                 }
             }
