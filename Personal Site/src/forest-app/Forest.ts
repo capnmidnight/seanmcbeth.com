@@ -95,6 +95,7 @@ export class Forest {
         this.navMesh.navigable = true;
         this.navMesh.addEventListener("click", async (evt) => {
             if (evt.pointer.canTeleport) {
+                this.env.audio.playClip("footsteps");
                 await this.env.fadeOut();
                 this.env.avatar.stage.position.copy(evt.hit.point);
                 this.env.avatar.stage.position.y += defaultAvatarHeight;

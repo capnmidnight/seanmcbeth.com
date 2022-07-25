@@ -48,20 +48,20 @@ namespace SeanMcBeth
                         { "Three.js", (threeJsIn.Touch("three.js"), threeJsOut.Touch("index.js")) },
                         { "Three.js min", (threeJsIn.Touch("three.min.js"), threeJsOut.Touch("index.min.js")) },
                         { "Cursor", (juniperModels.CD("Cursors").Touch("Cursors.glb"), modelOutput.Touch("Cursors.glb")) },
-                        { "Forest-Ground", (juniperModelsForest.Touch("Forest-Ground.glb"), modelOutput.Touch("Forest-Ground.glb")) },
-                        { "Forest-Tree", (juniperModelsForest.Touch("Forest-Tree.glb"), modelOutput.Touch("Forest-Tree.glb")) },
-                        { "Test Audio", (juniperAudio.CD("Star Trek").Touch("computerbeep_55.mp3"),  audioOutput.Touch("test-clip.mp3")) }
+                        { "Forest Ground", (juniperModelsForest.Touch("Forest-Ground.glb"), modelOutput.Touch("Forest-Ground.glb")) },
+                        { "Forest Tree", (juniperModelsForest.Touch("Forest-Tree.glb"), modelOutput.Touch("Forest-Tree.glb")) },
+                        { "Forest Audio", (juniperAudio.Touch("forest.mp3"),  audioOutput.Touch("forest.mp3")) },
+                        { "Test Audio", (juniperAudio.CD("Star Trek").Touch("computerbeep_55.mp3"),  audioOutput.Touch("test-clip.mp3")) },
+                        { "Footsteps", (juniperAudio.Touch("footsteps_fast.mp3"),  audioOutput.Touch("footsteps.mp3")) },
+                        { "Button Press", (juniperAudio.Touch("vintage_radio_button_pressed.mp3"),  audioOutput.Touch("vintage_radio_button_pressed.mp3")) },
+                        { "Door Open", (juniperAudio.Touch("door_open.mp3"),  audioOutput.Touch("door_open.mp3")) },
+                        { "Door Close", (juniperAudio.Touch("door_close.mp3"),  audioOutput.Touch("door_close.mp3")) },
+                        { "UI Dragged", (juniperAudio.Touch("basic_dragged.mp3"),  audioOutput.Touch("basic_dragged.mp3")) },
+                        { "UI Enter", (juniperAudio.Touch("basic_enter.mp3"),  audioOutput.Touch("basic_enter.mp3")) },
+                        { "UI Error", (juniperAudio.Touch("basic_error.mp3"),  audioOutput.Touch("basic_error.mp3")) },
+                        { "UI Exit", (juniperAudio.Touch("basic_exit.mp3"),  audioOutput.Touch("basic_exit.mp3")) }
                     }
                 };
-
-                foreach(var file in juniperAudio.EnumerateFiles())
-                {
-                    if(file.Name.StartsWith("basic_")
-                        && file.Extension == ".mp3")
-                    {
-                        BuildSystemOptions.Dependencies.Add("Audio: " + file.Name, (file, audioOutput.Touch(file.Name)));
-                    }
-                }
 
                 foreach (var file in juniperTextures.CD("UI").EnumerateFiles())
                 {

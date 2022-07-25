@@ -22033,7 +22033,7 @@ var Environment = class extends BaseEnvironment {
     } else {
       prog = progOrAsset;
     }
-    const footsteps = new AssetAudio("/audio/TransitionFootstepAudio.mp3", Audio_Mpeg, !this.DEBUG);
+    const footsteps = new AssetAudio("/audio/footsteps.mp3", Audio_Mpeg, !this.DEBUG);
     const enter = new AssetAudio("/audio/basic_enter.mp3", Audio_Mpeg, !this.DEBUG);
     const exit = new AssetAudio("/audio/basic_exit.mp3", Audio_Mpeg, !this.DEBUG);
     const error = new AssetAudio("/audio/basic_error.mp3", Audio_Mpeg, !this.DEBUG);
@@ -22250,6 +22250,7 @@ var Forest = class {
     this.navMesh.navigable = true;
     this.navMesh.addEventListener("click", async (evt) => {
       if (evt.pointer.canTeleport) {
+        this.env.audio.playClip("footsteps");
         await this.env.fadeOut();
         this.env.avatar.stage.position.copy(evt.hit.point);
         this.env.avatar.stage.position.y += defaultAvatarHeight;
