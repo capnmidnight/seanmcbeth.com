@@ -1,7 +1,11 @@
 ﻿@{
     var title = ViewData["Title"] as string;
+    var subURL = ViewData["SubURL"] as string;
+    var description = ViewData["Description"] as string;
+    var thumbnail = ViewData["Thumbnail"] as string;
     var showMenu = (ViewData["HideMenu"] as bool?) != true;
-    var keywords = @ViewData["Keywords"] as string;
+    var keywords = ViewData["Keywords"] as string;
+    var twitterCardType = thumbnail is null ? "summary" : "summary_large_image";
 }
 <!DOCTYPE html>
 <html lang="en-us" prefix="og: http://ogp.me/ns#">
@@ -10,24 +14,49 @@
     <meta charset="utf-8" />
     <title>@title</title>
     <meta name="viewport" content="width=device-width, shrink-to-fit=0, initial-scale=1.0" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta property="og:site_name" content="Sean T. McBeth's Personal Site" />
+    <meta name="twitter:card" content="@twitterCardType" />
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Sean T. McBeth - Software Engineer" />
     <meta property="og:locale" content="en_US">
     <meta name="twitter:site" content="@@Sean_McBeth" />
-    <meta name="twitter:title" content="@title" />
-    <meta property="og:title" content="@title" />
+    @if (subURL is not null)
+    {
+        <meta property="og:url" content="https://seanmcbeth.com/@subURL">
+    }
+    @if (title is not null)
+    {
+        <meta name="twitter:title" content="@title" />
+        <meta property="og:title" content="@title" />
+    }
     @if (keywords is not null)
     {
         <meta name="keywords" content="@keywords" />
     }
+    @if (description is not null)
+    {
+        <meta name="twitter:description" content="@description">
+        <meta property="og:description" content="@description">
+    }
+    @if (thumbnail is not null)
+    {
+        <meta name="twitter:image" content="https://seanmcbeth.com/@thumbnail">
+        <meta property="og:image" content="https://seanmcbeth.com/@thumbnail">
+        @if (description is not null)
+        {
+            <meta name="twitter:image:alt" content="@description">
+            <meta property="og:image:alt" content="@description">
+        }
+    }
+
     <link rel="stylesheet" type="text/css" href="~/css/index.css">
+
     @RenderSection("Head", required: false)
 </head>
 
 <body>
-    <header>
-        @if (showMenu)
-        {
+    @if (showMenu)
+    {
+        <header>
             <nav id="menu">
                 <ul>
                     @RenderSection("Menu", required: false)
@@ -51,8 +80,8 @@
                     </li>
                 </ul>
             </nav>
-        }
-    </header>
+        </header>
+    }
 
     <main>
         @RenderBody()

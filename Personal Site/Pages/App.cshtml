@@ -2,21 +2,13 @@
 @model AppModel
 @{
     ViewData["Title"] = Model.Name;
+    ViewData["SubURL"] = "app/" + Model.Name;
+    ViewData["Description"] = Model.Description;
+    ViewData["Thumbnail"] = Model.ThumbnailPath;
     ViewData["HideMenu"] = true;
 }
 
 @section Head {
-    <meta property="og:type" content="website">
-    <meta name="twitter:image" content="https://seanmcbeth.com/@Model.ThumbnailPath">
-    <meta property="og:image" content="https://seanmcbeth.com/@Model.ThumbnailPath">
-    <meta property="og:url" content="https://seanmcbeth.com/app/@Model.Name">
-    @if (Model.Description is not null)
-    {
-        <meta name="twitter:image:alt" content="@Model.Description">
-        <meta name="twitter:description" content="@Model.Description">
-        <meta property="og:image:alt" content="@Model.Description">
-        <meta property="og:description" content="@Model.Description">
-    }
     <bundle-js name="three" versioned />
     <bundle-js name="@(Model.Name + "-app")" versioned />
     <style>
