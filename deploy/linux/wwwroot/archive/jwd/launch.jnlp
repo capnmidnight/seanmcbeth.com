@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<jnlp codebase="http://www.wedusc.com/jwd/" href="launch.jnlp" spec="6.0+">
+    <information>
+        <title>JustWriteDammit</title>
+        <vendor>Sean McBeth</vendor>
+        <homepage href="http://www.wedusc.com/jwd"/>
+        <description>A writing program for encouraging writing, not for encouraging editing.</description>
+        <description kind="short">JustWriteDammit</description>
+        <shortcut online="true">
+            <desktop/>
+        </shortcut>
+        <update check="always" policy="prompt-update"/>
+        <icon href="jwd_splash.png" kind="splash"/>
+        <icon href="jwd.png" kind="default"/>
+        <offline-allowed/>
+    <offline-allowed/>
+</information>
+    <update check="background"/>
+    <security>
+<all-permissions/>
+</security>
+    <resources>
+        <j2se version="1.6+"/>
+        <jar href="JustWriteDammit.jar" main="true"/>
+    </resources>
+    <application-desc main-class="com.wedusc.justwritedammit.Program">
+    </application-desc>
+</jnlp>

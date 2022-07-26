@@ -1,7 +1,10 @@
 using Juniper.Services;
-using Juniper.TSBuild;
 
 using Microsoft.AspNetCore.HttpLogging;
+
+#if DEBUG
+using Juniper.TSBuild;
+#endif
 
 
 namespace SeanMcBeth
@@ -10,7 +13,9 @@ namespace SeanMcBeth
     {
         private readonly IWebHostEnvironment env;
         private readonly IConfiguration config;
+#if DEBUG
         private BuildSystem? build;
+#endif
 
         public Startup(IConfiguration configuration, IWebHostEnvironment environment)
         {
@@ -27,6 +32,7 @@ namespace SeanMcBeth
 
             if (env.IsDevelopment())
             {
+#if DEBUG
                 try
                 {
                     build = new BuildSystem(
@@ -38,6 +44,7 @@ namespace SeanMcBeth
                 {
                     Console.WriteLine("WARNING: {0}", exp.Message);
                 }
+#endif
 
                 services.AddHttpLogging(opts =>
                 {

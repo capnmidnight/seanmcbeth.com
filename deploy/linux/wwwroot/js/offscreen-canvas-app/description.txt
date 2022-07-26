@@ -1,0 +1,1 @@
+﻿A minimal demo of using HTMLCanvasElement's transferToOffscreen() method.

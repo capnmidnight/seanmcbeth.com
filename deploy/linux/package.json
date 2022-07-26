@@ -1,0 +1,44 @@
+{
+  "version": "1.2.3",
+  "name": "seanmcbeth-com",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node --experimental-modules esbuild.config.js",
+    "watch": "node --experimental-modules esbuild.config.js --watch",
+    "check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@juniper-lib/esbuild": "file:../Juniper/src/Juniper.TypeScript/@juniper-lib/esbuild",
+    "@juniper-lib/testing": "file:../Juniper/src/Juniper.TypeScript/@juniper-lib/testing",
+    "@juniper-types/dom-types": "file:../Juniper/src/Juniper.TypeScript/@juniper-types/dom-types",
+    "@juniper-types/extra-types": "file:../Juniper/src/Juniper.TypeScript/@juniper-types/extra-types",
+    "@juniper-types/indexdb": "file:../Juniper/src/Juniper.TypeScript/@juniper-types/indexdb",
+    "@types/dom-mediacapture-record": "1.0.11",
+    "@types/offscreencanvas": "2019.7.0",
+    "@types/three": "0.142.0",
+    "@types/web-bluetooth": "0.0.14",
+    "@types/webxr": "0.5.0",
+    "@typescript/analyze-trace": "0.9.0",
+    "esbuild": "0.14.43",
+    "esbuild-plugin-glsl": "1.1.0"
+  },
+  "dependencies": {
+    "@juniper-lib/graphics2d": "file:../Juniper/src/Juniper.TypeScript/@juniper-lib/graphics2d",
+    "@juniper-lib/audio": "file:../Juniper/src/Juniper.TypeScript/@juniper-lib/audio",
+    "@juniper-lib/dom": "file:../Juniper/src/Juniper.TypeScript/@juniper-lib/dom",
+    "@juniper-lib/emoji": "file:../Juniper/src/Juniper.TypeScript/@juniper-lib/emoji",
+    "@juniper-lib/environment": "file:../Juniper/src/Juniper.TypeScript/@juniper-lib/environment",
+    "@juniper-lib/fetcher": "file:../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher",
+    "@juniper-lib/mediatypes": "file:../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes",
+    "@juniper-lib/tests": "file:../Juniper/src/Juniper.TypeScript/@juniper-lib/tests",
+    "@juniper-lib/threejs": "file:../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs",
+    "@juniper-lib/tslib": "file:../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib",
+    "@juniper-lib/webrtc": "file:../Juniper/src/Juniper.TypeScript/@juniper-lib/webrtc",
+    "@juniper-lib/workers": "file:../Juniper/src/Juniper.TypeScript/@juniper-lib/workers",
+    "gl-matrix": "3.4.3",
+    "pdfjs-dist": "2.14.305",
+    "three": "0.142.0",
+    "typescript": "4.7.3"
+  }
+}

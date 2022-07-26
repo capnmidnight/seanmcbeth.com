@@ -1,7 +1,8 @@
 sudo systemctl stop SeanMcBeth.Site
 
-dotnet clean ~/src/seanmcbeth.com/Personal\ Site -c Release -o ~/bin/SeanMcBeth.Site
-rm -rf ~/bin/SeanMcBeth.Site/wwwroot/js/
-dotnet publish ~/src/seanmcbeth.com/Personal\ Site -c Release -o ~/bin/SeanMcBeth.Site
+mv ~/bin/SeanMcBeth.Site/certs ~/bin/SeanMcBeth.Site.Certs
+rm -rf ~/bin/SeanMcBeth.Site/*
+cp -r ~/src/seanmcbeth.com/deploy/linux/* ~/bin/SeanMcBeth.Site
+mv ~/bin/SeanMcBeth.Site.Certs ~/bin/SeanMcBeth.Site/certs
 
 sudo systemctl start SeanMcBeth.Site

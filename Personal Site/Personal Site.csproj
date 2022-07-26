@@ -35,9 +35,12 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\BuildConfig\BuildConfig.csproj" />
 		<ProjectReference Include="..\Juniper\src\Juniper.Root\Juniper.Root.csproj" />
 		<ProjectReference Include="..\Juniper\src\Juniper.Server\Juniper.Server.csproj" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(Configuration)'=='Debug'">
+		<ProjectReference Include="..\BuildConfig\BuildConfig.csproj" />
 		<ProjectReference Include="..\Juniper\src\Juniper.TSBuild\Juniper.TSBuild.csproj" />
 	</ItemGroup>
 

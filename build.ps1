@@ -1,3 +1,2 @@
 dotnet run --project .\Build\
-git add -A
-git commit -m $v
+dotnet publish '.\Personal Site\' --configuration Release --no-self-contained --runtime linux-x64 --output .\deploy\linux

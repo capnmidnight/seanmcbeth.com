@@ -1,0 +1,173 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<title>DHTML Map Widget</title>
+<!--<link rel="stylesheet" type="text/css" href="*.css"/>-->
+<script type="text/javascript" src="map.js"></script>
+<script type="text/javascript">
+var __N = 0;
+function P()
+{
+	alert(__N++);
+}
+function Buffer(w, h)
+{
+	this.width = w + 2;  // additional gutter
+	this.height = h + 2; // additional gutter
+	this.arr = new Array(this.width * this.height);	
+	this.x = 0;
+	this.y = 0;
+	this.block = null;
+	this.dirty = true;
+}
+var tileWidth = 80;
+var tileHeight = 60;
+Buffer.prototype.invalidate = function()
+{
+	this.dirty = true;
+}
+Buffer.prototype.write = function()
+{
+	this.block = document.createElement("div");
+	this.block.id = "mapBlock";
+	this.block.style.position = "absolute";
+	this.block.style.overflow = "hidden";
+	this.block.style.width = tileWidth * (this.width-2) + "px";
+	this.block.style.height = tileHeight * (this.height-2) + "px";
+	this.block.style.border = "solid 1px black";
+	document.getElementById("body").appendChild(this.block);
+	for(var y = 0; y < this.height; ++y)
+	{
+		for(var x = 0; x < this.width; ++x)
+		{
+			var tile = new Image(tileWidth, tileHeight);
+			tile.src = "img"+map[y].charAt(x)+".png";
+			tile.id = "tx"+x+"y"+y;
+			tile.style.position = "absolute";
+			tile.style.left = tileWidth*(x-1) + "px";
+			tile.style.top = tileHeight*(y-1) + "px";
+			tile.style.zIndex = 0;
+			this.arr[y*this.width + x] = tile;
+			this.block.appendChild(tile);
+		}
+	}
+	this.overview = new Image();
+	this.overview.src="map.png";
+	this.overview.style.position="absolute";
+	this.overview.style.left="0px";
+	this.overview.style.top ="0px";
+	this.overview.style.border="solid 1px red";
+	this.overview.style.zIndex = 1;
+	this.block.appendChild(this.overview);
+	
+	this.box = document.createElement("div");
+	this.box.style.position="absolute";
+	this.box.style.left="0px";
+	this.box.style.top="0px";
+	this.box.style.width=this.width+"px";
+	this.box.style.height=this.height+"px";
+	this.box.style.border="solid 1px red";
+	this.box.style.overflow="hidden";
+	this.box.style.backgroundColor="orange";
+	this.box.style.filter ="progid:DXImageTransform.Microsoft.Alpha(opacity=50)";
+	this.box.style.zIndex = 2;
+	this.block.appendChild(this.box);
+	
+}
+Buffer.prototype.move = function(dx, dy)
+{
+	this.x += dx;
+	this.y += dy;
+	this.invalidate();
+}
+Buffer.prototype.update = function()
+{
+	var cx = this.x % tileWidth;
+	var cy = this.y % tileHeight;
+	//debug("C("+cx+","+cy+")");
+	var tx = Math.floor(this.x / tileWidth);
+	var ty = Math.floor(this.y / tileHeight);
+	this.box.style.left=tx+"px";
+	this.box.style.top=ty+"px";
+	//debug("t("+tx+","+ty+")");
+	for(var dy = 0; dy < this.height; ++dy)
+	{
+		var y = ty + dy;
+		while(y < 0) y+=mapHeight;
+		while(y >= mapHeight) y-=mapHeight;
+		for(var dx = 0; dx < this.width; ++dx)
+		{
+			var x = tx + dx;
+			while(x < 0) x+=mapWidth;
+			while(x >= mapWidth) x-=mapWidth;
+			var n = dx + dy* this.width;
+			this.arr[n].src="img"+map[y].charAt(x)+".png";
+			this.arr[n].style.left = tileWidth * (dx-1) - cx;
+			this.arr[n].style.top = tileHeight * (dy-1) - cy;
+		}
+	}
+	this.dirty = false;
+	
+}
+var mapBlock = null;
+var mousedown = false;
+var mx = 0;
+var my = 0;
+function init()
+{
+	try
+	{
+		mapBlock = new Buffer(10, 10);
+		mapBlock.write();
+	}
+	catch(exp)
+	{
+		alert(exp.message);
+	}
+
+	document.onmousedown = function()
+	{
+		mousedown = true;
+		mx = event.clientX;
+		my = event.clientY;
+	}
+	document.onmouseup = function()
+	{
+		mousedown = false;
+	//	debug("");
+	}
+	document.onmousemove = function()
+	{
+		if(mousedown) drag();
+	}
+	check();
+}
+function drag()
+{
+	var cx = event.clientX;
+	var cy = event.clientY;
+	var dx = cx - mx;
+	var dy = cy - my;
+	mx = cx;
+	my = cy;
+	mapBlock.move(-dx, -dy);
+}
+function debug(msg)
+{
+	document.getElementById("msg").innerText = msg;
+}
+function check()
+{
+	if(mapBlock.dirty)
+	{
+		mapBlock.update();
+	}
+	setTimeout("check()", 100);
+}
+</script>
+</head>
+<body id="body" onload="init()">
+<div id="msg"></div>
+</body>
+</html>
