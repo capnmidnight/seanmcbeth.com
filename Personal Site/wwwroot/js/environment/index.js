@@ -11278,14 +11278,11 @@ var BodyFollower = class extends THREE.Object3D {
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/AssetGltfModel.ts
 var AssetGltfModel = class extends BaseFetchedAsset {
-  constructor(path, type2, useCache) {
+  constructor(env, path, type2, useCache) {
     if (!Model_Gltf_Binary.matches(type2) && !Model_Gltf_Json.matches(type2)) {
       throw new Error("Only GLTF model types are currently supported");
     }
     super(path, type2, useCache);
-    this.env = null;
-  }
-  setEnvironment(env) {
     this.env = env;
   }
   async getResponse(request) {
@@ -11293,9 +11290,6 @@ var AssetGltfModel = class extends BaseFetchedAsset {
     return translateResponse(response, (file) => this.env.loadGltf(file));
   }
 };
-function isGltfAsset(obj2) {
-  return isDefined(obj2) && isFunction(obj2.setEnvironment) && isAsset(obj2);
-}
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/evts.ts
 function isModifierless(evt) {
@@ -20119,13 +20113,8 @@ var BaseEnvironment = class extends TypedEventBase {
     } else {
       prog = progOrAsset;
     }
-    const cursor3d = new AssetGltfModel("/models/Cursors.glb", Model_Gltf_Binary, !this.DEBUG);
+    const cursor3d = new AssetGltfModel(this, "/models/Cursors.glb", Model_Gltf_Binary, !this.DEBUG);
     assets.push(cursor3d);
-    for (const asset of assets) {
-      if (isGltfAsset(asset)) {
-        asset.setEnvironment(this);
-      }
-    }
     await this.fetcher.assets(prog, ...assets);
     convertMaterials(cursor3d.result.scene, materialStandardToBasic);
     this.set3DCursor(cursor3d.result.scene);

@@ -3217,14 +3217,11 @@ async function createTestEnvironment(debug = true) {
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/AssetGltfModel.ts
 var AssetGltfModel = class extends BaseFetchedAsset {
-  constructor(path, type2, useCache) {
+  constructor(env, path, type2, useCache) {
     if (!Model_Gltf_Binary.matches(type2) && !Model_Gltf_Json.matches(type2)) {
       throw new Error("Only GLTF model types are currently supported");
     }
     super(path, type2, useCache);
-    this.env = null;
-  }
-  setEnvironment(env) {
     this.env = env;
   }
   async getResponse(request) {
@@ -3948,9 +3945,9 @@ var Forest = class {
     this.env = env;
     this.assets = [
       this.skybox = new AssetImage("/skyboxes/BearfenceMountain.jpeg", Image_Jpeg, !isDebug),
-      this.forest = new AssetGltfModel("/models/Forest-Ground.glb", Model_Gltf_Binary, !isDebug),
+      this.forest = new AssetGltfModel(this.env, "/models/Forest-Ground.glb", Model_Gltf_Binary, !isDebug),
       this.bgAudio = new AssetAudio("/audio/forest.mp3", Audio_Mpeg, !isDebug),
-      this.tree = new AssetGltfModel("/models/Forest-Tree.glb", Model_Gltf_Binary, !isDebug)
+      this.tree = new AssetGltfModel(this.env, "/models/Forest-Tree.glb", Model_Gltf_Binary, !isDebug)
     ];
     this.raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0), 0.1, 100);
     this.hits = new Array();
