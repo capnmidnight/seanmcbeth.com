@@ -79,10 +79,6 @@ export async function createTestEnvironment(debug = true): Promise<Environment> 
                     await fetcher.post(location.href)
                         .body(form)
                         .exec();
-
-                    const path = location.href.replace("/app/", "/js/") + "-app/thumbnail.jpg";
-                    console.log(path);
-                    window.open(path);
                 }
             }
         });
