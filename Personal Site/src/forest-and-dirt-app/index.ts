@@ -1,7 +1,7 @@
 ﻿import { createUtilityCanvas } from "@juniper-lib/dom/canvas";
 import { AssetImage } from "@juniper-lib/fetcher";
 import { Image_Jpeg } from "@juniper-lib/mediatypes";
-import { Pointer3DEvent } from "@juniper-lib/threejs/eventSystem/Pointer3DEvent";
+import type { Pointer3DEvent } from "@juniper-lib/threejs/eventSystem/Pointer3DEvent";
 import { RayTarget } from "@juniper-lib/threejs/eventSystem/RayTarget";
 import { mesh } from "@juniper-lib/threejs/objects";
 import { createTestEnvironment } from "../createTestEnvironment";
