@@ -2,10 +2,10 @@
 import { canvasToBlob, createUICanvas } from "@juniper-lib/dom/canvas";
 import { Canvas, Div } from "@juniper-lib/dom/tags";
 import { Image_Jpeg } from "@juniper-lib/mediatypes";
-import { Environment } from "@juniper-lib/threejs/environment/Environment";
+import type { Environment } from "@juniper-lib/threejs/environment/Environment";
+import { EnvironmentModule } from "@juniper-lib/threejs/environment/EnvironmentModule";
 import { isNullOrUndefined, toBytes } from "@juniper-lib/tslib";
 import { createFetcher } from "./createFetcher";
-import { isDebug } from "./isDebug";
 import { defaultAvatarHeight, defaultFont, enableFullResolution, getUIImagePaths, loadFonts } from "./settings";
 
 export async function createTestEnvironment(debug = true): Promise<Environment> {
@@ -24,7 +24,13 @@ export async function createTestEnvironment(debug = true): Promise<Environment> 
     await loadFonts();
 
     const fetcher = createFetcher(!debug);
-    const env = new Environment(
+    const JS_EXT = debug ? ".js" : ".min.js";
+    const { default: EnvironmentConstructor } = await fetcher
+        .get(`/js/environment/index${JS_EXT}`)
+        .useCache(!debug)
+        .module<EnvironmentModule>();
+
+    const env = new EnvironmentConstructor(
         canvas,
         fetcher,
         defaultFont.fontFamily,
@@ -34,7 +40,7 @@ export async function createTestEnvironment(debug = true): Promise<Environment> 
         DEBUG: debug
     });
 
-    if (isDebug) {
+    if (debug) {
         const MAX_IMAGE_SIZE = toBytes(200, "KiB");
         window.addEventListener("keypress", async (evt) => {
             if (evt.key === "`") {

@@ -1,19 +1,24 @@
-﻿<!DOCTYPE html>
+﻿@{
+    var title = ViewData["Title"] as string;
+    var showMenu = (ViewData["HideMenu"] as bool?) != true;
+    var keywords = @ViewData["Keywords"] as string;
+}
+<!DOCTYPE html>
 <html lang="en-us" prefix="og: http://ogp.me/ns#">
 
 <head>
     <meta charset="utf-8" />
-    <title>@ViewData["Title"]</title>
+    <title>@title</title>
     <meta name="viewport" content="width=device-width, shrink-to-fit=0, initial-scale=1.0" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta property="og:site_name" content="Sean T. McBeth's Personal Site" />
     <meta property="og:locale" content="en_US">
     <meta name="twitter:site" content="@@Sean_McBeth" />
-    <meta name="twitter:title" content="@ViewData["Title"]" />
-    <meta property="og:title" content="@ViewData["Title"]" />
-    @if (ViewData["Keywords"] is not null)
+    <meta name="twitter:title" content="@title" />
+    <meta property="og:title" content="@title" />
+    @if (keywords is not null)
     {
-        <meta name="keywords" content="@ViewData["Keywords"]" />
+        <meta name="keywords" content="@keywords" />
     }
     <link rel="stylesheet" type="text/css" href="~/css/index.css">
     @RenderSection("Head", required: false)
@@ -21,29 +26,32 @@
 
 <body>
     <header>
-        <nav id="menu">
-            <ul>
-                @RenderSection("Menu", required: false)
-                <li>
-                    <a href="~/"
+        @if (showMenu)
+        {
+            <nav id="menu">
+                <ul>
+                    @RenderSection("Menu", required: false)
+                    <li>
+                        <a href="~/"
                        role="menuitem"
                        aria-label="Home"
                        title="Home">home/</a>
-                </li>
-                <li>
-                    <a href="~/vr"
+                    </li>
+                    <li>
+                        <a href="~/vr"
                        role="menuitem"
                        aria-label="Virtual Reality"
                        title="VR"><abbr>vr</abbr>/</a>
-                </li>
-                <li>
-                    <a href="~/other"
+                    </li>
+                    <li>
+                        <a href="~/other"
                        role="menuitem"
                        aria-label="Other info"
                        title="Other">etc/</a>
-                </li>
-            </ul>
-        </nav>
+                    </li>
+                </ul>
+            </nav>
+        }
     </header>
 
     <main>

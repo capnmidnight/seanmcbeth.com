@@ -4,9 +4,7 @@ import { TextImageOptions } from "@juniper-lib/graphics2d/TextImage";
 import { createTestEnvironment } from "../createTestEnvironment";
 
 const buttonStyle: Partial<TextImageOptions> = {
-    bgFillColor: "blue",
-    bgStrokeColor: "white",
-    bgStrokeSize: 0.01,
+    bgFillColor: "#1e4388",
     scale: 500,
     padding: 0.05,
     maxHeight: 0.25,
