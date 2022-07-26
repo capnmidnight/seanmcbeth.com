@@ -7478,6 +7478,9 @@ var BaseAsset = class {
     return this.promise.finally(onfinally);
   }
 };
+function isAsset(obj2) {
+  return isDefined(obj2) && isFunction(obj2.then) && isFunction(obj2.catch) && isFunction(obj2.finally) && isFunction(obj2.fetch) && isFunction(obj2.getSize);
+}
 var BaseFetchedAsset = class extends BaseAsset {
   constructor(path, typeOrUseCache, useCache) {
     let type2;
@@ -9749,9 +9752,8 @@ function getRayTarget(obj2) {
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/widgets/TextMeshButton.ts
 var TextMeshButton = class extends RayTarget {
-  constructor(fetcher, env, name2, value2, textImageOptions) {
+  constructor(env, name2, value2, textImageOptions) {
     super(obj(name2));
-    this.fetcher = fetcher;
     this.env = env;
     if (isDefined(value2)) {
       textImageOptions = Object.assign({
@@ -9848,10 +9850,10 @@ var ConfirmationDialog = class extends DialogBox {
     this.confirmButton.innerText = "Yes";
     this.cancelButton.innerText = "No";
     this.mesh = new TextMesh(this.env, "confirmationDialogLabel", newStyle(textLabelStyle, fontFamily));
-    this.confirmButton3D = new TextMeshButton(this.env.fetcher, this.env, "confirmationDialogConfirmButton", "Yes", newStyle(confirmButton3DStyle, fontFamily));
+    this.confirmButton3D = new TextMeshButton(this.env, "confirmationDialogConfirmButton", "Yes", newStyle(confirmButton3DStyle, fontFamily));
     this.confirmButton3D.addEventListener("click", () => this.confirmButton.click());
     this.confirmButton3D.object.position.set(1, -0.5, 0.5);
-    this.cancelButton3D = new TextMeshButton(this.env.fetcher, this.env, "confirmationDialogCancelButton", "No", newStyle(cancelButton3DStyle, fontFamily));
+    this.cancelButton3D = new TextMeshButton(this.env, "confirmationDialogCancelButton", "No", newStyle(cancelButton3DStyle, fontFamily));
     this.cancelButton3D.addEventListener("click", () => this.cancelButton.click());
     this.cancelButton3D.object.position.set(2, -0.5, 0.5);
     elementApply(this.container, styles(maxWidth("calc(100% - 2em)"), width("max-content")));
@@ -9938,9 +9940,6 @@ var InteractionAudio = class {
     this.pointers.addEventListener("enter", playClip);
     this.pointers.addEventListener("exit", playClip);
     this.pointers.addEventListener("click", playClip);
-  }
-  async load(type2, path, volume, prog) {
-    return await this.audio.loadClip(makeClipName(type2, false), path, false, false, true, false, volume, [], prog);
   }
   create(type2, element, volume) {
     return this.audio.createClip(makeClipName(type2, false), element, false, true, false, volume, []);
@@ -11274,6 +11273,805 @@ var BodyFollower = class extends THREE.Object3D {
         this.quaternion.multiply(dQuat);
       }
     }
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/AssetGltfModel.ts
+var AssetGltfModel = class extends BaseFetchedAsset {
+  constructor(path, type2, useCache) {
+    if (!Model_Gltf_Binary.matches(type2) && !Model_Gltf_Json.matches(type2)) {
+      throw new Error("Only GLTF model types are currently supported");
+    }
+    super(path, type2, useCache);
+    this.env = null;
+  }
+  setEnvironment(env) {
+    this.env = env;
+  }
+  async getResponse(request) {
+    const response = await request.file();
+    return translateResponse(response, (file) => this.env.loadGltf(file));
+  }
+};
+function isGltfAsset(obj2) {
+  return isDefined(obj2) && isFunction(obj2.setEnvironment) && isAsset(obj2);
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/evts.ts
+function isModifierless(evt) {
+  return !(evt.shiftKey || evt.altKey || evt.ctrlKey || evt.metaKey);
+}
+var HtmlEvt = class {
+  constructor(name2, callback, opts) {
+    this.name = name2;
+    this.callback = callback;
+    if (!isFunction(callback)) {
+      throw new Error("A function instance is required for this parameter");
+    }
+    this.opts = opts;
+    Object.freeze(this);
+  }
+  applyToElement(elem) {
+    this.add(elem);
+  }
+  add(elem) {
+    elem.addEventListener(this.name, this.callback, this.opts);
+  }
+  remove(elem) {
+    elem.removeEventListener(this.name, this.callback);
+  }
+};
+function onClick(callback, opts) {
+  return new HtmlEvt("click", callback, opts);
+}
+function onInput(callback, opts) {
+  return new HtmlEvt("input", callback, opts);
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/AvatarMovedEvent.ts
+var AvatarMovedEvent = class extends TypedEvent {
+  constructor() {
+    super("avatarmoved");
+    this.px = 0;
+    this.py = 0;
+    this.pz = 0;
+    this.fx = 0;
+    this.fy = 0;
+    this.fz = 0;
+    this.ux = 0;
+    this.uy = 0;
+    this.uz = 0;
+    this.height = 0;
+    this.changed = false;
+    this.pointerID = 0 /* LocalUser */;
+  }
+  set(px, py, pz, fx, fy, fz, ux, uy, uz, height2) {
+    this.changed = this.px !== px || this.py !== py || this.pz !== pz || this.fx !== fx || this.fy !== fy || this.fz !== fz || this.ux !== ux || this.uy !== uy || this.uz !== uz;
+    this.px = px;
+    this.py = py;
+    this.pz = pz;
+    this.fx = fx;
+    this.fy = fy;
+    this.fz = fz;
+    this.ux = ux;
+    this.uy = uy;
+    this.uz = uz;
+    this.height = height2;
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/resolveCamera.ts
+function resolveCamera(renderer, camera) {
+  if (renderer.xr.isPresenting) {
+    return renderer.xr.getCamera();
+  } else {
+    return camera;
+  }
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/setRightUpFwdPosFromMatrix.ts
+function setRightUpFwdPosFromMatrix(matrix, R2, U2, F, P3) {
+  const m = matrix.elements;
+  R2.set(m[0], m[1], m[2]);
+  U2.set(m[4], m[5], m[6]);
+  F.set(-m[8], -m[9], -m[10]);
+  P3.set(m[12], m[13], m[14]);
+  R2.normalize();
+  U2.normalize();
+  F.normalize();
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/AvatarLocal.ts
+function isPermissionedDeviceOrientationEvent(obj2) {
+  return obj2 === DeviceOrientationEvent && "requestPermission" in obj2 && isFunction(obj2.requestPermission);
+}
+var AvatarLocal = class extends TypedEventBase {
+  constructor(env, fader, defaultAvatarHeight) {
+    super();
+    this.env = env;
+    this.controlMode = "none" /* None */;
+    this.snapTurnAngle = deg2rad(30);
+    this.sensitivities = /* @__PURE__ */ new Map([
+      ["mousedrag" /* MouseDrag */, 100],
+      ["mousefirstperson" /* MouseFPS */, -100],
+      ["touchswipe" /* Touch */, 50],
+      ["gamepad" /* Gamepad */, 1]
+    ]);
+    this.B = new THREE.Vector3(0, 0, 1);
+    this.R = new THREE.Vector3();
+    this.F = new THREE.Vector3();
+    this.U = new THREE.Vector3();
+    this.P = new THREE.Vector3();
+    this.M = new THREE.Matrix4();
+    this.E = new THREE.Euler();
+    this.Q1 = new THREE.Quaternion();
+    this.Q2 = new THREE.Quaternion();
+    this.Q3 = new THREE.Quaternion(-Math.sqrt(0.5), 0, 0, Math.sqrt(0.5));
+    this.Q4 = new THREE.Quaternion();
+    this.motion = new THREE.Vector2();
+    this.rotStage = new THREE.Matrix4();
+    this.userMovedEvt = new AvatarMovedEvent();
+    this.acceleration = new THREE.Vector2(2, 2);
+    this.speed = new THREE.Vector2(3, 2);
+    this.axisControl = new THREE.Vector2(0, 0);
+    this.deviceQ = new THREE.Quaternion().identity();
+    this.uv = new THREE.Vector2();
+    this.duv = new THREE.Vector2();
+    this.move = new THREE.Vector3();
+    this.move2 = new THREE.Vector3();
+    this.followers = new Array();
+    this.dz = 0;
+    this._heading = 0;
+    this._pitch = 0;
+    this._roll = 0;
+    this.headX = 0;
+    this.headZ = 0;
+    this._worldHeading = 0;
+    this._worldPitch = 0;
+    this.fwrd = false;
+    this.back = false;
+    this.left = false;
+    this.rght = false;
+    this.fwrd2 = false;
+    this.back2 = false;
+    this.left2 = false;
+    this.rght2 = false;
+    this.up = false;
+    this.down = false;
+    this.grow = false;
+    this.shrk = false;
+    this._keyboardControlEnabled = false;
+    this.worldPos = new THREE.Vector3();
+    this.worldQuat = new THREE.Quaternion();
+    this.fovZoomEnabled = true;
+    this.minFOV = 15;
+    this.maxFOV = 120;
+    this.minimumX = -85 * Math.PI / 180;
+    this.maximumX = 85 * Math.PI / 180;
+    this.edgeFactor = 1 / 3;
+    this.deviceOrientation = null;
+    this.screenOrientation = 0;
+    this.alphaOffset = 0;
+    this.onDeviceOrientationChangeEvent = null;
+    this.onScreenOrientationChangeEvent = null;
+    this.motionEnabled = false;
+    this.disableHorizontal = false;
+    this.disableVertical = false;
+    this.invertHorizontal = false;
+    this.invertVertical = true;
+    this._height = defaultAvatarHeight;
+    this.head = obj("Head", fader);
+    const setKey = (key, ok) => {
+      if (key === "w")
+        this.fwrd = ok;
+      if (key === "s")
+        this.back = ok;
+      if (key === "a")
+        this.left = ok;
+      if (key === "d")
+        this.rght = ok;
+      if (key === "e")
+        this.up = ok;
+      if (key === "q")
+        this.down = ok;
+      if (key === "ArrowUp")
+        this.fwrd2 = ok;
+      if (key === "ArrowDown")
+        this.back2 = ok;
+      if (key === "ArrowLeft")
+        this.left2 = ok;
+      if (key === "ArrowRight")
+        this.rght2 = ok;
+      if (key === "r")
+        this.grow = ok;
+      if (key === "f")
+        this.shrk = ok;
+    };
+    this.onKeyDown = (evt) => setKey(evt.key, isModifierless(evt));
+    this.onKeyUp = (evt) => setKey(evt.key, false);
+    this.keyboardControlEnabled = true;
+    if (matchMedia("(pointer: coarse)").matches) {
+      this.controlMode = "touchswipe" /* Touch */;
+    } else if (matchMedia("(pointer: fine)").matches) {
+      this.controlMode = "mousedrag" /* MouseDrag */;
+    }
+    if (globalThis.isSecureContext && isMobile() && !isMobileVR()) {
+      this.onDeviceOrientationChangeEvent = (event) => {
+        this.deviceOrientation = event;
+      };
+      this.onScreenOrientationChangeEvent = () => {
+        if (!isString(globalThis.orientation)) {
+          this.screenOrientation = globalThis.orientation || 0;
+        }
+      };
+      this.startMotionControl();
+    }
+  }
+  set disableVertical(v) {
+    this._disableVertical = v;
+    this.axisControl.x = this._disableVertical ? 0 : this._invertVertical ? 1 : -1;
+  }
+  set invertVertical(v) {
+    this._invertVertical = v;
+    this.axisControl.x = this._disableVertical ? 0 : this._invertVertical ? 1 : -1;
+  }
+  set disableHorizontal(v) {
+    this._disableHorizontal = v;
+    this.axisControl.y = this._disableHorizontal ? 0 : this._invertHorizontal ? 1 : -1;
+  }
+  set invertHorizontal(v) {
+    this._invertHorizontal = v;
+    this.axisControl.y = this._disableHorizontal ? 0 : this._invertHorizontal ? 1 : -1;
+  }
+  get height() {
+    return this.head.position.y;
+  }
+  get object() {
+    return this.head;
+  }
+  get worldHeading() {
+    return this._worldHeading;
+  }
+  get worldPitch() {
+    return this._worldPitch;
+  }
+  get fov() {
+    return this.env.camera.fov;
+  }
+  set fov(v) {
+    if (v !== this.fov) {
+      this.env.camera.fov = v;
+      this.env.camera.updateProjectionMatrix();
+    }
+  }
+  get stage() {
+    return this.head.parent;
+  }
+  snapTurn(direction) {
+    this.setHeading(this.heading - this.snapTurnAngle * direction);
+  }
+  get keyboardControlEnabled() {
+    return this._keyboardControlEnabled;
+  }
+  set keyboardControlEnabled(v) {
+    if (this._keyboardControlEnabled !== v) {
+      this._keyboardControlEnabled = v;
+      if (this._keyboardControlEnabled) {
+        globalThis.addEventListener("keydown", this.onKeyDown);
+        globalThis.addEventListener("keyup", this.onKeyUp);
+      } else {
+        globalThis.removeEventListener("keydown", this.onKeyDown);
+        globalThis.removeEventListener("keyup", this.onKeyUp);
+      }
+    }
+  }
+  addFollower(follower) {
+    this.followers.push(follower);
+  }
+  onMove(pointer, uv, duv) {
+    this.setMode(pointer);
+    if (pointer.canMoveView && this.controlMode !== "none" /* None */ && this.gestureSatisfied(pointer)) {
+      this.uv.copy(uv);
+      this.duv.copy(duv);
+    }
+  }
+  setMode(pointer) {
+    if (pointer.type === "remote") {
+    } else if (pointer.type === "hand") {
+      this.controlMode = "none" /* None */;
+    } else if (pointer.type === "gamepad") {
+      this.controlMode = "gamepad" /* Gamepad */;
+    } else if (pointer.rayTarget && pointer.rayTarget.draggable && !this.env.pointers.mouse.isPointerLocked && pointer.isPressed(0 /* Primary */)) {
+      this.controlMode = "mouseedge" /* ScreenEdge */;
+    } else if (pointer.type === "touch" || pointer.type === "pen") {
+      this.controlMode = "touchswipe" /* Touch */;
+    } else if (pointer.type === "mouse") {
+      this.controlMode = this.env.pointers.mouse.isPointerLocked ? "mousefirstperson" /* MouseFPS */ : "mousedrag" /* MouseDrag */;
+    } else {
+      assertNever(pointer.type);
+    }
+  }
+  gestureSatisfied(pointer) {
+    if (this.controlMode === "none" /* None */) {
+      return false;
+    }
+    return this.controlMode === "gamepad" /* Gamepad */ || this.controlMode === "mousefirstperson" /* MouseFPS */ || this.controlMode === "mouseedge" /* ScreenEdge */ || pointer.isPressed(0 /* Primary */);
+  }
+  get name() {
+    return this.object.name;
+  }
+  set name(v) {
+    this.object.name = v;
+  }
+  get heading() {
+    return this._heading;
+  }
+  setHeading(angle3) {
+    this._heading = angleClamp(angle3);
+  }
+  get pitch() {
+    return this._pitch;
+  }
+  setPitch(x, minX, maxX) {
+    this._pitch = angleClamp(x + Math.PI) - Math.PI;
+    this._pitch = clamp(this._pitch, minX, maxX);
+  }
+  get roll() {
+    return this._roll;
+  }
+  setRoll(z) {
+    this._roll = angleClamp(z);
+  }
+  setHeadingImmediate(heading) {
+    this.setHeading(heading);
+    this.updateOrientation();
+    this.resetFollowers();
+  }
+  setOrientationImmediate(heading, pitch) {
+    this.setHeading(heading);
+    this._pitch = angleClamp(pitch);
+    this.updateOrientation();
+  }
+  zoom(dz) {
+    this.dz = dz;
+  }
+  update(dt) {
+    if (this.fovZoomEnabled && Math.abs(this.dz) > 0) {
+      const smoothing = Math.pow(0.95, 5 * dt);
+      this.dz = truncate(smoothing * this.dz);
+      this.fov = clamp(this.env.camera.fov - this.dz, this.minFOV, this.maxFOV);
+    }
+    dt *= 1e-3;
+    const device = this.deviceOrientation;
+    if (device && isGoodNumber(device.alpha) && isGoodNumber(device.beta) && isGoodNumber(device.gamma)) {
+      const alpha = deg2rad(device.alpha) + this.alphaOffset;
+      const beta2 = deg2rad(device.beta);
+      const gamma = deg2rad(device.gamma);
+      const orient = this.screenOrientation ? deg2rad(this.screenOrientation) : 0;
+      this.E.set(beta2, alpha, -gamma, "YXZ");
+      this.Q2.setFromAxisAngle(this.B, -orient);
+      this.Q4.setFromEuler(this.E).multiply(this.Q3).multiply(this.Q2);
+      this.deviceQ.slerp(this.Q4, 0.8);
+    }
+    if (this.controlMode === "mouseedge" /* ScreenEdge */) {
+      if (this.uv.manhattanLength() > 0) {
+        this.motion.set(this.scaleRadialComponent(-this.uv.x, this.speed.x, this.acceleration.x), this.scaleRadialComponent(this.uv.y, this.speed.y, this.acceleration.y)).multiplyScalar(dt);
+        this.setHeading(this.heading + this.motion.x);
+        this.setPitch(this.pitch + this.motion.y, this.minimumX, this.maximumX);
+        this.setRoll(0);
+      }
+    } else if (this.sensitivities.has(this.controlMode)) {
+      if (this.duv.manhattanLength() > 0) {
+        const sensitivity = this.sensitivities.get(this.controlMode) || 1;
+        this.motion.copy(this.duv).multiplyScalar(sensitivity * dt).multiply(this.axisControl);
+        this.setHeading(this.heading + this.motion.x);
+        this.setPitch(this.pitch + this.motion.y, this.minimumX, this.maximumX);
+        this.setRoll(0);
+      }
+    }
+    this.Q1.setFromAxisAngle(this.stage.up, this.worldHeading);
+    if (this.fwrd || this.back || this.left || this.rght || this.up || this.down) {
+      const dx = (this.left ? 1 : 0) + (this.rght ? -1 : 0);
+      const dy = (this.down ? 1 : 0) + (this.up ? -1 : 0);
+      const dz = (this.fwrd ? 1 : 0) + (this.back ? -1 : 0);
+      this.move.set(dx, dy, dz);
+      const d = this.move.length();
+      if (d > 0) {
+        this.move.multiplyScalar(dt / d).applyQuaternion(this.Q1);
+        this.stage.position.add(this.move);
+      }
+    }
+    if (this.fwrd2 || this.back2 || this.left2 || this.rght2) {
+      const dx = (this.left2 ? 1 : 0) + (this.rght2 ? -1 : 0);
+      const dz = (this.fwrd2 ? 1 : 0) + (this.back2 ? -1 : 0);
+      this.move2.set(dx, 0, dz);
+      const d = this.move2.length();
+      if (d > 0) {
+        this.move2.multiplyScalar(dt / d).applyQuaternion(this.Q1);
+        this.headX += this.move2.x;
+        this.headZ += this.move2.z;
+      }
+    }
+    if (this.grow || this.shrk) {
+      const dy = (this.shrk ? -1 : 0) + (this.grow ? 1 : 0);
+      this._height += dy * dt;
+      this._height = clamp(this._height, 1, 2);
+    }
+    this.updateOrientation();
+    this.userMovedEvt.set(this.P.x, this.P.y, this.P.z, this.F.x, this.F.y, this.F.z, this.U.x, this.U.y, this.U.z, this.height);
+    this.dispatchEvent(this.userMovedEvt);
+    const decay = Math.pow(0.95, 100 * dt);
+    this.duv.multiplyScalar(decay);
+    if (this.duv.manhattanLength() <= 1e-4) {
+      this.duv.setScalar(0);
+    }
+  }
+  scaleRadialComponent(n2, dn, ddn) {
+    const absN = Math.abs(n2);
+    return Math.sign(n2) * Math.pow(Math.max(0, absN - this.edgeFactor) / (1 - this.edgeFactor), ddn) * dn;
+  }
+  updateOrientation() {
+    const cam = resolveCamera(this.env.renderer, this.env.camera);
+    this.rotStage.makeRotationY(this._heading);
+    this.stage.matrix.makeTranslation(this.stage.position.x, this.stage.position.y, this.stage.position.z).multiply(this.rotStage);
+    this.stage.matrix.decompose(this.stage.position, this.stage.quaternion, this.stage.scale);
+    if (this.env.renderer.xr.isPresenting) {
+      this.M.copy(this.stage.matrixWorld).invert();
+      this.head.position.copy(cam.position).applyMatrix4(this.M);
+      this.head.quaternion.copy(this.stage.quaternion).invert().multiply(cam.quaternion);
+    } else {
+      this.head.position.set(this.headX, this._height, this.headZ);
+      this.E.set(this._pitch, 0, this._roll, "XYZ");
+      this.head.quaternion.setFromEuler(this.E).premultiply(this.deviceQ);
+    }
+    this.env.camera.position.copy(this.head.position);
+    this.env.camera.quaternion.copy(this.head.quaternion);
+    this.head.getWorldPosition(this.worldPos);
+    this.head.getWorldQuaternion(this.worldQuat);
+    this.F.set(0, 0, -1).applyQuaternion(this.worldQuat);
+    this._worldHeading = getLookHeading(this.F);
+    this._worldPitch = getLookPitch(this.F);
+    setRightUpFwdPosFromMatrix(this.head.matrixWorld, this.R, this.U, this.F, this.P);
+  }
+  reset() {
+    this.stage.position.setScalar(0);
+    this.setHeadingImmediate(0);
+  }
+  resetFollowers() {
+    for (const follower of this.followers) {
+      follower.reset(this.height, this.worldPos, this.worldHeading);
+    }
+  }
+  async getPermission() {
+    if (!("DeviceOrientationEvent" in globalThis)) {
+      return "not-supported";
+    }
+    if (isPermissionedDeviceOrientationEvent(DeviceOrientationEvent)) {
+      return await DeviceOrientationEvent.requestPermission();
+    }
+    return "granted";
+  }
+  async startMotionControl() {
+    if (!this.motionEnabled) {
+      this.onScreenOrientationChangeEvent();
+      const permission = await this.getPermission();
+      this.motionEnabled = permission === "granted";
+      if (this.motionEnabled) {
+        globalThis.addEventListener("orientationchange", this.onScreenOrientationChangeEvent);
+        globalThis.addEventListener("deviceorientation", this.onDeviceOrientationChangeEvent);
+      }
+    }
+  }
+  stopMotionControl() {
+    if (this.motionEnabled) {
+      globalThis.removeEventListener("orientationchange", this.onScreenOrientationChangeEvent);
+      globalThis.removeEventListener("deviceorientation", this.onDeviceOrientationChangeEvent);
+      this.motionEnabled = false;
+    }
+  }
+  dispose() {
+    this.stopMotionControl();
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/layers.ts
+var FOREGROUND = 0;
+var PURGATORY = 3;
+function deepSetLayer(obj2, level) {
+  obj2 = objectResolve(obj2);
+  obj2.traverse((o) => o.layers.set(level));
+}
+function deepEnableLayer(obj2, level) {
+  obj2 = objectResolve(obj2);
+  obj2.traverse((o) => o.layers.enable(level));
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/setMatrixFromUpFwdPos.ts
+var R = new THREE.Vector3();
+function setMatrixFromUpFwdPos(U2, F, P3, matrix) {
+  R.crossVectors(F, U2);
+  U2.crossVectors(R, F);
+  R.normalize();
+  U2.normalize();
+  F.normalize();
+  matrix.set(R.x, U2.x, -F.x, P3.x, R.y, U2.y, -F.y, P3.y, R.z, U2.z, -F.z, P3.z, 0, 0, 0, 1);
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/BaseCursor.ts
+var BaseCursor = class {
+  constructor(env) {
+    this.env = env;
+    this._object = null;
+    this._visible = true;
+    this._style = "default";
+    this.T = new THREE.Vector3();
+    this.V = new THREE.Vector3();
+    this.Q = new THREE.Quaternion();
+  }
+  get object() {
+    return this._object;
+  }
+  set object(v) {
+    this._object = v;
+  }
+  get style() {
+    return this._style;
+  }
+  set style(v) {
+    this._style = v;
+  }
+  get visible() {
+    return this._visible;
+  }
+  set visible(v) {
+    this._visible = v;
+  }
+  update(avatarHeadPos, comfortOffset, hit, target, defaultDistance, isLocal, canDragView, canTeleport, origin, direction, isPrimaryPressed) {
+    if (hit && hit.face) {
+      this.position.copy(hit.point);
+      hit.object.getWorldQuaternion(this.Q);
+      this.T.copy(hit.face.normal).applyQuaternion(this.Q);
+      this.V.copy(this.T).multiplyScalar(0.02);
+      this.position.add(this.V);
+      this.V.copy(this.T).multiplyScalar(10).add(this.position);
+    } else {
+      if (isLocal) {
+        this.position.copy(direction).multiplyScalar(2).add(origin).sub(this.env.avatar.worldPos).normalize().multiplyScalar(defaultDistance).add(this.env.avatar.worldPos);
+      } else {
+        this.V.copy(origin).add(comfortOffset).sub(avatarHeadPos).multiplyScalar(2);
+        this.position.copy(direction).multiplyScalar(defaultDistance).add(this.V).add(this.env.avatar.worldPos);
+      }
+      this.V.copy(this.env.avatar.worldPos);
+    }
+    this.lookAt(this.position, this.V);
+    this.style = !target || target.navigable && !canTeleport ? canDragView ? isPrimaryPressed ? "grabbing" : "grab" : "default" : !target.enabled ? "not-allowed" : target.draggable ? isPrimaryPressed ? "grabbing" : "move" : target.navigable ? "cell" : target.clickable ? "pointer" : "default";
+  }
+  lookAt(_p, _v) {
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/Cursor3D.ts
+var Cursor3D = class extends BaseCursor {
+  constructor(env, cursorSystem) {
+    super(env);
+    this.cursorSystem = null;
+    this.f = new THREE.Vector3();
+    this.up = new THREE.Vector3();
+    this.right = new THREE.Vector3();
+    this.object = obj("Cursor3D");
+    this.cursorSystem = cursorSystem;
+    this.object.matrixAutoUpdate = false;
+  }
+  add(name2, obj2) {
+    objGraph(this, obj2);
+    deepEnableLayer(obj2, PURGATORY);
+    obj2.visible = name2 === "default";
+  }
+  get position() {
+    return this.object.position;
+  }
+  get style() {
+    for (const child of this.object.children) {
+      if (child.visible) {
+        return child.name;
+      }
+    }
+    return null;
+  }
+  set style(v) {
+    for (const child of this.object.children) {
+      child.visible = child.name === v;
+    }
+    if (this.style == null && this.object.children.length > 0) {
+      const defaultCursor = arrayScan(this.object.children, (child) => child.name === "default", (child) => child != null);
+      if (defaultCursor != null) {
+        defaultCursor.visible = true;
+      }
+    }
+    if (this.cursorSystem) {
+      this.cursorSystem.style = "none";
+    }
+  }
+  get visible() {
+    return objectIsVisible(this);
+  }
+  set visible(v) {
+    objectSetVisible(this, v);
+  }
+  lookAt(p, v) {
+    this.f.copy(v).sub(p).normalize();
+    this.up.set(0, 1, 0).applyQuaternion(this.env.avatar.worldQuat);
+    this.right.crossVectors(this.up, this.f);
+    this.up.crossVectors(this.f, this.right);
+    setMatrixFromUpFwdPos(this.up, this.f, p, this.object.matrixWorld);
+    this.object.matrix.copy(this.object.parent.matrixWorld).invert().multiply(this.object.matrixWorld).decompose(this.object.position, this.object.quaternion, this.object.scale);
+  }
+  clone() {
+    const obj2 = new Cursor3D(this.env);
+    for (const child of this.object.children) {
+      obj2.add(child.name, child.clone());
+    }
+    return obj2;
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/widgets/EventedGamepad.ts
+var GamepadButtonEvent = class extends TypedEvent {
+  constructor(type2, button) {
+    super(type2);
+    this.button = button;
+  }
+};
+var GamepadButtonUpEvent = class extends GamepadButtonEvent {
+  constructor(button) {
+    super("gamepadbuttonup", button);
+  }
+};
+var GamepadButtonDownEvent = class extends GamepadButtonEvent {
+  constructor(button) {
+    super("gamepadbuttondown", button);
+  }
+};
+var GamepadAxisEvent = class extends TypedEvent {
+  constructor(type2, axis, value2) {
+    super(type2);
+    this.axis = axis;
+    this.value = value2;
+  }
+};
+var GamepadAxisMaxedEvent = class extends GamepadAxisEvent {
+  constructor(axis, value2) {
+    super("gamepadaxismaxed", axis, value2);
+  }
+};
+var EventedGamepad = class extends TypedEventBase {
+  constructor() {
+    super();
+    this.lastAxisValues = new Array();
+    this.btnDownEvts = new Array();
+    this.btnUpEvts = new Array();
+    this.wasPressed = new Array();
+    this.axisMaxEvts = new Array();
+    this.wasAxisMaxed = new Array();
+    this.sticks = new Array();
+    this.axisThresholdMax = 0.9;
+    this.axisThresholdMin = 0.1;
+    this._pad = null;
+    Object.seal(this);
+  }
+  get displayId() {
+    if ("displayId" in this.pad) {
+      return this.pad.displayId;
+    }
+    return void 0;
+  }
+  get pad() {
+    return this._pad;
+  }
+  set pad(pad) {
+    this._pad = pad;
+    if (this.pad) {
+      if (this.btnUpEvts.length === 0) {
+        for (let b = 0; b < pad.buttons.length; ++b) {
+          this.btnDownEvts[b] = new GamepadButtonDownEvent(b);
+          this.btnUpEvts[b] = new GamepadButtonUpEvent(b);
+          this.wasPressed[b] = false;
+        }
+        for (let a = 0; a < pad.axes.length; ++a) {
+          this.axisMaxEvts[a] = new GamepadAxisMaxedEvent(a, 0);
+          this.wasAxisMaxed[a] = false;
+          if (a % 2 === 0 && a < pad.axes.length - 1) {
+            this.sticks[a / 2] = { x: 0, y: 0 };
+          }
+          this.lastAxisValues[a] = pad.axes[a];
+        }
+      }
+      for (let b = 0; b < this.pad.buttons.length; ++b) {
+        const wasPressed = this.wasPressed[b];
+        const pressed = this.pad.buttons[b].pressed;
+        if (pressed !== wasPressed) {
+          this.wasPressed[b] = pressed;
+          this.dispatchEvent((pressed ? this.btnDownEvts : this.btnUpEvts)[b]);
+        }
+      }
+      for (let a = 0; a < this.pad.axes.length; ++a) {
+        const wasMaxed = this.wasAxisMaxed[a];
+        const val = this.pad.axes[a];
+        const dir = Math.sign(val);
+        const mag = Math.abs(val);
+        const maxed = mag >= this.axisThresholdMax;
+        const mined = mag <= this.axisThresholdMin;
+        const correctedVal = dir * (maxed ? 1 : mined ? 0 : mag);
+        if (maxed && !wasMaxed) {
+          this.axisMaxEvts[a].value = correctedVal;
+          this.dispatchEvent(this.axisMaxEvts[a]);
+        }
+        this.wasAxisMaxed[a] = maxed;
+        this.lastAxisValues[a] = correctedVal;
+      }
+      for (let a = 0; a < this.axes.length - 1; a += 2) {
+        const stick = this.sticks[a / 2];
+        stick.x = this.axes[a];
+        stick.y = this.axes[a + 1];
+      }
+    }
+  }
+  get id() {
+    if (!this.pad) {
+      return null;
+    }
+    return this.pad.id;
+  }
+  get index() {
+    if (!this.pad) {
+      return null;
+    }
+    return this.pad.index;
+  }
+  get connected() {
+    return this.pad && this.pad.connected;
+  }
+  get mapping() {
+    if (!this.pad) {
+      return null;
+    }
+    return this.pad.mapping;
+  }
+  get timestamp() {
+    if (!this.pad) {
+      return null;
+    }
+    return this.pad.timestamp;
+  }
+  get hand() {
+    if (!this.pad) {
+      return null;
+    }
+    return this.pad.hand;
+  }
+  get pose() {
+    if (!this.pad) {
+      return null;
+    }
+    return this.pad.pose;
+  }
+  get buttons() {
+    if (!this.pad) {
+      return null;
+    }
+    return this.pad.buttons;
+  }
+  get axes() {
+    if (!this.pad) {
+      return null;
+    }
+    return this.pad.axes;
+  }
+  get hapticActuators() {
+    if (!this.pad) {
+      return null;
+    }
+    return this.pad.hapticActuators;
   }
 };
 
@@ -13542,800 +14340,6 @@ function toTrianglesDrawMode(geometry, drawMode) {
   return newGeometry;
 }
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/AssetGltfModel.ts
-var _AssetGltfModel = class extends BaseFetchedAsset {
-  constructor(path, type2, useCache) {
-    if (!Model_Gltf_Binary.matches(type2) && !Model_Gltf_Json.matches(type2)) {
-      throw new Error("Only GLTF model types are currently supported");
-    }
-    super(path, type2, useCache);
-  }
-  async getResponse(request) {
-    const response = await request.file();
-    return translateResponse(response, (file) => _AssetGltfModel.loader.loadAsync(file));
-  }
-};
-var AssetGltfModel = _AssetGltfModel;
-AssetGltfModel.loader = new GLTFLoader();
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/evts.ts
-function isModifierless(evt) {
-  return !(evt.shiftKey || evt.altKey || evt.ctrlKey || evt.metaKey);
-}
-var HtmlEvt = class {
-  constructor(name2, callback, opts) {
-    this.name = name2;
-    this.callback = callback;
-    if (!isFunction(callback)) {
-      throw new Error("A function instance is required for this parameter");
-    }
-    this.opts = opts;
-    Object.freeze(this);
-  }
-  applyToElement(elem) {
-    this.add(elem);
-  }
-  add(elem) {
-    elem.addEventListener(this.name, this.callback, this.opts);
-  }
-  remove(elem) {
-    elem.removeEventListener(this.name, this.callback);
-  }
-};
-function onClick(callback, opts) {
-  return new HtmlEvt("click", callback, opts);
-}
-function onInput(callback, opts) {
-  return new HtmlEvt("input", callback, opts);
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/AvatarMovedEvent.ts
-var AvatarMovedEvent = class extends TypedEvent {
-  constructor() {
-    super("avatarmoved");
-    this.px = 0;
-    this.py = 0;
-    this.pz = 0;
-    this.fx = 0;
-    this.fy = 0;
-    this.fz = 0;
-    this.ux = 0;
-    this.uy = 0;
-    this.uz = 0;
-    this.height = 0;
-    this.changed = false;
-    this.pointerID = 0 /* LocalUser */;
-  }
-  set(px, py, pz, fx, fy, fz, ux, uy, uz, height2) {
-    this.changed = this.px !== px || this.py !== py || this.pz !== pz || this.fx !== fx || this.fy !== fy || this.fz !== fz || this.ux !== ux || this.uy !== uy || this.uz !== uz;
-    this.px = px;
-    this.py = py;
-    this.pz = pz;
-    this.fx = fx;
-    this.fy = fy;
-    this.fz = fz;
-    this.ux = ux;
-    this.uy = uy;
-    this.uz = uz;
-    this.height = height2;
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/resolveCamera.ts
-function resolveCamera(renderer, camera) {
-  if (renderer.xr.isPresenting) {
-    return renderer.xr.getCamera();
-  } else {
-    return camera;
-  }
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/setRightUpFwdPosFromMatrix.ts
-function setRightUpFwdPosFromMatrix(matrix, R2, U2, F, P3) {
-  const m = matrix.elements;
-  R2.set(m[0], m[1], m[2]);
-  U2.set(m[4], m[5], m[6]);
-  F.set(-m[8], -m[9], -m[10]);
-  P3.set(m[12], m[13], m[14]);
-  R2.normalize();
-  U2.normalize();
-  F.normalize();
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/AvatarLocal.ts
-function isPermissionedDeviceOrientationEvent(obj2) {
-  return obj2 === DeviceOrientationEvent && "requestPermission" in obj2 && isFunction(obj2.requestPermission);
-}
-var AvatarLocal = class extends TypedEventBase {
-  constructor(env, fader, defaultAvatarHeight) {
-    super();
-    this.env = env;
-    this.controlMode = "none" /* None */;
-    this.snapTurnAngle = deg2rad(30);
-    this.sensitivities = /* @__PURE__ */ new Map([
-      ["mousedrag" /* MouseDrag */, 100],
-      ["mousefirstperson" /* MouseFPS */, -100],
-      ["touchswipe" /* Touch */, 50],
-      ["gamepad" /* Gamepad */, 1]
-    ]);
-    this.B = new THREE.Vector3(0, 0, 1);
-    this.R = new THREE.Vector3();
-    this.F = new THREE.Vector3();
-    this.U = new THREE.Vector3();
-    this.P = new THREE.Vector3();
-    this.M = new THREE.Matrix4();
-    this.E = new THREE.Euler();
-    this.Q1 = new THREE.Quaternion();
-    this.Q2 = new THREE.Quaternion();
-    this.Q3 = new THREE.Quaternion(-Math.sqrt(0.5), 0, 0, Math.sqrt(0.5));
-    this.Q4 = new THREE.Quaternion();
-    this.motion = new THREE.Vector2();
-    this.rotStage = new THREE.Matrix4();
-    this.userMovedEvt = new AvatarMovedEvent();
-    this.acceleration = new THREE.Vector2(2, 2);
-    this.speed = new THREE.Vector2(3, 2);
-    this.axisControl = new THREE.Vector2(0, 0);
-    this.deviceQ = new THREE.Quaternion().identity();
-    this.uv = new THREE.Vector2();
-    this.duv = new THREE.Vector2();
-    this.move = new THREE.Vector3();
-    this.move2 = new THREE.Vector3();
-    this.followers = new Array();
-    this.dz = 0;
-    this._heading = 0;
-    this._pitch = 0;
-    this._roll = 0;
-    this.headX = 0;
-    this.headZ = 0;
-    this._worldHeading = 0;
-    this._worldPitch = 0;
-    this.fwrd = false;
-    this.back = false;
-    this.left = false;
-    this.rght = false;
-    this.fwrd2 = false;
-    this.back2 = false;
-    this.left2 = false;
-    this.rght2 = false;
-    this.up = false;
-    this.down = false;
-    this.grow = false;
-    this.shrk = false;
-    this._keyboardControlEnabled = false;
-    this.worldPos = new THREE.Vector3();
-    this.worldQuat = new THREE.Quaternion();
-    this.fovZoomEnabled = true;
-    this.minFOV = 15;
-    this.maxFOV = 120;
-    this.minimumX = -85 * Math.PI / 180;
-    this.maximumX = 85 * Math.PI / 180;
-    this.edgeFactor = 1 / 3;
-    this.deviceOrientation = null;
-    this.screenOrientation = 0;
-    this.alphaOffset = 0;
-    this.onDeviceOrientationChangeEvent = null;
-    this.onScreenOrientationChangeEvent = null;
-    this.motionEnabled = false;
-    this.disableHorizontal = false;
-    this.disableVertical = false;
-    this.invertHorizontal = false;
-    this.invertVertical = true;
-    this._height = defaultAvatarHeight;
-    this.head = obj("Head", fader);
-    const setKey = (key, ok) => {
-      if (key === "w")
-        this.fwrd = ok;
-      if (key === "s")
-        this.back = ok;
-      if (key === "a")
-        this.left = ok;
-      if (key === "d")
-        this.rght = ok;
-      if (key === "e")
-        this.up = ok;
-      if (key === "q")
-        this.down = ok;
-      if (key === "ArrowUp")
-        this.fwrd2 = ok;
-      if (key === "ArrowDown")
-        this.back2 = ok;
-      if (key === "ArrowLeft")
-        this.left2 = ok;
-      if (key === "ArrowRight")
-        this.rght2 = ok;
-      if (key === "r")
-        this.grow = ok;
-      if (key === "f")
-        this.shrk = ok;
-    };
-    this.onKeyDown = (evt) => setKey(evt.key, isModifierless(evt));
-    this.onKeyUp = (evt) => setKey(evt.key, false);
-    this.keyboardControlEnabled = true;
-    if (matchMedia("(pointer: coarse)").matches) {
-      this.controlMode = "touchswipe" /* Touch */;
-    } else if (matchMedia("(pointer: fine)").matches) {
-      this.controlMode = "mousedrag" /* MouseDrag */;
-    }
-    if (globalThis.isSecureContext && isMobile() && !isMobileVR()) {
-      this.onDeviceOrientationChangeEvent = (event) => {
-        this.deviceOrientation = event;
-      };
-      this.onScreenOrientationChangeEvent = () => {
-        if (!isString(globalThis.orientation)) {
-          this.screenOrientation = globalThis.orientation || 0;
-        }
-      };
-      this.startMotionControl();
-    }
-  }
-  set disableVertical(v) {
-    this._disableVertical = v;
-    this.axisControl.x = this._disableVertical ? 0 : this._invertVertical ? 1 : -1;
-  }
-  set invertVertical(v) {
-    this._invertVertical = v;
-    this.axisControl.x = this._disableVertical ? 0 : this._invertVertical ? 1 : -1;
-  }
-  set disableHorizontal(v) {
-    this._disableHorizontal = v;
-    this.axisControl.y = this._disableHorizontal ? 0 : this._invertHorizontal ? 1 : -1;
-  }
-  set invertHorizontal(v) {
-    this._invertHorizontal = v;
-    this.axisControl.y = this._disableHorizontal ? 0 : this._invertHorizontal ? 1 : -1;
-  }
-  get height() {
-    return this.head.position.y;
-  }
-  get object() {
-    return this.head;
-  }
-  get worldHeading() {
-    return this._worldHeading;
-  }
-  get worldPitch() {
-    return this._worldPitch;
-  }
-  get fov() {
-    return this.env.camera.fov;
-  }
-  set fov(v) {
-    if (v !== this.fov) {
-      this.env.camera.fov = v;
-      this.env.camera.updateProjectionMatrix();
-    }
-  }
-  get stage() {
-    return this.head.parent;
-  }
-  snapTurn(direction) {
-    this.setHeading(this.heading - this.snapTurnAngle * direction);
-  }
-  get keyboardControlEnabled() {
-    return this._keyboardControlEnabled;
-  }
-  set keyboardControlEnabled(v) {
-    if (this._keyboardControlEnabled !== v) {
-      this._keyboardControlEnabled = v;
-      if (this._keyboardControlEnabled) {
-        globalThis.addEventListener("keydown", this.onKeyDown);
-        globalThis.addEventListener("keyup", this.onKeyUp);
-      } else {
-        globalThis.removeEventListener("keydown", this.onKeyDown);
-        globalThis.removeEventListener("keyup", this.onKeyUp);
-      }
-    }
-  }
-  addFollower(follower) {
-    this.followers.push(follower);
-  }
-  onMove(pointer, uv, duv) {
-    this.setMode(pointer);
-    if (pointer.canMoveView && this.controlMode !== "none" /* None */ && this.gestureSatisfied(pointer)) {
-      this.uv.copy(uv);
-      this.duv.copy(duv);
-    }
-  }
-  setMode(pointer) {
-    if (pointer.type === "remote") {
-    } else if (pointer.type === "hand") {
-      this.controlMode = "none" /* None */;
-    } else if (pointer.type === "gamepad") {
-      this.controlMode = "gamepad" /* Gamepad */;
-    } else if (pointer.rayTarget && pointer.rayTarget.draggable && !this.env.pointers.mouse.isPointerLocked && pointer.isPressed(0 /* Primary */)) {
-      this.controlMode = "mouseedge" /* ScreenEdge */;
-    } else if (pointer.type === "touch" || pointer.type === "pen") {
-      this.controlMode = "touchswipe" /* Touch */;
-    } else if (pointer.type === "mouse") {
-      this.controlMode = this.env.pointers.mouse.isPointerLocked ? "mousefirstperson" /* MouseFPS */ : "mousedrag" /* MouseDrag */;
-    } else {
-      assertNever(pointer.type);
-    }
-  }
-  gestureSatisfied(pointer) {
-    if (this.controlMode === "none" /* None */) {
-      return false;
-    }
-    return this.controlMode === "gamepad" /* Gamepad */ || this.controlMode === "mousefirstperson" /* MouseFPS */ || this.controlMode === "mouseedge" /* ScreenEdge */ || pointer.isPressed(0 /* Primary */);
-  }
-  get name() {
-    return this.object.name;
-  }
-  set name(v) {
-    this.object.name = v;
-  }
-  get heading() {
-    return this._heading;
-  }
-  setHeading(angle3) {
-    this._heading = angleClamp(angle3);
-  }
-  get pitch() {
-    return this._pitch;
-  }
-  setPitch(x, minX, maxX) {
-    this._pitch = angleClamp(x + Math.PI) - Math.PI;
-    this._pitch = clamp(this._pitch, minX, maxX);
-  }
-  get roll() {
-    return this._roll;
-  }
-  setRoll(z) {
-    this._roll = angleClamp(z);
-  }
-  setHeadingImmediate(heading) {
-    this.setHeading(heading);
-    this.updateOrientation();
-    this.resetFollowers();
-  }
-  setOrientationImmediate(heading, pitch) {
-    this.setHeading(heading);
-    this._pitch = angleClamp(pitch);
-    this.updateOrientation();
-  }
-  zoom(dz) {
-    this.dz = dz;
-  }
-  update(dt) {
-    if (this.fovZoomEnabled && Math.abs(this.dz) > 0) {
-      const smoothing = Math.pow(0.95, 5 * dt);
-      this.dz = truncate(smoothing * this.dz);
-      this.fov = clamp(this.env.camera.fov - this.dz, this.minFOV, this.maxFOV);
-    }
-    dt *= 1e-3;
-    const device = this.deviceOrientation;
-    if (device && isGoodNumber(device.alpha) && isGoodNumber(device.beta) && isGoodNumber(device.gamma)) {
-      const alpha = deg2rad(device.alpha) + this.alphaOffset;
-      const beta2 = deg2rad(device.beta);
-      const gamma = deg2rad(device.gamma);
-      const orient = this.screenOrientation ? deg2rad(this.screenOrientation) : 0;
-      this.E.set(beta2, alpha, -gamma, "YXZ");
-      this.Q2.setFromAxisAngle(this.B, -orient);
-      this.Q4.setFromEuler(this.E).multiply(this.Q3).multiply(this.Q2);
-      this.deviceQ.slerp(this.Q4, 0.8);
-    }
-    if (this.controlMode === "mouseedge" /* ScreenEdge */) {
-      if (this.uv.manhattanLength() > 0) {
-        this.motion.set(this.scaleRadialComponent(-this.uv.x, this.speed.x, this.acceleration.x), this.scaleRadialComponent(this.uv.y, this.speed.y, this.acceleration.y)).multiplyScalar(dt);
-        this.setHeading(this.heading + this.motion.x);
-        this.setPitch(this.pitch + this.motion.y, this.minimumX, this.maximumX);
-        this.setRoll(0);
-      }
-    } else if (this.sensitivities.has(this.controlMode)) {
-      if (this.duv.manhattanLength() > 0) {
-        const sensitivity = this.sensitivities.get(this.controlMode) || 1;
-        this.motion.copy(this.duv).multiplyScalar(sensitivity * dt).multiply(this.axisControl);
-        this.setHeading(this.heading + this.motion.x);
-        this.setPitch(this.pitch + this.motion.y, this.minimumX, this.maximumX);
-        this.setRoll(0);
-      }
-    }
-    this.Q1.setFromAxisAngle(this.stage.up, this.worldHeading);
-    if (this.fwrd || this.back || this.left || this.rght || this.up || this.down) {
-      const dx = (this.left ? 1 : 0) + (this.rght ? -1 : 0);
-      const dy = (this.down ? 1 : 0) + (this.up ? -1 : 0);
-      const dz = (this.fwrd ? 1 : 0) + (this.back ? -1 : 0);
-      this.move.set(dx, dy, dz);
-      const d = this.move.length();
-      if (d > 0) {
-        this.move.multiplyScalar(dt / d).applyQuaternion(this.Q1);
-        this.stage.position.add(this.move);
-      }
-    }
-    if (this.fwrd2 || this.back2 || this.left2 || this.rght2) {
-      const dx = (this.left2 ? 1 : 0) + (this.rght2 ? -1 : 0);
-      const dz = (this.fwrd2 ? 1 : 0) + (this.back2 ? -1 : 0);
-      this.move2.set(dx, 0, dz);
-      const d = this.move2.length();
-      if (d > 0) {
-        this.move2.multiplyScalar(dt / d).applyQuaternion(this.Q1);
-        this.headX += this.move2.x;
-        this.headZ += this.move2.z;
-      }
-    }
-    if (this.grow || this.shrk) {
-      const dy = (this.shrk ? -1 : 0) + (this.grow ? 1 : 0);
-      this._height += dy * dt;
-      this._height = clamp(this._height, 1, 2);
-    }
-    this.updateOrientation();
-    this.userMovedEvt.set(this.P.x, this.P.y, this.P.z, this.F.x, this.F.y, this.F.z, this.U.x, this.U.y, this.U.z, this.height);
-    this.dispatchEvent(this.userMovedEvt);
-    const decay = Math.pow(0.95, 100 * dt);
-    this.duv.multiplyScalar(decay);
-    if (this.duv.manhattanLength() <= 1e-4) {
-      this.duv.setScalar(0);
-    }
-  }
-  scaleRadialComponent(n2, dn, ddn) {
-    const absN = Math.abs(n2);
-    return Math.sign(n2) * Math.pow(Math.max(0, absN - this.edgeFactor) / (1 - this.edgeFactor), ddn) * dn;
-  }
-  updateOrientation() {
-    const cam = resolveCamera(this.env.renderer, this.env.camera);
-    this.rotStage.makeRotationY(this._heading);
-    this.stage.matrix.makeTranslation(this.stage.position.x, this.stage.position.y, this.stage.position.z).multiply(this.rotStage);
-    this.stage.matrix.decompose(this.stage.position, this.stage.quaternion, this.stage.scale);
-    if (this.env.renderer.xr.isPresenting) {
-      this.M.copy(this.stage.matrixWorld).invert();
-      this.head.position.copy(cam.position).applyMatrix4(this.M);
-      this.head.quaternion.copy(this.stage.quaternion).invert().multiply(cam.quaternion);
-    } else {
-      this.head.position.set(this.headX, this._height, this.headZ);
-      this.E.set(this._pitch, 0, this._roll, "XYZ");
-      this.head.quaternion.setFromEuler(this.E).premultiply(this.deviceQ);
-    }
-    this.env.camera.position.copy(this.head.position);
-    this.env.camera.quaternion.copy(this.head.quaternion);
-    this.head.getWorldPosition(this.worldPos);
-    this.head.getWorldQuaternion(this.worldQuat);
-    this.F.set(0, 0, -1).applyQuaternion(this.worldQuat);
-    this._worldHeading = getLookHeading(this.F);
-    this._worldPitch = getLookPitch(this.F);
-    setRightUpFwdPosFromMatrix(this.head.matrixWorld, this.R, this.U, this.F, this.P);
-  }
-  reset() {
-    this.stage.position.setScalar(0);
-    this.setHeadingImmediate(0);
-  }
-  resetFollowers() {
-    for (const follower of this.followers) {
-      follower.reset(this.height, this.worldPos, this.worldHeading);
-    }
-  }
-  async getPermission() {
-    if (!("DeviceOrientationEvent" in globalThis)) {
-      return "not-supported";
-    }
-    if (isPermissionedDeviceOrientationEvent(DeviceOrientationEvent)) {
-      return await DeviceOrientationEvent.requestPermission();
-    }
-    return "granted";
-  }
-  async startMotionControl() {
-    if (!this.motionEnabled) {
-      this.onScreenOrientationChangeEvent();
-      const permission = await this.getPermission();
-      this.motionEnabled = permission === "granted";
-      if (this.motionEnabled) {
-        globalThis.addEventListener("orientationchange", this.onScreenOrientationChangeEvent);
-        globalThis.addEventListener("deviceorientation", this.onDeviceOrientationChangeEvent);
-      }
-    }
-  }
-  stopMotionControl() {
-    if (this.motionEnabled) {
-      globalThis.removeEventListener("orientationchange", this.onScreenOrientationChangeEvent);
-      globalThis.removeEventListener("deviceorientation", this.onDeviceOrientationChangeEvent);
-      this.motionEnabled = false;
-    }
-  }
-  dispose() {
-    this.stopMotionControl();
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/layers.ts
-var FOREGROUND = 0;
-var PURGATORY = 3;
-function deepSetLayer(obj2, level) {
-  obj2 = objectResolve(obj2);
-  obj2.traverse((o) => o.layers.set(level));
-}
-function deepEnableLayer(obj2, level) {
-  obj2 = objectResolve(obj2);
-  obj2.traverse((o) => o.layers.enable(level));
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/setMatrixFromUpFwdPos.ts
-var R = new THREE.Vector3();
-function setMatrixFromUpFwdPos(U2, F, P3, matrix) {
-  R.crossVectors(F, U2);
-  U2.crossVectors(R, F);
-  R.normalize();
-  U2.normalize();
-  F.normalize();
-  matrix.set(R.x, U2.x, -F.x, P3.x, R.y, U2.y, -F.y, P3.y, R.z, U2.z, -F.z, P3.z, 0, 0, 0, 1);
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/BaseCursor.ts
-var BaseCursor = class {
-  constructor(env) {
-    this.env = env;
-    this._object = null;
-    this._visible = true;
-    this._style = "default";
-    this.T = new THREE.Vector3();
-    this.V = new THREE.Vector3();
-    this.Q = new THREE.Quaternion();
-  }
-  get object() {
-    return this._object;
-  }
-  set object(v) {
-    this._object = v;
-  }
-  get style() {
-    return this._style;
-  }
-  set style(v) {
-    this._style = v;
-  }
-  get visible() {
-    return this._visible;
-  }
-  set visible(v) {
-    this._visible = v;
-  }
-  update(avatarHeadPos, comfortOffset, hit, target, defaultDistance, isLocal, canDragView, canTeleport, origin, direction, isPrimaryPressed) {
-    if (hit && hit.face) {
-      this.position.copy(hit.point);
-      hit.object.getWorldQuaternion(this.Q);
-      this.T.copy(hit.face.normal).applyQuaternion(this.Q);
-      this.V.copy(this.T).multiplyScalar(0.02);
-      this.position.add(this.V);
-      this.V.copy(this.T).multiplyScalar(10).add(this.position);
-    } else {
-      if (isLocal) {
-        this.position.copy(direction).multiplyScalar(2).add(origin).sub(this.env.avatar.worldPos).normalize().multiplyScalar(defaultDistance).add(this.env.avatar.worldPos);
-      } else {
-        this.V.copy(origin).add(comfortOffset).sub(avatarHeadPos).multiplyScalar(2);
-        this.position.copy(direction).multiplyScalar(defaultDistance).add(this.V).add(this.env.avatar.worldPos);
-      }
-      this.V.copy(this.env.avatar.worldPos);
-    }
-    this.lookAt(this.position, this.V);
-    this.style = !target || target.navigable && !canTeleport ? canDragView ? isPrimaryPressed ? "grabbing" : "grab" : "default" : !target.enabled ? "not-allowed" : target.draggable ? isPrimaryPressed ? "grabbing" : "move" : target.navigable ? "cell" : target.clickable ? "pointer" : "default";
-  }
-  lookAt(_p, _v) {
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/Cursor3D.ts
-var Cursor3D = class extends BaseCursor {
-  constructor(env, cursorSystem) {
-    super(env);
-    this.cursorSystem = null;
-    this.f = new THREE.Vector3();
-    this.up = new THREE.Vector3();
-    this.right = new THREE.Vector3();
-    this.object = obj("Cursor3D");
-    this.cursorSystem = cursorSystem;
-    this.object.matrixAutoUpdate = false;
-  }
-  add(name2, obj2) {
-    objGraph(this, obj2);
-    deepEnableLayer(obj2, PURGATORY);
-    obj2.visible = name2 === "default";
-  }
-  get position() {
-    return this.object.position;
-  }
-  get style() {
-    for (const child of this.object.children) {
-      if (child.visible) {
-        return child.name;
-      }
-    }
-    return null;
-  }
-  set style(v) {
-    for (const child of this.object.children) {
-      child.visible = child.name === v;
-    }
-    if (this.style == null && this.object.children.length > 0) {
-      const defaultCursor = arrayScan(this.object.children, (child) => child.name === "default", (child) => child != null);
-      if (defaultCursor != null) {
-        defaultCursor.visible = true;
-      }
-    }
-    if (this.cursorSystem) {
-      this.cursorSystem.style = "none";
-    }
-  }
-  get visible() {
-    return objectIsVisible(this);
-  }
-  set visible(v) {
-    objectSetVisible(this, v);
-  }
-  lookAt(p, v) {
-    this.f.copy(v).sub(p).normalize();
-    this.up.set(0, 1, 0).applyQuaternion(this.env.avatar.worldQuat);
-    this.right.crossVectors(this.up, this.f);
-    this.up.crossVectors(this.f, this.right);
-    setMatrixFromUpFwdPos(this.up, this.f, p, this.object.matrixWorld);
-    this.object.matrix.copy(this.object.parent.matrixWorld).invert().multiply(this.object.matrixWorld).decompose(this.object.position, this.object.quaternion, this.object.scale);
-  }
-  clone() {
-    const obj2 = new Cursor3D(this.env);
-    for (const child of this.object.children) {
-      obj2.add(child.name, child.clone());
-    }
-    return obj2;
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/widgets/EventedGamepad.ts
-var GamepadButtonEvent = class extends TypedEvent {
-  constructor(type2, button) {
-    super(type2);
-    this.button = button;
-  }
-};
-var GamepadButtonUpEvent = class extends GamepadButtonEvent {
-  constructor(button) {
-    super("gamepadbuttonup", button);
-  }
-};
-var GamepadButtonDownEvent = class extends GamepadButtonEvent {
-  constructor(button) {
-    super("gamepadbuttondown", button);
-  }
-};
-var GamepadAxisEvent = class extends TypedEvent {
-  constructor(type2, axis, value2) {
-    super(type2);
-    this.axis = axis;
-    this.value = value2;
-  }
-};
-var GamepadAxisMaxedEvent = class extends GamepadAxisEvent {
-  constructor(axis, value2) {
-    super("gamepadaxismaxed", axis, value2);
-  }
-};
-var EventedGamepad = class extends TypedEventBase {
-  constructor() {
-    super();
-    this.lastAxisValues = new Array();
-    this.btnDownEvts = new Array();
-    this.btnUpEvts = new Array();
-    this.wasPressed = new Array();
-    this.axisMaxEvts = new Array();
-    this.wasAxisMaxed = new Array();
-    this.sticks = new Array();
-    this.axisThresholdMax = 0.9;
-    this.axisThresholdMin = 0.1;
-    this._pad = null;
-    Object.seal(this);
-  }
-  get displayId() {
-    if ("displayId" in this.pad) {
-      return this.pad.displayId;
-    }
-    return void 0;
-  }
-  get pad() {
-    return this._pad;
-  }
-  set pad(pad) {
-    this._pad = pad;
-    if (this.pad) {
-      if (this.btnUpEvts.length === 0) {
-        for (let b = 0; b < pad.buttons.length; ++b) {
-          this.btnDownEvts[b] = new GamepadButtonDownEvent(b);
-          this.btnUpEvts[b] = new GamepadButtonUpEvent(b);
-          this.wasPressed[b] = false;
-        }
-        for (let a = 0; a < pad.axes.length; ++a) {
-          this.axisMaxEvts[a] = new GamepadAxisMaxedEvent(a, 0);
-          this.wasAxisMaxed[a] = false;
-          if (a % 2 === 0 && a < pad.axes.length - 1) {
-            this.sticks[a / 2] = { x: 0, y: 0 };
-          }
-          this.lastAxisValues[a] = pad.axes[a];
-        }
-      }
-      for (let b = 0; b < this.pad.buttons.length; ++b) {
-        const wasPressed = this.wasPressed[b];
-        const pressed = this.pad.buttons[b].pressed;
-        if (pressed !== wasPressed) {
-          this.wasPressed[b] = pressed;
-          this.dispatchEvent((pressed ? this.btnDownEvts : this.btnUpEvts)[b]);
-        }
-      }
-      for (let a = 0; a < this.pad.axes.length; ++a) {
-        const wasMaxed = this.wasAxisMaxed[a];
-        const val = this.pad.axes[a];
-        const dir = Math.sign(val);
-        const mag = Math.abs(val);
-        const maxed = mag >= this.axisThresholdMax;
-        const mined = mag <= this.axisThresholdMin;
-        const correctedVal = dir * (maxed ? 1 : mined ? 0 : mag);
-        if (maxed && !wasMaxed) {
-          this.axisMaxEvts[a].value = correctedVal;
-          this.dispatchEvent(this.axisMaxEvts[a]);
-        }
-        this.wasAxisMaxed[a] = maxed;
-        this.lastAxisValues[a] = correctedVal;
-      }
-      for (let a = 0; a < this.axes.length - 1; a += 2) {
-        const stick = this.sticks[a / 2];
-        stick.x = this.axes[a];
-        stick.y = this.axes[a + 1];
-      }
-    }
-  }
-  get id() {
-    if (!this.pad) {
-      return null;
-    }
-    return this.pad.id;
-  }
-  get index() {
-    if (!this.pad) {
-      return null;
-    }
-    return this.pad.index;
-  }
-  get connected() {
-    return this.pad && this.pad.connected;
-  }
-  get mapping() {
-    if (!this.pad) {
-      return null;
-    }
-    return this.pad.mapping;
-  }
-  get timestamp() {
-    if (!this.pad) {
-      return null;
-    }
-    return this.pad.timestamp;
-  }
-  get hand() {
-    if (!this.pad) {
-      return null;
-    }
-    return this.pad.hand;
-  }
-  get pose() {
-    if (!this.pad) {
-      return null;
-    }
-    return this.pad.pose;
-  }
-  get buttons() {
-    if (!this.pad) {
-      return null;
-    }
-    return this.pad.buttons;
-  }
-  get axes() {
-    if (!this.pad) {
-      return null;
-    }
-    return this.pad.axes;
-  }
-  get hapticActuators() {
-    if (!this.pad) {
-      return null;
-    }
-    return this.pad.hapticActuators;
-  }
-};
-
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/examples/webxr/motion-controllers.module.js
 var Constants = {
   Handedness: Object.freeze({
@@ -15413,11 +15417,13 @@ var BasePointer = class extends TypedEventBase {
           const upEvt = this.getEvent("up");
           this.rayTarget.dispatchEvent(upEvt);
           const exitEvt = this.getEvent("exit");
+          this.dispatchEvent(exitEvt);
           this.rayTarget.dispatchEvent(exitEvt);
         }
         this.hoveredHit = this.curHit;
         if (this.rayTarget) {
           const enterEvt = this.getEvent("enter");
+          this.dispatchEvent(enterEvt);
           this.rayTarget.dispatchEvent(enterEvt);
         }
       }
@@ -19879,6 +19885,7 @@ var BaseEnvironment = class extends TypedEventBase {
     this.spectator = new THREE.PerspectiveCamera();
     this.lastViewport = new THREE.Vector4();
     this.curViewport = new THREE.Vector4();
+    this.gltfLoader = new GLTFLoader();
     this.fadeDepth = 0;
     this.camera = new THREE.PerspectiveCamera(50, 1, 0.01, 1e3);
     this.scene = new THREE.Scene();
@@ -20107,16 +20114,24 @@ var BaseEnvironment = class extends TypedEventBase {
   }
   async load(progOrAsset, ...assets) {
     let prog = null;
-    if (progOrAsset instanceof BaseAsset) {
+    if (isAsset(progOrAsset)) {
       assets.push(progOrAsset);
     } else {
       prog = progOrAsset;
     }
     const cursor3d = new AssetGltfModel("/models/Cursors.glb", Model_Gltf_Binary, !this.DEBUG);
     assets.push(cursor3d);
+    for (const asset of assets) {
+      if (isGltfAsset(asset)) {
+        asset.setEnvironment(this);
+      }
+    }
     await this.fetcher.assets(prog, ...assets);
     convertMaterials(cursor3d.result.scene, materialStandardToBasic);
     this.set3DCursor(cursor3d.result.scene);
+  }
+  loadGltf(file) {
+    return this.gltfLoader.loadAsync(file);
   }
 };
 
@@ -20565,7 +20580,7 @@ var Environment = class extends BaseEnvironment {
   }
   async load(progOrAsset, ...assets) {
     let prog = null;
-    if (progOrAsset instanceof BaseAsset) {
+    if (isAsset(progOrAsset)) {
       assets.push(progOrAsset);
       prog = this.loadingBar;
     } else {
