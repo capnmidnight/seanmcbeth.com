@@ -1,4 +1,4 @@
-﻿import { CanvasTypes, Context2D } from "@juniper-lib/dom/canvas";
+﻿import { setContextSize } from "@juniper-lib/dom/canvas";
 import { TypedEvent, TypedEventBase, xy2i } from "@juniper-lib/tslib";
 
 import { singleton } from "@juniper-lib/tslib";
@@ -28,8 +28,16 @@ const actionTypes = singleton("Juniper:Graphics2D:Dirt:StopTypes", () => new Map
     ["touchstart", "down"]
 ]));
 
+export class DirtServiceUpdateEvent extends TypedEvent<"update">{
+    imgBmp: ImageBitmap;
+
+    constructor() {
+        super("update");
+    }
+}
+
 export interface DirtEventMap {
-    "update": TypedEvent<"update">;
+    "update": DirtServiceUpdateEvent;
 }
 
 export interface IDirtService extends TypedEventBase<DirtEventMap> {
@@ -42,10 +50,12 @@ export class DirtService
     implements IDirtService {
     private readonly sub: OffscreenCanvas;
     private readonly subg: OffscreenCanvasRenderingContext2D;
-    private readonly updateEvt = new TypedEvent("update");
+    private readonly updateEvt = new DirtServiceUpdateEvent();
 
-    canvas: CanvasTypes = null;
-    private g: Context2D = null;
+    private canvas: OffscreenCanvas = null;
+    private transferCanvas: OffscreenCanvas = null;
+    private g: OffscreenCanvasRenderingContext2D = null;
+    private tg: OffscreenCanvasRenderingContext2D = null;
     private pointerId: number | string = null;
     private fr: number = null;
     private pr: number = null;
@@ -69,14 +79,19 @@ export class DirtService
         });
     }
 
-    init(canvas: CanvasTypes, fr: number, pr: number): Promise<void> {
-        this.canvas = canvas;
-        this.g = this.canvas.getContext("2d", { alpha: false });
+    init(width: number, height: number, fr: number, pr: number): Promise<void> {
+        this.transferCanvas = new OffscreenCanvas(width, height);
+        this.tg = this.transferCanvas.getContext("2d");
+        this.canvas = new OffscreenCanvas(width, height);
+        this.g = this.canvas.getContext("2d", {
+            alpha: false,
+            desynchronized: true
+        });
         this.g.fillStyle = "rgb(50%, 50%, 50%)";
         this.g.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
         const imgData = this.g.getImageData(0, 0, this.canvas.width, this.canvas.height);
-        const { data, width, height } = imgData;
+        const { data } = imgData;
         const components = data.length / (width * height);
         for (let i = 0; i < data.length; i += components) {
             const v = Math.floor(50 * (Math.random() - 0.5));
@@ -90,7 +105,16 @@ export class DirtService
         this.fr = fr;
         this.pr = pr;
         this.height = 2 * (this.fr + this.pr) + 1;
+
+        this.onUpdate();
+
         return Promise.resolve();
+    }
+
+    private onUpdate() {
+        this.tg.drawImage(this.canvas, 0, 0);
+        this.updateEvt.imgBmp = this.transferCanvas.transferToImageBitmap();
+        this.dispatchEvent(this.updateEvt);
     }
 
     private I(x: number, y: number) {
@@ -112,8 +136,8 @@ export class DirtService
             if ((Math.abs(dx) + Math.abs(dy)) > 0) {
                 const a = Math.atan2(dy, dx) + Math.PI;
                 const d = Math.round(Math.sqrt(dx * dx + dy * dy));
-                this.sub.width = d + this.fr + this.pr;;
-                this.sub.height = this.height;
+
+                setContextSize(this.subg, d + this.fr + this.pr, this.height);
                 this.subg.save();
                 this.subg.translate(0, this.fr + this.pr);
                 this.subg.rotate(-a);
@@ -122,10 +146,8 @@ export class DirtService
                 this.subg.restore();
 
                 const imgData = this.subg.getImageData(0, 0, this.sub.width, this.sub.height);
-
                 this.data = imgData.data;
                 this.components = this.data.length / (this.sub.width * this.height);
-
 
                 const start = this.GET(0, 0);
                 const level = Math.max(0, start - 0.25);
@@ -185,7 +207,7 @@ export class DirtService
                 this.g.drawImage(this.sub, 0, 0);
                 this.g.restore();
 
-                this.dispatchEvent(this.updateEvt);
+                this.onUpdate();
             }
         }
 
@@ -215,6 +237,6 @@ export class DirtService
     }
 
     checkPointerUV(id: number | string, x: number, y: number, type: string) {
-        this.checkPointer(id, x * this.canvas.width, y * this.canvas.height, type);
+        this.checkPointer(id, x * this.canvas.width, (1 - y) * this.canvas.height, type);
     }
 }

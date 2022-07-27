@@ -1,26 +1,16 @@
-﻿import { createCanvas } from "@juniper-lib/dom/canvas";
-import { ErsatzElement } from "@juniper-lib/dom/tags";
-import { assertNever, TypedEvent } from "@juniper-lib/tslib";
+﻿import { assertNever } from "@juniper-lib/tslib";
 import { WorkerClient, WorkerServerEventMessage } from "@juniper-lib/workers";
-import { DirtEventMap, IDirtService } from "./DirtService";
+import { DirtEventMap, DirtServiceUpdateEvent, IDirtService } from "./DirtService";
 
 export class DirtWorkerClient
     extends WorkerClient<DirtEventMap>
-    implements IDirtService, ErsatzElement {
+    implements IDirtService {
 
-    readonly element: HTMLCanvasElement;
-    readonly ready: Promise<void>;
-    private readonly updateEvt = new TypedEvent("update");
-
-    constructor(n: number, fr: number, pr: number, worker: Worker) {
-        super(worker);
-        this.element = createCanvas(n, n);
-        const offscreen = this.element.transferControlToOffscreen();
-        this.ready = this.callMethod("init", [offscreen, fr, pr], [offscreen]);
-    }
+    private readonly updateEvt = new DirtServiceUpdateEvent();
 
     protected override propogateEvent(data: WorkerServerEventMessage<DirtEventMap>): void {
         if (data.eventName === "update") {
+            this.updateEvt.imgBmp = data.data;
             this.dispatchEvent(this.updateEvt);
         }
         else {
@@ -28,17 +18,26 @@ export class DirtWorkerClient
         }
     }
 
-    private readonly checkPointerParams: [string | number, number, number, string] = [null, 0, 0, null];
-
-    checkPointer(id: string | number, x: number, y: number, type: string): void {
+    private readonly checkPointerParams: [string | number, number, number, string | number] = [null, null, null, null];
+    private setParams(id: string | number, x: number, y: number, type: string | number) {
         this.checkPointerParams[0] = id;
         this.checkPointerParams[1] = x;
         this.checkPointerParams[2] = y;
         this.checkPointerParams[3] = type;
+    }
+
+    init(width: number, height: number, fr: number, pr: number): Promise<void> {
+        this.setParams(width, height, fr, pr);
+        return this.callMethod("init", this.checkPointerParams)
+    }
+
+    checkPointer(id: string | number, x: number, y: number, type: string): void {
+        this.setParams(id, x, y, type);
         this.callMethod("checkPointer", this.checkPointerParams);
     }
 
     checkPointerUV(id: number | string, x: number, y: number, type: string) {
-        this.checkPointer(id, x * this.element.width, y * this.element.height, type);
+        this.setParams(id, x, y, type);
+        this.callMethod("checkPointerUV", this.checkPointerParams);
     }
 }

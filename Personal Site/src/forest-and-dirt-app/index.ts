@@ -1,13 +1,13 @@
-﻿import { createUtilityCanvas } from "@juniper-lib/dom/canvas";
-import { AssetImage } from "@juniper-lib/fetcher";
-import { Image_Jpeg } from "@juniper-lib/mediatypes";
+﻿import { AssetImage } from "@juniper-lib/fetcher";
+import { Application_Javascript, Image_Jpeg } from "@juniper-lib/mediatypes";
 import type { Pointer3DEvent } from "@juniper-lib/threejs/eventSystem/Pointer3DEvent";
 import { RayTarget } from "@juniper-lib/threejs/eventSystem/RayTarget";
 import { mesh } from "@juniper-lib/threejs/objects";
 import { createTestEnvironment } from "../createTestEnvironment";
-import { DirtService } from "../dirt-worker/DirtService";
+import { DirtWorkerClient } from "../dirt-worker/DirtWorkerClient";
 import { Forest } from "../forest-app/Forest";
-import { isDebug } from "../isDebug";
+import { isDebug, JS_EXT } from "../isDebug";
+import { version } from "../settings";
 
 (async function () {
     const S = 5;
@@ -28,16 +28,23 @@ import { isDebug } from "../isDebug";
     dirtMapTex.magFilter = THREE.LinearFilter;
     dirtMapTex.needsUpdate = true;
 
-    const dirtBumpMap = new DirtService();
-    await dirtBumpMap.init(createUtilityCanvas(R, R), F, P);
-
-    const dirtBumpMapTex = new THREE.Texture(dirtBumpMap.canvas as any);
+    const dirtBumpMapTex = new THREE.Texture(null);
     dirtBumpMapTex.minFilter = THREE.LinearMipmapLinearFilter;
     dirtBumpMapTex.magFilter = THREE.LinearFilter;
-    dirtBumpMapTex.needsUpdate = true;
 
-    dirtBumpMap.addEventListener("update", () =>
-        dirtBumpMapTex.needsUpdate = true);
+    const dirtBumpMap = new DirtWorkerClient(await env.fetcher
+        .get(`/js/dirt-worker/index${JS_EXT}?${version}`)
+        .useCache(!isDebug)
+        .accept(Application_Javascript)
+        .worker());
+    dirtBumpMap.addEventListener("update", (evt) => {
+        if (dirtBumpMapTex.image instanceof ImageBitmap) {
+            dirtBumpMapTex.image.close();
+        }
+        dirtBumpMapTex.image = evt.imgBmp;
+        dirtBumpMapTex.needsUpdate = true;
+    });
+    await dirtBumpMap.init(R, R, F, P);
 
     const dirtGeom = new THREE.PlaneBufferGeometry(S, S, R, R);
 

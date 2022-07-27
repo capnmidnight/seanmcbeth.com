@@ -1,10 +1,12 @@
-﻿import { styles, touchAction, width } from "@juniper-lib/dom/css";
+﻿import { htmlHeight, htmlWidth } from "@juniper-lib/dom/attrs";
+import { styles, touchAction, width } from "@juniper-lib/dom/css";
 import { onPointerCancel, onPointerDown, onPointerEnter, onPointerLeave, onPointerRawUpdate, onPointerUp } from "@juniper-lib/dom/evts";
-import { elementApply } from "@juniper-lib/dom/tags";
+import { Canvas, elementApply } from "@juniper-lib/dom/tags";
 import { Application_Javascript } from "@juniper-lib/mediatypes";
 import { createFetcher } from "../createFetcher";
 import { DirtWorkerClient } from "../dirt-worker/DirtWorkerClient";
-import { JS_EXT } from "../isDebug";
+import { isDebug, JS_EXT } from "../isDebug";
+import { version } from "../settings";
 
 const fetcher = createFetcher();
 
@@ -14,16 +16,25 @@ const fetcher = createFetcher();
     const F = 2;
     const P = 1;
 
-    const dirt = new DirtWorkerClient(R, F, P, await fetcher
-        .get("/js/dirt-worker/index" + JS_EXT)
+    const canv = Canvas(htmlWidth(R), htmlHeight(R));
+    const g = canv.getContext("2d");
+
+    const dirt = new DirtWorkerClient(await fetcher
+        .get(`/js/dirt-worker/index${JS_EXT}?${version}`)
+        .useCache(!isDebug)
         .accept(Application_Javascript)
         .worker());
-    await dirt.ready;
 
+    dirt.addEventListener("update", (evt) => {
+        g.drawImage(evt.imgBmp, 0, 0, evt.imgBmp.width, evt.imgBmp.height, 0, 0, canv.width, canv.height);
+        evt.imgBmp.close();
+    });
+
+    await dirt.init(R, R, F, P);
 
     elementApply(document.body,
         elementApply(
-            dirt,
+            canv,
             onPointerCancel(checkPointer),
             onPointerDown(checkPointer),
             onPointerEnter(checkPointer),
@@ -39,8 +50,8 @@ const fetcher = createFetcher();
 
     function checkPointer(evt: PointerEvent) {
         dirt.checkPointer(evt.pointerId,
-            evt.offsetX * dirt.element.width / dirt.element.clientWidth,
-            evt.offsetY * dirt.element.height / dirt.element.clientHeight,
+            evt.offsetX * canv.width / canv.clientWidth,
+            evt.offsetY * canv.height / canv.clientHeight,
             evt.type);
     }
 })();

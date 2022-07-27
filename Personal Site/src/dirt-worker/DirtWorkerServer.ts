@@ -8,6 +8,7 @@ export class DirtWorkerServer extends WorkerServer<DirtEventMap> {
         const dirtService = new DirtService();
         this.addMethod(dirtService, "init", dirtService.init.bind(dirtService));
         this.addVoidMethod(dirtService, "checkPointer", dirtService.checkPointer.bind(dirtService));
-        this.addEvent(dirtService, "update");
+        this.addVoidMethod(dirtService, "checkPointerUV", dirtService.checkPointerUV.bind(dirtService));
+        this.addEvent(dirtService, "update", (evt) => evt.imgBmp, (imgBmp) => [imgBmp]);
     }
 }

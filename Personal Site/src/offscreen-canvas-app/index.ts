@@ -70,6 +70,7 @@ const workerScriptBlobUrl = URL.createObjectURL(workerScriptBlob);
     canvas1.width = 100;
     canvas1.height = 100;
     const map1 = makeMesh(env, canvas1, -1);
+    map1.needsUpdate = true;
     const g1 = canvas1.getContext("2d");
     const drawRect = (i: number, x: number, y: number) => rect(g1, colors[i % colors.length], x, y);
     const draw = (i: number) => {
@@ -107,7 +108,7 @@ for (let i = 0; i < uv.count; ++i) {
 }
 
 function makeMesh(env: Environment, canvas1: HTMLCanvasElement, x: number) {
-    const map = new THREE.CanvasTexture(canvas1);
+    const map = new THREE.Texture(canvas1);
     const mat = new THREE.MeshBasicMaterial({ map });
     const mesh = new THREE.Mesh(geom, mat);
 
