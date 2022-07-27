@@ -6,9 +6,10 @@ import type { Environment } from "@juniper-lib/threejs/environment/Environment";
 import { EnvironmentModule } from "@juniper-lib/threejs/environment/EnvironmentModule";
 import { isNullOrUndefined, toBytes } from "@juniper-lib/tslib";
 import { createFetcher } from "./createFetcher";
-import { defaultAvatarHeight, defaultFont, enableFullResolution, getUIImagePaths, loadFonts } from "./settings";
+import { isDebug, JS_EXT } from "./isDebug";
+import { defaultAvatarHeight, defaultFont, enableFullResolution, getUIImagePaths, loadFonts, version } from "./settings";
 
-export async function createTestEnvironment(debug = true): Promise<Environment> {
+export async function createTestEnvironment(): Promise<Environment> {
 
     const canvas = Canvas(
         id("frontBuffer")
@@ -23,11 +24,10 @@ export async function createTestEnvironment(debug = true): Promise<Environment> 
 
     await loadFonts();
 
-    const fetcher = createFetcher(!debug);
-    const JS_EXT = debug ? ".js" : ".min.js";
+    const fetcher = createFetcher(!isDebug);
     const { default: EnvironmentConstructor } = await fetcher
-        .get(`/js/environment/index${JS_EXT}`)
-        .useCache(!debug)
+        .get(`/js/environment/index${JS_EXT}?${version}`)
+        .useCache(!isDebug)
         .module<EnvironmentModule>();
 
     const env = new EnvironmentConstructor(
@@ -37,10 +37,10 @@ export async function createTestEnvironment(debug = true): Promise<Environment> 
         getUIImagePaths(),
         defaultAvatarHeight,
         enableFullResolution, {
-        DEBUG: debug
+        DEBUG: isDebug
     });
 
-    if (debug) {
+    if (isDebug) {
         const MAX_IMAGE_SIZE = toBytes(200, "KiB");
         window.addEventListener("keypress", async (evt) => {
             if (evt.key === "`") {

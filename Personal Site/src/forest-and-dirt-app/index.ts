@@ -15,7 +15,7 @@ import { isDebug } from "../isDebug";
     const F = 2;
     const P = 1;
 
-    const env = await createTestEnvironment(isDebug);
+    const env = await createTestEnvironment();
     await env.fadeOut();
 
     const dirtMapAsset = new AssetImage("/img/dirt.jpg", Image_Jpeg, !isDebug);

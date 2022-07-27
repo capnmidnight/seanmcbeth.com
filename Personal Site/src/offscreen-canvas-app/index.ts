@@ -3,7 +3,6 @@ import { cleanup } from "@juniper-lib/threejs/cleanup";
 import { hasWebXR } from "@juniper-lib/tslib";
 import { createTestEnvironment } from "../createTestEnvironment";
 import Environment from "../environment";
-import { isDebug } from "../isDebug";
 
 const colors = [
     "red",
@@ -60,7 +59,7 @@ const workerScriptBlob = new Blob([workerScript], { type: Application_Javascript
 const workerScriptBlobUrl = URL.createObjectURL(workerScriptBlob);
 
 (async function () {
-    const env = await createTestEnvironment(isDebug);
+    const env = await createTestEnvironment();
     await env.fadeOut();
     await env.load();
 
