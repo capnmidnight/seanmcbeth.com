@@ -1,0 +1,1 @@
+rm -Force -Recurse .\deploy\linux\

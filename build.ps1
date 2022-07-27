@@ -1,2 +1,3 @@
-dotnet run --project .\Build\
-dotnet publish '.\Personal Site\' --configuration Release --no-self-contained --runtime linux-x64 --output .\deploy\linux
+./clean-deploy.ps1
+./build-scripts.ps1
+./publish.ps1

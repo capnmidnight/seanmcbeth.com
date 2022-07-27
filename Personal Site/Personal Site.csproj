@@ -16,8 +16,25 @@
 		<TypeScriptTarget>ESNext</TypeScriptTarget>
 	</PropertyGroup>
 
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+	  <DebugType>portable</DebugType>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+	  <DebugType>none</DebugType>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <Content Remove="package-lock.json" />
+	  <Content Remove="package.json" />
+	  <Content Remove="tsconfig.json" />
+	</ItemGroup>
+
 	<ItemGroup>
 	  <None Include="..\.editorconfig" Link=".editorconfig" />
+	  <None Include="package-lock.json" />
+	  <None Include="package.json" />
+	  <None Include="tsconfig.json" />
 	</ItemGroup>
 
 	<ItemGroup>
