@@ -4871,17 +4871,16 @@ function createFetcher(enableWorkers = true) {
 }
 
 // src/createTestEnvironment.ts
-async function createTestEnvironment(debug = true) {
+async function createTestEnvironment() {
   const canvas = Canvas(id("frontBuffer"));
   document.body.append(Div(id("appContainer"), canvas));
   await loadFonts();
-  const fetcher = createFetcher(!debug);
-  const JS_EXT2 = debug ? ".js" : ".min.js";
-  const { default: EnvironmentConstructor } = await fetcher.get(`/js/environment/index${JS_EXT2}`).useCache(!debug).module();
+  const fetcher = createFetcher(!isDebug);
+  const { default: EnvironmentConstructor } = await fetcher.get(`/js/environment/index${JS_EXT}?${version}`).useCache(!isDebug).module();
   const env = new EnvironmentConstructor(canvas, fetcher, defaultFont.fontFamily, getUIImagePaths(), defaultAvatarHeight, enableFullResolution, {
-    DEBUG: debug
+    DEBUG: isDebug
   });
-  if (debug) {
+  if (isDebug) {
     const MAX_IMAGE_SIZE = toBytes(200, "KiB");
     window.addEventListener("keypress", async (evt) => {
       if (evt.key === "`") {

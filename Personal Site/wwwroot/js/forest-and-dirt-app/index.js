@@ -667,11 +667,6 @@ var delta = [
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math/angleClamp.ts
 var Tau = 2 * Math.PI;
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math/xy2i.ts
-function xy2i(x, y, width, components = 1) {
-  return components * (x + width * y);
-}
-
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/progress/BaseProgress.ts
 var BaseProgress = class extends TypedEventBase {
   constructor() {
@@ -1188,245 +1183,6 @@ function using(val, thunk) {
   }
 }
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/attrs.ts
-var Attr = class {
-  constructor(key, value, bySetAttribute, ...tags) {
-    this.key = key;
-    this.value = value;
-    this.bySetAttribute = bySetAttribute;
-    this.tags = tags.map((t2) => t2.toLocaleUpperCase());
-    Object.freeze(this);
-  }
-  applyToElement(elem) {
-    const isDataSet = this.key.startsWith("data-");
-    const isValid = this.tags.length === 0 || this.tags.indexOf(elem.tagName) > -1 || isDataSet;
-    if (!isValid) {
-      console.warn(`Element ${elem.tagName} does not support Attribute ${this.key}`);
-    } else if (isDataSet) {
-      const subkey = this.key.substring(5);
-      elem.dataset[subkey] = this.value;
-    } else if (this.key === "style") {
-      Object.assign(elem.style, this.value);
-    } else if (this.key === "classList") {
-      this.value.forEach((v) => elem.classList.add(v));
-    } else if (this.bySetAttribute) {
-      elem.setAttribute(this.key, this.value);
-    } else if (this.key in elem) {
-      elem[this.key] = this.value;
-    } else if (this.value === false) {
-      elem.removeAttribute(this.key);
-    } else if (this.value === true) {
-      elem.setAttribute(this.key, "");
-    } else {
-      elem.setAttribute(this.key, this.value);
-    }
-  }
-};
-function autoPlay(value) {
-  return new Attr("autoplay", value, false, "audio", "video");
-}
-function controls(value) {
-  return new Attr("controls", value, false, "audio", "video");
-}
-function htmlHeight(value) {
-  return new Attr("height", value, false, "canvas", "embed", "iframe", "img", "input", "object", "video");
-}
-function id(value) {
-  return new Attr("id", value, false);
-}
-function loop(value) {
-  return new Attr("loop", value, false, "audio", "bgsound", "marquee", "video");
-}
-function muted(value) {
-  return new Attr("muted", value, false, "audio", "video");
-}
-function playsInline(value) {
-  return new Attr("playsInline", value, false, "audio", "video");
-}
-function type(value) {
-  if (!isString(value)) {
-    value = value.value;
-  }
-  return new Attr("type", value, false, "button", "input", "command", "embed", "link", "object", "script", "source", "style", "menu");
-}
-function htmlWidth(value) {
-  return new Attr("width", value, false, "canvas", "embed", "iframe", "img", "input", "object", "video");
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/css.ts
-var CssProp = class {
-  constructor(key, value) {
-    this.key = key;
-    this.value = value;
-    this.name = key.replace(/[A-Z]/g, (m) => `-${m.toLocaleLowerCase()}`);
-  }
-  applyToElement(elem) {
-    elem.style[this.key] = this.value;
-  }
-};
-var CssPropSet = class {
-  constructor(...rest) {
-    this.rest = rest;
-  }
-  applyToElement(elem) {
-    for (const prop of this.rest) {
-      prop.applyToElement(elem);
-    }
-  }
-};
-function styles(...rest) {
-  return new CssPropSet(...rest);
-}
-function display(v) {
-  return new CssProp("display", v);
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/tags.ts
-function isErsatzElement(obj) {
-  if (!isObject(obj)) {
-    return false;
-  }
-  const elem = obj;
-  return elem.element instanceof Node;
-}
-function isErsatzElements(obj) {
-  return isObject(obj) && "elements" in obj && obj.elements instanceof Array;
-}
-function resolveElement(elem) {
-  if (isErsatzElement(elem)) {
-    return elem.element;
-  }
-  return elem;
-}
-function isIElementAppliable(obj) {
-  return isObject(obj) && "applyToElement" in obj && isFunction(obj.applyToElement);
-}
-function elementApply(elem, ...children) {
-  elem = resolveElement(elem);
-  for (const child of children) {
-    if (isDefined(child)) {
-      if (child instanceof Node) {
-        elem.append(child);
-      } else if (isErsatzElement(child)) {
-        elem.append(resolveElement(child));
-      } else if (isErsatzElements(child)) {
-        elem.append(...child.elements.map(resolveElement));
-      } else if (isIElementAppliable(child)) {
-        child.applyToElement(elem);
-      } else {
-        elem.append(document.createTextNode(child.toLocaleString()));
-      }
-    }
-  }
-  return elem;
-}
-function getElement(selector) {
-  return document.querySelector(selector);
-}
-function getInput(selector) {
-  return getElement(selector);
-}
-function tag(name, ...rest) {
-  let elem = null;
-  for (const attr of rest) {
-    if (attr instanceof Attr && attr.key === "id") {
-      elem = document.getElementById(attr.value);
-      break;
-    }
-  }
-  if (elem == null) {
-    elem = document.createElement(name);
-  }
-  elementApply(elem, ...rest);
-  return elem;
-}
-function Audio2(...rest) {
-  return tag("audio", ...rest);
-}
-function Canvas(...rest) {
-  return tag("canvas", ...rest);
-}
-function Div(...rest) {
-  return tag("div", ...rest);
-}
-function Img(...rest) {
-  return tag("img", ...rest);
-}
-function Script(...rest) {
-  return tag("script", ...rest);
-}
-function Video(...rest) {
-  return tag("video", ...rest);
-}
-function BackgroundAudio(autoplay, mute, looping, ...rest) {
-  return Audio2(playsInline(true), controls(false), muted(mute), autoPlay(autoplay), loop(looping), styles(display("none")), ...rest);
-}
-function BackgroundVideo(autoplay, mute, looping, ...rest) {
-  return Video(playsInline(true), controls(false), muted(mute), autoPlay(autoplay), loop(looping), styles(display("none")), ...rest);
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/canvas.ts
-var hasHTMLCanvas = "HTMLCanvasElement" in globalThis;
-var hasHTMLImage = "HTMLImageElement" in globalThis;
-var disableAdvancedSettings = false;
-var hasOffscreenCanvas = !disableAdvancedSettings && "OffscreenCanvas" in globalThis;
-var hasImageBitmap = !disableAdvancedSettings && "createImageBitmap" in globalThis;
-function isHTMLCanvas(obj) {
-  return hasHTMLCanvas && obj instanceof HTMLCanvasElement;
-}
-function isOffscreenCanvas(obj) {
-  return hasOffscreenCanvas && obj instanceof OffscreenCanvas;
-}
-function testOffscreen2D() {
-  try {
-    const canv = new OffscreenCanvas(1, 1);
-    const g = canv.getContext("2d");
-    return g != null;
-  } catch (exp) {
-    return false;
-  }
-}
-var hasOffscreenCanvasRenderingContext2D = hasOffscreenCanvas && testOffscreen2D();
-var createUtilityCanvas = hasOffscreenCanvasRenderingContext2D && createOffscreenCanvas || hasHTMLCanvas && createCanvas || null;
-var createUICanvas = hasHTMLCanvas ? createCanvas : createUtilityCanvas;
-function testOffscreen3D() {
-  try {
-    const canv = new OffscreenCanvas(1, 1);
-    const g = canv.getContext("webgl2");
-    return g != null;
-  } catch (exp) {
-    return false;
-  }
-}
-var hasOffscreenCanvasRenderingContext3D = hasOffscreenCanvas && testOffscreen3D();
-function createOffscreenCanvas(width, height) {
-  return new OffscreenCanvas(width, height);
-}
-function createCanvas(w, h) {
-  if (false) {
-    throw new Error("HTML Canvas is not supported in workers");
-  }
-  return Canvas(htmlWidth(w), htmlHeight(h));
-}
-function drawImageToCanvas(canv, img) {
-  const g = canv.getContext("2d");
-  if (isNullOrUndefined(g)) {
-    throw new Error("Could not create 2d context for canvas");
-  }
-  g.drawImage(img, 0, 0);
-}
-function canvasToBlob(canvas, type2, quality) {
-  if (isOffscreenCanvas(canvas)) {
-    return canvas.convertToBlob({ type: type2, quality });
-  } else if (isHTMLCanvas(canvas)) {
-    const blobCreated = new Task();
-    canvas.toBlob(blobCreated.resolve, type2, quality);
-    return blobCreated;
-  } else {
-    throw new Error("Cannot save image from canvas");
-  }
-}
-
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/util.ts
 var typePattern = /([^\/]+)\/(.+)/;
 var subTypePattern = /(?:([^\.]+)\.)?([^\+;]+)(?:\+([^;]+))?((?:; *([^=]+)=([^;]+))*)/;
@@ -1710,6 +1466,245 @@ var AssetImage = class extends BaseFetchedAsset {
     return request.image(this.type);
   }
 };
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/attrs.ts
+var Attr = class {
+  constructor(key, value, bySetAttribute, ...tags) {
+    this.key = key;
+    this.value = value;
+    this.bySetAttribute = bySetAttribute;
+    this.tags = tags.map((t2) => t2.toLocaleUpperCase());
+    Object.freeze(this);
+  }
+  applyToElement(elem) {
+    const isDataSet = this.key.startsWith("data-");
+    const isValid = this.tags.length === 0 || this.tags.indexOf(elem.tagName) > -1 || isDataSet;
+    if (!isValid) {
+      console.warn(`Element ${elem.tagName} does not support Attribute ${this.key}`);
+    } else if (isDataSet) {
+      const subkey = this.key.substring(5);
+      elem.dataset[subkey] = this.value;
+    } else if (this.key === "style") {
+      Object.assign(elem.style, this.value);
+    } else if (this.key === "classList") {
+      this.value.forEach((v) => elem.classList.add(v));
+    } else if (this.bySetAttribute) {
+      elem.setAttribute(this.key, this.value);
+    } else if (this.key in elem) {
+      elem[this.key] = this.value;
+    } else if (this.value === false) {
+      elem.removeAttribute(this.key);
+    } else if (this.value === true) {
+      elem.setAttribute(this.key, "");
+    } else {
+      elem.setAttribute(this.key, this.value);
+    }
+  }
+};
+function autoPlay(value) {
+  return new Attr("autoplay", value, false, "audio", "video");
+}
+function controls(value) {
+  return new Attr("controls", value, false, "audio", "video");
+}
+function htmlHeight(value) {
+  return new Attr("height", value, false, "canvas", "embed", "iframe", "img", "input", "object", "video");
+}
+function id(value) {
+  return new Attr("id", value, false);
+}
+function loop(value) {
+  return new Attr("loop", value, false, "audio", "bgsound", "marquee", "video");
+}
+function muted(value) {
+  return new Attr("muted", value, false, "audio", "video");
+}
+function playsInline(value) {
+  return new Attr("playsInline", value, false, "audio", "video");
+}
+function type(value) {
+  if (!isString(value)) {
+    value = value.value;
+  }
+  return new Attr("type", value, false, "button", "input", "command", "embed", "link", "object", "script", "source", "style", "menu");
+}
+function htmlWidth(value) {
+  return new Attr("width", value, false, "canvas", "embed", "iframe", "img", "input", "object", "video");
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/css.ts
+var CssProp = class {
+  constructor(key, value) {
+    this.key = key;
+    this.value = value;
+    this.name = key.replace(/[A-Z]/g, (m) => `-${m.toLocaleLowerCase()}`);
+  }
+  applyToElement(elem) {
+    elem.style[this.key] = this.value;
+  }
+};
+var CssPropSet = class {
+  constructor(...rest) {
+    this.rest = rest;
+  }
+  applyToElement(elem) {
+    for (const prop of this.rest) {
+      prop.applyToElement(elem);
+    }
+  }
+};
+function styles(...rest) {
+  return new CssPropSet(...rest);
+}
+function display(v) {
+  return new CssProp("display", v);
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/tags.ts
+function isErsatzElement(obj) {
+  if (!isObject(obj)) {
+    return false;
+  }
+  const elem = obj;
+  return elem.element instanceof Node;
+}
+function isErsatzElements(obj) {
+  return isObject(obj) && "elements" in obj && obj.elements instanceof Array;
+}
+function resolveElement(elem) {
+  if (isErsatzElement(elem)) {
+    return elem.element;
+  }
+  return elem;
+}
+function isIElementAppliable(obj) {
+  return isObject(obj) && "applyToElement" in obj && isFunction(obj.applyToElement);
+}
+function elementApply(elem, ...children) {
+  elem = resolveElement(elem);
+  for (const child of children) {
+    if (isDefined(child)) {
+      if (child instanceof Node) {
+        elem.append(child);
+      } else if (isErsatzElement(child)) {
+        elem.append(resolveElement(child));
+      } else if (isErsatzElements(child)) {
+        elem.append(...child.elements.map(resolveElement));
+      } else if (isIElementAppliable(child)) {
+        child.applyToElement(elem);
+      } else {
+        elem.append(document.createTextNode(child.toLocaleString()));
+      }
+    }
+  }
+  return elem;
+}
+function getElement(selector) {
+  return document.querySelector(selector);
+}
+function getInput(selector) {
+  return getElement(selector);
+}
+function tag(name, ...rest) {
+  let elem = null;
+  for (const attr of rest) {
+    if (attr instanceof Attr && attr.key === "id") {
+      elem = document.getElementById(attr.value);
+      break;
+    }
+  }
+  if (elem == null) {
+    elem = document.createElement(name);
+  }
+  elementApply(elem, ...rest);
+  return elem;
+}
+function Audio2(...rest) {
+  return tag("audio", ...rest);
+}
+function Canvas(...rest) {
+  return tag("canvas", ...rest);
+}
+function Div(...rest) {
+  return tag("div", ...rest);
+}
+function Img(...rest) {
+  return tag("img", ...rest);
+}
+function Script(...rest) {
+  return tag("script", ...rest);
+}
+function Video(...rest) {
+  return tag("video", ...rest);
+}
+function BackgroundAudio(autoplay, mute, looping, ...rest) {
+  return Audio2(playsInline(true), controls(false), muted(mute), autoPlay(autoplay), loop(looping), styles(display("none")), ...rest);
+}
+function BackgroundVideo(autoplay, mute, looping, ...rest) {
+  return Video(playsInline(true), controls(false), muted(mute), autoPlay(autoplay), loop(looping), styles(display("none")), ...rest);
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/canvas.ts
+var hasHTMLCanvas = "HTMLCanvasElement" in globalThis;
+var hasHTMLImage = "HTMLImageElement" in globalThis;
+var disableAdvancedSettings = false;
+var hasOffscreenCanvas = !disableAdvancedSettings && "OffscreenCanvas" in globalThis;
+var hasImageBitmap = !disableAdvancedSettings && "createImageBitmap" in globalThis;
+function isHTMLCanvas(obj) {
+  return hasHTMLCanvas && obj instanceof HTMLCanvasElement;
+}
+function isOffscreenCanvas(obj) {
+  return hasOffscreenCanvas && obj instanceof OffscreenCanvas;
+}
+function testOffscreen2D() {
+  try {
+    const canv = new OffscreenCanvas(1, 1);
+    const g = canv.getContext("2d");
+    return g != null;
+  } catch (exp) {
+    return false;
+  }
+}
+var hasOffscreenCanvasRenderingContext2D = hasOffscreenCanvas && testOffscreen2D();
+var createUtilityCanvas = hasOffscreenCanvasRenderingContext2D && createOffscreenCanvas || hasHTMLCanvas && createCanvas || null;
+var createUICanvas = hasHTMLCanvas ? createCanvas : createUtilityCanvas;
+function testOffscreen3D() {
+  try {
+    const canv = new OffscreenCanvas(1, 1);
+    const g = canv.getContext("webgl2");
+    return g != null;
+  } catch (exp) {
+    return false;
+  }
+}
+var hasOffscreenCanvasRenderingContext3D = hasOffscreenCanvas && testOffscreen3D();
+function createOffscreenCanvas(width, height) {
+  return new OffscreenCanvas(width, height);
+}
+function createCanvas(w, h) {
+  if (false) {
+    throw new Error("HTML Canvas is not supported in workers");
+  }
+  return Canvas(htmlWidth(w), htmlHeight(h));
+}
+function drawImageToCanvas(canv, img) {
+  const g = canv.getContext("2d");
+  if (isNullOrUndefined(g)) {
+    throw new Error("Could not create 2d context for canvas");
+  }
+  g.drawImage(img, 0, 0);
+}
+function canvasToBlob(canvas, type2, quality) {
+  if (isOffscreenCanvas(canvas)) {
+    return canvas.convertToBlob({ type: type2, quality });
+  } else if (isHTMLCanvas(canvas)) {
+    const blobCreated = new Task();
+    canvas.toBlob(blobCreated.resolve, type2, quality);
+    return blobCreated;
+  } else {
+    throw new Error("Cannot save image from canvas");
+  }
+}
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/RequestBuilder.ts
 var testAudio = null;
@@ -3239,17 +3234,16 @@ function createFetcher(enableWorkers = true) {
 }
 
 // src/createTestEnvironment.ts
-async function createTestEnvironment(debug = true) {
+async function createTestEnvironment() {
   const canvas = Canvas(id("frontBuffer"));
   document.body.append(Div(id("appContainer"), canvas));
   await loadFonts();
-  const fetcher = createFetcher(!debug);
-  const JS_EXT2 = debug ? ".js" : ".min.js";
-  const { default: EnvironmentConstructor } = await fetcher.get(`/js/environment/index${JS_EXT2}`).useCache(!debug).module();
+  const fetcher = createFetcher(!isDebug);
+  const { default: EnvironmentConstructor } = await fetcher.get(`/js/environment/index${JS_EXT}?${version}`).useCache(!isDebug).module();
   const env = new EnvironmentConstructor(canvas, fetcher, defaultFont.fontFamily, getUIImagePaths(), defaultAvatarHeight, enableFullResolution, {
-    DEBUG: debug
+    DEBUG: isDebug
   });
-  if (debug) {
+  if (isDebug) {
     const MAX_IMAGE_SIZE = toBytes(200, "KiB");
     window.addEventListener("keypress", async (evt) => {
       if (evt.key === "`") {
@@ -3311,151 +3305,44 @@ var actionTypes = singleton("Juniper:Graphics2D:Dirt:StopTypes", () => /* @__PUR
   ["touchmove", "move"],
   ["touchstart", "down"]
 ]));
-var DirtService = class extends TypedEventBase {
+var DirtServiceUpdateEvent = class extends TypedEvent {
   constructor() {
-    super();
-    this.updateEvt = new TypedEvent("update");
-    this.canvas = null;
-    this.g = null;
-    this.pointerId = null;
-    this.fr = null;
-    this.pr = null;
-    this.height = null;
-    this.x = null;
-    this.y = null;
-    this.lx = null;
-    this.ly = null;
-    this.components = null;
-    this.data = null;
-    this.sub = new OffscreenCanvas(this.height, this.height);
-    this.subg = this.sub.getContext("2d", {
-      alpha: false,
-      desynchronized: true,
-      willReadFrequently: true
-    });
+    super("update");
   }
-  init(canvas, fr, pr) {
-    this.canvas = canvas;
-    this.g = this.canvas.getContext("2d", { alpha: false });
-    this.g.fillStyle = "rgb(50%, 50%, 50%)";
-    this.g.fillRect(0, 0, this.canvas.width, this.canvas.height);
-    const imgData = this.g.getImageData(0, 0, this.canvas.width, this.canvas.height);
-    const { data, width, height } = imgData;
-    const components = data.length / (width * height);
-    for (let i = 0; i < data.length; i += components) {
-      const v = Math.floor(50 * (Math.random() - 0.5));
-      for (let c = 0; c < components - 1; ++c) {
-        data[i + c] += v;
-      }
+};
+
+// src/dirt-worker/DirtWorkerClient.ts
+var DirtWorkerClient = class extends WorkerClient {
+  constructor() {
+    super(...arguments);
+    this.updateEvt = new DirtServiceUpdateEvent();
+    this.checkPointerParams = [null, null, null, null];
+  }
+  propogateEvent(data) {
+    if (data.eventName === "update") {
+      this.updateEvt.imgBmp = data.data;
+      this.dispatchEvent(this.updateEvt);
+    } else {
+      assertNever(data.eventName);
     }
-    this.g.putImageData(imgData, 0, 0);
-    this.fr = fr;
-    this.pr = pr;
-    this.height = 2 * (this.fr + this.pr) + 1;
-    return Promise.resolve();
   }
-  I(x, y) {
-    return xy2i(x, y + this.fr + this.pr, this.sub.width, this.components);
+  setParams(id2, x, y, type2) {
+    this.checkPointerParams[0] = id2;
+    this.checkPointerParams[1] = x;
+    this.checkPointerParams[2] = y;
+    this.checkPointerParams[3] = type2;
   }
-  GET(x, y) {
-    return this.data[this.I(x, y)] / 255;
-  }
-  SET(x, y, v) {
-    return this.data[this.I(x, y)] = 255 * v;
-  }
-  update() {
-    if (this.pointerId !== null && this.canvas) {
-      const dx = this.lx - this.x;
-      const dy = this.ly - this.y;
-      if (Math.abs(dx) + Math.abs(dy) > 0) {
-        const a = Math.atan2(dy, dx) + Math.PI;
-        const d = Math.round(Math.sqrt(dx * dx + dy * dy));
-        this.sub.width = d + this.fr + this.pr;
-        ;
-        this.sub.height = this.height;
-        this.subg.save();
-        this.subg.translate(0, this.fr + this.pr);
-        this.subg.rotate(-a);
-        this.subg.translate(-this.lx, -this.ly);
-        this.subg.drawImage(this.canvas, 0, 0);
-        this.subg.restore();
-        const imgData = this.subg.getImageData(0, 0, this.sub.width, this.sub.height);
-        this.data = imgData.data;
-        this.components = this.data.length / (this.sub.width * this.height);
-        const start = this.GET(0, 0);
-        const level = Math.max(0, start - 0.25);
-        let accum = 0;
-        for (let x = 0; x < d; ++x) {
-          const here = this.GET(x, 0);
-          accum += here - level;
-          this.SET(x, 0, level);
-          for (let y = -this.fr; y <= this.fr; ++y) {
-            const dx2 = this.fr - Math.abs(y);
-            const here2 = this.GET(x + dx2, y);
-            accum += here2 - level;
-            this.SET(x + dx2, y, level);
-          }
-          const deposit = level / (2 * this.fr * this.pr);
-          for (let y = -this.fr - this.pr; y <= this.fr + this.pr && accum > 0; ++y) {
-            if (y < -this.fr || this.fr < y) {
-              const dx2 = this.fr - Math.abs(y);
-              const there = this.GET(x + dx2, y);
-              const v = Math.min(accum, deposit);
-              this.SET(x + dx2, y, there + v);
-              accum -= v;
-            }
-          }
-        }
-        if (accum > 0) {
-          const deposit = accum / (2 * this.fr * this.pr);
-          for (let y = -this.fr - this.pr; y <= this.fr + this.pr && accum > 0; ++y) {
-            if (y < -this.fr || this.fr < y) {
-              const dx2 = this.fr - Math.abs(y);
-              const there = this.GET(d + dx2, y);
-              const v = Math.min(accum, deposit);
-              this.SET(d + dx2, y, there + v);
-              accum -= v;
-            }
-          }
-        }
-        for (let i = 0; i < this.data.length; i += this.components) {
-          const p = this.data[i];
-          this.data[i + 1] = p;
-          this.data[i + 2] = p;
-        }
-        this.subg.putImageData(imgData, 0, 0);
-        this.g.save();
-        this.g.translate(this.lx, this.ly);
-        this.g.rotate(a);
-        this.g.translate(-0, -this.fr - this.pr);
-        this.g.drawImage(this.sub, 0, 0);
-        this.g.restore();
-        this.dispatchEvent(this.updateEvt);
-      }
-    }
-    this.lx = this.x;
-    this.ly = this.y;
+  init(width, height, fr, pr) {
+    this.setParams(width, height, fr, pr);
+    return this.callMethod("init", this.checkPointerParams);
   }
   checkPointer(id2, x, y, type2) {
-    const action = actionTypes.get(type2) || type2;
-    if (this.pointerId === null) {
-      if (action === "down") {
-        this.pointerId = id2;
-        this.lx = this.x = x;
-        this.ly = this.y = y;
-        this.update();
-      }
-    } else if (id2 === this.pointerId) {
-      this.x = x;
-      this.y = y;
-      this.update();
-      if (action === "up") {
-        this.pointerId = null;
-      }
-    }
+    this.setParams(id2, x, y, type2);
+    this.callMethod("checkPointer", this.checkPointerParams);
   }
   checkPointerUV(id2, x, y, type2) {
-    this.checkPointer(id2, x * this.canvas.width, y * this.canvas.height, type2);
+    this.setParams(id2, x, y, type2);
+    this.callMethod("checkPointerUV", this.checkPointerParams);
   }
 };
 
@@ -4225,7 +4112,7 @@ var Forest = class {
   const R = 200;
   const F = 2;
   const P = 1;
-  const env = await createTestEnvironment(isDebug);
+  const env = await createTestEnvironment();
   await env.fadeOut();
   const dirtMapAsset = new AssetImage("/img/dirt.jpg", Image_Jpeg, !isDebug);
   const forest = new Forest(env);
@@ -4234,13 +4121,18 @@ var Forest = class {
   dirtMapTex.minFilter = THREE.LinearMipmapLinearFilter;
   dirtMapTex.magFilter = THREE.LinearFilter;
   dirtMapTex.needsUpdate = true;
-  const dirtBumpMap = new DirtService();
-  await dirtBumpMap.init(createUtilityCanvas(R, R), F, P);
-  const dirtBumpMapTex = new THREE.Texture(dirtBumpMap.canvas);
+  const dirtBumpMapTex = new THREE.Texture(null);
   dirtBumpMapTex.minFilter = THREE.LinearMipmapLinearFilter;
   dirtBumpMapTex.magFilter = THREE.LinearFilter;
-  dirtBumpMapTex.needsUpdate = true;
-  dirtBumpMap.addEventListener("update", () => dirtBumpMapTex.needsUpdate = true);
+  const dirtBumpMap = new DirtWorkerClient(await env.fetcher.get(`/js/dirt-worker/index${JS_EXT}?${version}`).useCache(!isDebug).accept(Application_Javascript).worker());
+  dirtBumpMap.addEventListener("update", (evt) => {
+    if (dirtBumpMapTex.image instanceof ImageBitmap) {
+      dirtBumpMapTex.image.close();
+    }
+    dirtBumpMapTex.image = evt.imgBmp;
+    dirtBumpMapTex.needsUpdate = true;
+  });
+  await dirtBumpMap.init(R, R, F, P);
   const dirtGeom = new THREE.PlaneBufferGeometry(S, S, R, R);
   const dirtMat = new THREE.MeshPhongMaterial({
     precision: "highp",

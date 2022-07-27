@@ -1158,40 +1158,6 @@ function using(val, thunk) {
   }
 }
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/css.ts
-var CssProp = class {
-  constructor(key, value) {
-    this.key = key;
-    this.value = value;
-    this.name = key.replace(/[A-Z]/g, (m) => `-${m.toLocaleLowerCase()}`);
-  }
-  applyToElement(elem) {
-    elem.style[this.key] = this.value;
-  }
-};
-var CssPropSet = class {
-  constructor(...rest) {
-    this.rest = rest;
-  }
-  applyToElement(elem) {
-    for (const prop of this.rest) {
-      prop.applyToElement(elem);
-    }
-  }
-};
-function styles(...rest) {
-  return new CssPropSet(...rest);
-}
-function display(v) {
-  return new CssProp("display", v);
-}
-function touchAction(v) {
-  return new CssProp("touchAction", v);
-}
-function width(v) {
-  return new CssProp("width", v);
-}
-
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/attrs.ts
 var Attr = class {
   constructor(key, value, bySetAttribute, ...tags) {
@@ -1252,6 +1218,40 @@ function type(value) {
 }
 function htmlWidth(value) {
   return new Attr("width", value, false, "canvas", "embed", "iframe", "img", "input", "object", "video");
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/css.ts
+var CssProp = class {
+  constructor(key, value) {
+    this.key = key;
+    this.value = value;
+    this.name = key.replace(/[A-Z]/g, (m) => `-${m.toLocaleLowerCase()}`);
+  }
+  applyToElement(elem) {
+    elem.style[this.key] = this.value;
+  }
+};
+var CssPropSet = class {
+  constructor(...rest) {
+    this.rest = rest;
+  }
+  applyToElement(elem) {
+    for (const prop of this.rest) {
+      prop.applyToElement(elem);
+    }
+  }
+};
+function styles(...rest) {
+  return new CssPropSet(...rest);
+}
+function display(v) {
+  return new CssProp("display", v);
+}
+function touchAction(v) {
+  return new CssProp("touchAction", v);
+}
+function width(v) {
+  return new CssProp("width", v);
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/tags.ts
@@ -3030,32 +3030,66 @@ function createFetcher(enableWorkers = true) {
   return new Fetcher(fallback, !isDebug);
 }
 
+// src/dirt-worker/DirtService.ts
+var actionTypes = singleton("Juniper:Graphics2D:Dirt:StopTypes", () => /* @__PURE__ */ new Map([
+  ["mousedown", "down"],
+  ["mouseenter", "move"],
+  ["mouseleave", "up"],
+  ["mousemove", "move"],
+  ["mouseout", "up"],
+  ["mouseover", "move"],
+  ["mouseup", "up"],
+  ["pointerdown", "down"],
+  ["pointerenter", "move"],
+  ["pointerleave", "up"],
+  ["pointermove", "move"],
+  ["pointerrawupdate", "move"],
+  ["pointerout", "up"],
+  ["pointerup", "up"],
+  ["pointerover", "move"],
+  ["touchcancel", "up"],
+  ["touchend", "up"],
+  ["touchmove", "move"],
+  ["touchstart", "down"]
+]));
+var DirtServiceUpdateEvent = class extends TypedEvent {
+  constructor() {
+    super("update");
+  }
+};
+
 // src/dirt-worker/DirtWorkerClient.ts
 var DirtWorkerClient = class extends WorkerClient {
-  constructor(n2, fr, pr, worker) {
-    super(worker);
-    this.updateEvt = new TypedEvent("update");
-    this.checkPointerParams = [null, 0, 0, null];
-    this.element = createCanvas(n2, n2);
-    const offscreen = this.element.transferControlToOffscreen();
-    this.ready = this.callMethod("init", [offscreen, fr, pr], [offscreen]);
+  constructor() {
+    super(...arguments);
+    this.updateEvt = new DirtServiceUpdateEvent();
+    this.checkPointerParams = [null, null, null, null];
   }
   propogateEvent(data) {
     if (data.eventName === "update") {
+      this.updateEvt.imgBmp = data.data;
       this.dispatchEvent(this.updateEvt);
     } else {
       assertNever(data.eventName);
     }
   }
-  checkPointer(id, x, y, type2) {
+  setParams(id, x, y, type2) {
     this.checkPointerParams[0] = id;
     this.checkPointerParams[1] = x;
     this.checkPointerParams[2] = y;
     this.checkPointerParams[3] = type2;
+  }
+  init(width2, height, fr, pr) {
+    this.setParams(width2, height, fr, pr);
+    return this.callMethod("init", this.checkPointerParams);
+  }
+  checkPointer(id, x, y, type2) {
+    this.setParams(id, x, y, type2);
     this.callMethod("checkPointer", this.checkPointerParams);
   }
   checkPointerUV(id, x, y, type2) {
-    this.checkPointer(id, x * this.element.width, y * this.element.height, type2);
+    this.setParams(id, x, y, type2);
+    this.callMethod("checkPointerUV", this.checkPointerParams);
   }
 };
 
@@ -3065,11 +3099,17 @@ var fetcher = createFetcher();
   const R = 200;
   const F = 2;
   const P = 1;
-  const dirt = new DirtWorkerClient(R, F, P, await fetcher.get("/js/dirt-worker/index" + JS_EXT).accept(Application_Javascript).worker());
-  await dirt.ready;
-  elementApply(document.body, elementApply(dirt, onPointerCancel(checkPointer), onPointerDown(checkPointer), onPointerEnter(checkPointer), onPointerLeave(checkPointer), onPointerRawUpdate(checkPointer), onPointerUp(checkPointer), styles(touchAction("none"), width("600px"))));
+  const canv = Canvas(htmlWidth(R), htmlHeight(R));
+  const g = canv.getContext("2d");
+  const dirt = new DirtWorkerClient(await fetcher.get(`/js/dirt-worker/index${JS_EXT}?${version}`).useCache(!isDebug).accept(Application_Javascript).worker());
+  dirt.addEventListener("update", (evt) => {
+    g.drawImage(evt.imgBmp, 0, 0, evt.imgBmp.width, evt.imgBmp.height, 0, 0, canv.width, canv.height);
+    evt.imgBmp.close();
+  });
+  await dirt.init(R, R, F, P);
+  elementApply(document.body, elementApply(canv, onPointerCancel(checkPointer), onPointerDown(checkPointer), onPointerEnter(checkPointer), onPointerLeave(checkPointer), onPointerRawUpdate(checkPointer), onPointerUp(checkPointer), styles(touchAction("none"), width("600px"))));
   function checkPointer(evt) {
-    dirt.checkPointer(evt.pointerId, evt.offsetX * dirt.element.width / dirt.element.clientWidth, evt.offsetY * dirt.element.height / dirt.element.clientHeight, evt.type);
+    dirt.checkPointer(evt.pointerId, evt.offsetX * canv.width / canv.clientWidth, evt.offsetY * canv.height / canv.clientHeight, evt.type);
   }
 })();
 //# sourceMappingURL=index.js.map

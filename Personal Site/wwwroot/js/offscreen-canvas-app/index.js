@@ -3167,17 +3167,16 @@ function createFetcher(enableWorkers = true) {
 }
 
 // src/createTestEnvironment.ts
-async function createTestEnvironment(debug = true) {
+async function createTestEnvironment() {
   const canvas = Canvas(id("frontBuffer"));
   document.body.append(Div(id("appContainer"), canvas));
   await loadFonts();
-  const fetcher = createFetcher(!debug);
-  const JS_EXT2 = debug ? ".js" : ".min.js";
-  const { default: EnvironmentConstructor } = await fetcher.get(`/js/environment/index${JS_EXT2}`).useCache(!debug).module();
+  const fetcher = createFetcher(!isDebug);
+  const { default: EnvironmentConstructor } = await fetcher.get(`/js/environment/index${JS_EXT}?${version}`).useCache(!isDebug).module();
   const env = new EnvironmentConstructor(canvas, fetcher, defaultFont.fontFamily, getUIImagePaths(), defaultAvatarHeight, enableFullResolution, {
-    DEBUG: debug
+    DEBUG: isDebug
   });
-  if (debug) {
+  if (isDebug) {
     const MAX_IMAGE_SIZE = toBytes(200, "KiB");
     window.addEventListener("keypress", async (evt) => {
       if (evt.key === "`") {
@@ -3269,7 +3268,7 @@ addEventListener("message", (evt) => {
 var workerScriptBlob = new Blob([workerScript], { type: Application_Javascript.value });
 var workerScriptBlobUrl = URL.createObjectURL(workerScriptBlob);
 (async function() {
-  const env = await createTestEnvironment(isDebug);
+  const env = await createTestEnvironment();
   await env.fadeOut();
   await env.load();
   env.arButton.visible = hasWebXR();
@@ -3277,6 +3276,7 @@ var workerScriptBlobUrl = URL.createObjectURL(workerScriptBlob);
   canvas1.width = 100;
   canvas1.height = 100;
   const map1 = makeMesh(env, canvas1, -1);
+  map1.needsUpdate = true;
   const g1 = canvas1.getContext("2d");
   const drawRect = (i2, x, y) => rect(g1, colors[i2 % colors.length], x, y);
   const draw = (i2) => {
@@ -3309,7 +3309,7 @@ for (let i = 0; i < uv.count; ++i) {
   uv.setY(i, 1 - uv.getY(i));
 }
 function makeMesh(env, canvas1, x) {
-  const map = new THREE.CanvasTexture(canvas1);
+  const map = new THREE.Texture(canvas1);
   const mat = new THREE.MeshBasicMaterial({ map });
   const mesh = new THREE.Mesh(geom, mat);
   map.flipY = false;

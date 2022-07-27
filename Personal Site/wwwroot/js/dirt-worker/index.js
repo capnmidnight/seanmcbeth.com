@@ -122,12 +122,12 @@ var EventBase = class {
     this.listeners = /* @__PURE__ */ new Map();
     this.listenerOptions = /* @__PURE__ */ new Map();
   }
-  addEventListener(type, callback, options) {
+  addEventListener(type2, callback, options) {
     if (isFunction(callback)) {
-      let listeners = this.listeners.get(type);
+      let listeners = this.listeners.get(type2);
       if (!listeners) {
         listeners = new Array();
-        this.listeners.set(type, listeners);
+        this.listeners.set(type2, listeners);
       }
       if (!listeners.find((c) => c === callback)) {
         listeners.push(callback);
@@ -137,19 +137,19 @@ var EventBase = class {
       }
     }
   }
-  removeEventListener(type, callback) {
+  removeEventListener(type2, callback) {
     if (isFunction(callback)) {
-      const listeners = this.listeners.get(type);
+      const listeners = this.listeners.get(type2);
       if (listeners) {
         this.removeListener(listeners, callback);
       }
     }
   }
-  clearEventListeners(type) {
+  clearEventListeners(type2) {
     for (const [evtName, handlers] of this.listeners) {
-      if (isNullOrUndefined(type) || type === evtName) {
+      if (isNullOrUndefined(type2) || type2 === evtName) {
         for (const handler of handlers) {
-          this.removeEventListener(type, handler);
+          this.removeEventListener(type2, handler);
         }
         arrayClear(handlers);
         this.listeners.delete(evtName);
@@ -183,8 +183,8 @@ var TypedEvent = class extends Event {
   get type() {
     return super.type;
   }
-  constructor(type) {
-    super(type);
+  constructor(type2) {
+    super(type2);
   }
 };
 var TypedEventBase = class extends EventBase {
@@ -199,28 +199,28 @@ var TypedEventBase = class extends EventBase {
   removeBubbler(bubbler) {
     this.bubblers.delete(bubbler);
   }
-  addEventListener(type, callback, options) {
-    super.addEventListener(type, callback, options);
+  addEventListener(type2, callback, options) {
+    super.addEventListener(type2, callback, options);
   }
-  removeEventListener(type, callback) {
-    super.removeEventListener(type, callback);
+  removeEventListener(type2, callback) {
+    super.removeEventListener(type2, callback);
   }
-  clearEventListeners(type) {
-    return super.clearEventListeners(type);
+  clearEventListeners(type2) {
+    return super.clearEventListeners(type2);
   }
-  addScopedEventListener(scope, type, callback, options) {
+  addScopedEventListener(scope, type2, callback, options) {
     if (!this.scopes.has(scope)) {
       this.scopes.set(scope, []);
     }
-    this.scopes.get(scope).push([type, callback]);
-    this.addEventListener(type, callback, options);
+    this.scopes.get(scope).push([type2, callback]);
+    this.addEventListener(type2, callback, options);
   }
   removeScope(scope) {
     const listeners = this.scopes.get(scope);
     if (listeners) {
       this.scopes.delete(scope);
-      for (const [type, listener] of listeners) {
-        this.removeEventListener(type, listener);
+      for (const [type2, listener] of listeners) {
+        this.removeEventListener(type2, listener);
       }
     }
   }
@@ -928,6 +928,61 @@ var WorkerServer = class {
   }
 };
 
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/canvas.ts
+var disableAdvancedSettings = false;
+var hasOffscreenCanvas = !disableAdvancedSettings && "OffscreenCanvas" in globalThis;
+var hasImageBitmap = !disableAdvancedSettings && "createImageBitmap" in globalThis;
+function testOffscreen2D() {
+  try {
+    const canv = new OffscreenCanvas(1, 1);
+    const g = canv.getContext("2d");
+    return g != null;
+  } catch (exp) {
+    return false;
+  }
+}
+var hasOffscreenCanvasRenderingContext2D = hasOffscreenCanvas && testOffscreen2D();
+function testOffscreen3D() {
+  try {
+    const canv = new OffscreenCanvas(1, 1);
+    const g = canv.getContext("webgl2");
+    return g != null;
+  } catch (exp) {
+    return false;
+  }
+}
+var hasOffscreenCanvasRenderingContext3D = hasOffscreenCanvas && testOffscreen3D();
+function setCanvasSize(canv, w, h, superscale = 1) {
+  w = Math.floor(w * superscale);
+  h = Math.floor(h * superscale);
+  if (canv.width != w || canv.height != h) {
+    canv.width = w;
+    canv.height = h;
+    return true;
+  }
+  return false;
+}
+function is2DRenderingContext(ctx) {
+  return isDefined(ctx.textBaseline);
+}
+function setCanvas2DContextSize(ctx, w, h, superscale = 1) {
+  const oldImageSmoothingEnabled = ctx.imageSmoothingEnabled, oldTextBaseline = ctx.textBaseline, oldTextAlign = ctx.textAlign, oldFont = ctx.font, resized = setCanvasSize(ctx.canvas, w, h, superscale);
+  if (resized) {
+    ctx.imageSmoothingEnabled = oldImageSmoothingEnabled;
+    ctx.textBaseline = oldTextBaseline;
+    ctx.textAlign = oldTextAlign;
+    ctx.font = oldFont;
+  }
+  return resized;
+}
+function setContextSize(ctx, w, h, superscale = 1) {
+  if (is2DRenderingContext(ctx)) {
+    return setCanvas2DContextSize(ctx, w, h, superscale);
+  } else {
+    return setCanvasSize(ctx.canvas, w, h, superscale);
+  }
+}
+
 // src/dirt-worker/DirtService.ts
 var actionTypes = singleton("Juniper:Graphics2D:Dirt:StopTypes", () => /* @__PURE__ */ new Map([
   ["mousedown", "down"],
@@ -950,12 +1005,19 @@ var actionTypes = singleton("Juniper:Graphics2D:Dirt:StopTypes", () => /* @__PUR
   ["touchmove", "move"],
   ["touchstart", "down"]
 ]));
+var DirtServiceUpdateEvent = class extends TypedEvent {
+  constructor() {
+    super("update");
+  }
+};
 var DirtService = class extends TypedEventBase {
   constructor() {
     super();
-    this.updateEvt = new TypedEvent("update");
+    this.updateEvt = new DirtServiceUpdateEvent();
     this.canvas = null;
+    this.transferCanvas = null;
     this.g = null;
+    this.tg = null;
     this.pointerId = null;
     this.fr = null;
     this.pr = null;
@@ -973,13 +1035,18 @@ var DirtService = class extends TypedEventBase {
       willReadFrequently: true
     });
   }
-  init(canvas, fr, pr) {
-    this.canvas = canvas;
-    this.g = this.canvas.getContext("2d", { alpha: false });
+  init(width, height, fr, pr) {
+    this.transferCanvas = new OffscreenCanvas(width, height);
+    this.tg = this.transferCanvas.getContext("2d");
+    this.canvas = new OffscreenCanvas(width, height);
+    this.g = this.canvas.getContext("2d", {
+      alpha: false,
+      desynchronized: true
+    });
     this.g.fillStyle = "rgb(50%, 50%, 50%)";
     this.g.fillRect(0, 0, this.canvas.width, this.canvas.height);
     const imgData = this.g.getImageData(0, 0, this.canvas.width, this.canvas.height);
-    const { data, width, height } = imgData;
+    const { data } = imgData;
     const components = data.length / (width * height);
     for (let i = 0; i < data.length; i += components) {
       const v = Math.floor(50 * (Math.random() - 0.5));
@@ -991,7 +1058,13 @@ var DirtService = class extends TypedEventBase {
     this.fr = fr;
     this.pr = pr;
     this.height = 2 * (this.fr + this.pr) + 1;
+    this.onUpdate();
     return Promise.resolve();
+  }
+  onUpdate() {
+    this.tg.drawImage(this.canvas, 0, 0);
+    this.updateEvt.imgBmp = this.transferCanvas.transferToImageBitmap();
+    this.dispatchEvent(this.updateEvt);
   }
   I(x, y) {
     return xy2i(x, y + this.fr + this.pr, this.sub.width, this.components);
@@ -1009,9 +1082,7 @@ var DirtService = class extends TypedEventBase {
       if (Math.abs(dx) + Math.abs(dy) > 0) {
         const a = Math.atan2(dy, dx) + Math.PI;
         const d = Math.round(Math.sqrt(dx * dx + dy * dy));
-        this.sub.width = d + this.fr + this.pr;
-        ;
-        this.sub.height = this.height;
+        setContextSize(this.subg, d + this.fr + this.pr, this.height);
         this.subg.save();
         this.subg.translate(0, this.fr + this.pr);
         this.subg.rotate(-a);
@@ -1069,14 +1140,14 @@ var DirtService = class extends TypedEventBase {
         this.g.translate(-0, -this.fr - this.pr);
         this.g.drawImage(this.sub, 0, 0);
         this.g.restore();
-        this.dispatchEvent(this.updateEvt);
+        this.onUpdate();
       }
     }
     this.lx = this.x;
     this.ly = this.y;
   }
-  checkPointer(id, x, y, type) {
-    const action = actionTypes.get(type) || type;
+  checkPointer(id, x, y, type2) {
+    const action = actionTypes.get(type2) || type2;
     if (this.pointerId === null) {
       if (action === "down") {
         this.pointerId = id;
@@ -1093,8 +1164,8 @@ var DirtService = class extends TypedEventBase {
       }
     }
   }
-  checkPointerUV(id, x, y, type) {
-    this.checkPointer(id, x * this.canvas.width, y * this.canvas.height, type);
+  checkPointerUV(id, x, y, type2) {
+    this.checkPointer(id, x * this.canvas.width, (1 - y) * this.canvas.height, type2);
   }
 };
 
@@ -1105,7 +1176,8 @@ var DirtWorkerServer = class extends WorkerServer {
     const dirtService = new DirtService();
     this.addMethod(dirtService, "init", dirtService.init.bind(dirtService));
     this.addVoidMethod(dirtService, "checkPointer", dirtService.checkPointer.bind(dirtService));
-    this.addEvent(dirtService, "update");
+    this.addVoidMethod(dirtService, "checkPointerUV", dirtService.checkPointerUV.bind(dirtService));
+    this.addEvent(dirtService, "update", (evt) => evt.imgBmp, (imgBmp) => [imgBmp]);
   }
 };
 
