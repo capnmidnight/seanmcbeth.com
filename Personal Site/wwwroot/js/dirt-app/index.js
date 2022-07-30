@@ -1696,6 +1696,12 @@ var RequestBuilder = class {
     this.request.headers.set(name.toLowerCase(), value);
     return this;
   }
+  headers(headers) {
+    for (const [name, value] of headers.entries()) {
+      this.header(name, value);
+    }
+    return this;
+  }
   timeout(value) {
     this.request.timeout = value;
     return this;
@@ -2654,7 +2660,7 @@ var IDexStore = class {
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/FetchingServiceImplXHR.ts
 function isXHRBodyInit(obj) {
-  return isString(obj) || isArrayBufferView(obj) || obj instanceof Blob || obj instanceof FormData || isArrayBuffer(obj) || obj instanceof ReadableStream || "Document" in globalThis && obj instanceof Document;
+  return isString(obj) || isArrayBufferView(obj) || obj instanceof Blob || obj instanceof FormData || isArrayBuffer(obj) || "Document" in globalThis && obj instanceof Document;
 }
 function trackProgress(name, xhr, target, prog, skipLoading, prevTask) {
   let prevDone = !prevTask;

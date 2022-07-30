@@ -3481,6 +3481,12 @@ var RequestBuilder = class {
     this.request.headers.set(name.toLowerCase(), value);
     return this;
   }
+  headers(headers) {
+    for (const [name, value] of headers.entries()) {
+      this.header(name, value);
+    }
+    return this;
+  }
   timeout(value) {
     this.request.timeout = value;
     return this;
@@ -4439,7 +4445,7 @@ var IDexStore = class {
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/FetchingServiceImplXHR.ts
 function isXHRBodyInit(obj2) {
-  return isString(obj2) || isArrayBufferView(obj2) || obj2 instanceof Blob || obj2 instanceof FormData || isArrayBuffer(obj2) || obj2 instanceof ReadableStream || "Document" in globalThis && obj2 instanceof Document;
+  return isString(obj2) || isArrayBufferView(obj2) || obj2 instanceof Blob || obj2 instanceof FormData || isArrayBuffer(obj2) || "Document" in globalThis && obj2 instanceof Document;
 }
 function trackProgress(name, xhr, target, prog, skipLoading, prevTask) {
   let prevDone = !prevTask;
@@ -4872,21 +4878,16 @@ function createFetcher(enableWorkers = true) {
 }
 
 // src/createTestEnvironment.ts
+async function registerWorker() {
+  const url2 = new URL(location.href);
+  const scope = url2.pathname;
+  const registration = await navigator.serviceWorker.register(`${scope}.service?${version}`, { scope });
+  const { active, installing, waiting } = registration;
+  console.log("register", waiting, installing, active);
+}
 async function createTestEnvironment(addServiceWorker = false) {
   if (addServiceWorker && "serviceWorker" in navigator) {
-    window.addEventListener("beforeinstallprompt", (e2) => {
-      console.log(e2);
-      Promise.all([
-        e2.prompt(),
-        e2.userChoice
-      ]).then((args) => console.log(args[1].outcome));
-    });
-    const url2 = new URL(location.href);
-    const scope = url2.pathname;
-    const register = navigator.serviceWorker.register(`${scope}.service?${version}`, { scope });
-    register.then((x) => {
-      console.log("register", x);
-    });
+    registerWorker();
   }
   const canvas = Canvas(id("frontBuffer"));
   document.body.append(Div(id("appContainer"), canvas));
