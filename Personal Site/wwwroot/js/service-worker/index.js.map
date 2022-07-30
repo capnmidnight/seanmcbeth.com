@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/service-worker/index.ts"],
+  "sourcesContent": ["(function (self: ServiceWorkerGlobalScope) {\r\n    function log(evtName: keyof ServiceWorkerGlobalScopeEventMap) {\r\n        self.addEventListener(evtName, console.log.bind(console, evtName));\r\n    }\r\n\r\n    log(\"install\");\r\n    log(\"activate\");\r\n    log(\"error\");\r\n\r\n    self.addEventListener(\"install\", async () => {\r\n        await self.skipWaiting();\r\n        console.log(\"Installed\");\r\n    });\r\n})(self as unknown as ServiceWorkerGlobalScope);\r\n"],
+  "mappings": ";AAAA,AAAC,UAAU,OAAgC;AACvC,eAAa,SAAiD;AAC1D,UAAK,iBAAiB,SAAS,QAAQ,IAAI,KAAK,SAAS,OAAO,CAAC;AAAA,EACrE;AAEA,MAAI,SAAS;AACb,MAAI,UAAU;AACd,MAAI,OAAO;AAEX,QAAK,iBAAiB,WAAW,YAAY;AACzC,UAAM,MAAK,YAAY;AACvB,YAAQ,IAAI,WAAW;AAAA,EAC3B,CAAC;AACL,GAAG,IAA2C;",
+  "names": []
+}

@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.json",
+
+  "include": [
+    "index.ts"
+  ],
+
+  "compilerOptions": {
+    "lib": [ "ES2021", "WebWorker" ],
+    "typeRoots": [
+      "../../../../node_modules/@types",
+      "../../../../node_modules/@juniper-types"
+    ]
+  }
+}

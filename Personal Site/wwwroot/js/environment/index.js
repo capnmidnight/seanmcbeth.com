@@ -5374,6 +5374,9 @@ function columnGap(v) {
 function display(v) {
   return new CssProp("display", v);
 }
+function filter(v) {
+  return new CssProp("filter", v);
+}
 function flexFlow(v) {
   return new CssProp("flexFlow", v);
 }
@@ -9956,7 +9959,7 @@ var ScreenMode = /* @__PURE__ */ ((ScreenMode2) => {
 })(ScreenMode || {});
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/ScreenUI.ts
-Style(rule("#controls", position("absolute"), left(0), top(0), width("100%"), height("100%")), rule("#controls", display("grid"), fontSize("20pt"), gridTemplateRows("auto 1fr auto"), zIndex(1)), rule("#controls, #controls *", pointerEvents("none")), rule("#controls canvas", height("58px")), rule("#controls > .row", display("grid"), margin("10px 5px"), gridTemplateColumns("repeat(2, auto)")), rule("#controls > .row.top", gridRow(1)), rule("#controls > .row.middle", gridRow(2, -2)), rule("#controls > .row.bottom", gridRow(-2)), rule("#controls > .row > .cell", display("flex")), rule("#controls > .row > .cell.left", gridColumn(1)), rule("#controls > .row > .cell.right", gridColumn(-2), flexFlow("row-reverse")), rule("#controls > .row > .cell > .btn", borderRadius(0), backgroundColor("#1e4388"), height("58px !important"), width("58px"), padding("0.25em"), margin("0 5px"), pointerEvents("initial")), rule("#controls .btn-primary img", height("calc(100% - 0.5em)")));
+Style(rule("#controls", position("absolute"), left(0), top(0), width("100%"), height("100%")), rule("#controls", display("grid"), fontSize("20pt"), gridTemplateRows("auto 1fr auto"), zIndex(1)), rule("#controls, #controls *", pointerEvents("none")), rule("#controls canvas", height("58px")), rule("#controls > .row", display("grid"), margin("10px 5px"), gridTemplateColumns("repeat(2, auto)")), rule("#controls > .row.top", gridRow(1)), rule("#controls > .row.middle", gridRow(2, -2)), rule("#controls > .row.bottom", gridRow(-2)), rule("#controls > .row > .cell", display("flex")), rule("#controls > .row > .cell.left", gridColumn(1)), rule("#controls > .row > .cell.right", gridColumn(-2), flexFlow("row-reverse")), rule("#controls > .row > .cell > .btn", borderRadius(0), backgroundColor("#1e4388"), height("58px !important"), width("58px"), padding("0.25em"), margin("0 5px"), pointerEvents("initial")), rule("#controls .btn img", height("calc(100% - 0.5em)")), rule("#controls button:disabled img", filter("invert(.5)")));
 var ScreenUI = class {
   constructor() {
     this.element = Div(id("controls"), Div(className("row top"), this.topRowLeft = Div(className("cell left")), this.topRowRight = Div(className("cell right"))), Div(className("row middle"), this.middleRowLeft = Div(className("cell left")), this.middleRowRight = Div(className("cell right"))), Div(className("row bottom"), this.bottomRowLeft = Div(className("cell left")), this.bottomRowRight = Div(className("cell right"))));
@@ -10889,6 +10892,7 @@ var ButtonImageWidget = class {
   async load(buttons, setName, iconName) {
     const { geometry, enabledMaterial, disabledMaterial } = await buttons.getGeometryAndMaterials(setName, iconName);
     this.mesh = new MeshButton(iconName, geometry, enabledMaterial, disabledMaterial, 0.2);
+    this.mesh.disabled = this.disabled;
     objGraph(this, this.mesh);
     this.mesh.object.visible = this.visible;
     this.mesh.addEventListener("click", () => {
@@ -10917,6 +10921,15 @@ var ButtonImageWidget = class {
     elementSetDisplay(this, visible, "inline-block");
     if (this.mesh) {
       this.mesh.object.visible = visible;
+    }
+  }
+  get disabled() {
+    return this.element.disabled;
+  }
+  set disabled(v) {
+    buttonSetEnabled(this.element, !v, "primary");
+    if (this.mesh) {
+      this.mesh.disabled = v;
     }
   }
 };

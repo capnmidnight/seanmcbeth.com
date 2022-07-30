@@ -3118,6 +3118,7 @@ function getUIImagePaths() {
     ["chat", "chat"],
     ["ui", "menu"],
     ["ui", "settings"],
+    ["ui", "install"],
     ["ui", "quit"],
     ["ui", "lobby"],
     ["zoom", "zoom-in"],
@@ -3164,7 +3165,22 @@ function createFetcher(enableWorkers = true) {
 }
 
 // src/createTestEnvironment.ts
-async function createTestEnvironment() {
+async function createTestEnvironment(addServiceWorker = false) {
+  if (addServiceWorker && "serviceWorker" in navigator) {
+    window.addEventListener("beforeinstallprompt", (e2) => {
+      console.log(e2);
+      Promise.all([
+        e2.prompt(),
+        e2.userChoice
+      ]).then((args) => console.log(args[1].outcome));
+    });
+    const url2 = new URL(location.href);
+    const scope = url2.pathname;
+    const register = navigator.serviceWorker.register(`${scope}.service?${version}`, { scope });
+    register.then((x) => {
+      console.log("register", x);
+    });
+  }
   const canvas = Canvas(id("frontBuffer"));
   document.body.append(Div(id("appContainer"), canvas));
   await loadFonts();
@@ -3204,7 +3220,7 @@ async function createTestEnvironment() {
             console.warn("Image was pretty big");
           }
           const form = new FormData();
-          form.append("File", blob, "thumbnail.jpg");
+          form.append("File", blob, "screenshot.jpg");
           await fetcher.post(location.href).body(form).exec();
         }
       }
