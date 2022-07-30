@@ -9,23 +9,18 @@ import { createFetcher } from "./createFetcher";
 import { isDebug, JS_EXT } from "./isDebug";
 import { defaultAvatarHeight, defaultFont, enableFullResolution, getUIImagePaths, loadFonts, version } from "./settings";
 
+async function registerWorker() {
+    const url = new URL(location.href);
+    const scope = url.pathname;
+    const registration = await navigator.serviceWorker.register(`${scope}.service?${version}`, { scope });
+    const { active, installing, waiting } = registration;
+    console.log("register", waiting, installing, active);
+}
+
 export async function createTestEnvironment(addServiceWorker = false): Promise<Environment> {
 
     if (addServiceWorker && "serviceWorker" in navigator) {
-        window.addEventListener("beforeinstallprompt", (e) => {
-            console.log(e)
-            Promise.all([
-                e.prompt(),
-                e.userChoice])
-                .then((args) =>
-                    console.log(args[1].outcome));
-        });
-        const url = new URL(location.href);
-        const scope = url.pathname;
-        const register = navigator.serviceWorker.register(`${scope}.service?${version}`, { scope });
-        register.then(x => {
-            console.log("register", x);
-        });
+        registerWorker();
     }
 
     const canvas = Canvas(
@@ -38,6 +33,7 @@ export async function createTestEnvironment(addServiceWorker = false): Promise<E
             canvas
         )
     );
+
 
     await loadFonts();
 
