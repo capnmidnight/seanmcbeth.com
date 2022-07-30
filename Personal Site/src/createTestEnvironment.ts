@@ -9,7 +9,24 @@ import { createFetcher } from "./createFetcher";
 import { isDebug, JS_EXT } from "./isDebug";
 import { defaultAvatarHeight, defaultFont, enableFullResolution, getUIImagePaths, loadFonts, version } from "./settings";
 
-export async function createTestEnvironment(): Promise<Environment> {
+export async function createTestEnvironment(addServiceWorker = false): Promise<Environment> {
+
+    if (addServiceWorker && "serviceWorker" in navigator) {
+        window.addEventListener("beforeinstallprompt", (e) => {
+            console.log(e)
+            Promise.all([
+                e.prompt(),
+                e.userChoice])
+                .then((args) =>
+                    console.log(args[1].outcome));
+        });
+        const url = new URL(location.href);
+        const scope = url.pathname;
+        const register = navigator.serviceWorker.register(`${scope}.service?${version}`, { scope });
+        register.then(x => {
+            console.log("register", x);
+        });
+    }
 
     const canvas = Canvas(
         id("frontBuffer")
@@ -25,6 +42,7 @@ export async function createTestEnvironment(): Promise<Environment> {
     await loadFonts();
 
     const fetcher = createFetcher(!isDebug);
+
     const { default: EnvironmentConstructor } = await fetcher
         .get(`/js/environment/index${JS_EXT}?${version}`)
         .useCache(!isDebug)
@@ -75,7 +93,7 @@ export async function createTestEnvironment(): Promise<Environment> {
                     }
 
                     const form = new FormData();
-                    form.append("File", blob, "thumbnail.jpg");
+                    form.append("File", blob, "screenshot.jpg");
                     await fetcher.post(location.href)
                         .body(form)
                         .exec();

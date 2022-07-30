@@ -15,7 +15,8 @@ import { version } from "../settings";
     const F = 2;
     const P = 1;
 
-    const env = await createTestEnvironment();
+    const env = await createTestEnvironment(true);
+
     await env.fadeOut();
 
     const dirtMapAsset = new AssetImage("/img/dirt.jpg", Image_Jpeg, !isDebug);

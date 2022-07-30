@@ -4,16 +4,20 @@
     ViewData["Title"] = Model.Name;
     ViewData["SubURL"] = "app/" + Model.Name;
     ViewData["Description"] = Model.Description;
-    ViewData["Thumbnail"] = Model.ThumbnailPath;
+    ViewData["Screenshot"] = Model.ScreenshotPath;
     ViewData["HideMenu"] = true;
 }
 
 @section Head {
+    @if (Model.ManifestPath is not null)
+    {
+        <link rel="manifest" href="/@Model.ManifestPath">
+    }
     <bundle-js name="three" versioned />
     <bundle-js name="@(Model.Name + "-app")" versioned />
     <style>
         body {
-            background: fixed center/cover url(/@Model.ThumbnailPath);
+            background: fixed center/cover url(/@Model.ScreenshotPath);
         }
     </style>
 }

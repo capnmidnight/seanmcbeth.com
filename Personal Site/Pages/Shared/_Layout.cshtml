@@ -2,10 +2,10 @@
     var title = ViewData["Title"] as string;
     var subURL = ViewData["SubURL"] as string;
     var description = ViewData["Description"] as string;
-    var thumbnail = ViewData["Thumbnail"] as string;
+    var screenshot = ViewData["Screenshot"] as string;
     var showMenu = (ViewData["HideMenu"] as bool?) != true;
     var keywords = ViewData["Keywords"] as string;
-    var twitterCardType = thumbnail is null ? "summary" : "summary_large_image";
+    var twitterCardType = screenshot is null ? "summary" : "summary_large_image";
 }
 <!DOCTYPE html>
 <html lang="en-us" prefix="og: http://ogp.me/ns#">
@@ -37,10 +37,10 @@
         <meta name="twitter:description" content="@description">
         <meta property="og:description" content="@description">
     }
-    @if (thumbnail is not null)
+    @if (screenshot is not null)
     {
-        <meta name="twitter:image" content="https://seanmcbeth.com/@thumbnail">
-        <meta property="og:image" content="https://seanmcbeth.com/@thumbnail">
+        <meta name="twitter:image" content="https://seanmcbeth.com/@screenshot">
+        <meta property="og:image" content="https://seanmcbeth.com/@screenshot">
         @if (description is not null)
         {
             <meta name="twitter:image:alt" content="@description">

@@ -30,28 +30,43 @@ namespace SeanMcBeth.Pages
         public string? Name { get; set; }
 
         private DirectoryInfo AppRoot => AppsRoot.CD(Name + "-app");
+        private string AppPathRoot => string.Join('/', "js", Name + "-app");
 
-        public string ThumbnailPath => string.Join('/', "js", Name + "-app", "thumbnail.jpg");
+        private string? MapFile(string name)
+        {
+            return AppRoot.Touch(name).Exists
+                ? string.Join('/', AppPathRoot, name)
+                : null;
+        }
 
-        private FileInfo DescriptionFile => AppRoot.Touch("description.txt");
-
-        public string? Description => DescriptionFile.MaybeReadText();
+        public string? ScreenshotPath => MapFile("screenshot.jpg");
+        public string? ManifestPath => MapFile("app.webmanifest");
+        public string? Description => AppRoot.Touch("description.txt").MaybeReadText();
 
         public IActionResult OnGet()
         {
+            var sendServiceWorker = Name?.EndsWith(".service") == true;
+            Name = Name?.Replace(".service", "");
+
             if (!AppNames.Contains(Name))
             {
                 return NotFound();
             }
 
-            return Page();
+            if (sendServiceWorker)
+            {
+                return File("/js/service-worker/index.js", Juniper.MediaType.Application_Javascript);
+            }
+            else
+            {
+                return Page();
+            }
         }
 
 #if DEBUG
-        private static readonly DirectoryInfo SrcsRoot =
-            new DirectoryInfo("src");
+        private static readonly DirectoryInfo SrcsRoot = new ("src");
         private DirectoryInfo SrcRoot => SrcsRoot.CD(Name + "-app");
-        private FileInfo ThumbnailFile => SrcRoot.Touch("thumbnail.jpg");
+        private FileInfo ScreenshotFile => SrcRoot.Touch("screenshot.jpg");
 
         public async Task<IActionResult> OnPostAsync([FromForm] FileInput input)
         {
@@ -62,7 +77,7 @@ namespace SeanMcBeth.Pages
                 return NotFound();
             }
 
-            using var fileStream = ThumbnailFile.OpenWrite();
+            using var fileStream = ScreenshotFile.OpenWrite();
             await input.File.CopyToAsync(fileStream);
             await fileStream.FlushAsync();
             return new OkResult();

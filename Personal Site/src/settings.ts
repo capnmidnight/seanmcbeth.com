@@ -42,6 +42,7 @@ export function getUIImagePaths() {
         ["chat", "chat"],
         ["ui", "menu"],
         ["ui", "settings"],
+        ["ui", "install"],
         ["ui", "quit"],
         ["ui", "lobby"],
         ["zoom", "zoom-in"],

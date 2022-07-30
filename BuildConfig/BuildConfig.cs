@@ -10,7 +10,9 @@ namespace SeanMcBeth
         private static readonly string[] FilesToTry =
         {
             "description.txt",
-            "thumbnail.jpg"
+            "thumbnail.jpg",
+            "screenshot.jpg",
+            "app.webmanifest"
         };
 
         static BuildConfig()

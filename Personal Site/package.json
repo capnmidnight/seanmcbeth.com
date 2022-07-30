@@ -14,6 +14,7 @@
     "@juniper-types/dom-types": "file:../Juniper/src/Juniper.TypeScript/@juniper-types/dom-types",
     "@juniper-types/extra-types": "file:../Juniper/src/Juniper.TypeScript/@juniper-types/extra-types",
     "@juniper-types/indexdb": "file:../Juniper/src/Juniper.TypeScript/@juniper-types/indexdb",
+    "@types/dom-chromium-installation-events": "101.0.0",
     "@types/dom-mediacapture-record": "1.0.11",
     "@types/offscreencanvas": "2019.7.0",
     "@types/three": "0.142.0",
