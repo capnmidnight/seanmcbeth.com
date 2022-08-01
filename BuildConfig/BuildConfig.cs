@@ -10,9 +10,11 @@ namespace SeanMcBeth
         private static readonly string[] FilesToTry =
         {
             "description.txt",
+            "name.txt",
             "thumbnail.jpg",
             "screenshot.jpg",
-            "app.webmanifest"
+            "logo.png",
+            "logo_small.png"
         };
 
         static BuildConfig()
@@ -70,6 +72,8 @@ namespace SeanMcBeth
                     BuildSystemOptions.Dependencies.Add(file.Name, (file, uiImgOUtput.Touch(file.Name)));
                 }
 
+                BuildSystemOptions.OptionalDependencies = new();
+
                 foreach (var appInDir in jsInput.EnumerateDirectories())
                 {
                     if (appInDir.Name.EndsWith("-app")
@@ -79,7 +83,7 @@ namespace SeanMcBeth
                         foreach (var fileName in FilesToTry)
                         {
                             var file = appInDir.Touch(fileName);
-                            BuildSystemOptions.Dependencies.Add(
+                            BuildSystemOptions.OptionalDependencies.Add(
                                 $"{appInDir.Name} {Path.GetFileNameWithoutExtension(file.Name)}",
                                 (file, appOutDir.Touch(file.Name)));
                         }

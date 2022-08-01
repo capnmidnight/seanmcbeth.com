@@ -1,7 +1,7 @@
 @page "{name}"
 @model AppModel
 @{
-    ViewData["Title"] = Model.Name;
+    ViewData["Title"] = Model.FullName;
     ViewData["SubURL"] = "app/" + Model.Name;
     ViewData["Description"] = Model.Description;
     ViewData["Screenshot"] = Model.ScreenshotPath;
@@ -11,13 +11,13 @@
 @section Head {
     @if (Model.ManifestPath is not null)
     {
-        <link rel="manifest" href="/@Model.ManifestPath">
+        <link rel="manifest" href="@Model.ManifestPath">
     }
     <bundle-js name="three" versioned />
     <bundle-js name="@(Model.Name + "-app")" versioned />
     <style>
         body {
-            background: fixed center/cover url(/@Model.ScreenshotPath);
+            background: fixed center/cover url(@Model.ScreenshotPath);
         }
     </style>
 }
