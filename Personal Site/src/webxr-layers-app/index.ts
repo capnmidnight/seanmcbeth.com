@@ -26,10 +26,7 @@ import { isDebug } from "../isDebug";
     img.setTextureMap(picture.result);
     img.position.set(0, 1.5, -3);
 
-    env.pointers.mouse.addEventListener("click", () => {
-        console.log(env.pointers.mouse.cursor.side = -env.pointers.mouse.cursor.side);
-
-    });
+    env.timer.addTickHandler(evt => img.update(evt.dt, evt.frame));
 
     await env.fadeIn();
 })();

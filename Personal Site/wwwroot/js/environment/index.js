@@ -9613,7 +9613,6 @@ var Image2D = class extends THREE.Object3D {
     this.mesh = null;
     this.useWebXRLayers = true;
     this.sizeMode = "none";
-    this.onTick = (evt) => this.checkWebXRLayer(evt.frame);
     if (env) {
       this.setEnvAndName(env, name2);
       let material = isMeshBasicMaterial(materialOrOptions) ? materialOrOptions : solidTransparent(Object.assign(
@@ -9629,20 +9628,19 @@ var Image2D = class extends THREE.Object3D {
   }
   copy(source, recursive = true) {
     super.copy(source, recursive);
+    this.setImageSize(source.imageWidth, source.imageHeight);
     this.setEnvAndName(source.env, source.name + ++copyCounter);
-    this.setTextureMap(this.curImage);
     this.mesh = arrayScan(this.children, isMesh);
     if (isNullOrUndefined(this.mesh)) {
       this.mesh = source.mesh.clone();
     }
     objGraph(this, this.mesh);
+    this.setTextureMap(source.curImage);
     return this;
   }
   dispose() {
     this.removeWebXRLayer();
-    if (this.env) {
-      this.env.timer.removeTickHandler(this.onTick);
-    }
+    cleanup(this.mesh);
   }
   setImageSize(width2, height2) {
     if (width2 !== this.imageWidth || height2 !== this.imageHeight) {
@@ -9692,7 +9690,6 @@ var Image2D = class extends THREE.Object3D {
   setEnvAndName(env, name2) {
     this.env = env;
     this.name = name2;
-    this.env.timer.addTickHandler(this.onTick);
   }
   get needsLayer() {
     if (!objectIsFullyVisible(this) || isNullOrUndefined(this.mesh.material.map) || isNullOrUndefined(this.curImage)) {
@@ -9756,7 +9753,7 @@ var Image2D = class extends THREE.Object3D {
       }
     }
   }
-  checkWebXRLayer(frame) {
+  update(_dt, frame) {
     if (this.mesh.material.map && this.curImage) {
       const isLayersAvailable = this.useWebXRLayers && this.env.hasXRCompositionLayers && isDefined(frame) && (this.isVideo && isDefined(this.env.xrMediaBinding) || !this.isVideo && isDefined(this.env.xrBinding));
       const useLayer = isLayersAvailable && this.needsLayer;
@@ -10876,6 +10873,11 @@ var VideoPlayer3D = class extends BaseVideoPlayer {
     super.onDisposing();
     cleanup(this.object);
     arrayClear(this.vidMeshes);
+  }
+  update(dt, frame) {
+    for (const vidMesh of this.vidMeshes) {
+      vidMesh.update(dt, frame);
+    }
   }
   isSupported(encoding, layout) {
     return layout.split("-").map((name2) => GeomPacks.has(encoding, name2)).reduce(and, true);
@@ -20254,8 +20256,6 @@ var Skybox = class {
     this.visible = true;
     this.framecount = 0;
     this.onNeedsRedraw = () => this.imageNeedsUpdate = true;
-    this.onTick = (evt) => this.checkWebXRLayer(evt.frame);
-    this.env.timer.addTickHandler(this.onTick);
     this.env.scene.background = black;
     for (let i = 0; i < this.canvases.length; ++i) {
       const f = this.canvases[i] = createUtilityCanvas(FACE_SIZE, FACE_SIZE);
@@ -20361,7 +20361,7 @@ var Skybox = class {
     }
     this.rotationNeedsUpdate = this._rotation.x !== x || this._rotation.y !== y || this._rotation.z !== z || this._rotation.w !== w;
   }
-  checkWebXRLayer(frame) {
+  update(frame) {
     this.framecount++;
     if (this.cube) {
       const isWebXRLayerAvailable = this.useWebXRLayers && this.env.hasXRCompositionLayers && isDefined(frame) && isDefined(this.env.xrBinding);
@@ -20674,6 +20674,7 @@ var BaseEnvironment = class extends TypedEventBase {
       updateScalings(evt.dt);
       this.loadingBar.update(evt.sdt);
       this.preRender(evt);
+      this.skybox.update(evt.frame);
       const cam = resolveCamera(this.renderer, this.camera);
       if (cam !== this.camera) {
         const vrCam = cam;
@@ -21358,7 +21359,6 @@ var Environment = class extends BaseEnvironment {
   }
   preRender(evt) {
     super.preRender(evt);
-    this.audio.update();
     this.xrUI.visible = this.renderer.xr.isPresenting || this.testSpaceLayout;
     this.clockImage.isVisible = this.xrUI.visible || this.DEBUG;
     if (!this.renderer.xr.isPresenting) {
@@ -21382,6 +21382,12 @@ var Environment = class extends BaseEnvironment {
           this.renderer.info.render.triangles
         );
       }
+    }
+    this.audio.update();
+    this.videoPlayer.update(evt.dt, evt.frame);
+    this.clockImage.update(evt.dt, evt.frame);
+    if (this.batteryImage) {
+      this.batteryImage.update(evt.dt, evt.frame);
     }
     this.confirmationDialog.update(evt.dt);
     for (const app of this.apps) {

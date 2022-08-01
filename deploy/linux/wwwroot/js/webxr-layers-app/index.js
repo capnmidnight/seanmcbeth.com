@@ -3832,7 +3832,6 @@ var Image2D = class extends THREE.Object3D {
     this.mesh = null;
     this.useWebXRLayers = true;
     this.sizeMode = "none";
-    this.onTick = (evt) => this.checkWebXRLayer(evt.frame);
     if (env) {
       this.setEnvAndName(env, name);
       let material = isMeshBasicMaterial(materialOrOptions) ? materialOrOptions : solidTransparent(Object.assign(
@@ -3848,20 +3847,19 @@ var Image2D = class extends THREE.Object3D {
   }
   copy(source, recursive = true) {
     super.copy(source, recursive);
+    this.setImageSize(source.imageWidth, source.imageHeight);
     this.setEnvAndName(source.env, source.name + ++copyCounter);
-    this.setTextureMap(this.curImage);
     this.mesh = arrayScan(this.children, isMesh);
     if (isNullOrUndefined(this.mesh)) {
       this.mesh = source.mesh.clone();
     }
     objGraph(this, this.mesh);
+    this.setTextureMap(source.curImage);
     return this;
   }
   dispose() {
     this.removeWebXRLayer();
-    if (this.env) {
-      this.env.timer.removeTickHandler(this.onTick);
-    }
+    cleanup(this.mesh);
   }
   setImageSize(width, height) {
     if (width !== this.imageWidth || height !== this.imageHeight) {
@@ -3911,7 +3909,6 @@ var Image2D = class extends THREE.Object3D {
   setEnvAndName(env, name) {
     this.env = env;
     this.name = name;
-    this.env.timer.addTickHandler(this.onTick);
   }
   get needsLayer() {
     if (!objectIsFullyVisible(this) || isNullOrUndefined(this.mesh.material.map) || isNullOrUndefined(this.curImage)) {
@@ -3975,7 +3972,7 @@ var Image2D = class extends THREE.Object3D {
       }
     }
   }
-  checkWebXRLayer(frame) {
+  update(_dt, frame) {
     if (this.mesh.material.map && this.curImage) {
       const isLayersAvailable = this.useWebXRLayers && this.env.hasXRCompositionLayers && isDefined(frame) && (this.isVideo && isDefined(this.env.xrMediaBinding) || !this.isVideo && isDefined(this.env.xrBinding));
       const useLayer = isLayersAvailable && this.needsLayer;
@@ -4266,9 +4263,7 @@ async function createTestEnvironment(addServiceWorker = false) {
   env.skybox.rotation = deg2rad(176);
   img.setTextureMap(picture.result);
   img.position.set(0, 1.5, -3);
-  env.pointers.mouse.addEventListener("click", () => {
-    console.log(env.pointers.mouse.cursor.side = -env.pointers.mouse.cursor.side);
-  });
+  env.timer.addTickHandler((evt) => img.update(evt.dt, evt.frame));
   await env.fadeIn();
 })();
 //# sourceMappingURL=index.js.map
