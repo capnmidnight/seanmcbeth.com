@@ -1090,7 +1090,10 @@ var CSSInJSRule = class {
   }
   apply(sheet) {
     const style = this.props.map((prop) => `${prop.name}: ${prop.value};`).join("");
-    sheet.insertRule(`${this.selector} {${style}}`, sheet.cssRules.length);
+    sheet.insertRule(
+      `${this.selector} {${style}}`,
+      sheet.cssRules.length
+    );
   }
 };
 function rule(selector, ...props) {
@@ -1290,11 +1293,169 @@ async function audioReady(audioCtx) {
 
 // src/yabs-app/index.ts
 document.title = "No More Jabber Yabs: The Game";
-Style(rule("html, body, .cloud, .cloud-bit, .frowny, .shadow, .boop, .beam, .subBeam, .endMessage, #scoreBox", position("absolute")), rule("html, body", height("100%"), width("100%"), padding(0), margin(0), border(0), overflow("hidden")), rule("body", fontFamily("sans-serif"), backgroundColor("hsl(200, 50%, 75%)"), backgroundImage("linear-gradient(hsl(200, 50%, 50%), hsl(200, 20%, 75%) 75%, hsl(100, 75%, 50%) 75%, hsl(100, 100%, 20%))")), rule("#scoreBox, .endMessage, .frowny, #instructions, #starter", fontSize("24pt")), rule("#scoreBox", display("none"), color("white"), top("5em"), left(0), padding("1em")), rule(".endMessage", display("none"), padding("1em"), top(0), zIndex(9001), pointerEvents("none"), color("white")), rule(".cloud-bit", backgroundColor("white"), width("100px"), height("50px"), borderBottomRightRadius("25px"), borderBottomLeftRadius("50px"), borderTopRightRadius("12.5px"), borderTopLeftRadius("6.25px")), rule(".frowny", fontFamily("fixedsys, monospace"), padding("5px"), border("solid 2px black"), borderRadius("10px"), transform("rotate(90deg)"), width("50px"), height("50px"), overflow("hidden")), rule(".shadow", width("45px"), height("10px"), borderRadius("5px"), backgroundImage("radial-gradient(black, transparent)"), backgroundColor("grey")), rule(".boop", display("none"), color("white"), textTransform("uppercase"), fontFamily("sans-serif"), fontWeight("bold"), fontSize("10pt"), zIndex(9001)), rule(".beam, .subBeam", display("none"), backgroundColor("red"), boxShadow("0 0 25px red"), left("0")), rule(".beam", top("0"), width("50px"), height("50px"), borderRadius("50%")), rule(".subBeam", top("50%"), height("2000px")), rule("#instructions, #starter", position("relative"), display("none"), fontWeight("bold"), marginLeft("auto"), marginRight("auto"), marginTop("3em"), width("20em"), zIndex(9001)));
+Style(
+  rule(
+    "html, body, .cloud, .cloud-bit, .frowny, .shadow, .boop, .beam, .subBeam, .endMessage, #scoreBox",
+    position("absolute")
+  ),
+  rule(
+    "html, body",
+    height("100%"),
+    width("100%"),
+    padding(0),
+    margin(0),
+    border(0),
+    overflow("hidden")
+  ),
+  rule(
+    "body",
+    fontFamily("sans-serif"),
+    backgroundColor("hsl(200, 50%, 75%)"),
+    backgroundImage("linear-gradient(hsl(200, 50%, 50%), hsl(200, 20%, 75%) 75%, hsl(100, 75%, 50%) 75%, hsl(100, 100%, 20%))")
+  ),
+  rule(
+    "#scoreBox, .endMessage, .frowny, #instructions, #starter",
+    fontSize("24pt")
+  ),
+  rule(
+    "#scoreBox",
+    display("none"),
+    color("white"),
+    top("5em"),
+    left(0),
+    padding("1em")
+  ),
+  rule(
+    ".endMessage",
+    display("none"),
+    padding("1em"),
+    top(0),
+    zIndex(9001),
+    pointerEvents("none"),
+    color("white")
+  ),
+  rule(
+    ".cloud-bit",
+    backgroundColor("white"),
+    width("100px"),
+    height("50px"),
+    borderBottomRightRadius("25px"),
+    borderBottomLeftRadius("50px"),
+    borderTopRightRadius("12.5px"),
+    borderTopLeftRadius("6.25px")
+  ),
+  rule(
+    ".frowny",
+    fontFamily("fixedsys, monospace"),
+    padding("5px"),
+    border("solid 2px black"),
+    borderRadius("10px"),
+    transform("rotate(90deg)"),
+    width("50px"),
+    height("50px"),
+    overflow("hidden")
+  ),
+  rule(
+    ".shadow",
+    width("45px"),
+    height("10px"),
+    borderRadius("5px"),
+    backgroundImage("radial-gradient(black, transparent)"),
+    backgroundColor("grey")
+  ),
+  rule(
+    ".boop",
+    display("none"),
+    color("white"),
+    textTransform("uppercase"),
+    fontFamily("sans-serif"),
+    fontWeight("bold"),
+    fontSize("10pt"),
+    zIndex(9001)
+  ),
+  rule(
+    ".beam, .subBeam",
+    display("none"),
+    backgroundColor("red"),
+    boxShadow("0 0 25px red"),
+    left("0")
+  ),
+  rule(
+    ".beam",
+    top("0"),
+    width("50px"),
+    height("50px"),
+    borderRadius("50%")
+  ),
+  rule(
+    ".subBeam",
+    top("50%"),
+    height("2000px")
+  ),
+  rule(
+    "#instructions, #starter",
+    position("relative"),
+    display("none"),
+    fontWeight("bold"),
+    marginLeft("auto"),
+    marginRight("auto"),
+    marginTop("3em"),
+    width("20em"),
+    zIndex(9001)
+  )
+);
 function PointDisplay() {
   return Span(className("pointDisplay"), 0);
 }
-elementApply(document.body, Button(id("starter"), "Start", onClick(() => audio.resume())), Div(id("instructions"), "Go ahead, click and hold the mouse"), Div(id("scoreBox"), "GET EM: ", PointDisplay()), Div(id("message0"), className("endMessage"), P("You have killed everyone. You did it. Just you. Noone else."), P("And why have you done this? Because you were ordered to? The pursuit of points?"), P("You got your points. All ", PointDisplay(), " of them. What will you do with them? There's noone left. And it's not like they took them as currency, anyway."), P("For no reason whatsoever, you have committed genocide against another race of people. Congratulations."), P("Hitler.")), Div(id("message1"), className("endMessage"), P("You have killed almost everyone. Their bodies are strewn about on the ground they once called their home."), P("There is but one person left. Did you spare them out of mercy? Or have you left them, devoid of personal contact, alone, surrounded by the burned and rotting bodies of their former loved ones, to serve as witness to your terrible deeds?"), P("And why have you done this? Because you were ordered to? The pursuit of points?"), P("You got your points. All ", PointDisplay(), "  of them. What will you do with them? There's noone left. And it's not like they took them as currency, anyway."), P("You are sick.")), Div(id("message2"), className("endMessage"), P("You have killed almost everyone. Their bodies are strewn about on the ground they once called their home."), P("There are only two people left. Did you spare them out of mercy? Or have you left them, surrounded by the burned and rotting bodies of their former loved ones, to repopulate their world together, to serve as witness to your terrible deeds to future generations?"), P("And why have you done this? Because you were ordered to? The pursuit of points?"), P("You got your points. All ", PointDisplay(), "  of them. What will you do with them? There's noone left. And it's not like they took them as currency, anyway."), P("I...I don't understand you.")), Div(id("messageN"), className("endMessage"), styles(color("black")), P('"Hi there!"'), P("You blink. Did someone speak?"), P('"Down here!"'), P("It's the people below."), P('"We noticed you up there. What are you doing?"'), P("You reply, haltingly, that you do not know."), P('"Oh, well, okay. Cool beans. Later!"')));
+elementApply(
+  document.body,
+  Button(
+    id("starter"),
+    "Start",
+    onClick(() => audio.resume())
+  ),
+  Div(id("instructions"), "Go ahead, click and hold the mouse"),
+  Div(id("scoreBox"), "GET EM: ", PointDisplay()),
+  Div(
+    id("message0"),
+    className("endMessage"),
+    P("You have killed everyone. You did it. Just you. Noone else."),
+    P("And why have you done this? Because you were ordered to? The pursuit of points?"),
+    P("You got your points. All ", PointDisplay(), " of them. What will you do with them? There's noone left. And it's not like they took them as currency, anyway."),
+    P("For no reason whatsoever, you have committed genocide against another race of people. Congratulations."),
+    P("Hitler.")
+  ),
+  Div(
+    id("message1"),
+    className("endMessage"),
+    P("You have killed almost everyone. Their bodies are strewn about on the ground they once called their home."),
+    P("There is but one person left. Did you spare them out of mercy? Or have you left them, devoid of personal contact, alone, surrounded by the burned and rotting bodies of their former loved ones, to serve as witness to your terrible deeds?"),
+    P("And why have you done this? Because you were ordered to? The pursuit of points?"),
+    P("You got your points. All ", PointDisplay(), "  of them. What will you do with them? There's noone left. And it's not like they took them as currency, anyway."),
+    P("You are sick.")
+  ),
+  Div(
+    id("message2"),
+    className("endMessage"),
+    P("You have killed almost everyone. Their bodies are strewn about on the ground they once called their home."),
+    P("There are only two people left. Did you spare them out of mercy? Or have you left them, surrounded by the burned and rotting bodies of their former loved ones, to repopulate their world together, to serve as witness to your terrible deeds to future generations?"),
+    P("And why have you done this? Because you were ordered to? The pursuit of points?"),
+    P("You got your points. All ", PointDisplay(), "  of them. What will you do with them? There's noone left. And it's not like they took them as currency, anyway."),
+    P("I...I don't understand you.")
+  ),
+  Div(
+    id("messageN"),
+    className("endMessage"),
+    styles(color("black")),
+    P('"Hi there!"'),
+    P("You blink. Did someone speak?"),
+    P('"Down here!"'),
+    P("It's the people below."),
+    P('"We noticed you up there. What are you doing?"'),
+    P("You reply, haltingly, that you do not know."),
+    P('"Oh, well, okay. Cool beans. Later!"')
+  )
+);
 var NUM_YABS = Math.round(window.innerWidth / 30);
 var NUM_CLD = Math.round(window.innerWidth / 200);
 var HIT_POINTS = 2;
@@ -1440,7 +1601,15 @@ var Face = class {
     this.dx = randomRange(-1, 1);
     this.dy = 0;
     this.df = randomRange(0.05, 0.1);
-    this.element = Div(className("frowny"), onMouseOut(this.jump.bind(this, "boop")), onTouchStart(this.jump.bind(this, "boop")), styles(backgroundColor(arrayRandom(skins)), zIndex(this.z)));
+    this.element = Div(
+      className("frowny"),
+      onMouseOut(this.jump.bind(this, "boop")),
+      onTouchStart(this.jump.bind(this, "boop")),
+      styles(
+        backgroundColor(arrayRandom(skins)),
+        zIndex(this.z)
+      )
+    );
     this.width = 5;
     this.height = 5;
     this.boop = Div(className("boop"), "boop");
@@ -1508,7 +1677,11 @@ var Face = class {
           this.dx = 0;
         }
       }
-      play((score > 0 ? 10 : 20) + 3 * randomInt(0, 5), 0.125, 0.05);
+      play(
+        (score > 0 ? 10 : 20) + 3 * randomInt(0, 5),
+        0.125,
+        0.05
+      );
       shake();
     }
   }

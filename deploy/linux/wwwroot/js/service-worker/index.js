@@ -1488,10 +1488,26 @@ function Video(...rest) {
   return tag("video", ...rest);
 }
 function BackgroundAudio(autoplay, mute, looping, ...rest) {
-  return Audio2(playsInline(true), controls(false), muted(mute), autoPlay(autoplay), loop(looping), styles(display("none")), ...rest);
+  return Audio2(
+    playsInline(true),
+    controls(false),
+    muted(mute),
+    autoPlay(autoplay),
+    loop(looping),
+    styles(display("none")),
+    ...rest
+  );
 }
 function BackgroundVideo(autoplay, mute, looping, ...rest) {
-  return Video(playsInline(true), controls(false), muted(mute), autoPlay(autoplay), loop(looping), styles(display("none")), ...rest);
+  return Video(
+    playsInline(true),
+    controls(false),
+    muted(mute),
+    autoPlay(autoplay),
+    loop(looping),
+    styles(display("none")),
+    ...rest
+  );
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/canvas.ts
@@ -1725,7 +1741,10 @@ var RequestBuilder = class {
     throw new Error(`Cannot play file of type "${response.contentType}" at path: ${this.request.path}`);
   }
   async audioBuffer(audioCtx, acceptType) {
-    return translateResponse(await this.audioBlob(acceptType), async (blob) => await audioCtx.decodeAudioData(await blob.arrayBuffer()));
+    return translateResponse(
+      await this.audioBlob(acceptType),
+      async (blob) => await audioCtx.decodeAudioData(await blob.arrayBuffer())
+    );
   }
   async htmlElement(element, resolveEvt, acceptType) {
     const response = await this.file(acceptType);
@@ -1735,7 +1754,11 @@ var RequestBuilder = class {
     return await translateResponse(response, () => element);
   }
   image(acceptType) {
-    return this.htmlElement(Img(), "load", acceptType);
+    return this.htmlElement(
+      Img(),
+      "load",
+      acceptType
+    );
   }
   async htmlCanvas(acceptType) {
     if (true) {
@@ -1789,16 +1812,28 @@ var RequestBuilder = class {
     }
   }
   audio(autoPlaying, looping, acceptType) {
-    return this.htmlElement(BackgroundAudio(autoPlaying, false, looping), "canplay", acceptType);
+    return this.htmlElement(
+      BackgroundAudio(autoPlaying, false, looping),
+      "canplay",
+      acceptType
+    );
   }
   video(autoPlaying, looping, acceptType) {
-    return this.htmlElement(BackgroundVideo(autoPlaying, false, looping), "canplay", acceptType);
+    return this.htmlElement(
+      BackgroundVideo(autoPlaying, false, looping),
+      "canplay",
+      acceptType
+    );
   }
   async getScript() {
     const tag2 = Script(type(Application_Javascript));
     document.body.append(tag2);
     if (this.useFileBlobsForModules) {
-      await this.htmlElement(tag2, "load", Application_Javascript);
+      await this.htmlElement(
+        tag2,
+        "load",
+        Application_Javascript
+      );
     } else {
       tag2.src = this.request.path;
     }
@@ -1897,7 +1932,10 @@ var Fetcher = class {
   async assets(progress, ...assets) {
     assets = assets.filter(isDefined);
     const assetSizes = new Map(await Promise.all(assets.map((asset) => asset.getSize(this))));
-    await progressTasksWeighted(progress, assets.map((asset) => [assetSizes.get(asset), (prog) => asset.fetch(this, prog)]));
+    await progressTasksWeighted(
+      progress,
+      assets.map((asset) => [assetSizes.get(asset), (prog) => asset.fetch(this, prog)])
+    );
   }
 };
 
@@ -1973,22 +2011,40 @@ var FetchingService = class {
     return this.impl.drawImageToCanvas(request, canvas, progress);
   }
   async sendNothingGetFile(request, progress) {
-    return translateResponse(await this.sendNothingGetBlob(request, progress), URL.createObjectURL);
+    return translateResponse(
+      await this.sendNothingGetBlob(request, progress),
+      URL.createObjectURL
+    );
   }
   async sendObjectGetFile(request, progress) {
-    return translateResponse(await this.sendObjectGetBlob(request, progress), URL.createObjectURL);
+    return translateResponse(
+      await this.sendObjectGetBlob(request, progress),
+      URL.createObjectURL
+    );
   }
   async sendNothingGetXml(request, progress) {
-    return translateResponse(await this.impl.sendNothingGetSomething("document", request, progress), (doc) => doc.documentElement);
+    return translateResponse(
+      await this.impl.sendNothingGetSomething("document", request, progress),
+      (doc) => doc.documentElement
+    );
   }
   async sendObjectGetXml(request, progress) {
-    return translateResponse(await this.impl.sendSomethingGetSomething("document", request, this.defaultPostHeaders, progress), (doc) => doc.documentElement);
+    return translateResponse(
+      await this.impl.sendSomethingGetSomething("document", request, this.defaultPostHeaders, progress),
+      (doc) => doc.documentElement
+    );
   }
   async sendNothingGetImageBitmap(request, progress) {
-    return translateResponse(await this.sendNothingGetBlob(request, progress), createImageBitmap);
+    return translateResponse(
+      await this.sendNothingGetBlob(request, progress),
+      createImageBitmap
+    );
   }
   async sendObjectGetImageBitmap(request, progress) {
-    return translateResponse(await this.sendObjectGetBlob(request, progress), createImageBitmap);
+    return translateResponse(
+      await this.sendObjectGetBlob(request, progress),
+      createImageBitmap
+    );
   }
 };
 
@@ -2015,7 +2071,9 @@ var IDexDB = class {
   }
   static async open(name, ...storeDefs) {
     const storesByName = mapMap(storeDefs, (v) => v.name, identity);
-    const indexesByName = new PriorityMap(storeDefs.filter((storeDef) => isDefined(storeDef.indexes)).flatMap((storeDef) => storeDef.indexes.map((indexDef) => [storeDef.name, indexDef.name, indexDef])));
+    const indexesByName = new PriorityMap(
+      storeDefs.filter((storeDef) => isDefined(storeDef.indexes)).flatMap((storeDef) => storeDef.indexes.map((indexDef) => [storeDef.name, indexDef.name, indexDef]))
+    );
     const storesToAdd = new Array();
     const storesToRemove = new Array();
     const storesToChange = new Array();
@@ -2373,7 +2431,11 @@ var FetchingServiceImplFetch = class {
       return await action();
     }
     if (!this.tasks.has(request.method, request.path)) {
-      this.tasks.add(request.method, request.path, action().finally(() => this.tasks.delete(request.method, request.path)));
+      this.tasks.add(
+        request.method,
+        request.path,
+        action().finally(() => this.tasks.delete(request.method, request.path))
+      );
     }
     return this.tasks.get(request.method, request.path);
   }

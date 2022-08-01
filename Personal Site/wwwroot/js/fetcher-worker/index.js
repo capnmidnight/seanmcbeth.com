@@ -1234,22 +1234,40 @@ var FetchingService = class {
     return this.impl.drawImageToCanvas(request, canvas, progress);
   }
   async sendNothingGetFile(request, progress) {
-    return translateResponse(await this.sendNothingGetBlob(request, progress), URL.createObjectURL);
+    return translateResponse(
+      await this.sendNothingGetBlob(request, progress),
+      URL.createObjectURL
+    );
   }
   async sendObjectGetFile(request, progress) {
-    return translateResponse(await this.sendObjectGetBlob(request, progress), URL.createObjectURL);
+    return translateResponse(
+      await this.sendObjectGetBlob(request, progress),
+      URL.createObjectURL
+    );
   }
   async sendNothingGetXml(request, progress) {
-    return translateResponse(await this.impl.sendNothingGetSomething("document", request, progress), (doc) => doc.documentElement);
+    return translateResponse(
+      await this.impl.sendNothingGetSomething("document", request, progress),
+      (doc) => doc.documentElement
+    );
   }
   async sendObjectGetXml(request, progress) {
-    return translateResponse(await this.impl.sendSomethingGetSomething("document", request, this.defaultPostHeaders, progress), (doc) => doc.documentElement);
+    return translateResponse(
+      await this.impl.sendSomethingGetSomething("document", request, this.defaultPostHeaders, progress),
+      (doc) => doc.documentElement
+    );
   }
   async sendNothingGetImageBitmap(request, progress) {
-    return translateResponse(await this.sendNothingGetBlob(request, progress), createImageBitmap);
+    return translateResponse(
+      await this.sendNothingGetBlob(request, progress),
+      createImageBitmap
+    );
   }
   async sendObjectGetImageBitmap(request, progress) {
-    return translateResponse(await this.sendObjectGetBlob(request, progress), createImageBitmap);
+    return translateResponse(
+      await this.sendObjectGetBlob(request, progress),
+      createImageBitmap
+    );
   }
 };
 
@@ -1410,7 +1428,9 @@ var IDexDB = class {
   }
   static async open(name, ...storeDefs) {
     const storesByName = mapMap(storeDefs, (v) => v.name, identity);
-    const indexesByName = new PriorityMap(storeDefs.filter((storeDef) => isDefined(storeDef.indexes)).flatMap((storeDef) => storeDef.indexes.map((indexDef) => [storeDef.name, indexDef.name, indexDef])));
+    const indexesByName = new PriorityMap(
+      storeDefs.filter((storeDef) => isDefined(storeDef.indexes)).flatMap((storeDef) => storeDef.indexes.map((indexDef) => [storeDef.name, indexDef.name, indexDef]))
+    );
     const storesToAdd = new Array();
     const storesToRemove = new Array();
     const storesToChange = new Array();
@@ -1612,7 +1632,10 @@ function trackProgress(name, xhr, target, prog, skipLoading, prevTask) {
   }
   let done = false;
   let loaded = skipLoading;
-  const requestComplete = new Task(() => loaded && done, () => prevDone);
+  const requestComplete = new Task(
+    () => loaded && done,
+    () => prevDone
+  );
   target.addEventListener("loadstart", () => {
     if (prevDone && !done && prog) {
       prog.start(name);
@@ -1808,7 +1831,11 @@ var FetchingServiceImplXHR = class {
       return await action();
     }
     if (!this.tasks.has(request.method, request.path)) {
-      this.tasks.add(request.method, request.path, action().finally(() => this.tasks.delete(request.method, request.path)));
+      this.tasks.add(
+        request.method,
+        request.path,
+        action().finally(() => this.tasks.delete(request.method, request.path))
+      );
     }
     return this.tasks.get(request.method, request.path);
   }
@@ -1912,5 +1939,8 @@ function addFetcherMethods(server, fetcher) {
 }
 
 // src/fetcher-worker/index.ts
-globalThis.server = new FetchingServiceServer(globalThis, new FetchingServiceImplXHR());
+globalThis.server = new FetchingServiceServer(
+  globalThis,
+  new FetchingServiceImplXHR()
+);
 //# sourceMappingURL=index.js.map

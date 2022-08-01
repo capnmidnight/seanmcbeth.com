@@ -966,7 +966,12 @@ function is2DRenderingContext(ctx) {
   return isDefined(ctx.textBaseline);
 }
 function setCanvas2DContextSize(ctx, w, h, superscale = 1) {
-  const oldImageSmoothingEnabled = ctx.imageSmoothingEnabled, oldTextBaseline = ctx.textBaseline, oldTextAlign = ctx.textAlign, oldFont = ctx.font, resized = setCanvasSize(ctx.canvas, w, h, superscale);
+  const oldImageSmoothingEnabled = ctx.imageSmoothingEnabled, oldTextBaseline = ctx.textBaseline, oldTextAlign = ctx.textAlign, oldFont = ctx.font, resized = setCanvasSize(
+    ctx.canvas,
+    w,
+    h,
+    superscale
+  );
   if (resized) {
     ctx.imageSmoothingEnabled = oldImageSmoothingEnabled;
     ctx.textBaseline = oldTextBaseline;
@@ -979,7 +984,12 @@ function setContextSize(ctx, w, h, superscale = 1) {
   if (is2DRenderingContext(ctx)) {
     return setCanvas2DContextSize(ctx, w, h, superscale);
   } else {
-    return setCanvasSize(ctx.canvas, w, h, superscale);
+    return setCanvasSize(
+      ctx.canvas,
+      w,
+      h,
+      superscale
+    );
   }
 }
 

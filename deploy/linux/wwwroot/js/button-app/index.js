@@ -1373,10 +1373,26 @@ function Video(...rest) {
   return tag("video", ...rest);
 }
 function BackgroundAudio(autoplay, mute, looping, ...rest) {
-  return Audio2(playsInline(true), controls(false), muted(mute), autoPlay(autoplay), loop(looping), styles(display("none")), ...rest);
+  return Audio2(
+    playsInline(true),
+    controls(false),
+    muted(mute),
+    autoPlay(autoplay),
+    loop(looping),
+    styles(display("none")),
+    ...rest
+  );
 }
 function BackgroundVideo(autoplay, mute, looping, ...rest) {
-  return Video(playsInline(true), controls(false), muted(mute), autoPlay(autoplay), loop(looping), styles(display("none")), ...rest);
+  return Video(
+    playsInline(true),
+    controls(false),
+    muted(mute),
+    autoPlay(autoplay),
+    loop(looping),
+    styles(display("none")),
+    ...rest
+  );
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/typeChecks.ts
@@ -1522,7 +1538,12 @@ function is2DRenderingContext(ctx) {
   return isDefined(ctx.textBaseline);
 }
 function setCanvas2DContextSize(ctx, w, h, superscale = 1) {
-  const oldImageSmoothingEnabled = ctx.imageSmoothingEnabled, oldTextBaseline = ctx.textBaseline, oldTextAlign = ctx.textAlign, oldFont = ctx.font, resized = setCanvasSize(ctx.canvas, w, h, superscale);
+  const oldImageSmoothingEnabled = ctx.imageSmoothingEnabled, oldTextBaseline = ctx.textBaseline, oldTextAlign = ctx.textAlign, oldFont = ctx.font, resized = setCanvasSize(
+    ctx.canvas,
+    w,
+    h,
+    superscale
+  );
   if (resized) {
     ctx.imageSmoothingEnabled = oldImageSmoothingEnabled;
     ctx.textBaseline = oldTextBaseline;
@@ -1535,7 +1556,12 @@ function setContextSize(ctx, w, h, superscale = 1) {
   if (is2DRenderingContext(ctx)) {
     return setCanvas2DContextSize(ctx, w, h, superscale);
   } else {
-    return setCanvasSize(ctx.canvas, w, h, superscale);
+    return setCanvasSize(
+      ctx.canvas,
+      w,
+      h,
+      superscale
+    );
   }
 }
 function canvasToBlob(canvas, type2, quality) {
@@ -2254,7 +2280,10 @@ function cleanup(obj2) {
     if (here && !cleanupSeen.has(here)) {
       cleanupSeen.add(here);
       if (here.isMesh) {
-        cleanupQ.push(here.material, here.geometry);
+        cleanupQ.push(
+          here.material,
+          here.geometry
+        );
       }
       if (here.isMaterial) {
         cleanupQ.push(...Object.values(here));
@@ -2867,28 +2896,36 @@ var Image2D = class extends THREE.Object3D {
     this.isStatic = isStatic;
     this.lastMatrixWorld = new THREE.Matrix4();
     this.layer = null;
-    this.tryWebXRLayers = true;
     this.wasUsingLayer = false;
     this._imageWidth = 0;
     this._imageHeight = 0;
+    this.curImage = null;
     this.lastImage = null;
     this.lastWidth = null;
     this.lastHeight = null;
     this.stereoLayoutName = "mono";
     this.env = null;
     this.mesh = null;
-    this.webXRLayersEnabled = true;
+    this.useWebXRLayers = true;
     this.sizeMode = "none";
+    this.onTick = (evt) => this.checkWebXRLayer(evt.frame);
     if (env) {
       this.setEnvAndName(env, name);
-      let material = isMeshBasicMaterial(materialOrOptions) ? materialOrOptions : solidTransparent(Object.assign({}, materialOrOptions, { name: this.name }));
-      objGraph(this, this.mesh = mesh(name + "-Mesh", plane, material));
+      let material = isMeshBasicMaterial(materialOrOptions) ? materialOrOptions : solidTransparent(Object.assign(
+        {},
+        materialOrOptions,
+        { name: this.name }
+      ));
+      objGraph(
+        this,
+        this.mesh = mesh(name + "-Mesh", plane, material)
+      );
     }
   }
   copy(source, recursive = true) {
     super.copy(source, recursive);
-    this.setImageSize(source.imageWidth, source.imageHeight);
     this.setEnvAndName(source.env, source.name + ++copyCounter);
+    this.setTextureMap(this.curImage);
     this.mesh = arrayScan(this.children, isMesh);
     if (isNullOrUndefined(this.mesh)) {
       this.mesh = source.mesh.clone();
@@ -2897,7 +2934,10 @@ var Image2D = class extends THREE.Object3D {
     return this;
   }
   dispose() {
-    cleanup(this.layer);
+    this.removeWebXRLayer();
+    if (this.env) {
+      this.env.timer.removeTickHandler(this.onTick);
+    }
   }
   setImageSize(width, height) {
     if (width !== this.imageWidth || height !== this.imageHeight) {
@@ -2947,17 +2987,16 @@ var Image2D = class extends THREE.Object3D {
   setEnvAndName(env, name) {
     this.env = env;
     this.name = name;
-    this.tryWebXRLayers &&= this.env && this.env.hasXRCompositionLayers;
+    this.env.timer.addTickHandler(this.onTick);
   }
   get needsLayer() {
-    if (!objectIsFullyVisible(this) || isNullOrUndefined(this.mesh.material.map) || isNullOrUndefined(this.mesh.material.map.image)) {
+    if (!objectIsFullyVisible(this) || isNullOrUndefined(this.mesh.material.map) || isNullOrUndefined(this.curImage)) {
       return false;
     }
-    const img = this.mesh.material.map.image;
-    if (!(img instanceof HTMLVideoElement)) {
+    if (!(this.curImage instanceof HTMLVideoElement)) {
       return true;
     }
-    return !img.paused || img.currentTime > 0;
+    return !this.curImage.paused || this.curImage.currentTime > 0;
   }
   removeWebXRLayer() {
     if (isDefined(this.layer)) {
@@ -2978,16 +3017,20 @@ var Image2D = class extends THREE.Object3D {
     if (isOffscreenCanvas(img)) {
       img = img;
     }
+    this.curImage = img;
     if (img instanceof HTMLVideoElement) {
-      this.mesh.material.map = new THREE.VideoTexture(img);
       this.setImageSize(img.videoWidth, img.videoHeight);
+      this.mesh.material.map = new THREE.VideoTexture(img);
     } else {
-      this.mesh.material.map = new THREE.Texture(img);
       this.setImageSize(img.width, img.height);
+      this.mesh.material.map = new THREE.Texture(img);
       this.mesh.material.map.needsUpdate = true;
     }
     this.mesh.material.needsUpdate = true;
     return this.mesh.material.map;
+  }
+  get isVideo() {
+    return this.curImage instanceof HTMLVideoElement;
   }
   async loadTextureMap(fetcher, path, prog) {
     let { content: img } = await fetcher.get(path).progress(prog).image();
@@ -2995,25 +3038,28 @@ var Image2D = class extends THREE.Object3D {
     texture.name = path;
   }
   updateTexture() {
-    const img = this.mesh.material.map.image;
-    if (isNumber(img.width) && isNumber(img.height) && (this.imageWidth !== img.width || this.imageHeight !== img.height)) {
-      this.mesh.material.map.dispose();
-      this.mesh.material.map = new THREE.Texture(img);
-      this.mesh.material.needsUpdate = true;
-      this.setImageSize(img.width, img.height);
+    if (isDefined(this.curImage)) {
+      const curVideo = this.curImage;
+      const newWidth = this.isVideo ? curVideo.videoWidth : this.curImage.width;
+      const newHeight = this.isVideo ? curVideo.videoHeight : this.curImage.height;
+      if (this.imageWidth !== newWidth || this.imageHeight !== newHeight) {
+        this.removeWebXRLayer();
+        cleanup(this.mesh.material.map);
+        const img = this.curImage;
+        this.curImage = null;
+        this.setTextureMap(img);
+      }
     }
-    this.mesh.material.map.needsUpdate = true;
   }
-  update(_dt, frame) {
-    if (this.mesh.material.map && this.mesh.material.map.image) {
-      const isVideo = this.mesh.material.map instanceof THREE.VideoTexture;
-      const isLayersAvailable = this.tryWebXRLayers && this.webXRLayersEnabled && isDefined(frame) && (isVideo && isDefined(this.env.xrMediaBinding) || !isVideo && isDefined(this.env.xrBinding));
+  checkWebXRLayer(frame) {
+    if (this.mesh.material.map && this.curImage) {
+      const isLayersAvailable = this.useWebXRLayers && this.env.hasXRCompositionLayers && isDefined(frame) && (this.isVideo && isDefined(this.env.xrMediaBinding) || !this.isVideo && isDefined(this.env.xrBinding));
       const useLayer = isLayersAvailable && this.needsLayer;
       const useLayerChanged = useLayer !== this.wasUsingLayer;
-      const imageChanged = this.mesh.material.map.image !== this.lastImage || this.mesh.material.needsUpdate || this.mesh.material.map.needsUpdate;
+      const imageChanged = this.curImage !== this.lastImage || this.mesh.material.needsUpdate || this.mesh.material.map.needsUpdate;
       const sizeChanged = this.imageWidth !== this.lastWidth || this.imageHeight !== this.lastHeight;
       this.wasUsingLayer = useLayer;
-      this.lastImage = this.mesh.material.map.image;
+      this.lastImage = this.curImage;
       this.lastWidth = this.imageWidth;
       this.lastHeight = this.imageHeight;
       if (useLayerChanged || sizeChanged) {
@@ -3028,9 +3074,9 @@ var Image2D = class extends THREE.Object3D {
           const width = S.x / 2;
           const height = S.y / 2;
           const layout = this.stereoLayoutName === "mono" ? "mono" : this.stereoLayoutName === "left-right" || this.stereoLayoutName === "right-left" ? "stereo-left-right" : "stereo-top-bottom";
-          if (isVideo) {
+          if (this.isVideo) {
             const invertStereo = this.stereoLayoutName === "right-left" || this.stereoLayoutName === "bottom-top";
-            this.layer = this.env.xrMediaBinding.createQuadLayer(this.mesh.material.map.image, {
+            this.layer = this.env.xrMediaBinding.createQuadLayer(this.curImage, {
               space,
               layout,
               invertStereo,
@@ -3044,8 +3090,8 @@ var Image2D = class extends THREE.Object3D {
               layout,
               textureType: "texture",
               isStatic: this.isStatic,
-              viewPixelWidth: this.imageWidth,
-              viewPixelHeight: this.imageHeight,
+              viewPixelWidth: this.curImage.width,
+              viewPixelHeight: this.curImage.height,
               transform,
               width,
               height
@@ -3061,7 +3107,15 @@ var Image2D = class extends THREE.Object3D {
           const gLayer = this.env.xrBinding.getSubImage(this.layer, frame);
           gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
           gl.bindTexture(gl.TEXTURE_2D, gLayer.colorTexture);
-          gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, gl.RGBA, gl.UNSIGNED_BYTE, this.mesh.material.map.image);
+          gl.texSubImage2D(
+            gl.TEXTURE_2D,
+            0,
+            0,
+            0,
+            gl.RGBA,
+            gl.UNSIGNED_BYTE,
+            this.curImage
+          );
           gl.generateMipmap(gl.TEXTURE_2D);
           gl.bindTexture(gl.TEXTURE_2D, null);
         }
@@ -3183,10 +3237,15 @@ var TextMeshButton = class extends RayTarget {
     }
   }
   createImage(id2, opacity) {
-    const image2 = new TextMesh(this.env, `text-${id2}`, this.image, {
-      side: THREE.FrontSide,
-      opacity
-    });
+    const image2 = new TextMesh(
+      this.env,
+      `text-${id2}`,
+      this.image,
+      {
+        side: THREE.FrontSide,
+        opacity
+      }
+    );
     return image2;
   }
   get disabled() {
@@ -3634,7 +3693,10 @@ var RequestBuilder = class {
     throw new Error(`Cannot play file of type "${response.contentType}" at path: ${this.request.path}`);
   }
   async audioBuffer(audioCtx, acceptType) {
-    return translateResponse(await this.audioBlob(acceptType), async (blob) => await audioCtx.decodeAudioData(await blob.arrayBuffer()));
+    return translateResponse(
+      await this.audioBlob(acceptType),
+      async (blob) => await audioCtx.decodeAudioData(await blob.arrayBuffer())
+    );
   }
   async htmlElement(element, resolveEvt, acceptType) {
     const response = await this.file(acceptType);
@@ -3644,7 +3706,11 @@ var RequestBuilder = class {
     return await translateResponse(response, () => element);
   }
   image(acceptType) {
-    return this.htmlElement(Img(), "load", acceptType);
+    return this.htmlElement(
+      Img(),
+      "load",
+      acceptType
+    );
   }
   async htmlCanvas(acceptType) {
     if (false) {
@@ -3698,16 +3764,28 @@ var RequestBuilder = class {
     }
   }
   audio(autoPlaying, looping, acceptType) {
-    return this.htmlElement(BackgroundAudio(autoPlaying, false, looping), "canplay", acceptType);
+    return this.htmlElement(
+      BackgroundAudio(autoPlaying, false, looping),
+      "canplay",
+      acceptType
+    );
   }
   video(autoPlaying, looping, acceptType) {
-    return this.htmlElement(BackgroundVideo(autoPlaying, false, looping), "canplay", acceptType);
+    return this.htmlElement(
+      BackgroundVideo(autoPlaying, false, looping),
+      "canplay",
+      acceptType
+    );
   }
   async getScript() {
     const tag2 = Script(type(Application_Javascript));
     document.body.append(tag2);
     if (this.useFileBlobsForModules) {
-      await this.htmlElement(tag2, "load", Application_Javascript);
+      await this.htmlElement(
+        tag2,
+        "load",
+        Application_Javascript
+      );
     } else {
       tag2.src = this.request.path;
     }
@@ -3806,7 +3884,10 @@ var Fetcher = class {
   async assets(progress, ...assets) {
     assets = assets.filter(isDefined);
     const assetSizes = new Map(await Promise.all(assets.map((asset) => asset.getSize(this))));
-    await progressTasksWeighted(progress, assets.map((asset) => [assetSizes.get(asset), (prog) => asset.fetch(this, prog)]));
+    await progressTasksWeighted(
+      progress,
+      assets.map((asset) => [assetSizes.get(asset), (prog) => asset.fetch(this, prog)])
+    );
   }
 };
 
@@ -3882,22 +3963,40 @@ var FetchingService = class {
     return this.impl.drawImageToCanvas(request, canvas, progress);
   }
   async sendNothingGetFile(request, progress) {
-    return translateResponse(await this.sendNothingGetBlob(request, progress), URL.createObjectURL);
+    return translateResponse(
+      await this.sendNothingGetBlob(request, progress),
+      URL.createObjectURL
+    );
   }
   async sendObjectGetFile(request, progress) {
-    return translateResponse(await this.sendObjectGetBlob(request, progress), URL.createObjectURL);
+    return translateResponse(
+      await this.sendObjectGetBlob(request, progress),
+      URL.createObjectURL
+    );
   }
   async sendNothingGetXml(request, progress) {
-    return translateResponse(await this.impl.sendNothingGetSomething("document", request, progress), (doc) => doc.documentElement);
+    return translateResponse(
+      await this.impl.sendNothingGetSomething("document", request, progress),
+      (doc) => doc.documentElement
+    );
   }
   async sendObjectGetXml(request, progress) {
-    return translateResponse(await this.impl.sendSomethingGetSomething("document", request, this.defaultPostHeaders, progress), (doc) => doc.documentElement);
+    return translateResponse(
+      await this.impl.sendSomethingGetSomething("document", request, this.defaultPostHeaders, progress),
+      (doc) => doc.documentElement
+    );
   }
   async sendNothingGetImageBitmap(request, progress) {
-    return translateResponse(await this.sendNothingGetBlob(request, progress), createImageBitmap);
+    return translateResponse(
+      await this.sendNothingGetBlob(request, progress),
+      createImageBitmap
+    );
   }
   async sendObjectGetImageBitmap(request, progress) {
-    return translateResponse(await this.sendObjectGetBlob(request, progress), createImageBitmap);
+    return translateResponse(
+      await this.sendObjectGetBlob(request, progress),
+      createImageBitmap
+    );
   }
 };
 
@@ -4252,7 +4351,9 @@ var IDexDB = class {
   }
   static async open(name, ...storeDefs) {
     const storesByName = mapMap(storeDefs, (v) => v.name, identity);
-    const indexesByName = new PriorityMap(storeDefs.filter((storeDef) => isDefined(storeDef.indexes)).flatMap((storeDef) => storeDef.indexes.map((indexDef) => [storeDef.name, indexDef.name, indexDef])));
+    const indexesByName = new PriorityMap(
+      storeDefs.filter((storeDef) => isDefined(storeDef.indexes)).flatMap((storeDef) => storeDef.indexes.map((indexDef) => [storeDef.name, indexDef.name, indexDef]))
+    );
     const storesToAdd = new Array();
     const storesToRemove = new Array();
     const storesToChange = new Array();
@@ -4454,7 +4555,10 @@ function trackProgress(name, xhr, target, prog, skipLoading, prevTask) {
   }
   let done = false;
   let loaded = skipLoading;
-  const requestComplete = new Task(() => loaded && done, () => prevDone);
+  const requestComplete = new Task(
+    () => loaded && done,
+    () => prevDone
+  );
   target.addEventListener("loadstart", () => {
     if (prevDone && !done && prog) {
       prog.start(name);
@@ -4650,7 +4754,11 @@ var FetchingServiceImplXHR = class {
       return await action();
     }
     if (!this.tasks.has(request.method, request.path)) {
-      this.tasks.add(request.method, request.path, action().finally(() => this.tasks.delete(request.method, request.path)));
+      this.tasks.add(
+        request.method,
+        request.path,
+        action().finally(() => this.tasks.delete(request.method, request.path))
+      );
     }
     return this.tasks.get(request.method, request.path);
   }
@@ -4860,7 +4968,11 @@ function getUIImagePaths() {
   const uiImagePaths = new PriorityMap();
   for (const [setName, iconNames] of imageNames.entries()) {
     for (const iconName of iconNames) {
-      uiImagePaths.add(setName, iconName.replace(setName + "-", ""), `/img/ui/${iconName}.png`);
+      uiImagePaths.add(
+        setName,
+        iconName.replace(setName + "-", ""),
+        `/img/ui/${iconName}.png`
+      );
     }
   }
   return uiImagePaths;
@@ -4889,14 +5001,29 @@ async function createTestEnvironment(addServiceWorker = false) {
   if (addServiceWorker && "serviceWorker" in navigator) {
     registerWorker();
   }
-  const canvas = Canvas(id("frontBuffer"));
-  document.body.append(Div(id("appContainer"), canvas));
+  const canvas = Canvas(
+    id("frontBuffer")
+  );
+  document.body.append(
+    Div(
+      id("appContainer"),
+      canvas
+    )
+  );
   await loadFonts();
   const fetcher = createFetcher(!isDebug);
   const { default: EnvironmentConstructor } = await fetcher.get(`/js/environment/index${JS_EXT}?${version}`).useCache(!isDebug).module();
-  const env = new EnvironmentConstructor(canvas, fetcher, defaultFont.fontFamily, getUIImagePaths(), defaultAvatarHeight, enableFullResolution, {
-    DEBUG: isDebug
-  });
+  const env = new EnvironmentConstructor(
+    canvas,
+    fetcher,
+    defaultFont.fontFamily,
+    getUIImagePaths(),
+    defaultAvatarHeight,
+    enableFullResolution,
+    {
+      DEBUG: isDebug
+    }
+  );
   if (isDebug) {
     const MAX_IMAGE_SIZE = toBytes(200, "KiB");
     window.addEventListener("keypress", async (evt) => {
@@ -4957,7 +5084,11 @@ var buttonStyle = {
   const button2 = new TextMeshButton(env, "Button2", "Click Me.", buttonStyle);
   button2.addEventListener("click", () => button1.enabled = !button1.enabled);
   button2.object.position.set(0.5, 1.75, -3);
-  objGraph(env.foreground, button1, button2);
+  objGraph(
+    env.foreground,
+    button1,
+    button2
+  );
   await env.fadeIn();
 })();
 //# sourceMappingURL=index.js.map

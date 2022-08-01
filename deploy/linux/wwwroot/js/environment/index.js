@@ -19,7 +19,10 @@ var __copyProps = (to, from, except, desc) => {
   }
   return to;
 };
-var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target, mod));
+var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
+  mod
+));
 
 // ../Juniper/src/Juniper.TypeScript/node_modules/cardboard-vr-display/dist/cardboard-vr-display.js
 var require_cardboard_vr_display = __commonJS({
@@ -5480,7 +5483,10 @@ var CSSInJSRule = class {
   }
   apply(sheet) {
     const style = this.props.map((prop) => `${prop.name}: ${prop.value};`).join("");
-    sheet.insertRule(`${this.selector} {${style}}`, sheet.cssRules.length);
+    sheet.insertRule(
+      `${this.selector} {${style}}`,
+      sheet.cssRules.length
+    );
   }
 };
 function rule(selector, ...props) {
@@ -5750,7 +5756,15 @@ function Style(...rest) {
   return elem;
 }
 function BackgroundAudio(autoplay, mute, looping, ...rest) {
-  return Audio2(playsInline(true), controls(false), muted(mute), autoPlay(autoplay), loop(looping), styles(display("none")), ...rest);
+  return Audio2(
+    playsInline(true),
+    controls(false),
+    muted(mute),
+    autoPlay(autoplay),
+    loop(looping),
+    styles(display("none")),
+    ...rest
+  );
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/nodes.ts
@@ -6073,8 +6087,23 @@ var AudioDestination = class extends BaseAudioElement {
   constructor(audioCtx, _trueDestination, listener) {
     super("final", audioCtx, listener);
     this._trueDestination = _trueDestination;
-    this._remoteUserInput = Gain("remote-user-input", this.audioCtx, null, this._spatializedInput = Gain("spatialized-input", this.audioCtx, null, this.volumeControl));
-    this._nonSpatializedInput = Gain("non-spatialized-input", this.audioCtx, null, this.volumeControl);
+    this._remoteUserInput = Gain(
+      "remote-user-input",
+      this.audioCtx,
+      null,
+      this._spatializedInput = Gain(
+        "spatialized-input",
+        this.audioCtx,
+        null,
+        this.volumeControl
+      )
+    );
+    this._nonSpatializedInput = Gain(
+      "non-spatialized-input",
+      this.audioCtx,
+      null,
+      this.volumeControl
+    );
     connect(this.volumeControl, this._trueDestination);
     connect(NoSpatializationNode.instance(this.audioCtx), this.nonSpatializedInput);
   }
@@ -6164,12 +6193,22 @@ function EchoEffect(name2, audioCtx, connectTo) {
 }
 var EchoEffectLayerNode = class {
   constructor(name2, audioCtx, volume, delay, connectTo) {
-    this.input = Gain(`${name2}-input`, audioCtx, {
-      gain: volume
-    }, this.output = Delay(`${name2}-delay`, audioCtx, {
-      maxDelayTime: delay,
-      delayTime: delay
-    }, connectTo));
+    this.input = Gain(
+      `${name2}-input`,
+      audioCtx,
+      {
+        gain: volume
+      },
+      this.output = Delay(
+        `${name2}-delay`,
+        audioCtx,
+        {
+          maxDelayTime: delay,
+          delayTime: delay
+        },
+        connectTo
+      )
+    );
   }
   dispose() {
     removeVertex(this.input);
@@ -6180,7 +6219,13 @@ var EchoEffectNode = class {
   constructor(name2, audioCtx, numLayers, connectTo) {
     this.output = Gain(`${name2}-output`, audioCtx, null, connectTo);
     const delays = Array.from(fibGen(1, 2, numLayers));
-    this.layers = delays.map((delay) => new EchoEffectLayerNode(`${name2}-echo-layer-${delay}`, audioCtx, 0.5 / delay, delay, this.output));
+    this.layers = delays.map((delay) => new EchoEffectLayerNode(
+      `${name2}-echo-layer-${delay}`,
+      audioCtx,
+      0.5 / delay,
+      delay,
+      this.output
+    ));
     this.input = Gain(`${name2}-input`, audioCtx, null, ...this.layers);
   }
   dispose() {
@@ -6274,7 +6319,11 @@ var BaseAudioSource = class extends BaseAudioElement {
         }
       }
     }
-    chain(this.volumeControl, ...this.effects, this.spatializer);
+    chain(
+      this.volumeControl,
+      ...this.effects,
+      this.spatializer
+    );
   }
   get spatialized() {
     return !(this.spatializer instanceof NoSpatializationNode);
@@ -6473,13 +6522,17 @@ var BaseWebAudioPanner = class extends BaseEmitter {
     this.lox = 0;
     this.loy = 0;
     this.loz = 0;
-    this.input = this.output = this.panner = Panner(this.id, audioCtx, {
-      panningModel: "HRTF",
-      distanceModel: "inverse",
-      coneInnerAngle: 360,
-      coneOuterAngle: 0,
-      coneOuterGain: 0
-    });
+    this.input = this.output = this.panner = Panner(
+      this.id,
+      audioCtx,
+      {
+        panningModel: "HRTF",
+        distanceModel: "inverse",
+        coneInnerAngle: 360,
+        coneOuterAngle: 0,
+        coneOuterGain: 0
+      }
+    );
   }
   setAudioProperties(minDistance, maxDistance, algorithm) {
     super.setAudioProperties(minDistance, maxDistance, algorithm);
@@ -6617,7 +6670,10 @@ var SpeakerManager = class extends TypedEventBase {
     if (isNullOrUndefined(curId)) {
       return null;
     }
-    const devices = await this.getAudioOutputDevices(), device = arrayScan(devices, (d) => d.deviceId === curId);
+    const devices = await this.getAudioOutputDevices(), device = arrayScan(
+      devices,
+      (d) => d.deviceId === curId
+    );
     return device;
   }
   async getPreferredAudioOutput() {
@@ -6625,7 +6681,12 @@ var SpeakerManager = class extends TypedEventBase {
       return null;
     }
     const devices = await this.getAudioOutputDevices();
-    const device = arrayScan(devices, (d) => d.deviceId === this.preferredAudioOutputID, (d) => d.deviceId === "default", (d) => d.deviceId.length > 0);
+    const device = arrayScan(
+      devices,
+      (d) => d.deviceId === this.preferredAudioOutputID,
+      (d) => d.deviceId === "default",
+      (d) => d.deviceId.length > 0
+    );
     return device;
   }
   async setAudioOutputDevice(device) {
@@ -6712,18 +6773,49 @@ var AudioManager = class extends TypedEventBase {
     this.counter = 0;
     this.audioCtx = new AudioContext();
     const destination = MediaStreamDestination("final-destination", this.audioCtx);
-    this.element = Audio2(id("Audio-Device-Manager"), playsInline(true), autoPlay(true), srcObject(destination.stream), styles(display("none")));
+    this.element = Audio2(
+      id("Audio-Device-Manager"),
+      playsInline(true),
+      autoPlay(true),
+      srcObject(destination.stream),
+      styles(
+        display("none")
+      )
+    );
     elementApply(document.body, this);
     this.speakers = new SpeakerManager(this.element);
-    this.input = Gain("local-mic-user-gain", this.audioCtx, null, this.localAutoControlledGain = Gain("local-mic-auto-gain", this.audioCtx, null, this.localFilter = BiquadFilter("local-mic-filter", this.audioCtx, {
-      type: "bandpass",
-      frequency: 1500,
-      Q: 0.25
-    }, this.localCompressor = DynamicsCompressor("local-mic-compressor", this.audioCtx, {
-      threshold: -15,
-      knee: 40,
-      ratio: 17
-    }, this.output = MediaStreamDestination("local-mic-destination", this.audioCtx)))));
+    this.input = Gain(
+      "local-mic-user-gain",
+      this.audioCtx,
+      null,
+      this.localAutoControlledGain = Gain(
+        "local-mic-auto-gain",
+        this.audioCtx,
+        null,
+        this.localFilter = BiquadFilter(
+          "local-mic-filter",
+          this.audioCtx,
+          {
+            type: "bandpass",
+            frequency: 1500,
+            Q: 0.25
+          },
+          this.localCompressor = DynamicsCompressor(
+            "local-mic-compressor",
+            this.audioCtx,
+            {
+              threshold: -15,
+              knee: 40,
+              ratio: 17
+            },
+            this.output = MediaStreamDestination(
+              "local-mic-destination",
+              this.audioCtx
+            )
+          )
+        )
+      )
+    );
     this.audioDestination = new AudioDestination(this.audioCtx, destination, hasNewAudioListener ? new WebAudioListenerNew(this.audioCtx) : new WebAudioListenerOld(this.audioCtx));
     NoSpatializationNode.instance(this.audioCtx).setAudioProperties(this._minDistance, this._maxDistance, this.algorithm);
     this.setLocalUserID(defaultLocalUserID);
@@ -6884,20 +6976,40 @@ var AudioManager = class extends TypedEventBase {
     return this.createSourceFromElement(id2, elem);
   }
   createSourceFromStream(id2, stream) {
-    const elem = BackgroundAudio(true, !useElementSourceForUsers, false, srcObject(stream));
+    const elem = BackgroundAudio(
+      true,
+      !useElementSourceForUsers,
+      false,
+      srcObject(stream)
+    );
     if (useElementSourceForUsers) {
       return this.createSourceFromElement(id2, elem);
     } else {
-      return MediaStreamSource(stringToName("media-stream-source", id2, stream.id), this.audioCtx, stream);
+      return MediaStreamSource(
+        stringToName("media-stream-source", id2, stream.id),
+        this.audioCtx,
+        stream
+      );
     }
   }
   createSourceFromElement(id2, elem) {
-    return MediaElementSource(stringToName("media-element-source", id2), this.audioCtx, elem);
+    return MediaElementSource(
+      stringToName("media-element-source", id2),
+      this.audioCtx,
+      elem
+    );
   }
   makeClip(source, id2, path, spatialize, randomize, autoPlaying, vol, ...effectNames) {
     const nodeID = stringToName(id2, path);
     const spatializer = this.createSpatializer(nodeID, spatialize, false);
-    const clip = new AudioElementSource(stringToName("audio-clip-element", nodeID), this.audioCtx, source, randomize, spatializer, ...effectNames);
+    const clip = new AudioElementSource(
+      stringToName("audio-clip-element", nodeID),
+      this.audioCtx,
+      source,
+      randomize,
+      spatializer,
+      ...effectNames
+    );
     if (autoPlaying) {
       clip.play();
     }
@@ -6958,7 +7070,10 @@ var AudioManager = class extends TypedEventBase {
     if (this.users.has(userID)) {
       const user = this.users.get(userID);
       if (stream) {
-        user.input = this.createSourceFromStream(stringToName(userName, userID), stream);
+        user.input = this.createSourceFromStream(
+          stringToName(userName, userID),
+          stream
+        );
       } else if (isDefined(user.input)) {
         user.input = null;
       }
@@ -7038,8 +7153,17 @@ var AudioPlayer = class extends BaseAudioSource {
     this.sourcesByURL = /* @__PURE__ */ new Map();
     this.sources = new Array();
     this.potatoes = new Array();
-    this.element = Audio2(playsInline(true), autoPlay(false), loop(false), controls(true));
-    this.input = MediaElementSource("JuniperAudioPlayer-Input", audioCtx, this.element);
+    this.element = Audio2(
+      playsInline(true),
+      autoPlay(false),
+      loop(false),
+      controls(true)
+    );
+    this.input = MediaElementSource(
+      "JuniperAudioPlayer-Input",
+      audioCtx,
+      this.element
+    );
     this.loadingEvt = new MediaPlayerLoadingEvent(this);
     this.loadEvt = new MediaElementSourceLoadedEvent(this);
     this.playEvt = new MediaElementSourcePlayedEvent(this);
@@ -7590,7 +7714,12 @@ function is2DRenderingContext(ctx) {
   return isDefined(ctx.textBaseline);
 }
 function setCanvas2DContextSize(ctx, w, h, superscale = 1) {
-  const oldImageSmoothingEnabled = ctx.imageSmoothingEnabled, oldTextBaseline = ctx.textBaseline, oldTextAlign = ctx.textAlign, oldFont = ctx.font, resized = setCanvasSize(ctx.canvas, w, h, superscale);
+  const oldImageSmoothingEnabled = ctx.imageSmoothingEnabled, oldTextBaseline = ctx.textBaseline, oldTextAlign = ctx.textAlign, oldFont = ctx.font, resized = setCanvasSize(
+    ctx.canvas,
+    w,
+    h,
+    superscale
+  );
   if (resized) {
     ctx.imageSmoothingEnabled = oldImageSmoothingEnabled;
     ctx.textBaseline = oldTextBaseline;
@@ -7603,7 +7732,12 @@ function setContextSize(ctx, w, h, superscale = 1) {
   if (is2DRenderingContext(ctx)) {
     return setCanvas2DContextSize(ctx, w, h, superscale);
   } else {
-    return setCanvasSize(ctx.canvas, w, h, superscale);
+    return setCanvasSize(
+      ctx.canvas,
+      w,
+      h,
+      superscale
+    );
   }
 }
 
@@ -8470,11 +8604,78 @@ function jump(t2, k) {
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/widgets/DialogBox.ts
-Style(rule(".dialog, .dialog-container", position("fixed")), rule(".dialog", top(0), left(0), width("100%"), height("100%"), backgroundColor("rgba(0, 0, 0, 0.5)"), zIndex(100)), rule(".dialog-container", top("50%"), left("50%"), maxWidth("100%"), maxHeight("100%"), transform("translateX(-50%) translateY(-50%)"), backgroundColor("white"), boxShadow("rgba(0,0,0,0.5) 0px 5px 30px"), display("grid"), gridTemplateColumns("2em auto 2em"), gridTemplateRows("auto 1fr auto 2em")), rule(".dialog .title-bar", gridArea(1, 1, 2, -1), padding("0.25em")), rule(".dialog-content", gridArea(2, 2, -4, -2), overflow("auto")), rule(".dialog-controls", gridArea(-2, 2, -3, -2)), rule(".dialog .confirm-button", float("right")), rule(".dialog h1, .dialog h2, .dialog h3, .dialog h4, .dialog h5, .dialog h6", textAlign("left")), rule(".dialog select", maxWidth("10em")));
+Style(
+  rule(
+    ".dialog, .dialog-container",
+    position("fixed")
+  ),
+  rule(
+    ".dialog",
+    top(0),
+    left(0),
+    width("100%"),
+    height("100%"),
+    backgroundColor("rgba(0, 0, 0, 0.5)"),
+    zIndex(100)
+  ),
+  rule(
+    ".dialog-container",
+    top("50%"),
+    left("50%"),
+    maxWidth("100%"),
+    maxHeight("100%"),
+    transform("translateX(-50%) translateY(-50%)"),
+    backgroundColor("white"),
+    boxShadow("rgba(0,0,0,0.5) 0px 5px 30px"),
+    display("grid"),
+    gridTemplateColumns("2em auto 2em"),
+    gridTemplateRows("auto 1fr auto 2em")
+  ),
+  rule(
+    ".dialog .title-bar",
+    gridArea(1, 1, 2, -1),
+    padding("0.25em")
+  ),
+  rule(
+    ".dialog-content",
+    gridArea(2, 2, -4, -2),
+    overflow("auto")
+  ),
+  rule(
+    ".dialog-controls",
+    gridArea(-2, 2, -3, -2)
+  ),
+  rule(
+    ".dialog .confirm-button",
+    float("right")
+  ),
+  rule(
+    ".dialog h1, .dialog h2, .dialog h3, .dialog h4, .dialog h5, .dialog h6",
+    textAlign("left")
+  ),
+  rule(
+    ".dialog select",
+    maxWidth("10em")
+  )
+);
 var DialogBox = class {
   constructor(title2) {
     this.subEventer = new TypedEventBase();
-    this.element = Div(className("dialog"), customData("dialogname", title2), styles(display("none")), this.container = Div(className("dialog-container"), this.titleElement = H1(className("title-bar"), title2), this.contentArea = Div(className("dialog-content")), Div(className("dialog-controls"), this.confirmButton = ButtonPrimary("Confirm", classList("confirm-button")), this.cancelButton = ButtonSecondary("Cancel", classList("cancel-button")))));
+    this.element = Div(
+      className("dialog"),
+      customData("dialogname", title2),
+      styles(display("none")),
+      this.container = Div(
+        className("dialog-container"),
+        this.titleElement = H1(className("title-bar"), title2),
+        this.contentArea = Div(className("dialog-content")),
+        Div(
+          className("dialog-controls"),
+          this.confirmButton = ButtonPrimary("Confirm", classList("confirm-button")),
+          this.cancelButton = ButtonSecondary("Cancel", classList("cancel-button"))
+        )
+      )
+    );
     this.confirmButton.addEventListener("click", () => this.subEventer.dispatchEvent(new TypedEvent("confirm")));
     this.cancelButton.addEventListener("click", () => this.subEventer.dispatchEvent(new TypedEvent("cancel")));
     elementApply(document.body, this);
@@ -8690,7 +8891,10 @@ function cleanup(obj2) {
     if (here && !cleanupSeen.has(here)) {
       cleanupSeen.add(here);
       if (here.isMesh) {
-        cleanupQ.push(here.material, here.geometry);
+        cleanupQ.push(
+          here.material,
+          here.geometry
+        );
       }
       if (here.isMaterial) {
         cleanupQ.push(...Object.values(here));
@@ -9397,28 +9601,36 @@ var Image2D = class extends THREE.Object3D {
     this.isStatic = isStatic;
     this.lastMatrixWorld = new THREE.Matrix4();
     this.layer = null;
-    this.tryWebXRLayers = true;
     this.wasUsingLayer = false;
     this._imageWidth = 0;
     this._imageHeight = 0;
+    this.curImage = null;
     this.lastImage = null;
     this.lastWidth = null;
     this.lastHeight = null;
     this.stereoLayoutName = "mono";
     this.env = null;
     this.mesh = null;
-    this.webXRLayersEnabled = true;
+    this.useWebXRLayers = true;
     this.sizeMode = "none";
+    this.onTick = (evt) => this.checkWebXRLayer(evt.frame);
     if (env) {
       this.setEnvAndName(env, name2);
-      let material = isMeshBasicMaterial(materialOrOptions) ? materialOrOptions : solidTransparent(Object.assign({}, materialOrOptions, { name: this.name }));
-      objGraph(this, this.mesh = mesh(name2 + "-Mesh", plane, material));
+      let material = isMeshBasicMaterial(materialOrOptions) ? materialOrOptions : solidTransparent(Object.assign(
+        {},
+        materialOrOptions,
+        { name: this.name }
+      ));
+      objGraph(
+        this,
+        this.mesh = mesh(name2 + "-Mesh", plane, material)
+      );
     }
   }
   copy(source, recursive = true) {
     super.copy(source, recursive);
-    this.setImageSize(source.imageWidth, source.imageHeight);
     this.setEnvAndName(source.env, source.name + ++copyCounter);
+    this.setTextureMap(this.curImage);
     this.mesh = arrayScan(this.children, isMesh);
     if (isNullOrUndefined(this.mesh)) {
       this.mesh = source.mesh.clone();
@@ -9427,7 +9639,10 @@ var Image2D = class extends THREE.Object3D {
     return this;
   }
   dispose() {
-    cleanup(this.layer);
+    this.removeWebXRLayer();
+    if (this.env) {
+      this.env.timer.removeTickHandler(this.onTick);
+    }
   }
   setImageSize(width2, height2) {
     if (width2 !== this.imageWidth || height2 !== this.imageHeight) {
@@ -9477,17 +9692,16 @@ var Image2D = class extends THREE.Object3D {
   setEnvAndName(env, name2) {
     this.env = env;
     this.name = name2;
-    this.tryWebXRLayers &&= this.env && this.env.hasXRCompositionLayers;
+    this.env.timer.addTickHandler(this.onTick);
   }
   get needsLayer() {
-    if (!objectIsFullyVisible(this) || isNullOrUndefined(this.mesh.material.map) || isNullOrUndefined(this.mesh.material.map.image)) {
+    if (!objectIsFullyVisible(this) || isNullOrUndefined(this.mesh.material.map) || isNullOrUndefined(this.curImage)) {
       return false;
     }
-    const img = this.mesh.material.map.image;
-    if (!(img instanceof HTMLVideoElement)) {
+    if (!(this.curImage instanceof HTMLVideoElement)) {
       return true;
     }
-    return !img.paused || img.currentTime > 0;
+    return !this.curImage.paused || this.curImage.currentTime > 0;
   }
   removeWebXRLayer() {
     if (isDefined(this.layer)) {
@@ -9508,16 +9722,20 @@ var Image2D = class extends THREE.Object3D {
     if (isOffscreenCanvas(img)) {
       img = img;
     }
+    this.curImage = img;
     if (img instanceof HTMLVideoElement) {
-      this.mesh.material.map = new THREE.VideoTexture(img);
       this.setImageSize(img.videoWidth, img.videoHeight);
+      this.mesh.material.map = new THREE.VideoTexture(img);
     } else {
-      this.mesh.material.map = new THREE.Texture(img);
       this.setImageSize(img.width, img.height);
+      this.mesh.material.map = new THREE.Texture(img);
       this.mesh.material.map.needsUpdate = true;
     }
     this.mesh.material.needsUpdate = true;
     return this.mesh.material.map;
+  }
+  get isVideo() {
+    return this.curImage instanceof HTMLVideoElement;
   }
   async loadTextureMap(fetcher, path, prog) {
     let { content: img } = await fetcher.get(path).progress(prog).image();
@@ -9525,25 +9743,28 @@ var Image2D = class extends THREE.Object3D {
     texture.name = path;
   }
   updateTexture() {
-    const img = this.mesh.material.map.image;
-    if (isNumber(img.width) && isNumber(img.height) && (this.imageWidth !== img.width || this.imageHeight !== img.height)) {
-      this.mesh.material.map.dispose();
-      this.mesh.material.map = new THREE.Texture(img);
-      this.mesh.material.needsUpdate = true;
-      this.setImageSize(img.width, img.height);
+    if (isDefined(this.curImage)) {
+      const curVideo = this.curImage;
+      const newWidth = this.isVideo ? curVideo.videoWidth : this.curImage.width;
+      const newHeight = this.isVideo ? curVideo.videoHeight : this.curImage.height;
+      if (this.imageWidth !== newWidth || this.imageHeight !== newHeight) {
+        this.removeWebXRLayer();
+        cleanup(this.mesh.material.map);
+        const img = this.curImage;
+        this.curImage = null;
+        this.setTextureMap(img);
+      }
     }
-    this.mesh.material.map.needsUpdate = true;
   }
-  update(_dt, frame) {
-    if (this.mesh.material.map && this.mesh.material.map.image) {
-      const isVideo = this.mesh.material.map instanceof THREE.VideoTexture;
-      const isLayersAvailable = this.tryWebXRLayers && this.webXRLayersEnabled && isDefined(frame) && (isVideo && isDefined(this.env.xrMediaBinding) || !isVideo && isDefined(this.env.xrBinding));
+  checkWebXRLayer(frame) {
+    if (this.mesh.material.map && this.curImage) {
+      const isLayersAvailable = this.useWebXRLayers && this.env.hasXRCompositionLayers && isDefined(frame) && (this.isVideo && isDefined(this.env.xrMediaBinding) || !this.isVideo && isDefined(this.env.xrBinding));
       const useLayer = isLayersAvailable && this.needsLayer;
       const useLayerChanged = useLayer !== this.wasUsingLayer;
-      const imageChanged = this.mesh.material.map.image !== this.lastImage || this.mesh.material.needsUpdate || this.mesh.material.map.needsUpdate;
+      const imageChanged = this.curImage !== this.lastImage || this.mesh.material.needsUpdate || this.mesh.material.map.needsUpdate;
       const sizeChanged = this.imageWidth !== this.lastWidth || this.imageHeight !== this.lastHeight;
       this.wasUsingLayer = useLayer;
-      this.lastImage = this.mesh.material.map.image;
+      this.lastImage = this.curImage;
       this.lastWidth = this.imageWidth;
       this.lastHeight = this.imageHeight;
       if (useLayerChanged || sizeChanged) {
@@ -9558,9 +9779,9 @@ var Image2D = class extends THREE.Object3D {
           const width2 = S.x / 2;
           const height2 = S.y / 2;
           const layout = this.stereoLayoutName === "mono" ? "mono" : this.stereoLayoutName === "left-right" || this.stereoLayoutName === "right-left" ? "stereo-left-right" : "stereo-top-bottom";
-          if (isVideo) {
+          if (this.isVideo) {
             const invertStereo = this.stereoLayoutName === "right-left" || this.stereoLayoutName === "bottom-top";
-            this.layer = this.env.xrMediaBinding.createQuadLayer(this.mesh.material.map.image, {
+            this.layer = this.env.xrMediaBinding.createQuadLayer(this.curImage, {
               space,
               layout,
               invertStereo,
@@ -9574,8 +9795,8 @@ var Image2D = class extends THREE.Object3D {
               layout,
               textureType: "texture",
               isStatic: this.isStatic,
-              viewPixelWidth: this.imageWidth,
-              viewPixelHeight: this.imageHeight,
+              viewPixelWidth: this.curImage.width,
+              viewPixelHeight: this.curImage.height,
               transform: transform2,
               width: width2,
               height: height2
@@ -9591,7 +9812,15 @@ var Image2D = class extends THREE.Object3D {
           const gLayer = this.env.xrBinding.getSubImage(this.layer, frame);
           gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
           gl.bindTexture(gl.TEXTURE_2D, gLayer.colorTexture);
-          gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, gl.RGBA, gl.UNSIGNED_BYTE, this.mesh.material.map.image);
+          gl.texSubImage2D(
+            gl.TEXTURE_2D,
+            0,
+            0,
+            0,
+            gl.RGBA,
+            gl.UNSIGNED_BYTE,
+            this.curImage
+          );
           gl.generateMipmap(gl.TEXTURE_2D);
           gl.bindTexture(gl.TEXTURE_2D, null);
         }
@@ -9783,10 +10012,15 @@ var TextMeshButton = class extends RayTarget {
     }
   }
   createImage(id2, opacity) {
-    const image2 = new TextMesh(this.env, `text-${id2}`, this.image, {
-      side: THREE.FrontSide,
-      opacity
-    });
+    const image2 = new TextMesh(
+      this.env,
+      `text-${id2}`,
+      this.image,
+      {
+        side: THREE.FrontSide,
+        opacity
+      }
+    );
     return image2;
   }
   get disabled() {
@@ -9859,9 +10093,24 @@ var ConfirmationDialog = class extends DialogBox {
     this.cancelButton3D = new TextMeshButton(this.env, "confirmationDialogCancelButton", "No", newStyle(cancelButton3DStyle, fontFamily));
     this.cancelButton3D.addEventListener("click", () => this.cancelButton.click());
     this.cancelButton3D.object.position.set(2, -0.5, 0.5);
-    elementApply(this.container, styles(maxWidth("calc(100% - 2em)"), width("max-content")));
-    elementApply(this.contentArea, styles(fontSize("18pt"), textAlign("center"), padding("1em")));
-    objGraph(this, objGraph(this.root, this.mesh, this.confirmButton3D, this.cancelButton3D));
+    elementApply(this.container, styles(
+      maxWidth("calc(100% - 2em)"),
+      width("max-content")
+    ));
+    elementApply(this.contentArea, styles(
+      fontSize("18pt"),
+      textAlign("center"),
+      padding("1em")
+    ));
+    objGraph(
+      this,
+      objGraph(
+        this.root,
+        this.mesh,
+        this.confirmButton3D,
+        this.cancelButton3D
+      )
+    );
     objectSetVisible(this.root, false);
     this.root.scale.setScalar(0);
     this.onTick = (t2) => {
@@ -9959,10 +10208,100 @@ var ScreenMode = /* @__PURE__ */ ((ScreenMode2) => {
 })(ScreenMode || {});
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/ScreenUI.ts
-Style(rule("#controls", position("absolute"), left(0), top(0), width("100%"), height("100%")), rule("#controls", display("grid"), fontSize("20pt"), gridTemplateRows("auto 1fr auto"), zIndex(1)), rule("#controls, #controls *", pointerEvents("none")), rule("#controls canvas", height("58px")), rule("#controls > .row", display("grid"), margin("10px 5px"), gridTemplateColumns("repeat(2, auto)")), rule("#controls > .row.top", gridRow(1)), rule("#controls > .row.middle", gridRow(2, -2)), rule("#controls > .row.bottom", gridRow(-2)), rule("#controls > .row > .cell", display("flex")), rule("#controls > .row > .cell.left", gridColumn(1)), rule("#controls > .row > .cell.right", gridColumn(-2), flexFlow("row-reverse")), rule("#controls > .row > .cell > .btn", borderRadius(0), backgroundColor("#1e4388"), height("58px !important"), width("58px"), padding("0.25em"), margin("0 5px"), pointerEvents("initial")), rule("#controls .btn img", height("calc(100% - 0.5em)")), rule("#controls button:disabled img", filter("invert(.5)")));
+Style(
+  rule(
+    "#controls",
+    position("absolute"),
+    left(0),
+    top(0),
+    width("100%"),
+    height("100%")
+  ),
+  rule(
+    "#controls",
+    display("grid"),
+    fontSize("20pt"),
+    gridTemplateRows("auto 1fr auto"),
+    zIndex(1)
+  ),
+  rule(
+    "#controls, #controls *",
+    pointerEvents("none")
+  ),
+  rule(
+    "#controls canvas",
+    height("58px")
+  ),
+  rule(
+    "#controls > .row",
+    display("grid"),
+    margin("10px 5px"),
+    gridTemplateColumns("repeat(2, auto)")
+  ),
+  rule(
+    "#controls > .row.top",
+    gridRow(1)
+  ),
+  rule(
+    "#controls > .row.middle",
+    gridRow(2, -2)
+  ),
+  rule(
+    "#controls > .row.bottom",
+    gridRow(-2)
+  ),
+  rule(
+    "#controls > .row > .cell",
+    display("flex")
+  ),
+  rule(
+    "#controls > .row > .cell.left",
+    gridColumn(1)
+  ),
+  rule(
+    "#controls > .row > .cell.right",
+    gridColumn(-2),
+    flexFlow("row-reverse")
+  ),
+  rule(
+    "#controls > .row > .cell > .btn",
+    borderRadius(0),
+    backgroundColor("#1e4388"),
+    height("58px !important"),
+    width("58px"),
+    padding("0.25em"),
+    margin("0 5px"),
+    pointerEvents("initial")
+  ),
+  rule(
+    "#controls .btn img",
+    height("calc(100% - 0.5em)")
+  ),
+  rule(
+    "#controls button:disabled img",
+    filter("invert(.5)")
+  )
+);
 var ScreenUI = class {
   constructor() {
-    this.element = Div(id("controls"), Div(className("row top"), this.topRowLeft = Div(className("cell left")), this.topRowRight = Div(className("cell right"))), Div(className("row middle"), this.middleRowLeft = Div(className("cell left")), this.middleRowRight = Div(className("cell right"))), Div(className("row bottom"), this.bottomRowLeft = Div(className("cell left")), this.bottomRowRight = Div(className("cell right"))));
+    this.element = Div(
+      id("controls"),
+      Div(
+        className("row top"),
+        this.topRowLeft = Div(className("cell left")),
+        this.topRowRight = Div(className("cell right"))
+      ),
+      Div(
+        className("row middle"),
+        this.middleRowLeft = Div(className("cell left")),
+        this.middleRowRight = Div(className("cell right"))
+      ),
+      Div(
+        className("row bottom"),
+        this.bottomRowLeft = Div(className("cell left")),
+        this.bottomRowRight = Div(className("cell right"))
+      )
+    );
     this.cells = [
       [this.topRowLeft, this.topRowRight],
       [this.middleRowLeft, this.middleRowRight],
@@ -9991,7 +10330,11 @@ var SpaceUI = class extends THREE.Object3D {
   addItem(child, position2) {
     child = objectResolve(child);
     objGraph(this, child);
-    child.position.set(radius * Math.sin(position2.x * dAngleH), radius * Math.sin(position2.y * dAngleV), -radius * Math.cos(position2.x * dAngleH));
+    child.position.set(
+      radius * Math.sin(position2.x * dAngleH),
+      radius * Math.sin(position2.y * dAngleV),
+      -radius * Math.cos(position2.x * dAngleH)
+    );
     if (isPoint2DHeight(position2) && isPoint2DWidth(position2)) {
       child.scale.set(position2.width, position2.height, 1);
     } else if (isPoint2DHeight(position2)) {
@@ -10029,8 +10372,18 @@ var BaseVideoPlayer = class extends BaseAudioSource {
     this.video = this.createMediaElement(Video, controls(true));
     this.audio = this.createMediaElement(Audio2, controls(false));
     this.input = Gain("JuniperVideoPlayer-combiner", audioCtx);
-    this.videoSource = MediaElementSource("JuniperVideoPlayer-VideoNode", audioCtx, this.video, this.input);
-    this.audioSource = MediaElementSource("JuniperVideoPlayer-AudioNode", audioCtx, this.audio, this.input);
+    this.videoSource = MediaElementSource(
+      "JuniperVideoPlayer-VideoNode",
+      audioCtx,
+      this.video,
+      this.input
+    );
+    this.audioSource = MediaElementSource(
+      "JuniperVideoPlayer-AudioNode",
+      audioCtx,
+      this.audio,
+      this.input
+    );
     this.loadingEvt = new MediaPlayerLoadingEvent(this);
     this.loadEvt = new MediaElementSourceLoadedEvent(this);
     this.playEvt = new MediaElementSourcePlayedEvent(this);
@@ -10172,7 +10525,11 @@ var BaseVideoPlayer = class extends BaseAudioSource {
       throw new Error("No video sources found");
     }
     this.dispatchEvent(this.loadingEvt);
-    await progressTasks(prog, (prog2) => this.loadMediaElement(this.audio, prog2), (prog2) => this.loadMediaElement(this.video, prog2));
+    await progressTasks(
+      prog,
+      (prog2) => this.loadMediaElement(this.audio, prog2),
+      (prog2) => this.loadMediaElement(this.video, prog2)
+    );
     if (isString(data)) {
       this.nextStartTime = null;
     } else {
@@ -10195,7 +10552,12 @@ var BaseVideoPlayer = class extends BaseAudioSource {
     }
   }
   createMediaElement(MediaElement, ...rest) {
-    return MediaElement(playsInline(true), autoPlay(false), loop(false), ...rest);
+    return MediaElement(
+      playsInline(true),
+      autoPlay(false),
+      loop(false),
+      ...rest
+    );
   }
   async getMediaCapabilities(source) {
     const config = {
@@ -10490,12 +10852,12 @@ function mapEACUV(uv) {
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/VideoPlayer3D.ts
 var VideoPlayer3D = class extends BaseVideoPlayer {
-  constructor(layerMgr, audioCtx) {
+  constructor(env, audioCtx) {
     super(audioCtx);
     this.material = solidTransparent({ name: "videoPlayer-material" });
     this.vidMeshes = [];
     for (let i = 0; i < 2; ++i) {
-      const vidMesh = new Image2D(layerMgr, `videoPlayer-view${i + 1}`, false, this.material);
+      const vidMesh = new Image2D(env, `videoPlayer-view${i + 1}`, false, this.material);
       vidMesh.setTextureMap(this.video);
       vidMesh.mesh.renderOrder = 4;
       if (i > 0) {
@@ -10505,17 +10867,15 @@ var VideoPlayer3D = class extends BaseVideoPlayer {
       }
       this.vidMeshes.push(vidMesh);
     }
-    this.object = obj("videoPlayer", ...this.vidMeshes);
+    this.object = obj(
+      "videoPlayer",
+      ...this.vidMeshes
+    );
   }
   onDisposing() {
     super.onDisposing();
     cleanup(this.object);
     arrayClear(this.vidMeshes);
-  }
-  update(dt, frame) {
-    for (const vidMesh of this.vidMeshes) {
-      vidMesh.update(dt, frame);
-    }
   }
   isSupported(encoding, layout) {
     return layout.split("-").map((name2) => GeomPacks.has(encoding, name2)).reduce(and, true);
@@ -10526,7 +10886,7 @@ var VideoPlayer3D = class extends BaseVideoPlayer {
     }
     for (let i = 0; i < this.vidMeshes.length; ++i) {
       const vidMesh = this.vidMeshes[i];
-      vidMesh.webXRLayersEnabled = false;
+      vidMesh.useWebXRLayers = false;
       vidMesh.mesh.layers.disable(1);
       vidMesh.mesh.layers.disable(2);
       if (layout === "left-right" || layout === "top-bottom") {
@@ -10553,7 +10913,7 @@ var VideoPlayer3D = class extends BaseVideoPlayer {
       const name2 = names2[i];
       const geom2 = GeomPacks.get(encoding, name2);
       const vidMesh = this.vidMeshes[i];
-      vidMesh.webXRLayersEnabled = true;
+      vidMesh.useWebXRLayers = true;
       vidMesh.visible = true;
       if (vidMesh.mesh.geometry !== geom2) {
         vidMesh.mesh.geometry.dispose();
@@ -10772,7 +11132,17 @@ var ButtonFactory = class {
       const y = r * iconHeight + canvHeight - height2;
       const w = iconWidth - 2 * this.padding;
       const h = iconHeight - 2 * this.padding;
-      g.drawImage(img, 0, 0, img.width, img.height, x + this.padding, y + this.padding, w, h);
+      g.drawImage(
+        img,
+        0,
+        0,
+        img.width,
+        img.height,
+        x + this.padding,
+        y + this.padding,
+        w,
+        h
+      );
       this.uvDescrips.add(setName, imgName, { u, v, du, dv });
       ++i;
     }
@@ -10844,7 +11214,10 @@ var ButtonFactory = class {
     return imgSrc;
   }
   getImageElement(setName, iconName) {
-    return Img(title(setName + " " + iconName), src(this.getImageSrc(setName, iconName)));
+    return Img(
+      title(setName + " " + iconName),
+      src(this.getImageSrc(setName, iconName))
+    );
   }
 };
 
@@ -10885,7 +11258,10 @@ var MeshButton = class extends RayTarget {
 var ButtonImageWidget = class {
   constructor(buttons, setName, iconName) {
     this.mesh = null;
-    this.element = ButtonPrimary(title(iconName), buttons.getImageElement(setName, iconName));
+    this.element = ButtonPrimary(
+      title(iconName),
+      buttons.getImageElement(setName, iconName)
+    );
     this.object = obj(`${name}-button`);
     this.load(buttons, setName, iconName);
   }
@@ -10947,7 +11323,9 @@ var ToggleButton = class {
     this._isEnabled = true;
     this._isVisible = true;
     this._isActive = false;
-    this.element = ButtonPrimary(this.btnImage = Img());
+    this.element = ButtonPrimary(
+      this.btnImage = Img()
+    );
     this.object = obj(`${this.setName}-button`);
     this.load();
   }
@@ -10971,7 +11349,11 @@ var ToggleButton = class {
       this.buttons.getGeometryAndMaterials(this.setName, this.activeName),
       this.buttons.getGeometryAndMaterials(this.setName, this.inactiveName)
     ]);
-    objGraph(this.object, this.enterButton = new MeshButton(`${this.setName}-activate-button`, activate.geometry, activate.enabledMaterial, activate.disabledMaterial, 0.2), this.exitButton = new MeshButton(`${this.setName}-deactivate-button`, deactivate.geometry, deactivate.enabledMaterial, deactivate.disabledMaterial, 0.2));
+    objGraph(
+      this.object,
+      this.enterButton = new MeshButton(`${this.setName}-activate-button`, activate.geometry, activate.enabledMaterial, activate.disabledMaterial, 0.2),
+      this.exitButton = new MeshButton(`${this.setName}-deactivate-button`, deactivate.geometry, deactivate.enabledMaterial, deactivate.disabledMaterial, 0.2)
+    );
     this.enterButton.addEventListener("click", () => this.element.click());
     this.exitButton.addEventListener("click", () => this.element.click());
     this.refreshState();
@@ -11662,7 +12044,10 @@ var AvatarLocal = class extends TypedEventBase {
     }
     if (this.controlMode === "mouseedge" /* ScreenEdge */) {
       if (this.uv.manhattanLength() > 0) {
-        this.motion.set(this.scaleRadialComponent(-this.uv.x, this.speed.x, this.acceleration.x), this.scaleRadialComponent(this.uv.y, this.speed.y, this.acceleration.y)).multiplyScalar(dt);
+        this.motion.set(
+          this.scaleRadialComponent(-this.uv.x, this.speed.x, this.acceleration.x),
+          this.scaleRadialComponent(this.uv.y, this.speed.y, this.acceleration.y)
+        ).multiplyScalar(dt);
         this.setHeading(this.heading + this.motion.x);
         this.setPitch(this.pitch + this.motion.y, this.minimumX, this.maximumX);
         this.setRoll(0);
@@ -11705,7 +12090,18 @@ var AvatarLocal = class extends TypedEventBase {
       this._height = clamp(this._height, 1, 2);
     }
     this.updateOrientation();
-    this.userMovedEvt.set(this.P.x, this.P.y, this.P.z, this.F.x, this.F.y, this.F.z, this.U.x, this.U.y, this.U.z, this.height);
+    this.userMovedEvt.set(
+      this.P.x,
+      this.P.y,
+      this.P.z,
+      this.F.x,
+      this.F.y,
+      this.F.z,
+      this.U.x,
+      this.U.y,
+      this.U.z,
+      this.height
+    );
     this.dispatchEvent(this.userMovedEvt);
     const decay = Math.pow(0.95, 100 * dt);
     this.duv.multiplyScalar(decay);
@@ -11720,8 +12116,16 @@ var AvatarLocal = class extends TypedEventBase {
   updateOrientation() {
     const cam = resolveCamera(this.env.renderer, this.env.camera);
     this.rotStage.makeRotationY(this._heading);
-    this.stage.matrix.makeTranslation(this.stage.position.x, this.stage.position.y, this.stage.position.z).multiply(this.rotStage);
-    this.stage.matrix.decompose(this.stage.position, this.stage.quaternion, this.stage.scale);
+    this.stage.matrix.makeTranslation(
+      this.stage.position.x,
+      this.stage.position.y,
+      this.stage.position.z
+    ).multiply(this.rotStage);
+    this.stage.matrix.decompose(
+      this.stage.position,
+      this.stage.quaternion,
+      this.stage.scale
+    );
     if (this.env.renderer.xr.isPresenting) {
       this.M.copy(this.stage.matrixWorld).invert();
       this.head.position.copy(cam.position).applyMatrix4(this.M);
@@ -11801,7 +12205,24 @@ function setMatrixFromUpFwdPos(U2, F, P3, matrix) {
   R.normalize();
   U2.normalize();
   F.normalize();
-  matrix.set(R.x, U2.x, -F.x, P3.x, R.y, U2.y, -F.y, P3.y, R.z, U2.z, -F.z, P3.z, 0, 0, 0, 1);
+  matrix.set(
+    R.x,
+    U2.x,
+    -F.x,
+    P3.x,
+    R.y,
+    U2.y,
+    -F.y,
+    P3.y,
+    R.z,
+    U2.z,
+    -F.z,
+    P3.z,
+    0,
+    0,
+    0,
+    1
+  );
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/BaseCursor.ts
@@ -11814,6 +12235,13 @@ var BaseCursor = class {
     this.T = new THREE.Vector3();
     this.V = new THREE.Vector3();
     this.Q = new THREE.Quaternion();
+    this._side = -1;
+  }
+  get side() {
+    return this._side;
+  }
+  set side(v) {
+    this._side = v;
   }
   get object() {
     return this._object;
@@ -11890,7 +12318,11 @@ var Cursor3D = class extends BaseCursor {
       child.visible = child.name === v;
     }
     if (this.style == null && this.object.children.length > 0) {
-      const defaultCursor = arrayScan(this.object.children, (child) => child.name === "default", (child) => child != null);
+      const defaultCursor = arrayScan(
+        this.object.children,
+        (child) => child.name === "default",
+        (child) => child != null
+      );
       if (defaultCursor != null) {
         defaultCursor.visible = true;
       }
@@ -11906,12 +12338,13 @@ var Cursor3D = class extends BaseCursor {
     objectSetVisible(this, v);
   }
   lookAt(p, v) {
-    this.f.copy(v).sub(p).normalize();
+    this.f.copy(v).sub(p).multiplyScalar(this.side).normalize();
     this.up.set(0, 1, 0).applyQuaternion(this.env.avatar.worldQuat);
     this.right.crossVectors(this.up, this.f);
     this.up.crossVectors(this.f, this.right);
     setMatrixFromUpFwdPos(this.up, this.f, p, this.object.matrixWorld);
-    this.object.matrix.copy(this.object.parent.matrixWorld).invert().multiply(this.object.matrixWorld).decompose(this.object.position, this.object.quaternion, this.object.scale);
+    this.object.matrix.copy(this.object.parent.matrixWorld).invert().multiply(this.object.matrixWorld);
+    this.object.matrix.decompose(this.object.position, this.object.quaternion, this.object.scale);
   }
   clone() {
     const obj2 = new Cursor3D(this.env);
@@ -12162,7 +12595,9 @@ var GLTFLoader = class extends THREE.Loader {
     return this;
   }
   setDDSLoader() {
-    throw new Error('THREE.GLTFLoader: "MSFT_texture_dds" no longer supported. Please update to "KHR_texture_basisu".');
+    throw new Error(
+      'THREE.GLTFLoader: "MSFT_texture_dds" no longer supported. Please update to "KHR_texture_basisu".'
+    );
   }
   setKTX2Loader(ktx2Loader) {
     this.ktx2Loader = ktx2Loader;
@@ -14032,7 +14467,12 @@ var GLTFParser = class {
           outputArray = scaled;
         }
         for (let j = 0, jl = targetNames.length; j < jl; j++) {
-          const track = new TypedKeyframeTrack(targetNames[j] + "." + PATH_PROPERTIES[target.path], inputAccessor.array, outputArray, interpolation);
+          const track = new TypedKeyframeTrack(
+            targetNames[j] + "." + PATH_PROPERTIES[target.path],
+            inputAccessor.array,
+            outputArray,
+            interpolation
+          );
           if (sampler.interpolation === "CUBICSPLINE") {
             track.createInterpolant = function InterpolantFactoryMethodGLTFCubicSpline(result) {
               const interpolantType = this instanceof THREE.QuaternionKeyframeTrack ? GLTFCubicSplineQuaternionInterpolant : GLTFCubicSplineInterpolant;
@@ -14231,7 +14671,10 @@ function computeBounds(geometry, primitiveDef, parser) {
     const min3 = accessor.min;
     const max3 = accessor.max;
     if (min3 !== void 0 && max3 !== void 0) {
-      box.set(new THREE.Vector3(min3[0], min3[1], min3[2]), new THREE.Vector3(max3[0], max3[1], max3[2]));
+      box.set(
+        new THREE.Vector3(min3[0], min3[1], min3[2]),
+        new THREE.Vector3(max3[0], max3[1], max3[2])
+      );
       if (accessor.normalized) {
         const boxScale = getNormalizedComponentScale(WEBGL_COMPONENT_TYPES[accessor.componentType]);
         box.min.multiplyScalar(boxScale);
@@ -14439,7 +14882,9 @@ async function fetchProfile(xrInputSource, basePath, defaultProfile = null, getA
       layout = profile.layouts[xrInputSource.handedness];
     }
     if (!layout) {
-      throw new Error(`No matching handedness, ${xrInputSource.handedness}, in profile ${match.profileId}`);
+      throw new Error(
+        `No matching handedness, ${xrInputSource.handedness}, in profile ${match.profileId}`
+      );
     }
     if (layout.assetPath) {
       assetPath = match.profilePath.replace("profile.json", layout.assetPath);
@@ -14644,8 +15089,16 @@ var XRControllerModel = class extends THREE.Object3D {
         if (valueNodeProperty === Constants.VisualResponseProperty.VISIBILITY) {
           valueNode.visible = value2;
         } else if (valueNodeProperty === Constants.VisualResponseProperty.TRANSFORM) {
-          valueNode.quaternion.slerpQuaternions(minNode.quaternion, maxNode.quaternion, value2);
-          valueNode.position.lerpVectors(minNode.position, maxNode.position, value2);
+          valueNode.quaternion.slerpQuaternions(
+            minNode.quaternion,
+            maxNode.quaternion,
+            value2
+          );
+          valueNode.position.lerpVectors(
+            minNode.position,
+            maxNode.position,
+            value2
+          );
         }
       });
     });
@@ -14715,7 +15168,11 @@ var XRControllerModelFactory = class {
       if (xrInputSource.targetRayMode !== "tracked-pointer" || !xrInputSource.gamepad)
         return;
       fetchProfile(xrInputSource, this.path, DEFAULT_PROFILE).then(({ profile, assetPath }) => {
-        controllerModel.motionController = new MotionController(xrInputSource, profile, assetPath);
+        controllerModel.motionController = new MotionController(
+          xrInputSource,
+          profile,
+          assetPath
+        );
         const cachedAsset = this._assetCache[controllerModel.motionController.assetUrl];
         if (cachedAsset) {
           scene = cachedAsset.scene.clone();
@@ -14725,13 +15182,18 @@ var XRControllerModelFactory = class {
             throw new Error("GLTFLoader not set.");
           }
           this.gltfLoader.setPath("");
-          this.gltfLoader.load(controllerModel.motionController.assetUrl, (asset) => {
-            this._assetCache[controllerModel.motionController.assetUrl] = asset;
-            scene = asset.scene.clone();
-            addAssetSceneToControllerModel(controllerModel, scene);
-          }, null, () => {
-            throw new Error(`Asset ${controllerModel.motionController.assetUrl} missing or malformed.`);
-          });
+          this.gltfLoader.load(
+            controllerModel.motionController.assetUrl,
+            (asset) => {
+              this._assetCache[controllerModel.motionController.assetUrl] = asset;
+              scene = asset.scene.clone();
+              addAssetSceneToControllerModel(controllerModel, scene);
+            },
+            null,
+            () => {
+              throw new Error(`Asset ${controllerModel.motionController.assetUrl} missing or malformed.`);
+            }
+          );
         }
       }).catch((err) => {
         console.warn(err);
@@ -15140,10 +15602,18 @@ var CursorXRMouse = class extends BaseCursor {
     super(env);
     this.xr = env.cursor3D && env.cursor3D.clone() || new CursorColor(this.env);
     this.system = new CursorSystem(this.env, this.env.renderer.domElement);
+    this.xr.side = this.side;
     this.visible = false;
+    Object.seal(this);
   }
   get object() {
     return this.xr.object;
+  }
+  get side() {
+    return this.xr.side;
+  }
+  set side(v) {
+    this.xr.side = v;
   }
   get cursor() {
     return this.xr;
@@ -15458,7 +15928,19 @@ var BasePointer = class extends TypedEventBase {
   }
   updateCursor(avatarHeadPos, comfortOffset, isLocal, defaultDistance) {
     if (this.cursor) {
-      this.cursor.update(avatarHeadPos, comfortOffset, this.hoveredHit || this.curHit, this.rayTarget || this.curTarget, defaultDistance, isLocal, this.canDragView, this.canTeleport, this.origin, this.direction, this.isPressed(0 /* Primary */));
+      this.cursor.update(
+        avatarHeadPos,
+        comfortOffset,
+        this.hoveredHit || this.curHit,
+        this.rayTarget || this.curTarget,
+        defaultDistance,
+        isLocal,
+        this.canDragView,
+        this.canTeleport,
+        this.origin,
+        this.direction,
+        this.isPressed(0 /* Primary */)
+      );
     }
   }
 };
@@ -15856,7 +16338,12 @@ var PointerHand = class extends BasePointer {
     this.mayTeleport = true;
     this.object = obj("PointerHand" + index);
     this.quaternion.identity();
-    objGraph(this, this.controller = this.env.renderer.xr.getController(index), this.grip = this.env.renderer.xr.getControllerGrip(index), this.hand = this.env.renderer.xr.getHand(index));
+    objGraph(
+      this,
+      this.controller = this.env.renderer.xr.getController(index),
+      this.grip = this.env.renderer.xr.getControllerGrip(index),
+      this.hand = this.env.renderer.xr.getHand(index)
+    );
     if (isDesktop() && isChrome() && !isOculusBrowser) {
       let maybeOculusRiftS = false;
       this.controller.traverse((child) => {
@@ -15897,13 +16384,13 @@ var PointerHand = class extends BasePointer {
         this.gamepad.pad = this.inputSource.gamepad;
         this._isHand = isDefined(this.inputSource.hand);
         this.id = pointerIDs.get(this.handedness);
-        this.updateCursorSide();
         this.grip.visible = !this.isHand;
         this.controller.visible = !this.isHand;
         this.hand.visible = this.isHand;
         this.enabled = true;
         this.isActive = true;
         this.env.pointers.checkXRMouse();
+        this.updateCursorSide();
         console.log(this.handedness, "connected");
       }
     });
@@ -15913,13 +16400,13 @@ var PointerHand = class extends BasePointer {
         this.gamepad.pad = null;
         this._isHand = false;
         this.id = pointerIDs.get(this.handedness);
-        this.updateCursorSide();
         this.grip.visible = false;
         this.controller.visible = false;
         this.hand.visible = false;
         this.enabled = false;
         this.isActive = false;
         this.env.pointers.checkXRMouse();
+        this.updateCursorSide();
         console.log(this.handedness, "disconnected");
       }
     });
@@ -15957,11 +16444,7 @@ var PointerHand = class extends BasePointer {
     this.updateCursorSide();
   }
   updateCursorSide() {
-    const obj2 = this.cursor.object;
-    if (obj2) {
-      const sx = this.handedness === "right" ? 1 : -1;
-      obj2.scale.set(sx, 1, 1);
-    }
+    this.cursor.side = this.handedness === "left" ? 1 : -1;
   }
   updatePointerOrientation() {
     this.laser.getWorldPosition(this.newOrigin);
@@ -16116,7 +16599,10 @@ var PointerMouse = class extends BaseScreenPointerSinglePoint {
   }
   updatePointerOrientation() {
     if (this.isPointerLocked) {
-      this.position.set(this.env.renderer.domElement.clientWidth, this.env.renderer.domElement.clientHeight).multiplyScalar(0.5);
+      this.position.set(
+        this.env.renderer.domElement.clientWidth,
+        this.env.renderer.domElement.clientHeight
+      ).multiplyScalar(0.5);
     }
     super.updatePointerOrientation();
   }
@@ -16380,7 +16866,25 @@ var LoadingBar = class extends BaseProgress {
     this.valueBar.scale.set(0, 1, 1);
     const valueBarContainer = obj("ValueBarContainer");
     valueBarContainer.scale.set(1, 0.1, 0.1);
-    objGraph(this, objGraph(valueBarContainer, this.valueBar), chrome(-0.5, 0, -0.05, 0.01, 0.1, 0.01), chrome(-0.5, 0, 0.05, 0.01, 0.1, 0.01), chrome(0.5, 0, -0.05, 0.01, 0.1, 0.01), chrome(0.5, 0, 0.05, 0.01, 0.1, 0.01), chrome(-0.5, -0.05, 0, 0.01, 0.01, 0.1), chrome(0.5, -0.05, 0, 0.01, 0.01, 0.1), chrome(-0.5, 0.05, 0, 0.01, 0.01, 0.1), chrome(0.5, 0.05, 0, 0.01, 0.01, 0.1), chrome(0, -0.05, -0.05, 1, 0.01, 0.01), chrome(0, 0.05, -0.05, 1, 0.01, 0.01), chrome(0, -0.05, 0.05, 1, 0.01, 0.01), chrome(0, 0.05, 0.05, 1, 0.01, 0.01));
+    objGraph(
+      this,
+      objGraph(
+        valueBarContainer,
+        this.valueBar
+      ),
+      chrome(-0.5, 0, -0.05, 0.01, 0.1, 0.01),
+      chrome(-0.5, 0, 0.05, 0.01, 0.1, 0.01),
+      chrome(0.5, 0, -0.05, 0.01, 0.1, 0.01),
+      chrome(0.5, 0, 0.05, 0.01, 0.1, 0.01),
+      chrome(-0.5, -0.05, 0, 0.01, 0.01, 0.1),
+      chrome(0.5, -0.05, 0, 0.01, 0.01, 0.1),
+      chrome(-0.5, 0.05, 0, 0.01, 0.01, 0.1),
+      chrome(0.5, 0.05, 0, 0.01, 0.01, 0.1),
+      chrome(0, -0.05, -0.05, 1, 0.01, 0.01),
+      chrome(0, 0.05, -0.05, 1, 0.01, 0.01),
+      chrome(0, -0.05, 0.05, 1, 0.01, 0.01),
+      chrome(0, 0.05, 0.05, 1, 0.01, 0.01)
+    );
     deepSetLayer(this, PURGATORY);
   }
   get enabled() {
@@ -17195,7 +17699,20 @@ var XRRigidTransform2 = class {
       });
     } else {
       this[PRIVATE2].matrix = identity2(new Float32Array(16));
-      fromRotationTranslation(this[PRIVATE2].matrix, fromValues4(this[PRIVATE2].orientation.x, this[PRIVATE2].orientation.y, this[PRIVATE2].orientation.z, this[PRIVATE2].orientation.w), fromValues2(this[PRIVATE2].position.x, this[PRIVATE2].position.y, this[PRIVATE2].position.z));
+      fromRotationTranslation(
+        this[PRIVATE2].matrix,
+        fromValues4(
+          this[PRIVATE2].orientation.x,
+          this[PRIVATE2].orientation.y,
+          this[PRIVATE2].orientation.z,
+          this[PRIVATE2].orientation.w
+        ),
+        fromValues2(
+          this[PRIVATE2].position.x,
+          this[PRIVATE2].position.y,
+          this[PRIVATE2].position.z
+        )
+      );
     }
   }
   _getPoint(arg) {
@@ -17339,7 +17856,11 @@ var XRReferenceSpace = class extends XRSpace {
     return new XRRigidTransform(transform2.matrix);
   }
   getOffsetReferenceSpace(additionalOffset) {
-    let newSpace = new XRReferenceSpace(this[PRIVATE4].type, this[PRIVATE4].transform, this[PRIVATE4].bounds);
+    let newSpace = new XRReferenceSpace(
+      this[PRIVATE4].type,
+      this[PRIVATE4].transform,
+      this[PRIVATE4].bounds
+    );
     multiply2(newSpace[PRIVATE4].originOffset, this[PRIVATE4].originOffset, additionalOffset.matrix);
     return newSpace;
   }
@@ -17397,11 +17918,17 @@ var XRSystem = class extends EventTarget {
       }
     }
     if (!XRSessionModes.includes(mode)) {
-      throw new TypeError(`The provided value '${mode}' is not a valid enum value of type XRSessionMode`);
+      throw new TypeError(
+        `The provided value '${mode}' is not a valid enum value of type XRSessionMode`
+      );
     }
     const defaultOptions = DEFAULT_SESSION_OPTIONS[mode];
-    const requiredFeatures = defaultOptions.requiredFeatures.concat(options && options.requiredFeatures ? options.requiredFeatures : []);
-    const optionalFeatures = defaultOptions.optionalFeatures.concat(options && options.optionalFeatures ? options.optionalFeatures : []);
+    const requiredFeatures = defaultOptions.requiredFeatures.concat(
+      options && options.requiredFeatures ? options.requiredFeatures : []
+    );
+    const optionalFeatures = defaultOptions.optionalFeatures.concat(
+      options && options.optionalFeatures ? options.optionalFeatures : []
+    );
     const enabledFeatures = /* @__PURE__ */ new Set();
     let requirementsFailed = false;
     for (let feature of requiredFeatures) {
@@ -17532,7 +18059,12 @@ var XRView = class {
     return this[PRIVATE9].transform;
   }
   _getViewport(layer) {
-    if (this[PRIVATE9].device.getViewport(this[PRIVATE9].sessionId, this.eye, layer, this[PRIVATE9].temp)) {
+    if (this[PRIVATE9].device.getViewport(
+      this[PRIVATE9].sessionId,
+      this.eye,
+      layer,
+      this[PRIVATE9].temp
+    )) {
       return this[PRIVATE9].viewport;
     }
     return void 0;
@@ -17586,7 +18118,11 @@ var XRFrame = class {
     }
     const device = this[PRIVATE11].device;
     if (space._specialType === "target-ray" || space._specialType === "grip") {
-      return device.getInputPose(space._inputSource, baseSpace, space._specialType);
+      return device.getInputPose(
+        space._inputSource,
+        baseSpace,
+        space._specialType
+      );
     } else {
       space._ensurePoseUpdated(device, this[PRIVATE11].id);
       baseSpace._ensurePoseUpdated(device, this[PRIVATE11].id);
@@ -17794,7 +18330,10 @@ var XRSession2 = class extends EventTarget {
       currentInputSources: []
     };
     if (immersive) {
-      this[PRIVATE10].viewSpaces.push(new XRViewSpace("left"), new XRViewSpace("right"));
+      this[PRIVATE10].viewSpaces.push(
+        new XRViewSpace("left"),
+        new XRViewSpace("right")
+      );
     } else {
       this[PRIVATE10].viewSpaces.push(new XRViewSpace("none"));
     }
@@ -17808,7 +18347,10 @@ var XRSession2 = class extends EventTarget {
         this[PRIVATE10].activeRenderState = new XRRenderState(this[PRIVATE10].pendingRenderState);
         this[PRIVATE10].pendingRenderState = null;
         if (this[PRIVATE10].activeRenderState.baseLayer) {
-          this[PRIVATE10].device.onBaseLayerSet(this[PRIVATE10].id, this[PRIVATE10].activeRenderState.baseLayer);
+          this[PRIVATE10].device.onBaseLayerSet(
+            this[PRIVATE10].id,
+            this[PRIVATE10].activeRenderState.baseLayer
+          );
         }
       }
       if (this[PRIVATE10].activeRenderState.baseLayer === null) {
@@ -17837,7 +18379,9 @@ var XRSession2 = class extends EventTarget {
     };
     this[PRIVATE10].startDeviceFrameLoop = () => {
       if (this[PRIVATE10].deviceFrameHandle === null) {
-        this[PRIVATE10].deviceFrameHandle = this[PRIVATE10].device.requestAnimationFrame(this[PRIVATE10].onDeviceFrame);
+        this[PRIVATE10].deviceFrameHandle = this[PRIVATE10].device.requestAnimationFrame(
+          this[PRIVATE10].onDeviceFrame
+        );
       }
     };
     this[PRIVATE10].stopDeviceFrameLoop = () => {
@@ -17986,10 +18530,22 @@ var XRSession2 = class extends EventTarget {
     }
     if (this[PRIVATE10].immersive) {
       this[PRIVATE10].ended = true;
-      this[PRIVATE10].device.removeEventListener("@@webxr-polyfill/vr-present-start", this[PRIVATE10].onPresentationStart);
-      this[PRIVATE10].device.removeEventListener("@@webxr-polyfill/vr-present-end", this[PRIVATE10].onPresentationEnd);
-      this[PRIVATE10].device.removeEventListener("@@webxr-polyfill/input-select-start", this[PRIVATE10].onSelectStart);
-      this[PRIVATE10].device.removeEventListener("@@webxr-polyfill/input-select-end", this[PRIVATE10].onSelectEnd);
+      this[PRIVATE10].device.removeEventListener(
+        "@@webxr-polyfill/vr-present-start",
+        this[PRIVATE10].onPresentationStart
+      );
+      this[PRIVATE10].device.removeEventListener(
+        "@@webxr-polyfill/vr-present-end",
+        this[PRIVATE10].onPresentationEnd
+      );
+      this[PRIVATE10].device.removeEventListener(
+        "@@webxr-polyfill/input-select-start",
+        this[PRIVATE10].onSelectStart
+      );
+      this[PRIVATE10].device.removeEventListener(
+        "@@webxr-polyfill/input-select-end",
+        this[PRIVATE10].onSelectEnd
+      );
       this.dispatchEvent("end", new XRSessionEvent("end", { session: this }));
     }
     this[PRIVATE10].stopDeviceFrameLoop();
@@ -18010,7 +18566,10 @@ var XRSession2 = class extends EventTarget {
         const message = "inlineVerticalFieldOfView must not be set for an XRRenderState passed to updateRenderState for an immersive session.";
         throw new Error(message);
       } else {
-        newState.inlineVerticalFieldOfView = Math.min(3.13, Math.max(0.01, newState.inlineVerticalFieldOfView));
+        newState.inlineVerticalFieldOfView = Math.min(
+          3.13,
+          Math.max(0.01, newState.inlineVerticalFieldOfView)
+        );
       }
     }
     if (this[PRIVATE10].pendingRenderState === null) {
@@ -18478,14 +19037,23 @@ var OrientationArmModel = class {
     let timeDelta = (this.time - this.lastTime) / 1e3;
     let controllerAngularSpeed = angleDelta / timeDelta;
     if (controllerAngularSpeed > MIN_ANGULAR_SPEED) {
-      slerp(this.rootQ, this.rootQ, headYawQ, Math.min(angleDelta / MIN_ANGLE_DELTA, 1));
+      slerp(
+        this.rootQ,
+        this.rootQ,
+        headYawQ,
+        Math.min(angleDelta / MIN_ANGLE_DELTA, 1)
+      );
     } else {
       copy5(this.rootQ, headYawQ);
     }
     let controllerForward = fromValues2(0, 0, -1);
     transformQuat2(controllerForward, controllerForward, this.controllerQ);
     let controllerDotY = dot2(controllerForward, [0, 1, 0]);
-    let extensionRatio = this.clamp_((controllerDotY - MIN_EXTENSION_COS) / MAX_EXTENSION_COS, 0, 1);
+    let extensionRatio = this.clamp_(
+      (controllerDotY - MIN_EXTENSION_COS) / MAX_EXTENSION_COS,
+      0,
+      1
+    );
     let controllerCameraQ = clone4(this.rootQ);
     invert2(controllerCameraQ, controllerCameraQ);
     multiply3(controllerCameraQ, controllerCameraQ, this.controllerQ);
@@ -18570,13 +19138,21 @@ var XRRemappedGamepad = class {
     if (map.gripTransform) {
       let orientation = map.gripTransform.orientation || [0, 0, 0, 1];
       gripTransform = create3();
-      fromRotationTranslation(gripTransform, normalize4(orientation, orientation), map.gripTransform.position || [0, 0, 0]);
+      fromRotationTranslation(
+        gripTransform,
+        normalize4(orientation, orientation),
+        map.gripTransform.position || [0, 0, 0]
+      );
     }
     let targetRayTransform = null;
     if (map.targetRayTransform) {
       let orientation = map.targetRayTransform.orientation || [0, 0, 0, 1];
       targetRayTransform = create3();
-      fromRotationTranslation(targetRayTransform, normalize4(orientation, orientation), map.targetRayTransform.position || [0, 0, 0]);
+      fromRotationTranslation(
+        targetRayTransform,
+        normalize4(orientation, orientation),
+        map.targetRayTransform.position || [0, 0, 0]
+      );
     }
     let profiles = map.profiles;
     if (map.displayProfiles) {
@@ -18946,7 +19522,13 @@ var WebVRDevice = class extends XRDevice {
     }
     if (!session.immersive && session.baseLayer) {
       const canvas = session.baseLayer.context.canvas;
-      perspective(this.frame.leftProjectionMatrix, renderState.inlineVerticalFieldOfView, canvas.width / canvas.height, renderState.depthNear, renderState.depthFar);
+      perspective(
+        this.frame.leftProjectionMatrix,
+        renderState.inlineVerticalFieldOfView,
+        canvas.width / canvas.height,
+        renderState.depthNear,
+        renderState.depthFar
+      );
     }
   }
   onFrameEnd(sessionId) {
@@ -18974,7 +19556,17 @@ var WebVRDevice = class extends XRDevice {
             }).then((bitmap) => renderContext.transferFromImageBitmap(bitmap));
           }
         } else {
-          renderContext.drawImage(iCanvas, 0, 0, iWidth, iHeight, 0, 0, oWidth, oHeight);
+          renderContext.drawImage(
+            iCanvas,
+            0,
+            0,
+            iWidth,
+            iHeight,
+            0,
+            0,
+            oWidth,
+            oHeight
+          );
         }
       }
     }
@@ -19191,7 +19783,13 @@ var InlineDevice = class extends XRDevice {
     const session = this.sessions.get(sessionId);
     if (session.baseLayer) {
       const canvas = session.baseLayer.context.canvas;
-      perspective(this.projectionMatrix, renderState.inlineVerticalFieldOfView, canvas.width / canvas.height, renderState.depthNear, renderState.depthFar);
+      perspective(
+        this.projectionMatrix,
+        renderState.inlineVerticalFieldOfView,
+        canvas.width / canvas.height,
+        renderState.depthNear,
+        renderState.depthFar
+      );
     }
   }
   onFrameEnd(sessionId) {
@@ -19479,15 +20077,17 @@ var ScreenControl = class extends TypedEventBase {
     this.camera.updateProjectionMatrix();
   }
   async refresh() {
-    await Promise.all(Array.from(this.buttons.values()).filter((btn) => btn.available && btn.mode !== "Fullscreen" /* Fullscreen */).map(async (btn) => {
-      const xrMode = xrModes.get(btn.mode);
-      btn.available = isDefined(xrMode);
-      if (btn.available) {
-        const typeSupported = navigator.xr && await navigator.xr.isSessionSupported(xrMode.sessionMode);
-        const webVROverride = !hasWebXR() && hasWebVR() && xrMode.sessionMode === "immersive-vr" && xrMode.referenceSpaceType === "local-floor";
-        btn.available = typeSupported || webVROverride;
-      }
-    }));
+    await Promise.all(
+      Array.from(this.buttons.values()).filter((btn) => btn.available && btn.mode !== "Fullscreen" /* Fullscreen */).map(async (btn) => {
+        const xrMode = xrModes.get(btn.mode);
+        btn.available = isDefined(xrMode);
+        if (btn.available) {
+          const typeSupported = navigator.xr && await navigator.xr.isSessionSupported(xrMode.sessionMode);
+          const webVROverride = !hasWebXR() && hasWebVR() && xrMode.sessionMode === "immersive-vr" && xrMode.referenceSpaceType === "local-floor";
+          btn.available = typeSupported || webVROverride;
+        }
+      })
+    );
   }
   async toggleMode(mode) {
     if (mode === "Fullscreen" /* Fullscreen */) {
@@ -19572,7 +20172,12 @@ var ScreenControl = class extends TypedEventBase {
       console.log("Changing framerate to", max3);
       session.updateTargetFrameRate(max3);
     }
-    this.dispatchEvent(new XRSessionStartedEvent(mode, session, xrMode.referenceSpaceType, xrMode.sessionMode));
+    this.dispatchEvent(new XRSessionStartedEvent(
+      mode,
+      session,
+      xrMode.referenceSpaceType,
+      xrMode.sessionMode
+    ));
   }
   onSessionEnded() {
     const mode = this.currentMode;
@@ -19581,7 +20186,12 @@ var ScreenControl = class extends TypedEventBase {
     this.currentSession = null;
     this.renderer.xr.setSession(null);
     this.setActive("None" /* None */);
-    this.dispatchEvent(new XRSessionStoppedEvent(mode, session, xrMode.referenceSpaceType, xrMode.sessionMode));
+    this.dispatchEvent(new XRSessionStoppedEvent(
+      mode,
+      session,
+      xrMode.referenceSpaceType,
+      xrMode.sessionMode
+    ));
   }
   setActive(mode) {
     for (const button of this.buttons.values()) {
@@ -19639,10 +20249,13 @@ var Skybox = class {
     this.stageHeading = 0;
     this.rotationNeedsUpdate = false;
     this.imageNeedsUpdate = false;
+    this.useWebXRLayers = true;
     this.wasWebXRLayerAvailable = null;
     this.visible = true;
     this.framecount = 0;
     this.onNeedsRedraw = () => this.imageNeedsUpdate = true;
+    this.onTick = (evt) => this.checkWebXRLayer(evt.frame);
+    this.env.timer.addTickHandler(this.onTick);
     this.env.scene.background = black;
     for (let i = 0; i < this.canvases.length; ++i) {
       const f = this.canvases[i] = createUtilityCanvas(FACE_SIZE, FACE_SIZE);
@@ -19688,7 +20301,17 @@ var Skybox = class {
           const i = indices[column];
           if (i > -1) {
             const g = this.contexts[i];
-            g.drawImage(image2, column * width2, row * height2, width2, height2, 0, 0, FACE_SIZE, FACE_SIZE);
+            g.drawImage(
+              image2,
+              column * width2,
+              row * height2,
+              width2,
+              height2,
+              0,
+              0,
+              FACE_SIZE,
+              FACE_SIZE
+            );
           }
         }
       }
@@ -19738,10 +20361,10 @@ var Skybox = class {
     }
     this.rotationNeedsUpdate = this._rotation.x !== x || this._rotation.y !== y || this._rotation.z !== z || this._rotation.w !== w;
   }
-  update(frame) {
+  checkWebXRLayer(frame) {
     this.framecount++;
     if (this.cube) {
-      const isWebXRLayerAvailable = this.env.hasXRCompositionLayers && !!this.env.xrBinding && !!frame;
+      const isWebXRLayerAvailable = this.useWebXRLayers && this.env.hasXRCompositionLayers && isDefined(frame) && isDefined(this.env.xrBinding);
       const webXRLayerChanged = isWebXRLayerAvailable !== this.wasWebXRLayerAvailable;
       if (webXRLayerChanged) {
         if (isWebXRLayerAvailable) {
@@ -19774,7 +20397,12 @@ var Skybox = class {
         if (this.rotationNeedsUpdate) {
           this.layerRotation.copy(this.rotation).invert();
           this.stageRotation.setFromAxisAngle(U, this.env.avatar.heading).premultiply(this.layerRotation);
-          this.layerOrientation = new DOMPointReadOnly(this.stageRotation.x, this.stageRotation.y, this.stageRotation.z, this.stageRotation.w);
+          this.layerOrientation = new DOMPointReadOnly(
+            this.stageRotation.x,
+            this.stageRotation.y,
+            this.stageRotation.z,
+            this.stageRotation.w
+          );
           if (this.layer) {
             this.layer.orientation = this.layerOrientation;
           } else {
@@ -19794,9 +20422,27 @@ var Skybox = class {
             for (let i = 0; i < imgs.length; ++i) {
               if (this.visible) {
                 const img = imgs[FACES[i]];
-                this.flipper.drawImage(img, 0, 0, img.width, img.height, 0, 0, FACE_SIZE, FACE_SIZE);
+                this.flipper.drawImage(
+                  img,
+                  0,
+                  0,
+                  img.width,
+                  img.height,
+                  0,
+                  0,
+                  FACE_SIZE,
+                  FACE_SIZE
+                );
               }
-              gl.texSubImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, 0, 0, gl.RGBA, gl.UNSIGNED_BYTE, this.flipped);
+              gl.texSubImage2D(
+                gl.TEXTURE_CUBE_MAP_POSITIVE_X + i,
+                0,
+                0,
+                0,
+                gl.RGBA,
+                gl.UNSIGNED_BYTE,
+                this.flipped
+              );
             }
             gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
           } else {
@@ -19880,7 +20526,20 @@ var XRTimer = class {
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/environment/BaseEnvironment.ts
 var gridWidth = 15;
 var gridSize = feet2Meters(gridWidth);
-Style(rule("#frontBuffer", position("absolute"), left(0), top(0), width("100%"), height("100%"), margin(0), padding(0), border(0), touchAction("none")));
+Style(
+  rule(
+    "#frontBuffer",
+    position("absolute"),
+    left(0),
+    top(0),
+    width("100%"),
+    height("100%"),
+    margin(0),
+    padding(0),
+    border(0),
+    touchAction("none")
+  )
+);
 var BaseEnvironment = class extends TypedEventBase {
   constructor(canvas, fetcher, defaultAvatarHeight, enableFullResolution, DEBUG) {
     super();
@@ -19916,7 +20575,7 @@ var BaseEnvironment = class extends TypedEventBase {
       powerPreference: "high-performance",
       precision: "lowp",
       antialias: true,
-      alpha: false,
+      alpha: true,
       premultipliedAlpha: true,
       depth: true,
       logarithmicDepthBuffer: true,
@@ -19925,13 +20584,22 @@ var BaseEnvironment = class extends TypedEventBase {
     });
     this.renderer.domElement.setAttribute("touch-action", "none");
     this.renderer.domElement.tabIndex = 1;
-    this.screenControl = new ScreenControl(this.renderer, this.camera, this.renderer.domElement.parentElement, enableFullResolution);
+    this.screenControl = new ScreenControl(
+      this.renderer,
+      this.camera,
+      this.renderer.domElement.parentElement,
+      enableFullResolution
+    );
     this.fader = new Fader("ViewFader");
     this.worldUISpace = new BodyFollower("WorldUISpace", 0.2, 20, 0.125);
-    this.avatar = new AvatarLocal(this, this.fader, defaultAvatarHeight);
+    this.avatar = new AvatarLocal(
+      this,
+      this.fader,
+      defaultAvatarHeight
+    );
     this.pointers = new PointerManager(this);
-    this.skybox = new Skybox(this);
     this.timer = new XRTimer(this.renderer);
+    this.skybox = new Skybox(this);
     this.renderer.xr.enabled = true;
     this.sun.name = "Sun";
     this.sun.position.set(0, 1, 1);
@@ -19949,7 +20617,23 @@ var BaseEnvironment = class extends TypedEventBase {
     this.loadingBar.object.position.set(0, -0.25, -2);
     this.scene.layers.enableAll();
     this.avatar.addFollower(this.worldUISpace);
-    objGraph(this.scene, this.sun, this.ambient, objGraph(this.stage, this.ground, this.camera, this.avatar, ...this.pointers.hands), this.foreground, objGraph(this.worldUISpace, this.loadingBar));
+    objGraph(
+      this.scene,
+      this.sun,
+      this.ambient,
+      objGraph(
+        this.stage,
+        this.ground,
+        this.camera,
+        this.avatar,
+        ...this.pointers.hands
+      ),
+      this.foreground,
+      objGraph(
+        this.worldUISpace,
+        this.loadingBar
+      )
+    );
     this.timer.addTickHandler((evt) => this.update(evt));
     this.timer.start();
     globalThis.env = this;
@@ -19990,7 +20674,6 @@ var BaseEnvironment = class extends TypedEventBase {
       updateScalings(evt.dt);
       this.loadingBar.update(evt.sdt);
       this.preRender(evt);
-      this.skybox.update(evt.frame);
       const cam = resolveCamera(this.renderer, this.camera);
       if (cam !== this.camera) {
         const vrCam = cam;
@@ -20172,11 +20855,23 @@ var ActivityDetector = class {
 };
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/widgets/InputRangeWithNumber.ts
-Style(rule(".input-range-with-number", display("grid"), gridAutoFlow("column"), columnGap("5px"), gridTemplateColumns("1fr auto")));
+Style(
+  rule(
+    ".input-range-with-number",
+    display("grid"),
+    gridAutoFlow("column"),
+    columnGap("5px"),
+    gridTemplateColumns("1fr auto")
+  )
+);
 var InputRangeWithNumberElement = class extends TypedEventBase {
   constructor(...rest) {
     super();
-    this.element = Div(className("input-range-with-number"), this.rangeInput = InputRange(...rest), this.numberInput = InputNumber());
+    this.element = Div(
+      className("input-range-with-number"),
+      this.rangeInput = InputRange(...rest),
+      this.numberInput = InputNumber()
+    );
     this.numberInput.min = this.rangeInput.min;
     this.numberInput.max = this.rangeInput.max;
     this.numberInput.step = this.rangeInput.step;
@@ -20225,7 +20920,35 @@ var PropertyGroup = class {
 function group(name2, ...properties) {
   return new PropertyGroup(name2, ...properties);
 }
-Style(rule("dl", display("grid"), gridAutoFlow("row"), gridTemplateColumns("auto 1fr"), margin("1em")), rule("dt", gridColumn(1), textAlign("right"), paddingRight("1em")), rule("dd", textAlign("left"), gridColumn(2), marginInlineStart("0")), rule("dl > span, dl > div", gridColumn(1, 3)), rule("dl .alert", width("20em")));
+Style(
+  rule(
+    "dl",
+    display("grid"),
+    gridAutoFlow("row"),
+    gridTemplateColumns("auto 1fr"),
+    margin("1em")
+  ),
+  rule(
+    "dt",
+    gridColumn(1),
+    textAlign("right"),
+    paddingRight("1em")
+  ),
+  rule(
+    "dd",
+    textAlign("left"),
+    gridColumn(2),
+    marginInlineStart("0")
+  ),
+  rule(
+    "dl > span, dl > div",
+    gridColumn(1, 3)
+  ),
+  rule(
+    "dl .alert",
+    width("20em")
+  )
+);
 var DEFAULT_PROPERTY_GROUP = "DefaultPropertyGroup" + stringRandom(16);
 var PropertyList = class {
   constructor(...rest) {
@@ -20313,50 +21036,101 @@ var DeviceDialog = class extends DialogBox {
     this.tele = null;
     this.cancelButton.style.display = "none";
     const clipLoaded = this.env.audio.loadBasicClip("test-audio", "/audio/test-clip.mp3", 0.5);
-    elementApply(this.container, styles(minWidth("max-content")));
-    elementApply(this.contentArea, this.properties = new PropertyList(group(MIC_GROUP, "Input", [
-      "Microphones",
-      this.microphones = Select(onInput(async () => {
-        const tele = this.env.apps.get("tele");
-        const deviceId = this.microphones.value;
-        const device = this.micLookup.get(deviceId);
-        await tele.conference.microphones.setAudioInputDevice(device);
-      }))
-    ], [
-      "Input level",
-      this.micScenario = Meter()
-    ], ["Volume", this.micVolumeControl = InputRangeWithNumber(min2(0), max2(100), step(1), value(0), onInput(() => {
-      env.audio.input.gain.setValueAtTime(this.micVolumeControl.valueAsNumber / 100, 0);
-    }))], "Output")));
+    elementApply(
+      this.container,
+      styles(
+        minWidth("max-content")
+      )
+    );
+    elementApply(
+      this.contentArea,
+      this.properties = new PropertyList(
+        group(
+          MIC_GROUP,
+          "Input",
+          [
+            "Microphones",
+            this.microphones = Select(
+              onInput(async () => {
+                const tele = this.env.apps.get("tele");
+                const deviceId = this.microphones.value;
+                const device = this.micLookup.get(deviceId);
+                await tele.conference.microphones.setAudioInputDevice(device);
+              })
+            )
+          ],
+          [
+            "Input level",
+            this.micScenario = Meter()
+          ],
+          ["Volume", this.micVolumeControl = InputRangeWithNumber(
+            min2(0),
+            max2(100),
+            step(1),
+            value(0),
+            onInput(() => {
+              env.audio.input.gain.setValueAtTime(this.micVolumeControl.valueAsNumber / 100, 0);
+            })
+          )],
+          "Output"
+        )
+      )
+    );
     if (canChangeAudioOutput) {
-      this.properties.append([
-        "Speakers",
-        this.speakers = Select(onInput(async () => {
-          const deviceId = this.speakers.value;
-          const device = this.spkrLookup.get(deviceId);
-          await this.env.audio.speakers.setAudioOutputDevice(device);
-        }))
-      ]);
+      this.properties.append(
+        [
+          "Speakers",
+          this.speakers = Select(
+            onInput(async () => {
+              const deviceId = this.speakers.value;
+              const device = this.spkrLookup.get(deviceId);
+              await this.env.audio.speakers.setAudioOutputDevice(device);
+            })
+          )
+        ]
+      );
       this.env.audio.speakers.addEventListener("audiooutputchanged", (evt) => {
         this.speakers.value = evt.device && evt.device.deviceId || "";
       });
     }
-    this.properties.append([
-      "Using headphones",
-      this.useHeadphones = InputCheckbox(onInput(() => {
-        this.env.audio.useHeadphones = this.useHeadphones.checked;
-        elementSetDisplay(this.headphoneWarning, !this.env.audio.useHeadphones, "inline-block");
-      })),
-      this.testSpkrButton = ButtonSecondary("Test", title("Test audio"), styles(marginLeft("0.5em")), onClick(async () => {
-        buttonSetEnabled(this.testSpkrButton, false, "secondary");
-        await clipLoaded;
-        await this.env.audio.playClipThrough("test-audio");
-        buttonSetEnabled(this.testSpkrButton, true, "secondary");
-      }))
-    ], this.headphoneWarning = Div(className("alert alert-warning"), "\u{1F3A7}\u{1F399}\uFE0F This site has a voice chat feature. Voice chat is best experienced using headphones."), [
-      "Volume",
-      this.spkrVolumeControl = InputRangeWithNumber(min2(0), max2(100), step(1), value(0), onInput(() => env.audio.audioDestination.volume = this.spkrVolumeControl.valueAsNumber / 100))
-    ]);
+    this.properties.append(
+      [
+        "Using headphones",
+        this.useHeadphones = InputCheckbox(
+          onInput(() => {
+            this.env.audio.useHeadphones = this.useHeadphones.checked;
+            elementSetDisplay(this.headphoneWarning, !this.env.audio.useHeadphones, "inline-block");
+          })
+        ),
+        this.testSpkrButton = ButtonSecondary(
+          "Test",
+          title("Test audio"),
+          styles(
+            marginLeft("0.5em")
+          ),
+          onClick(async () => {
+            buttonSetEnabled(this.testSpkrButton, false, "secondary");
+            await clipLoaded;
+            await this.env.audio.playClipThrough("test-audio");
+            buttonSetEnabled(this.testSpkrButton, true, "secondary");
+          })
+        )
+      ],
+      this.headphoneWarning = Div(
+        className("alert alert-warning"),
+        "\u{1F3A7}\u{1F399}\uFE0F This site has a voice chat feature. Voice chat is best experienced using headphones."
+      ),
+      [
+        "Volume",
+        this.spkrVolumeControl = InputRangeWithNumber(
+          min2(0),
+          max2(100),
+          step(1),
+          value(0),
+          onInput(() => env.audio.audioDestination.volume = this.spkrVolumeControl.valueAsNumber / 100)
+        )
+      ]
+    );
     this.activity = new ActivityDetector("device-settings-dialog-activity", this.env.audio.audioCtx);
     this.timer.addTickHandler(() => {
       this.micScenario.value = this.activity.level;
@@ -20387,7 +21161,16 @@ var DeviceDialog = class extends DialogBox {
       const mics = await this.tele.conference.microphones.getAudioInputDevices();
       this.micLookup = makeLookup(mics, (m) => m.deviceId);
       elementClearChildren(this.microphones);
-      elementApply(this.microphones, Option(value(""), "NONE"), ...mics.map((device) => Option(value(device.deviceId), device.label)));
+      elementApply(
+        this.microphones,
+        Option(value(""), "NONE"),
+        ...mics.map(
+          (device) => Option(
+            value(device.deviceId),
+            device.label
+          )
+        )
+      );
       const curMic = await this.tele.conference.microphones.getAudioInputDevice();
       this.microphones.value = curMic && curMic.deviceId || "";
       this.micVolumeControl.valueAsNumber = this.env.audio.input.gain.value * 100;
@@ -20397,7 +21180,15 @@ var DeviceDialog = class extends DialogBox {
       const spkrs = await this.env.audio.speakers.getAudioOutputDevices();
       this.spkrLookup = makeLookup(spkrs, (device) => device.deviceId);
       elementClearChildren(this.speakers);
-      elementApply(this.speakers, ...spkrs.map((device) => Option(value(device.deviceId), device.label)));
+      elementApply(
+        this.speakers,
+        ...spkrs.map(
+          (device) => Option(
+            value(device.deviceId),
+            device.label
+          )
+        )
+      );
       let curSpker = await this.env.audio.speakers.getAudioOutputDevice();
       if (!curSpker) {
         curSpker = await this.env.audio.speakers.getPreferredAudioOutput();
@@ -20466,7 +21257,13 @@ var Environment = class extends BaseEnvironment {
     this.interactionAudio = new InteractionAudio(this.audio, this.pointers);
     this.confirmationDialog = new ConfirmationDialog(this, dialogFontFamily);
     this.devicesDialog = new DeviceDialog(this);
-    elementApply(this.renderer.domElement.parentElement, this.screenUISpace, this.confirmationDialog, this.devicesDialog, this.renderer.domElement);
+    elementApply(
+      this.renderer.domElement.parentElement,
+      this.screenUISpace,
+      this.confirmationDialog,
+      this.devicesDialog,
+      this.renderer.domElement
+    );
     this.uiButtons = new ButtonFactory(uiImagePaths, 20, this.DEBUG);
     this.settingsButton = new ButtonImageWidget(this.uiButtons, "ui", "settings");
     this.quitButton = new ButtonImageWidget(this.uiButtons, "ui", "quit");
@@ -20505,13 +21302,21 @@ var Environment = class extends BaseEnvironment {
     this.lobbyButton.visible = false;
     this.muteMicButton.visible = false;
     this.screenControl.setUI(this.screenUISpace, this.fullscreenButton, this.vrButton, this.arButton);
-    this.quitButton.addEventListener("click", () => this.withConfirmation("Confirm quit", "Are you sure you want to quit?", async () => {
-      if (this.renderer.xr.isPresenting) {
-        this.screenControl.stop();
+    this.quitButton.addEventListener("click", () => this.withConfirmation(
+      "Confirm quit",
+      "Are you sure you want to quit?",
+      async () => {
+        if (this.renderer.xr.isPresenting) {
+          this.screenControl.stop();
+        }
+        await this.onQuitting();
       }
-      await this.onQuitting();
-    }));
-    this.lobbyButton.addEventListener("click", () => this.withConfirmation("Confirm return to lobby", "Are you sure you want to return to the lobby?", () => this.dispatchEvent(new TypedEvent("home"))));
+    ));
+    this.lobbyButton.addEventListener("click", () => this.withConfirmation(
+      "Confirm return to lobby",
+      "Are you sure you want to return to the lobby?",
+      () => this.dispatchEvent(new TypedEvent("home"))
+    ));
     this.settingsButton.addEventListener("click", async () => {
       const mode = this.screenControl.currentMode;
       const wasPresenting = this.renderer.xr.isPresenting;
@@ -20527,7 +21332,18 @@ var Environment = class extends BaseEnvironment {
       this.muteEnvAudioButton.active = !this.muteEnvAudioButton.active;
       this.dispatchEvent(this.envAudioToggleEvt);
     });
-    this.avatar.addEventListener("avatarmoved", (evt) => this.audio.setUserPose(this.audio.localUserID, evt.px, evt.py, evt.pz, evt.fx, evt.fy, evt.fz, evt.ux, evt.uy, evt.uz));
+    this.avatar.addEventListener("avatarmoved", (evt) => this.audio.setUserPose(
+      this.audio.localUserID,
+      evt.px,
+      evt.py,
+      evt.pz,
+      evt.fx,
+      evt.fy,
+      evt.fz,
+      evt.ux,
+      evt.uy,
+      evt.uz
+    ));
   }
   get currentRoom() {
     return this._currentRoom;
@@ -20543,11 +21359,13 @@ var Environment = class extends BaseEnvironment {
   preRender(evt) {
     super.preRender(evt);
     this.audio.update();
-    this.videoPlayer.update(evt.dt, evt.frame);
     this.xrUI.visible = this.renderer.xr.isPresenting || this.testSpaceLayout;
     this.clockImage.isVisible = this.xrUI.visible || this.DEBUG;
     if (!this.renderer.xr.isPresenting) {
-      this.compassImage.setPitchAndHeading(rad2deg(this.avatar.worldPitch), rad2deg(this.avatar.worldHeading));
+      this.compassImage.setPitchAndHeading(
+        rad2deg(this.avatar.worldPitch),
+        rad2deg(this.avatar.worldHeading)
+      );
     }
     if (this.DEBUG) {
       const fps = Math.round(evt.fps);
@@ -20558,7 +21376,11 @@ var Environment = class extends BaseEnvironment {
         this.avgFPS -= fps2 / 100;
       }
       if (++this.countTick % 100 === 0) {
-        this.clockImage.image.setStats(this.avgFPS, this.renderer.info.render.calls, this.renderer.info.render.triangles);
+        this.clockImage.image.setStats(
+          this.avgFPS,
+          this.renderer.info.render.calls,
+          this.renderer.info.render.triangles
+        );
       }
     }
     this.confirmationDialog.update(evt.dt);
