@@ -4,8 +4,8 @@ namespace SeanMcBeth
 {
     public static class BuildConfig
     {
-        public static readonly string ProjectName = "Personal Site";
-        public static readonly BuildSystemOptions BuildSystemOptions;
+        private const string ServerProjectName = "Personal Site";
+        private const string ScriptProjectName = "TypeScript Code";
 
         private static readonly string[] FilesToTry =
         {
@@ -17,37 +17,44 @@ namespace SeanMcBeth
             "logo_small.png"
         };
 
-        static BuildConfig()
+        public static BuildSystemOptions GetBuildConfig()
         {
             var workingDir = new DirectoryInfo(".");
             var here = workingDir;
-            while (here is not null && !here.CD(ProjectName, "src").Exists)
+            while (here is not null && !here.CD(ScriptProjectName, "src").Exists)
             {
                 here = here.Parent;
             }
 
-            if (here is not null)
+            if (here is null)
             {
-                var juniperAssets = here.CD("Juniper", "etc", "Assets");
-                var projectDir = here.CD(ProjectName);
-                var nodeModules = projectDir.CD("node_modules");
-                var threeJsIn = nodeModules.CD("three", "build");
-                var jsInput = projectDir.CD("src");
-                var wwwRoot = projectDir.CD("wwwroot");
-                var jsOutput = wwwRoot.CD("js");
-                var threeJsOut = jsOutput.CD("three");
-                var modelOutput = wwwRoot.CD("models");
-                var audioOutput = wwwRoot.CD("audio");
-                var imgOutput = wwwRoot.CD("img");
-                var uiImgOUtput = imgOutput.CD("ui");
-                var juniperTextures = juniperAssets.CD("Textures");
-                var juniperAudio = juniperAssets.CD("Audio");
-                var juniperModels = juniperAssets.CD("Models");
-                var juniperModelsForest = juniperModels.CD("Forest");
+                throw new DirectoryNotFoundException("Could not find project root from " + workingDir.FullName);
+            }
 
-                BuildSystemOptions = new()
-                {
-                    Dependencies = new()
+
+            var juniperAssets = here.CD("Juniper", "etc", "Assets");
+            var projectInDir = here.CD(ScriptProjectName);
+            var projectOutDir = here.CD(ServerProjectName);
+            var nodeModules = projectInDir.CD("node_modules");
+            var threeJsIn = nodeModules.CD("three", "build");
+            var wwwRoot = projectOutDir.CD("wwwroot");
+            var jsInput = projectInDir.CD("src");
+            var jsOutput = wwwRoot.CD("js");
+            var threeJsOut = jsOutput.CD("three");
+            var modelOutput = wwwRoot.CD("models");
+            var audioOutput = wwwRoot.CD("audio");
+            var imgOutput = wwwRoot.CD("img");
+            var uiImgOUtput = imgOutput.CD("ui");
+            var juniperTextures = juniperAssets.CD("Textures");
+            var juniperAudio = juniperAssets.CD("Audio");
+            var juniperModels = juniperAssets.CD("Models");
+            var juniperModelsForest = juniperModels.CD("Forest");
+
+            var options = new BuildSystemOptions()
+            {
+                InProjectName = ScriptProjectName,
+                OutProjectName = ServerProjectName,
+                Dependencies = new()
                     {
                         { "Three.js", (threeJsIn.Touch("three.js"), threeJsOut.Touch("index.js")) },
                         { "Three.js min", (threeJsIn.Touch("three.min.js"), threeJsOut.Touch("index.min.js")) },
@@ -65,31 +72,32 @@ namespace SeanMcBeth
                         { "UI Error", (juniperAudio.Touch("basic_error.mp3"),  audioOutput.Touch("basic_error.mp3")) },
                         { "UI Exit", (juniperAudio.Touch("basic_exit.mp3"),  audioOutput.Touch("basic_exit.mp3")) }
                     }
-                };
+            };
 
-                foreach (var file in juniperTextures.CD("UI").EnumerateFiles())
+            foreach (var file in juniperTextures.CD("UI").EnumerateFiles())
+            {
+                options.Dependencies.Add(file.Name, (file, uiImgOUtput.Touch(file.Name)));
+            }
+
+            options.OptionalDependencies = new();
+
+            foreach (var appInDir in jsInput.EnumerateDirectories())
+            {
+                if (appInDir.Name.EndsWith("-app")
+                    && appInDir.Touch("index.ts").Exists)
                 {
-                    BuildSystemOptions.Dependencies.Add(file.Name, (file, uiImgOUtput.Touch(file.Name)));
-                }
-
-                BuildSystemOptions.OptionalDependencies = new();
-
-                foreach (var appInDir in jsInput.EnumerateDirectories())
-                {
-                    if (appInDir.Name.EndsWith("-app")
-                        && appInDir.Touch("index.ts").Exists)
+                    var appOutDir = jsOutput.CD(appInDir.Name);
+                    foreach (var fileName in FilesToTry)
                     {
-                        var appOutDir = jsOutput.CD(appInDir.Name);
-                        foreach (var fileName in FilesToTry)
-                        {
-                            var file = appInDir.Touch(fileName);
-                            BuildSystemOptions.OptionalDependencies.Add(
+                        var file = appInDir.Touch(fileName);
+                        options.OptionalDependencies.Add(
                                 $"{appInDir.Name} {Path.GetFileNameWithoutExtension(file.Name)}",
                                 (file, appOutDir.Touch(file.Name)));
-                        }
                     }
                 }
             }
+
+            return options;
         }
     }
 }

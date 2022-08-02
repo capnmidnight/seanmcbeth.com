@@ -47,6 +47,27 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
+Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "TypeScript Code", "TypeScript Code\", "{599BC1A8-5765-4CE0-B562-F15888981908}"
+	ProjectSection(WebsiteProperties) = preProject
+		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.0"
+		Debug.AspNetCompiler.VirtualPath = "/localhost_53479"
+		Debug.AspNetCompiler.PhysicalPath = "TypeScript Code\"
+		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_53479\"
+		Debug.AspNetCompiler.Updateable = "true"
+		Debug.AspNetCompiler.ForceOverwrite = "true"
+		Debug.AspNetCompiler.FixedNames = "false"
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.VirtualPath = "/localhost_53479"
+		Release.AspNetCompiler.PhysicalPath = "TypeScript Code\"
+		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_53479\"
+		Release.AspNetCompiler.Updateable = "true"
+		Release.AspNetCompiler.ForceOverwrite = "true"
+		Release.AspNetCompiler.FixedNames = "false"
+		Release.AspNetCompiler.Debug = "False"
+		VWDPort = "53479"
+		SlnRelativePath = "TypeScript Code\"
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -89,6 +110,10 @@ Global
 		{3D45612B-558A-4E15-ADA8-AB520D254E67}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3D45612B-558A-4E15-ADA8-AB520D254E67}.Release|Any CPU.ActiveCfg = Debug|Any CPU
 		{3D45612B-558A-4E15-ADA8-AB520D254E67}.Release|Any CPU.Build.0 = Debug|Any CPU
+		{599BC1A8-5765-4CE0-B562-F15888981908}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{599BC1A8-5765-4CE0-B562-F15888981908}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{599BC1A8-5765-4CE0-B562-F15888981908}.Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{599BC1A8-5765-4CE0-B562-F15888981908}.Release|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

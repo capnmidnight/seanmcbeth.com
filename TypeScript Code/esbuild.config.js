@@ -26,18 +26,16 @@ const apps = dirs
 const bundleApps = apps.filter(name => !name.endsWith("-worker"));
 const workerApps = apps.filter(name => name.endsWith("-worker"));
 const args = process.argv.slice(2);
-const buildBundles = new Build(args, false)
-    .plugin((minify) => glsl({ minify }))
-    .external("three")
-    .outDir("wwwroot/js")
-    .bundles(bundleApps);
-const buildWorkers = new Build(args, true)
-    .plugin((minify) => glsl({ minify }))
-    .external("three")
-    .outDir("wwwroot/js")
-    .bundles(workerApps);
+
+function makeBuild(apps, isWorker) {
+    return new Build(args, isWorker)
+        .plugin((minify) => glsl({ minify }))
+        .external("three")
+        .outDir("../Personal Site/wwwroot/js")
+        .bundles(apps);
+}
 
 await Promise.all([
-    buildBundles.run(),
-    buildWorkers.run()
+    makeBuild(bundleApps, false).run(),
+    makeBuild(workerApps, true).run()
 ]);

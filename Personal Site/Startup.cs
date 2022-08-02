@@ -35,9 +35,7 @@ namespace SeanMcBeth
 #if DEBUG
                 try
                 {
-                    build = new BuildSystem(
-                        BuildConfig.ProjectName,
-                        BuildConfig.BuildSystemOptions);
+                    build = new BuildSystem(BuildConfig.GetBuildConfig());
                     build.Watch();
                 }
                 catch (BuildSystemProjectRootNotFoundException exp)
