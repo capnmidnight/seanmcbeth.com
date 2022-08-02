@@ -1665,12 +1665,22 @@ function isOffscreenCanvas(obj) {
 function isImageBitmap(img) {
   return hasImageBitmap && img instanceof ImageBitmap;
 }
+function isImageData(img) {
+  return img instanceof ImageData;
+}
 function drawImageBitmapToCanvas(canv, img) {
   const g = canv.getContext("2d");
   if (isNullOrUndefined(g)) {
     throw new Error("Could not create 2d context for canvas");
   }
   g.drawImage(img, 0, 0);
+}
+function drawImageDataToCanvas(canv, img) {
+  const g = canv.getContext("2d");
+  if (isNullOrUndefined(g)) {
+    throw new Error("Could not create 2d context for canvas");
+  }
+  g.putImageData(img, 0, 0);
 }
 function testOffscreen2D() {
   try {
@@ -1703,6 +1713,11 @@ function createCanvas(w, h) {
   }
   return Canvas(htmlWidth(w), htmlHeight(h));
 }
+function createOffscreenCanvasFromImageBitmap(img) {
+  const canv = createOffscreenCanvas(img.width, img.height);
+  drawImageBitmapToCanvas(canv, img);
+  return canv;
+}
 function createCanvasFromImageBitmap(img) {
   if (false) {
     throw new Error("HTML Canvas is not supported in workers");
@@ -1711,6 +1726,21 @@ function createCanvasFromImageBitmap(img) {
   drawImageBitmapToCanvas(canv, img);
   return canv;
 }
+var createUtilityCanvasFromImageBitmap = hasOffscreenCanvasRenderingContext2D && createOffscreenCanvasFromImageBitmap || hasHTMLCanvas && createCanvasFromImageBitmap || null;
+function createOffscreenCanvasFromImageData(img) {
+  const canv = createOffscreenCanvas(img.width, img.height);
+  drawImageDataToCanvas(canv, img);
+  return canv;
+}
+function createCanvasFromImageData(img) {
+  if (false) {
+    throw new Error("HTML Canvas is not supported in workers");
+  }
+  const canv = createCanvas(img.width, img.height);
+  drawImageDataToCanvas(canv, img);
+  return canv;
+}
+var createUtilityCanvasFromImageData = hasOffscreenCanvasRenderingContext2D && createOffscreenCanvasFromImageData || hasHTMLCanvas && createCanvasFromImageData || null;
 function drawImageToCanvas(canv, img) {
   const g = canv.getContext("2d");
   if (isNullOrUndefined(g)) {
@@ -3815,9 +3845,9 @@ var Q = new THREE.Quaternion();
 var S = new THREE.Vector3();
 var copyCounter = 0;
 var Image2D = class extends THREE.Object3D {
-  constructor(env, name, isStatic, materialOrOptions = null) {
+  constructor(env, name, webXRLayerType, materialOrOptions = null) {
     super();
-    this.isStatic = isStatic;
+    this.webXRLayerType = webXRLayerType;
     this.lastMatrixWorld = new THREE.Matrix4();
     this.layer = null;
     this.wasUsingLayer = false;
@@ -3830,8 +3860,8 @@ var Image2D = class extends THREE.Object3D {
     this.stereoLayoutName = "mono";
     this.env = null;
     this.mesh = null;
-    this.useWebXRLayers = true;
     this.sizeMode = "none";
+    this.onTick = (evt) => this.checkWebXRLayer(evt.frame);
     if (env) {
       this.setEnvAndName(env, name);
       let material = isMeshBasicMaterial(materialOrOptions) ? materialOrOptions : solidTransparent(Object.assign(
@@ -3847,6 +3877,7 @@ var Image2D = class extends THREE.Object3D {
   }
   copy(source, recursive = true) {
     super.copy(source, recursive);
+    this.webXRLayerType = source.webXRLayerType;
     this.setImageSize(source.imageWidth, source.imageHeight);
     this.setEnvAndName(source.env, source.name + ++copyCounter);
     this.mesh = arrayScan(this.children, isMesh);
@@ -3858,6 +3889,7 @@ var Image2D = class extends THREE.Object3D {
     return this;
   }
   dispose() {
+    this.env.timer.removeTickHandler(this.onTick);
     this.removeWebXRLayer();
     cleanup(this.mesh);
   }
@@ -3909,6 +3941,7 @@ var Image2D = class extends THREE.Object3D {
   setEnvAndName(env, name) {
     this.env = env;
     this.name = name;
+    this.env.timer.addTickHandler(this.onTick);
   }
   get needsLayer() {
     if (!objectIsFullyVisible(this) || isNullOrUndefined(this.mesh.material.map) || isNullOrUndefined(this.curImage)) {
@@ -3933,7 +3966,9 @@ var Image2D = class extends THREE.Object3D {
   }
   setTextureMap(img) {
     if (isImageBitmap(img)) {
-      img = createCanvasFromImageBitmap(img);
+      img = createUtilityCanvasFromImageBitmap(img);
+    } else if (isImageData(img)) {
+      img = createUtilityCanvasFromImageData(img);
     }
     if (isOffscreenCanvas(img)) {
       img = img;
@@ -3953,11 +3988,6 @@ var Image2D = class extends THREE.Object3D {
   get isVideo() {
     return this.curImage instanceof HTMLVideoElement;
   }
-  async loadTextureMap(fetcher, path, prog) {
-    let { content: img } = await fetcher.get(path).progress(prog).image();
-    const texture = this.setTextureMap(img);
-    texture.name = path;
-  }
   updateTexture() {
     if (isDefined(this.curImage)) {
       const curVideo = this.curImage;
@@ -3972,9 +4002,9 @@ var Image2D = class extends THREE.Object3D {
       }
     }
   }
-  update(_dt, frame) {
+  checkWebXRLayer(frame) {
     if (this.mesh.material.map && this.curImage) {
-      const isLayersAvailable = this.useWebXRLayers && this.env.hasXRCompositionLayers && isDefined(frame) && (this.isVideo && isDefined(this.env.xrMediaBinding) || !this.isVideo && isDefined(this.env.xrBinding));
+      const isLayersAvailable = this.webXRLayerType !== "none" && this.env.hasXRCompositionLayers && this.env.showWebXRLayers && isDefined(frame) && (this.isVideo && isDefined(this.env.xrMediaBinding) || !this.isVideo && isDefined(this.env.xrBinding));
       const useLayer = isLayersAvailable && this.needsLayer;
       const useLayerChanged = useLayer !== this.wasUsingLayer;
       const imageChanged = this.curImage !== this.lastImage || this.mesh.material.needsUpdate || this.mesh.material.map.needsUpdate;
@@ -4010,7 +4040,7 @@ var Image2D = class extends THREE.Object3D {
               space,
               layout,
               textureType: "texture",
-              isStatic: this.isStatic,
+              isStatic: this.webXRLayerType === "static",
               viewPixelWidth: this.curImage.width,
               viewPixelHeight: this.curImage.height,
               transform,
@@ -4253,7 +4283,7 @@ async function createTestEnvironment(addServiceWorker = false) {
   const env = await createTestEnvironment();
   const skybox = new AssetImage("/skyboxes/BearfenceMountain.jpeg", Image_Jpeg, !isDebug);
   const picture = new AssetImage("/img/logos/foxglove.png", Image_Png, !isDebug);
-  const img = new Image2D(env, "Foxglove", false);
+  const img = new Image2D(env, "Foxglove", "static");
   Object.assign(window, { img });
   objGraph(env.foreground, img);
   await env.fadeOut();
@@ -4263,7 +4293,6 @@ async function createTestEnvironment(addServiceWorker = false) {
   env.skybox.rotation = deg2rad(176);
   img.setTextureMap(picture.result);
   img.position.set(0, 1.5, -3);
-  env.timer.addTickHandler((evt) => img.update(evt.dt, evt.frame));
   await env.fadeIn();
 })();
 //# sourceMappingURL=index.js.map

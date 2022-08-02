@@ -7654,12 +7654,22 @@ function isOffscreenCanvas(obj2) {
 function isImageBitmap(img) {
   return hasImageBitmap && img instanceof ImageBitmap;
 }
+function isImageData(img) {
+  return img instanceof ImageData;
+}
 function drawImageBitmapToCanvas(canv, img) {
   const g = canv.getContext("2d");
   if (isNullOrUndefined(g)) {
     throw new Error("Could not create 2d context for canvas");
   }
   g.drawImage(img, 0, 0);
+}
+function drawImageDataToCanvas(canv, img) {
+  const g = canv.getContext("2d");
+  if (isNullOrUndefined(g)) {
+    throw new Error("Could not create 2d context for canvas");
+  }
+  g.putImageData(img, 0, 0);
 }
 function testOffscreen2D() {
   try {
@@ -7692,6 +7702,11 @@ function createCanvas(w, h) {
   }
   return Canvas(htmlWidth(w), htmlHeight(h));
 }
+function createOffscreenCanvasFromImageBitmap(img) {
+  const canv = createOffscreenCanvas(img.width, img.height);
+  drawImageBitmapToCanvas(canv, img);
+  return canv;
+}
 function createCanvasFromImageBitmap(img) {
   if (false) {
     throw new Error("HTML Canvas is not supported in workers");
@@ -7700,6 +7715,21 @@ function createCanvasFromImageBitmap(img) {
   drawImageBitmapToCanvas(canv, img);
   return canv;
 }
+var createUtilityCanvasFromImageBitmap = hasOffscreenCanvasRenderingContext2D && createOffscreenCanvasFromImageBitmap || hasHTMLCanvas && createCanvasFromImageBitmap || null;
+function createOffscreenCanvasFromImageData(img) {
+  const canv = createOffscreenCanvas(img.width, img.height);
+  drawImageDataToCanvas(canv, img);
+  return canv;
+}
+function createCanvasFromImageData(img) {
+  if (false) {
+    throw new Error("HTML Canvas is not supported in workers");
+  }
+  const canv = createCanvas(img.width, img.height);
+  drawImageDataToCanvas(canv, img);
+  return canv;
+}
+var createUtilityCanvasFromImageData = hasOffscreenCanvasRenderingContext2D && createOffscreenCanvasFromImageData || hasHTMLCanvas && createCanvasFromImageData || null;
 function setCanvasSize(canv, w, h, superscale = 1) {
   w = Math.floor(w * superscale);
   h = Math.floor(h * superscale);
@@ -9596,9 +9626,9 @@ var Q = new THREE.Quaternion();
 var S = new THREE.Vector3();
 var copyCounter = 0;
 var Image2D = class extends THREE.Object3D {
-  constructor(env, name2, isStatic, materialOrOptions = null) {
+  constructor(env, name2, webXRLayerType, materialOrOptions = null) {
     super();
-    this.isStatic = isStatic;
+    this.webXRLayerType = webXRLayerType;
     this.lastMatrixWorld = new THREE.Matrix4();
     this.layer = null;
     this.wasUsingLayer = false;
@@ -9611,8 +9641,8 @@ var Image2D = class extends THREE.Object3D {
     this.stereoLayoutName = "mono";
     this.env = null;
     this.mesh = null;
-    this.useWebXRLayers = true;
     this.sizeMode = "none";
+    this.onTick = (evt) => this.checkWebXRLayer(evt.frame);
     if (env) {
       this.setEnvAndName(env, name2);
       let material = isMeshBasicMaterial(materialOrOptions) ? materialOrOptions : solidTransparent(Object.assign(
@@ -9628,6 +9658,7 @@ var Image2D = class extends THREE.Object3D {
   }
   copy(source, recursive = true) {
     super.copy(source, recursive);
+    this.webXRLayerType = source.webXRLayerType;
     this.setImageSize(source.imageWidth, source.imageHeight);
     this.setEnvAndName(source.env, source.name + ++copyCounter);
     this.mesh = arrayScan(this.children, isMesh);
@@ -9639,6 +9670,7 @@ var Image2D = class extends THREE.Object3D {
     return this;
   }
   dispose() {
+    this.env.timer.removeTickHandler(this.onTick);
     this.removeWebXRLayer();
     cleanup(this.mesh);
   }
@@ -9690,6 +9722,7 @@ var Image2D = class extends THREE.Object3D {
   setEnvAndName(env, name2) {
     this.env = env;
     this.name = name2;
+    this.env.timer.addTickHandler(this.onTick);
   }
   get needsLayer() {
     if (!objectIsFullyVisible(this) || isNullOrUndefined(this.mesh.material.map) || isNullOrUndefined(this.curImage)) {
@@ -9714,7 +9747,9 @@ var Image2D = class extends THREE.Object3D {
   }
   setTextureMap(img) {
     if (isImageBitmap(img)) {
-      img = createCanvasFromImageBitmap(img);
+      img = createUtilityCanvasFromImageBitmap(img);
+    } else if (isImageData(img)) {
+      img = createUtilityCanvasFromImageData(img);
     }
     if (isOffscreenCanvas(img)) {
       img = img;
@@ -9734,11 +9769,6 @@ var Image2D = class extends THREE.Object3D {
   get isVideo() {
     return this.curImage instanceof HTMLVideoElement;
   }
-  async loadTextureMap(fetcher, path, prog) {
-    let { content: img } = await fetcher.get(path).progress(prog).image();
-    const texture = this.setTextureMap(img);
-    texture.name = path;
-  }
   updateTexture() {
     if (isDefined(this.curImage)) {
       const curVideo = this.curImage;
@@ -9753,9 +9783,9 @@ var Image2D = class extends THREE.Object3D {
       }
     }
   }
-  update(_dt, frame) {
+  checkWebXRLayer(frame) {
     if (this.mesh.material.map && this.curImage) {
-      const isLayersAvailable = this.useWebXRLayers && this.env.hasXRCompositionLayers && isDefined(frame) && (this.isVideo && isDefined(this.env.xrMediaBinding) || !this.isVideo && isDefined(this.env.xrBinding));
+      const isLayersAvailable = this.webXRLayerType !== "none" && this.env.hasXRCompositionLayers && this.env.showWebXRLayers && isDefined(frame) && (this.isVideo && isDefined(this.env.xrMediaBinding) || !this.isVideo && isDefined(this.env.xrBinding));
       const useLayer = isLayersAvailable && this.needsLayer;
       const useLayerChanged = useLayer !== this.wasUsingLayer;
       const imageChanged = this.curImage !== this.lastImage || this.mesh.material.needsUpdate || this.mesh.material.map.needsUpdate;
@@ -9791,7 +9821,7 @@ var Image2D = class extends THREE.Object3D {
               space,
               layout,
               textureType: "texture",
-              isStatic: this.isStatic,
+              isStatic: this.webXRLayerType === "static",
               viewPixelWidth: this.curImage.width,
               viewPixelHeight: this.curImage.height,
               transform: transform2,
@@ -9836,8 +9866,8 @@ var Image2D = class extends THREE.Object3D {
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/widgets/CanvasImageMesh.ts
 var redrawnEvt = { type: "redrawn" };
 var CanvasImageMesh = class extends Image2D {
-  constructor(env, name2, image2, materialOptions) {
-    super(env, name2, false, materialOptions);
+  constructor(env, name2, webXRLayerType, image2, materialOptions) {
+    super(env, name2, webXRLayerType, materialOptions);
     this._image = null;
     this._onRedrawn = this.onRedrawn.bind(this);
     this.image = image2;
@@ -9901,7 +9931,7 @@ var TextMesh = class extends CanvasImageMesh {
     } else {
       image2 = new TextImage(textOptions);
     }
-    super(env, name2, image2, materialOptions);
+    super(env, name2, "none", image2, materialOptions);
   }
   onRedrawn() {
     this.objectHeight = this.imageHeight;
@@ -10854,7 +10884,7 @@ var VideoPlayer3D = class extends BaseVideoPlayer {
     this.material = solidTransparent({ name: "videoPlayer-material" });
     this.vidMeshes = [];
     for (let i = 0; i < 2; ++i) {
-      const vidMesh = new Image2D(env, `videoPlayer-view${i + 1}`, false, this.material);
+      const vidMesh = new Image2D(env, `videoPlayer-view${i + 1}`, "none", this.material);
       vidMesh.setTextureMap(this.video);
       vidMesh.mesh.renderOrder = 4;
       if (i > 0) {
@@ -10874,11 +10904,6 @@ var VideoPlayer3D = class extends BaseVideoPlayer {
     cleanup(this.object);
     arrayClear(this.vidMeshes);
   }
-  update(dt, frame) {
-    for (const vidMesh of this.vidMeshes) {
-      vidMesh.update(dt, frame);
-    }
-  }
   isSupported(encoding, layout) {
     return layout.split("-").map((name2) => GeomPacks.has(encoding, name2)).reduce(and, true);
   }
@@ -10888,7 +10913,7 @@ var VideoPlayer3D = class extends BaseVideoPlayer {
     }
     for (let i = 0; i < this.vidMeshes.length; ++i) {
       const vidMesh = this.vidMeshes[i];
-      vidMesh.useWebXRLayers = false;
+      vidMesh.webXRLayerType = "none";
       vidMesh.mesh.layers.disable(1);
       vidMesh.mesh.layers.disable(2);
       if (layout === "left-right" || layout === "top-bottom") {
@@ -10915,7 +10940,7 @@ var VideoPlayer3D = class extends BaseVideoPlayer {
       const name2 = names2[i];
       const geom2 = GeomPacks.get(encoding, name2);
       const vidMesh = this.vidMeshes[i];
-      vidMesh.useWebXRLayers = true;
+      vidMesh.webXRLayerType = "dynamic";
       vidMesh.visible = true;
       if (vidMesh.mesh.geometry !== geom2) {
         vidMesh.mesh.geometry.dispose();
@@ -20242,7 +20267,6 @@ var Skybox = class {
     this.stageRotation = new THREE.Quaternion().identity();
     this.canvases = new Array(6);
     this.contexts = new Array(6);
-    this.onNeedsRedraw = null;
     this.layerOrientation = null;
     this.images = null;
     this.curImagePath = null;
@@ -20254,8 +20278,8 @@ var Skybox = class {
     this.useWebXRLayers = true;
     this.wasWebXRLayerAvailable = null;
     this.visible = true;
-    this.framecount = 0;
     this.onNeedsRedraw = () => this.imageNeedsUpdate = true;
+    this.onTick = (evt) => this.checkWebXRLayer(evt.frame);
     this.env.scene.background = black;
     for (let i = 0; i < this.canvases.length; ++i) {
       const f = this.canvases[i] = createUtilityCanvas(FACE_SIZE, FACE_SIZE);
@@ -20289,6 +20313,7 @@ var Skybox = class {
     this.flipper.scale(-1, 1);
     this.flipper.translate(-FACE_SIZE, 0);
     this.setImages("", this.canvases);
+    this.env.timer.addTickHandler(this.onTick);
     Object.seal(this);
   }
   setImage(imageID, image2) {
@@ -20361,14 +20386,12 @@ var Skybox = class {
     }
     this.rotationNeedsUpdate = this._rotation.x !== x || this._rotation.y !== y || this._rotation.z !== z || this._rotation.w !== w;
   }
-  update(frame) {
-    this.framecount++;
+  checkWebXRLayer(frame) {
     if (this.cube) {
       const isWebXRLayerAvailable = this.useWebXRLayers && this.env.hasXRCompositionLayers && isDefined(frame) && isDefined(this.env.xrBinding);
       const webXRLayerChanged = isWebXRLayerAvailable !== this.wasWebXRLayerAvailable;
       if (webXRLayerChanged) {
         if (isWebXRLayerAvailable) {
-          console.log("Layer created on frame " + this.framecount);
           const space = this.env.renderer.xr.getReferenceSpace();
           this.layer = this.env.xrBinding.createCubeLayer({
             space,
@@ -20412,7 +20435,6 @@ var Skybox = class {
         }
         if (this.imageNeedsUpdate) {
           if (this.layer) {
-            console.log("layer rendering on frame " + this.framecount);
             const gl = this.env.renderer.getContext();
             const gLayer = this.env.xrBinding.getSubImage(this.layer, frame);
             const imgs = this.cube.images;
@@ -20674,7 +20696,6 @@ var BaseEnvironment = class extends TypedEventBase {
       updateScalings(evt.dt);
       this.loadingBar.update(evt.sdt);
       this.preRender(evt);
-      this.skybox.update(evt.frame);
       const cam = resolveCamera(this.renderer, this.camera);
       if (cam !== this.camera) {
         const vrCam = cam;
@@ -20787,13 +20808,16 @@ var BaseEnvironment = class extends TypedEventBase {
     }
   }
   async fadeIn() {
-    --this.fadeDepth;
-    if (this.fadeDepth === 0) {
+    if (this.fadeDepth === 1) {
       await this.fader.fadeOut();
       this.camera.layers.set(FOREGROUND);
       this.skybox.visible = true;
       await this.fader.fadeIn();
     }
+    --this.fadeDepth;
+  }
+  get showWebXRLayers() {
+    return this.fadeDepth === 0;
   }
   set3DCursor(model2) {
     const children = model2.children.slice(0);
@@ -21227,7 +21251,7 @@ var Environment = class extends BaseEnvironment {
     this.fpses = new Array();
     this.avgFPS = 0;
     this.compassImage = new ArtificialHorizon();
-    this.clockImage = new CanvasImageMesh(this, "Clock", new ClockImage());
+    this.clockImage = new CanvasImageMesh(this, "Clock", "dynamic", new ClockImage());
     this.clockImage.sizeMode = "fixed-height";
     this.clockImage.mesh.renderOrder = 5;
     options = options || {};
@@ -21293,7 +21317,7 @@ var Environment = class extends BaseEnvironment {
     elementApply(this.screenUISpace.bottomRowLeft, this.settingsButton, this.muteMicButton, this.muteEnvAudioButton, this.lobbyButton);
     elementApply(this.screenUISpace.bottomRowRight, this.fullscreenButton, this.vrButton, this.arButton);
     if (BatteryImage.isAvailable && isMobile()) {
-      this.batteryImage = new CanvasImageMesh(this, "Battery", new BatteryImage());
+      this.batteryImage = new CanvasImageMesh(this, "Battery", "dynamic", new BatteryImage());
       this.batteryImage.sizeMode = "fixed-height";
       this.xrUI.addItem(this.batteryImage, { x: 0.75, y: -1, width: 0.2, height: 0.1 });
       elementApply(this.screenUISpace.topRowRight, this.batteryImage);
@@ -21384,11 +21408,6 @@ var Environment = class extends BaseEnvironment {
       }
     }
     this.audio.update();
-    this.videoPlayer.update(evt.dt, evt.frame);
-    this.clockImage.update(evt.dt, evt.frame);
-    if (this.batteryImage) {
-      this.batteryImage.update(evt.dt, evt.frame);
-    }
     this.confirmationDialog.update(evt.dt);
     for (const app of this.apps) {
       app.update(evt);

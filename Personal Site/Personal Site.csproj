@@ -12,10 +12,6 @@
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
 
-	<PropertyGroup Label="Configuration">
-		<TypeScriptTarget>ESNext</TypeScriptTarget>
-	</PropertyGroup>
-
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
 	  <DebugType>portable</DebugType>
 	</PropertyGroup>
@@ -35,13 +31,6 @@
 	  <None Include="package-lock.json" />
 	  <None Include="package.json" />
 	  <None Include="tsconfig.json" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<PackageReference Include="Microsoft.TypeScript.MSBuild" Version="4.7.4">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
 	</ItemGroup>
 
 	<ItemGroup>

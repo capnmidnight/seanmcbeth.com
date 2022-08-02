@@ -10,7 +10,7 @@ import { isDebug } from "../isDebug";
     const env = await createTestEnvironment();
     const skybox = new AssetImage("/skyboxes/BearfenceMountain.jpeg", Image_Jpeg, !isDebug);
     const picture = new AssetImage("/img/logos/foxglove.png", Image_Png, !isDebug);
-    const img = new Image2D(env, "Foxglove", false);
+    const img = new Image2D(env, "Foxglove", "static");
 
     Object.assign(window, { img });
     objGraph(env.foreground, img);
@@ -25,8 +25,6 @@ import { isDebug } from "../isDebug";
 
     img.setTextureMap(picture.result);
     img.position.set(0, 1.5, -3);
-
-    env.timer.addTickHandler(evt => img.update(evt.dt, evt.frame));
 
     await env.fadeIn();
 })();
