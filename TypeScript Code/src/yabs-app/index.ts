@@ -192,7 +192,7 @@ const NUM_YABS = Math.round(window.innerWidth / 30),
     out = audio.createGain(),
     fs = new Array<GameObject>(),
     osc = new Array<GainNode>(),
-    timers = new Map<GainNode, number>,
+    timers = new Map<GainNode, number>(),
     base = Math.pow(2, 1 / 12);
 
 let fading = false,

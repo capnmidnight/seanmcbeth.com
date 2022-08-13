@@ -1,3 +1,3 @@
-$v=npm --prefix ".\Personal Site" version major
+$v=npm --prefix ".\TypeScript Code" version major
 .\build.ps1
 .\commit.ps1
