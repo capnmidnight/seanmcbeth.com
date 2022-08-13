@@ -99,7 +99,7 @@ var BaseGraphNode = class {
   connectSorted(child, keySelector) {
     if (isDefined(keySelector)) {
       arraySortedInsert(this._forward, child, (n2) => keySelector(n2.value));
-      child._reverse.push(this);
+      arraySortedInsert(child._reverse, this, (n2) => keySelector(n2.value));
     } else {
       this.connectTo(child);
     }
@@ -279,6 +279,40 @@ var PriorityList = class {
   }
 };
 
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/identity.ts
+function alwaysTrue() {
+  return true;
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/typeChecks.ts
+function t(o, s, c) {
+  return typeof o === s || o instanceof c;
+}
+function isFunction(obj) {
+  return t(obj, "function", Function);
+}
+function isString(obj) {
+  return t(obj, "string", String);
+}
+function isBoolean(obj) {
+  return t(obj, "boolean", Boolean);
+}
+function isNumber(obj) {
+  return t(obj, "number", Number);
+}
+function isObject(obj) {
+  return isDefined(obj) && t(obj, "object", Object);
+}
+function assertNever(x, msg) {
+  throw new Error((msg || "Unexpected object: ") + x);
+}
+function isNullOrUndefined(obj) {
+  return obj === null || obj === void 0;
+}
+function isDefined(obj) {
+  return !isNullOrUndefined(obj);
+}
+
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/events/EventBase.ts
 var EventBase = class {
   constructor() {
@@ -342,40 +376,6 @@ var EventBase = class {
     return !evt.defaultPrevented;
   }
 };
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/identity.ts
-function alwaysTrue() {
-  return true;
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/typeChecks.ts
-function t(o, s, c) {
-  return typeof o === s || o instanceof c;
-}
-function isFunction(obj) {
-  return t(obj, "function", Function);
-}
-function isString(obj) {
-  return t(obj, "string", String);
-}
-function isBoolean(obj) {
-  return t(obj, "boolean", Boolean);
-}
-function isNumber(obj) {
-  return t(obj, "number", Number);
-}
-function isObject(obj) {
-  return isDefined(obj) && t(obj, "object", Object);
-}
-function assertNever(x, msg) {
-  throw new Error((msg || "Unexpected object: ") + x);
-}
-function isNullOrUndefined(obj) {
-  return obj === null || obj === void 0;
-}
-function isDefined(obj) {
-  return !isNullOrUndefined(obj);
-}
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/events/Task.ts
 var Task = class {
@@ -1044,8 +1044,8 @@ function height(v) {
 function left(v) {
   return new CssProp("left", v);
 }
-function margin(v) {
-  return new CssProp("margin", v);
+function margin(...v) {
+  return new CssProp("margin", v.join(" "));
 }
 function marginLeft(v) {
   return new CssProp("marginLeft", v);
@@ -1056,8 +1056,8 @@ function marginRight(v) {
 function marginTop(v) {
   return new CssProp("marginTop", v);
 }
-function overflow(v) {
-  return new CssProp("overflow", v);
+function overflow(...v) {
+  return new CssProp("overflow", v.join(" "));
 }
 function padding(...v) {
   return new CssProp("padding", v.join(" "));
@@ -1108,9 +1108,6 @@ function isErsatzElement(obj) {
   const elem = obj;
   return elem.element instanceof Node;
 }
-function isErsatzElements(obj) {
-  return isObject(obj) && "elements" in obj && obj.elements instanceof Array;
-}
 function resolveElement(elem) {
   if (isErsatzElement(elem)) {
     return elem.element;
@@ -1128,8 +1125,6 @@ function elementApply(elem, ...children) {
         elem.append(child);
       } else if (isErsatzElement(child)) {
         elem.append(resolveElement(child));
-      } else if (isErsatzElements(child)) {
-        elem.append(...child.elements.map(resolveElement));
       } else if (isIElementAppliable(child)) {
         child.applyToElement(elem);
       } else {

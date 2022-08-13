@@ -240,6 +240,55 @@ var PriorityMap = class {
   }
 };
 
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/identity.ts
+function identity(item) {
+  return item;
+}
+function alwaysTrue() {
+  return true;
+}
+function alwaysFalse() {
+  return false;
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/typeChecks.ts
+function t(o, s, c) {
+  return typeof o === s || o instanceof c;
+}
+function isFunction(obj) {
+  return t(obj, "function", Function);
+}
+function isString(obj) {
+  return t(obj, "string", String);
+}
+function isBoolean(obj) {
+  return t(obj, "boolean", Boolean);
+}
+function isNumber(obj) {
+  return t(obj, "number", Number);
+}
+function isObject(obj) {
+  return isDefined(obj) && t(obj, "object", Object);
+}
+function isArray(obj) {
+  return obj instanceof Array;
+}
+function assertNever(x, msg) {
+  throw new Error((msg || "Unexpected object: ") + x);
+}
+function isNullOrUndefined(obj) {
+  return obj === null || obj === void 0;
+}
+function isDefined(obj) {
+  return !isNullOrUndefined(obj);
+}
+function isArrayBufferView(obj) {
+  return obj instanceof Uint8Array || obj instanceof Uint8ClampedArray || obj instanceof Int8Array || obj instanceof Uint16Array || obj instanceof Int16Array || obj instanceof Uint32Array || obj instanceof Int32Array || obj instanceof Float32Array || obj instanceof Float64Array || "BigUint64Array" in globalThis && obj instanceof globalThis["BigUint64Array"] || "BigInt64Array" in globalThis && obj instanceof globalThis["BigInt64Array"];
+}
+function isArrayBuffer(val) {
+  return val && typeof ArrayBuffer !== "undefined" && (val instanceof ArrayBuffer || val.constructor && val.constructor.name === "ArrayBuffer");
+}
+
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/events/EventBase.ts
 var EventBase = class {
   constructor() {
@@ -352,55 +401,6 @@ var TypedEventBase = class extends EventBase {
     return true;
   }
 };
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/identity.ts
-function identity(item) {
-  return item;
-}
-function alwaysTrue() {
-  return true;
-}
-function alwaysFalse() {
-  return false;
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/typeChecks.ts
-function t(o, s, c) {
-  return typeof o === s || o instanceof c;
-}
-function isFunction(obj) {
-  return t(obj, "function", Function);
-}
-function isString(obj) {
-  return t(obj, "string", String);
-}
-function isBoolean(obj) {
-  return t(obj, "boolean", Boolean);
-}
-function isNumber(obj) {
-  return t(obj, "number", Number);
-}
-function isObject(obj) {
-  return isDefined(obj) && t(obj, "object", Object);
-}
-function isArray(obj) {
-  return obj instanceof Array;
-}
-function assertNever(x, msg) {
-  throw new Error((msg || "Unexpected object: ") + x);
-}
-function isNullOrUndefined(obj) {
-  return obj === null || obj === void 0;
-}
-function isDefined(obj) {
-  return !isNullOrUndefined(obj);
-}
-function isArrayBufferView(obj) {
-  return obj instanceof Uint8Array || obj instanceof Uint8ClampedArray || obj instanceof Int8Array || obj instanceof Uint16Array || obj instanceof Int16Array || obj instanceof Uint32Array || obj instanceof Int32Array || obj instanceof Float32Array || obj instanceof Float64Array || "BigUint64Array" in globalThis && obj instanceof globalThis["BigUint64Array"] || "BigInt64Array" in globalThis && obj instanceof globalThis["BigInt64Array"];
-}
-function isArrayBuffer(val) {
-  return val && typeof ArrayBuffer !== "undefined" && (val instanceof ArrayBuffer || val.constructor && val.constructor.name === "ArrayBuffer");
-}
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/events/Task.ts
 var Task = class {
@@ -1453,9 +1453,6 @@ function isErsatzElement(obj) {
   const elem = obj;
   return elem.element instanceof Node;
 }
-function isErsatzElements(obj) {
-  return isObject(obj) && "elements" in obj && obj.elements instanceof Array;
-}
 function resolveElement(elem) {
   if (isErsatzElement(elem)) {
     return elem.element;
@@ -1473,8 +1470,6 @@ function elementApply(elem, ...children) {
         elem.append(child);
       } else if (isErsatzElement(child)) {
         elem.append(resolveElement(child));
-      } else if (isErsatzElements(child)) {
-        elem.append(...child.elements.map(resolveElement));
       } else if (isIElementAppliable(child)) {
         child.applyToElement(elem);
       } else {
@@ -2222,9 +2217,9 @@ var WorkerClient = class extends TypedEventBase {
   constructor(worker) {
     super();
     this.worker = worker;
-    this.taskCounter = 0;
     this.invocations = /* @__PURE__ */ new Map();
     this.tasks = new Array();
+    this.taskCounter = 0;
     if (!isWorkerSupported) {
       console.warn("Workers are not supported on this system.");
     }

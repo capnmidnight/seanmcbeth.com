@@ -3469,7 +3469,7 @@ var BaseGraphNode = class {
   connectSorted(child, keySelector) {
     if (isDefined(keySelector)) {
       arraySortedInsert(this._forward, child, (n2) => keySelector(n2.value));
-      child._reverse.push(this);
+      arraySortedInsert(child._reverse, this, (n2) => keySelector(n2.value));
     } else {
       this.connectTo(child);
     }
@@ -3737,6 +3737,58 @@ var PriorityMap = class {
   }
 };
 
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/identity.ts
+function identity(item) {
+  return item;
+}
+function alwaysTrue() {
+  return true;
+}
+function alwaysFalse() {
+  return false;
+}
+function and(a, b) {
+  return a && b;
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/typeChecks.ts
+function t(o, s, c) {
+  return typeof o === s || o instanceof c;
+}
+function isFunction(obj2) {
+  return t(obj2, "function", Function);
+}
+function isString(obj2) {
+  return t(obj2, "string", String);
+}
+function isBoolean(obj2) {
+  return t(obj2, "boolean", Boolean);
+}
+function isNumber(obj2) {
+  return t(obj2, "number", Number);
+}
+function isGoodNumber(obj2) {
+  return isNumber(obj2) && Number.isFinite(obj2) && !Number.isNaN(obj2);
+}
+function isObject(obj2) {
+  return isDefined(obj2) && t(obj2, "object", Object);
+}
+function isDate(obj2) {
+  return obj2 instanceof Date;
+}
+function isArray(obj2) {
+  return obj2 instanceof Array;
+}
+function assertNever(x, msg) {
+  throw new Error((msg || "Unexpected object: ") + x);
+}
+function isNullOrUndefined(obj2) {
+  return obj2 === null || obj2 === void 0;
+}
+function isDefined(obj2) {
+  return !isNullOrUndefined(obj2);
+}
+
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/events/EventBase.ts
 var EventBase = class {
   constructor() {
@@ -3857,58 +3909,6 @@ var TypedEventBase = class extends EventBase {
     return true;
   }
 };
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/identity.ts
-function identity(item) {
-  return item;
-}
-function alwaysTrue() {
-  return true;
-}
-function alwaysFalse() {
-  return false;
-}
-function and(a, b) {
-  return a && b;
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/typeChecks.ts
-function t(o, s, c) {
-  return typeof o === s || o instanceof c;
-}
-function isFunction(obj2) {
-  return t(obj2, "function", Function);
-}
-function isString(obj2) {
-  return t(obj2, "string", String);
-}
-function isBoolean(obj2) {
-  return t(obj2, "boolean", Boolean);
-}
-function isNumber(obj2) {
-  return t(obj2, "number", Number);
-}
-function isGoodNumber(obj2) {
-  return isNumber(obj2) && Number.isFinite(obj2) && !Number.isNaN(obj2);
-}
-function isObject(obj2) {
-  return isDefined(obj2) && t(obj2, "object", Object);
-}
-function isDate(obj2) {
-  return obj2 instanceof Date;
-}
-function isArray(obj2) {
-  return obj2 instanceof Array;
-}
-function assertNever(x, msg) {
-  throw new Error((msg || "Unexpected object: ") + x);
-}
-function isNullOrUndefined(obj2) {
-  return obj2 === null || obj2 === void 0;
-}
-function isDefined(obj2) {
-  return !isNullOrUndefined(obj2);
-}
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/events/Task.ts
 var Task = class {
@@ -5371,6 +5371,9 @@ function borderRadius(v) {
 function boxShadow(v) {
   return new CssProp("boxShadow", v);
 }
+function color(v) {
+  return new CssProp("color", v);
+}
 function columnGap(v) {
   return new CssProp("columnGap", v);
 }
@@ -5404,6 +5407,9 @@ function gridColumn(vOrColStart, colEnd) {
   }
   return new CssProp("gridColumn", vOrColStart);
 }
+function gridColumnGap(v) {
+  return new CssProp("gridColumnGap", v);
+}
 function gridRow(vOrRowStart, rowEnd) {
   if (!isString(vOrRowStart)) {
     vOrRowStart = [vOrRowStart, rowEnd].filter(isDefined).join("/");
@@ -5422,11 +5428,8 @@ function height(v) {
 function left(v) {
   return new CssProp("left", v);
 }
-function margin(v) {
-  return new CssProp("margin", v);
-}
-function marginInlineStart(v) {
-  return new CssProp("marginInlineStart", v);
+function margin(...v) {
+  return new CssProp("margin", v.join(" "));
 }
 function marginLeft(v) {
   return new CssProp("marginLeft", v);
@@ -5440,14 +5443,11 @@ function maxWidth(v) {
 function minWidth(v) {
   return new CssProp("minWidth", v);
 }
-function overflow(v) {
-  return new CssProp("overflow", v);
+function overflow(...v) {
+  return new CssProp("overflow", v.join(" "));
 }
 function padding(...v) {
   return new CssProp("padding", v.join(" "));
-}
-function paddingRight(v) {
-  return new CssProp("paddingRight", v);
 }
 function pointerEvents(v) {
   return new CssProp("pointerEvents", v);
@@ -5466,6 +5466,9 @@ function touchAction(v) {
 }
 function transform(v) {
   return new CssProp("transform", v);
+}
+function verticalAlign(v) {
+  return new CssProp("verticalAlign", v);
 }
 function width(v) {
   return new CssProp("width", v);
@@ -5544,9 +5547,6 @@ function isErsatzElement(obj2) {
   const elem = obj2;
   return elem.element instanceof Node;
 }
-function isErsatzElements(obj2) {
-  return isObject(obj2) && "elements" in obj2 && obj2.elements instanceof Array;
-}
 function resolveElement(elem) {
   if (isErsatzElement(elem)) {
     return elem.element;
@@ -5572,8 +5572,6 @@ function elementApply(elem, ...children) {
         elem.append(child);
       } else if (isErsatzElement(child)) {
         elem.append(resolveElement(child));
-      } else if (isErsatzElements(child)) {
-        elem.append(...child.elements.map(resolveElement));
       } else if (isIElementAppliable(child)) {
         child.applyToElement(elem);
       } else {
@@ -5611,11 +5609,8 @@ function elementSetText(elem, text) {
   elementClearChildren(elem);
   elem.append(TextNode(text));
 }
-function elementSetTitle(elem, text) {
-  elem = resolveElement(elem);
-  elem.title = text;
-}
 function elementSetClass(elem, enabled, className2) {
+  elem = resolveElement(elem);
   const canEnable = isDefined(className2);
   const hasEnabled = canEnable && elem.classList.contains(className2);
   if (canEnable && hasEnabled !== enabled) {
@@ -5624,32 +5619,6 @@ function elementSetClass(elem, enabled, className2) {
     } else {
       elem.classList.remove(className2);
     }
-  }
-}
-var types = [
-  "danger",
-  "dark",
-  "info",
-  "light",
-  "primary",
-  "secondary",
-  "success",
-  "warning"
-];
-function buttonSetEnabled(button, enabled, btnType, label, title2) {
-  button = resolveElement(button);
-  if (isString(btnType)) {
-    for (const type2 of types) {
-      elementSetClass(button, enabled && type2 === btnType, `btn-${type2}`);
-      elementSetClass(button, !enabled && type2 === btnType, `btn-outline-${type2}`);
-    }
-  }
-  button.disabled = !enabled;
-  if (label) {
-    elementSetText(button, label);
-  }
-  if (title2) {
-    elementSetTitle(button, title2);
   }
 }
 async function mediaElementCan(type2, elem, prog) {
@@ -7815,8 +7784,8 @@ var CanvasImage = class extends TypedEventBase {
       this.element = this._canvas;
     }
   }
-  fillRect(color, x, y, width2, height2, margin2) {
-    this.g.fillStyle = color;
+  fillRect(color2, x, y, width2, height2, margin2) {
+    this.g.fillStyle = color2;
     this.g.fillRect(x + margin2, y + margin2, width2 - 2 * margin2, height2 - 2 * margin2);
   }
   drawText(text, x, y, align) {
@@ -8633,7 +8602,7 @@ function jump(t2, k) {
   return t2 * t2 + k * Math.cos(a);
 }
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/widgets/DialogBox.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/widgets/DialogBox/styles.ts
 Style(
   rule(
     ".dialog, .dialog-container",
@@ -8688,6 +8657,8 @@ Style(
     maxWidth("10em")
   )
 );
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/widgets/DialogBox/index.ts
 var DialogBox = class {
   constructor(title2) {
     this.subEventer = new TypedEventBase();
@@ -8843,10 +8814,8 @@ var ScaleState = class {
     this.dir = 0;
     this.running = false;
     this.wasDisabled = this.disabled;
-    this.onEnter = () => this.run(1);
-    this.onExit = () => this.run(-1);
-    this.target.addEventListener("enter", this.onEnter);
-    this.target.addEventListener("exit", this.onExit);
+    this.target.addScopedEventListener(this, "enter", () => this.run(1));
+    this.target.addScopedEventListener(this, "exit", () => this.run(-1));
     this.obj.traverse((child) => {
       if (isMesh(child)) {
         this.target.addMesh(child);
@@ -8866,7 +8835,7 @@ var ScaleState = class {
     if (this.disabled !== this.wasDisabled) {
       this.wasDisabled = this.disabled;
       if (this.disabled) {
-        this.onExit();
+        this.run(-1);
       }
     }
     if (this.running) {
@@ -8880,8 +8849,7 @@ var ScaleState = class {
     }
   }
   dispose() {
-    this.target.removeEventListener("enter", this.onEnter);
-    this.target.removeEventListener("exit", this.onExit);
+    this.target.removeScope(this);
   }
 };
 function updateScalings(dt) {
@@ -9638,9 +9606,9 @@ var Image2D = class extends THREE.Object3D {
     this.lastImage = null;
     this.lastWidth = null;
     this.lastHeight = null;
-    this.stereoLayoutName = "mono";
     this.env = null;
     this.mesh = null;
+    this.stereoLayoutName = "mono";
     this.sizeMode = "none";
     this.onTick = (evt) => this.checkWebXRLayer(evt.frame);
     if (env) {
@@ -9664,15 +9632,20 @@ var Image2D = class extends THREE.Object3D {
     this.mesh = arrayScan(this.children, isMesh);
     if (isNullOrUndefined(this.mesh)) {
       this.mesh = source.mesh.clone();
+      objGraph(this, this.mesh);
     }
-    objGraph(this, this.mesh);
     this.setTextureMap(source.curImage);
     return this;
   }
   dispose() {
     this.env.timer.removeTickHandler(this.onTick);
-    this.removeWebXRLayer();
+    this.disposeImage();
     cleanup(this.mesh);
+  }
+  disposeImage() {
+    this.removeWebXRLayer();
+    cleanup(this.mesh.material.map);
+    this.curImage = null;
   }
   setImageSize(width2, height2) {
     if (width2 !== this.imageWidth || height2 !== this.imageHeight) {
@@ -9737,34 +9710,36 @@ var Image2D = class extends THREE.Object3D {
     if (isDefined(this.layer)) {
       this.wasUsingLayer = false;
       this.env.removeWebXRLayer(this.layer);
+      this.mesh.visible = true;
       const layer = this.layer;
       this.layer = null;
-      setTimeout(() => {
-        layer.destroy();
-        this.mesh.visible = true;
-      }, 100);
+      setTimeout(() => layer.destroy(), 100);
     }
   }
   setTextureMap(img) {
-    if (isImageBitmap(img)) {
-      img = createUtilityCanvasFromImageBitmap(img);
-    } else if (isImageData(img)) {
-      img = createUtilityCanvasFromImageData(img);
+    if (this.curImage) {
+      this.disposeImage();
     }
-    if (isOffscreenCanvas(img)) {
-      img = img;
-    }
-    this.curImage = img;
-    if (img instanceof HTMLVideoElement) {
-      this.setImageSize(img.videoWidth, img.videoHeight);
-      this.mesh.material.map = new THREE.VideoTexture(img);
-    } else {
-      this.setImageSize(img.width, img.height);
-      this.mesh.material.map = new THREE.Texture(img);
-      this.mesh.material.map.needsUpdate = true;
+    if (img) {
+      if (isImageBitmap(img)) {
+        img = createUtilityCanvasFromImageBitmap(img);
+      } else if (isImageData(img)) {
+        img = createUtilityCanvasFromImageData(img);
+      }
+      if (isOffscreenCanvas(img)) {
+        img = img;
+      }
+      this.curImage = img;
+      if (img instanceof HTMLVideoElement) {
+        this.setImageSize(img.videoWidth, img.videoHeight);
+        this.mesh.material.map = new THREE.VideoTexture(img);
+      } else {
+        this.setImageSize(img.width, img.height);
+        this.mesh.material.map = new THREE.Texture(img);
+        this.mesh.material.map.needsUpdate = true;
+      }
     }
     this.mesh.material.needsUpdate = true;
-    return this.mesh.material.map;
   }
   get isVideo() {
     return this.curImage instanceof HTMLVideoElement;
@@ -9775,10 +9750,8 @@ var Image2D = class extends THREE.Object3D {
       const newWidth = this.isVideo ? curVideo.videoWidth : this.curImage.width;
       const newHeight = this.isVideo ? curVideo.videoHeight : this.curImage.height;
       if (this.imageWidth !== newWidth || this.imageHeight !== newHeight) {
-        this.removeWebXRLayer();
-        cleanup(this.mesh.material.map);
         const img = this.curImage;
-        this.curImage = null;
+        this.disposeImage();
         this.setTextureMap(img);
       }
     }
@@ -9869,7 +9842,6 @@ var CanvasImageMesh = class extends Image2D {
   constructor(env, name2, webXRLayerType, image2, materialOptions) {
     super(env, name2, webXRLayerType, materialOptions);
     this._image = null;
-    this._onRedrawn = this.onRedrawn.bind(this);
     this.image = image2;
   }
   get object() {
@@ -9891,11 +9863,11 @@ var CanvasImageMesh = class extends Image2D {
   }
   set image(v) {
     if (this.image) {
-      this.image.removeEventListener("redrawn", this._onRedrawn);
+      this.image.removeScope(this);
     }
     this._image = v;
     if (this.image) {
-      this.image.addEventListener("redrawn", this._onRedrawn);
+      this.image.addScopedEventListener(this, "redrawn", () => this.onRedrawn());
       this.setTextureMap(this.image.canvas);
       this.onRedrawn();
     }
@@ -10262,7 +10234,7 @@ Style(
   rule(
     "#controls > .row",
     display("grid"),
-    margin("10px 5px"),
+    margin("10px", "5px"),
     gridTemplateColumns("repeat(2, auto)")
   ),
   rule(
@@ -10297,7 +10269,7 @@ Style(
     height("58px !important"),
     width("58px"),
     padding("0.25em"),
-    margin("0 5px"),
+    margin("0", "5px"),
     pointerEvents("initial")
   ),
   rule(
@@ -11330,7 +11302,7 @@ var ButtonImageWidget = class {
     return this.element.disabled;
   }
   set disabled(v) {
-    buttonSetEnabled(this.element, !v, "primary");
+    this.element.disabled = v;
     if (this.mesh) {
       this.mesh.disabled = v;
     }
@@ -11421,7 +11393,7 @@ var ToggleButton = class {
     const text = `${type2} ${this.setName}`;
     this.element.title = this.btnImage.title = text;
     this.btnImage.src = this.buttons.getImageSrc(this.setName, type2);
-    buttonSetEnabled(this, this.available && this.visible && this.enabled, "primary");
+    this.element.disabled = !this.available || !this.visible || !this.enabled;
     elementSetDisplay(this, this.available && this.visible, "inline-block");
     if (this.enterButton && this.exitButton) {
       objectSetEnabled(this, this.available && this.visible && this.enabled);
@@ -11442,9 +11414,9 @@ var ScreenModeToggleButton = class extends ToggleButton {
 };
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/widgets/widgets.ts
-function widgetSetEnabled(obj2, enabled, buttonType) {
+function widgetSetEnabled(obj2, enabled) {
   if (obj2.element instanceof HTMLButtonElement) {
-    buttonSetEnabled(obj2, enabled, buttonType);
+    obj2.element.disabled = !enabled;
   }
   objectSetEnabled(obj2, enabled);
 }
@@ -12787,22 +12759,22 @@ var GLTFLightsExtension = class {
     const lightDefs = extensions.lights || [];
     const lightDef = lightDefs[lightIndex];
     let lightNode;
-    const color = new THREE.Color(16777215);
+    const color2 = new THREE.Color(16777215);
     if (lightDef.color !== void 0)
-      color.fromArray(lightDef.color);
+      color2.fromArray(lightDef.color);
     const range = lightDef.range !== void 0 ? lightDef.range : 0;
     switch (lightDef.type) {
       case "directional":
-        lightNode = new THREE.DirectionalLight(color);
+        lightNode = new THREE.DirectionalLight(color2);
         lightNode.target.position.set(0, 0, -1);
         lightNode.add(lightNode.target);
         break;
       case "point":
-        lightNode = new THREE.PointLight(color);
+        lightNode = new THREE.PointLight(color2);
         lightNode.distance = range;
         break;
       case "spot":
-        lightNode = new THREE.SpotLight(color);
+        lightNode = new THREE.SpotLight(color2);
         lightNode.distance = range;
         lightDef.spot = lightDef.spot || {};
         lightDef.spot.innerConeAngle = lightDef.spot.innerConeAngle !== void 0 ? lightDef.spot.innerConeAngle : 0;
@@ -16318,11 +16290,11 @@ geom.setPositions([
   -1
 ]);
 var Laser = class extends THREE.Object3D {
-  constructor(color, linewidth = 1) {
+  constructor(color2, linewidth = 1) {
     super();
     this._length = 1;
     this.line = new Line2(geom, line2({
-      color,
+      color: color2,
       linewidth
     }));
     this.line.computeLineDistances();
@@ -20889,7 +20861,7 @@ Style(
     gridTemplateColumns("1fr auto")
   )
 );
-var InputRangeWithNumberElement = class extends TypedEventBase {
+var InputRangeWithNumber = class extends TypedEventBase {
   constructor(...rest) {
     super();
     this.element = Div(
@@ -20930,12 +20902,64 @@ var InputRangeWithNumberElement = class extends TypedEventBase {
   set disabled(v) {
     this.rangeInput.disabled = this.numberInput.disabled = v;
   }
+  get enabled() {
+    return !this.disabled;
+  }
+  set enabled(v) {
+    this.disabled = !v;
+  }
 };
-function InputRangeWithNumber(...rest) {
-  return new InputRangeWithNumberElement(...rest);
-}
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/widgets/PropertyList.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/widgets/PropertyList/styles.ts
+Style(
+  rule(
+    "dl.properties",
+    display("grid"),
+    gridTemplateColumns("auto 1fr"),
+    gridColumnGap(".25em")
+  ),
+  rule(
+    "dl.properties.disabled",
+    color("#ccc")
+  ),
+  rule(
+    "dl.properties > dt",
+    gridColumn(1, 2),
+    textAlign("right")
+  ),
+  rule(
+    "dl.properties > dt > label",
+    margin(0),
+    padding(0),
+    height("100%"),
+    verticalAlign("sub")
+  ),
+  rule(
+    "dl.properties > dd",
+    gridColumn(2, -1),
+    display("grid"),
+    gridTemplateColumns("auto")
+  ),
+  rule(
+    "dl.properties > dd input[type=number]",
+    textAlign("right")
+  ),
+  rule(
+    "dl.properties > dd > img",
+    maxWidth("10em")
+  ),
+  rule(
+    "dl.properties > dd > select",
+    height("30px")
+  ),
+  rule(
+    "dl.properties > .single-item",
+    gridColumn(1, -1),
+    textAlign("center")
+  )
+);
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/widgets/PropertyList/index.ts
 var PropertyGroup = class {
   constructor(name2, ...properties) {
     this.name = name2;
@@ -20945,43 +20969,37 @@ var PropertyGroup = class {
 function group(name2, ...properties) {
   return new PropertyGroup(name2, ...properties);
 }
-Style(
-  rule(
-    "dl",
-    display("grid"),
-    gridAutoFlow("row"),
-    gridTemplateColumns("auto 1fr"),
-    margin("1em")
-  ),
-  rule(
-    "dt",
-    gridColumn(1),
-    textAlign("right"),
-    paddingRight("1em")
-  ),
-  rule(
-    "dd",
-    textAlign("left"),
-    gridColumn(2),
-    marginInlineStart("0")
-  ),
-  rule(
-    "dl > span, dl > div",
-    gridColumn(1, 3)
-  ),
-  rule(
-    "dl .alert",
-    width("20em")
-  )
-);
 var DEFAULT_PROPERTY_GROUP = "DefaultPropertyGroup" + stringRandom(16);
 var PropertyList = class {
   constructor(...rest) {
     this.rowGroups = /* @__PURE__ */ new Map();
-    this.element = DL(...this.createElements(rest));
+    this.controls = new Array();
+    this._disabled = false;
+    this.element = DL(
+      className("properties"),
+      ...this.createElements(rest)
+    );
   }
   append(...rest) {
     elementApply(this.element, ...this.createElements(rest));
+  }
+  get disabled() {
+    return this._disabled;
+  }
+  set disabled(v) {
+    if (v !== this.disabled) {
+      this._disabled = v;
+      elementSetClass(this, v, "disabled");
+      for (const control of this.controls) {
+        control.disabled = v;
+      }
+    }
+  }
+  get enabled() {
+    return !this.disabled;
+  }
+  set enabled(v) {
+    this.disabled = !v;
   }
   createElements(rest) {
     return rest.flatMap((entry) => this.createGroups(entry).flatMap(identity));
@@ -21006,6 +21024,9 @@ var PropertyList = class {
       const [labelText, ...fields] = entry;
       const label = Label(labelText);
       for (const field of fields) {
+        if (isDisableable(field)) {
+          this.controls.push(field);
+        }
         if (field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement || field instanceof HTMLSelectElement) {
           if (field.id.length === 0) {
             field.id = stringRandom(10);
@@ -21018,11 +21039,14 @@ var PropertyList = class {
         DT(label),
         DD(...fields)
       ];
-    } else if (isString(entry) || isNumber(entry) || isBoolean(entry) || isDate(entry)) {
-      return [
-        Div(H2(entry))
-      ];
     } else {
+      if (isString(entry) || isNumber(entry) || isBoolean(entry) || isDate(entry)) {
+        entry = Div(H2(entry));
+      }
+      elementSetClass(entry, true, "single-item");
+      if (isDisableable(entry)) {
+        this.controls.push(entry);
+      }
       return [
         entry
       ];
@@ -21033,13 +21057,7 @@ var PropertyList = class {
     if (rows) {
       for (const row of rows) {
         for (const elem of row) {
-          if (isErsatzElements(elem)) {
-            for (const e2 of elem.elements) {
-              elementSetDisplay(e2, v);
-            }
-          } else if (isErsatzElement(elem) || elem instanceof HTMLElement) {
-            elementSetDisplay(elem, v);
-          }
+          elementSetDisplay(elem, v);
         }
       }
     }
@@ -21088,7 +21106,7 @@ var DeviceDialog = class extends DialogBox {
             "Input level",
             this.micScenario = Meter()
           ],
-          ["Volume", this.micVolumeControl = InputRangeWithNumber(
+          ["Volume", this.micVolumeControl = new InputRangeWithNumber(
             min2(0),
             max2(100),
             step(1),
@@ -21134,10 +21152,10 @@ var DeviceDialog = class extends DialogBox {
             marginLeft("0.5em")
           ),
           onClick(async () => {
-            buttonSetEnabled(this.testSpkrButton, false, "secondary");
+            this.testSpkrButton.disabled = true;
             await clipLoaded;
             await this.env.audio.playClipThrough("test-audio");
-            buttonSetEnabled(this.testSpkrButton, true, "secondary");
+            this.testSpkrButton.disabled = false;
           })
         )
       ],
@@ -21147,7 +21165,7 @@ var DeviceDialog = class extends DialogBox {
       ),
       [
         "Volume",
-        this.spkrVolumeControl = InputRangeWithNumber(
+        this.spkrVolumeControl = new InputRangeWithNumber(
           min2(0),
           max2(100),
           step(1),
@@ -21282,13 +21300,6 @@ var Environment = class extends BaseEnvironment {
     this.interactionAudio = new InteractionAudio(this.audio, this.pointers);
     this.confirmationDialog = new ConfirmationDialog(this, dialogFontFamily);
     this.devicesDialog = new DeviceDialog(this);
-    elementApply(
-      this.renderer.domElement.parentElement,
-      this.screenUISpace,
-      this.confirmationDialog,
-      this.devicesDialog,
-      this.renderer.domElement
-    );
     this.uiButtons = new ButtonFactory(uiImagePaths, 20, this.DEBUG);
     this.settingsButton = new ButtonImageWidget(this.uiButtons, "ui", "settings");
     this.quitButton = new ButtonImageWidget(this.uiButtons, "ui", "quit");
@@ -21424,8 +21435,8 @@ var Environment = class extends BaseEnvironment {
     this.onConfirmationShowing(false);
   }
   onConfirmationShowing(showing) {
-    widgetSetEnabled(this.quitButton, !showing, "primary");
-    widgetSetEnabled(this.lobbyButton, !showing, "primary");
+    widgetSetEnabled(this.quitButton, !showing);
+    widgetSetEnabled(this.lobbyButton, !showing);
   }
   async load(progOrAsset, ...assets) {
     let prog = null;
@@ -21435,6 +21446,13 @@ var Environment = class extends BaseEnvironment {
     } else {
       prog = progOrAsset;
     }
+    elementApply(
+      this.renderer.domElement.parentElement,
+      this.screenUISpace,
+      this.confirmationDialog,
+      this.devicesDialog,
+      this.renderer.domElement
+    );
     const footsteps = new AssetAudio("/audio/footsteps.mp3", Audio_Mpeg, !this.DEBUG);
     const enter = new AssetAudio("/audio/basic_enter.mp3", Audio_Mpeg, !this.DEBUG);
     const exit = new AssetAudio("/audio/basic_exit.mp3", Audio_Mpeg, !this.DEBUG);

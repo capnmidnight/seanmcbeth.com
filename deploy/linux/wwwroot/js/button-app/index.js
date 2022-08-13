@@ -240,6 +240,55 @@ var PriorityMap = class {
   }
 };
 
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/identity.ts
+function identity(item) {
+  return item;
+}
+function alwaysTrue() {
+  return true;
+}
+function alwaysFalse() {
+  return false;
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/typeChecks.ts
+function t(o, s, c) {
+  return typeof o === s || o instanceof c;
+}
+function isFunction(obj2) {
+  return t(obj2, "function", Function);
+}
+function isString(obj2) {
+  return t(obj2, "string", String);
+}
+function isBoolean(obj2) {
+  return t(obj2, "boolean", Boolean);
+}
+function isNumber(obj2) {
+  return t(obj2, "number", Number);
+}
+function isObject(obj2) {
+  return isDefined(obj2) && t(obj2, "object", Object);
+}
+function isArray(obj2) {
+  return obj2 instanceof Array;
+}
+function assertNever(x, msg) {
+  throw new Error((msg || "Unexpected object: ") + x);
+}
+function isNullOrUndefined(obj2) {
+  return obj2 === null || obj2 === void 0;
+}
+function isDefined(obj2) {
+  return !isNullOrUndefined(obj2);
+}
+function isArrayBufferView(obj2) {
+  return obj2 instanceof Uint8Array || obj2 instanceof Uint8ClampedArray || obj2 instanceof Int8Array || obj2 instanceof Uint16Array || obj2 instanceof Int16Array || obj2 instanceof Uint32Array || obj2 instanceof Int32Array || obj2 instanceof Float32Array || obj2 instanceof Float64Array || "BigUint64Array" in globalThis && obj2 instanceof globalThis["BigUint64Array"] || "BigInt64Array" in globalThis && obj2 instanceof globalThis["BigInt64Array"];
+}
+function isArrayBuffer(val) {
+  return val && typeof ArrayBuffer !== "undefined" && (val instanceof ArrayBuffer || val.constructor && val.constructor.name === "ArrayBuffer");
+}
+
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/events/EventBase.ts
 var EventBase = class {
   constructor() {
@@ -360,55 +409,6 @@ var TypedEventBase = class extends EventBase {
     return true;
   }
 };
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/identity.ts
-function identity(item) {
-  return item;
-}
-function alwaysTrue() {
-  return true;
-}
-function alwaysFalse() {
-  return false;
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/typeChecks.ts
-function t(o, s, c) {
-  return typeof o === s || o instanceof c;
-}
-function isFunction(obj2) {
-  return t(obj2, "function", Function);
-}
-function isString(obj2) {
-  return t(obj2, "string", String);
-}
-function isBoolean(obj2) {
-  return t(obj2, "boolean", Boolean);
-}
-function isNumber(obj2) {
-  return t(obj2, "number", Number);
-}
-function isObject(obj2) {
-  return isDefined(obj2) && t(obj2, "object", Object);
-}
-function isArray(obj2) {
-  return obj2 instanceof Array;
-}
-function assertNever(x, msg) {
-  throw new Error((msg || "Unexpected object: ") + x);
-}
-function isNullOrUndefined(obj2) {
-  return obj2 === null || obj2 === void 0;
-}
-function isDefined(obj2) {
-  return !isNullOrUndefined(obj2);
-}
-function isArrayBufferView(obj2) {
-  return obj2 instanceof Uint8Array || obj2 instanceof Uint8ClampedArray || obj2 instanceof Int8Array || obj2 instanceof Uint16Array || obj2 instanceof Int16Array || obj2 instanceof Uint32Array || obj2 instanceof Int32Array || obj2 instanceof Float32Array || obj2 instanceof Float64Array || "BigUint64Array" in globalThis && obj2 instanceof globalThis["BigUint64Array"] || "BigInt64Array" in globalThis && obj2 instanceof globalThis["BigInt64Array"];
-}
-function isArrayBuffer(val) {
-  return val && typeof ArrayBuffer !== "undefined" && (val instanceof ArrayBuffer || val.constructor && val.constructor.name === "ArrayBuffer");
-}
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/events/Task.ts
 var Task = class {
@@ -1295,9 +1295,6 @@ function isErsatzElement(obj2) {
   const elem = obj2;
   return elem.element instanceof Node;
 }
-function isErsatzElements(obj2) {
-  return isObject(obj2) && "elements" in obj2 && obj2.elements instanceof Array;
-}
 function resolveElement(elem) {
   if (isErsatzElement(elem)) {
     return elem.element;
@@ -1323,8 +1320,6 @@ function elementApply(elem, ...children) {
         elem.append(child);
       } else if (isErsatzElement(child)) {
         elem.append(resolveElement(child));
-      } else if (isErsatzElements(child)) {
-        elem.append(...child.elements.map(resolveElement));
       } else if (isIElementAppliable(child)) {
         child.applyToElement(elem);
       } else {
@@ -2188,10 +2183,8 @@ var ScaleState = class {
     this.dir = 0;
     this.running = false;
     this.wasDisabled = this.disabled;
-    this.onEnter = () => this.run(1);
-    this.onExit = () => this.run(-1);
-    this.target.addEventListener("enter", this.onEnter);
-    this.target.addEventListener("exit", this.onExit);
+    this.target.addScopedEventListener(this, "enter", () => this.run(1));
+    this.target.addScopedEventListener(this, "exit", () => this.run(-1));
     this.obj.traverse((child) => {
       if (isMesh(child)) {
         this.target.addMesh(child);
@@ -2211,7 +2204,7 @@ var ScaleState = class {
     if (this.disabled !== this.wasDisabled) {
       this.wasDisabled = this.disabled;
       if (this.disabled) {
-        this.onExit();
+        this.run(-1);
       }
     }
     if (this.running) {
@@ -2225,8 +2218,7 @@ var ScaleState = class {
     }
   }
   dispose() {
-    this.target.removeEventListener("enter", this.onEnter);
-    this.target.removeEventListener("exit", this.onExit);
+    this.target.removeScope(this);
   }
 };
 function removeScaledObj(obj2) {
@@ -2933,9 +2925,9 @@ var Image2D = class extends THREE.Object3D {
     this.lastImage = null;
     this.lastWidth = null;
     this.lastHeight = null;
-    this.stereoLayoutName = "mono";
     this.env = null;
     this.mesh = null;
+    this.stereoLayoutName = "mono";
     this.sizeMode = "none";
     this.onTick = (evt) => this.checkWebXRLayer(evt.frame);
     if (env) {
@@ -2959,15 +2951,20 @@ var Image2D = class extends THREE.Object3D {
     this.mesh = arrayScan(this.children, isMesh);
     if (isNullOrUndefined(this.mesh)) {
       this.mesh = source.mesh.clone();
+      objGraph(this, this.mesh);
     }
-    objGraph(this, this.mesh);
     this.setTextureMap(source.curImage);
     return this;
   }
   dispose() {
     this.env.timer.removeTickHandler(this.onTick);
-    this.removeWebXRLayer();
+    this.disposeImage();
     cleanup(this.mesh);
+  }
+  disposeImage() {
+    this.removeWebXRLayer();
+    cleanup(this.mesh.material.map);
+    this.curImage = null;
   }
   setImageSize(width, height) {
     if (width !== this.imageWidth || height !== this.imageHeight) {
@@ -3032,34 +3029,36 @@ var Image2D = class extends THREE.Object3D {
     if (isDefined(this.layer)) {
       this.wasUsingLayer = false;
       this.env.removeWebXRLayer(this.layer);
+      this.mesh.visible = true;
       const layer = this.layer;
       this.layer = null;
-      setTimeout(() => {
-        layer.destroy();
-        this.mesh.visible = true;
-      }, 100);
+      setTimeout(() => layer.destroy(), 100);
     }
   }
   setTextureMap(img) {
-    if (isImageBitmap(img)) {
-      img = createUtilityCanvasFromImageBitmap(img);
-    } else if (isImageData(img)) {
-      img = createUtilityCanvasFromImageData(img);
+    if (this.curImage) {
+      this.disposeImage();
     }
-    if (isOffscreenCanvas(img)) {
-      img = img;
-    }
-    this.curImage = img;
-    if (img instanceof HTMLVideoElement) {
-      this.setImageSize(img.videoWidth, img.videoHeight);
-      this.mesh.material.map = new THREE.VideoTexture(img);
-    } else {
-      this.setImageSize(img.width, img.height);
-      this.mesh.material.map = new THREE.Texture(img);
-      this.mesh.material.map.needsUpdate = true;
+    if (img) {
+      if (isImageBitmap(img)) {
+        img = createUtilityCanvasFromImageBitmap(img);
+      } else if (isImageData(img)) {
+        img = createUtilityCanvasFromImageData(img);
+      }
+      if (isOffscreenCanvas(img)) {
+        img = img;
+      }
+      this.curImage = img;
+      if (img instanceof HTMLVideoElement) {
+        this.setImageSize(img.videoWidth, img.videoHeight);
+        this.mesh.material.map = new THREE.VideoTexture(img);
+      } else {
+        this.setImageSize(img.width, img.height);
+        this.mesh.material.map = new THREE.Texture(img);
+        this.mesh.material.map.needsUpdate = true;
+      }
     }
     this.mesh.material.needsUpdate = true;
-    return this.mesh.material.map;
   }
   get isVideo() {
     return this.curImage instanceof HTMLVideoElement;
@@ -3070,10 +3069,8 @@ var Image2D = class extends THREE.Object3D {
       const newWidth = this.isVideo ? curVideo.videoWidth : this.curImage.width;
       const newHeight = this.isVideo ? curVideo.videoHeight : this.curImage.height;
       if (this.imageWidth !== newWidth || this.imageHeight !== newHeight) {
-        this.removeWebXRLayer();
-        cleanup(this.mesh.material.map);
         const img = this.curImage;
-        this.curImage = null;
+        this.disposeImage();
         this.setTextureMap(img);
       }
     }
@@ -3164,7 +3161,6 @@ var CanvasImageMesh = class extends Image2D {
   constructor(env, name, webXRLayerType, image2, materialOptions) {
     super(env, name, webXRLayerType, materialOptions);
     this._image = null;
-    this._onRedrawn = this.onRedrawn.bind(this);
     this.image = image2;
   }
   get object() {
@@ -3186,11 +3182,11 @@ var CanvasImageMesh = class extends Image2D {
   }
   set image(v) {
     if (this.image) {
-      this.image.removeEventListener("redrawn", this._onRedrawn);
+      this.image.removeScope(this);
     }
     this._image = v;
     if (this.image) {
-      this.image.addEventListener("redrawn", this._onRedrawn);
+      this.image.addScopedEventListener(this, "redrawn", () => this.onRedrawn());
       this.setTextureMap(this.image.canvas);
       this.onRedrawn();
     }
@@ -4032,9 +4028,9 @@ var WorkerClient = class extends TypedEventBase {
   constructor(worker) {
     super();
     this.worker = worker;
-    this.taskCounter = 0;
     this.invocations = /* @__PURE__ */ new Map();
     this.tasks = new Array();
+    this.taskCounter = 0;
     if (!isWorkerSupported) {
       console.warn("Workers are not supported on this system.");
     }
