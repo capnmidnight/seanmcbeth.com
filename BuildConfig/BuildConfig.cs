@@ -7,14 +7,15 @@ namespace SeanMcBeth
         private const string ServerProjectName = "Personal Site";
         private const string ScriptProjectName = "TypeScript Code";
 
-        private static readonly string[] FilesToTry =
+        private static readonly string[] FilePatterns =
         {
             "description.txt",
             "name.txt",
             "thumbnail.jpg",
             "screenshot.jpg",
             "logo.png",
-            "logo_small.png"
+            "logo_small.png",
+            "*.bool"
         };
 
         public static BuildSystemOptions GetBuildConfig()
@@ -87,12 +88,15 @@ namespace SeanMcBeth
                     && appInDir.Touch("index.ts").Exists)
                 {
                     var appOutDir = jsOutput.CD(appInDir.Name);
-                    foreach (var fileName in FilesToTry)
+                    foreach (var fileName in FilePatterns)
                     {
-                        var file = appInDir.Touch(fileName);
-                        options.OptionalDependencies.Add(
-                                $"{appInDir.Name} {Path.GetFileNameWithoutExtension(file.Name)}",
-                                (file, appOutDir.Touch(file.Name)));
+                        var files = appInDir.GetFiles(fileName);
+                        foreach (var file in files)
+                        {
+                            options.OptionalDependencies.Add(
+                                    $"{appInDir.Name} {Path.GetFileNameWithoutExtension(file.Name)}",
+                                    (file, appOutDir.Touch(file.Name)));
+                        }
                     }
                 }
             }

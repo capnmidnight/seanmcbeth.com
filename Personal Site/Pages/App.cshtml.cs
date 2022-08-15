@@ -54,6 +54,7 @@ namespace SeanMcBeth.Pages
         private string? LogoSmallPath => MapFile("screenshot.jpg");
         public string? FullName => AppRoot.Touch("name.txt").MaybeReadText();
         public string? Description => AppRoot.Touch("description.txt").MaybeReadText();
+        public bool SkipThreeJS => AppRoot.Touch("skipThreeJS.bool").Exists;
 
         public string? ManifestPath =>
             ScreenshotPath is not null
