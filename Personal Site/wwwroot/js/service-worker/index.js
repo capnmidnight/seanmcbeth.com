@@ -600,7 +600,7 @@ var Exception = class extends Error {
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/flags.ts
 var oculusBrowserPattern = /OculusBrowser\/(\d+)\.(\d+)\.(\d+)/i;
-var oculusMatch = navigator.userAgent.match(oculusBrowserPattern);
+var oculusMatch = /* @__PURE__ */ navigator.userAgent.match(oculusBrowserPattern);
 var isOculusBrowser = !!oculusMatch;
 var oculusBrowserVersion = isOculusBrowser && {
   major: parseFloat(oculusMatch[1]),
@@ -767,31 +767,6 @@ async function progressTasksWeighted(prog, taskDefs) {
   }
   return await Promise.all(tasks);
 }
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/mapInvert.ts
-function mapInvert(map) {
-  const mapOut = /* @__PURE__ */ new Map();
-  for (const [key, value] of map) {
-    mapOut.set(value, key);
-  }
-  return mapOut;
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/units/fileSize.ts
-var base2Labels = /* @__PURE__ */ new Map([
-  [1, "KiB"],
-  [2, "MiB"],
-  [3, "GiB"],
-  [4, "TiB"]
-]);
-var base10Labels = /* @__PURE__ */ new Map([
-  [1, "KB"],
-  [2, "MB"],
-  [3, "GB"],
-  [4, "TB"]
-]);
-var base2Sizes = mapInvert(base2Labels);
-var base10Sizes = mapInvert(base10Labels);
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/units/length.ts
 var MICROMETERS_PER_MILLIMETER = 1e3;

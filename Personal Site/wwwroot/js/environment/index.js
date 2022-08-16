@@ -1307,13 +1307,13 @@ var require_cardboard_vr_display = __commonJS({
       };
       var degToRad = Math.PI / 180;
       var radToDeg = 180 / Math.PI;
-      var Vector3 = function Vector32(x, y, z) {
+      var Vector34 = function Vector35(x, y, z) {
         this.x = x || 0;
         this.y = y || 0;
         this.z = z || 0;
       };
-      Vector3.prototype = {
-        constructor: Vector3,
+      Vector34.prototype = {
+        constructor: Vector34,
         set: function set3(x, y, z) {
           this.x = x;
           this.y = y;
@@ -1375,14 +1375,14 @@ var require_cardboard_vr_display = __commonJS({
           return this;
         }
       };
-      var Quaternion = function Quaternion2(x, y, z, w) {
+      var Quaternion3 = function Quaternion4(x, y, z, w) {
         this.x = x || 0;
         this.y = y || 0;
         this.z = z || 0;
         this.w = w !== void 0 ? w : 1;
       };
-      Quaternion.prototype = {
-        constructor: Quaternion,
+      Quaternion3.prototype = {
+        constructor: Quaternion3,
         set: function set3(x, y, z, w) {
           this.x = x;
           this.y = y;
@@ -1510,7 +1510,7 @@ var require_cardboard_vr_display = __commonJS({
           var EPS = 1e-6;
           return function(vFrom, vTo) {
             if (v1 === void 0)
-              v1 = new Vector3();
+              v1 = new Vector34();
             r = vFrom.dot(vTo) + 1;
             if (r < EPS) {
               r = 0;
@@ -1904,17 +1904,17 @@ var require_cardboard_vr_display = __commonJS({
         this.currentGyroMeasurement = new SensorSample();
         this.previousGyroMeasurement = new SensorSample();
         if (isIOS2()) {
-          this.filterQ = new Quaternion(-1, 0, 0, 1);
+          this.filterQ = new Quaternion3(-1, 0, 0, 1);
         } else {
-          this.filterQ = new Quaternion(1, 0, 0, 1);
+          this.filterQ = new Quaternion3(1, 0, 0, 1);
         }
-        this.previousFilterQ = new Quaternion();
+        this.previousFilterQ = new Quaternion3();
         this.previousFilterQ.copy(this.filterQ);
-        this.accelQ = new Quaternion();
+        this.accelQ = new Quaternion3();
         this.isOrientationInitialized = false;
-        this.estimatedGravity = new Vector3();
-        this.measuredGravity = new Vector3();
-        this.gyroIntegralQ = new Quaternion();
+        this.estimatedGravity = new Vector34();
+        this.measuredGravity = new Vector34();
+        this.gyroIntegralQ = new Quaternion3();
       }
       ComplementaryFilter.prototype.addAccelMeasurement = function(vector, timestampS) {
         this.currentAccelMeasurement.set(vector, timestampS);
@@ -1939,7 +1939,7 @@ var require_cardboard_vr_display = __commonJS({
         this.gyroIntegralQ.multiply(gyroDeltaQ);
         this.filterQ.copy(this.previousFilterQ);
         this.filterQ.multiply(gyroDeltaQ);
-        var invFilterQ = new Quaternion();
+        var invFilterQ = new Quaternion3();
         invFilterQ.copy(this.filterQ);
         invFilterQ.inverse();
         this.estimatedGravity.set(0, 0, -1);
@@ -1947,13 +1947,13 @@ var require_cardboard_vr_display = __commonJS({
         this.estimatedGravity.normalize();
         this.measuredGravity.copy(this.currentAccelMeasurement.sample);
         this.measuredGravity.normalize();
-        var deltaQ = new Quaternion();
+        var deltaQ = new Quaternion3();
         deltaQ.setFromUnitVectors(this.estimatedGravity, this.measuredGravity);
         deltaQ.inverse();
         if (this.isDebug) {
           console.log("Delta: %d deg, G_est: (%s, %s, %s), G_meas: (%s, %s, %s)", radToDeg * getQuaternionAngle(deltaQ), this.estimatedGravity.x.toFixed(1), this.estimatedGravity.y.toFixed(1), this.estimatedGravity.z.toFixed(1), this.measuredGravity.x.toFixed(1), this.measuredGravity.y.toFixed(1), this.measuredGravity.z.toFixed(1));
         }
-        var targetQ = new Quaternion();
+        var targetQ = new Quaternion3();
         targetQ.copy(this.filterQ);
         targetQ.multiply(deltaQ);
         this.filterQ.slerp(targetQ, 1 - this.kFilter);
@@ -1963,17 +1963,17 @@ var require_cardboard_vr_display = __commonJS({
         return this.filterQ;
       };
       ComplementaryFilter.prototype.accelToQuaternion_ = function(accel) {
-        var normAccel = new Vector3();
+        var normAccel = new Vector34();
         normAccel.copy(accel);
         normAccel.normalize();
-        var quat = new Quaternion();
-        quat.setFromUnitVectors(new Vector3(0, 0, -1), normAccel);
+        var quat = new Quaternion3();
+        quat.setFromUnitVectors(new Vector34(0, 0, -1), normAccel);
         quat.inverse();
         return quat;
       };
       ComplementaryFilter.prototype.gyroToQuaternionDelta_ = function(gyro, dt) {
-        var quat = new Quaternion();
-        var axis = new Vector3();
+        var quat = new Quaternion3();
+        var axis = new Vector34();
         axis.copy(gyro);
         axis.normalize();
         quat.setFromAxisAngle(axis, gyro.length() * dt);
@@ -1982,10 +1982,10 @@ var require_cardboard_vr_display = __commonJS({
       function PosePredictor(predictionTimeS, isDebug) {
         this.predictionTimeS = predictionTimeS;
         this.isDebug = isDebug;
-        this.previousQ = new Quaternion();
+        this.previousQ = new Quaternion3();
         this.previousTimestampS = null;
-        this.deltaQ = new Quaternion();
-        this.outQ = new Quaternion();
+        this.deltaQ = new Quaternion3();
+        this.outQ = new Quaternion3();
       }
       PosePredictor.prototype.getPrediction = function(currentQ, gyro, timestampS) {
         if (!this.previousTimestampS) {
@@ -1993,7 +1993,7 @@ var require_cardboard_vr_display = __commonJS({
           this.previousTimestampS = timestampS;
           return currentQ;
         }
-        var axis = new Vector3();
+        var axis = new Vector34();
         axis.copy(gyro);
         axis.normalize();
         var angularSpeed = gyro.length();
@@ -2015,8 +2015,8 @@ var require_cardboard_vr_display = __commonJS({
       };
       function FusionPoseSensor(kFilter, predictionTime, yawOnly, isDebug) {
         this.yawOnly = yawOnly;
-        this.accelerometer = new Vector3();
-        this.gyroscope = new Vector3();
+        this.accelerometer = new Vector34();
+        this.gyroscope = new Vector34();
         this.filter = new ComplementaryFilter(kFilter, isDebug);
         this.posePredictor = new PosePredictor(predictionTime, isDebug);
         this.isFirefoxAndroid = isFirefoxAndroid();
@@ -2024,21 +2024,21 @@ var require_cardboard_vr_display = __commonJS({
         var chromeVersion = getChromeVersion();
         this.isDeviceMotionInRadians = !this.isIOS && chromeVersion && chromeVersion < 66;
         this.isWithoutDeviceMotion = isChromeWithoutDeviceMotion() || isSafariWithoutDeviceMotion();
-        this.filterToWorldQ = new Quaternion();
+        this.filterToWorldQ = new Quaternion3();
         if (isIOS2()) {
-          this.filterToWorldQ.setFromAxisAngle(new Vector3(1, 0, 0), Math.PI / 2);
+          this.filterToWorldQ.setFromAxisAngle(new Vector34(1, 0, 0), Math.PI / 2);
         } else {
-          this.filterToWorldQ.setFromAxisAngle(new Vector3(1, 0, 0), -Math.PI / 2);
+          this.filterToWorldQ.setFromAxisAngle(new Vector34(1, 0, 0), -Math.PI / 2);
         }
-        this.inverseWorldToScreenQ = new Quaternion();
-        this.worldToScreenQ = new Quaternion();
-        this.originalPoseAdjustQ = new Quaternion();
-        this.originalPoseAdjustQ.setFromAxisAngle(new Vector3(0, 0, 1), -window.orientation * Math.PI / 180);
+        this.inverseWorldToScreenQ = new Quaternion3();
+        this.worldToScreenQ = new Quaternion3();
+        this.originalPoseAdjustQ = new Quaternion3();
+        this.originalPoseAdjustQ.setFromAxisAngle(new Vector34(0, 0, 1), -window.orientation * Math.PI / 180);
         this.setScreenTransform_();
         if (isLandscapeMode()) {
           this.filterToWorldQ.multiply(this.inverseWorldToScreenQ);
         }
-        this.resetQ = new Quaternion();
+        this.resetQ = new Quaternion3();
         this.orientationOut_ = new Float32Array(4);
         this.start();
       }
@@ -2049,22 +2049,22 @@ var require_cardboard_vr_display = __commonJS({
         var orientation = void 0;
         if (this.isWithoutDeviceMotion && this._deviceOrientationQ) {
           this.deviceOrientationFixQ = this.deviceOrientationFixQ || function() {
-            var z = new Quaternion().setFromAxisAngle(new Vector3(0, 0, -1), 0);
-            var y = new Quaternion();
+            var z = new Quaternion3().setFromAxisAngle(new Vector34(0, 0, -1), 0);
+            var y = new Quaternion3();
             if (window.orientation === -90) {
-              y.setFromAxisAngle(new Vector3(0, 1, 0), Math.PI / -2);
+              y.setFromAxisAngle(new Vector34(0, 1, 0), Math.PI / -2);
             } else {
-              y.setFromAxisAngle(new Vector3(0, 1, 0), Math.PI / 2);
+              y.setFromAxisAngle(new Vector34(0, 1, 0), Math.PI / 2);
             }
             return z.multiply(y);
           }();
           this.deviceOrientationFilterToWorldQ = this.deviceOrientationFilterToWorldQ || function() {
-            var q = new Quaternion();
-            q.setFromAxisAngle(new Vector3(1, 0, 0), -Math.PI / 2);
+            var q = new Quaternion3();
+            q.setFromAxisAngle(new Vector34(1, 0, 0), -Math.PI / 2);
             return q;
           }();
           orientation = this._deviceOrientationQ;
-          var out = new Quaternion();
+          var out = new Quaternion3();
           out.copy(orientation);
           out.multiply(this.deviceOrientationFilterToWorldQ);
           out.multiply(this.resetQ);
@@ -2084,7 +2084,7 @@ var require_cardboard_vr_display = __commonJS({
           var filterOrientation = this.filter.getOrientation();
           orientation = this.posePredictor.getPrediction(filterOrientation, this.gyroscope, this.previousTimestampS);
         }
-        var out = new Quaternion();
+        var out = new Quaternion3();
         out.copy(this.filterToWorldQ);
         out.multiply(this.resetQ);
         out.multiply(orientation);
@@ -2112,7 +2112,7 @@ var require_cardboard_vr_display = __commonJS({
         this.resetQ.multiply(this.originalPoseAdjustQ);
       };
       FusionPoseSensor.prototype.onDeviceOrientation_ = function(e2) {
-        this._deviceOrientationQ = this._deviceOrientationQ || new Quaternion();
+        this._deviceOrientationQ = this._deviceOrientationQ || new Quaternion3();
         var alpha = e2.alpha, beta2 = e2.beta, gamma = e2.gamma;
         alpha = (alpha || 0) * Math.PI / 180;
         beta2 = (beta2 || 0) * Math.PI / 180;
@@ -2171,10 +2171,10 @@ var require_cardboard_vr_display = __commonJS({
           case 0:
             break;
           case 90:
-            this.worldToScreenQ.setFromAxisAngle(new Vector3(0, 0, 1), -Math.PI / 2);
+            this.worldToScreenQ.setFromAxisAngle(new Vector34(0, 0, 1), -Math.PI / 2);
             break;
           case -90:
-            this.worldToScreenQ.setFromAxisAngle(new Vector3(0, 0, 1), Math.PI / 2);
+            this.worldToScreenQ.setFromAxisAngle(new Vector34(0, 0, 1), Math.PI / 2);
             break;
           case 180:
             break;
@@ -2204,11 +2204,11 @@ var require_cardboard_vr_display = __commonJS({
         window.removeEventListener("message", this.onMessageCallback_);
       };
       var SENSOR_FREQUENCY = 60;
-      var X_AXIS = new Vector3(1, 0, 0);
-      var Z_AXIS = new Vector3(0, 0, 1);
-      var SENSOR_TO_VR = new Quaternion();
+      var X_AXIS = new Vector34(1, 0, 0);
+      var Z_AXIS = new Vector34(0, 0, 1);
+      var SENSOR_TO_VR = new Quaternion3();
       SENSOR_TO_VR.setFromAxisAngle(X_AXIS, -Math.PI / 2);
-      SENSOR_TO_VR.multiply(new Quaternion().setFromAxisAngle(Z_AXIS, Math.PI / 2));
+      SENSOR_TO_VR.multiply(new Quaternion3().setFromAxisAngle(Z_AXIS, Math.PI / 2));
       var PoseSensor = function() {
         function PoseSensor2(config2) {
           classCallCheck(this, PoseSensor2);
@@ -2218,8 +2218,8 @@ var require_cardboard_vr_display = __commonJS({
           this._out = new Float32Array(4);
           this.api = null;
           this.errors = [];
-          this._sensorQ = new Quaternion();
-          this._outQ = new Quaternion();
+          this._sensorQ = new Quaternion3();
+          this._outQ = new Quaternion3();
           this._onSensorRead = this._onSensorRead.bind(this);
           this._onSensorError = this._onSensorError.bind(this);
           this.init();
@@ -4158,7 +4158,7 @@ function isDesktop() {
   return !isMobile();
 }
 var oculusBrowserPattern = /OculusBrowser\/(\d+)\.(\d+)\.(\d+)/i;
-var oculusMatch = navigator.userAgent.match(oculusBrowserPattern);
+var oculusMatch = /* @__PURE__ */ navigator.userAgent.match(oculusBrowserPattern);
 var isOculusBrowser = !!oculusMatch;
 var oculusBrowserVersion = isOculusBrowser && {
   major: parseFloat(oculusMatch[1]),
@@ -4911,31 +4911,6 @@ var SetTimeoutTimer = class extends BaseTimer {
     }
   }
 };
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/mapInvert.ts
-function mapInvert(map) {
-  const mapOut = /* @__PURE__ */ new Map();
-  for (const [key, value2] of map) {
-    mapOut.set(value2, key);
-  }
-  return mapOut;
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/units/fileSize.ts
-var base2Labels = /* @__PURE__ */ new Map([
-  [1, "KiB"],
-  [2, "MiB"],
-  [3, "GiB"],
-  [4, "TiB"]
-]);
-var base10Labels = /* @__PURE__ */ new Map([
-  [1, "KB"],
-  [2, "MB"],
-  [3, "GB"],
-  [4, "TB"]
-]);
-var base2Sizes = mapInvert(base2Labels);
-var base10Sizes = mapInvert(base10Labels);
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/units/length.ts
 var MICROMETERS_PER_MILLIMETER = 1e3;
@@ -7328,6 +7303,138 @@ var AudioPlayer = class extends BaseAudioSource {
   }
 };
 
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/canvas.ts
+var hasHTMLCanvas = "HTMLCanvasElement" in globalThis;
+var hasHTMLImage = "HTMLImageElement" in globalThis;
+var disableAdvancedSettings = false;
+var hasOffscreenCanvas = !disableAdvancedSettings && "OffscreenCanvas" in globalThis;
+var hasImageBitmap = !disableAdvancedSettings && "createImageBitmap" in globalThis;
+function isHTMLCanvas(obj2) {
+  return hasHTMLCanvas && obj2 instanceof HTMLCanvasElement;
+}
+function isOffscreenCanvas(obj2) {
+  return hasOffscreenCanvas && obj2 instanceof OffscreenCanvas;
+}
+function isImageBitmap(img) {
+  return hasImageBitmap && img instanceof ImageBitmap;
+}
+function isImageData(img) {
+  return img instanceof ImageData;
+}
+function drawImageBitmapToCanvas(canv, img) {
+  const g = canv.getContext("2d");
+  if (isNullOrUndefined(g)) {
+    throw new Error("Could not create 2d context for canvas");
+  }
+  g.drawImage(img, 0, 0);
+}
+function drawImageDataToCanvas(canv, img) {
+  const g = canv.getContext("2d");
+  if (isNullOrUndefined(g)) {
+    throw new Error("Could not create 2d context for canvas");
+  }
+  g.putImageData(img, 0, 0);
+}
+function testOffscreen2D() {
+  try {
+    const canv = new OffscreenCanvas(1, 1);
+    const g = canv.getContext("2d");
+    return g != null;
+  } catch (exp) {
+    return false;
+  }
+}
+var hasOffscreenCanvasRenderingContext2D = hasOffscreenCanvas && testOffscreen2D();
+var createUtilityCanvas = hasOffscreenCanvasRenderingContext2D && createOffscreenCanvas || hasHTMLCanvas && createCanvas || null;
+var createUICanvas = hasHTMLCanvas ? createCanvas : createUtilityCanvas;
+function testOffscreen3D() {
+  try {
+    const canv = new OffscreenCanvas(1, 1);
+    const g = canv.getContext("webgl2");
+    return g != null;
+  } catch (exp) {
+    return false;
+  }
+}
+var hasOffscreenCanvasRenderingContext3D = hasOffscreenCanvas && testOffscreen3D();
+function createOffscreenCanvas(width2, height2) {
+  return new OffscreenCanvas(width2, height2);
+}
+function createCanvas(w, h) {
+  if (false) {
+    throw new Error("HTML Canvas is not supported in workers");
+  }
+  return Canvas(htmlWidth(w), htmlHeight(h));
+}
+function createOffscreenCanvasFromImageBitmap(img) {
+  const canv = createOffscreenCanvas(img.width, img.height);
+  drawImageBitmapToCanvas(canv, img);
+  return canv;
+}
+function createCanvasFromImageBitmap(img) {
+  if (false) {
+    throw new Error("HTML Canvas is not supported in workers");
+  }
+  const canv = createCanvas(img.width, img.height);
+  drawImageBitmapToCanvas(canv, img);
+  return canv;
+}
+var createUtilityCanvasFromImageBitmap = hasOffscreenCanvasRenderingContext2D && createOffscreenCanvasFromImageBitmap || hasHTMLCanvas && createCanvasFromImageBitmap || null;
+function createOffscreenCanvasFromImageData(img) {
+  const canv = createOffscreenCanvas(img.width, img.height);
+  drawImageDataToCanvas(canv, img);
+  return canv;
+}
+function createCanvasFromImageData(img) {
+  if (false) {
+    throw new Error("HTML Canvas is not supported in workers");
+  }
+  const canv = createCanvas(img.width, img.height);
+  drawImageDataToCanvas(canv, img);
+  return canv;
+}
+var createUtilityCanvasFromImageData = hasOffscreenCanvasRenderingContext2D && createOffscreenCanvasFromImageData || hasHTMLCanvas && createCanvasFromImageData || null;
+function setCanvasSize(canv, w, h, superscale = 1) {
+  w = Math.floor(w * superscale);
+  h = Math.floor(h * superscale);
+  if (canv.width != w || canv.height != h) {
+    canv.width = w;
+    canv.height = h;
+    return true;
+  }
+  return false;
+}
+function is2DRenderingContext(ctx) {
+  return isDefined(ctx.textBaseline);
+}
+function setCanvas2DContextSize(ctx, w, h, superscale = 1) {
+  const oldImageSmoothingEnabled = ctx.imageSmoothingEnabled, oldTextBaseline = ctx.textBaseline, oldTextAlign = ctx.textAlign, oldFont = ctx.font, resized = setCanvasSize(
+    ctx.canvas,
+    w,
+    h,
+    superscale
+  );
+  if (resized) {
+    ctx.imageSmoothingEnabled = oldImageSmoothingEnabled;
+    ctx.textBaseline = oldTextBaseline;
+    ctx.textAlign = oldTextAlign;
+    ctx.font = oldFont;
+  }
+  return resized;
+}
+function setContextSize(ctx, w, h, superscale = 1) {
+  if (is2DRenderingContext(ctx)) {
+    return setCanvas2DContextSize(ctx, w, h, superscale);
+  } else {
+    return setCanvasSize(
+      ctx.canvas,
+      w,
+      h,
+      superscale
+    );
+  }
+}
+
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/util.ts
 var typePattern = /([^\/]+)\/(.+)/;
 var subTypePattern = /(?:([^\.]+)\.)?([^\+;]+)(?:\+([^;]+))?((?:; *([^=]+)=([^;]+))*)/;
@@ -7607,138 +7714,6 @@ var AssetImage = class extends BaseFetchedAsset {
     return request.image(this.type);
   }
 };
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/canvas.ts
-var hasHTMLCanvas = "HTMLCanvasElement" in globalThis;
-var hasHTMLImage = "HTMLImageElement" in globalThis;
-var disableAdvancedSettings = false;
-var hasOffscreenCanvas = !disableAdvancedSettings && "OffscreenCanvas" in globalThis;
-var hasImageBitmap = !disableAdvancedSettings && "createImageBitmap" in globalThis;
-function isHTMLCanvas(obj2) {
-  return hasHTMLCanvas && obj2 instanceof HTMLCanvasElement;
-}
-function isOffscreenCanvas(obj2) {
-  return hasOffscreenCanvas && obj2 instanceof OffscreenCanvas;
-}
-function isImageBitmap(img) {
-  return hasImageBitmap && img instanceof ImageBitmap;
-}
-function isImageData(img) {
-  return img instanceof ImageData;
-}
-function drawImageBitmapToCanvas(canv, img) {
-  const g = canv.getContext("2d");
-  if (isNullOrUndefined(g)) {
-    throw new Error("Could not create 2d context for canvas");
-  }
-  g.drawImage(img, 0, 0);
-}
-function drawImageDataToCanvas(canv, img) {
-  const g = canv.getContext("2d");
-  if (isNullOrUndefined(g)) {
-    throw new Error("Could not create 2d context for canvas");
-  }
-  g.putImageData(img, 0, 0);
-}
-function testOffscreen2D() {
-  try {
-    const canv = new OffscreenCanvas(1, 1);
-    const g = canv.getContext("2d");
-    return g != null;
-  } catch (exp) {
-    return false;
-  }
-}
-var hasOffscreenCanvasRenderingContext2D = hasOffscreenCanvas && testOffscreen2D();
-var createUtilityCanvas = hasOffscreenCanvasRenderingContext2D && createOffscreenCanvas || hasHTMLCanvas && createCanvas || null;
-var createUICanvas = hasHTMLCanvas ? createCanvas : createUtilityCanvas;
-function testOffscreen3D() {
-  try {
-    const canv = new OffscreenCanvas(1, 1);
-    const g = canv.getContext("webgl2");
-    return g != null;
-  } catch (exp) {
-    return false;
-  }
-}
-var hasOffscreenCanvasRenderingContext3D = hasOffscreenCanvas && testOffscreen3D();
-function createOffscreenCanvas(width2, height2) {
-  return new OffscreenCanvas(width2, height2);
-}
-function createCanvas(w, h) {
-  if (false) {
-    throw new Error("HTML Canvas is not supported in workers");
-  }
-  return Canvas(htmlWidth(w), htmlHeight(h));
-}
-function createOffscreenCanvasFromImageBitmap(img) {
-  const canv = createOffscreenCanvas(img.width, img.height);
-  drawImageBitmapToCanvas(canv, img);
-  return canv;
-}
-function createCanvasFromImageBitmap(img) {
-  if (false) {
-    throw new Error("HTML Canvas is not supported in workers");
-  }
-  const canv = createCanvas(img.width, img.height);
-  drawImageBitmapToCanvas(canv, img);
-  return canv;
-}
-var createUtilityCanvasFromImageBitmap = hasOffscreenCanvasRenderingContext2D && createOffscreenCanvasFromImageBitmap || hasHTMLCanvas && createCanvasFromImageBitmap || null;
-function createOffscreenCanvasFromImageData(img) {
-  const canv = createOffscreenCanvas(img.width, img.height);
-  drawImageDataToCanvas(canv, img);
-  return canv;
-}
-function createCanvasFromImageData(img) {
-  if (false) {
-    throw new Error("HTML Canvas is not supported in workers");
-  }
-  const canv = createCanvas(img.width, img.height);
-  drawImageDataToCanvas(canv, img);
-  return canv;
-}
-var createUtilityCanvasFromImageData = hasOffscreenCanvasRenderingContext2D && createOffscreenCanvasFromImageData || hasHTMLCanvas && createCanvasFromImageData || null;
-function setCanvasSize(canv, w, h, superscale = 1) {
-  w = Math.floor(w * superscale);
-  h = Math.floor(h * superscale);
-  if (canv.width != w || canv.height != h) {
-    canv.width = w;
-    canv.height = h;
-    return true;
-  }
-  return false;
-}
-function is2DRenderingContext(ctx) {
-  return isDefined(ctx.textBaseline);
-}
-function setCanvas2DContextSize(ctx, w, h, superscale = 1) {
-  const oldImageSmoothingEnabled = ctx.imageSmoothingEnabled, oldTextBaseline = ctx.textBaseline, oldTextAlign = ctx.textAlign, oldFont = ctx.font, resized = setCanvasSize(
-    ctx.canvas,
-    w,
-    h,
-    superscale
-  );
-  if (resized) {
-    ctx.imageSmoothingEnabled = oldImageSmoothingEnabled;
-    ctx.textBaseline = oldTextBaseline;
-    ctx.textAlign = oldTextAlign;
-    ctx.font = oldFont;
-  }
-  return resized;
-}
-function setContextSize(ctx, w, h, superscale = 1) {
-  if (is2DRenderingContext(ctx)) {
-    return setCanvas2DContextSize(ctx, w, h, superscale);
-  } else {
-    return setCanvasSize(
-      ctx.canvas,
-      w,
-      h,
-      superscale
-    );
-  }
-}
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/translateResponse.ts
 async function translateResponse(response, translate) {
@@ -8723,6 +8698,9 @@ var DialogBox = class {
   }
 };
 
+// global-externals:three
+var { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlendMode, AdditiveBlending, AlphaFormat, AlwaysDepth, AlwaysStencilFunc, AmbientLight, AmbientLightProbe, AnimationClip, AnimationLoader, AnimationMixer, AnimationObjectGroup, AnimationUtils, ArcCurve, ArrayCamera, ArrowHelper, Audio: Audio3, AudioAnalyser, AudioContext: AudioContext2, AudioListener: AudioListener2, AudioLoader, AxesHelper, BackSide, BasicDepthPacking, BasicShadowMap, Bone, BooleanKeyframeTrack, Box2, Box3, Box3Helper, BoxBufferGeometry, BoxGeometry, BoxHelper, BufferAttribute, BufferGeometry, BufferGeometryLoader, ByteType, Cache, Camera, CameraHelper, CanvasTexture, CapsuleBufferGeometry, CapsuleGeometry, CatmullRomCurve3, CineonToneMapping, CircleBufferGeometry, CircleGeometry, ClampToEdgeWrapping, Clock, Color, ColorKeyframeTrack, ColorManagement, CompressedTexture, CompressedTextureLoader, ConeBufferGeometry, ConeGeometry, CubeCamera, CubeReflectionMapping, CubeRefractionMapping, CubeTexture, CubeTextureLoader, CubeUVReflectionMapping, CubicBezierCurve, CubicBezierCurve3, CubicInterpolant, CullFaceBack, CullFaceFront, CullFaceFrontBack, CullFaceNone, Curve, CurvePath, CustomBlending, CustomToneMapping, CylinderBufferGeometry, CylinderGeometry, Cylindrical, Data3DTexture, DataArrayTexture, DataTexture, DataTexture2DArray, DataTexture3D, DataTextureLoader, DataUtils, DecrementStencilOp, DecrementWrapStencilOp, DefaultLoadingManager, DepthFormat, DepthStencilFormat, DepthTexture, DirectionalLight, DirectionalLightHelper, DiscreteInterpolant, DodecahedronBufferGeometry, DodecahedronGeometry, DoubleSide, DstAlphaFactor, DstColorFactor, DynamicCopyUsage, DynamicDrawUsage, DynamicReadUsage, EdgesGeometry, EllipseCurve, EqualDepth, EqualStencilFunc, EquirectangularReflectionMapping, EquirectangularRefractionMapping, Euler, EventDispatcher, ExtrudeBufferGeometry, ExtrudeGeometry, FileLoader, FlatShading, Float16BufferAttribute, Float32BufferAttribute, Float64BufferAttribute, FloatType, Fog, FogExp2, Font, FontLoader, FramebufferTexture, FrontSide, Frustum, GLBufferAttribute, GLSL1, GLSL3, GreaterDepth, GreaterEqualDepth, GreaterEqualStencilFunc, GreaterStencilFunc, GridHelper, Group, HalfFloatType, HemisphereLight, HemisphereLightHelper, HemisphereLightProbe, IcosahedronBufferGeometry, IcosahedronGeometry, ImageBitmapLoader, ImageLoader, ImageUtils, ImmediateRenderObject, IncrementStencilOp, IncrementWrapStencilOp, InstancedBufferAttribute, InstancedBufferGeometry, InstancedInterleavedBuffer, InstancedMesh, Int16BufferAttribute, Int32BufferAttribute, Int8BufferAttribute, IntType, InterleavedBuffer, InterleavedBufferAttribute, Interpolant, InterpolateDiscrete, InterpolateLinear, InterpolateSmooth, InvertStencilOp, KeepStencilOp, KeyframeTrack, LOD, LatheBufferGeometry, LatheGeometry, Layers, LessDepth, LessEqualDepth, LessEqualStencilFunc, LessStencilFunc, Light, LightProbe, Line, Line3, LineBasicMaterial, LineCurve, LineCurve3, LineDashedMaterial, LineLoop, LineSegments, LinearEncoding, LinearFilter, LinearInterpolant, LinearMipMapLinearFilter, LinearMipMapNearestFilter, LinearMipmapLinearFilter, LinearMipmapNearestFilter, LinearSRGBColorSpace, LinearToneMapping, Loader, LoaderUtils, LoadingManager, LoopOnce, LoopPingPong, LoopRepeat, LuminanceAlphaFormat, LuminanceFormat, MOUSE, Material, MaterialLoader, MathUtils, Matrix3, Matrix4, MaxEquation, Mesh, MeshBasicMaterial, MeshDepthMaterial, MeshDistanceMaterial, MeshLambertMaterial, MeshMatcapMaterial, MeshNormalMaterial, MeshPhongMaterial, MeshPhysicalMaterial, MeshStandardMaterial, MeshToonMaterial, MinEquation, MirroredRepeatWrapping, MixOperation, MultiplyBlending, MultiplyOperation, NearestFilter, NearestMipMapLinearFilter, NearestMipMapNearestFilter, NearestMipmapLinearFilter, NearestMipmapNearestFilter, NeverDepth, NeverStencilFunc, NoBlending, NoColorSpace, NoToneMapping, NormalAnimationBlendMode, NormalBlending, NotEqualDepth, NotEqualStencilFunc, NumberKeyframeTrack, Object3D, ObjectLoader, ObjectSpaceNormalMap, OctahedronBufferGeometry, OctahedronGeometry, OneFactor, OneMinusDstAlphaFactor, OneMinusDstColorFactor, OneMinusSrcAlphaFactor, OneMinusSrcColorFactor, OrthographicCamera, PCFShadowMap, PCFSoftShadowMap, PMREMGenerator, ParametricGeometry, Path, PerspectiveCamera, Plane, PlaneBufferGeometry, PlaneGeometry, PlaneHelper, PointLight, PointLightHelper, Points, PointsMaterial, PolarGridHelper, PolyhedronBufferGeometry, PolyhedronGeometry, PositionalAudio, PropertyBinding, PropertyMixer, QuadraticBezierCurve, QuadraticBezierCurve3, Quaternion, QuaternionKeyframeTrack, QuaternionLinearInterpolant, REVISION, RGBADepthPacking, RGBAFormat, RGBAIntegerFormat, RGBA_ASTC_10x10_Format, RGBA_ASTC_10x5_Format, RGBA_ASTC_10x6_Format, RGBA_ASTC_10x8_Format, RGBA_ASTC_12x10_Format, RGBA_ASTC_12x12_Format, RGBA_ASTC_4x4_Format, RGBA_ASTC_5x4_Format, RGBA_ASTC_5x5_Format, RGBA_ASTC_6x5_Format, RGBA_ASTC_6x6_Format, RGBA_ASTC_8x5_Format, RGBA_ASTC_8x6_Format, RGBA_ASTC_8x8_Format, RGBA_BPTC_Format, RGBA_ETC2_EAC_Format, RGBA_PVRTC_2BPPV1_Format, RGBA_PVRTC_4BPPV1_Format, RGBA_S3TC_DXT1_Format, RGBA_S3TC_DXT3_Format, RGBA_S3TC_DXT5_Format, RGBFormat, RGB_ETC1_Format, RGB_ETC2_Format, RGB_PVRTC_2BPPV1_Format, RGB_PVRTC_4BPPV1_Format, RGB_S3TC_DXT1_Format, RGFormat, RGIntegerFormat, RawShaderMaterial, Ray, Raycaster, RectAreaLight, RedFormat, RedIntegerFormat, ReinhardToneMapping, RepeatWrapping, ReplaceStencilOp, ReverseSubtractEquation, RingBufferGeometry, RingGeometry, SRGBColorSpace, Scene, ShaderChunk, ShaderLib, ShaderMaterial, ShadowMaterial, Shape, ShapeBufferGeometry, ShapeGeometry, ShapePath, ShapeUtils, ShortType, Skeleton, SkeletonHelper, SkinnedMesh, SmoothShading, Source, Sphere, SphereBufferGeometry, SphereGeometry, Spherical, SphericalHarmonics3, SplineCurve, SpotLight, SpotLightHelper, Sprite, SpriteMaterial, SrcAlphaFactor, SrcAlphaSaturateFactor, SrcColorFactor, StaticCopyUsage, StaticDrawUsage, StaticReadUsage, StereoCamera, StreamCopyUsage, StreamDrawUsage, StreamReadUsage, StringKeyframeTrack, SubtractEquation, SubtractiveBlending, TOUCH, TangentSpaceNormalMap, TetrahedronBufferGeometry, TetrahedronGeometry, TextGeometry, Texture, TextureLoader, TorusBufferGeometry, TorusGeometry, TorusKnotBufferGeometry, TorusKnotGeometry, Triangle, TriangleFanDrawMode, TriangleStripDrawMode, TrianglesDrawMode, TubeBufferGeometry, TubeGeometry, UVMapping, Uint16BufferAttribute, Uint32BufferAttribute, Uint8BufferAttribute, Uint8ClampedBufferAttribute, Uniform, UniformsGroup, UniformsLib, UniformsUtils, UnsignedByteType, UnsignedInt248Type, UnsignedIntType, UnsignedShort4444Type, UnsignedShort5551Type, UnsignedShortType, VSMShadowMap, Vector2, Vector3, Vector4, VectorKeyframeTrack, VideoTexture, WebGL1Renderer, WebGL3DRenderTarget, WebGLArrayRenderTarget, WebGLCubeRenderTarget, WebGLMultipleRenderTargets, WebGLMultisampleRenderTarget, WebGLRenderTarget, WebGLRenderer, WebGLUtils, WireframeGeometry, WrapAroundEnding, ZeroCurvatureEnding, ZeroFactor, ZeroSlopeEnding, ZeroStencilOp, _SRGBAFormat, sRGBEncoding } = THREE;
+
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/typeChecks.ts
 function isMesh(obj2) {
   return isDefined(obj2) && obj2.isMesh;
@@ -8783,7 +8761,7 @@ function objGraph(obj2, ...children) {
   return obj2;
 }
 function obj(name2, ...rest) {
-  const obj2 = new THREE.Object3D();
+  const obj2 = new Object3D();
   obj2.name = name2;
   objGraph(obj2, ...rest);
   return obj2;
@@ -8795,7 +8773,7 @@ function objectSetEnabled(obj2, enabled) {
   }
 }
 function mesh(name2, geom2, mat) {
-  const mesh2 = new THREE.Mesh(geom2, mat);
+  const mesh2 = new Mesh(geom2, mat);
   mesh2.name = name2;
   return mesh2;
 }
@@ -8912,20 +8890,20 @@ function cleanup(obj2) {
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/examples/lines/LineMaterial.js
-THREE.UniformsLib.line = {
+UniformsLib.line = {
   worldUnits: { value: 1 },
   linewidth: { value: 1 },
-  resolution: { value: new THREE.Vector2(1, 1) },
+  resolution: { value: new Vector2(1, 1) },
   dashOffset: { value: 0 },
   dashScale: { value: 1 },
   dashSize: { value: 1 },
   gapSize: { value: 1 }
 };
-THREE.ShaderLib["line"] = {
-  uniforms: THREE.UniformsUtils.merge([
-    THREE.UniformsLib.common,
-    THREE.UniformsLib.fog,
-    THREE.UniformsLib.line
+ShaderLib["line"] = {
+  uniforms: UniformsUtils.merge([
+    UniformsLib.common,
+    UniformsLib.fog,
+    UniformsLib.line
   ]),
   vertexShader: `
 		#include <common>
@@ -9317,13 +9295,13 @@ THREE.ShaderLib["line"] = {
 		}
 		`
 };
-var LineMaterial = class extends THREE.ShaderMaterial {
+var LineMaterial = class extends ShaderMaterial {
   constructor(parameters) {
     super({
       type: "LineMaterial",
-      uniforms: THREE.UniformsUtils.clone(THREE.ShaderLib["line"].uniforms),
-      vertexShader: THREE.ShaderLib["line"].vertexShader,
-      fragmentShader: THREE.ShaderLib["line"].fragmentShader,
+      uniforms: UniformsUtils.clone(ShaderLib["line"].uniforms),
+      vertexShader: ShaderLib["line"].vertexShader,
+      fragmentShader: ShaderLib["line"].fragmentShader,
       clipping: true
     });
     Object.defineProperties(this, {
@@ -9473,13 +9451,13 @@ function trans(options) {
   });
 }
 function solid(options) {
-  return makeMaterial("solid", THREE.MeshBasicMaterial, options);
+  return makeMaterial("solid", MeshBasicMaterial, options);
 }
 function solidTransparent(options) {
-  return makeMaterial("solidTransparent", THREE.MeshBasicMaterial, trans(options));
+  return makeMaterial("solidTransparent", MeshBasicMaterial, trans(options));
 }
 function lit(options) {
-  return makeMaterial("lit", THREE.MeshPhongMaterial, options);
+  return makeMaterial("lit", MeshPhongMaterial, options);
 }
 function line2(options) {
   return makeMaterial("line2", LineMaterial, options);
@@ -9563,7 +9541,7 @@ function materialStandardToBasic(oldMat) {
       delete params[key];
     }
   }
-  return new THREE.MeshBasicMaterial(params);
+  return new MeshBasicMaterial(params);
 }
 var grey = 12632256;
 var white = 16777215;
@@ -9571,33 +9549,27 @@ var litGrey = /* @__PURE__ */ lit({ color: grey });
 var litWhite = /* @__PURE__ */ lit({ color: white });
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/objectGetRelativePose.ts
-var M = new THREE.Matrix4();
-var P = new THREE.Vector3();
+var M = new Matrix4();
+var P = new Vector3();
 function objectGetRelativePose(ref, obj2, position2, quaternion, scale4) {
   M.copy(ref.matrixWorld).invert().multiply(obj2.matrixWorld).decompose(P, quaternion, scale4);
   position2.set(P.x, P.y, P.z, 1);
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/Plane.ts
-var plane = /* @__PURE__ */ new THREE.PlaneBufferGeometry(1, 1, 1, 1);
+var plane = /* @__PURE__ */ new PlaneBufferGeometry(1, 1, 1, 1);
 plane.name = "PlaneGeom";
-var Plane = class extends THREE.Mesh {
-  constructor(sx, sy, material) {
-    super(plane, material);
-    this.scale.set(sx, sy, 1);
-  }
-};
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/widgets/Image2D.ts
-var P2 = new THREE.Vector4();
-var Q = new THREE.Quaternion();
-var S = new THREE.Vector3();
+var P2 = new Vector4();
+var Q = new Quaternion();
+var S = new Vector3();
 var copyCounter = 0;
-var Image2D = class extends THREE.Object3D {
+var Image2D = class extends Object3D {
   constructor(env, name2, webXRLayerType, materialOrOptions = null) {
     super();
     this.webXRLayerType = webXRLayerType;
-    this.lastMatrixWorld = new THREE.Matrix4();
+    this.lastMatrixWorld = new Matrix4();
     this.layer = null;
     this.wasUsingLayer = false;
     this._imageWidth = 0;
@@ -9732,10 +9704,10 @@ var Image2D = class extends THREE.Object3D {
       this.curImage = img;
       if (img instanceof HTMLVideoElement) {
         this.setImageSize(img.videoWidth, img.videoHeight);
-        this.mesh.material.map = new THREE.VideoTexture(img);
+        this.mesh.material.map = new VideoTexture(img);
       } else {
         this.setImageSize(img.width, img.height);
-        this.mesh.material.map = new THREE.Texture(img);
+        this.mesh.material.map = new Texture(img);
         this.mesh.material.map.needsUpdate = true;
       }
     }
@@ -10016,7 +9988,7 @@ var TextMeshButton = class extends RayTarget {
       `text-${id2}`,
       this.image,
       {
-        side: THREE.FrontSide,
+        side: FrontSide,
         opacity
       }
     );
@@ -10032,7 +10004,7 @@ var TextMeshButton = class extends RayTarget {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/ConfirmationDialog.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/widgets/ConfirmationDialog.ts
 var baseTextStyle = {
   bgStrokeColor: "#000000",
   bgStrokeSize: 0.04,
@@ -10174,12 +10146,11 @@ function makeClipName(type2, isDisabled) {
   return `InteractionAudio-${type2}`;
 }
 var InteractionAudio = class {
-  constructor(audio2, pointers) {
+  constructor(audio2, eventSys) {
     this.audio = audio2;
-    this.pointers = pointers;
-    this.enabled = true;
+    this.eventSys = eventSys;
     const playClip = (evt) => {
-      if (this.enabled && evt.rayTarget && evt.rayTarget.clickable) {
+      if (evt.rayTarget && evt.rayTarget.clickable) {
         const clipName = makeClipName(evt.type, !evt.rayTarget.enabled);
         if (this.audio.hasClip(clipName)) {
           const { x, y, z } = evt.point;
@@ -10188,9 +10159,9 @@ var InteractionAudio = class {
         }
       }
     };
-    this.pointers.addEventListener("enter", playClip);
-    this.pointers.addEventListener("exit", playClip);
-    this.pointers.addEventListener("click", playClip);
+    this.eventSys.addEventListener("enter", playClip);
+    this.eventSys.addEventListener("exit", playClip);
+    this.eventSys.addEventListener("click", playClip);
   }
   create(type2, element, volume) {
     return this.audio.createClip(makeClipName(type2, false), element, false, true, false, volume, []);
@@ -10319,8 +10290,8 @@ function isPoint2DWidth(v) {
 var radius = 1.25;
 var dAngleH = deg2rad(30);
 var dAngleV = deg2rad(32);
-var headPos = new THREE.Vector3(0, 0, 0);
-var SpaceUI = class extends THREE.Object3D {
+var headPos = new Vector3(0, 0, 0);
+var SpaceUI = class extends Object3D {
   constructor() {
     super();
     this.name = "SpaceUI";
@@ -10693,9 +10664,9 @@ function normalizeQuad(quad) {
 function normalizeQuads(quads) {
   return quads.map(normalizeQuad).flat();
 }
-var A2 = new THREE.Vector3();
-var B = new THREE.Vector3();
-var C = new THREE.Vector3();
+var A2 = new Vector3();
+var B = new Vector3();
+var C = new Vector3();
 function normalizeTriangle(tria) {
   const positions = [
     [tria[0][0], tria[0][1], tria[0][2]],
@@ -10723,10 +10694,10 @@ function createGeometry(nFaces) {
   const positions = nFaces.map((f) => f.positions).flat(2);
   const uvs = nFaces.map((f) => f.uvs).flat(2);
   const normals = nFaces.flatMap((f) => f.normal);
-  const geom2 = new THREE.BufferGeometry();
-  geom2.setAttribute("position", new THREE.BufferAttribute(new Float32Array(positions), 3, false));
-  geom2.setAttribute("uv", new THREE.BufferAttribute(new Float32Array(uvs), 2, false));
-  geom2.setAttribute("normal", new THREE.BufferAttribute(new Float32Array(normals), 3, true));
+  const geom2 = new BufferGeometry();
+  geom2.setAttribute("position", new BufferAttribute(new Float32Array(positions), 3, false));
+  geom2.setAttribute("uv", new BufferAttribute(new Float32Array(uvs), 2, false));
+  geom2.setAttribute("normal", new BufferAttribute(new Float32Array(normals), 3, true));
   return geom2;
 }
 function createQuadGeometry(...quads) {
@@ -11145,12 +11116,12 @@ var ButtonFactory = class {
       this.uvDescrips.add(setName, imgName, { u, v, du, dv });
       ++i;
     }
-    this.texture = new THREE.CanvasTexture(this.canvas);
-    this.enabledMaterial = new THREE.MeshBasicMaterial({
+    this.texture = new CanvasTexture(this.canvas);
+    this.enabledMaterial = new MeshBasicMaterial({
       map: this.texture
     });
     this.enabledMaterial.needsUpdate = true;
-    this.disabledMaterial = new THREE.MeshBasicMaterial({
+    this.disabledMaterial = new MeshBasicMaterial({
       map: this.texture,
       transparent: true,
       opacity: 0.5
@@ -11179,7 +11150,7 @@ var ButtonFactory = class {
     }
     let geom2 = this.geoms.get(setName, iconName);
     if (!geom2) {
-      geom2 = new THREE.PlaneBufferGeometry(1, 1, 1, 1);
+      geom2 = new PlaneBufferGeometry(1, 1, 1, 1);
       geom2.name = `Geometry:${setName}/${iconName}`;
       this.geoms.add(setName, iconName, geom2);
       const uvBuffer = geom2.getAttribute("uv");
@@ -11565,7 +11536,7 @@ var ApplicationLoader = class extends TypedEventBase {
 };
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/animation/lookAngles.ts
-var D = new THREE.Vector3();
+var D = new Vector3();
 function getLookHeading(dir) {
   D.copy(dir);
   D.y = 0;
@@ -11577,12 +11548,12 @@ function getLookPitch(dir) {
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/animation/BodyFollower.ts
-var targetPos = new THREE.Vector3();
+var targetPos = new Vector3();
 var targetAngle = 0;
-var dPos = new THREE.Vector3();
-var curPos = new THREE.Vector3();
-var curDir = new THREE.Vector3();
-var dQuat = new THREE.Quaternion();
+var dPos = new Vector3();
+var curPos = new Vector3();
+var curDir = new Vector3();
+var dQuat = new Quaternion();
 var curAngle = 0;
 var copyCounter2 = 0;
 function minRotAngle(to, from) {
@@ -11600,7 +11571,7 @@ function minRotAngle(to, from) {
     return c;
   }
 }
-var BodyFollower = class extends THREE.Object3D {
+var BodyFollower = class extends Object3D {
   constructor(name2, minDistance, minAngle, heightOffset, speed = 1) {
     super();
     this.minDistance = minDistance;
@@ -11785,28 +11756,28 @@ var AvatarLocal = class extends TypedEventBase {
       ["touchswipe" /* Touch */, 50],
       ["gamepad" /* Gamepad */, 1]
     ]);
-    this.B = new THREE.Vector3(0, 0, 1);
-    this.R = new THREE.Vector3();
-    this.F = new THREE.Vector3();
-    this.U = new THREE.Vector3();
-    this.P = new THREE.Vector3();
-    this.M = new THREE.Matrix4();
-    this.E = new THREE.Euler();
-    this.Q1 = new THREE.Quaternion();
-    this.Q2 = new THREE.Quaternion();
-    this.Q3 = new THREE.Quaternion(-Math.sqrt(0.5), 0, 0, Math.sqrt(0.5));
-    this.Q4 = new THREE.Quaternion();
-    this.motion = new THREE.Vector2();
-    this.rotStage = new THREE.Matrix4();
+    this.B = new Vector3(0, 0, 1);
+    this.R = new Vector3();
+    this.F = new Vector3();
+    this.U = new Vector3();
+    this.P = new Vector3();
+    this.M = new Matrix4();
+    this.E = new Euler();
+    this.Q1 = new Quaternion();
+    this.Q2 = new Quaternion();
+    this.Q3 = new Quaternion(-Math.sqrt(0.5), 0, 0, Math.sqrt(0.5));
+    this.Q4 = new Quaternion();
+    this.motion = new Vector2();
+    this.rotStage = new Matrix4();
     this.userMovedEvt = new AvatarMovedEvent();
-    this.acceleration = new THREE.Vector2(2, 2);
-    this.speed = new THREE.Vector2(3, 2);
-    this.axisControl = new THREE.Vector2(0, 0);
-    this.deviceQ = new THREE.Quaternion().identity();
-    this.uv = new THREE.Vector2();
-    this.duv = new THREE.Vector2();
-    this.move = new THREE.Vector3();
-    this.move2 = new THREE.Vector3();
+    this.acceleration = new Vector2(2, 2);
+    this.speed = new Vector2(3, 2);
+    this.axisControl = new Vector2(0, 0);
+    this.deviceQ = new Quaternion().identity();
+    this.uv = new Vector2();
+    this.duv = new Vector2();
+    this.move = new Vector3();
+    this.move2 = new Vector3();
     this.followers = new Array();
     this.dz = 0;
     this._heading = 0;
@@ -11829,8 +11800,8 @@ var AvatarLocal = class extends TypedEventBase {
     this.grow = false;
     this.shrk = false;
     this._keyboardControlEnabled = false;
-    this.worldPos = new THREE.Vector3();
-    this.worldQuat = new THREE.Quaternion();
+    this.worldPos = new Vector3();
+    this.worldQuat = new Quaternion();
     this.fovZoomEnabled = true;
     this.minFOV = 15;
     this.maxFOV = 120;
@@ -11969,12 +11940,12 @@ var AvatarLocal = class extends TypedEventBase {
       this.controlMode = "none" /* None */;
     } else if (pointer.type === "gamepad") {
       this.controlMode = "gamepad" /* Gamepad */;
-    } else if (pointer.rayTarget && pointer.rayTarget.draggable && !this.env.pointers.mouse.isPointerLocked && pointer.isPressed(0 /* Primary */)) {
+    } else if (pointer.rayTarget && pointer.rayTarget.draggable && !this.env.eventSys.mouse.isPointerLocked && pointer.isPressed(0 /* Primary */)) {
       this.controlMode = "mouseedge" /* ScreenEdge */;
     } else if (pointer.type === "touch" || pointer.type === "pen") {
       this.controlMode = "touchswipe" /* Touch */;
     } else if (pointer.type === "mouse") {
-      this.controlMode = this.env.pointers.mouse.isPointerLocked ? "mousefirstperson" /* MouseFPS */ : "mousedrag" /* MouseDrag */;
+      this.controlMode = this.env.eventSys.mouse.isPointerLocked ? "mousefirstperson" /* MouseFPS */ : "mousedrag" /* MouseDrag */;
     } else {
       assertNever(pointer.type);
     }
@@ -12197,7 +12168,7 @@ function deepEnableLayer(obj2, level) {
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/setMatrixFromUpFwdPos.ts
-var R = new THREE.Vector3();
+var R = new Vector3();
 function setMatrixFromUpFwdPos(U2, F, P3, matrix) {
   R.crossVectors(F, U2);
   U2.crossVectors(R, F);
@@ -12224,16 +12195,16 @@ function setMatrixFromUpFwdPos(U2, F, P3, matrix) {
   );
 }
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/BaseCursor.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/cursors/BaseCursor.ts
 var BaseCursor = class {
   constructor(env) {
     this.env = env;
     this._object = null;
     this._visible = true;
     this._style = "default";
-    this.T = new THREE.Vector3();
-    this.V = new THREE.Vector3();
-    this.Q = new THREE.Quaternion();
+    this.T = new Vector3();
+    this.V = new Vector3();
+    this.Q = new Quaternion();
     this._side = -1;
   }
   get side() {
@@ -12284,14 +12255,14 @@ var BaseCursor = class {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/Cursor3D.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/cursors/Cursor3D.ts
 var Cursor3D = class extends BaseCursor {
   constructor(env, cursorSystem) {
     super(env);
     this.cursorSystem = null;
-    this.f = new THREE.Vector3();
-    this.up = new THREE.Vector3();
-    this.right = new THREE.Vector3();
+    this.f = new Vector3();
+    this.up = new Vector3();
+    this.right = new Vector3();
     this.object = obj("Cursor3D");
     this.cursorSystem = cursorSystem;
     this.object.matrixAutoUpdate = false;
@@ -12515,7 +12486,7 @@ var EventedGamepad = class extends TypedEventBase {
 };
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/examples/loaders/GLTFLoader.js
-var GLTFLoader = class extends THREE.Loader {
+var GLTFLoader = class extends Loader {
   constructor(manager) {
     super(manager);
     this.dracoLoader = null;
@@ -12561,7 +12532,7 @@ var GLTFLoader = class extends THREE.Loader {
     } else if (this.path !== "") {
       resourcePath = this.path;
     } else {
-      resourcePath = THREE.LoaderUtils.extractUrlBase(url);
+      resourcePath = LoaderUtils.extractUrlBase(url);
     }
     this.manager.itemStart(url);
     const _onError = function(e2) {
@@ -12573,7 +12544,7 @@ var GLTFLoader = class extends THREE.Loader {
       scope.manager.itemError(url);
       scope.manager.itemEnd(url);
     };
-    const loader = new THREE.FileLoader(this.manager);
+    const loader = new FileLoader(this.manager);
     loader.setPath(this.path);
     loader.setResponseType("arraybuffer");
     loader.setRequestHeader(this.requestHeader);
@@ -12595,7 +12566,7 @@ var GLTFLoader = class extends THREE.Loader {
   }
   setDDSLoader() {
     throw new Error(
-      'THREE.GLTFLoader: "MSFT_texture_dds" no longer supported. Please update to "KHR_texture_basisu".'
+      'GLTFLoader: "MSFT_texture_dds" no longer supported. Please update to "KHR_texture_basisu".'
     );
   }
   setKTX2Loader(ktx2Loader) {
@@ -12625,7 +12596,7 @@ var GLTFLoader = class extends THREE.Loader {
     if (typeof data === "string") {
       content = data;
     } else {
-      const magic = THREE.LoaderUtils.decodeText(new Uint8Array(data, 0, 4));
+      const magic = LoaderUtils.decodeText(new Uint8Array(data, 0, 4));
       if (magic === BINARY_EXTENSION_HEADER_MAGIC) {
         try {
           extensions[EXTENSIONS.KHR_BINARY_GLTF] = new GLTFBinaryExtension(data);
@@ -12636,13 +12607,13 @@ var GLTFLoader = class extends THREE.Loader {
         }
         content = extensions[EXTENSIONS.KHR_BINARY_GLTF].content;
       } else {
-        content = THREE.LoaderUtils.decodeText(new Uint8Array(data));
+        content = LoaderUtils.decodeText(new Uint8Array(data));
       }
     }
     const json = JSON.parse(content);
     if (json.asset === void 0 || json.asset.version[0] < 2) {
       if (onError)
-        onError(new Error("THREE.GLTFLoader: Unsupported asset. glTF versions >=2.0 are supported."));
+        onError(new Error("GLTFLoader: Unsupported asset. glTF versions >=2.0 are supported."));
       return;
     }
     const parser = new GLTFParser(json, {
@@ -12681,7 +12652,7 @@ var GLTFLoader = class extends THREE.Loader {
             break;
           default:
             if (extensionsRequired.indexOf(extensionName) >= 0 && plugins[extensionName] === void 0) {
-              console.warn('THREE.GLTFLoader: Unknown extension "' + extensionName + '".');
+              console.warn('GLTFLoader: Unknown extension "' + extensionName + '".');
             }
         }
       }
@@ -12759,22 +12730,22 @@ var GLTFLightsExtension = class {
     const lightDefs = extensions.lights || [];
     const lightDef = lightDefs[lightIndex];
     let lightNode;
-    const color2 = new THREE.Color(16777215);
+    const color2 = new Color(16777215);
     if (lightDef.color !== void 0)
       color2.fromArray(lightDef.color);
     const range = lightDef.range !== void 0 ? lightDef.range : 0;
     switch (lightDef.type) {
       case "directional":
-        lightNode = new THREE.DirectionalLight(color2);
+        lightNode = new DirectionalLight(color2);
         lightNode.target.position.set(0, 0, -1);
         lightNode.add(lightNode.target);
         break;
       case "point":
-        lightNode = new THREE.PointLight(color2);
+        lightNode = new PointLight(color2);
         lightNode.distance = range;
         break;
       case "spot":
-        lightNode = new THREE.SpotLight(color2);
+        lightNode = new SpotLight(color2);
         lightNode.distance = range;
         lightDef.spot = lightDef.spot || {};
         lightDef.spot.innerConeAngle = lightDef.spot.innerConeAngle !== void 0 ? lightDef.spot.innerConeAngle : 0;
@@ -12785,7 +12756,7 @@ var GLTFLightsExtension = class {
         lightNode.add(lightNode.target);
         break;
       default:
-        throw new Error("THREE.GLTFLoader: Unexpected light type: " + lightDef.type);
+        throw new Error("GLTFLoader: Unexpected light type: " + lightDef.type);
     }
     lightNode.position.set(0, 0, 0);
     lightNode.decay = 2;
@@ -12815,11 +12786,11 @@ var GLTFMaterialsUnlitExtension = class {
     this.name = EXTENSIONS.KHR_MATERIALS_UNLIT;
   }
   getMaterialType() {
-    return THREE.MeshBasicMaterial;
+    return MeshBasicMaterial;
   }
   extendParams(materialParams, materialDef, parser) {
     const pending = [];
-    materialParams.color = new THREE.Color(1, 1, 1);
+    materialParams.color = new Color(1, 1, 1);
     materialParams.opacity = 1;
     const metallicRoughness = materialDef.pbrMetallicRoughness;
     if (metallicRoughness) {
@@ -12845,7 +12816,7 @@ var GLTFMaterialsClearcoatExtension = class {
     const materialDef = parser.json.materials[materialIndex];
     if (!materialDef.extensions || !materialDef.extensions[this.name])
       return null;
-    return THREE.MeshPhysicalMaterial;
+    return MeshPhysicalMaterial;
   }
   extendMaterialParams(materialIndex, materialParams) {
     const parser = this.parser;
@@ -12871,7 +12842,7 @@ var GLTFMaterialsClearcoatExtension = class {
       pending.push(parser.assignTexture(materialParams, "clearcoatNormalMap", extension.clearcoatNormalTexture));
       if (extension.clearcoatNormalTexture.scale !== void 0) {
         const scale4 = extension.clearcoatNormalTexture.scale;
-        materialParams.clearcoatNormalScale = new THREE.Vector2(scale4, scale4);
+        materialParams.clearcoatNormalScale = new Vector2(scale4, scale4);
       }
     }
     return Promise.all(pending);
@@ -12887,7 +12858,7 @@ var GLTFMaterialsSheenExtension = class {
     const materialDef = parser.json.materials[materialIndex];
     if (!materialDef.extensions || !materialDef.extensions[this.name])
       return null;
-    return THREE.MeshPhysicalMaterial;
+    return MeshPhysicalMaterial;
   }
   extendMaterialParams(materialIndex, materialParams) {
     const parser = this.parser;
@@ -12896,7 +12867,7 @@ var GLTFMaterialsSheenExtension = class {
       return Promise.resolve();
     }
     const pending = [];
-    materialParams.sheenColor = new THREE.Color(0, 0, 0);
+    materialParams.sheenColor = new Color(0, 0, 0);
     materialParams.sheenRoughness = 0;
     materialParams.sheen = 1;
     const extension = materialDef.extensions[this.name];
@@ -12925,7 +12896,7 @@ var GLTFMaterialsTransmissionExtension = class {
     const materialDef = parser.json.materials[materialIndex];
     if (!materialDef.extensions || !materialDef.extensions[this.name])
       return null;
-    return THREE.MeshPhysicalMaterial;
+    return MeshPhysicalMaterial;
   }
   extendMaterialParams(materialIndex, materialParams) {
     const parser = this.parser;
@@ -12954,7 +12925,7 @@ var GLTFMaterialsVolumeExtension = class {
     const materialDef = parser.json.materials[materialIndex];
     if (!materialDef.extensions || !materialDef.extensions[this.name])
       return null;
-    return THREE.MeshPhysicalMaterial;
+    return MeshPhysicalMaterial;
   }
   extendMaterialParams(materialIndex, materialParams) {
     const parser = this.parser;
@@ -12970,7 +12941,7 @@ var GLTFMaterialsVolumeExtension = class {
     }
     materialParams.attenuationDistance = extension.attenuationDistance || 0;
     const colorArray = extension.attenuationColor || [1, 1, 1];
-    materialParams.attenuationColor = new THREE.Color(colorArray[0], colorArray[1], colorArray[2]);
+    materialParams.attenuationColor = new Color(colorArray[0], colorArray[1], colorArray[2]);
     return Promise.all(pending);
   }
 };
@@ -12984,7 +12955,7 @@ var GLTFMaterialsIorExtension = class {
     const materialDef = parser.json.materials[materialIndex];
     if (!materialDef.extensions || !materialDef.extensions[this.name])
       return null;
-    return THREE.MeshPhysicalMaterial;
+    return MeshPhysicalMaterial;
   }
   extendMaterialParams(materialIndex, materialParams) {
     const parser = this.parser;
@@ -13007,7 +12978,7 @@ var GLTFMaterialsSpecularExtension = class {
     const materialDef = parser.json.materials[materialIndex];
     if (!materialDef.extensions || !materialDef.extensions[this.name])
       return null;
-    return THREE.MeshPhysicalMaterial;
+    return MeshPhysicalMaterial;
   }
   extendMaterialParams(materialIndex, materialParams) {
     const parser = this.parser;
@@ -13022,10 +12993,10 @@ var GLTFMaterialsSpecularExtension = class {
       pending.push(parser.assignTexture(materialParams, "specularIntensityMap", extension.specularTexture));
     }
     const colorArray = extension.specularColorFactor || [1, 1, 1];
-    materialParams.specularColor = new THREE.Color(colorArray[0], colorArray[1], colorArray[2]);
+    materialParams.specularColor = new Color(colorArray[0], colorArray[1], colorArray[2]);
     if (extension.specularColorTexture !== void 0) {
       pending.push(parser.assignTexture(materialParams, "specularColorMap", extension.specularColorTexture).then(function(texture) {
-        texture.encoding = THREE.sRGBEncoding;
+        texture.encoding = sRGBEncoding;
       }));
     }
     return Promise.all(pending);
@@ -13048,7 +13019,7 @@ var GLTFTextureBasisUExtension = class {
     const loader = parser.options.ktx2Loader;
     if (!loader) {
       if (json.extensionsRequired && json.extensionsRequired.indexOf(this.name) >= 0) {
-        throw new Error("THREE.GLTFLoader: setKTX2Loader must be called before loading KTX2 textures");
+        throw new Error("GLTFLoader: setKTX2Loader must be called before loading KTX2 textures");
       } else {
         return null;
       }
@@ -13082,7 +13053,7 @@ var GLTFTextureWebPExtension = class {
       if (isSupported)
         return parser.loadTextureImage(textureIndex, source, loader);
       if (json.extensionsRequired && json.extensionsRequired.indexOf(name2) >= 0) {
-        throw new Error("THREE.GLTFLoader: WebP required by asset but unsupported.");
+        throw new Error("GLTFLoader: WebP required by asset but unsupported.");
       }
       return parser.loadTexture(textureIndex);
     });
@@ -13114,7 +13085,7 @@ var GLTFMeshoptCompression = class {
       const decoder = this.parser.options.meshoptDecoder;
       if (!decoder || !decoder.supported) {
         if (json.extensionsRequired && json.extensionsRequired.indexOf(this.name) >= 0) {
-          throw new Error("THREE.GLTFLoader: setMeshoptDecoder must be called before loading compressed files");
+          throw new Error("GLTFLoader: setMeshoptDecoder must be called before loading compressed files");
         } else {
           return null;
         }
@@ -13144,14 +13115,14 @@ var GLTFBinaryExtension = class {
     this.body = null;
     const headerView = new DataView(data, 0, BINARY_EXTENSION_HEADER_LENGTH);
     this.header = {
-      magic: THREE.LoaderUtils.decodeText(new Uint8Array(data.slice(0, 4))),
+      magic: LoaderUtils.decodeText(new Uint8Array(data.slice(0, 4))),
       version: headerView.getUint32(4, true),
       length: headerView.getUint32(8, true)
     };
     if (this.header.magic !== BINARY_EXTENSION_HEADER_MAGIC) {
-      throw new Error("THREE.GLTFLoader: Unsupported glTF-Binary header.");
+      throw new Error("GLTFLoader: Unsupported glTF-Binary header.");
     } else if (this.header.version < 2) {
-      throw new Error("THREE.GLTFLoader: Legacy binary file detected.");
+      throw new Error("GLTFLoader: Legacy binary file detected.");
     }
     const chunkContentsLength = this.header.length - BINARY_EXTENSION_HEADER_LENGTH;
     const chunkView = new DataView(data, BINARY_EXTENSION_HEADER_LENGTH);
@@ -13163,7 +13134,7 @@ var GLTFBinaryExtension = class {
       chunkIndex += 4;
       if (chunkType === BINARY_EXTENSION_CHUNK_TYPES.JSON) {
         const contentArray = new Uint8Array(data, BINARY_EXTENSION_HEADER_LENGTH + chunkIndex, chunkLength);
-        this.content = THREE.LoaderUtils.decodeText(contentArray);
+        this.content = LoaderUtils.decodeText(contentArray);
       } else if (chunkType === BINARY_EXTENSION_CHUNK_TYPES.BIN) {
         const byteOffset = BINARY_EXTENSION_HEADER_LENGTH + chunkIndex;
         this.body = data.slice(byteOffset, byteOffset + chunkLength);
@@ -13171,14 +13142,14 @@ var GLTFBinaryExtension = class {
       chunkIndex += chunkLength;
     }
     if (this.content === null) {
-      throw new Error("THREE.GLTFLoader: JSON content not found.");
+      throw new Error("GLTFLoader: JSON content not found.");
     }
   }
 };
 var GLTFDracoMeshCompressionExtension = class {
   constructor(json, dracoLoader) {
     if (!dracoLoader) {
-      throw new Error("THREE.GLTFLoader: No DRACOLoader instance provided.");
+      throw new Error("GLTFLoader: No DRACOLoader instance provided.");
     }
     this.name = EXTENSIONS.KHR_DRACO_MESH_COMPRESSION;
     this.json = json;
@@ -13227,7 +13198,7 @@ var GLTFTextureTransformExtension = class {
   }
   extendTexture(texture, transform2) {
     if (transform2.texCoord !== void 0) {
-      console.warn('THREE.GLTFLoader: Custom UV sets in "' + this.name + '" extension not yet supported.');
+      console.warn('GLTFLoader: Custom UV sets in "' + this.name + '" extension not yet supported.');
     }
     if (transform2.offset === void 0 && transform2.rotation === void 0 && transform2.scale === void 0) {
       return texture;
@@ -13246,7 +13217,7 @@ var GLTFTextureTransformExtension = class {
     return texture;
   }
 };
-var GLTFMeshStandardSGMaterial = class extends THREE.MeshStandardMaterial {
+var GLTFMeshStandardSGMaterial = class extends MeshStandardMaterial {
   constructor(params) {
     super();
     this.isGLTFSpecularGlossinessMaterial = true;
@@ -13287,7 +13258,7 @@ var GLTFMeshStandardSGMaterial = class extends THREE.MeshStandardMaterial {
       "material.specularColor = specularFactor;"
     ].join("\n");
     const uniforms = {
-      specular: { value: new THREE.Color().setHex(16777215) },
+      specular: { value: new Color().setHex(16777215) },
       glossiness: { value: 1 },
       specularMap: { value: null },
       glossinessMap: { value: null }
@@ -13399,7 +13370,7 @@ var GLTFMaterialsPbrSpecularGlossinessExtension = class {
   }
   extendParams(materialParams, materialDef, parser) {
     const pbrSpecularGlossiness = materialDef.extensions[this.name];
-    materialParams.color = new THREE.Color(1, 1, 1);
+    materialParams.color = new Color(1, 1, 1);
     materialParams.opacity = 1;
     const pending = [];
     if (Array.isArray(pbrSpecularGlossiness.diffuseFactor)) {
@@ -13410,9 +13381,9 @@ var GLTFMaterialsPbrSpecularGlossinessExtension = class {
     if (pbrSpecularGlossiness.diffuseTexture !== void 0) {
       pending.push(parser.assignTexture(materialParams, "map", pbrSpecularGlossiness.diffuseTexture));
     }
-    materialParams.emissive = new THREE.Color(0, 0, 0);
+    materialParams.emissive = new Color(0, 0, 0);
     materialParams.glossiness = pbrSpecularGlossiness.glossinessFactor !== void 0 ? pbrSpecularGlossiness.glossinessFactor : 1;
-    materialParams.specular = new THREE.Color(1, 1, 1);
+    materialParams.specular = new Color(1, 1, 1);
     if (Array.isArray(pbrSpecularGlossiness.specularFactor)) {
       materialParams.specular.fromArray(pbrSpecularGlossiness.specularFactor);
     }
@@ -13438,7 +13409,7 @@ var GLTFMaterialsPbrSpecularGlossinessExtension = class {
     material.bumpMap = materialParams.bumpMap === void 0 ? null : materialParams.bumpMap;
     material.bumpScale = 1;
     material.normalMap = materialParams.normalMap === void 0 ? null : materialParams.normalMap;
-    material.normalMapType = THREE.TangentSpaceNormalMap;
+    material.normalMapType = TangentSpaceNormalMap;
     if (materialParams.normalScale)
       material.normalScale = materialParams.normalScale;
     material.displacementMap = null;
@@ -13460,7 +13431,7 @@ var GLTFMeshQuantizationExtension = class {
     this.name = EXTENSIONS.KHR_MESH_QUANTIZATION;
   }
 };
-var GLTFCubicSplineInterpolant = class extends THREE.Interpolant {
+var GLTFCubicSplineInterpolant = class extends Interpolant {
   constructor(parameterPositions, sampleValues, sampleSize, resultBuffer) {
     super(parameterPositions, sampleValues, sampleSize, resultBuffer);
   }
@@ -13499,7 +13470,7 @@ GLTFCubicSplineInterpolant.prototype.interpolate_ = function(i1, t0, t2, t1) {
   }
   return result;
 };
-var _q = new THREE.Quaternion();
+var _q = new Quaternion();
 var GLTFCubicSplineQuaternionInterpolant = class extends GLTFCubicSplineInterpolant {
   interpolate_(i1, t0, t2, t1) {
     const result = super.interpolate_(i1, t0, t2, t1);
@@ -13536,17 +13507,17 @@ var WEBGL_COMPONENT_TYPES = {
   5126: Float32Array
 };
 var WEBGL_FILTERS = {
-  9728: THREE.NearestFilter,
-  9729: THREE.LinearFilter,
-  9984: THREE.NearestMipmapNearestFilter,
-  9985: THREE.LinearMipmapNearestFilter,
-  9986: THREE.NearestMipmapLinearFilter,
-  9987: THREE.LinearMipmapLinearFilter
+  9728: NearestFilter,
+  9729: LinearFilter,
+  9984: NearestMipmapNearestFilter,
+  9985: LinearMipmapNearestFilter,
+  9986: NearestMipmapLinearFilter,
+  9987: LinearMipmapLinearFilter
 };
 var WEBGL_WRAPPINGS = {
-  33071: THREE.ClampToEdgeWrapping,
-  33648: THREE.MirroredRepeatWrapping,
-  10497: THREE.RepeatWrapping
+  33071: ClampToEdgeWrapping,
+  33648: MirroredRepeatWrapping,
+  10497: RepeatWrapping
 };
 var WEBGL_TYPE_SIZES = {
   "SCALAR": 1,
@@ -13575,8 +13546,8 @@ var PATH_PROPERTIES = {
 };
 var INTERPOLATION = {
   CUBICSPLINE: void 0,
-  LINEAR: THREE.InterpolateLinear,
-  STEP: THREE.InterpolateDiscrete
+  LINEAR: InterpolateLinear,
+  STEP: InterpolateDiscrete
 };
 var ALPHA_MODES = {
   OPAQUE: "OPAQUE",
@@ -13585,14 +13556,14 @@ var ALPHA_MODES = {
 };
 function createDefaultMaterial(cache) {
   if (cache["DefaultMaterial"] === void 0) {
-    cache["DefaultMaterial"] = new THREE.MeshStandardMaterial({
+    cache["DefaultMaterial"] = new MeshStandardMaterial({
       color: 16777215,
       emissive: 0,
       metalness: 1,
       roughness: 1,
       transparent: false,
       depthTest: true,
-      side: THREE.FrontSide
+      side: FrontSide
     });
   }
   return cache["DefaultMaterial"];
@@ -13610,7 +13581,7 @@ function assignExtrasToUserData(object, gltfDef) {
     if (typeof gltfDef.extras === "object") {
       Object.assign(object.userData, gltfDef.extras);
     } else {
-      console.warn("THREE.GLTFLoader: Ignoring primitive type .extras, " + gltfDef.extras);
+      console.warn("GLTFLoader: Ignoring primitive type .extras, " + gltfDef.extras);
     }
   }
 }
@@ -13670,7 +13641,7 @@ function updateMorphTargets(mesh2, meshDef) {
         mesh2.morphTargetDictionary[targetNames[i]] = i;
       }
     } else {
-      console.warn("THREE.GLTFLoader: Invalid extras.targetNames length. Ignoring names.");
+      console.warn("GLTFLoader: Invalid extras.targetNames length. Ignoring names.");
     }
   }
 }
@@ -13703,7 +13674,7 @@ function getNormalizedComponentScale(constructor) {
     case Uint16Array:
       return 1 / 65535;
     default:
-      throw new Error("THREE.GLTFLoader: Unsupported normalized accessor component type.");
+      throw new Error("GLTFLoader: Unsupported normalized accessor component type.");
   }
 }
 var GLTFParser = class {
@@ -13721,13 +13692,13 @@ var GLTFParser = class {
     this.textureCache = {};
     this.nodeNamesUsed = {};
     if (typeof createImageBitmap !== "undefined" && /Firefox|^((?!chrome|android).)*safari/i.test(navigator.userAgent) === false) {
-      this.textureLoader = new THREE.ImageBitmapLoader(this.options.manager);
+      this.textureLoader = new ImageBitmapLoader(this.options.manager);
     } else {
-      this.textureLoader = new THREE.TextureLoader(this.options.manager);
+      this.textureLoader = new TextureLoader(this.options.manager);
     }
     this.textureLoader.setCrossOrigin(this.options.crossOrigin);
     this.textureLoader.setRequestHeader(this.options.requestHeader);
-    this.fileLoader = new THREE.FileLoader(this.options.manager);
+    this.fileLoader = new FileLoader(this.options.manager);
     this.fileLoader.setResponseType("arraybuffer");
     if (this.options.crossOrigin === "use-credentials") {
       this.fileLoader.setWithCredentials(true);
@@ -13912,15 +13883,15 @@ var GLTFParser = class {
     const bufferDef = this.json.buffers[bufferIndex];
     const loader = this.fileLoader;
     if (bufferDef.type && bufferDef.type !== "arraybuffer") {
-      throw new Error("THREE.GLTFLoader: " + bufferDef.type + " buffer type is not supported.");
+      throw new Error("GLTFLoader: " + bufferDef.type + " buffer type is not supported.");
     }
     if (bufferDef.uri === void 0 && bufferIndex === 0) {
       return Promise.resolve(this.extensions[EXTENSIONS.KHR_BINARY_GLTF].body);
     }
     const options = this.options;
     return new Promise(function(resolve, reject) {
-      loader.load(THREE.LoaderUtils.resolveURL(bufferDef.uri, options.path), resolve, void 0, function() {
-        reject(new Error('THREE.GLTFLoader: Failed to load buffer "' + bufferDef.uri + '".'));
+      loader.load(LoaderUtils.resolveURL(bufferDef.uri, options.path), resolve, void 0, function() {
+        reject(new Error('GLTFLoader: Failed to load buffer "' + bufferDef.uri + '".'));
       });
     });
   }
@@ -13961,21 +13932,21 @@ var GLTFParser = class {
       let array, bufferAttribute;
       if (byteStride && byteStride !== itemBytes) {
         const ibSlice = Math.floor(byteOffset / byteStride);
-        const ibCacheKey = "THREE.InterleavedBuffer:" + accessorDef.bufferView + ":" + accessorDef.componentType + ":" + ibSlice + ":" + accessorDef.count;
+        const ibCacheKey = "InterleavedBuffer:" + accessorDef.bufferView + ":" + accessorDef.componentType + ":" + ibSlice + ":" + accessorDef.count;
         let ib = parser.cache.get(ibCacheKey);
         if (!ib) {
           array = new TypedArray(bufferView, ibSlice * byteStride, accessorDef.count * byteStride / elementBytes);
-          ib = new THREE.InterleavedBuffer(array, byteStride / elementBytes);
+          ib = new InterleavedBuffer(array, byteStride / elementBytes);
           parser.cache.add(ibCacheKey, ib);
         }
-        bufferAttribute = new THREE.InterleavedBufferAttribute(ib, itemSize, byteOffset % byteStride / elementBytes, normalized);
+        bufferAttribute = new InterleavedBufferAttribute(ib, itemSize, byteOffset % byteStride / elementBytes, normalized);
       } else {
         if (bufferView === null) {
           array = new TypedArray(accessorDef.count * itemSize);
         } else {
           array = new TypedArray(bufferView, byteOffset, accessorDef.count * itemSize);
         }
-        bufferAttribute = new THREE.BufferAttribute(array, itemSize, normalized);
+        bufferAttribute = new BufferAttribute(array, itemSize, normalized);
       }
       if (accessorDef.sparse !== void 0) {
         const itemSizeIndices = WEBGL_TYPE_SIZES.SCALAR;
@@ -13985,7 +13956,7 @@ var GLTFParser = class {
         const sparseIndices = new TypedArrayIndices(bufferViews[1], byteOffsetIndices, accessorDef.sparse.count * itemSizeIndices);
         const sparseValues = new TypedArray(bufferViews[2], byteOffsetValues, accessorDef.sparse.count * itemSize);
         if (bufferView !== null) {
-          bufferAttribute = new THREE.BufferAttribute(bufferAttribute.array.slice(), bufferAttribute.itemSize, bufferAttribute.normalized);
+          bufferAttribute = new BufferAttribute(bufferAttribute.array.slice(), bufferAttribute.itemSize, bufferAttribute.normalized);
         }
         for (let i = 0, il = sparseIndices.length; i < il; i++) {
           const index = sparseIndices[i];
@@ -13997,7 +13968,7 @@ var GLTFParser = class {
           if (itemSize >= 4)
             bufferAttribute.setW(index, sparseValues[i * itemSize + 3]);
           if (itemSize >= 5)
-            throw new Error("THREE.GLTFLoader: Unsupported itemSize in sparse THREE.BufferAttribute.");
+            throw new Error("GLTFLoader: Unsupported itemSize in sparse BufferAttribute.");
         }
       }
       return bufferAttribute;
@@ -14036,19 +14007,19 @@ var GLTFParser = class {
         return sourceURI;
       });
     } else if (source.uri === void 0) {
-      throw new Error("THREE.GLTFLoader: Image " + textureIndex + " is missing URI and bufferView");
+      throw new Error("GLTFLoader: Image " + textureIndex + " is missing URI and bufferView");
     }
     const promise = Promise.resolve(sourceURI).then(function(sourceURI2) {
       return new Promise(function(resolve, reject) {
         let onLoad = resolve;
         if (loader.isImageBitmapLoader === true) {
           onLoad = function(imageBitmap) {
-            const texture = new THREE.Texture(imageBitmap);
+            const texture = new Texture(imageBitmap);
             texture.needsUpdate = true;
             resolve(texture);
           };
         }
-        loader.load(THREE.LoaderUtils.resolveURL(sourceURI2, options.path), onLoad, void 0, reject);
+        loader.load(LoaderUtils.resolveURL(sourceURI2, options.path), onLoad, void 0, reject);
       });
     }).then(function(texture) {
       if (isObjectURL === true) {
@@ -14059,14 +14030,14 @@ var GLTFParser = class {
         texture.name = textureDef.name;
       const samplers = json.samplers || {};
       const sampler = samplers[textureDef.sampler] || {};
-      texture.magFilter = WEBGL_FILTERS[sampler.magFilter] || THREE.LinearFilter;
-      texture.minFilter = WEBGL_FILTERS[sampler.minFilter] || THREE.LinearMipmapLinearFilter;
-      texture.wrapS = WEBGL_WRAPPINGS[sampler.wrapS] || THREE.RepeatWrapping;
-      texture.wrapT = WEBGL_WRAPPINGS[sampler.wrapT] || THREE.RepeatWrapping;
+      texture.magFilter = WEBGL_FILTERS[sampler.magFilter] || LinearFilter;
+      texture.minFilter = WEBGL_FILTERS[sampler.minFilter] || LinearMipmapLinearFilter;
+      texture.wrapS = WEBGL_WRAPPINGS[sampler.wrapS] || RepeatWrapping;
+      texture.wrapT = WEBGL_WRAPPINGS[sampler.wrapT] || RepeatWrapping;
       parser.associations.set(texture, { textures: textureIndex });
       return texture;
     }).catch(function() {
-      console.error("THREE.GLTFLoader: Couldn't load texture", sourceURI);
+      console.error("GLTFLoader: Couldn't load texture", sourceURI);
       return null;
     });
     this.textureCache[cacheKey] = promise;
@@ -14076,7 +14047,7 @@ var GLTFParser = class {
     const parser = this;
     return this.getDependency("texture", mapDef.index).then(function(texture) {
       if (mapDef.texCoord !== void 0 && mapDef.texCoord != 0 && !(mapName === "aoMap" && mapDef.texCoord == 1)) {
-        console.warn("THREE.GLTFLoader: Custom UV set " + mapDef.texCoord + " for texture " + mapName + " not yet supported.");
+        console.warn("GLTFLoader: Custom UV set " + mapDef.texCoord + " for texture " + mapName + " not yet supported.");
       }
       if (parser.extensions[EXTENSIONS.KHR_TEXTURE_TRANSFORM]) {
         const transform2 = mapDef.extensions !== void 0 ? mapDef.extensions[EXTENSIONS.KHR_TEXTURE_TRANSFORM] : void 0;
@@ -14097,11 +14068,11 @@ var GLTFParser = class {
     const useVertexColors = geometry.attributes.color !== void 0;
     const useFlatShading = geometry.attributes.normal === void 0;
     if (mesh2.isPoints) {
-      const cacheKey = "THREE.PointsMaterial:" + material.uuid;
+      const cacheKey = "PointsMaterial:" + material.uuid;
       let pointsMaterial = this.cache.get(cacheKey);
       if (!pointsMaterial) {
-        pointsMaterial = new THREE.PointsMaterial();
-        THREE.Material.prototype.copy.call(pointsMaterial, material);
+        pointsMaterial = new PointsMaterial();
+        Material.prototype.copy.call(pointsMaterial, material);
         pointsMaterial.color.copy(material.color);
         pointsMaterial.map = material.map;
         pointsMaterial.sizeAttenuation = false;
@@ -14109,11 +14080,11 @@ var GLTFParser = class {
       }
       material = pointsMaterial;
     } else if (mesh2.isLine) {
-      const cacheKey = "THREE.LineBasicMaterial:" + material.uuid;
+      const cacheKey = "LineBasicMaterial:" + material.uuid;
       let lineMaterial = this.cache.get(cacheKey);
       if (!lineMaterial) {
-        lineMaterial = new THREE.LineBasicMaterial();
-        THREE.Material.prototype.copy.call(lineMaterial, material);
+        lineMaterial = new LineBasicMaterial();
+        Material.prototype.copy.call(lineMaterial, material);
         lineMaterial.color.copy(material.color);
         this.cache.add(cacheKey, lineMaterial);
       }
@@ -14153,7 +14124,7 @@ var GLTFParser = class {
     mesh2.material = material;
   }
   getMaterialType() {
-    return THREE.MeshStandardMaterial;
+    return MeshStandardMaterial;
   }
   loadMaterial(materialIndex) {
     const parser = this;
@@ -14174,7 +14145,7 @@ var GLTFParser = class {
       pending.push(kmuExtension.extendParams(materialParams, materialDef, parser));
     } else {
       const metallicRoughness = materialDef.pbrMetallicRoughness || {};
-      materialParams.color = new THREE.Color(1, 1, 1);
+      materialParams.color = new Color(1, 1, 1);
       materialParams.opacity = 1;
       if (Array.isArray(metallicRoughness.baseColorFactor)) {
         const array = metallicRoughness.baseColorFactor;
@@ -14198,7 +14169,7 @@ var GLTFParser = class {
       })));
     }
     if (materialDef.doubleSided === true) {
-      materialParams.side = THREE.DoubleSide;
+      materialParams.side = DoubleSide;
     }
     const alphaMode = materialDef.alphaMode || ALPHA_MODES.OPAQUE;
     if (alphaMode === ALPHA_MODES.BLEND) {
@@ -14210,24 +14181,24 @@ var GLTFParser = class {
         materialParams.alphaTest = materialDef.alphaCutoff !== void 0 ? materialDef.alphaCutoff : 0.5;
       }
     }
-    if (materialDef.normalTexture !== void 0 && materialType !== THREE.MeshBasicMaterial) {
+    if (materialDef.normalTexture !== void 0 && materialType !== MeshBasicMaterial) {
       pending.push(parser.assignTexture(materialParams, "normalMap", materialDef.normalTexture));
-      materialParams.normalScale = new THREE.Vector2(1, 1);
+      materialParams.normalScale = new Vector2(1, 1);
       if (materialDef.normalTexture.scale !== void 0) {
         const scale4 = materialDef.normalTexture.scale;
         materialParams.normalScale.set(scale4, scale4);
       }
     }
-    if (materialDef.occlusionTexture !== void 0 && materialType !== THREE.MeshBasicMaterial) {
+    if (materialDef.occlusionTexture !== void 0 && materialType !== MeshBasicMaterial) {
       pending.push(parser.assignTexture(materialParams, "aoMap", materialDef.occlusionTexture));
       if (materialDef.occlusionTexture.strength !== void 0) {
         materialParams.aoMapIntensity = materialDef.occlusionTexture.strength;
       }
     }
-    if (materialDef.emissiveFactor !== void 0 && materialType !== THREE.MeshBasicMaterial) {
-      materialParams.emissive = new THREE.Color().fromArray(materialDef.emissiveFactor);
+    if (materialDef.emissiveFactor !== void 0 && materialType !== MeshBasicMaterial) {
+      materialParams.emissive = new Color().fromArray(materialDef.emissiveFactor);
     }
-    if (materialDef.emissiveTexture !== void 0 && materialType !== THREE.MeshBasicMaterial) {
+    if (materialDef.emissiveTexture !== void 0 && materialType !== MeshBasicMaterial) {
       pending.push(parser.assignTexture(materialParams, "emissiveMap", materialDef.emissiveTexture));
     }
     return Promise.all(pending).then(function() {
@@ -14240,9 +14211,9 @@ var GLTFParser = class {
       if (materialDef.name)
         material.name = materialDef.name;
       if (material.map)
-        material.map.encoding = THREE.sRGBEncoding;
+        material.map.encoding = sRGBEncoding;
       if (material.emissiveMap)
-        material.emissiveMap.encoding = THREE.sRGBEncoding;
+        material.emissiveMap.encoding = sRGBEncoding;
       assignExtrasToUserData(material, materialDef);
       parser.associations.set(material, { materials: materialIndex });
       if (materialDef.extensions)
@@ -14251,7 +14222,7 @@ var GLTFParser = class {
     });
   }
   createUniqueName(originalName) {
-    const sanitizedName = THREE.PropertyBinding.sanitizeNodeName(originalName || "");
+    const sanitizedName = PropertyBinding.sanitizeNodeName(originalName || "");
     let name2 = sanitizedName;
     for (let i = 1; this.nodeNamesUsed[name2]; ++i) {
       name2 = sanitizedName + "_" + i;
@@ -14280,7 +14251,7 @@ var GLTFParser = class {
         if (primitive.extensions && primitive.extensions[EXTENSIONS.KHR_DRACO_MESH_COMPRESSION]) {
           geometryPromise = createDracoPrimitive(primitive);
         } else {
-          geometryPromise = addPrimitiveAttributes(new THREE.BufferGeometry(), primitive, parser);
+          geometryPromise = addPrimitiveAttributes(new BufferGeometry(), primitive, parser);
         }
         cache[cacheKey] = { primitive, promise: geometryPromise };
         pending.push(geometryPromise);
@@ -14310,25 +14281,25 @@ var GLTFParser = class {
         let mesh2;
         const material = materials2[i];
         if (primitive.mode === WEBGL_CONSTANTS.TRIANGLES || primitive.mode === WEBGL_CONSTANTS.TRIANGLE_STRIP || primitive.mode === WEBGL_CONSTANTS.TRIANGLE_FAN || primitive.mode === void 0) {
-          mesh2 = meshDef.isSkinnedMesh === true ? new THREE.SkinnedMesh(geometry, material) : new THREE.Mesh(geometry, material);
+          mesh2 = meshDef.isSkinnedMesh === true ? new SkinnedMesh(geometry, material) : new Mesh(geometry, material);
           if (mesh2.isSkinnedMesh === true && !mesh2.geometry.attributes.skinWeight.normalized) {
             mesh2.normalizeSkinWeights();
           }
           if (primitive.mode === WEBGL_CONSTANTS.TRIANGLE_STRIP) {
-            mesh2.geometry = toTrianglesDrawMode(mesh2.geometry, THREE.TriangleStripDrawMode);
+            mesh2.geometry = toTrianglesDrawMode(mesh2.geometry, TriangleStripDrawMode);
           } else if (primitive.mode === WEBGL_CONSTANTS.TRIANGLE_FAN) {
-            mesh2.geometry = toTrianglesDrawMode(mesh2.geometry, THREE.TriangleFanDrawMode);
+            mesh2.geometry = toTrianglesDrawMode(mesh2.geometry, TriangleFanDrawMode);
           }
         } else if (primitive.mode === WEBGL_CONSTANTS.LINES) {
-          mesh2 = new THREE.LineSegments(geometry, material);
+          mesh2 = new LineSegments(geometry, material);
         } else if (primitive.mode === WEBGL_CONSTANTS.LINE_STRIP) {
-          mesh2 = new THREE.Line(geometry, material);
+          mesh2 = new Line(geometry, material);
         } else if (primitive.mode === WEBGL_CONSTANTS.LINE_LOOP) {
-          mesh2 = new THREE.LineLoop(geometry, material);
+          mesh2 = new LineLoop(geometry, material);
         } else if (primitive.mode === WEBGL_CONSTANTS.POINTS) {
-          mesh2 = new THREE.Points(geometry, material);
+          mesh2 = new Points(geometry, material);
         } else {
-          throw new Error("THREE.GLTFLoader: Primitive mode unsupported: " + primitive.mode);
+          throw new Error("GLTFLoader: Primitive mode unsupported: " + primitive.mode);
         }
         if (Object.keys(mesh2.geometry.morphAttributes).length > 0) {
           updateMorphTargets(mesh2, meshDef);
@@ -14349,7 +14320,7 @@ var GLTFParser = class {
       if (meshes.length === 1) {
         return meshes[0];
       }
-      const group2 = new THREE.Group();
+      const group2 = new Group();
       parser.associations.set(group2, { meshes: meshIndex });
       for (let i = 0, il = meshes.length; i < il; i++) {
         group2.add(meshes[i]);
@@ -14362,13 +14333,13 @@ var GLTFParser = class {
     const cameraDef = this.json.cameras[cameraIndex];
     const params = cameraDef[cameraDef.type];
     if (!params) {
-      console.warn("THREE.GLTFLoader: Missing camera parameters.");
+      console.warn("GLTFLoader: Missing camera parameters.");
       return;
     }
     if (cameraDef.type === "perspective") {
-      camera = new THREE.PerspectiveCamera(THREE.MathUtils.radToDeg(params.yfov), params.aspectRatio || 1, params.znear || 1, params.zfar || 2e6);
+      camera = new PerspectiveCamera(MathUtils.radToDeg(params.yfov), params.aspectRatio || 1, params.znear || 1, params.zfar || 2e6);
     } else if (cameraDef.type === "orthographic") {
-      camera = new THREE.OrthographicCamera(-params.xmag, params.xmag, params.ymag, -params.ymag, params.znear, params.zfar);
+      camera = new OrthographicCamera(-params.xmag, params.xmag, params.ymag, -params.ymag, params.znear, params.zfar);
     }
     if (cameraDef.name)
       camera.name = this.createUniqueName(cameraDef.name);
@@ -14433,19 +14404,19 @@ var GLTFParser = class {
         let TypedKeyframeTrack;
         switch (PATH_PROPERTIES[target.path]) {
           case PATH_PROPERTIES.weights:
-            TypedKeyframeTrack = THREE.NumberKeyframeTrack;
+            TypedKeyframeTrack = NumberKeyframeTrack;
             break;
           case PATH_PROPERTIES.rotation:
-            TypedKeyframeTrack = THREE.QuaternionKeyframeTrack;
+            TypedKeyframeTrack = QuaternionKeyframeTrack;
             break;
           case PATH_PROPERTIES.position:
           case PATH_PROPERTIES.scale:
           default:
-            TypedKeyframeTrack = THREE.VectorKeyframeTrack;
+            TypedKeyframeTrack = VectorKeyframeTrack;
             break;
         }
         const targetName = node.name ? node.name : node.uuid;
-        const interpolation = sampler.interpolation !== void 0 ? INTERPOLATION[sampler.interpolation] : THREE.InterpolateLinear;
+        const interpolation = sampler.interpolation !== void 0 ? INTERPOLATION[sampler.interpolation] : InterpolateLinear;
         const targetNames = [];
         if (PATH_PROPERTIES[target.path] === PATH_PROPERTIES.weights) {
           node.traverse(function(object) {
@@ -14474,7 +14445,7 @@ var GLTFParser = class {
           );
           if (sampler.interpolation === "CUBICSPLINE") {
             track.createInterpolant = function InterpolantFactoryMethodGLTFCubicSpline(result) {
-              const interpolantType = this instanceof THREE.QuaternionKeyframeTrack ? GLTFCubicSplineQuaternionInterpolant : GLTFCubicSplineInterpolant;
+              const interpolantType = this instanceof QuaternionKeyframeTrack ? GLTFCubicSplineQuaternionInterpolant : GLTFCubicSplineInterpolant;
               return new interpolantType(this.times, this.values, this.getValueSize() / 3, result);
             };
             track.createInterpolant.isInterpolantFactoryMethodGLTFCubicSpline = true;
@@ -14483,7 +14454,7 @@ var GLTFParser = class {
         }
       }
       const name2 = animationDef.name ? animationDef.name : "animation_" + animationIndex;
-      return new THREE.AnimationClip(name2, void 0, tracks);
+      return new AnimationClip(name2, void 0, tracks);
     });
   }
   createNodeMesh(nodeIndex) {
@@ -14534,13 +14505,13 @@ var GLTFParser = class {
     }().then(function(objects) {
       let node;
       if (nodeDef.isBone === true) {
-        node = new THREE.Bone();
+        node = new Bone();
       } else if (objects.length > 1) {
-        node = new THREE.Group();
+        node = new Group();
       } else if (objects.length === 1) {
         node = objects[0];
       } else {
-        node = new THREE.Object3D();
+        node = new Object3D();
       }
       if (node !== objects[0]) {
         for (let i = 0, il = objects.length; i < il; i++) {
@@ -14555,7 +14526,7 @@ var GLTFParser = class {
       if (nodeDef.extensions)
         addUnknownExtensionsToUserData(extensions, node, nodeDef);
       if (nodeDef.matrix !== void 0) {
-        const matrix = new THREE.Matrix4();
+        const matrix = new Matrix4();
         matrix.fromArray(nodeDef.matrix);
         node.applyMatrix4(matrix);
       } else {
@@ -14581,7 +14552,7 @@ var GLTFParser = class {
     const extensions = this.extensions;
     const sceneDef = this.json.scenes[sceneIndex];
     const parser = this;
-    const scene = new THREE.Group();
+    const scene = new Group();
     if (sceneDef.name)
       scene.name = parser.createUniqueName(sceneDef.name);
     assignExtrasToUserData(scene, sceneDef);
@@ -14596,7 +14567,7 @@ var GLTFParser = class {
       const reduceAssociations = (node) => {
         const reducedAssociations = /* @__PURE__ */ new Map();
         for (const [key, value2] of parser.associations) {
-          if (key instanceof THREE.Material || key instanceof THREE.Texture) {
+          if (key instanceof Material || key instanceof Texture) {
             reducedAssociations.set(key, value2);
           }
         }
@@ -14636,16 +14607,16 @@ function buildNodeHierarchy(nodeId, parentObject, json, parser) {
           const jointNode = jointNodes[j];
           if (jointNode) {
             bones.push(jointNode);
-            const mat = new THREE.Matrix4();
+            const mat = new Matrix4();
             if (skinEntry.inverseBindMatrices !== void 0) {
               mat.fromArray(skinEntry.inverseBindMatrices.array, j * 16);
             }
             boneInverses.push(mat);
           } else {
-            console.warn('THREE.GLTFLoader: Joint "%s" could not be found.', skinEntry.joints[j]);
+            console.warn('GLTFLoader: Joint "%s" could not be found.', skinEntry.joints[j]);
           }
         }
-        mesh2.bind(new THREE.Skeleton(bones, boneInverses), mesh2.matrixWorld);
+        mesh2.bind(new Skeleton(bones, boneInverses), mesh2.matrixWorld);
       });
       return node;
     });
@@ -14664,15 +14635,15 @@ function buildNodeHierarchy(nodeId, parentObject, json, parser) {
 }
 function computeBounds(geometry, primitiveDef, parser) {
   const attributes = primitiveDef.attributes;
-  const box = new THREE.Box3();
+  const box = new Box3();
   if (attributes.POSITION !== void 0) {
     const accessor = parser.json.accessors[attributes.POSITION];
     const min3 = accessor.min;
     const max3 = accessor.max;
     if (min3 !== void 0 && max3 !== void 0) {
       box.set(
-        new THREE.Vector3(min3[0], min3[1], min3[2]),
-        new THREE.Vector3(max3[0], max3[1], max3[2])
+        new Vector3(min3[0], min3[1], min3[2]),
+        new Vector3(max3[0], max3[1], max3[2])
       );
       if (accessor.normalized) {
         const boxScale = getNormalizedComponentScale(WEBGL_COMPONENT_TYPES[accessor.componentType]);
@@ -14680,7 +14651,7 @@ function computeBounds(geometry, primitiveDef, parser) {
         box.max.multiplyScalar(boxScale);
       }
     } else {
-      console.warn("THREE.GLTFLoader: Missing min/max properties for accessor POSITION.");
+      console.warn("GLTFLoader: Missing min/max properties for accessor POSITION.");
       return;
     }
   } else {
@@ -14688,8 +14659,8 @@ function computeBounds(geometry, primitiveDef, parser) {
   }
   const targets = primitiveDef.targets;
   if (targets !== void 0) {
-    const maxDisplacement = new THREE.Vector3();
-    const vector = new THREE.Vector3();
+    const maxDisplacement = new Vector3();
+    const vector = new Vector3();
     for (let i = 0, il = targets.length; i < il; i++) {
       const target = targets[i];
       if (target.POSITION !== void 0) {
@@ -14706,14 +14677,14 @@ function computeBounds(geometry, primitiveDef, parser) {
           }
           maxDisplacement.max(vector);
         } else {
-          console.warn("THREE.GLTFLoader: Missing min/max properties for accessor POSITION.");
+          console.warn("GLTFLoader: Missing min/max properties for accessor POSITION.");
         }
       }
     }
     box.expandByVector(maxDisplacement);
   }
   geometry.boundingBox = box;
-  const sphere = new THREE.Sphere();
+  const sphere = new Sphere();
   box.getCenter(sphere.center);
   sphere.radius = box.min.distanceTo(box.max) / 2;
   geometry.boundingSphere = sphere;
@@ -14756,13 +14727,13 @@ function toTrianglesDrawMode(geometry, drawMode) {
       geometry.setIndex(indices);
       index = geometry.getIndex();
     } else {
-      console.error("THREE.GLTFLoader.toTrianglesDrawMode(): Undefined position attribute. Processing not possible.");
+      console.error("GLTFLoader.toTrianglesDrawMode(): Undefined position attribute. Processing not possible.");
       return geometry;
     }
   }
   const numberOfTriangles = index.count - 2;
   const newIndices = [];
-  if (drawMode === THREE.TriangleFanDrawMode) {
+  if (drawMode === TriangleFanDrawMode) {
     for (let i = 1; i <= numberOfTriangles; i++) {
       newIndices.push(index.getX(0));
       newIndices.push(index.getX(i));
@@ -14782,7 +14753,7 @@ function toTrianglesDrawMode(geometry, drawMode) {
     }
   }
   if (newIndices.length / 3 !== numberOfTriangles) {
-    console.error("THREE.GLTFLoader.toTrianglesDrawMode(): Unable to generate correct amount of triangles.");
+    console.error("GLTFLoader.toTrianglesDrawMode(): Unable to generate correct amount of triangles.");
   }
   const newGeometry = geometry.clone();
   newGeometry.setIndex(newIndices);
@@ -15056,7 +15027,7 @@ var MotionController = class {
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/examples/webxr/XRControllerModelFactory.js
 var DEFAULT_PROFILES_PATH = "https://cdn.jsdelivr.net/npm/@webxr-input-profiles/assets@1.0/dist/profiles";
 var DEFAULT_PROFILE = "generic-trigger";
-var XRControllerModel = class extends THREE.Object3D {
+var XRControllerModel = class extends Object3D {
   constructor() {
     super();
     this.motionController = null;
@@ -15109,9 +15080,9 @@ function findNodes(motionController, scene) {
     if (type2 === Constants.ComponentType.TOUCHPAD) {
       component.touchPointNode = scene.getObjectByName(touchPointNodeName);
       if (component.touchPointNode) {
-        const sphereGeometry = new THREE.SphereGeometry(1e-3);
-        const material = new THREE.MeshBasicMaterial({ color: 255 });
-        const sphere = new THREE.Mesh(sphereGeometry, material);
+        const sphereGeometry = new SphereGeometry(1e-3);
+        const material = new MeshBasicMaterial({ color: 255 });
+        const sphere = new Mesh(sphereGeometry, material);
         component.touchPointNode.add(sphere);
       } else {
         console.warn(`Could not find touch dot, ${component.touchPointNodeName}, in touchpad component ${component.id}`);
@@ -15208,10 +15179,10 @@ var XRControllerModelFactory = class {
 };
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/examples/webxr/XRHandPrimitiveModel.js
-var _matrix = new THREE.Matrix4();
-var _vector = new THREE.Vector3();
-var _oculusBrowserV14CorrectionRight = new THREE.Matrix4().identity();
-var _oculusBrowserV14CorrectionLeft = new THREE.Matrix4().identity();
+var _matrix = new Matrix4();
+var _vector = new Vector3();
+var _oculusBrowserV14CorrectionRight = new Matrix4().identity();
+var _oculusBrowserV14CorrectionLeft = new Matrix4().identity();
 if (/OculusBrowser\/14\./.test(navigator.userAgent)) {
   _oculusBrowserV14CorrectionRight.makeRotationY(Math.PI / 2);
   _oculusBrowserV14CorrectionLeft.makeRotationY(-Math.PI / 2);
@@ -15224,15 +15195,15 @@ var XRHandPrimitiveModel = class {
     this.oculusBrowserV14Correction = handedness === "left" ? _oculusBrowserV14CorrectionLeft : _oculusBrowserV14CorrectionRight;
     let geometry;
     if (!options || !options.primitive || options.primitive === "sphere") {
-      geometry = new THREE.SphereGeometry(1, 10, 10);
+      geometry = new SphereGeometry(1, 10, 10);
     } else if (options.primitive === "box") {
-      geometry = new THREE.BoxGeometry(1, 1, 1);
+      geometry = new BoxGeometry(1, 1, 1);
     } else if (options.primitive === "bone") {
-      geometry = new THREE.CylinderGeometry(0.5, 0.75, 2.25, 10, 1).rotateX(-Math.PI / 2);
+      geometry = new CylinderGeometry(0.5, 0.75, 2.25, 10, 1).rotateX(-Math.PI / 2);
     }
-    const material = new THREE.MeshStandardMaterial();
-    this.handMesh = new THREE.InstancedMesh(geometry, material, 30);
-    this.handMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    const material = new MeshStandardMaterial();
+    this.handMesh = new InstancedMesh(geometry, material, 30);
+    this.handMesh.instanceMatrix.setUsage(DynamicDrawUsage);
     this.handMesh.castShadow = true;
     this.handMesh.receiveShadow = true;
     this.handModel.add(this.handMesh);
@@ -15284,8 +15255,8 @@ var XRHandPrimitiveModel = class {
 };
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/examples/webxr/XRHandMeshModel.js
-var _oculusBrowserV14CorrectionRight2 = new THREE.Quaternion().identity();
-var _oculusBrowserV14CorrectionLeft2 = new THREE.Quaternion().identity();
+var _oculusBrowserV14CorrectionRight2 = new Quaternion().identity();
+var _oculusBrowserV14CorrectionLeft2 = new Quaternion().identity();
 if (/OculusBrowser\/14\./.test(navigator.userAgent)) {
   _oculusBrowserV14CorrectionRight2.setFromAxisAngle({ x: 0, y: 1, z: 0 }, Math.PI / 2);
   _oculusBrowserV14CorrectionLeft2.setFromAxisAngle({ x: 1, y: 0, z: 0 }, Math.PI).premultiply(_oculusBrowserV14CorrectionRight2);
@@ -15363,7 +15334,7 @@ var XRHandMeshModel = class {
 };
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/examples/webxr/XRHandModelFactory.js
-var XRHandModel = class extends THREE.Object3D {
+var XRHandModel = class extends Object3D {
   constructor(controller) {
     super();
     this.controller = controller;
@@ -15486,25 +15457,19 @@ function setGeometryUVsForCubemaps(geom2) {
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/Cube.ts
-var cube = /* @__PURE__ */ new THREE.BoxBufferGeometry(1, 1, 1, 1, 1, 1);
+var cube = /* @__PURE__ */ new BoxBufferGeometry(1, 1, 1, 1, 1, 1);
 cube.name = "CubeGeom";
 var invCube = /* @__PURE__ */ cube.clone();
 invCube.name = "InvertedCubeGeom";
 setGeometryUVsForCubemaps(invCube);
-var Cube = class extends THREE.Mesh {
+var Cube = class extends Mesh {
   constructor(sx, sy, sz, material) {
     super(cube, material);
     this.scale.set(sx, sy, sz);
   }
 };
-var InvCube = class extends THREE.Mesh {
-  constructor(sx, sy, sz, material) {
-    super(invCube, material);
-    this.scale.set(sx, sy, sz);
-  }
-};
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/CursorColor.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/cursors/CursorColor.ts
 var CursorColor = class extends BaseCursor {
   constructor(env) {
     super(env);
@@ -15525,28 +15490,28 @@ var CursorColor = class extends BaseCursor {
     if (isMesh(this.object) && !isArray(this.object.material)) {
       switch (this._currentStyle) {
         case "pointer":
-          this.material.color = new THREE.Color(65280);
+          this.material.color = new Color(65280);
           this.material.needsUpdate = true;
           break;
         case "not-allowed":
-          this.material.color = new THREE.Color(16711680);
+          this.material.color = new Color(16711680);
           this.material.needsUpdate = true;
           break;
         case "move":
-          this.material.color = new THREE.Color(255);
+          this.material.color = new Color(255);
           this.material.needsUpdate = true;
           break;
         case "grab":
-          this.material.color = new THREE.Color(16711935);
+          this.material.color = new Color(16711935);
           this.material.needsUpdate = true;
           break;
         case "grabbing":
-          this.material.color = new THREE.Color(65535);
+          this.material.color = new Color(65535);
           this.material.needsUpdate = true;
           break;
         default:
           this._currentStyle = "default";
-          this.material.color = new THREE.Color(16776960);
+          this.material.color = new Color(16776960);
           this.material.needsUpdate = true;
           break;
       }
@@ -15560,7 +15525,372 @@ var CursorColor = class extends BaseCursor {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/CursorSystem.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/examples/lines/LineSegmentsGeometry.js
+var _box = new Box3();
+var _vector2 = new Vector3();
+var LineSegmentsGeometry = class extends InstancedBufferGeometry {
+  constructor() {
+    super();
+    this.type = "LineSegmentsGeometry";
+    const positions = [-1, 2, 0, 1, 2, 0, -1, 1, 0, 1, 1, 0, -1, 0, 0, 1, 0, 0, -1, -1, 0, 1, -1, 0];
+    const uvs = [-1, 2, 1, 2, -1, 1, 1, 1, -1, -1, 1, -1, -1, -2, 1, -2];
+    const index = [0, 2, 1, 2, 3, 1, 2, 4, 3, 4, 5, 3, 4, 6, 5, 6, 7, 5];
+    this.setIndex(index);
+    this.setAttribute("position", new Float32BufferAttribute(positions, 3));
+    this.setAttribute("uv", new Float32BufferAttribute(uvs, 2));
+  }
+  applyMatrix4(matrix) {
+    const start2 = this.attributes.instanceStart;
+    const end2 = this.attributes.instanceEnd;
+    if (start2 !== void 0) {
+      start2.applyMatrix4(matrix);
+      end2.applyMatrix4(matrix);
+      start2.needsUpdate = true;
+    }
+    if (this.boundingBox !== null) {
+      this.computeBoundingBox();
+    }
+    if (this.boundingSphere !== null) {
+      this.computeBoundingSphere();
+    }
+    return this;
+  }
+  setPositions(array) {
+    let lineSegments;
+    if (array instanceof Float32Array) {
+      lineSegments = array;
+    } else if (Array.isArray(array)) {
+      lineSegments = new Float32Array(array);
+    }
+    const instanceBuffer = new InstancedInterleavedBuffer(lineSegments, 6, 1);
+    this.setAttribute("instanceStart", new InterleavedBufferAttribute(instanceBuffer, 3, 0));
+    this.setAttribute("instanceEnd", new InterleavedBufferAttribute(instanceBuffer, 3, 3));
+    this.computeBoundingBox();
+    this.computeBoundingSphere();
+    return this;
+  }
+  setColors(array) {
+    let colors;
+    if (array instanceof Float32Array) {
+      colors = array;
+    } else if (Array.isArray(array)) {
+      colors = new Float32Array(array);
+    }
+    const instanceColorBuffer = new InstancedInterleavedBuffer(colors, 6, 1);
+    this.setAttribute("instanceColorStart", new InterleavedBufferAttribute(instanceColorBuffer, 3, 0));
+    this.setAttribute("instanceColorEnd", new InterleavedBufferAttribute(instanceColorBuffer, 3, 3));
+    return this;
+  }
+  fromWireframeGeometry(geometry) {
+    this.setPositions(geometry.attributes.position.array);
+    return this;
+  }
+  fromEdgesGeometry(geometry) {
+    this.setPositions(geometry.attributes.position.array);
+    return this;
+  }
+  fromMesh(mesh2) {
+    this.fromWireframeGeometry(new WireframeGeometry(mesh2.geometry));
+    return this;
+  }
+  fromLineSegments(lineSegments) {
+    const geometry = lineSegments.geometry;
+    if (geometry.isGeometry) {
+      console.error("LineSegmentsGeometry no longer supports Geometry. Use BufferGeometry instead.");
+      return;
+    } else if (geometry.isBufferGeometry) {
+      this.setPositions(geometry.attributes.position.array);
+    }
+    return this;
+  }
+  computeBoundingBox() {
+    if (this.boundingBox === null) {
+      this.boundingBox = new Box3();
+    }
+    const start2 = this.attributes.instanceStart;
+    const end2 = this.attributes.instanceEnd;
+    if (start2 !== void 0 && end2 !== void 0) {
+      this.boundingBox.setFromBufferAttribute(start2);
+      _box.setFromBufferAttribute(end2);
+      this.boundingBox.union(_box);
+    }
+  }
+  computeBoundingSphere() {
+    if (this.boundingSphere === null) {
+      this.boundingSphere = new Sphere();
+    }
+    if (this.boundingBox === null) {
+      this.computeBoundingBox();
+    }
+    const start2 = this.attributes.instanceStart;
+    const end2 = this.attributes.instanceEnd;
+    if (start2 !== void 0 && end2 !== void 0) {
+      const center = this.boundingSphere.center;
+      this.boundingBox.getCenter(center);
+      let maxRadiusSq = 0;
+      for (let i = 0, il = start2.count; i < il; i++) {
+        _vector2.fromBufferAttribute(start2, i);
+        maxRadiusSq = Math.max(maxRadiusSq, center.distanceToSquared(_vector2));
+        _vector2.fromBufferAttribute(end2, i);
+        maxRadiusSq = Math.max(maxRadiusSq, center.distanceToSquared(_vector2));
+      }
+      this.boundingSphere.radius = Math.sqrt(maxRadiusSq);
+      if (isNaN(this.boundingSphere.radius)) {
+        console.error("LineSegmentsGeometry.computeBoundingSphere(): Computed radius is NaN. The instanced position data is likely to have NaN values.", this);
+      }
+    }
+  }
+  toJSON() {
+  }
+  applyMatrix(matrix) {
+    console.warn("LineSegmentsGeometry: applyMatrix() has been renamed to applyMatrix4().");
+    return this.applyMatrix4(matrix);
+  }
+};
+LineSegmentsGeometry.prototype.isLineSegmentsGeometry = true;
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/examples/lines/LineSegments2.js
+var _start = new Vector3();
+var _end = new Vector3();
+var _start4 = new Vector4();
+var _end4 = new Vector4();
+var _ssOrigin = new Vector4();
+var _ssOrigin3 = new Vector3();
+var _mvMatrix = new Matrix4();
+var _line = new Line3();
+var _closestPoint = new Vector3();
+var _box2 = new Box3();
+var _sphere = new Sphere();
+var _clipToWorldVector = new Vector4();
+function getWorldSpaceHalfWidth(camera, distance2, lineWidth, resolution) {
+  _clipToWorldVector.set(0, 0, -distance2, 1).applyMatrix4(camera.projectionMatrix);
+  _clipToWorldVector.multiplyScalar(1 / _clipToWorldVector.w);
+  _clipToWorldVector.x = lineWidth / resolution.width;
+  _clipToWorldVector.y = lineWidth / resolution.height;
+  _clipToWorldVector.applyMatrix4(camera.projectionMatrixInverse);
+  _clipToWorldVector.multiplyScalar(1 / _clipToWorldVector.w);
+  return Math.abs(Math.max(_clipToWorldVector.x, _clipToWorldVector.y));
+}
+var LineSegments2 = class extends Mesh {
+  constructor(geometry = new LineSegmentsGeometry(), material = new LineMaterial({ color: Math.random() * 16777215 })) {
+    super(geometry, material);
+    this.type = "LineSegments2";
+  }
+  computeLineDistances() {
+    const geometry = this.geometry;
+    const instanceStart = geometry.attributes.instanceStart;
+    const instanceEnd = geometry.attributes.instanceEnd;
+    const lineDistances = new Float32Array(2 * instanceStart.count);
+    for (let i = 0, j = 0, l = instanceStart.count; i < l; i++, j += 2) {
+      _start.fromBufferAttribute(instanceStart, i);
+      _end.fromBufferAttribute(instanceEnd, i);
+      lineDistances[j] = j === 0 ? 0 : lineDistances[j - 1];
+      lineDistances[j + 1] = lineDistances[j] + _start.distanceTo(_end);
+    }
+    const instanceDistanceBuffer = new InstancedInterleavedBuffer(lineDistances, 2, 1);
+    geometry.setAttribute("instanceDistanceStart", new InterleavedBufferAttribute(instanceDistanceBuffer, 1, 0));
+    geometry.setAttribute("instanceDistanceEnd", new InterleavedBufferAttribute(instanceDistanceBuffer, 1, 1));
+    return this;
+  }
+  raycast(raycaster, intersects) {
+    if (raycaster.camera === null) {
+      console.error('LineSegments2: "Raycaster.camera" needs to be set in order to raycast against LineSegments2.');
+    }
+    const threshold = raycaster.params.Line2 !== void 0 ? raycaster.params.Line2.threshold || 0 : 0;
+    const ray = raycaster.ray;
+    const camera = raycaster.camera;
+    const projectionMatrix = camera.projectionMatrix;
+    const matrixWorld = this.matrixWorld;
+    const geometry = this.geometry;
+    const material = this.material;
+    const resolution = material.resolution;
+    const lineWidth = material.linewidth + threshold;
+    const instanceStart = geometry.attributes.instanceStart;
+    const instanceEnd = geometry.attributes.instanceEnd;
+    const near = -camera.near;
+    if (geometry.boundingSphere === null) {
+      geometry.computeBoundingSphere();
+    }
+    _sphere.copy(geometry.boundingSphere).applyMatrix4(matrixWorld);
+    const distanceToSphere = Math.max(camera.near, _sphere.distanceToPoint(ray.origin));
+    const sphereMargin = getWorldSpaceHalfWidth(camera, distanceToSphere, lineWidth, resolution);
+    _sphere.radius += sphereMargin;
+    if (raycaster.ray.intersectsSphere(_sphere) === false) {
+      return;
+    }
+    if (geometry.boundingBox === null) {
+      geometry.computeBoundingBox();
+    }
+    _box2.copy(geometry.boundingBox).applyMatrix4(matrixWorld);
+    const distanceToBox = Math.max(camera.near, _box2.distanceToPoint(ray.origin));
+    const boxMargin = getWorldSpaceHalfWidth(camera, distanceToBox, lineWidth, resolution);
+    _box2.max.x += boxMargin;
+    _box2.max.y += boxMargin;
+    _box2.max.z += boxMargin;
+    _box2.min.x -= boxMargin;
+    _box2.min.y -= boxMargin;
+    _box2.min.z -= boxMargin;
+    if (raycaster.ray.intersectsBox(_box2) === false) {
+      return;
+    }
+    ray.at(1, _ssOrigin);
+    _ssOrigin.w = 1;
+    _ssOrigin.applyMatrix4(camera.matrixWorldInverse);
+    _ssOrigin.applyMatrix4(projectionMatrix);
+    _ssOrigin.multiplyScalar(1 / _ssOrigin.w);
+    _ssOrigin.x *= resolution.x / 2;
+    _ssOrigin.y *= resolution.y / 2;
+    _ssOrigin.z = 0;
+    _ssOrigin3.copy(_ssOrigin);
+    _mvMatrix.multiplyMatrices(camera.matrixWorldInverse, matrixWorld);
+    for (let i = 0, l = instanceStart.count; i < l; i++) {
+      _start4.fromBufferAttribute(instanceStart, i);
+      _end4.fromBufferAttribute(instanceEnd, i);
+      _start4.w = 1;
+      _end4.w = 1;
+      _start4.applyMatrix4(_mvMatrix);
+      _end4.applyMatrix4(_mvMatrix);
+      var isBehindCameraNear = _start4.z > near && _end4.z > near;
+      if (isBehindCameraNear) {
+        continue;
+      }
+      if (_start4.z > near) {
+        const deltaDist = _start4.z - _end4.z;
+        const t2 = (_start4.z - near) / deltaDist;
+        _start4.lerp(_end4, t2);
+      } else if (_end4.z > near) {
+        const deltaDist = _end4.z - _start4.z;
+        const t2 = (_end4.z - near) / deltaDist;
+        _end4.lerp(_start4, t2);
+      }
+      _start4.applyMatrix4(projectionMatrix);
+      _end4.applyMatrix4(projectionMatrix);
+      _start4.multiplyScalar(1 / _start4.w);
+      _end4.multiplyScalar(1 / _end4.w);
+      _start4.x *= resolution.x / 2;
+      _start4.y *= resolution.y / 2;
+      _end4.x *= resolution.x / 2;
+      _end4.y *= resolution.y / 2;
+      _line.start.copy(_start4);
+      _line.start.z = 0;
+      _line.end.copy(_end4);
+      _line.end.z = 0;
+      const param = _line.closestPointToPointParameter(_ssOrigin3, true);
+      _line.at(param, _closestPoint);
+      const zPos = MathUtils.lerp(_start4.z, _end4.z, param);
+      const isInClipSpace = zPos >= -1 && zPos <= 1;
+      const isInside = _ssOrigin3.distanceTo(_closestPoint) < lineWidth * 0.5;
+      if (isInClipSpace && isInside) {
+        _line.start.fromBufferAttribute(instanceStart, i);
+        _line.end.fromBufferAttribute(instanceEnd, i);
+        _line.start.applyMatrix4(matrixWorld);
+        _line.end.applyMatrix4(matrixWorld);
+        const pointOnLine = new Vector3();
+        const point = new Vector3();
+        ray.distanceSqToSegment(_line.start, _line.end, point, pointOnLine);
+        intersects.push({
+          point,
+          pointOnLine,
+          distance: ray.origin.distanceTo(point),
+          object: this,
+          face: null,
+          faceIndex: i,
+          uv: null,
+          uv2: null
+        });
+      }
+    }
+  }
+};
+LineSegments2.prototype.isLineSegments2 = true;
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/examples/lines/LineGeometry.js
+var LineGeometry = class extends LineSegmentsGeometry {
+  constructor() {
+    super();
+    this.type = "LineGeometry";
+  }
+  setPositions(array) {
+    var length4 = array.length - 3;
+    var points = new Float32Array(2 * length4);
+    for (var i = 0; i < length4; i += 3) {
+      points[2 * i] = array[i];
+      points[2 * i + 1] = array[i + 1];
+      points[2 * i + 2] = array[i + 2];
+      points[2 * i + 3] = array[i + 3];
+      points[2 * i + 4] = array[i + 4];
+      points[2 * i + 5] = array[i + 5];
+    }
+    super.setPositions(points);
+    return this;
+  }
+  setColors(array) {
+    var length4 = array.length - 3;
+    var colors = new Float32Array(2 * length4);
+    for (var i = 0; i < length4; i += 3) {
+      colors[2 * i] = array[i];
+      colors[2 * i + 1] = array[i + 1];
+      colors[2 * i + 2] = array[i + 2];
+      colors[2 * i + 3] = array[i + 3];
+      colors[2 * i + 4] = array[i + 4];
+      colors[2 * i + 5] = array[i + 5];
+    }
+    super.setColors(colors);
+    return this;
+  }
+  fromLine(line) {
+    var geometry = line.geometry;
+    if (geometry.isGeometry) {
+      console.error("LineGeometry no longer supports Geometry. Use BufferGeometry instead.");
+      return;
+    } else if (geometry.isBufferGeometry) {
+      this.setPositions(geometry.attributes.position.array);
+    }
+    return this;
+  }
+};
+LineGeometry.prototype.isLineGeometry = true;
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/examples/lines/Line2.js
+var Line2 = class extends LineSegments2 {
+  constructor(geometry = new LineGeometry(), material = new LineMaterial({ color: Math.random() * 16777215 })) {
+    super(geometry, material);
+    this.type = "Line2";
+  }
+};
+Line2.prototype.isLine2 = true;
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/Laser.ts
+var geom = new LineGeometry();
+geom.setPositions([
+  0,
+  0,
+  0,
+  0,
+  0,
+  -1
+]);
+var Laser = class extends Object3D {
+  constructor(color2, linewidth = 1) {
+    super();
+    this._length = 1;
+    this.line = new Line2(geom, line2({
+      color: color2,
+      linewidth
+    }));
+    this.line.computeLineDistances();
+    objGraph(this, this.line);
+  }
+  get length() {
+    return this._length;
+  }
+  set length(v) {
+    this._length = v;
+    this.line.scale.set(1, 1, v);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/cursors/CursorSystem.ts
 var CursorSystem = class extends BaseCursor {
   constructor(env, element) {
     super(env);
@@ -15595,7 +15925,7 @@ var CursorSystem = class extends BaseCursor {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/CursorXRMouse.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/cursors/CursorXRMouse.ts
 var CursorXRMouse = class extends BaseCursor {
   constructor(env) {
     super(env);
@@ -15640,7 +15970,7 @@ var CursorXRMouse = class extends BaseCursor {
     this._refresh();
   }
   _refresh() {
-    const isPointerLocked = this.env.pointers && this.env.pointers.mouse && this.env.pointers.mouse.isPointerLocked;
+    const isPointerLocked = this.env.eventSys && this.env.eventSys.mouse && this.env.eventSys.mouse.isPointerLocked;
     const showXR = this.env.renderer.xr.isPresenting || isPointerLocked;
     objectSetVisible(this.xr, this.visible && showXR);
     this.system.visible = this.visible && !showXR;
@@ -15650,7 +15980,7 @@ var CursorXRMouse = class extends BaseCursor {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/Pointer3DEvent.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/devices/Pointer3DEvent.ts
 var Pointer3DEvent = class extends TypedEvent {
   constructor(type2, pointer) {
     super(type2);
@@ -15688,18 +16018,18 @@ var Pointer3DEvent = class extends TypedEvent {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/BasePointer.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/devices/BasePointer.ts
 var MAX_DRAG_DISTANCE = 5;
-var ZERO = new THREE.Vector3();
+var ZERO = new Vector3();
 var BasePointer = class extends TypedEventBase {
   constructor(type2, id2, env, cursor) {
     super();
     this.type = type2;
     this.id = id2;
     this.env = env;
-    this.origin = new THREE.Vector3();
-    this.direction = new THREE.Vector3();
-    this.up = new THREE.Vector3(0, 1, 0);
+    this.origin = new Vector3();
+    this.direction = new Vector3();
+    this.up = new Vector3(0, 1, 0);
     this.canMoveView = false;
     this.mayTeleport = false;
     this.buttons = 0;
@@ -15826,7 +16156,7 @@ var BasePointer = class extends TypedEventBase {
   }
   fireRay(origin, direction) {
     arrayClear(this.hits);
-    this.env.pointers.fireRay(origin, direction, this.hits);
+    this.env.eventSys.fireRay(origin, direction, this.hits);
     let minHit = null;
     let minDist = Number.MAX_VALUE;
     for (const hit of this.hits) {
@@ -15944,375 +16274,10 @@ var BasePointer = class extends TypedEventBase {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/examples/lines/LineSegmentsGeometry.js
-var _box = new THREE.Box3();
-var _vector2 = new THREE.Vector3();
-var LineSegmentsGeometry = class extends THREE.InstancedBufferGeometry {
-  constructor() {
-    super();
-    this.type = "LineSegmentsGeometry";
-    const positions = [-1, 2, 0, 1, 2, 0, -1, 1, 0, 1, 1, 0, -1, 0, 0, 1, 0, 0, -1, -1, 0, 1, -1, 0];
-    const uvs = [-1, 2, 1, 2, -1, 1, 1, 1, -1, -1, 1, -1, -1, -2, 1, -2];
-    const index = [0, 2, 1, 2, 3, 1, 2, 4, 3, 4, 5, 3, 4, 6, 5, 6, 7, 5];
-    this.setIndex(index);
-    this.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
-    this.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
-  }
-  applyMatrix4(matrix) {
-    const start2 = this.attributes.instanceStart;
-    const end2 = this.attributes.instanceEnd;
-    if (start2 !== void 0) {
-      start2.applyMatrix4(matrix);
-      end2.applyMatrix4(matrix);
-      start2.needsUpdate = true;
-    }
-    if (this.boundingBox !== null) {
-      this.computeBoundingBox();
-    }
-    if (this.boundingSphere !== null) {
-      this.computeBoundingSphere();
-    }
-    return this;
-  }
-  setPositions(array) {
-    let lineSegments;
-    if (array instanceof Float32Array) {
-      lineSegments = array;
-    } else if (Array.isArray(array)) {
-      lineSegments = new Float32Array(array);
-    }
-    const instanceBuffer = new THREE.InstancedInterleavedBuffer(lineSegments, 6, 1);
-    this.setAttribute("instanceStart", new THREE.InterleavedBufferAttribute(instanceBuffer, 3, 0));
-    this.setAttribute("instanceEnd", new THREE.InterleavedBufferAttribute(instanceBuffer, 3, 3));
-    this.computeBoundingBox();
-    this.computeBoundingSphere();
-    return this;
-  }
-  setColors(array) {
-    let colors;
-    if (array instanceof Float32Array) {
-      colors = array;
-    } else if (Array.isArray(array)) {
-      colors = new Float32Array(array);
-    }
-    const instanceColorBuffer = new THREE.InstancedInterleavedBuffer(colors, 6, 1);
-    this.setAttribute("instanceColorStart", new THREE.InterleavedBufferAttribute(instanceColorBuffer, 3, 0));
-    this.setAttribute("instanceColorEnd", new THREE.InterleavedBufferAttribute(instanceColorBuffer, 3, 3));
-    return this;
-  }
-  fromWireframeGeometry(geometry) {
-    this.setPositions(geometry.attributes.position.array);
-    return this;
-  }
-  fromEdgesGeometry(geometry) {
-    this.setPositions(geometry.attributes.position.array);
-    return this;
-  }
-  fromMesh(mesh2) {
-    this.fromWireframeGeometry(new THREE.WireframeGeometry(mesh2.geometry));
-    return this;
-  }
-  fromLineSegments(lineSegments) {
-    const geometry = lineSegments.geometry;
-    if (geometry.isGeometry) {
-      console.error("THREE.LineSegmentsGeometry no longer supports Geometry. Use THREE.BufferGeometry instead.");
-      return;
-    } else if (geometry.isBufferGeometry) {
-      this.setPositions(geometry.attributes.position.array);
-    }
-    return this;
-  }
-  computeBoundingBox() {
-    if (this.boundingBox === null) {
-      this.boundingBox = new THREE.Box3();
-    }
-    const start2 = this.attributes.instanceStart;
-    const end2 = this.attributes.instanceEnd;
-    if (start2 !== void 0 && end2 !== void 0) {
-      this.boundingBox.setFromBufferAttribute(start2);
-      _box.setFromBufferAttribute(end2);
-      this.boundingBox.union(_box);
-    }
-  }
-  computeBoundingSphere() {
-    if (this.boundingSphere === null) {
-      this.boundingSphere = new THREE.Sphere();
-    }
-    if (this.boundingBox === null) {
-      this.computeBoundingBox();
-    }
-    const start2 = this.attributes.instanceStart;
-    const end2 = this.attributes.instanceEnd;
-    if (start2 !== void 0 && end2 !== void 0) {
-      const center = this.boundingSphere.center;
-      this.boundingBox.getCenter(center);
-      let maxRadiusSq = 0;
-      for (let i = 0, il = start2.count; i < il; i++) {
-        _vector2.fromBufferAttribute(start2, i);
-        maxRadiusSq = Math.max(maxRadiusSq, center.distanceToSquared(_vector2));
-        _vector2.fromBufferAttribute(end2, i);
-        maxRadiusSq = Math.max(maxRadiusSq, center.distanceToSquared(_vector2));
-      }
-      this.boundingSphere.radius = Math.sqrt(maxRadiusSq);
-      if (isNaN(this.boundingSphere.radius)) {
-        console.error("THREE.LineSegmentsGeometry.computeBoundingSphere(): Computed radius is NaN. The instanced position data is likely to have NaN values.", this);
-      }
-    }
-  }
-  toJSON() {
-  }
-  applyMatrix(matrix) {
-    console.warn("THREE.LineSegmentsGeometry: applyMatrix() has been renamed to applyMatrix4().");
-    return this.applyMatrix4(matrix);
-  }
-};
-LineSegmentsGeometry.prototype.isLineSegmentsGeometry = true;
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/examples/lines/LineSegments2.js
-var _start = new THREE.Vector3();
-var _end = new THREE.Vector3();
-var _start4 = new THREE.Vector4();
-var _end4 = new THREE.Vector4();
-var _ssOrigin = new THREE.Vector4();
-var _ssOrigin3 = new THREE.Vector3();
-var _mvMatrix = new THREE.Matrix4();
-var _line = new THREE.Line3();
-var _closestPoint = new THREE.Vector3();
-var _box2 = new THREE.Box3();
-var _sphere = new THREE.Sphere();
-var _clipToWorldVector = new THREE.Vector4();
-function getWorldSpaceHalfWidth(camera, distance2, lineWidth, resolution) {
-  _clipToWorldVector.set(0, 0, -distance2, 1).applyMatrix4(camera.projectionMatrix);
-  _clipToWorldVector.multiplyScalar(1 / _clipToWorldVector.w);
-  _clipToWorldVector.x = lineWidth / resolution.width;
-  _clipToWorldVector.y = lineWidth / resolution.height;
-  _clipToWorldVector.applyMatrix4(camera.projectionMatrixInverse);
-  _clipToWorldVector.multiplyScalar(1 / _clipToWorldVector.w);
-  return Math.abs(Math.max(_clipToWorldVector.x, _clipToWorldVector.y));
-}
-var LineSegments2 = class extends THREE.Mesh {
-  constructor(geometry = new LineSegmentsGeometry(), material = new LineMaterial({ color: Math.random() * 16777215 })) {
-    super(geometry, material);
-    this.type = "LineSegments2";
-  }
-  computeLineDistances() {
-    const geometry = this.geometry;
-    const instanceStart = geometry.attributes.instanceStart;
-    const instanceEnd = geometry.attributes.instanceEnd;
-    const lineDistances = new Float32Array(2 * instanceStart.count);
-    for (let i = 0, j = 0, l = instanceStart.count; i < l; i++, j += 2) {
-      _start.fromBufferAttribute(instanceStart, i);
-      _end.fromBufferAttribute(instanceEnd, i);
-      lineDistances[j] = j === 0 ? 0 : lineDistances[j - 1];
-      lineDistances[j + 1] = lineDistances[j] + _start.distanceTo(_end);
-    }
-    const instanceDistanceBuffer = new THREE.InstancedInterleavedBuffer(lineDistances, 2, 1);
-    geometry.setAttribute("instanceDistanceStart", new THREE.InterleavedBufferAttribute(instanceDistanceBuffer, 1, 0));
-    geometry.setAttribute("instanceDistanceEnd", new THREE.InterleavedBufferAttribute(instanceDistanceBuffer, 1, 1));
-    return this;
-  }
-  raycast(raycaster, intersects) {
-    if (raycaster.camera === null) {
-      console.error('LineSegments2: "Raycaster.camera" needs to be set in order to raycast against LineSegments2.');
-    }
-    const threshold = raycaster.params.Line2 !== void 0 ? raycaster.params.Line2.threshold || 0 : 0;
-    const ray = raycaster.ray;
-    const camera = raycaster.camera;
-    const projectionMatrix = camera.projectionMatrix;
-    const matrixWorld = this.matrixWorld;
-    const geometry = this.geometry;
-    const material = this.material;
-    const resolution = material.resolution;
-    const lineWidth = material.linewidth + threshold;
-    const instanceStart = geometry.attributes.instanceStart;
-    const instanceEnd = geometry.attributes.instanceEnd;
-    const near = -camera.near;
-    if (geometry.boundingSphere === null) {
-      geometry.computeBoundingSphere();
-    }
-    _sphere.copy(geometry.boundingSphere).applyMatrix4(matrixWorld);
-    const distanceToSphere = Math.max(camera.near, _sphere.distanceToPoint(ray.origin));
-    const sphereMargin = getWorldSpaceHalfWidth(camera, distanceToSphere, lineWidth, resolution);
-    _sphere.radius += sphereMargin;
-    if (raycaster.ray.intersectsSphere(_sphere) === false) {
-      return;
-    }
-    if (geometry.boundingBox === null) {
-      geometry.computeBoundingBox();
-    }
-    _box2.copy(geometry.boundingBox).applyMatrix4(matrixWorld);
-    const distanceToBox = Math.max(camera.near, _box2.distanceToPoint(ray.origin));
-    const boxMargin = getWorldSpaceHalfWidth(camera, distanceToBox, lineWidth, resolution);
-    _box2.max.x += boxMargin;
-    _box2.max.y += boxMargin;
-    _box2.max.z += boxMargin;
-    _box2.min.x -= boxMargin;
-    _box2.min.y -= boxMargin;
-    _box2.min.z -= boxMargin;
-    if (raycaster.ray.intersectsBox(_box2) === false) {
-      return;
-    }
-    ray.at(1, _ssOrigin);
-    _ssOrigin.w = 1;
-    _ssOrigin.applyMatrix4(camera.matrixWorldInverse);
-    _ssOrigin.applyMatrix4(projectionMatrix);
-    _ssOrigin.multiplyScalar(1 / _ssOrigin.w);
-    _ssOrigin.x *= resolution.x / 2;
-    _ssOrigin.y *= resolution.y / 2;
-    _ssOrigin.z = 0;
-    _ssOrigin3.copy(_ssOrigin);
-    _mvMatrix.multiplyMatrices(camera.matrixWorldInverse, matrixWorld);
-    for (let i = 0, l = instanceStart.count; i < l; i++) {
-      _start4.fromBufferAttribute(instanceStart, i);
-      _end4.fromBufferAttribute(instanceEnd, i);
-      _start4.w = 1;
-      _end4.w = 1;
-      _start4.applyMatrix4(_mvMatrix);
-      _end4.applyMatrix4(_mvMatrix);
-      var isBehindCameraNear = _start4.z > near && _end4.z > near;
-      if (isBehindCameraNear) {
-        continue;
-      }
-      if (_start4.z > near) {
-        const deltaDist = _start4.z - _end4.z;
-        const t2 = (_start4.z - near) / deltaDist;
-        _start4.lerp(_end4, t2);
-      } else if (_end4.z > near) {
-        const deltaDist = _end4.z - _start4.z;
-        const t2 = (_end4.z - near) / deltaDist;
-        _end4.lerp(_start4, t2);
-      }
-      _start4.applyMatrix4(projectionMatrix);
-      _end4.applyMatrix4(projectionMatrix);
-      _start4.multiplyScalar(1 / _start4.w);
-      _end4.multiplyScalar(1 / _end4.w);
-      _start4.x *= resolution.x / 2;
-      _start4.y *= resolution.y / 2;
-      _end4.x *= resolution.x / 2;
-      _end4.y *= resolution.y / 2;
-      _line.start.copy(_start4);
-      _line.start.z = 0;
-      _line.end.copy(_end4);
-      _line.end.z = 0;
-      const param = _line.closestPointToPointParameter(_ssOrigin3, true);
-      _line.at(param, _closestPoint);
-      const zPos = THREE.MathUtils.lerp(_start4.z, _end4.z, param);
-      const isInClipSpace = zPos >= -1 && zPos <= 1;
-      const isInside = _ssOrigin3.distanceTo(_closestPoint) < lineWidth * 0.5;
-      if (isInClipSpace && isInside) {
-        _line.start.fromBufferAttribute(instanceStart, i);
-        _line.end.fromBufferAttribute(instanceEnd, i);
-        _line.start.applyMatrix4(matrixWorld);
-        _line.end.applyMatrix4(matrixWorld);
-        const pointOnLine = new THREE.Vector3();
-        const point = new THREE.Vector3();
-        ray.distanceSqToSegment(_line.start, _line.end, point, pointOnLine);
-        intersects.push({
-          point,
-          pointOnLine,
-          distance: ray.origin.distanceTo(point),
-          object: this,
-          face: null,
-          faceIndex: i,
-          uv: null,
-          uv2: null
-        });
-      }
-    }
-  }
-};
-LineSegments2.prototype.isLineSegments2 = true;
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/examples/lines/LineGeometry.js
-var LineGeometry = class extends LineSegmentsGeometry {
-  constructor() {
-    super();
-    this.type = "LineGeometry";
-  }
-  setPositions(array) {
-    var length4 = array.length - 3;
-    var points = new Float32Array(2 * length4);
-    for (var i = 0; i < length4; i += 3) {
-      points[2 * i] = array[i];
-      points[2 * i + 1] = array[i + 1];
-      points[2 * i + 2] = array[i + 2];
-      points[2 * i + 3] = array[i + 3];
-      points[2 * i + 4] = array[i + 4];
-      points[2 * i + 5] = array[i + 5];
-    }
-    super.setPositions(points);
-    return this;
-  }
-  setColors(array) {
-    var length4 = array.length - 3;
-    var colors = new Float32Array(2 * length4);
-    for (var i = 0; i < length4; i += 3) {
-      colors[2 * i] = array[i];
-      colors[2 * i + 1] = array[i + 1];
-      colors[2 * i + 2] = array[i + 2];
-      colors[2 * i + 3] = array[i + 3];
-      colors[2 * i + 4] = array[i + 4];
-      colors[2 * i + 5] = array[i + 5];
-    }
-    super.setColors(colors);
-    return this;
-  }
-  fromLine(line) {
-    var geometry = line.geometry;
-    if (geometry.isGeometry) {
-      console.error("THREE.LineGeometry no longer supports Geometry. Use THREE.BufferGeometry instead.");
-      return;
-    } else if (geometry.isBufferGeometry) {
-      this.setPositions(geometry.attributes.position.array);
-    }
-    return this;
-  }
-};
-LineGeometry.prototype.isLineGeometry = true;
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/examples/lines/Line2.js
-var Line2 = class extends LineSegments2 {
-  constructor(geometry = new LineGeometry(), material = new LineMaterial({ color: Math.random() * 16777215 })) {
-    super(geometry, material);
-    this.type = "Line2";
-  }
-};
-Line2.prototype.isLine2 = true;
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/Laser.ts
-var geom = new LineGeometry();
-geom.setPositions([
-  0,
-  0,
-  0,
-  0,
-  0,
-  -1
-]);
-var Laser = class extends THREE.Object3D {
-  constructor(color2, linewidth = 1) {
-    super();
-    this._length = 1;
-    this.line = new Line2(geom, line2({
-      color: color2,
-      linewidth
-    }));
-    this.line.computeLineDistances();
-    objGraph(this, this.line);
-  }
-  get length() {
-    return this._length;
-  }
-  set length(v) {
-    this._length = v;
-    this.line.scale.set(1, 1, v);
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/PointerHand.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/devices/PointerHand.ts
 var mcModelFactory = new XRControllerModelFactory();
 var handModelFactory = new XRHandModelFactory();
-var riftSCorrection = new THREE.Matrix4().makeRotationX(-7 * Math.PI / 9);
+var riftSCorrection = new Matrix4().makeRotationX(-7 * Math.PI / 9);
 var pointerIDs = /* @__PURE__ */ new Map([
   ["none", 4 /* MotionController */],
   ["left", 5 /* MotionControllerLeft */],
@@ -16329,10 +16294,10 @@ var PointerHand = class extends BasePointer {
     this._isHand = false;
     this.inputSource = null;
     this._gamepad = new EventedGamepad();
-    this.delta = new THREE.Vector3();
-    this.newOrigin = new THREE.Vector3();
-    this.quaternion = new THREE.Quaternion();
-    this.newQuat = new THREE.Quaternion();
+    this.delta = new Vector3();
+    this.newOrigin = new Vector3();
+    this.quaternion = new Quaternion();
+    this.newQuat = new Quaternion();
     this.useHaptics = true;
     this.mayTeleport = true;
     this.object = obj("PointerHand" + index);
@@ -16388,7 +16353,7 @@ var PointerHand = class extends BasePointer {
         this.hand.visible = this.isHand;
         this.enabled = true;
         this.isActive = true;
-        this.env.pointers.checkXRMouse();
+        this.env.eventSys.checkXRMouse();
         this.updateCursorSide();
         console.log(this.handedness, "connected");
       }
@@ -16404,7 +16369,7 @@ var PointerHand = class extends BasePointer {
         this.hand.visible = false;
         this.enabled = false;
         this.isActive = false;
-        this.env.pointers.checkXRMouse();
+        this.env.eventSys.checkXRMouse();
         this.updateCursorSide();
         console.log(this.handedness, "disconnected");
       }
@@ -16462,16 +16427,16 @@ var PointerHand = class extends BasePointer {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/BaseScreenPointer.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/devices/BaseScreenPointer.ts
 var BaseScreenPointer = class extends BasePointer {
   constructor(type2, id2, env, cursor) {
     super(type2, id2, env, cursor);
-    this.position = new THREE.Vector2();
-    this.motion = new THREE.Vector2();
-    this.uv = new THREE.Vector2();
-    this.duv = new THREE.Vector2();
-    this.uvComp = new THREE.Vector2(1, -1);
-    this.uvOff = new THREE.Vector2(-1, 1);
+    this.position = new Vector2();
+    this.motion = new Vector2();
+    this.uv = new Vector2();
+    this.duv = new Vector2();
+    this.uvComp = new Vector2(1, -1);
+    this.uvOff = new Vector2(-1, 1);
     this.canMoveView = true;
     const onPointerEvent = (evt) => {
       if (this.checkEvent(evt)) {
@@ -16523,7 +16488,7 @@ var BaseScreenPointer = class extends BasePointer {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/BaseScreenPointerSinglePoint.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/devices/BaseScreenPointerSinglePoint.ts
 var BaseScreenPointerSinglePoint = class extends BaseScreenPointer {
   constructor(type2, id2, env) {
     const onPrep = (evt) => {
@@ -16558,7 +16523,7 @@ var BaseScreenPointerSinglePoint = class extends BaseScreenPointer {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/PointerMouse.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/devices/PointerMouse.ts
 var PointerMouse = class extends BaseScreenPointerSinglePoint {
   constructor(env) {
     super("mouse", 1 /* Mouse */, env);
@@ -16629,7 +16594,7 @@ var PointerMouse = class extends BaseScreenPointerSinglePoint {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/PointerPen.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/devices/PointerPen.ts
 var PointerPen = class extends BaseScreenPointerSinglePoint {
   constructor(env) {
     super("pen", 2 /* Pen */, env);
@@ -16639,7 +16604,7 @@ var PointerPen = class extends BaseScreenPointerSinglePoint {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/PointerTouch.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/devices/PointerTouch.ts
 function getPointerID(evt) {
   return evt.pointerId;
 }
@@ -16720,12 +16685,12 @@ var PointerTouch = class extends BaseScreenPointer {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/PointerManager.ts
-var PointerManager = class extends TypedEventBase {
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/EventSystem.ts
+var EventSystem = class extends TypedEventBase {
   constructor(env) {
     super();
     this.env = env;
-    this.raycaster = new THREE.Raycaster();
+    this.raycaster = new Raycaster();
     this.queue = new Array();
     this.targetsFound = /* @__PURE__ */ new Set();
     this.targets = new Array();
@@ -16810,7 +16775,7 @@ var Fader = class extends TypedEventBase {
     this.material = solidTransparent({
       name: "FaderMaterial",
       color: 0,
-      side: THREE.BackSide
+      side: BackSide
     });
     this.object = mesh(name2, cube, this.material);
     this.object.renderOrder = Number.MAX_VALUE;
@@ -20202,7 +20167,7 @@ var ScreenControl = class extends TypedEventBase {
 };
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/Skybox.ts
-var U = new THREE.Vector3(0, 1, 0);
+var U = new Vector3(0, 1, 0);
 var FACE_SIZE = 2048;
 var FACE_SIZE_HALF = FACE_SIZE / 2;
 var FACES = [
@@ -20227,16 +20192,16 @@ var CUBEMAP_PATTERN = {
     [0, Math.PI, 0, 0]
   ]
 };
-var black = new THREE.Color(0);
+var black = new Color(0);
 var Skybox = class {
   constructor(env) {
     this.env = env;
-    this.rt = new THREE.WebGLCubeRenderTarget(FACE_SIZE);
-    this.rtScene = new THREE.Scene();
-    this.rtCamera = new THREE.CubeCamera(0.01, 10, this.rt);
-    this._rotation = new THREE.Quaternion();
-    this.layerRotation = new THREE.Quaternion().identity();
-    this.stageRotation = new THREE.Quaternion().identity();
+    this.rt = new WebGLCubeRenderTarget(FACE_SIZE);
+    this.rtScene = new Scene();
+    this.rtCamera = new CubeCamera(0.01, 10, this.rt);
+    this._rotation = new Quaternion();
+    this.layerRotation = new Quaternion().identity();
+    this.stageRotation = new Quaternion().identity();
     this.canvases = new Array(6);
     this.contexts = new Array(6);
     this.layerOrientation = null;
@@ -20323,7 +20288,7 @@ var Skybox = class {
           cleanup(this.cube);
         }
         this.images = images;
-        this.rtScene.background = this.cube = new THREE.CubeTexture(this.images);
+        this.rtScene.background = this.cube = new CubeTexture(this.images);
         this.cube.name = "SkyboxInput";
       }
     }
@@ -20542,17 +20507,17 @@ var BaseEnvironment = class extends TypedEventBase {
     this.DEBUG = DEBUG;
     this.layers = new Array();
     this.layerSortOrder = /* @__PURE__ */ new Map();
-    this.spectator = new THREE.PerspectiveCamera();
-    this.lastViewport = new THREE.Vector4();
-    this.curViewport = new THREE.Vector4();
+    this.spectator = new PerspectiveCamera();
+    this.lastViewport = new Vector4();
+    this.curViewport = new Vector4();
     this.gltfLoader = new GLTFLoader();
     this.fadeDepth = 0;
-    this.camera = new THREE.PerspectiveCamera(50, 1, 0.01, 1e3);
-    this.scene = new THREE.Scene();
+    this.camera = new PerspectiveCamera(50, 1, 0.01, 1e3);
+    this.scene = new Scene();
     this.stage = obj("Stage");
-    this.ambient = new THREE.AmbientLight(16777215, 0.5);
-    this.sun = new THREE.DirectionalLight(16777215, 0.75);
-    this.ground = new THREE.GridHelper(gridSize, gridWidth, 12632256, 8421504);
+    this.ambient = new AmbientLight(16777215, 0.5);
+    this.sun = new DirectionalLight(16777215, 0.75);
+    this.ground = new GridHelper(gridSize, gridWidth, 12632256, 8421504);
     this.foreground = obj("Foreground");
     this.loadingBar = new LoadingBar();
     this.enableSpectator = false;
@@ -20563,8 +20528,11 @@ var BaseEnvironment = class extends TypedEventBase {
     this.cursor3D = new Cursor3D(this);
     if (isHTMLCanvas(canvas)) {
       canvas.style.backgroundColor = "black";
+      if (isNullOrUndefined(canvas.parentElement)) {
+        throw new Error("The provided canvas must be included in a parent element before constructing the environment.");
+      }
     }
-    this.renderer = new THREE.WebGLRenderer({
+    this.renderer = new WebGLRenderer({
       canvas,
       powerPreference: "high-performance",
       precision: "lowp",
@@ -20578,12 +20546,14 @@ var BaseEnvironment = class extends TypedEventBase {
     });
     this.renderer.domElement.setAttribute("touch-action", "none");
     this.renderer.domElement.tabIndex = 1;
-    this.screenControl = new ScreenControl(
-      this.renderer,
-      this.camera,
-      this.renderer.domElement.parentElement,
-      enableFullResolution
-    );
+    if (isHTMLCanvas(canvas)) {
+      this.screenControl = new ScreenControl(
+        this.renderer,
+        this.camera,
+        this.renderer.domElement.parentElement,
+        enableFullResolution
+      );
+    }
     this.fader = new Fader("ViewFader");
     this.worldUISpace = new BodyFollower("WorldUISpace", 0.2, 20, 0.125);
     this.avatar = new AvatarLocal(
@@ -20591,7 +20561,7 @@ var BaseEnvironment = class extends TypedEventBase {
       this.fader,
       defaultAvatarHeight
     );
-    this.pointers = new PointerManager(this);
+    this.eventSys = new EventSystem(this);
     this.timer = new XRTimer(this.renderer);
     this.skybox = new Skybox(this);
     this.renderer.xr.enabled = true;
@@ -20620,7 +20590,7 @@ var BaseEnvironment = class extends TypedEventBase {
         this.ground,
         this.camera,
         this.avatar,
-        ...this.pointers.hands
+        ...this.eventSys.hands
       ),
       this.foreground,
       objGraph(
@@ -20661,7 +20631,7 @@ var BaseEnvironment = class extends TypedEventBase {
         }
       }
       this.screenControl.resize();
-      this.pointers.update();
+      this.eventSys.update();
       this.avatar.update(evt.dt);
       this.worldUISpace.update(this.avatar.height, this.avatar.worldPos, this.avatar.worldHeading, evt.dt);
       this.fader.update(evt.dt);
@@ -20796,7 +20766,7 @@ var BaseEnvironment = class extends TypedEventBase {
     for (const child of children) {
       this.cursor3D.add(child.name, child);
     }
-    this.pointers.refreshCursors();
+    this.eventSys.refreshCursors();
     this.dispatchEvent(new TypedEvent("newcursorloaded"));
   }
   async load(progOrAsset, ...assets) {
@@ -21297,7 +21267,7 @@ var Environment = class extends BaseEnvironment {
     this.audioPlayer = new AudioPlayer(this.audio.audioCtx);
     this.videoPlayer = new VideoPlayer3D(this, this.audio.audioCtx);
     this.videoPlayer.object.visible = false;
-    this.interactionAudio = new InteractionAudio(this.audio, this.pointers);
+    this.interactionAudio = new InteractionAudio(this.audio, this.eventSys);
     this.confirmationDialog = new ConfirmationDialog(this, dialogFontFamily);
     this.devicesDialog = new DeviceDialog(this);
     this.uiButtons = new ButtonFactory(uiImagePaths, 20, this.DEBUG);
@@ -21446,13 +21416,15 @@ var Environment = class extends BaseEnvironment {
     } else {
       prog = progOrAsset;
     }
-    elementApply(
-      this.renderer.domElement.parentElement,
-      this.screenUISpace,
-      this.confirmationDialog,
-      this.devicesDialog,
-      this.renderer.domElement
-    );
+    if (isHTMLCanvas(this.renderer.domElement)) {
+      elementApply(
+        this.renderer.domElement.parentElement,
+        this.screenUISpace,
+        this.confirmationDialog,
+        this.devicesDialog,
+        this.renderer.domElement
+      );
+    }
     const footsteps = new AssetAudio("/audio/footsteps.mp3", Audio_Mpeg, !this.DEBUG);
     const enter = new AssetAudio("/audio/basic_enter.mp3", Audio_Mpeg, !this.DEBUG);
     const exit = new AssetAudio("/audio/basic_exit.mp3", Audio_Mpeg, !this.DEBUG);

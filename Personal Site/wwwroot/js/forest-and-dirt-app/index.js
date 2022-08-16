@@ -627,7 +627,7 @@ var Exception = class extends Error {
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/flags.ts
 var oculusBrowserPattern = /OculusBrowser\/(\d+)\.(\d+)\.(\d+)/i;
-var oculusMatch = navigator.userAgent.match(oculusBrowserPattern);
+var oculusMatch = /* @__PURE__ */ navigator.userAgent.match(oculusBrowserPattern);
 var isOculusBrowser = !!oculusMatch;
 var oculusBrowserVersion = isOculusBrowser && {
   major: parseFloat(oculusMatch[1]),
@@ -866,8 +866,8 @@ var base10Labels = /* @__PURE__ */ new Map([
   [3, "GB"],
   [4, "TB"]
 ]);
-var base2Sizes = mapInvert(base2Labels);
-var base10Sizes = mapInvert(base10Labels);
+var base2Sizes = /* @__PURE__ */ mapInvert(base2Labels);
+var base10Sizes = /* @__PURE__ */ mapInvert(base10Labels);
 function toBytes(value, units) {
   if (units === "B") {
     return value;
@@ -3121,6 +3121,9 @@ var FetchingServicePool = class extends WorkerPool {
   }
 };
 
+// global-externals:three
+var { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlendMode, AdditiveBlending, AlphaFormat, AlwaysDepth, AlwaysStencilFunc, AmbientLight, AmbientLightProbe, AnimationClip, AnimationLoader, AnimationMixer, AnimationObjectGroup, AnimationUtils, ArcCurve, ArrayCamera, ArrowHelper, Audio: Audio3, AudioAnalyser, AudioContext, AudioListener, AudioLoader, AxesHelper, BackSide, BasicDepthPacking, BasicShadowMap, Bone, BooleanKeyframeTrack, Box2, Box3, Box3Helper, BoxBufferGeometry, BoxGeometry, BoxHelper, BufferAttribute, BufferGeometry, BufferGeometryLoader, ByteType, Cache, Camera, CameraHelper, CanvasTexture, CapsuleBufferGeometry, CapsuleGeometry, CatmullRomCurve3, CineonToneMapping, CircleBufferGeometry, CircleGeometry, ClampToEdgeWrapping, Clock, Color, ColorKeyframeTrack, ColorManagement, CompressedTexture, CompressedTextureLoader, ConeBufferGeometry, ConeGeometry, CubeCamera, CubeReflectionMapping, CubeRefractionMapping, CubeTexture, CubeTextureLoader, CubeUVReflectionMapping, CubicBezierCurve, CubicBezierCurve3, CubicInterpolant, CullFaceBack, CullFaceFront, CullFaceFrontBack, CullFaceNone, Curve, CurvePath, CustomBlending, CustomToneMapping, CylinderBufferGeometry, CylinderGeometry, Cylindrical, Data3DTexture, DataArrayTexture, DataTexture, DataTexture2DArray, DataTexture3D, DataTextureLoader, DataUtils, DecrementStencilOp, DecrementWrapStencilOp, DefaultLoadingManager, DepthFormat, DepthStencilFormat, DepthTexture, DirectionalLight, DirectionalLightHelper, DiscreteInterpolant, DodecahedronBufferGeometry, DodecahedronGeometry, DoubleSide, DstAlphaFactor, DstColorFactor, DynamicCopyUsage, DynamicDrawUsage, DynamicReadUsage, EdgesGeometry, EllipseCurve, EqualDepth, EqualStencilFunc, EquirectangularReflectionMapping, EquirectangularRefractionMapping, Euler, EventDispatcher, ExtrudeBufferGeometry, ExtrudeGeometry, FileLoader, FlatShading, Float16BufferAttribute, Float32BufferAttribute, Float64BufferAttribute, FloatType, Fog, FogExp2, Font, FontLoader, FramebufferTexture, FrontSide, Frustum, GLBufferAttribute, GLSL1, GLSL3, GreaterDepth, GreaterEqualDepth, GreaterEqualStencilFunc, GreaterStencilFunc, GridHelper, Group, HalfFloatType, HemisphereLight, HemisphereLightHelper, HemisphereLightProbe, IcosahedronBufferGeometry, IcosahedronGeometry, ImageBitmapLoader, ImageLoader, ImageUtils, ImmediateRenderObject, IncrementStencilOp, IncrementWrapStencilOp, InstancedBufferAttribute, InstancedBufferGeometry, InstancedInterleavedBuffer, InstancedMesh, Int16BufferAttribute, Int32BufferAttribute, Int8BufferAttribute, IntType, InterleavedBuffer, InterleavedBufferAttribute, Interpolant, InterpolateDiscrete, InterpolateLinear, InterpolateSmooth, InvertStencilOp, KeepStencilOp, KeyframeTrack, LOD, LatheBufferGeometry, LatheGeometry, Layers, LessDepth, LessEqualDepth, LessEqualStencilFunc, LessStencilFunc, Light, LightProbe, Line, Line3, LineBasicMaterial, LineCurve, LineCurve3, LineDashedMaterial, LineLoop, LineSegments, LinearEncoding, LinearFilter, LinearInterpolant, LinearMipMapLinearFilter, LinearMipMapNearestFilter, LinearMipmapLinearFilter, LinearMipmapNearestFilter, LinearSRGBColorSpace, LinearToneMapping, Loader, LoaderUtils, LoadingManager, LoopOnce, LoopPingPong, LoopRepeat, LuminanceAlphaFormat, LuminanceFormat, MOUSE, Material, MaterialLoader, MathUtils, Matrix3, Matrix4, MaxEquation, Mesh, MeshBasicMaterial, MeshDepthMaterial, MeshDistanceMaterial, MeshLambertMaterial, MeshMatcapMaterial, MeshNormalMaterial, MeshPhongMaterial, MeshPhysicalMaterial, MeshStandardMaterial, MeshToonMaterial, MinEquation, MirroredRepeatWrapping, MixOperation, MultiplyBlending, MultiplyOperation, NearestFilter, NearestMipMapLinearFilter, NearestMipMapNearestFilter, NearestMipmapLinearFilter, NearestMipmapNearestFilter, NeverDepth, NeverStencilFunc, NoBlending, NoColorSpace, NoToneMapping, NormalAnimationBlendMode, NormalBlending, NotEqualDepth, NotEqualStencilFunc, NumberKeyframeTrack, Object3D, ObjectLoader, ObjectSpaceNormalMap, OctahedronBufferGeometry, OctahedronGeometry, OneFactor, OneMinusDstAlphaFactor, OneMinusDstColorFactor, OneMinusSrcAlphaFactor, OneMinusSrcColorFactor, OrthographicCamera, PCFShadowMap, PCFSoftShadowMap, PMREMGenerator, ParametricGeometry, Path, PerspectiveCamera, Plane, PlaneBufferGeometry, PlaneGeometry, PlaneHelper, PointLight, PointLightHelper, Points, PointsMaterial, PolarGridHelper, PolyhedronBufferGeometry, PolyhedronGeometry, PositionalAudio, PropertyBinding, PropertyMixer, QuadraticBezierCurve, QuadraticBezierCurve3, Quaternion, QuaternionKeyframeTrack, QuaternionLinearInterpolant, REVISION, RGBADepthPacking, RGBAFormat, RGBAIntegerFormat, RGBA_ASTC_10x10_Format, RGBA_ASTC_10x5_Format, RGBA_ASTC_10x6_Format, RGBA_ASTC_10x8_Format, RGBA_ASTC_12x10_Format, RGBA_ASTC_12x12_Format, RGBA_ASTC_4x4_Format, RGBA_ASTC_5x4_Format, RGBA_ASTC_5x5_Format, RGBA_ASTC_6x5_Format, RGBA_ASTC_6x6_Format, RGBA_ASTC_8x5_Format, RGBA_ASTC_8x6_Format, RGBA_ASTC_8x8_Format, RGBA_BPTC_Format, RGBA_ETC2_EAC_Format, RGBA_PVRTC_2BPPV1_Format, RGBA_PVRTC_4BPPV1_Format, RGBA_S3TC_DXT1_Format, RGBA_S3TC_DXT3_Format, RGBA_S3TC_DXT5_Format, RGBFormat, RGB_ETC1_Format, RGB_ETC2_Format, RGB_PVRTC_2BPPV1_Format, RGB_PVRTC_4BPPV1_Format, RGB_S3TC_DXT1_Format, RGFormat, RGIntegerFormat, RawShaderMaterial, Ray, Raycaster, RectAreaLight, RedFormat, RedIntegerFormat, ReinhardToneMapping, RepeatWrapping, ReplaceStencilOp, ReverseSubtractEquation, RingBufferGeometry, RingGeometry, SRGBColorSpace, Scene, ShaderChunk, ShaderLib, ShaderMaterial, ShadowMaterial, Shape, ShapeBufferGeometry, ShapeGeometry, ShapePath, ShapeUtils, ShortType, Skeleton, SkeletonHelper, SkinnedMesh, SmoothShading, Source, Sphere, SphereBufferGeometry, SphereGeometry, Spherical, SphericalHarmonics3, SplineCurve, SpotLight, SpotLightHelper, Sprite, SpriteMaterial, SrcAlphaFactor, SrcAlphaSaturateFactor, SrcColorFactor, StaticCopyUsage, StaticDrawUsage, StaticReadUsage, StereoCamera, StreamCopyUsage, StreamDrawUsage, StreamReadUsage, StringKeyframeTrack, SubtractEquation, SubtractiveBlending, TOUCH, TangentSpaceNormalMap, TetrahedronBufferGeometry, TetrahedronGeometry, TextGeometry, Texture, TextureLoader, TorusBufferGeometry, TorusGeometry, TorusKnotBufferGeometry, TorusKnotGeometry, Triangle, TriangleFanDrawMode, TriangleStripDrawMode, TrianglesDrawMode, TubeBufferGeometry, TubeGeometry, UVMapping, Uint16BufferAttribute, Uint32BufferAttribute, Uint8BufferAttribute, Uint8ClampedBufferAttribute, Uniform, UniformsGroup, UniformsLib, UniformsUtils, UnsignedByteType, UnsignedInt248Type, UnsignedIntType, UnsignedShort4444Type, UnsignedShort5551Type, UnsignedShortType, VSMShadowMap, Vector2, Vector3, Vector4, VectorKeyframeTrack, VideoTexture, WebGL1Renderer, WebGL3DRenderTarget, WebGLArrayRenderTarget, WebGLCubeRenderTarget, WebGLMultipleRenderTargets, WebGLMultisampleRenderTarget, WebGLRenderTarget, WebGLRenderer, WebGLUtils, WireframeGeometry, WrapAroundEnding, ZeroCurvatureEnding, ZeroFactor, ZeroSlopeEnding, ZeroStencilOp, _SRGBAFormat, sRGBEncoding } = THREE;
+
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/typeChecks.ts
 function isMesh(obj) {
   return isDefined(obj) && obj.isMesh;
@@ -3128,7 +3131,7 @@ function isMesh(obj) {
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/objects.ts
 function mesh(name, geom, mat) {
-  const mesh2 = new THREE.Mesh(geom, mat);
+  const mesh2 = new Mesh(geom, mat);
   mesh2.name = name;
   return mesh2;
 }
@@ -3185,7 +3188,7 @@ var RayTarget = class extends TypedEventBase {
 
 // src/isDebug.ts
 var url = /* @__PURE__ */ new URL(globalThis.location.href);
-var isDebug = !url.searchParams.has("RELEASE");
+var isDebug = !url.searchParams.has("RELEASE") || false;
 var JS_EXT = isDebug ? ".js" : ".min.js";
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/fonts.ts
@@ -3458,20 +3461,20 @@ var AssetGltfModel = class extends BaseFetchedAsset {
 };
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/examples/lines/LineMaterial.js
-THREE.UniformsLib.line = {
+UniformsLib.line = {
   worldUnits: { value: 1 },
   linewidth: { value: 1 },
-  resolution: { value: new THREE.Vector2(1, 1) },
+  resolution: { value: new Vector2(1, 1) },
   dashOffset: { value: 0 },
   dashScale: { value: 1 },
   dashSize: { value: 1 },
   gapSize: { value: 1 }
 };
-THREE.ShaderLib["line"] = {
-  uniforms: THREE.UniformsUtils.merge([
-    THREE.UniformsLib.common,
-    THREE.UniformsLib.fog,
-    THREE.UniformsLib.line
+ShaderLib["line"] = {
+  uniforms: UniformsUtils.merge([
+    UniformsLib.common,
+    UniformsLib.fog,
+    UniformsLib.line
   ]),
   vertexShader: `
 		#include <common>
@@ -3863,13 +3866,13 @@ THREE.ShaderLib["line"] = {
 		}
 		`
 };
-var LineMaterial = class extends THREE.ShaderMaterial {
+var LineMaterial = class extends ShaderMaterial {
   constructor(parameters) {
     super({
       type: "LineMaterial",
-      uniforms: THREE.UniformsUtils.clone(THREE.ShaderLib["line"].uniforms),
-      vertexShader: THREE.ShaderLib["line"].vertexShader,
-      fragmentShader: THREE.ShaderLib["line"].fragmentShader,
+      uniforms: UniformsUtils.clone(ShaderLib["line"].uniforms),
+      vertexShader: ShaderLib["line"].vertexShader,
+      fragmentShader: ShaderLib["line"].fragmentShader,
       clipping: true
     });
     Object.defineProperties(this, {
@@ -4063,7 +4066,7 @@ function materialStandardToBasic(oldMat) {
       delete params[key];
     }
   }
-  return new THREE.MeshBasicMaterial(params);
+  return new MeshBasicMaterial(params);
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/objectScan.ts
@@ -4094,7 +4097,7 @@ var Forest = class {
       this.bgAudio = new AssetAudio("/audio/forest.mp3", Audio_Mpeg, !isDebug),
       this.tree = new AssetGltfModel(this.env, "/models/Forest-Tree.glb", Model_Gltf_Binary, !isDebug)
     ];
-    this.raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0), 0.1, 100);
+    this.raycaster = new Raycaster(new Vector3(), new Vector3(0, -1, 0), 0.1, 100);
     this.hits = new Array();
     Promise.all(this.assets).then(() => this.finish());
   }
@@ -4158,7 +4161,7 @@ var Forest = class {
     const treeMesh = objectScan(this.tree.result.scene, isMesh);
     const treeGeom = treeMesh.geometry;
     const treeMat = materialStandardToBasic(treeMesh.material);
-    this._trees = new THREE.InstancedMesh(treeGeom, treeMat, matrices.length);
+    this._trees = new InstancedMesh(treeGeom, treeMat, matrices.length);
     for (let i = 0; i < matrices.length; ++i) {
       this._trees.setMatrixAt(i, matrices[i]);
     }
@@ -4166,12 +4169,12 @@ var Forest = class {
   }
   makeTrees() {
     const matrices = new Array();
-    const q = new THREE.Quaternion();
-    const right = new THREE.Vector3(1, 0, 0);
-    const p = new THREE.Vector3();
-    const q2 = new THREE.Quaternion().setFromAxisAngle(right, Math.PI / 2);
-    const up = new THREE.Vector3(0, 1, 0);
-    const s = new THREE.Vector3();
+    const q = new Quaternion();
+    const right = new Vector3(1, 0, 0);
+    const p = new Vector3();
+    const q2 = new Quaternion().setFromAxisAngle(right, Math.PI / 2);
+    const up = new Vector3(0, 1, 0);
+    const s = new Vector3();
     for (let dz = -25; dz <= 25; ++dz) {
       for (let dx = -25; dx <= 25; ++dx) {
         if ((dx !== 0 || dx !== 0) && Math.random() <= 0.02) {
@@ -4180,11 +4183,11 @@ var Forest = class {
           p.set(x, 0, z);
           const groundHit = this.groundTest(p);
           if (groundHit) {
-            const w = THREE.MathUtils.randFloat(0.6, 1.3);
-            const h = THREE.MathUtils.randFloat(0.6, 1.3);
+            const w = MathUtils.randFloat(0.6, 1.3);
+            const h = MathUtils.randFloat(0.6, 1.3);
             s.set(w, h, w);
-            const a = THREE.MathUtils.randFloat(0, 2 * Math.PI);
-            const m = new THREE.Matrix4().compose(
+            const a = MathUtils.randFloat(0, 2 * Math.PI);
+            const m = new Matrix4().compose(
               groundHit.point,
               q.setFromAxisAngle(up, a).multiply(q2),
               s
@@ -4217,13 +4220,13 @@ var Forest = class {
   const dirtMapAsset = new AssetImage("/img/dirt.jpg", Image_Jpeg, !isDebug);
   const forest = new Forest(env);
   await env.load(dirtMapAsset, ...forest.assets);
-  const dirtMapTex = new THREE.Texture(dirtMapAsset.result);
-  dirtMapTex.minFilter = THREE.LinearMipmapLinearFilter;
-  dirtMapTex.magFilter = THREE.LinearFilter;
+  const dirtMapTex = new Texture(dirtMapAsset.result);
+  dirtMapTex.minFilter = LinearMipmapLinearFilter;
+  dirtMapTex.magFilter = LinearFilter;
   dirtMapTex.needsUpdate = true;
-  const dirtBumpMapTex = new THREE.Texture(null);
-  dirtBumpMapTex.minFilter = THREE.LinearMipmapLinearFilter;
-  dirtBumpMapTex.magFilter = THREE.LinearFilter;
+  const dirtBumpMapTex = new Texture(null);
+  dirtBumpMapTex.minFilter = LinearMipmapLinearFilter;
+  dirtBumpMapTex.magFilter = LinearFilter;
   const dirtBumpMap = new DirtWorkerClient(await env.fetcher.get(`/js/dirt-worker/index${JS_EXT}?${version}`).useCache(!isDebug).accept(Application_Javascript).worker());
   dirtBumpMap.addEventListener("update", (evt) => {
     if (dirtBumpMapTex.image instanceof ImageBitmap) {
@@ -4233,8 +4236,8 @@ var Forest = class {
     dirtBumpMapTex.needsUpdate = true;
   });
   await dirtBumpMap.init(R, R, F, P);
-  const dirtGeom = new THREE.PlaneBufferGeometry(S, S, R, R);
-  const dirtMat = new THREE.MeshPhongMaterial({
+  const dirtGeom = new PlaneBufferGeometry(S, S, R, R);
+  const dirtMat = new MeshPhongMaterial({
     precision: "highp",
     map: dirtMapTex,
     bumpMap: dirtBumpMapTex,
@@ -4244,12 +4247,12 @@ var Forest = class {
     displacementBias: -0.05,
     shininess: 0,
     reflectivity: 0,
-    side: THREE.FrontSide
+    side: FrontSide
   });
   const dirt = mesh("Dirt", dirtGeom, dirtMat);
   dirt.position.set(0, 0.1, 1);
   dirt.rotation.x = -Math.PI / 2;
-  const dirtSurface = mesh("DirtSurface", new THREE.PlaneBufferGeometry(S, S, 1, 1));
+  const dirtSurface = mesh("DirtSurface", new PlaneBufferGeometry(S, S, 1, 1));
   dirtSurface.visible = false;
   dirt.add(dirtSurface);
   const dirtTarget = new RayTarget(dirt);
