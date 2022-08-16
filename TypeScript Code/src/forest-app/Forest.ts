@@ -9,9 +9,10 @@ import { isMesh } from "@juniper-lib/threejs/typeChecks";
 import { arrayClear, arrayScan, isDefined } from "@juniper-lib/tslib";
 import { isDebug } from "../isDebug";
 import { defaultAvatarHeight } from "../settings";
+import { BufferGeometry, InstancedMesh, Intersection, MathUtils, Matrix4, Mesh, MeshBasicMaterial, MeshStandardMaterial, Object3D, Quaternion, Raycaster, Vector3 } from "three";
 
 function isMeshNamed(name: string) {
-    return (obj: THREE.Object3D) => isMesh(obj) && obj.name === name;
+    return (obj: Object3D) => isMesh(obj) && obj.name === name;
 }
 
 export class Forest {
@@ -19,12 +20,12 @@ export class Forest {
     private readonly forest: AssetGltfModel;
     private readonly tree: AssetGltfModel;
     private readonly bgAudio: AssetAudio;
-    private readonly raycaster: THREE.Raycaster;
-    private readonly hits: Array<THREE.Intersection>;
+    private readonly raycaster: Raycaster;
+    private readonly hits: Array<Intersection>;
 
-    private _ground: THREE.Mesh<THREE.BufferGeometry, THREE.MeshBasicMaterial>;
-    private _water: THREE.Mesh<THREE.BufferGeometry, THREE.MeshBasicMaterial>;
-    private _trees: THREE.InstancedMesh;
+    private _ground: Mesh<BufferGeometry, MeshBasicMaterial>;
+    private _water: Mesh<BufferGeometry, MeshBasicMaterial>;
+    private _trees: InstancedMesh;
     private navMesh: RayTarget;
 
     get ground() {
@@ -49,21 +50,21 @@ export class Forest {
             this.tree = new AssetGltfModel(this.env, "/models/Forest-Tree.glb", Model_Gltf_Binary, !isDebug)
         ];
 
-        this.raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0), 0.1, 100);
-        this.hits = new Array<THREE.Intersection>();
+        this.raycaster = new Raycaster(new Vector3(), new Vector3(0, -1, 0), 0.1, 100);
+        this.hits = new Array<Intersection>();
 
         Promise.all(this.assets)
             .then(() => this.finish())
     }
 
-    private convertMesh(oldMesh: THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>): THREE.Mesh<THREE.BufferGeometry, THREE.MeshBasicMaterial> {
+    private convertMesh(oldMesh: Mesh<BufferGeometry, MeshStandardMaterial>): Mesh<BufferGeometry, MeshBasicMaterial> {
         const oldMat = oldMesh.material;
         const newMat = materialStandardToBasic(oldMesh.material);
         if (newMat as any === oldMat) {
             return oldMesh as any;
         }
 
-        const newMesh = oldMesh as any as THREE.Mesh<THREE.BufferGeometry, THREE.MeshBasicMaterial>;
+        const newMesh = oldMesh as any as Mesh<BufferGeometry, MeshBasicMaterial>;
         newMesh.material = newMat;
         oldMat.dispose();
         return newMesh;
@@ -87,7 +88,7 @@ export class Forest {
         this.forest.result.scene.updateMatrixWorld();
         this.raycaster.camera = this.env.camera;
 
-        const ground = objectScan<THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>>(this.forest.result.scene, isMeshNamed("Ground"));
+        const ground = objectScan<Mesh<BufferGeometry, MeshStandardMaterial>>(this.forest.result.scene, isMeshNamed("Ground"));
         this._ground = this.convertMesh(ground);
 
         this.navMesh = new RayTarget(this._ground);
@@ -110,15 +111,15 @@ export class Forest {
             }
         });
 
-        const water = objectScan<THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>>(this.forest.result.scene, isMeshNamed("Water"));
+        const water = objectScan<Mesh<BufferGeometry, MeshStandardMaterial>>(this.forest.result.scene, isMeshNamed("Water"));
         this._water = this.convertMesh(water);
 
         const matrices = this.makeTrees();
-        const treeMesh = objectScan<THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>>(this.tree.result.scene, isMesh);
+        const treeMesh = objectScan<Mesh<BufferGeometry, MeshStandardMaterial>>(this.tree.result.scene, isMesh);
         const treeGeom = treeMesh.geometry;
         const treeMat = materialStandardToBasic(treeMesh.material);
 
-        this._trees = new THREE.InstancedMesh(treeGeom, treeMat, matrices.length);
+        this._trees = new InstancedMesh(treeGeom, treeMat, matrices.length);
 
         for (let i = 0; i < matrices.length; ++i) {
             this._trees.setMatrixAt(i, matrices[i]);
@@ -128,13 +129,13 @@ export class Forest {
     }
 
     private makeTrees() {
-        const matrices = new Array<THREE.Matrix4>();
-        const q = new THREE.Quaternion();
-        const right = new THREE.Vector3(1, 0, 0);
-        const p = new THREE.Vector3();
-        const q2 = new THREE.Quaternion().setFromAxisAngle(right, Math.PI / 2);
-        const up = new THREE.Vector3(0, 1, 0);
-        const s = new THREE.Vector3();
+        const matrices = new Array<Matrix4>();
+        const q = new Quaternion();
+        const right = new Vector3(1, 0, 0);
+        const p = new Vector3();
+        const q2 = new Quaternion().setFromAxisAngle(right, Math.PI / 2);
+        const up = new Vector3(0, 1, 0);
+        const s = new Vector3();
         for (let dz = -25; dz <= 25; ++dz) {
             for (let dx = -25; dx <= 25; ++dx) {
                 if ((dx !== 0 || dx !== 0) // don't put a tree on top of the spawn point
@@ -144,11 +145,11 @@ export class Forest {
                     p.set(x, 0, z);
                     const groundHit = this.groundTest(p);
                     if (groundHit) {
-                        const w = THREE.MathUtils.randFloat(0.6, 1.3);
-                        const h = THREE.MathUtils.randFloat(0.6, 1.3);
+                        const w = MathUtils.randFloat(0.6, 1.3);
+                        const h = MathUtils.randFloat(0.6, 1.3);
                         s.set(w, h, w);
-                        const a = THREE.MathUtils.randFloat(0, 2 * Math.PI);
-                        const m = new THREE.Matrix4()
+                        const a = MathUtils.randFloat(0, 2 * Math.PI);
+                        const m = new Matrix4()
                             .compose(
                                 groundHit.point,
                                 q.setFromAxisAngle(up, a).multiply(q2),
@@ -162,7 +163,7 @@ export class Forest {
         return matrices;
     }
 
-    groundTest(p: THREE.Vector3): THREE.Intersection {
+    groundTest(p: Vector3): Intersection {
         this.raycaster.ray.origin.copy(p);
         this.raycaster.ray.origin.y += 10;
         this.raycaster.intersectObject(this.ground, true, this.hits);

@@ -1,8 +1,9 @@
 ﻿import { AssetImage } from "@juniper-lib/fetcher";
 import { Application_Javascript, Image_Jpeg } from "@juniper-lib/mediatypes";
-import type { Pointer3DEvent } from "@juniper-lib/threejs/eventSystem/Pointer3DEvent";
+import type { Pointer3DEvent } from "@juniper-lib/threejs/eventSystem/devices/Pointer3DEvent";
 import { RayTarget } from "@juniper-lib/threejs/eventSystem/RayTarget";
 import { mesh } from "@juniper-lib/threejs/objects";
+import { FrontSide, LinearFilter, LinearMipmapLinearFilter, MeshPhongMaterial, PlaneBufferGeometry, Texture } from "three";
 import { createTestEnvironment } from "../createTestEnvironment";
 import { DirtWorkerClient } from "../dirt-worker/DirtWorkerClient";
 import { Forest } from "../forest-app/Forest";
@@ -24,14 +25,14 @@ import { version } from "../settings";
     const forest = new Forest(env);
     await env.load(dirtMapAsset, ...forest.assets);
 
-    const dirtMapTex = new THREE.Texture(dirtMapAsset.result);
-    dirtMapTex.minFilter = THREE.LinearMipmapLinearFilter;
-    dirtMapTex.magFilter = THREE.LinearFilter;
+    const dirtMapTex = new Texture(dirtMapAsset.result);
+    dirtMapTex.minFilter = LinearMipmapLinearFilter;
+    dirtMapTex.magFilter = LinearFilter;
     dirtMapTex.needsUpdate = true;
 
-    const dirtBumpMapTex = new THREE.Texture(null);
-    dirtBumpMapTex.minFilter = THREE.LinearMipmapLinearFilter;
-    dirtBumpMapTex.magFilter = THREE.LinearFilter;
+    const dirtBumpMapTex = new Texture(null);
+    dirtBumpMapTex.minFilter = LinearMipmapLinearFilter;
+    dirtBumpMapTex.magFilter = LinearFilter;
 
     const dirtBumpMap = new DirtWorkerClient(await env.fetcher
         .get(`/js/dirt-worker/index${JS_EXT}?${version}`)
@@ -47,9 +48,9 @@ import { version } from "../settings";
     });
     await dirtBumpMap.init(R, R, F, P);
 
-    const dirtGeom = new THREE.PlaneBufferGeometry(S, S, R, R);
+    const dirtGeom = new PlaneBufferGeometry(S, S, R, R);
 
-    const dirtMat = new THREE.MeshPhongMaterial({
+    const dirtMat = new MeshPhongMaterial({
         precision: "highp",
         map: dirtMapTex,
         bumpMap: dirtBumpMapTex,
@@ -59,14 +60,14 @@ import { version } from "../settings";
         displacementBias: -0.05,
         shininess: 0,
         reflectivity: 0,
-        side: THREE.FrontSide
+        side: FrontSide
     });
 
     const dirt = mesh("Dirt", dirtGeom, dirtMat);
     dirt.position.set(0, 0.1, 1);
     dirt.rotation.x = -Math.PI / 2;
 
-    const dirtSurface = mesh("DirtSurface", new THREE.PlaneBufferGeometry(S, S, 1, 1));
+    const dirtSurface = mesh("DirtSurface", new PlaneBufferGeometry(S, S, 1, 1));
     dirtSurface.visible = false;
     dirt.add(dirtSurface);
 

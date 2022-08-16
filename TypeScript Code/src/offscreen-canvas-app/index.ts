@@ -1,6 +1,7 @@
 ﻿import { Application_Javascript } from "@juniper-lib/mediatypes";
 import { cleanup } from "@juniper-lib/threejs/cleanup";
 import { hasWebXR } from "@juniper-lib/tslib";
+import { Float32BufferAttribute, Mesh, MeshBasicMaterial, PlaneBufferGeometry, Texture } from "three";
 import { createTestEnvironment } from "../createTestEnvironment";
 import Environment from "../environment";
 
@@ -101,16 +102,16 @@ const workerScriptBlobUrl = URL.createObjectURL(workerScriptBlob);
     await env.fadeIn();
 })();
 
-const geom = new THREE.PlaneBufferGeometry(1, 1, 1, 1);
-const uv = geom.getAttribute("uv") as THREE.Float32BufferAttribute;
+const geom = new PlaneBufferGeometry(1, 1, 1, 1);
+const uv = geom.getAttribute("uv") as Float32BufferAttribute;
 for (let i = 0; i < uv.count; ++i) {
     uv.setY(i, 1 - uv.getY(i));
 }
 
 function makeMesh(env: Environment, canvas1: HTMLCanvasElement, x: number) {
-    const map = new THREE.Texture(canvas1);
-    const mat = new THREE.MeshBasicMaterial({ map });
-    const mesh = new THREE.Mesh(geom, mat);
+    const map = new Texture(canvas1);
+    const mat = new MeshBasicMaterial({ map });
+    const mesh = new Mesh(geom, mat);
 
     map.flipY = false;
     env.foreground.add(mesh);

@@ -18,7 +18,7 @@ import { isDebug } from "../isDebug";
     await env.fadeOut();
     await env.load(skybox, picture);
 
-    env.pointers.mouse.allowPointerLock = true;
+    env.eventSys.mouse.allowPointerLock = true;
 
     env.skybox.setImage(skybox.path, skybox.result);
     env.skybox.rotation = deg2rad(176);

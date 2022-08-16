@@ -8,7 +8,7 @@ import { Forest } from "./Forest";
     const forest = new Forest(env);
     await env.load(...forest.assets);
 
-    env.pointers.mouse.allowPointerLock = true;
+    env.eventSys.mouse.allowPointerLock = true;
 
     await env.fadeIn();
 })();

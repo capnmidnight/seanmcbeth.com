@@ -30,7 +30,7 @@ const args = process.argv.slice(2);
 function makeBuild(apps, isWorker) {
     return new Build(args, isWorker)
         .plugin((minify) => glsl({ minify }))
-        .external("three")
+        .addThreeJS()
         .outDir("../Personal Site/wwwroot/js")
         .bundles(apps);
 }
