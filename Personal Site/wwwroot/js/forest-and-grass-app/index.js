@@ -1559,7 +1559,7 @@ function isErsatzElement(obj2) {
     return false;
   }
   const elem = obj2;
-  return elem.element instanceof Node;
+  return elem.element instanceof HTMLElement;
 }
 function resolveElement(elem) {
   if (isErsatzElement(elem)) {

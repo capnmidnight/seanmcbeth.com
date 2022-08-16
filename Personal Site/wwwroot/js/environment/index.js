@@ -5520,7 +5520,7 @@ function isErsatzElement(obj2) {
     return false;
   }
   const elem = obj2;
-  return elem.element instanceof Node;
+  return elem.element instanceof HTMLElement;
 }
 function resolveElement(elem) {
   if (isErsatzElement(elem)) {
@@ -11916,11 +11916,11 @@ var AvatarLocal = class extends TypedEventBase {
     if (this._keyboardControlEnabled !== v) {
       this._keyboardControlEnabled = v;
       if (this._keyboardControlEnabled) {
-        globalThis.addEventListener("keydown", this.onKeyDown);
-        globalThis.addEventListener("keyup", this.onKeyUp);
+        this.env.renderer.domElement.addEventListener("keydown", this.onKeyDown);
+        this.env.renderer.domElement.addEventListener("keyup", this.onKeyUp);
       } else {
-        globalThis.removeEventListener("keydown", this.onKeyDown);
-        globalThis.removeEventListener("keyup", this.onKeyUp);
+        this.env.renderer.domElement.removeEventListener("keydown", this.onKeyDown);
+        this.env.renderer.domElement.removeEventListener("keyup", this.onKeyUp);
       }
     }
   }
