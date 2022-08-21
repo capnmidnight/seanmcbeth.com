@@ -1,4 +1,6 @@
-import { Fetcher, FetchingService, FetchingServiceImplFetch } from "@juniper-lib/fetcher";
+import { Fetcher } from "@juniper-lib/fetcher/Fetcher";
+import { FetchingService } from "@juniper-lib/fetcher/FetchingService";
+import { FetchingServiceImplFetch } from "@juniper-lib/fetcher/FetchingServiceImplFetch";
 
 (function (self: ServiceWorkerGlobalScope) {
     function log(evtName: keyof ServiceWorkerGlobalScopeEventMap) {

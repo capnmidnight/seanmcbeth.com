@@ -1,4 +1,4 @@
-﻿import { AssetAudio, AssetImage, BaseAsset } from "@juniper-lib/fetcher";
+﻿import { AssetAudio, AssetImage, BaseAsset } from "@juniper-lib/fetcher/Asset";
 import { Audio_Mpeg, Image_Jpeg, Model_Gltf_Binary } from "@juniper-lib/mediatypes";
 import { AssetGltfModel } from "@juniper-lib/threejs/AssetGltfModel";
 import { Environment } from "@juniper-lib/threejs/environment/Environment";
@@ -6,10 +6,12 @@ import { RayTarget } from "@juniper-lib/threejs/eventSystem/RayTarget";
 import { materialStandardToBasic } from "@juniper-lib/threejs/materials";
 import { objectScan } from "@juniper-lib/threejs/objectScan";
 import { isMesh } from "@juniper-lib/threejs/typeChecks";
-import { arrayClear, arrayScan, isDefined } from "@juniper-lib/tslib";
+import { arrayClear } from "@juniper-lib/tslib/collections/arrayClear";
+import { arrayScan } from "@juniper-lib/tslib/collections/arrayScan";
+import { isDefined } from "@juniper-lib/tslib/typeChecks";
+import { BufferGeometry, InstancedMesh, Intersection, MathUtils, Matrix4, Mesh, MeshBasicMaterial, MeshStandardMaterial, Object3D, Quaternion, Raycaster, Vector3 } from "three";
 import { isDebug } from "../isDebug";
 import { defaultAvatarHeight } from "../settings";
-import { BufferGeometry, InstancedMesh, Intersection, MathUtils, Matrix4, Mesh, MeshBasicMaterial, MeshStandardMaterial, Object3D, Quaternion, Raycaster, Vector3 } from "three";
 
 function isMeshNamed(name: string) {
     return (obj: Object3D) => isMesh(obj) && obj.name === name;

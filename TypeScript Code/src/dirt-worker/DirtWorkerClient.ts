@@ -1,5 +1,6 @@
-﻿import { assertNever } from "@juniper-lib/tslib";
-import { WorkerClient, WorkerServerEventMessage } from "@juniper-lib/workers";
+﻿import { assertNever } from "@juniper-lib/tslib/typeChecks";
+import { WorkerClient } from "@juniper-lib/workers/WorkerClient";
+import { WorkerServerEventMessage } from "@juniper-lib/workers/WorkerMessages";
 import { DirtEventMap, DirtServiceUpdateEvent, IDirtService } from "./DirtService";
 
 export class DirtWorkerClient

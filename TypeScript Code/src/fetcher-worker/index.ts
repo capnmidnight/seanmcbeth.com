@@ -1,4 +1,6 @@
-import { FetchingServiceImplXHR as FetchingServiceImpl, FetchingServiceServer } from "@juniper-lib/fetcher";
+import { FetchingServiceImplXHR } from "@juniper-lib/fetcher/FetchingServiceImplXHR";
+import { FetchingServiceServer } from "@juniper-lib/fetcher/FetchingServiceServer";
+
 (globalThis as any).server = new FetchingServiceServer(
     (globalThis as any) as DedicatedWorkerGlobalScope,
-    new FetchingServiceImpl());
+    new FetchingServiceImplXHR());

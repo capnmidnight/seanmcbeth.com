@@ -1,5 +1,7 @@
 ﻿import { FontDescription, loadFont } from "@juniper-lib/dom/fonts";
-import { PriorityList, PriorityMap, stringRandom } from "@juniper-lib/tslib";
+import { PriorityList } from "@juniper-lib/tslib/collections/PriorityList";
+import { PriorityMap } from "@juniper-lib/tslib/collections/PriorityMap";
+import { stringRandom } from "@juniper-lib/tslib/strings/stringRandom";
 import { version as pkgVersion } from "../package.json";
 
 export const version = DEBUG

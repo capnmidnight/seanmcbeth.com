@@ -1,4 +1,4 @@
-﻿import { AssetImage } from "@juniper-lib/fetcher";
+﻿import { AssetImage } from "@juniper-lib/fetcher/Asset";
 import { Image_Png } from "@juniper-lib/mediatypes";
 import { createTestEnvironment } from "../createTestEnvironment";
 import { Forest } from "../forest-app/Forest";

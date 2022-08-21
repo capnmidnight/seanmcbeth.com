@@ -1,4 +1,4 @@
-﻿import { WorkerServer } from "@juniper-lib/workers";
+﻿import { WorkerServer } from "@juniper-lib/workers/WorkerServer";
 import { DirtEventMap, DirtService } from "./DirtService";
 
 export class DirtWorkerServer extends WorkerServer<DirtEventMap> {

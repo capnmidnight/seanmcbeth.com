@@ -1,4 +1,4 @@
-﻿import { AssetImage } from "@juniper-lib/fetcher";
+﻿import { AssetImage } from "@juniper-lib/fetcher/Asset";
 import { Application_Javascript, Image_Jpeg } from "@juniper-lib/mediatypes";
 import type { Pointer3DEvent } from "@juniper-lib/threejs/eventSystem/devices/Pointer3DEvent";
 import { RayTarget } from "@juniper-lib/threejs/eventSystem/RayTarget";

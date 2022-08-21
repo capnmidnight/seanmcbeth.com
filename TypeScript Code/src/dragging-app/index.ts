@@ -1,10 +1,10 @@
-﻿import { AssetImage } from "@juniper-lib/fetcher";
+﻿import { AssetImage } from "@juniper-lib/fetcher/Asset";
 import { Image_Jpeg } from "@juniper-lib/mediatypes";
 import { Cube } from "@juniper-lib/threejs/Cube";
 import { lit } from "@juniper-lib/threejs/materials";
 import { objGraph } from "@juniper-lib/threejs/objects";
 import { TransformEditor } from "@juniper-lib/threejs/TransformEditor";
-import { deg2rad } from "@juniper-lib/tslib";
+import { deg2rad } from "@juniper-lib/tslib/math/deg2rad";
 import { createTestEnvironment } from "../createTestEnvironment";
 import { isDebug } from "../isDebug";
 
