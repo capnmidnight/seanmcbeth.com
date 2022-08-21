@@ -3,7 +3,7 @@ import { className, id } from "@juniper-lib/dom/attrs";
 import { backgroundColor, backgroundImage, border, borderBottomLeftRadius, borderBottomRightRadius, borderRadius, borderTopLeftRadius, borderTopRightRadius, boxShadow, color, display, fontFamily, fontSize, fontWeight, height, left, margin, marginLeft, marginRight, marginTop, overflow, padding, pointerEvents, position, rule, styles, textTransform, top, transform, width, zIndex } from "@juniper-lib/dom/css";
 import { onClick, onMouseOut, onTouchStart } from "@juniper-lib/dom/evts";
 import { Button, Div, elementApply, ErsatzElement, getElement, P, Span, Style } from "@juniper-lib/dom/tags";
-import { arrayRandom } from "@juniper-lib/tslib/collections/arrayRandom";
+import { arrayRandom } from "@juniper-lib/tslib/collections/arrays";
 
 document.title = "No More Jabber Yabs: The Game";
 
