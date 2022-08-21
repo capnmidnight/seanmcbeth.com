@@ -61,3 +61,4 @@ build/Release
 *.blend1
 buildinfo.json
 package-lock.json
+/Personal Site/wwwroot/js/
