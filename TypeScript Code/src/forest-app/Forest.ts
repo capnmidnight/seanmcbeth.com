@@ -8,6 +8,7 @@ import { objectScan } from "@juniper-lib/threejs/objectScan";
 import { isMesh } from "@juniper-lib/threejs/typeChecks";
 import { arrayClear } from "@juniper-lib/tslib/collections/arrayClear";
 import { arrayScan } from "@juniper-lib/tslib/collections/arrayScan";
+import { Tau } from "@juniper-lib/tslib/math";
 import { isDefined } from "@juniper-lib/tslib/typeChecks";
 import { BufferGeometry, InstancedMesh, Intersection, MathUtils, Matrix4, Mesh, MeshBasicMaterial, MeshStandardMaterial, Object3D, Quaternion, Raycaster, Vector3 } from "three";
 import { isDebug } from "../isDebug";
@@ -150,7 +151,7 @@ export class Forest {
                         const w = MathUtils.randFloat(0.6, 1.3);
                         const h = MathUtils.randFloat(0.6, 1.3);
                         s.set(w, h, w);
-                        const a = MathUtils.randFloat(0, 2 * Math.PI);
+                        const a = MathUtils.randFloat(0, Tau);
                         const m = new Matrix4()
                             .compose(
                                 groundHit.point,

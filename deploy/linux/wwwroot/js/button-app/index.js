@@ -818,7 +818,8 @@ async function loadFont(font, testString = null, prog) {
   }
 }
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math/clamp.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math.ts
+var Tau = 2 * Math.PI;
 function clamp(v, min, max) {
   return Math.min(max, Math.max(min, v));
 }

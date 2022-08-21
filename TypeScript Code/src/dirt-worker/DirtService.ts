@@ -1,6 +1,6 @@
 ﻿import { setContextSize } from "@juniper-lib/dom/canvas";
 import { TypedEvent, TypedEventBase } from "@juniper-lib/tslib/events/EventBase";
-import { xy2i } from "@juniper-lib/tslib/math/xy2i";
+import { xy2i } from "@juniper-lib/tslib/math";
 import { singleton } from "@juniper-lib/tslib/singleton";
 
 type ActionTypes = "down" | "move" | "up";

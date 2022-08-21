@@ -6915,9 +6915,31 @@ var AssetImage = class extends BaseFetchedAsset {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math/deg2rad.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math.ts
+var Tau = 2 * Math.PI;
+function angleClamp(v) {
+  return (v % Tau + Tau) % Tau;
+}
+function clamp(v, min3, max3) {
+  return Math.min(max3, Math.max(min3, v));
+}
 function deg2rad(deg) {
-  return deg * Math.PI / 180;
+  return deg * Tau / 360;
+}
+function rad2deg(rad) {
+  return rad * 360 / Tau;
+}
+function lerp2(a, b, p) {
+  return (1 - p) * a + p * b;
+}
+function nextPowerOf2(v) {
+  return Math.pow(2, Math.ceil(Math.log2(v)));
+}
+function truncate(v) {
+  if (Math.abs(v) > 1e-4) {
+    return v;
+  }
+  return 0;
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/graphics2d/CanvasImage.ts
@@ -7201,11 +7223,6 @@ var BatteryImage = class extends CanvasImage {
   }
 };
 BatteryImage.isAvailable = isBatteryNavigator(navigator);
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math/clamp.ts
-function clamp(v, min3, max3) {
-  return Math.min(max3, Math.max(min3, v));
-}
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/graphics2d/TextImage.ts
 var TextImage = class extends CanvasImage {
@@ -7693,11 +7710,6 @@ var ClockImage = class extends TextImage {
     this.value = value2;
   }
 };
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math/rad2deg.ts
-function rad2deg(rad) {
-  return rad * 180 / Math.PI;
-}
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/webrtc/constants.ts
 var DEFAULT_LOCAL_USER_ID = "local-user";
@@ -10131,11 +10143,6 @@ function rot(def) {
   return def.map(rotQuad);
 }
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math/powerOf2.ts
-function nextPowerOf2(v) {
-  return Math.pow(2, Math.ceil(Math.log2(v)));
-}
-
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/widgets/ButtonFactory.ts
 var ButtonFactory = class {
   constructor(imagePaths, padding2, debug) {
@@ -11319,12 +11326,6 @@ var ApplicationLoader = class extends TypedEventBase {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math/angleClamp.ts
-var Tau = 2 * Math.PI;
-function angleClamp(v) {
-  return (v % Tau + Tau) % Tau;
-}
-
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/animation/lookAngles.ts
 var D = new Vector3();
 function getLookHeading(dir) {
@@ -11348,8 +11349,8 @@ var curAngle = 0;
 var copyCounter2 = 0;
 function minRotAngle(to, from) {
   const a = to - from;
-  const b = a + 2 * Math.PI;
-  const c = a - 2 * Math.PI;
+  const b = a + Tau;
+  const c = a - Tau;
   const A2 = Math.abs(a);
   const B2 = Math.abs(b);
   const C2 = Math.abs(c);
@@ -11545,14 +11546,6 @@ var AvatarMovedEvent = class extends TypedEvent {
     this.height = height2;
   }
 };
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math/truncate.ts
-function truncate(v) {
-  if (Math.abs(v) > 1e-4) {
-    return v;
-  }
-  return 0;
-}
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/resolveCamera.ts
 function resolveCamera(renderer, camera) {
@@ -20253,11 +20246,6 @@ var Skybox = class {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math/lerp.ts
-function lerp3(a, b, p) {
-  return (1 - p) * a + p * b;
-}
-
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/timers/ITimer.ts
 var BaseTimerTickEvent = class {
   constructor() {
@@ -20269,7 +20257,7 @@ var BaseTimerTickEvent = class {
   set(t2, dt) {
     this.t = t2;
     this.dt = dt;
-    this.sdt = lerp3(this.sdt, dt, 0.01);
+    this.sdt = lerp2(this.sdt, dt, 0.01);
     if (dt > 0) {
       this.fps = 1e3 / dt;
     }

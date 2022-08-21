@@ -3730,6 +3730,9 @@ function objectScan(obj2, test) {
   return null;
 }
 
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math.ts
+var Tau = 2 * Math.PI;
+
 // src/forest-app/Forest.ts
 function isMeshNamed(name) {
   return (obj2) => isMesh(obj2) && obj2.name === name;
@@ -3832,7 +3835,7 @@ var Forest = class {
             const w = MathUtils.randFloat(0.6, 1.3);
             const h = MathUtils.randFloat(0.6, 1.3);
             s.set(w, h, w);
-            const a = MathUtils.randFloat(0, 2 * Math.PI);
+            const a = MathUtils.randFloat(0, Tau);
             const m = new Matrix4().compose(
               groundHit.point,
               q.setFromAxisAngle(up, a).multiply(q2),

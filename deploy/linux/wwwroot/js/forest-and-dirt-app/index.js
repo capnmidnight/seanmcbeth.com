@@ -3078,6 +3078,9 @@ async function createTestEnvironment(addServiceWorker = false) {
   return env;
 }
 
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math.ts
+var Tau = 2 * Math.PI;
+
 // src/dirt-worker/DirtService.ts
 var actionTypes = singleton("Juniper:Graphics2D:Dirt:StopTypes", () => /* @__PURE__ */ new Map([
   ["mousedown", "down"],
@@ -3882,7 +3885,7 @@ var Forest = class {
             const w = MathUtils.randFloat(0.6, 1.3);
             const h = MathUtils.randFloat(0.6, 1.3);
             s.set(w, h, w);
-            const a = MathUtils.randFloat(0, 2 * Math.PI);
+            const a = MathUtils.randFloat(0, Tau);
             const m = new Matrix4().compose(
               groundHit.point,
               q.setFromAxisAngle(up, a).multiply(q2),

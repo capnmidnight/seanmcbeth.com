@@ -2696,6 +2696,9 @@ function createFetcher(enableWorkers = true) {
   return new Fetcher(fallback, !isDebug);
 }
 
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math.ts
+var Tau = 2 * Math.PI;
+
 // src/dirt-worker/DirtService.ts
 var actionTypes = singleton("Juniper:Graphics2D:Dirt:StopTypes", () => /* @__PURE__ */ new Map([
   ["mousedown", "down"],

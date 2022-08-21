@@ -523,7 +523,8 @@ function setContextSize(ctx, w, h, superscale = 1) {
   }
 }
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math/xy2i.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math.ts
+var Tau = 2 * Math.PI;
 function xy2i(x, y, width, components = 1) {
   return components * (x + width * y);
 }

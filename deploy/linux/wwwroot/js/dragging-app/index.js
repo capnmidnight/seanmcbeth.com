@@ -1728,9 +1728,10 @@ var TransformEditor = class extends TypedEventBase {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math/deg2rad.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math.ts
+var Tau = 2 * Math.PI;
 function deg2rad(deg) {
-  return deg * Math.PI / 180;
+  return deg * Tau / 360;
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/canvas.ts

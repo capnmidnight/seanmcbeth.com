@@ -4,7 +4,7 @@ import { Cube } from "@juniper-lib/threejs/Cube";
 import { lit } from "@juniper-lib/threejs/materials";
 import { objGraph } from "@juniper-lib/threejs/objects";
 import { TransformEditor } from "@juniper-lib/threejs/TransformEditor";
-import { deg2rad } from "@juniper-lib/tslib/math/deg2rad";
+import { deg2rad } from "@juniper-lib/tslib/math";
 import { createTestEnvironment } from "../createTestEnvironment";
 import { isDebug } from "../isDebug";
 
