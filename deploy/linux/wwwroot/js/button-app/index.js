@@ -1,242 +1,8 @@
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/arrayRemoveAt.ts
-function arrayRemoveAt(arr, idx) {
-  return arr.splice(idx, 1)[0];
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/arrayClear.ts
-function arrayClear(arr) {
-  return arr.splice(0);
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/arrayCompare.ts
-function arrayCompare(arr1, arr2) {
-  for (let i = 0; i < arr1.length; ++i) {
-    if (arr1[i] !== arr2[i]) {
-      return i;
-    }
-  }
-  return -1;
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/arrayRemove.ts
-function arrayRemove(arr, value) {
-  const idx = arr.indexOf(value);
-  if (idx > -1) {
-    arrayRemoveAt(arr, idx);
-    return true;
-  }
-  return false;
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/arrayScan.ts
-function _arrayScan(forward, arr, tests) {
-  const start2 = forward ? 0 : arr.length - 1;
-  const end2 = forward ? arr.length : -1;
-  const inc = forward ? 1 : -1;
-  for (const test of tests) {
-    for (let i = start2; i != end2; i += inc) {
-      const item = arr[i];
-      if (test(item)) {
-        return item;
-      }
-    }
-  }
-  return null;
-}
-function arrayScan(arr, ...tests) {
-  return _arrayScan(true, arr, tests);
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/mapMap.ts
-function mapMap(items, makeID, makeValue) {
-  return new Map(items.map((item) => [makeID(item), makeValue(item)]));
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/mapJoin.ts
-function mapJoin(dest, ...sources) {
-  for (const source of sources) {
-    if (isDefined(source)) {
-      for (const [key, value] of source) {
-        dest.set(key, value);
-      }
-    }
-  }
-  return dest;
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/PriorityList.ts
-var PriorityList = class {
-  constructor(init) {
-    this.items = /* @__PURE__ */ new Map();
-    this.defaultItems = new Array();
-    if (isDefined(init)) {
-      for (const [key, value] of init) {
-        this.add(key, value);
-      }
-    }
-  }
-  add(key, value) {
-    if (isNullOrUndefined(key)) {
-      this.defaultItems.push(value);
-    } else {
-      let list = this.items.get(key);
-      if (isNullOrUndefined(list)) {
-        this.items.set(key, list = []);
-      }
-      list.push(value);
-    }
-    return this;
-  }
-  entries() {
-    return this.items.entries();
-  }
-  [Symbol.iterator]() {
-    return this.entries();
-  }
-  keys() {
-    return this.items.keys();
-  }
-  *values() {
-    for (const item of this.defaultItems) {
-      yield item;
-    }
-    for (const list of this.items.values()) {
-      for (const item of list) {
-        yield item;
-      }
-    }
-  }
-  has(key) {
-    if (isDefined(key)) {
-      return this.items.has(key);
-    } else {
-      return this.defaultItems.length > 0;
-    }
-  }
-  get(key) {
-    if (isNullOrUndefined(key)) {
-      return this.defaultItems;
-    }
-    return this.items.get(key) || [];
-  }
-  count(key) {
-    if (isNullOrUndefined(key)) {
-      return this.defaultItems.length;
-    }
-    const list = this.get(key);
-    if (isDefined(list)) {
-      return list.length;
-    }
-    return 0;
-  }
-  get size() {
-    let size = this.defaultItems.length;
-    for (const list of this.items.values()) {
-      size += list.length;
-    }
-    return size;
-  }
-  delete(key) {
-    if (isNullOrUndefined(key)) {
-      return arrayClear(this.defaultItems).length > 0;
-    } else {
-      return this.items.delete(key);
-    }
-  }
-  remove(key, value) {
-    if (isNullOrUndefined(key)) {
-      arrayRemove(this.defaultItems, value);
-    } else {
-      const list = this.items.get(key);
-      if (isDefined(list)) {
-        arrayRemove(list, value);
-        if (list.length === 0) {
-          this.items.delete(key);
-        }
-      }
-    }
-  }
-  clear() {
-    this.items.clear();
-    arrayClear(this.defaultItems);
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/PriorityMap.ts
-var PriorityMap = class {
-  constructor(init) {
-    this.items = /* @__PURE__ */ new Map();
-    if (isDefined(init)) {
-      for (const [key1, key2, value] of init) {
-        this.add(key1, key2, value);
-      }
-    }
-  }
-  add(key1, key2, value) {
-    let level1 = this.items.get(key1);
-    if (isNullOrUndefined(level1)) {
-      this.items.set(key1, level1 = /* @__PURE__ */ new Map());
-    }
-    level1.set(key2, value);
-    return this;
-  }
-  *entries() {
-    for (const [key1, level1] of this.items) {
-      for (const [key2, value] of level1) {
-        yield [key1, key2, value];
-      }
-    }
-  }
-  keys(key1) {
-    if (isNullOrUndefined(key1)) {
-      return this.items.keys();
-    } else {
-      return this.items.get(key1).keys();
-    }
-  }
-  *values() {
-    for (const level1 of this.items.values()) {
-      for (const value of level1.values()) {
-        yield value;
-      }
-    }
-  }
-  has(key1, key2) {
-    return this.items.has(key1) && (isNullOrUndefined(key2) || this.items.get(key1).has(key2));
-  }
-  get(key1, key2) {
-    if (isNullOrUndefined(key2)) {
-      return this.items.get(key1);
-    } else if (this.items.has(key1)) {
-      return this.items.get(key1).get(key2);
-    } else {
-      return null;
-    }
-  }
-  count(key1) {
-    if (this.items.has(key1)) {
-      return this.items.get(key1).size;
-    }
-    return null;
-  }
-  get size() {
-    let size = 0;
-    for (const list of this.items.values()) {
-      size += list.size;
-    }
-    return size;
-  }
-  delete(key1, key2) {
-    if (isNullOrUndefined(key2)) {
-      return this.items.delete(key1);
-    } else if (this.items.has(key1)) {
-      return this.items.get(key1).delete(key2);
-    } else {
-      return false;
-    }
-  }
-  clear() {
-    this.items.clear();
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/Exception.ts
+var Exception = class extends Error {
+  constructor(message, innerError = null) {
+    super(message);
+    this.innerError = innerError;
   }
 };
 
@@ -287,6 +53,16 @@ function isArrayBufferView(obj2) {
 }
 function isArrayBuffer(val) {
   return val && typeof ArrayBuffer !== "undefined" && (val instanceof ArrayBuffer || val.constructor && val.constructor.name === "ArrayBuffer");
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/arrayClear.ts
+function arrayClear(arr) {
+  return arr.splice(0);
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/arrayRemoveAt.ts
+function arrayRemoveAt(arr, idx) {
+  return arr.splice(idx, 1)[0];
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/events/EventBase.ts
@@ -356,8 +132,8 @@ var TypedEvent = class extends Event {
   get type() {
     return super.type;
   }
-  constructor(type2) {
-    super(type2);
+  constructor(type2, eventInitDict) {
+    super(type2, eventInitDict);
   }
 };
 var TypedEventBase = class extends EventBase {
@@ -401,9 +177,11 @@ var TypedEventBase = class extends EventBase {
     if (!super.dispatchEvent(evt)) {
       return false;
     }
-    for (const bubbler of this.bubblers) {
-      if (!bubbler.dispatchEvent(evt)) {
-        return false;
+    if (!evt.cancelBubble) {
+      for (const bubbler of this.bubblers) {
+        if (!bubbler.dispatchEvent(evt)) {
+          return false;
+        }
       }
     }
     return true;
@@ -577,623 +355,6 @@ function success(task) {
   return task.then(alwaysTrue).catch(alwaysFalse);
 }
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/events/Promisifier.ts
-var Promisifier = class {
-  constructor(resolveRejectTest, selectValue, selectRejectionReason) {
-    this.callback = null;
-    this.promise = new Promise((resolve, reject) => {
-      this.callback = (...args) => {
-        if (resolveRejectTest(...args)) {
-          resolve(selectValue(...args));
-        } else {
-          reject(selectRejectionReason(...args));
-        }
-      };
-    });
-  }
-  get [Symbol.toStringTag]() {
-    return this.promise.toString();
-  }
-  then(onfulfilled, onrejected) {
-    return this.promise.then(onfulfilled, onrejected);
-  }
-  catch(onrejected) {
-    return this.promise.catch(onrejected);
-  }
-  finally(onfinally) {
-    return this.promise.finally(onfinally);
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/events/waitFor.ts
-function waitFor(test) {
-  const task = new Task(test);
-  const handle = setInterval(() => {
-    if (test()) {
-      clearInterval(handle);
-      task.resolve();
-    }
-  }, 100);
-  return task;
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/Exception.ts
-var Exception = class extends Error {
-  constructor(message, innerError = null) {
-    super(message);
-    this.innerError = innerError;
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/flags.ts
-var oculusBrowserPattern = /OculusBrowser\/(\d+)\.(\d+)\.(\d+)/i;
-var oculusMatch = navigator.userAgent.match(oculusBrowserPattern);
-var isOculusBrowser = !!oculusMatch;
-var oculusBrowserVersion = isOculusBrowser && {
-  major: parseFloat(oculusMatch[1]),
-  minor: parseFloat(oculusMatch[2]),
-  patch: parseFloat(oculusMatch[3])
-};
-var isOculusGo = isOculusBrowser && /pacific/i.test(navigator.userAgent);
-var isOculusQuest = isOculusBrowser && /quest/i.test(navigator.userAgent);
-var isOculusQuest2 = isOculusBrowser && /quest 2/i.test(navigator.userAgent);
-var isWorkerSupported = "Worker" in globalThis;
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/gis/Datum.ts
-var invF = 298.257223563;
-var equatorialRadius = 6378137;
-var flattening = 1 / invF;
-var flatteningComp = 1 - flattening;
-var n = flattening / (2 - flattening);
-var A = equatorialRadius / (1 + n) * (1 + n * n / 4 + n * n * n * n / 64);
-var e = Math.sqrt(1 - flatteningComp * flatteningComp);
-var esq = 1 - flatteningComp * flatteningComp;
-var e0sq = e * e / (1 - e * e);
-var alpha1 = 1 - esq * (0.25 + esq * (3 / 64 + 5 * esq / 256));
-var alpha2 = esq * (3 / 8 + esq * (3 / 32 + 45 * esq / 1024));
-var alpha3 = esq * esq * (15 / 256 + esq * 45 / 1024);
-var alpha4 = esq * esq * esq * (35 / 3072);
-var beta = [
-  n / 2 - 2 * n * n / 3 + 37 * n * n * n / 96,
-  n * n / 48 + n * n * n / 15,
-  17 * n * n * n / 480
-];
-var delta = [
-  2 * n - 2 * n * n / 3,
-  7 * n * n / 3 - 8 * n * n * n / 5,
-  56 * n * n * n / 15
-];
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math/angleClamp.ts
-var Tau = 2 * Math.PI;
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math/clamp.ts
-function clamp(v, min, max) {
-  return Math.min(max, Math.max(min, v));
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/progress/BaseProgress.ts
-var BaseProgress = class extends TypedEventBase {
-  constructor() {
-    super(...arguments);
-    this.attached = new Array();
-    this.soFar = null;
-    this.total = null;
-    this.msg = null;
-    this.est = null;
-  }
-  get p() {
-    return this.total > 0 ? this.soFar / this.total : 0;
-  }
-  report(soFar, total, msg, est) {
-    this.soFar = soFar;
-    this.total = total;
-    this.msg = msg;
-    this.est = est;
-    for (const attach of this.attached) {
-      attach.report(soFar, total, msg, est);
-    }
-  }
-  attach(prog) {
-    this.attached.push(prog);
-    prog.report(this.soFar, this.total, this.msg, this.est);
-  }
-  clear() {
-    this.report(0, 0);
-    this._clear();
-  }
-  start(msg) {
-    this.report(0, 1, msg || "starting");
-  }
-  end(msg) {
-    this.report(1, 1, msg || "done");
-    this._clear();
-  }
-  _clear() {
-    this.soFar = null;
-    this.total = null;
-    this.msg = null;
-    this.est = null;
-    arrayClear(this.attached);
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/progress/ChildProgressCallback.ts
-var ChildProgressCallback = class extends BaseProgress {
-  constructor(i, prog) {
-    super();
-    this.i = i;
-    this.prog = prog;
-  }
-  report(soFar, total, msg, est) {
-    super.report(soFar, total, msg, est);
-    this.prog.update(this.i, soFar, total, msg);
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/progress/BaseParentProgressCallback.ts
-var BaseParentProgressCallback = class {
-  constructor(prog) {
-    this.prog = prog;
-    this.weightTotal = 0;
-    this.subProgressCallbacks = new Array();
-    this.subProgressWeights = new Array();
-    this.subProgressValues = new Array();
-    this.start = performance.now();
-    for (let i = 0; i < this.subProgressWeights.length; ++i) {
-      this.subProgressValues[i] = 0;
-      this.subProgressCallbacks[i] = new ChildProgressCallback(i, this);
-    }
-  }
-  addSubProgress(weight) {
-    weight = weight || 1;
-    this.weightTotal += weight;
-    this.subProgressWeights.push(weight);
-    this.subProgressValues.push(0);
-    const child = new ChildProgressCallback(this.subProgressCallbacks.length, this);
-    this.subProgressCallbacks.push(child);
-    return child;
-  }
-  update(i, subSoFar, subTotal, msg) {
-    if (this.prog) {
-      this.subProgressValues[i] = subSoFar / subTotal;
-      let soFar = 0;
-      for (let j = 0; j < this.subProgressWeights.length; ++j) {
-        soFar += this.subProgressValues[j] * this.subProgressWeights[j];
-      }
-      const end2 = performance.now();
-      const delta2 = end2 - this.start;
-      const est = this.start - end2 + delta2 * this.weightTotal / soFar;
-      this.prog.report(soFar, this.weightTotal, msg, est);
-    }
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/progress/IProgress.ts
-function isProgressCallback(obj2) {
-  return isDefined(obj2) && isFunction(obj2.report) && isFunction(obj2.attach) && isFunction(obj2.end);
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/progress/progressSplit.ts
-function progressSplitWeighted(prog, subProgressWeights) {
-  const subProg = new WeightedParentProgressCallback(subProgressWeights, prog);
-  return subProg.subProgressCallbacks;
-}
-function progressSplit(prog, taskCount) {
-  const subProgressWeights = new Array(taskCount);
-  for (let i = 0; i < taskCount; ++i) {
-    subProgressWeights[i] = 1;
-  }
-  return progressSplitWeighted(prog, subProgressWeights);
-}
-var WeightedParentProgressCallback = class extends BaseParentProgressCallback {
-  constructor(subProgressWeights, prog) {
-    super(prog);
-    for (const weight of subProgressWeights) {
-      this.addSubProgress(weight);
-    }
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/progress/progressTasks.ts
-async function progressTasksWeighted(prog, taskDefs) {
-  const weights = new Array(taskDefs.length);
-  const callbacks = new Array(taskDefs.length);
-  for (let i = 0; i < taskDefs.length; ++i) {
-    const taskDef = taskDefs[i];
-    weights[i] = taskDef[0];
-    callbacks[i] = taskDef[1];
-  }
-  const progs = progressSplitWeighted(prog, weights);
-  const tasks = new Array(taskDefs.length);
-  for (let i = 0; i < taskDefs.length; ++i) {
-    tasks[i] = callbacks[i](progs[i]);
-  }
-  return await Promise.all(tasks);
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/singleton.ts
-function singleton(name, create2) {
-  const box = globalThis;
-  let value = box[name];
-  if (isNullOrUndefined(value)) {
-    if (isNullOrUndefined(create2)) {
-      throw new Error(`No value ${name} found`);
-    }
-    value = create2();
-    box[name] = value;
-  }
-  return value;
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/strings/stringRandom.ts
-var DEFAULT_CHAR_SET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZ";
-function stringRandom(length, charSet) {
-  if (length < 0) {
-    throw new Error("Length must be greater than 0");
-  }
-  if (isNullOrUndefined(charSet)) {
-    charSet = DEFAULT_CHAR_SET;
-  }
-  let str = "";
-  for (let i = 0; i < length; ++i) {
-    const idx = Math.floor(Math.random() * charSet.length);
-    str += charSet[idx];
-  }
-  return str;
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/mapInvert.ts
-function mapInvert(map) {
-  const mapOut = /* @__PURE__ */ new Map();
-  for (const [key, value] of map) {
-    mapOut.set(value, key);
-  }
-  return mapOut;
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/units/fileSize.ts
-function isBase2Units(label) {
-  return label !== "B" && label[1] === "i";
-}
-function isBase10Units(label) {
-  return label !== "B" && !isBase10Units(label);
-}
-var base2Labels = /* @__PURE__ */ new Map([
-  [1, "KiB"],
-  [2, "MiB"],
-  [3, "GiB"],
-  [4, "TiB"]
-]);
-var base10Labels = /* @__PURE__ */ new Map([
-  [1, "KB"],
-  [2, "MB"],
-  [3, "GB"],
-  [4, "TB"]
-]);
-var base2Sizes = mapInvert(base2Labels);
-var base10Sizes = mapInvert(base10Labels);
-function toBytes(value, units) {
-  if (units === "B") {
-    return value;
-  } else {
-    let systemBase;
-    let size;
-    if (isBase2Units(units)) {
-      systemBase = 1024;
-      size = base2Sizes.get(units);
-    } else if (isBase10Units(units)) {
-      systemBase = 1e3;
-      size = base10Sizes.get(units);
-    } else {
-      assertNever(units);
-    }
-    const multiplier = Math.pow(systemBase, size);
-    return value * multiplier;
-  }
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/units/length.ts
-var MICROMETERS_PER_MILLIMETER = 1e3;
-var MILLIMETERS_PER_CENTIMETER = 10;
-var CENTIMETERS_PER_INCH = 2.54;
-var CENTIMETERS_PER_METER = 100;
-var INCHES_PER_HAND = 4;
-var HANDS_PER_FOOT = 3;
-var FEET_PER_YARD = 3;
-var FEET_PER_ROD = 16.5;
-var METERS_PER_KILOMETER = 1e3;
-var RODS_PER_FURLONG = 40;
-var FURLONGS_PER_MILE = 8;
-var MICROMETERS_PER_CENTIMETER = MICROMETERS_PER_MILLIMETER * MILLIMETERS_PER_CENTIMETER;
-var MICROMETERS_PER_INCH = MICROMETERS_PER_CENTIMETER * CENTIMETERS_PER_INCH;
-var MICROMETERS_PER_HAND = MICROMETERS_PER_INCH * INCHES_PER_HAND;
-var MICROMETERS_PER_FOOT = MICROMETERS_PER_HAND * HANDS_PER_FOOT;
-var MICROMETERS_PER_YARD = MICROMETERS_PER_FOOT * FEET_PER_YARD;
-var MICROMETERS_PER_METER = MICROMETERS_PER_CENTIMETER * CENTIMETERS_PER_METER;
-var MICROMETERS_PER_ROD = MICROMETERS_PER_FOOT * FEET_PER_ROD;
-var MICROMETERS_PER_FURLONG = MICROMETERS_PER_ROD * RODS_PER_FURLONG;
-var MICROMETERS_PER_KILOMETER = MICROMETERS_PER_METER * METERS_PER_KILOMETER;
-var MICROMETERS_PER_MILE = MICROMETERS_PER_FURLONG * FURLONGS_PER_MILE;
-var MILLIMETERS_PER_INCH = MILLIMETERS_PER_CENTIMETER * CENTIMETERS_PER_INCH;
-var MILLIMETERS_PER_HAND = MILLIMETERS_PER_INCH * INCHES_PER_HAND;
-var MILLIMETERS_PER_FOOT = MILLIMETERS_PER_HAND * HANDS_PER_FOOT;
-var MILLIMETERS_PER_YARD = MILLIMETERS_PER_FOOT * FEET_PER_YARD;
-var MILLIMETERS_PER_METER = MILLIMETERS_PER_CENTIMETER * CENTIMETERS_PER_METER;
-var MILLIMETERS_PER_ROD = MILLIMETERS_PER_FOOT * FEET_PER_ROD;
-var MILLIMETERS_PER_FURLONG = MILLIMETERS_PER_ROD * RODS_PER_FURLONG;
-var MILLIMETERS_PER_KILOMETER = MILLIMETERS_PER_METER * METERS_PER_KILOMETER;
-var MILLIMETERS_PER_MILE = MILLIMETERS_PER_FURLONG * FURLONGS_PER_MILE;
-var CENTIMETERS_PER_HAND = CENTIMETERS_PER_INCH * INCHES_PER_HAND;
-var CENTIMETERS_PER_FOOT = CENTIMETERS_PER_HAND * HANDS_PER_FOOT;
-var CENTIMETERS_PER_YARD = CENTIMETERS_PER_FOOT * FEET_PER_YARD;
-var CENTIMETERS_PER_ROD = CENTIMETERS_PER_FOOT * FEET_PER_ROD;
-var CENTIMETERS_PER_FURLONG = CENTIMETERS_PER_ROD * RODS_PER_FURLONG;
-var CENTIMETERS_PER_KILOMETER = CENTIMETERS_PER_METER * METERS_PER_KILOMETER;
-var CENTIMETERS_PER_MILE = CENTIMETERS_PER_FURLONG * FURLONGS_PER_MILE;
-var INCHES_PER_FOOT = INCHES_PER_HAND * HANDS_PER_FOOT;
-var INCHES_PER_YARD = INCHES_PER_FOOT * FEET_PER_YARD;
-var INCHES_PER_METER = CENTIMETERS_PER_METER / CENTIMETERS_PER_INCH;
-var INCHES_PER_ROD = INCHES_PER_FOOT * FEET_PER_ROD;
-var INCHES_PER_FURLONG = INCHES_PER_ROD * RODS_PER_FURLONG;
-var INCHES_PER_KILOMETER = INCHES_PER_METER * METERS_PER_KILOMETER;
-var INCHES_PER_MILE = INCHES_PER_FURLONG * FURLONGS_PER_MILE;
-var HANDS_PER_YARD = HANDS_PER_FOOT * FEET_PER_YARD;
-var HANDS_PER_METER = CENTIMETERS_PER_METER / CENTIMETERS_PER_HAND;
-var HANDS_PER_ROD = HANDS_PER_FOOT * FEET_PER_ROD;
-var HANDS_PER_FURLONG = HANDS_PER_ROD * RODS_PER_FURLONG;
-var HANDS_PER_KILOMETER = HANDS_PER_METER * METERS_PER_KILOMETER;
-var HANDS_PER_MILE = HANDS_PER_FURLONG * FURLONGS_PER_MILE;
-var FEET_PER_METER = INCHES_PER_METER / INCHES_PER_FOOT;
-var FEET_PER_FURLONG = FEET_PER_ROD * RODS_PER_FURLONG;
-var FEET_PER_KILOMETER = FEET_PER_METER * METERS_PER_KILOMETER;
-var FEET_PER_MILE = FEET_PER_FURLONG * FURLONGS_PER_MILE;
-var YARDS_PER_METER = INCHES_PER_METER / INCHES_PER_YARD;
-var YARDS_PER_ROD = FEET_PER_ROD / FEET_PER_YARD;
-var YARDS_PER_FURLONG = YARDS_PER_ROD * RODS_PER_FURLONG;
-var YARDS_PER_KILOMETER = YARDS_PER_METER * METERS_PER_KILOMETER;
-var YARDS_PER_MILE = YARDS_PER_FURLONG * FURLONGS_PER_MILE;
-var METERS_PER_ROD = FEET_PER_ROD / FEET_PER_METER;
-var METERS_PER_FURLONG = METERS_PER_ROD * RODS_PER_FURLONG;
-var METERS_PER_MILE = METERS_PER_FURLONG * FURLONGS_PER_MILE;
-var RODS_PER_KILOMETER = METERS_PER_KILOMETER / METERS_PER_ROD;
-var RODS_PER_MILE = RODS_PER_FURLONG * FURLONGS_PER_MILE;
-var FURLONGS_PER_KILOMETER = METERS_PER_KILOMETER / METERS_PER_FURLONG;
-var KILOMETERS_PER_MILE = FURLONGS_PER_MILE / FURLONGS_PER_KILOMETER;
-function inches2Meters(inches) {
-  return inches / INCHES_PER_METER;
-}
-function meters2Inches(meters) {
-  return meters * INCHES_PER_METER;
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/URLBuilder.ts
-function parsePort(portString) {
-  if (isDefined(portString) && portString.length > 0) {
-    return parseFloat(portString);
-  }
-  return null;
-}
-var URLBuilder = class {
-  constructor(url2, base) {
-    this._url = null;
-    this._base = void 0;
-    this._protocol = null;
-    this._host = null;
-    this._hostName = null;
-    this._userName = null;
-    this._password = null;
-    this._port = null;
-    this._pathName = null;
-    this._hash = null;
-    this._query = /* @__PURE__ */ new Map();
-    if (url2 !== void 0) {
-      this._url = new URL(url2, base);
-      this.rehydrate();
-    }
-  }
-  rehydrate() {
-    if (isDefined(this._protocol) && this._protocol !== this._url.protocol) {
-      this._url.protocol = this._protocol;
-    }
-    if (isDefined(this._host) && this._host !== this._url.host) {
-      this._url.host = this._host;
-    }
-    if (isDefined(this._hostName) && this._hostName !== this._url.hostname) {
-      this._url.hostname = this._hostName;
-    }
-    if (isDefined(this._userName) && this._userName !== this._url.username) {
-      this._url.username = this._userName;
-    }
-    if (isDefined(this._password) && this._password !== this._url.password) {
-      this._url.password = this._password;
-    }
-    if (isDefined(this._port) && this._port.toFixed(0) !== this._url.port) {
-      this._url.port = this._port.toFixed(0);
-    }
-    if (isDefined(this._pathName) && this._pathName !== this._url.pathname) {
-      this._url.pathname = this._pathName;
-    }
-    if (isDefined(this._hash) && this._hash !== this._url.hash) {
-      this._url.hash = this._hash;
-    }
-    for (const [k, v] of this._query) {
-      this._url.searchParams.set(k, v);
-    }
-    this._protocol = this._url.protocol;
-    this._host = this._url.host;
-    this._hostName = this._url.hostname;
-    this._userName = this._url.username;
-    this._password = this._url.password;
-    this._port = parsePort(this._url.port);
-    this._pathName = this._url.pathname;
-    this._hash = this._url.hash;
-    this._url.searchParams.forEach((v, k) => this._query.set(k, v));
-  }
-  refresh() {
-    if (this._url === null) {
-      if (isDefined(this._protocol) && (isDefined(this._host) || isDefined(this._hostName))) {
-        if (isDefined(this._host)) {
-          this._url = new URL(`${this._protocol}//${this._host}`, this._base);
-          this._port = parsePort(this._url.port);
-          this.rehydrate();
-          return false;
-        } else if (isDefined(this._hostName)) {
-          this._url = new URL(`${this._protocol}//${this._hostName}`, this._base);
-          this.rehydrate();
-          return false;
-        }
-      } else if (isDefined(this._pathName) && isDefined(this._base)) {
-        this._url = new URL(this._pathName, this._base);
-        this.rehydrate();
-        return false;
-      }
-    }
-    return isDefined(this._url);
-  }
-  base(base) {
-    if (this._url !== null) {
-      throw new Error("Cannot redefine base after defining the protocol and domain");
-    }
-    this._base = base;
-    this.refresh();
-    return this;
-  }
-  protocol(protocol) {
-    this._protocol = protocol;
-    if (this.refresh()) {
-      this._url.protocol = protocol;
-    }
-    return this;
-  }
-  host(host) {
-    this._host = host;
-    if (this.refresh()) {
-      this._url.host = host;
-      this._hostName = this._url.hostname;
-      this._port = parsePort(this._url.port);
-    }
-    return this;
-  }
-  hostName(hostName) {
-    this._hostName = hostName;
-    if (this.refresh()) {
-      this._url.hostname = hostName;
-      this._host = `${this._url.hostname}:${this._url.port}`;
-    }
-    return this;
-  }
-  port(port) {
-    this._port = port;
-    if (this.refresh()) {
-      this._url.port = port.toFixed(0);
-      this._host = `${this._url.hostname}:${this._url.port}`;
-    }
-    return this;
-  }
-  userName(userName) {
-    this._userName = userName;
-    if (this.refresh()) {
-      this._url.username = userName;
-    }
-    return this;
-  }
-  password(password) {
-    this._password = password;
-    if (this.refresh()) {
-      this._url.password = password;
-    }
-    return this;
-  }
-  path(path) {
-    this._pathName = path;
-    if (this.refresh()) {
-      this._url.pathname = path;
-    }
-    return this;
-  }
-  pathPop(pattern) {
-    pattern = pattern || /\/[^\/]+\/?$/;
-    return this.path(this._pathName.replace(pattern, ""));
-  }
-  pathPush(part) {
-    let path = this._pathName;
-    if (!path.endsWith("/")) {
-      path += "/";
-    }
-    path += part;
-    return this.path(path);
-  }
-  query(name, value) {
-    this._query.set(name, value);
-    if (this.refresh()) {
-      this._url.searchParams.set(name, value);
-    }
-    return this;
-  }
-  hash(hash) {
-    this._hash = hash;
-    if (this.refresh()) {
-      this._url.hash = hash;
-    }
-    return this;
-  }
-  toURL() {
-    return this._url;
-  }
-  toString() {
-    return this._url.href;
-  }
-  [Symbol.toStringTag]() {
-    return this.toString();
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/using.ts
-function interfaceSigCheck(obj2, ...funcNames) {
-  if (!isObject(obj2)) {
-    return false;
-  }
-  obj2 = obj2;
-  for (const funcName of funcNames) {
-    if (!(funcName in obj2)) {
-      return false;
-    }
-    const func = obj2[funcName];
-    if (!isFunction(func)) {
-      return false;
-    }
-  }
-  return true;
-}
-function isDisposable(obj2) {
-  return interfaceSigCheck(obj2, "dispose");
-}
-function isDestroyable(obj2) {
-  return interfaceSigCheck(obj2, "destroy");
-}
-function isClosable(obj2) {
-  return interfaceSigCheck(obj2, "close");
-}
-function dispose(val) {
-  if (isDisposable(val)) {
-    val.dispose();
-  }
-  if (isClosable(val)) {
-    val.close();
-  }
-  if (isDestroyable(val)) {
-    val.destroy();
-  }
-}
-function using(val, thunk) {
-  try {
-    return thunk(val);
-  } finally {
-    dispose(val);
-  }
-}
-
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/attrs.ts
 var Attr = class {
   constructor(key, value, bySetAttribute, ...tags) {
@@ -1293,7 +454,7 @@ function isErsatzElement(obj2) {
     return false;
   }
   const elem = obj2;
-  return elem.element instanceof Node;
+  return elem.element instanceof HTMLElement;
 }
 function resolveElement(elem) {
   if (isErsatzElement(elem)) {
@@ -1390,6 +551,9 @@ function BackgroundVideo(autoplay, mute, looping, ...rest) {
   );
 }
 
+// global-externals:three
+var { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlendMode, AdditiveBlending, AlphaFormat, AlwaysDepth, AlwaysStencilFunc, AmbientLight, AmbientLightProbe, AnimationClip, AnimationLoader, AnimationMixer, AnimationObjectGroup, AnimationUtils, ArcCurve, ArrayCamera, ArrowHelper, Audio: Audio3, AudioAnalyser, AudioContext, AudioListener, AudioLoader, AxesHelper, BackSide, BasicDepthPacking, BasicShadowMap, Bone, BooleanKeyframeTrack, Box2, Box3, Box3Helper, BoxBufferGeometry, BoxGeometry, BoxHelper, BufferAttribute, BufferGeometry, BufferGeometryLoader, ByteType, Cache, Camera, CameraHelper, CanvasTexture, CapsuleBufferGeometry, CapsuleGeometry, CatmullRomCurve3, CineonToneMapping, CircleBufferGeometry, CircleGeometry, ClampToEdgeWrapping, Clock, Color, ColorKeyframeTrack, ColorManagement, CompressedTexture, CompressedTextureLoader, ConeBufferGeometry, ConeGeometry, CubeCamera, CubeReflectionMapping, CubeRefractionMapping, CubeTexture, CubeTextureLoader, CubeUVReflectionMapping, CubicBezierCurve, CubicBezierCurve3, CubicInterpolant, CullFaceBack, CullFaceFront, CullFaceFrontBack, CullFaceNone, Curve, CurvePath, CustomBlending, CustomToneMapping, CylinderBufferGeometry, CylinderGeometry, Cylindrical, Data3DTexture, DataArrayTexture, DataTexture, DataTexture2DArray, DataTexture3D, DataTextureLoader, DataUtils, DecrementStencilOp, DecrementWrapStencilOp, DefaultLoadingManager, DepthFormat, DepthStencilFormat, DepthTexture, DirectionalLight, DirectionalLightHelper, DiscreteInterpolant, DodecahedronBufferGeometry, DodecahedronGeometry, DoubleSide, DstAlphaFactor, DstColorFactor, DynamicCopyUsage, DynamicDrawUsage, DynamicReadUsage, EdgesGeometry, EllipseCurve, EqualDepth, EqualStencilFunc, EquirectangularReflectionMapping, EquirectangularRefractionMapping, Euler, EventDispatcher, ExtrudeBufferGeometry, ExtrudeGeometry, FileLoader, FlatShading, Float16BufferAttribute, Float32BufferAttribute, Float64BufferAttribute, FloatType, Fog, FogExp2, Font, FontLoader, FramebufferTexture, FrontSide, Frustum, GLBufferAttribute, GLSL1, GLSL3, GreaterDepth, GreaterEqualDepth, GreaterEqualStencilFunc, GreaterStencilFunc, GridHelper, Group, HalfFloatType, HemisphereLight, HemisphereLightHelper, HemisphereLightProbe, IcosahedronBufferGeometry, IcosahedronGeometry, ImageBitmapLoader, ImageLoader, ImageUtils, ImmediateRenderObject, IncrementStencilOp, IncrementWrapStencilOp, InstancedBufferAttribute, InstancedBufferGeometry, InstancedInterleavedBuffer, InstancedMesh, Int16BufferAttribute, Int32BufferAttribute, Int8BufferAttribute, IntType, InterleavedBuffer, InterleavedBufferAttribute, Interpolant, InterpolateDiscrete, InterpolateLinear, InterpolateSmooth, InvertStencilOp, KeepStencilOp, KeyframeTrack, LOD, LatheBufferGeometry, LatheGeometry, Layers, LessDepth, LessEqualDepth, LessEqualStencilFunc, LessStencilFunc, Light, LightProbe, Line, Line3, LineBasicMaterial, LineCurve, LineCurve3, LineDashedMaterial, LineLoop, LineSegments, LinearEncoding, LinearFilter, LinearInterpolant, LinearMipMapLinearFilter, LinearMipMapNearestFilter, LinearMipmapLinearFilter, LinearMipmapNearestFilter, LinearSRGBColorSpace, LinearToneMapping, Loader, LoaderUtils, LoadingManager, LoopOnce, LoopPingPong, LoopRepeat, LuminanceAlphaFormat, LuminanceFormat, MOUSE, Material, MaterialLoader, MathUtils, Matrix3, Matrix4, MaxEquation, Mesh, MeshBasicMaterial, MeshDepthMaterial, MeshDistanceMaterial, MeshLambertMaterial, MeshMatcapMaterial, MeshNormalMaterial, MeshPhongMaterial, MeshPhysicalMaterial, MeshStandardMaterial, MeshToonMaterial, MinEquation, MirroredRepeatWrapping, MixOperation, MultiplyBlending, MultiplyOperation, NearestFilter, NearestMipMapLinearFilter, NearestMipMapNearestFilter, NearestMipmapLinearFilter, NearestMipmapNearestFilter, NeverDepth, NeverStencilFunc, NoBlending, NoColorSpace, NoToneMapping, NormalAnimationBlendMode, NormalBlending, NotEqualDepth, NotEqualStencilFunc, NumberKeyframeTrack, Object3D, ObjectLoader, ObjectSpaceNormalMap, OctahedronBufferGeometry, OctahedronGeometry, OneFactor, OneMinusDstAlphaFactor, OneMinusDstColorFactor, OneMinusSrcAlphaFactor, OneMinusSrcColorFactor, OrthographicCamera, PCFShadowMap, PCFSoftShadowMap, PMREMGenerator, ParametricGeometry, Path, PerspectiveCamera, Plane, PlaneBufferGeometry, PlaneGeometry, PlaneHelper, PointLight, PointLightHelper, Points, PointsMaterial, PolarGridHelper, PolyhedronBufferGeometry, PolyhedronGeometry, PositionalAudio, PropertyBinding, PropertyMixer, QuadraticBezierCurve, QuadraticBezierCurve3, Quaternion, QuaternionKeyframeTrack, QuaternionLinearInterpolant, REVISION, RGBADepthPacking, RGBAFormat, RGBAIntegerFormat, RGBA_ASTC_10x10_Format, RGBA_ASTC_10x5_Format, RGBA_ASTC_10x6_Format, RGBA_ASTC_10x8_Format, RGBA_ASTC_12x10_Format, RGBA_ASTC_12x12_Format, RGBA_ASTC_4x4_Format, RGBA_ASTC_5x4_Format, RGBA_ASTC_5x5_Format, RGBA_ASTC_6x5_Format, RGBA_ASTC_6x6_Format, RGBA_ASTC_8x5_Format, RGBA_ASTC_8x6_Format, RGBA_ASTC_8x8_Format, RGBA_BPTC_Format, RGBA_ETC2_EAC_Format, RGBA_PVRTC_2BPPV1_Format, RGBA_PVRTC_4BPPV1_Format, RGBA_S3TC_DXT1_Format, RGBA_S3TC_DXT3_Format, RGBA_S3TC_DXT5_Format, RGBFormat, RGB_ETC1_Format, RGB_ETC2_Format, RGB_PVRTC_2BPPV1_Format, RGB_PVRTC_4BPPV1_Format, RGB_S3TC_DXT1_Format, RGFormat, RGIntegerFormat, RawShaderMaterial, Ray, Raycaster, RectAreaLight, RedFormat, RedIntegerFormat, ReinhardToneMapping, RepeatWrapping, ReplaceStencilOp, ReverseSubtractEquation, RingBufferGeometry, RingGeometry, SRGBColorSpace, Scene, ShaderChunk, ShaderLib, ShaderMaterial, ShadowMaterial, Shape, ShapeBufferGeometry, ShapeGeometry, ShapePath, ShapeUtils, ShortType, Skeleton, SkeletonHelper, SkinnedMesh, SmoothShading, Source, Sphere, SphereBufferGeometry, SphereGeometry, Spherical, SphericalHarmonics3, SplineCurve, SpotLight, SpotLightHelper, Sprite, SpriteMaterial, SrcAlphaFactor, SrcAlphaSaturateFactor, SrcColorFactor, StaticCopyUsage, StaticDrawUsage, StaticReadUsage, StereoCamera, StreamCopyUsage, StreamDrawUsage, StreamReadUsage, StringKeyframeTrack, SubtractEquation, SubtractiveBlending, TOUCH, TangentSpaceNormalMap, TetrahedronBufferGeometry, TetrahedronGeometry, TextGeometry, Texture, TextureLoader, TorusBufferGeometry, TorusGeometry, TorusKnotBufferGeometry, TorusKnotGeometry, Triangle, TriangleFanDrawMode, TriangleStripDrawMode, TrianglesDrawMode, TubeBufferGeometry, TubeGeometry, UVMapping, Uint16BufferAttribute, Uint32BufferAttribute, Uint8BufferAttribute, Uint8ClampedBufferAttribute, Uniform, UniformsGroup, UniformsLib, UniformsUtils, UnsignedByteType, UnsignedInt248Type, UnsignedIntType, UnsignedShort4444Type, UnsignedShort5551Type, UnsignedShortType, VSMShadowMap, Vector2, Vector3, Vector4, VectorKeyframeTrack, VideoTexture, WebGL1Renderer, WebGL3DRenderTarget, WebGLArrayRenderTarget, WebGLCubeRenderTarget, WebGLMultipleRenderTargets, WebGLMultisampleRenderTarget, WebGLRenderTarget, WebGLRenderer, WebGLUtils, WireframeGeometry, WrapAroundEnding, ZeroCurvatureEnding, ZeroFactor, ZeroSlopeEnding, ZeroStencilOp, _SRGBAFormat, sRGBEncoding } = THREE;
+
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/typeChecks.ts
 function isMesh(obj2) {
   return isDefined(obj2) && obj2.isMesh;
@@ -1440,13 +604,13 @@ function objGraph(obj2, ...children) {
   return obj2;
 }
 function obj(name, ...rest) {
-  const obj2 = new THREE.Object3D();
+  const obj2 = new Object3D();
   obj2.name = name;
   objGraph(obj2, ...rest);
   return obj2;
 }
 function mesh(name, geom, mat) {
-  const mesh2 = new THREE.Mesh(geom, mat);
+  const mesh2 = new Mesh(geom, mat);
   mesh2.name = name;
   return mesh2;
 }
@@ -1601,6 +765,20 @@ function canvasToBlob(canvas, type2, quality) {
   }
 }
 
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/singleton.ts
+function singleton(name, create2) {
+  const box = globalThis;
+  let value = box[name];
+  if (isNullOrUndefined(value)) {
+    if (isNullOrUndefined(create2)) {
+      throw new Error(`No value ${name} found`);
+    }
+    value = create2();
+    box[name] = value;
+  }
+  return value;
+}
+
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/fonts.ts
 var DEFAULT_TEST_TEXT = "The quick brown fox jumps over the lazy dog";
 var loadedFonts = singleton("juniper::loadedFonts", () => []);
@@ -1638,6 +816,11 @@ async function loadFont(font, testString = null, prog) {
       loadedFonts.push(font);
     }
   }
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math/clamp.ts
+function clamp(v, min, max) {
+  return Math.min(max, Math.max(min, v));
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/graphics2d/CanvasImage.ts
@@ -2164,6 +1347,23 @@ var TextImage = class extends CanvasImage {
   }
 };
 
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/strings/stringRandom.ts
+var DEFAULT_CHAR_SET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZ";
+function stringRandom(length, charSet) {
+  if (length < 0) {
+    throw new Error("Length must be greater than 0");
+  }
+  if (isNullOrUndefined(charSet)) {
+    charSet = DEFAULT_CHAR_SET;
+  }
+  let str = "";
+  for (let i = 0; i < length; ++i) {
+    const idx = Math.floor(Math.random() * charSet.length);
+    str += charSet[idx];
+  }
+  return str;
+}
+
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/graphics2d/animation/tween.ts
 function bump(t2, k) {
   const a = t2 * Math.PI;
@@ -2292,6 +1492,154 @@ var RayTarget = class extends TypedEventBase {
   }
 };
 
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/arrayCompare.ts
+function arrayCompare(arr1, arr2) {
+  for (let i = 0; i < arr1.length; ++i) {
+    if (arr1[i] !== arr2[i]) {
+      return i;
+    }
+  }
+  return -1;
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/arrayScan.ts
+function _arrayScan(forward, arr, tests) {
+  const start2 = forward ? 0 : arr.length - 1;
+  const end2 = forward ? arr.length : -1;
+  const inc = forward ? 1 : -1;
+  for (const test of tests) {
+    for (let i = start2; i != end2; i += inc) {
+      const item = arr[i];
+      if (test(item)) {
+        return item;
+      }
+    }
+  }
+  return null;
+}
+function arrayScan(arr, ...tests) {
+  return _arrayScan(true, arr, tests);
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/units/length.ts
+var MICROMETERS_PER_MILLIMETER = 1e3;
+var MILLIMETERS_PER_CENTIMETER = 10;
+var CENTIMETERS_PER_INCH = 2.54;
+var CENTIMETERS_PER_METER = 100;
+var INCHES_PER_HAND = 4;
+var HANDS_PER_FOOT = 3;
+var FEET_PER_YARD = 3;
+var FEET_PER_ROD = 16.5;
+var METERS_PER_KILOMETER = 1e3;
+var RODS_PER_FURLONG = 40;
+var FURLONGS_PER_MILE = 8;
+var MICROMETERS_PER_CENTIMETER = MICROMETERS_PER_MILLIMETER * MILLIMETERS_PER_CENTIMETER;
+var MICROMETERS_PER_INCH = MICROMETERS_PER_CENTIMETER * CENTIMETERS_PER_INCH;
+var MICROMETERS_PER_HAND = MICROMETERS_PER_INCH * INCHES_PER_HAND;
+var MICROMETERS_PER_FOOT = MICROMETERS_PER_HAND * HANDS_PER_FOOT;
+var MICROMETERS_PER_YARD = MICROMETERS_PER_FOOT * FEET_PER_YARD;
+var MICROMETERS_PER_METER = MICROMETERS_PER_CENTIMETER * CENTIMETERS_PER_METER;
+var MICROMETERS_PER_ROD = MICROMETERS_PER_FOOT * FEET_PER_ROD;
+var MICROMETERS_PER_FURLONG = MICROMETERS_PER_ROD * RODS_PER_FURLONG;
+var MICROMETERS_PER_KILOMETER = MICROMETERS_PER_METER * METERS_PER_KILOMETER;
+var MICROMETERS_PER_MILE = MICROMETERS_PER_FURLONG * FURLONGS_PER_MILE;
+var MILLIMETERS_PER_INCH = MILLIMETERS_PER_CENTIMETER * CENTIMETERS_PER_INCH;
+var MILLIMETERS_PER_HAND = MILLIMETERS_PER_INCH * INCHES_PER_HAND;
+var MILLIMETERS_PER_FOOT = MILLIMETERS_PER_HAND * HANDS_PER_FOOT;
+var MILLIMETERS_PER_YARD = MILLIMETERS_PER_FOOT * FEET_PER_YARD;
+var MILLIMETERS_PER_METER = MILLIMETERS_PER_CENTIMETER * CENTIMETERS_PER_METER;
+var MILLIMETERS_PER_ROD = MILLIMETERS_PER_FOOT * FEET_PER_ROD;
+var MILLIMETERS_PER_FURLONG = MILLIMETERS_PER_ROD * RODS_PER_FURLONG;
+var MILLIMETERS_PER_KILOMETER = MILLIMETERS_PER_METER * METERS_PER_KILOMETER;
+var MILLIMETERS_PER_MILE = MILLIMETERS_PER_FURLONG * FURLONGS_PER_MILE;
+var CENTIMETERS_PER_HAND = CENTIMETERS_PER_INCH * INCHES_PER_HAND;
+var CENTIMETERS_PER_FOOT = CENTIMETERS_PER_HAND * HANDS_PER_FOOT;
+var CENTIMETERS_PER_YARD = CENTIMETERS_PER_FOOT * FEET_PER_YARD;
+var CENTIMETERS_PER_ROD = CENTIMETERS_PER_FOOT * FEET_PER_ROD;
+var CENTIMETERS_PER_FURLONG = CENTIMETERS_PER_ROD * RODS_PER_FURLONG;
+var CENTIMETERS_PER_KILOMETER = CENTIMETERS_PER_METER * METERS_PER_KILOMETER;
+var CENTIMETERS_PER_MILE = CENTIMETERS_PER_FURLONG * FURLONGS_PER_MILE;
+var INCHES_PER_FOOT = INCHES_PER_HAND * HANDS_PER_FOOT;
+var INCHES_PER_YARD = INCHES_PER_FOOT * FEET_PER_YARD;
+var INCHES_PER_METER = CENTIMETERS_PER_METER / CENTIMETERS_PER_INCH;
+var INCHES_PER_ROD = INCHES_PER_FOOT * FEET_PER_ROD;
+var INCHES_PER_FURLONG = INCHES_PER_ROD * RODS_PER_FURLONG;
+var INCHES_PER_KILOMETER = INCHES_PER_METER * METERS_PER_KILOMETER;
+var INCHES_PER_MILE = INCHES_PER_FURLONG * FURLONGS_PER_MILE;
+var HANDS_PER_YARD = HANDS_PER_FOOT * FEET_PER_YARD;
+var HANDS_PER_METER = CENTIMETERS_PER_METER / CENTIMETERS_PER_HAND;
+var HANDS_PER_ROD = HANDS_PER_FOOT * FEET_PER_ROD;
+var HANDS_PER_FURLONG = HANDS_PER_ROD * RODS_PER_FURLONG;
+var HANDS_PER_KILOMETER = HANDS_PER_METER * METERS_PER_KILOMETER;
+var HANDS_PER_MILE = HANDS_PER_FURLONG * FURLONGS_PER_MILE;
+var FEET_PER_METER = INCHES_PER_METER / INCHES_PER_FOOT;
+var FEET_PER_FURLONG = FEET_PER_ROD * RODS_PER_FURLONG;
+var FEET_PER_KILOMETER = FEET_PER_METER * METERS_PER_KILOMETER;
+var FEET_PER_MILE = FEET_PER_FURLONG * FURLONGS_PER_MILE;
+var YARDS_PER_METER = INCHES_PER_METER / INCHES_PER_YARD;
+var YARDS_PER_ROD = FEET_PER_ROD / FEET_PER_YARD;
+var YARDS_PER_FURLONG = YARDS_PER_ROD * RODS_PER_FURLONG;
+var YARDS_PER_KILOMETER = YARDS_PER_METER * METERS_PER_KILOMETER;
+var YARDS_PER_MILE = YARDS_PER_FURLONG * FURLONGS_PER_MILE;
+var METERS_PER_ROD = FEET_PER_ROD / FEET_PER_METER;
+var METERS_PER_FURLONG = METERS_PER_ROD * RODS_PER_FURLONG;
+var METERS_PER_MILE = METERS_PER_FURLONG * FURLONGS_PER_MILE;
+var RODS_PER_KILOMETER = METERS_PER_KILOMETER / METERS_PER_ROD;
+var RODS_PER_MILE = RODS_PER_FURLONG * FURLONGS_PER_MILE;
+var FURLONGS_PER_KILOMETER = METERS_PER_KILOMETER / METERS_PER_FURLONG;
+var KILOMETERS_PER_MILE = FURLONGS_PER_MILE / FURLONGS_PER_KILOMETER;
+function inches2Meters(inches) {
+  return inches / INCHES_PER_METER;
+}
+function meters2Inches(meters) {
+  return meters * INCHES_PER_METER;
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/using.ts
+function interfaceSigCheck(obj2, ...funcNames) {
+  if (!isObject(obj2)) {
+    return false;
+  }
+  obj2 = obj2;
+  for (const funcName of funcNames) {
+    if (!(funcName in obj2)) {
+      return false;
+    }
+    const func = obj2[funcName];
+    if (!isFunction(func)) {
+      return false;
+    }
+  }
+  return true;
+}
+function isDisposable(obj2) {
+  return interfaceSigCheck(obj2, "dispose");
+}
+function isDestroyable(obj2) {
+  return interfaceSigCheck(obj2, "destroy");
+}
+function isClosable(obj2) {
+  return interfaceSigCheck(obj2, "close");
+}
+function dispose(val) {
+  if (isDisposable(val)) {
+    val.dispose();
+  }
+  if (isClosable(val)) {
+    val.close();
+  }
+  if (isDestroyable(val)) {
+    val.destroy();
+  }
+}
+function using(val, thunk) {
+  try {
+    return thunk(val);
+  } finally {
+    dispose(val);
+  }
+}
+
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/cleanup.ts
 function cleanup(obj2) {
   const cleanupQ = new Array();
@@ -2325,20 +1673,20 @@ function cleanup(obj2) {
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/examples/lines/LineMaterial.js
-THREE.UniformsLib.line = {
+UniformsLib.line = {
   worldUnits: { value: 1 },
   linewidth: { value: 1 },
-  resolution: { value: new THREE.Vector2(1, 1) },
+  resolution: { value: new Vector2(1, 1) },
   dashOffset: { value: 0 },
   dashScale: { value: 1 },
   dashSize: { value: 1 },
   gapSize: { value: 1 }
 };
-THREE.ShaderLib["line"] = {
-  uniforms: THREE.UniformsUtils.merge([
-    THREE.UniformsLib.common,
-    THREE.UniformsLib.fog,
-    THREE.UniformsLib.line
+ShaderLib["line"] = {
+  uniforms: UniformsUtils.merge([
+    UniformsLib.common,
+    UniformsLib.fog,
+    UniformsLib.line
   ]),
   vertexShader: `
 		#include <common>
@@ -2730,13 +2078,13 @@ THREE.ShaderLib["line"] = {
 		}
 		`
 };
-var LineMaterial = class extends THREE.ShaderMaterial {
+var LineMaterial = class extends ShaderMaterial {
   constructor(parameters) {
     super({
       type: "LineMaterial",
-      uniforms: THREE.UniformsUtils.clone(THREE.ShaderLib["line"].uniforms),
-      vertexShader: THREE.ShaderLib["line"].vertexShader,
-      fragmentShader: THREE.ShaderLib["line"].fragmentShader,
+      uniforms: UniformsUtils.clone(ShaderLib["line"].uniforms),
+      vertexShader: ShaderLib["line"].vertexShader,
+      fragmentShader: ShaderLib["line"].fragmentShader,
       clipping: true
     });
     Object.defineProperties(this, {
@@ -2886,37 +2234,31 @@ function trans(options) {
   });
 }
 function solidTransparent(options) {
-  return makeMaterial("solidTransparent", THREE.MeshBasicMaterial, trans(options));
+  return makeMaterial("solidTransparent", MeshBasicMaterial, trans(options));
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/objectGetRelativePose.ts
-var M = new THREE.Matrix4();
-var P = new THREE.Vector3();
+var M = new Matrix4();
+var P = new Vector3();
 function objectGetRelativePose(ref, obj2, position, quaternion, scale) {
   M.copy(ref.matrixWorld).invert().multiply(obj2.matrixWorld).decompose(P, quaternion, scale);
   position.set(P.x, P.y, P.z, 1);
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/Plane.ts
-var plane = /* @__PURE__ */ new THREE.PlaneBufferGeometry(1, 1, 1, 1);
+var plane = /* @__PURE__ */ new PlaneBufferGeometry(1, 1, 1, 1);
 plane.name = "PlaneGeom";
-var Plane = class extends THREE.Mesh {
-  constructor(sx, sy, material) {
-    super(plane, material);
-    this.scale.set(sx, sy, 1);
-  }
-};
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/widgets/Image2D.ts
-var P2 = new THREE.Vector4();
-var Q = new THREE.Quaternion();
-var S = new THREE.Vector3();
+var P2 = new Vector4();
+var Q = new Quaternion();
+var S = new Vector3();
 var copyCounter = 0;
-var Image2D = class extends THREE.Object3D {
+var Image2D = class extends Object3D {
   constructor(env, name, webXRLayerType, materialOrOptions = null) {
     super();
     this.webXRLayerType = webXRLayerType;
-    this.lastMatrixWorld = new THREE.Matrix4();
+    this.lastMatrixWorld = new Matrix4();
     this.layer = null;
     this.wasUsingLayer = false;
     this._imageWidth = 0;
@@ -3051,10 +2393,10 @@ var Image2D = class extends THREE.Object3D {
       this.curImage = img;
       if (img instanceof HTMLVideoElement) {
         this.setImageSize(img.videoWidth, img.videoHeight);
-        this.mesh.material.map = new THREE.VideoTexture(img);
+        this.mesh.material.map = new VideoTexture(img);
       } else {
         this.setImageSize(img.width, img.height);
-        this.mesh.material.map = new THREE.Texture(img);
+        this.mesh.material.map = new Texture(img);
         this.mesh.material.map.needsUpdate = true;
       }
     }
@@ -3265,7 +2607,7 @@ var TextMeshButton = class extends RayTarget {
       `text-${id2}`,
       this.image,
       {
-        side: THREE.FrontSide,
+        side: FrontSide,
         opacity
       }
     );
@@ -3455,76 +2797,226 @@ var text = /* @__PURE__ */ specialize("text");
 var Text_Plain = /* @__PURE__ */ text("plain", "txt", "text", "conf", "def", "list", "log", "in");
 var Text_Xml = /* @__PURE__ */ text("xml");
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/Asset.ts
-var BaseAsset = class {
-  constructor(path, type2) {
-    this.path = path;
-    this.type = type2;
-    this._result = null;
-    this._error = null;
-    this._started = false;
-    this._finished = false;
-    this.resolve = null;
-    this.reject = null;
-    this.promise = new Promise((resolve, reject) => {
-      this.resolve = (value) => {
-        this._result = value;
-        this._finished = true;
-        resolve(value);
-      };
-      this.reject = (reason) => {
-        this._error = reason;
-        this._finished = true;
-        reject(reason);
-      };
-    });
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/mapInvert.ts
+function mapInvert(map) {
+  const mapOut = /* @__PURE__ */ new Map();
+  for (const [key, value] of map) {
+    mapOut.set(value, key);
   }
-  get result() {
-    if (isDefined(this.error)) {
-      throw this.error;
+  return mapOut;
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/units/fileSize.ts
+function isBase2Units(label) {
+  return label !== "B" && label[1] === "i";
+}
+function isBase10Units(label) {
+  return label !== "B" && !isBase10Units(label);
+}
+var base2Labels = /* @__PURE__ */ new Map([
+  [1, "KiB"],
+  [2, "MiB"],
+  [3, "GiB"],
+  [4, "TiB"]
+]);
+var base10Labels = /* @__PURE__ */ new Map([
+  [1, "KB"],
+  [2, "MB"],
+  [3, "GB"],
+  [4, "TB"]
+]);
+var base2Sizes = /* @__PURE__ */ mapInvert(base2Labels);
+var base10Sizes = /* @__PURE__ */ mapInvert(base10Labels);
+function toBytes(value, units) {
+  if (units === "B") {
+    return value;
+  } else {
+    let systemBase;
+    let size;
+    if (isBase2Units(units)) {
+      systemBase = 1024;
+      size = base2Sizes.get(units);
+    } else if (isBase10Units(units)) {
+      systemBase = 1e3;
+      size = base10Sizes.get(units);
+    } else {
+      assertNever(units);
     }
-    return this._result;
+    const multiplier = Math.pow(systemBase, size);
+    return value * multiplier;
   }
-  get error() {
-    return this._error;
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/progress/BaseProgress.ts
+var BaseProgress = class extends TypedEventBase {
+  constructor() {
+    super(...arguments);
+    this.attached = new Array();
+    this.soFar = null;
+    this.total = null;
+    this.msg = null;
+    this.est = null;
   }
-  get started() {
-    return this._started;
+  get p() {
+    return this.total > 0 ? this.soFar / this.total : 0;
   }
-  get finished() {
-    return this._finished;
-  }
-  async getSize(fetcher) {
-    try {
-      const { contentLength } = await fetcher.head(this.path).accept(this.type).exec();
-      return [this, contentLength || 1];
-    } catch (exp) {
-      console.warn(exp);
-      return [this, 1];
-    }
-    ;
-  }
-  async fetch(fetcher, prog) {
-    try {
-      const result = await this.getResult(fetcher, prog);
-      this.resolve(result);
-    } catch (err) {
-      this.reject(err);
+  report(soFar, total, msg, est) {
+    this.soFar = soFar;
+    this.total = total;
+    this.msg = msg;
+    this.est = est;
+    for (const attach of this.attached) {
+      attach.report(soFar, total, msg, est);
     }
   }
-  get [Symbol.toStringTag]() {
-    return this.promise.toString();
+  attach(prog) {
+    this.attached.push(prog);
+    prog.report(this.soFar, this.total, this.msg, this.est);
   }
-  then(onfulfilled, onrejected) {
-    return this.promise.then(onfulfilled, onrejected);
+  clear() {
+    this.report(0, 0);
+    this._clear();
   }
-  catch(onrejected) {
-    return this.promise.catch(onrejected);
+  start(msg) {
+    this.report(0, 1, msg || "starting");
   }
-  finally(onfinally) {
-    return this.promise.finally(onfinally);
+  end(msg) {
+    this.report(1, 1, msg || "done");
+    this._clear();
+  }
+  _clear() {
+    this.soFar = null;
+    this.total = null;
+    this.msg = null;
+    this.est = null;
+    arrayClear(this.attached);
   }
 };
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/progress/ChildProgressCallback.ts
+var ChildProgressCallback = class extends BaseProgress {
+  constructor(i, prog) {
+    super();
+    this.i = i;
+    this.prog = prog;
+  }
+  report(soFar, total, msg, est) {
+    super.report(soFar, total, msg, est);
+    this.prog.update(this.i, soFar, total, msg);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/progress/BaseParentProgressCallback.ts
+var BaseParentProgressCallback = class {
+  constructor(prog) {
+    this.prog = prog;
+    this.weightTotal = 0;
+    this.subProgressCallbacks = new Array();
+    this.subProgressWeights = new Array();
+    this.subProgressValues = new Array();
+    this.start = performance.now();
+    for (let i = 0; i < this.subProgressWeights.length; ++i) {
+      this.subProgressValues[i] = 0;
+      this.subProgressCallbacks[i] = new ChildProgressCallback(i, this);
+    }
+  }
+  addSubProgress(weight) {
+    weight = weight || 1;
+    this.weightTotal += weight;
+    this.subProgressWeights.push(weight);
+    this.subProgressValues.push(0);
+    const child = new ChildProgressCallback(this.subProgressCallbacks.length, this);
+    this.subProgressCallbacks.push(child);
+    return child;
+  }
+  update(i, subSoFar, subTotal, msg) {
+    if (this.prog) {
+      this.subProgressValues[i] = subSoFar / subTotal;
+      let soFar = 0;
+      for (let j = 0; j < this.subProgressWeights.length; ++j) {
+        soFar += this.subProgressValues[j] * this.subProgressWeights[j];
+      }
+      const end2 = performance.now();
+      const delta = end2 - this.start;
+      const est = this.start - end2 + delta * this.weightTotal / soFar;
+      this.prog.report(soFar, this.weightTotal, msg, est);
+    }
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/progress/progressSplit.ts
+function progressSplitWeighted(prog, subProgressWeights) {
+  const subProg = new WeightedParentProgressCallback(subProgressWeights, prog);
+  return subProg.subProgressCallbacks;
+}
+function progressSplit(prog, taskCount) {
+  const subProgressWeights = new Array(taskCount);
+  for (let i = 0; i < taskCount; ++i) {
+    subProgressWeights[i] = 1;
+  }
+  return progressSplitWeighted(prog, subProgressWeights);
+}
+var WeightedParentProgressCallback = class extends BaseParentProgressCallback {
+  constructor(subProgressWeights, prog) {
+    super(prog);
+    for (const weight of subProgressWeights) {
+      this.addSubProgress(weight);
+    }
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/progress/progressTasks.ts
+async function progressTasksWeighted(prog, taskDefs) {
+  const weights = new Array(taskDefs.length);
+  const callbacks = new Array(taskDefs.length);
+  for (let i = 0; i < taskDefs.length; ++i) {
+    const taskDef = taskDefs[i];
+    weights[i] = taskDef[0];
+    callbacks[i] = taskDef[1];
+  }
+  const progs = progressSplitWeighted(prog, weights);
+  const tasks = new Array(taskDefs.length);
+  for (let i = 0; i < taskDefs.length; ++i) {
+    tasks[i] = callbacks[i](progs[i]);
+  }
+  return await Promise.all(tasks);
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/events/waitFor.ts
+function waitFor(test) {
+  const task = new Task(test);
+  const handle = setInterval(() => {
+    if (test()) {
+      clearInterval(handle);
+      task.resolve();
+    }
+  }, 100);
+  return task;
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/translateResponse.ts
+async function translateResponse(response, translate) {
+  const {
+    status,
+    path,
+    content,
+    contentType,
+    contentLength,
+    fileName,
+    headers,
+    date
+  } = response;
+  return {
+    status,
+    path,
+    content: await translate(content),
+    contentType,
+    contentLength,
+    fileName,
+    headers,
+    date
+  };
+}
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/RequestBuilder.ts
 var testAudio = null;
@@ -3914,30 +3406,6 @@ var Fetcher = class {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/translateResponse.ts
-async function translateResponse(response, translate) {
-  const {
-    status,
-    path,
-    content,
-    contentType,
-    contentLength,
-    fileName,
-    headers,
-    date
-  } = response;
-  return {
-    status,
-    path,
-    content: await translate(content),
-    contentType,
-    contentLength,
-    fileName,
-    headers,
-    date
-  };
-}
-
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/FetchingService.ts
 var FetchingService = class {
   constructor(impl) {
@@ -4023,331 +3491,194 @@ var FetchingService = class {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/workers/WorkerClient.ts
-var WorkerClient = class extends TypedEventBase {
-  constructor(worker) {
-    super();
-    this.worker = worker;
-    this.invocations = /* @__PURE__ */ new Map();
-    this.tasks = new Array();
-    this.taskCounter = 0;
-    if (!isWorkerSupported) {
-      console.warn("Workers are not supported on this system.");
-    }
-    this.worker.addEventListener("message", (evt) => {
-      const data = evt.data;
-      switch (data.type) {
-        case "event":
-          this.propogateEvent(data);
-          break;
-        case "progress":
-          this.progressReport(data);
-          break;
-        case "return":
-          this.methodReturned(data);
-          break;
-        case "error":
-          this.invocationError(data);
-          break;
-        default:
-          assertNever(data);
-      }
-    });
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/mapMap.ts
+function mapMap(items, makeID, makeValue) {
+  return new Map(items.map((item) => [makeID(item), makeValue(item)]));
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/arrayRemove.ts
+function arrayRemove(arr, value) {
+  const idx = arr.indexOf(value);
+  if (idx > -1) {
+    arrayRemoveAt(arr, idx);
+    return true;
   }
-  postMessage(message, transferables) {
-    if (message.type !== "methodCall") {
-      assertNever(message.type);
-    }
-    if (transferables) {
-      this.worker.postMessage(message, transferables);
-    } else {
-      this.worker.postMessage(message);
-    }
-  }
-  dispose() {
-    this.worker.terminate();
-  }
-  progressReport(data) {
-    const invocation = this.invocations.get(data.taskID);
-    if (invocation) {
-      const { prog } = invocation;
-      if (prog) {
-        prog.report(data.soFar, data.total, data.msg, data.est);
+  return false;
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/PriorityList.ts
+var PriorityList = class {
+  constructor(init) {
+    this.items = /* @__PURE__ */ new Map();
+    this.defaultItems = new Array();
+    if (isDefined(init)) {
+      for (const [key, value] of init) {
+        this.add(key, value);
       }
     }
   }
-  methodReturned(data) {
-    const messageHandler = this.removeInvocation(data.taskID);
-    const { task } = messageHandler;
-    task.resolve(data.returnValue);
-  }
-  invocationError(data) {
-    const messageHandler = this.removeInvocation(data.taskID);
-    const { task, methodName } = messageHandler;
-    task.reject(new Error(`${methodName} failed. Reason: ${data.errorMessage}`));
-  }
-  removeInvocation(taskID) {
-    const invocation = this.invocations.get(taskID);
-    this.invocations.delete(taskID);
-    return invocation;
-  }
-  callMethod(methodName, parameters, transferables, prog) {
-    if (!isWorkerSupported) {
-      return Promise.reject(new Error("Workers are not supported on this system."));
-    }
-    let params = null;
-    let tfers = null;
-    if (isProgressCallback(parameters)) {
-      prog = parameters;
-      parameters = null;
-      transferables = null;
-    }
-    if (isProgressCallback(transferables) && !prog) {
-      prog = transferables;
-      transferables = null;
-    }
-    if (isArray(parameters)) {
-      params = parameters;
-    }
-    if (isArray(transferables)) {
-      tfers = transferables;
-    }
-    const taskID = this.taskCounter++;
-    let task = arrayScan(this.tasks, (t2) => t2.finished);
-    if (task) {
-      task.reset();
+  add(key, value) {
+    if (isNullOrUndefined(key)) {
+      this.defaultItems.push(value);
     } else {
-      task = new Task();
-      this.tasks.push(task);
+      let list = this.items.get(key);
+      if (isNullOrUndefined(list)) {
+        this.items.set(key, list = []);
+      }
+      list.push(value);
     }
-    const invocation = {
-      methodName,
-      task,
-      prog
-    };
-    this.invocations.set(taskID, invocation);
-    let message = null;
-    if (isDefined(parameters)) {
-      message = {
-        type: "methodCall",
-        taskID,
-        methodName,
-        params
-      };
+    return this;
+  }
+  entries() {
+    return this.items.entries();
+  }
+  [Symbol.iterator]() {
+    return this.entries();
+  }
+  keys() {
+    return this.items.keys();
+  }
+  *values() {
+    for (const item of this.defaultItems) {
+      yield item;
+    }
+    for (const list of this.items.values()) {
+      for (const item of list) {
+        yield item;
+      }
+    }
+  }
+  has(key) {
+    if (isDefined(key)) {
+      return this.items.has(key);
     } else {
-      message = {
-        type: "methodCall",
-        taskID,
-        methodName
-      };
+      return this.defaultItems.length > 0;
     }
-    this.postMessage(message, tfers);
-    return task;
+  }
+  get(key) {
+    if (isNullOrUndefined(key)) {
+      return this.defaultItems;
+    }
+    return this.items.get(key) || [];
+  }
+  count(key) {
+    if (isNullOrUndefined(key)) {
+      return this.defaultItems.length;
+    }
+    const list = this.get(key);
+    if (isDefined(list)) {
+      return list.length;
+    }
+    return 0;
+  }
+  get size() {
+    let size = this.defaultItems.length;
+    for (const list of this.items.values()) {
+      size += list.length;
+    }
+    return size;
+  }
+  delete(key) {
+    if (isNullOrUndefined(key)) {
+      return arrayClear(this.defaultItems).length > 0;
+    } else {
+      return this.items.delete(key);
+    }
+  }
+  remove(key, value) {
+    if (isNullOrUndefined(key)) {
+      arrayRemove(this.defaultItems, value);
+    } else {
+      const list = this.items.get(key);
+      if (isDefined(list)) {
+        arrayRemove(list, value);
+        if (list.length === 0) {
+          this.items.delete(key);
+        }
+      }
+    }
+  }
+  clear() {
+    this.items.clear();
+    arrayClear(this.defaultItems);
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/workers/WorkerPool.ts
-var WorkerPool = class extends TypedEventBase {
-  constructor(options, WorkerClientClass) {
-    super();
-    this.scriptPath = options.scriptPath;
-    let workerPoolSize = -1;
-    const workersDef = options.workers;
-    let workers = null;
-    if (isNumber(workersDef)) {
-      workerPoolSize = workersDef;
-    } else if (isDefined(workersDef)) {
-      this.taskCounter = workersDef.curTaskCounter;
-      workers = workersDef.workers;
-      workerPoolSize = workers.length;
-    } else {
-      workerPoolSize = navigator.hardwareConcurrency || 4;
-    }
-    if (workerPoolSize < 1) {
-      throw new Error("Worker pool size must be a postive integer greater than 0");
-    }
-    this.workers = new Array(workerPoolSize);
-    if (isNullOrUndefined(workers)) {
-      this.taskCounter = 0;
-      for (let i = 0; i < workerPoolSize; ++i) {
-        this.workers[i] = new WorkerClientClass(new Worker(this.scriptPath, { type: "module" }));
-      }
-    } else {
-      for (let i = 0; i < workerPoolSize; ++i) {
-        this.workers[i] = new WorkerClientClass(workers[i]);
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/PriorityMap.ts
+var PriorityMap = class {
+  constructor(init) {
+    this.items = /* @__PURE__ */ new Map();
+    if (isDefined(init)) {
+      for (const [key1, key2, value] of init) {
+        this.add(key1, key2, value);
       }
     }
-    for (const worker of this.workers) {
-      worker.addBubbler(this);
+  }
+  add(key1, key2, value) {
+    let level1 = this.items.get(key1);
+    if (isNullOrUndefined(level1)) {
+      this.items.set(key1, level1 = /* @__PURE__ */ new Map());
+    }
+    level1.set(key2, value);
+    return this;
+  }
+  *entries() {
+    for (const [key1, level1] of this.items) {
+      for (const [key2, value] of level1) {
+        yield [key1, key2, value];
+      }
     }
   }
-  dispose() {
-    for (const worker of this.workers) {
-      worker.dispose();
+  keys(key1) {
+    if (isNullOrUndefined(key1)) {
+      return this.items.keys();
+    } else {
+      return this.items.get(key1).keys();
     }
-    arrayClear(this.workers);
   }
-  nextWorker() {
-    const worker = this.peekWorker();
-    this.taskCounter++;
-    return worker;
+  *values() {
+    for (const level1 of this.items.values()) {
+      for (const value of level1.values()) {
+        yield value;
+      }
+    }
   }
-  peekWorker() {
-    return this.workers[this.taskCounter % this.workers.length];
+  has(key1, key2) {
+    return this.items.has(key1) && (isNullOrUndefined(key2) || this.items.get(key1).has(key2));
   }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/FetchingServiceClient.ts
-function isDOMParsersSupportedType(type2) {
-  return type2 === "application/xhtml+xml" || type2 === "application/xml" || type2 === "image/svg+xml" || type2 === "text/html" || type2 === "text/xml";
-}
-function bufferToXml(response) {
-  const {
-    status,
-    path,
-    content: buffer,
-    contentType,
-    contentLength,
-    fileName,
-    headers,
-    date
-  } = response;
-  if (!isDOMParsersSupportedType(contentType)) {
-    throw new Error(`Content-Type ${contentType} is not one supported by the DOM parser.`);
+  get(key1, key2) {
+    if (isNullOrUndefined(key2)) {
+      return this.items.get(key1);
+    } else if (this.items.has(key1)) {
+      return this.items.get(key1).get(key2);
+    } else {
+      return null;
+    }
   }
-  const decoder = new TextDecoder();
-  const text2 = decoder.decode(buffer);
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(text2, contentType);
-  return {
-    status,
-    path,
-    content: doc.documentElement,
-    contentType,
-    contentLength,
-    fileName,
-    date,
-    headers
-  };
-}
-function bufferToBlob(response) {
-  const {
-    status,
-    path,
-    content: buffer,
-    contentType,
-    contentLength,
-    fileName,
-    headers,
-    date
-  } = response;
-  const blob = new Blob([buffer], {
-    type: contentType
-  });
-  return {
-    status,
-    path,
-    content: blob,
-    contentType,
-    contentLength,
-    fileName,
-    date,
-    headers
-  };
-}
-function cloneRequest(request) {
-  request = {
-    method: request.method,
-    path: request.path,
-    timeout: request.timeout,
-    headers: request.headers,
-    withCredentials: request.withCredentials,
-    useCache: request.useCache
-  };
-  return request;
-}
-function cloneRequestWithBody(request) {
-  request = {
-    method: request.method,
-    path: request.path,
-    body: request.body,
-    timeout: request.timeout,
-    headers: request.headers,
-    withCredentials: request.withCredentials,
-    useCache: request.useCache
-  };
-  return request;
-}
-var FetchingServiceClient = class extends WorkerClient {
-  setRequestVerificationToken(value) {
-    this.callMethod("setRequestVerificationToken", [value]);
+  count(key1) {
+    if (this.items.has(key1)) {
+      return this.items.get(key1).size;
+    }
+    return null;
   }
-  clearCache() {
-    return this.callMethod("clearCache");
+  get size() {
+    let size = 0;
+    for (const list of this.items.values()) {
+      size += list.size;
+    }
+    return size;
   }
-  propogateEvent(data) {
-    assertNever(data.eventName);
+  delete(key1, key2) {
+    if (isNullOrUndefined(key2)) {
+      return this.items.delete(key1);
+    } else if (this.items.has(key1)) {
+      return this.items.get(key1).delete(key2);
+    } else {
+      return false;
+    }
   }
-  makeRequest(methodName, request, progress) {
-    return this.callMethod(methodName, [cloneRequest(request)], progress);
-  }
-  makeRequestWithBody(methodName, request, progress) {
-    return this.callMethod(methodName, [cloneRequestWithBody(request)], progress);
-  }
-  sendNothingGetNothing(request) {
-    return this.makeRequest("sendNothingGetNothing", request, null);
-  }
-  sendNothingGetBuffer(request, progress) {
-    return this.makeRequest("sendNothingGetBuffer", request, progress);
-  }
-  sendNothingGetText(request, progress) {
-    return this.makeRequest("sendNothingGetText", request, progress);
-  }
-  sendNothingGetObject(request, progress) {
-    return this.makeRequest("sendNothingGetObject", request, progress);
-  }
-  sendNothingGetFile(request, progress) {
-    return this.makeRequest("sendNothingGetFile", request, progress);
-  }
-  sendNothingGetImageBitmap(request, progress) {
-    return this.makeRequest("sendNothingGetImageBitmap", request, progress);
-  }
-  sendObjectGetNothing(request, progress) {
-    return this.makeRequestWithBody("sendObjectGetNothing", request, progress);
-  }
-  sendObjectGetBuffer(request, progress) {
-    return this.makeRequestWithBody("sendObjectGetBuffer", request, progress);
-  }
-  sendObjectGetText(request, progress) {
-    return this.makeRequestWithBody("sendObjectGetText", request, progress);
-  }
-  sendObjectGetObject(request, progress) {
-    return this.makeRequestWithBody("sendObjectGetObject", request, progress);
-  }
-  sendObjectGetFile(request, progress) {
-    return this.makeRequestWithBody("sendObjectGetFile", request, progress);
-  }
-  sendObjectGetImageBitmap(request, progress) {
-    return this.makeRequestWithBody("sendObjectGetImageBitmap", request, progress);
-  }
-  drawImageToCanvas(request, canvas, progress) {
-    return this.callMethod("drawImageToCanvas", [cloneRequest(request), canvas], [canvas], progress);
-  }
-  async sendNothingGetBlob(request, progress) {
-    const response = await this.sendNothingGetBuffer(request, progress);
-    return bufferToBlob(response);
-  }
-  async sendNothingGetXml(request, progress) {
-    const response = await this.sendNothingGetBuffer(request, progress);
-    return bufferToXml(response);
-  }
-  async sendObjectGetBlob(request, progress) {
-    const response = await this.sendObjectGetBuffer(request, progress);
-    return bufferToBlob(response);
-  }
-  async sendObjectGetXml(request, progress) {
-    const response = await this.sendObjectGetBuffer(request, progress);
-    return bufferToXml(response);
+  clear() {
+    this.items.clear();
   }
 };
 
@@ -4566,6 +3897,18 @@ var IDexStore = class {
     return this.request((store) => store.put(value, key), "readwrite");
   }
 };
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/mapJoin.ts
+function mapJoin(dest, ...sources) {
+  for (const source of sources) {
+    if (isDefined(source)) {
+      for (const [key, value] of source) {
+        dest.set(key, value);
+      }
+    }
+  }
+  return dest;
+}
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/FetchingServiceImplXHR.ts
 function isXHRBodyInit(obj2) {
@@ -4855,6 +4198,353 @@ var FetchingServiceImplXHR = class {
   }
 };
 
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/workers/WorkerPool.ts
+var WorkerPool = class extends TypedEventBase {
+  constructor(options, WorkerClientClass) {
+    super();
+    this.scriptPath = options.scriptPath;
+    let workerPoolSize = -1;
+    const workersDef = options.workers;
+    let workers = null;
+    if (isNumber(workersDef)) {
+      workerPoolSize = workersDef;
+    } else if (isDefined(workersDef)) {
+      this.taskCounter = workersDef.curTaskCounter;
+      workers = workersDef.workers;
+      workerPoolSize = workers.length;
+    } else {
+      workerPoolSize = navigator.hardwareConcurrency || 4;
+    }
+    if (workerPoolSize < 1) {
+      throw new Error("Worker pool size must be a postive integer greater than 0");
+    }
+    this.workers = new Array(workerPoolSize);
+    if (isNullOrUndefined(workers)) {
+      this.taskCounter = 0;
+      for (let i = 0; i < workerPoolSize; ++i) {
+        this.workers[i] = new WorkerClientClass(new Worker(this.scriptPath, { type: "module" }));
+      }
+    } else {
+      for (let i = 0; i < workerPoolSize; ++i) {
+        this.workers[i] = new WorkerClientClass(workers[i]);
+      }
+    }
+    for (const worker of this.workers) {
+      worker.addBubbler(this);
+    }
+  }
+  dispose() {
+    for (const worker of this.workers) {
+      worker.dispose();
+    }
+    arrayClear(this.workers);
+  }
+  nextWorker() {
+    const worker = this.peekWorker();
+    this.taskCounter++;
+    return worker;
+  }
+  peekWorker() {
+    return this.workers[this.taskCounter % this.workers.length];
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/flags.ts
+var oculusBrowserPattern = /OculusBrowser\/(\d+)\.(\d+)\.(\d+)/i;
+var oculusMatch = /* @__PURE__ */ navigator.userAgent.match(oculusBrowserPattern);
+var isOculusBrowser = !!oculusMatch;
+var oculusBrowserVersion = isOculusBrowser && {
+  major: parseFloat(oculusMatch[1]),
+  minor: parseFloat(oculusMatch[2]),
+  patch: parseFloat(oculusMatch[3])
+};
+var isOculusGo = isOculusBrowser && /pacific/i.test(navigator.userAgent);
+var isOculusQuest = isOculusBrowser && /quest/i.test(navigator.userAgent);
+var isOculusQuest2 = isOculusBrowser && /quest 2/i.test(navigator.userAgent);
+var isWorkerSupported = "Worker" in globalThis;
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/progress/IProgress.ts
+function isProgressCallback(obj2) {
+  return isDefined(obj2) && isFunction(obj2.report) && isFunction(obj2.attach) && isFunction(obj2.end);
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/workers/WorkerClient.ts
+var WorkerClient = class extends TypedEventBase {
+  constructor(worker) {
+    super();
+    this.worker = worker;
+    this.invocations = /* @__PURE__ */ new Map();
+    this.tasks = new Array();
+    this.taskCounter = 0;
+    if (!isWorkerSupported) {
+      console.warn("Workers are not supported on this system.");
+    }
+    this.worker.addEventListener("message", (evt) => {
+      const data = evt.data;
+      switch (data.type) {
+        case "event":
+          this.propogateEvent(data);
+          break;
+        case "progress":
+          this.progressReport(data);
+          break;
+        case "return":
+          this.methodReturned(data);
+          break;
+        case "error":
+          this.invocationError(data);
+          break;
+        default:
+          assertNever(data);
+      }
+    });
+  }
+  postMessage(message, transferables) {
+    if (message.type !== "methodCall") {
+      assertNever(message.type);
+    }
+    if (transferables) {
+      this.worker.postMessage(message, transferables);
+    } else {
+      this.worker.postMessage(message);
+    }
+  }
+  dispose() {
+    this.worker.terminate();
+  }
+  progressReport(data) {
+    const invocation = this.invocations.get(data.taskID);
+    if (invocation) {
+      const { prog } = invocation;
+      if (prog) {
+        prog.report(data.soFar, data.total, data.msg, data.est);
+      }
+    }
+  }
+  methodReturned(data) {
+    const messageHandler = this.removeInvocation(data.taskID);
+    const { task } = messageHandler;
+    task.resolve(data.returnValue);
+  }
+  invocationError(data) {
+    const messageHandler = this.removeInvocation(data.taskID);
+    const { task, methodName } = messageHandler;
+    task.reject(new Error(`${methodName} failed. Reason: ${data.errorMessage}`));
+  }
+  removeInvocation(taskID) {
+    const invocation = this.invocations.get(taskID);
+    this.invocations.delete(taskID);
+    return invocation;
+  }
+  callMethod(methodName, parameters, transferables, prog) {
+    if (!isWorkerSupported) {
+      return Promise.reject(new Error("Workers are not supported on this system."));
+    }
+    let params = null;
+    let tfers = null;
+    if (isProgressCallback(parameters)) {
+      prog = parameters;
+      parameters = null;
+      transferables = null;
+    }
+    if (isProgressCallback(transferables) && !prog) {
+      prog = transferables;
+      transferables = null;
+    }
+    if (isArray(parameters)) {
+      params = parameters;
+    }
+    if (isArray(transferables)) {
+      tfers = transferables;
+    }
+    const taskID = this.taskCounter++;
+    let task = arrayScan(this.tasks, (t2) => t2.finished);
+    if (task) {
+      task.reset();
+    } else {
+      task = new Task();
+      this.tasks.push(task);
+    }
+    const invocation = {
+      methodName,
+      task,
+      prog
+    };
+    this.invocations.set(taskID, invocation);
+    let message = null;
+    if (isDefined(parameters)) {
+      message = {
+        type: "methodCall",
+        taskID,
+        methodName,
+        params
+      };
+    } else {
+      message = {
+        type: "methodCall",
+        taskID,
+        methodName
+      };
+    }
+    this.postMessage(message, tfers);
+    return task;
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/FetchingServiceClient.ts
+function isDOMParsersSupportedType(type2) {
+  return type2 === "application/xhtml+xml" || type2 === "application/xml" || type2 === "image/svg+xml" || type2 === "text/html" || type2 === "text/xml";
+}
+function bufferToXml(response) {
+  const {
+    status,
+    path,
+    content: buffer,
+    contentType,
+    contentLength,
+    fileName,
+    headers,
+    date
+  } = response;
+  if (!isDOMParsersSupportedType(contentType)) {
+    throw new Error(`Content-Type ${contentType} is not one supported by the DOM parser.`);
+  }
+  const decoder = new TextDecoder();
+  const text2 = decoder.decode(buffer);
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(text2, contentType);
+  return {
+    status,
+    path,
+    content: doc.documentElement,
+    contentType,
+    contentLength,
+    fileName,
+    date,
+    headers
+  };
+}
+function bufferToBlob(response) {
+  const {
+    status,
+    path,
+    content: buffer,
+    contentType,
+    contentLength,
+    fileName,
+    headers,
+    date
+  } = response;
+  const blob = new Blob([buffer], {
+    type: contentType
+  });
+  return {
+    status,
+    path,
+    content: blob,
+    contentType,
+    contentLength,
+    fileName,
+    date,
+    headers
+  };
+}
+function cloneRequest(request) {
+  request = {
+    method: request.method,
+    path: request.path,
+    timeout: request.timeout,
+    headers: request.headers,
+    withCredentials: request.withCredentials,
+    useCache: request.useCache
+  };
+  return request;
+}
+function cloneRequestWithBody(request) {
+  request = {
+    method: request.method,
+    path: request.path,
+    body: request.body,
+    timeout: request.timeout,
+    headers: request.headers,
+    withCredentials: request.withCredentials,
+    useCache: request.useCache
+  };
+  return request;
+}
+var FetchingServiceClient = class extends WorkerClient {
+  setRequestVerificationToken(value) {
+    this.callMethod("setRequestVerificationToken", [value]);
+  }
+  clearCache() {
+    return this.callMethod("clearCache");
+  }
+  propogateEvent(data) {
+    assertNever(data.eventName);
+  }
+  makeRequest(methodName, request, progress) {
+    return this.callMethod(methodName, [cloneRequest(request)], progress);
+  }
+  makeRequestWithBody(methodName, request, progress) {
+    return this.callMethod(methodName, [cloneRequestWithBody(request)], progress);
+  }
+  sendNothingGetNothing(request) {
+    return this.makeRequest("sendNothingGetNothing", request, null);
+  }
+  sendNothingGetBuffer(request, progress) {
+    return this.makeRequest("sendNothingGetBuffer", request, progress);
+  }
+  sendNothingGetText(request, progress) {
+    return this.makeRequest("sendNothingGetText", request, progress);
+  }
+  sendNothingGetObject(request, progress) {
+    return this.makeRequest("sendNothingGetObject", request, progress);
+  }
+  sendNothingGetFile(request, progress) {
+    return this.makeRequest("sendNothingGetFile", request, progress);
+  }
+  sendNothingGetImageBitmap(request, progress) {
+    return this.makeRequest("sendNothingGetImageBitmap", request, progress);
+  }
+  sendObjectGetNothing(request, progress) {
+    return this.makeRequestWithBody("sendObjectGetNothing", request, progress);
+  }
+  sendObjectGetBuffer(request, progress) {
+    return this.makeRequestWithBody("sendObjectGetBuffer", request, progress);
+  }
+  sendObjectGetText(request, progress) {
+    return this.makeRequestWithBody("sendObjectGetText", request, progress);
+  }
+  sendObjectGetObject(request, progress) {
+    return this.makeRequestWithBody("sendObjectGetObject", request, progress);
+  }
+  sendObjectGetFile(request, progress) {
+    return this.makeRequestWithBody("sendObjectGetFile", request, progress);
+  }
+  sendObjectGetImageBitmap(request, progress) {
+    return this.makeRequestWithBody("sendObjectGetImageBitmap", request, progress);
+  }
+  drawImageToCanvas(request, canvas, progress) {
+    return this.callMethod("drawImageToCanvas", [cloneRequest(request), canvas], [canvas], progress);
+  }
+  async sendNothingGetBlob(request, progress) {
+    const response = await this.sendNothingGetBuffer(request, progress);
+    return bufferToBlob(response);
+  }
+  async sendNothingGetXml(request, progress) {
+    const response = await this.sendNothingGetBuffer(request, progress);
+    return bufferToXml(response);
+  }
+  async sendObjectGetBlob(request, progress) {
+    const response = await this.sendObjectGetBuffer(request, progress);
+    return bufferToBlob(response);
+  }
+  async sendObjectGetXml(request, progress) {
+    const response = await this.sendObjectGetBuffer(request, progress);
+    return bufferToXml(response);
+  }
+};
+
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/FetchingServicePool.ts
 var FetchingServicePool = class extends WorkerPool {
   constructor(options, fetcher) {
@@ -4932,7 +4622,7 @@ var FetchingServicePool = class extends WorkerPool {
 
 // src/isDebug.ts
 var url = /* @__PURE__ */ new URL(globalThis.location.href);
-var isDebug = !url.searchParams.has("RELEASE");
+var isDebug = !url.searchParams.has("RELEASE") || false;
 var JS_EXT = isDebug ? ".js" : ".min.js";
 
 // src/settings.ts

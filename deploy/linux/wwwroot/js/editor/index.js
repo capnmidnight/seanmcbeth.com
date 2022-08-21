@@ -1,3 +1,22 @@
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/Exception.ts
+var Exception = class extends Error {
+  constructor(message, innerError = null) {
+    super(message);
+    this.innerError = innerError;
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/identity.ts
+function identity(item) {
+  return item;
+}
+function alwaysTrue() {
+  return true;
+}
+function alwaysFalse() {
+  return false;
+}
+
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/typeChecks.ts
 function t(o, s, c) {
   return typeof o === s || o instanceof c;
@@ -34,296 +53,6 @@ function isArrayBufferView(obj) {
 }
 function isArrayBuffer(val) {
   return val && typeof ArrayBuffer !== "undefined" && (val instanceof ArrayBuffer || val.constructor && val.constructor.name === "ArrayBuffer");
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/util.ts
-var typePattern = /([^\/]+)\/(.+)/;
-var subTypePattern = /(?:([^\.]+)\.)?([^\+;]+)(?:\+([^;]+))?((?:; *([^=]+)=([^;]+))*)/;
-var MediaType = class {
-  constructor(_type, _fullSubType, extensions) {
-    this._type = _type;
-    this._fullSubType = _fullSubType;
-    this._primaryExtension = null;
-    this.depMessage = null;
-    const parameters = /* @__PURE__ */ new Map();
-    this._parameters = parameters;
-    const subTypeParts = this._fullSubType.match(subTypePattern);
-    this._tree = subTypeParts[1];
-    this._subType = subTypeParts[2];
-    this._suffix = subTypeParts[3];
-    const paramStr = subTypeParts[4];
-    this._value = this._fullValue = this._type + "/";
-    if (isDefined(this._tree)) {
-      this._value = this._fullValue += this._tree + ".";
-    }
-    this._value = this._fullValue += this._subType;
-    if (isDefined(this._suffix)) {
-      this._value = this._fullValue += "+" + this._suffix;
-    }
-    if (isDefined(paramStr)) {
-      const pairs = paramStr.split(";").map((p) => p.trim()).filter((p) => p.length > 0).map((p) => p.split("="));
-      for (const [key, ...values] of pairs) {
-        const value = values.join("=");
-        parameters.set(key, value);
-        const slug = `; ${key}=${value}`;
-        this._fullValue += slug;
-        if (key !== "q") {
-          this._value += slug;
-        }
-      }
-    }
-    this._extensions = extensions || [];
-    this._primaryExtension = this._extensions[0] || null;
-  }
-  static parse(value) {
-    if (!value) {
-      return null;
-    }
-    const match = value.match(typePattern);
-    if (!match) {
-      return null;
-    }
-    const type2 = match[1];
-    const subType = match[2];
-    return new MediaType(type2, subType);
-  }
-  deprecate(message) {
-    this.depMessage = message;
-    return this;
-  }
-  check() {
-    if (isDefined(this.depMessage)) {
-      console.warn(`${this._value} is deprecated ${this.depMessage}`);
-    }
-  }
-  matches(value) {
-    if (isNullOrUndefined(value)) {
-      return false;
-    }
-    if (this.typeName === "*" && this.subTypeName === "*") {
-      return true;
-    }
-    let typeName = null;
-    let subTypeName = null;
-    if (isString(value)) {
-      const match = value.match(typePattern);
-      if (!match) {
-        return false;
-      }
-      typeName = match[1];
-      subTypeName = match[2];
-    } else {
-      typeName = value.typeName;
-      subTypeName = value._fullSubType;
-    }
-    return this.typeName === typeName && (this._fullSubType === "*" || this._fullSubType === subTypeName);
-  }
-  withParameter(key, value) {
-    const newSubType = `${this._fullSubType}; ${key}=${value}`;
-    return new MediaType(this.typeName, newSubType, this.extensions);
-  }
-  get typeName() {
-    this.check();
-    return this._type;
-  }
-  get tree() {
-    this.check();
-    return this._tree;
-  }
-  get suffix() {
-    return this._suffix;
-  }
-  get subTypeName() {
-    this.check();
-    return this._subType;
-  }
-  get value() {
-    this.check();
-    return this._value;
-  }
-  __getValueUnsafe() {
-    return this._value;
-  }
-  get fullValue() {
-    this.check();
-    return this._fullValue;
-  }
-  get parameters() {
-    this.check();
-    return this._parameters;
-  }
-  get extensions() {
-    this.check();
-    return this._extensions;
-  }
-  __getExtensionsUnsafe() {
-    return this._extensions;
-  }
-  get primaryExtension() {
-    this.check();
-    return this._primaryExtension;
-  }
-  toString() {
-    if (this.parameters.get("q") === "1") {
-      return this.value;
-    } else {
-      return this.fullValue;
-    }
-  }
-  addExtension(fileName) {
-    if (!fileName) {
-      throw new Error("File name is not defined");
-    }
-    if (this.primaryExtension) {
-      const idx = fileName.lastIndexOf(".");
-      if (idx > -1) {
-        const currentExtension = fileName.substring(idx + 1);
-        ;
-        if (this.extensions.indexOf(currentExtension) > -1) {
-          fileName = fileName.substring(0, idx);
-        }
-      }
-      fileName = `${fileName}.${this.primaryExtension}`;
-    }
-    return fileName;
-  }
-};
-function create(group, value, ...extensions) {
-  return new MediaType(group, value, extensions);
-}
-function specialize(group) {
-  return create.bind(null, group);
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/application.ts
-var application = /* @__PURE__ */ specialize("application");
-var Application_Javascript = /* @__PURE__ */ application("javascript", "js");
-var Application_Json = /* @__PURE__ */ application("json", "json");
-var Application_Wasm = /* @__PURE__ */ application("wasm", "wasm");
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/image.ts
-var image = /* @__PURE__ */ specialize("image");
-var Image_Jpeg = /* @__PURE__ */ image("jpeg", "jpeg", "jpg", "jpe");
-var Image_Png = /* @__PURE__ */ image("png", "png");
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/text.ts
-var text = /* @__PURE__ */ specialize("text");
-var Text_Plain = /* @__PURE__ */ text("plain", "txt", "text", "conf", "def", "list", "log", "in");
-var Text_Xml = /* @__PURE__ */ text("xml");
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/Asset.ts
-var BaseAsset = class {
-  constructor(path, type2) {
-    this.path = path;
-    this.type = type2;
-    this._result = null;
-    this._error = null;
-    this._started = false;
-    this._finished = false;
-    this.resolve = null;
-    this.reject = null;
-    this.promise = new Promise((resolve, reject) => {
-      this.resolve = (value) => {
-        this._result = value;
-        this._finished = true;
-        resolve(value);
-      };
-      this.reject = (reason) => {
-        this._error = reason;
-        this._finished = true;
-        reject(reason);
-      };
-    });
-  }
-  get result() {
-    if (isDefined(this.error)) {
-      throw this.error;
-    }
-    return this._result;
-  }
-  get error() {
-    return this._error;
-  }
-  get started() {
-    return this._started;
-  }
-  get finished() {
-    return this._finished;
-  }
-  async getSize(fetcher) {
-    try {
-      const { contentLength } = await fetcher.head(this.path).accept(this.type).exec();
-      return [this, contentLength || 1];
-    } catch (exp) {
-      console.warn(exp);
-      return [this, 1];
-    }
-    ;
-  }
-  async fetch(fetcher, prog) {
-    try {
-      const result = await this.getResult(fetcher, prog);
-      this.resolve(result);
-    } catch (err) {
-      this.reject(err);
-    }
-  }
-  get [Symbol.toStringTag]() {
-    return this.promise.toString();
-  }
-  then(onfulfilled, onrejected) {
-    return this.promise.then(onfulfilled, onrejected);
-  }
-  catch(onrejected) {
-    return this.promise.catch(onrejected);
-  }
-  finally(onfinally) {
-    return this.promise.finally(onfinally);
-  }
-};
-var BaseFetchedAsset = class extends BaseAsset {
-  constructor(path, typeOrUseCache, useCache) {
-    let type2;
-    if (isBoolean(typeOrUseCache)) {
-      useCache = typeOrUseCache;
-    } else {
-      type2 = typeOrUseCache;
-    }
-    super(path, type2);
-    this.useCache = !!useCache;
-  }
-  async getResult(fetcher, prog) {
-    const response = await this.getRequest(fetcher, prog);
-    return response.content;
-  }
-  getRequest(fetcher, prog) {
-    const request = fetcher.get(this.path).useCache(this.useCache).progress(prog);
-    return this.getResponse(request);
-  }
-};
-var AssetImage = class extends BaseFetchedAsset {
-  getResponse(request) {
-    return request.image(this.type);
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/Exception.ts
-var Exception = class extends Error {
-  constructor(message, innerError = null) {
-    super(message);
-    this.innerError = innerError;
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/identity.ts
-function identity(item) {
-  return item;
-}
-function alwaysTrue() {
-  return true;
-}
-function alwaysFalse() {
-  return false;
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/arrayClear.ts
@@ -806,59 +535,6 @@ function BackgroundVideo(autoplay, mute, looping, ...rest) {
   );
 }
 
-// global-externals:three
-var { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlendMode, AdditiveBlending, AlphaFormat, AlwaysDepth, AlwaysStencilFunc, AmbientLight, AmbientLightProbe, AnimationClip, AnimationLoader, AnimationMixer, AnimationObjectGroup, AnimationUtils, ArcCurve, ArrayCamera, ArrowHelper, Audio: Audio3, AudioAnalyser, AudioContext, AudioListener, AudioLoader, AxesHelper, BackSide, BasicDepthPacking, BasicShadowMap, Bone, BooleanKeyframeTrack, Box2, Box3, Box3Helper, BoxBufferGeometry, BoxGeometry, BoxHelper, BufferAttribute, BufferGeometry, BufferGeometryLoader, ByteType, Cache, Camera, CameraHelper, CanvasTexture, CapsuleBufferGeometry, CapsuleGeometry, CatmullRomCurve3, CineonToneMapping, CircleBufferGeometry, CircleGeometry, ClampToEdgeWrapping, Clock, Color, ColorKeyframeTrack, ColorManagement, CompressedTexture, CompressedTextureLoader, ConeBufferGeometry, ConeGeometry, CubeCamera, CubeReflectionMapping, CubeRefractionMapping, CubeTexture, CubeTextureLoader, CubeUVReflectionMapping, CubicBezierCurve, CubicBezierCurve3, CubicInterpolant, CullFaceBack, CullFaceFront, CullFaceFrontBack, CullFaceNone, Curve, CurvePath, CustomBlending, CustomToneMapping, CylinderBufferGeometry, CylinderGeometry, Cylindrical, Data3DTexture, DataArrayTexture, DataTexture, DataTexture2DArray, DataTexture3D, DataTextureLoader, DataUtils, DecrementStencilOp, DecrementWrapStencilOp, DefaultLoadingManager, DepthFormat, DepthStencilFormat, DepthTexture, DirectionalLight, DirectionalLightHelper, DiscreteInterpolant, DodecahedronBufferGeometry, DodecahedronGeometry, DoubleSide, DstAlphaFactor, DstColorFactor, DynamicCopyUsage, DynamicDrawUsage, DynamicReadUsage, EdgesGeometry, EllipseCurve, EqualDepth, EqualStencilFunc, EquirectangularReflectionMapping, EquirectangularRefractionMapping, Euler, EventDispatcher, ExtrudeBufferGeometry, ExtrudeGeometry, FileLoader, FlatShading, Float16BufferAttribute, Float32BufferAttribute, Float64BufferAttribute, FloatType, Fog, FogExp2, Font, FontLoader, FramebufferTexture, FrontSide, Frustum, GLBufferAttribute, GLSL1, GLSL3, GreaterDepth, GreaterEqualDepth, GreaterEqualStencilFunc, GreaterStencilFunc, GridHelper, Group, HalfFloatType, HemisphereLight, HemisphereLightHelper, HemisphereLightProbe, IcosahedronBufferGeometry, IcosahedronGeometry, ImageBitmapLoader, ImageLoader, ImageUtils, ImmediateRenderObject, IncrementStencilOp, IncrementWrapStencilOp, InstancedBufferAttribute, InstancedBufferGeometry, InstancedInterleavedBuffer, InstancedMesh, Int16BufferAttribute, Int32BufferAttribute, Int8BufferAttribute, IntType, InterleavedBuffer, InterleavedBufferAttribute, Interpolant, InterpolateDiscrete, InterpolateLinear, InterpolateSmooth, InvertStencilOp, KeepStencilOp, KeyframeTrack, LOD, LatheBufferGeometry, LatheGeometry, Layers, LessDepth, LessEqualDepth, LessEqualStencilFunc, LessStencilFunc, Light, LightProbe, Line, Line3, LineBasicMaterial, LineCurve, LineCurve3, LineDashedMaterial, LineLoop, LineSegments, LinearEncoding, LinearFilter, LinearInterpolant, LinearMipMapLinearFilter, LinearMipMapNearestFilter, LinearMipmapLinearFilter, LinearMipmapNearestFilter, LinearSRGBColorSpace, LinearToneMapping, Loader, LoaderUtils, LoadingManager, LoopOnce, LoopPingPong, LoopRepeat, LuminanceAlphaFormat, LuminanceFormat, MOUSE, Material, MaterialLoader, MathUtils, Matrix3, Matrix4, MaxEquation, Mesh, MeshBasicMaterial, MeshDepthMaterial, MeshDistanceMaterial, MeshLambertMaterial, MeshMatcapMaterial, MeshNormalMaterial, MeshPhongMaterial, MeshPhysicalMaterial, MeshStandardMaterial, MeshToonMaterial, MinEquation, MirroredRepeatWrapping, MixOperation, MultiplyBlending, MultiplyOperation, NearestFilter, NearestMipMapLinearFilter, NearestMipMapNearestFilter, NearestMipmapLinearFilter, NearestMipmapNearestFilter, NeverDepth, NeverStencilFunc, NoBlending, NoColorSpace, NoToneMapping, NormalAnimationBlendMode, NormalBlending, NotEqualDepth, NotEqualStencilFunc, NumberKeyframeTrack, Object3D, ObjectLoader, ObjectSpaceNormalMap, OctahedronBufferGeometry, OctahedronGeometry, OneFactor, OneMinusDstAlphaFactor, OneMinusDstColorFactor, OneMinusSrcAlphaFactor, OneMinusSrcColorFactor, OrthographicCamera, PCFShadowMap, PCFSoftShadowMap, PMREMGenerator, ParametricGeometry, Path, PerspectiveCamera, Plane, PlaneBufferGeometry, PlaneGeometry, PlaneHelper, PointLight, PointLightHelper, Points, PointsMaterial, PolarGridHelper, PolyhedronBufferGeometry, PolyhedronGeometry, PositionalAudio, PropertyBinding, PropertyMixer, QuadraticBezierCurve, QuadraticBezierCurve3, Quaternion, QuaternionKeyframeTrack, QuaternionLinearInterpolant, REVISION, RGBADepthPacking, RGBAFormat, RGBAIntegerFormat, RGBA_ASTC_10x10_Format, RGBA_ASTC_10x5_Format, RGBA_ASTC_10x6_Format, RGBA_ASTC_10x8_Format, RGBA_ASTC_12x10_Format, RGBA_ASTC_12x12_Format, RGBA_ASTC_4x4_Format, RGBA_ASTC_5x4_Format, RGBA_ASTC_5x5_Format, RGBA_ASTC_6x5_Format, RGBA_ASTC_6x6_Format, RGBA_ASTC_8x5_Format, RGBA_ASTC_8x6_Format, RGBA_ASTC_8x8_Format, RGBA_BPTC_Format, RGBA_ETC2_EAC_Format, RGBA_PVRTC_2BPPV1_Format, RGBA_PVRTC_4BPPV1_Format, RGBA_S3TC_DXT1_Format, RGBA_S3TC_DXT3_Format, RGBA_S3TC_DXT5_Format, RGBFormat, RGB_ETC1_Format, RGB_ETC2_Format, RGB_PVRTC_2BPPV1_Format, RGB_PVRTC_4BPPV1_Format, RGB_S3TC_DXT1_Format, RGFormat, RGIntegerFormat, RawShaderMaterial, Ray, Raycaster, RectAreaLight, RedFormat, RedIntegerFormat, ReinhardToneMapping, RepeatWrapping, ReplaceStencilOp, ReverseSubtractEquation, RingBufferGeometry, RingGeometry, SRGBColorSpace, Scene, ShaderChunk, ShaderLib, ShaderMaterial, ShadowMaterial, Shape, ShapeBufferGeometry, ShapeGeometry, ShapePath, ShapeUtils, ShortType, Skeleton, SkeletonHelper, SkinnedMesh, SmoothShading, Source, Sphere, SphereBufferGeometry, SphereGeometry, Spherical, SphericalHarmonics3, SplineCurve, SpotLight, SpotLightHelper, Sprite, SpriteMaterial, SrcAlphaFactor, SrcAlphaSaturateFactor, SrcColorFactor, StaticCopyUsage, StaticDrawUsage, StaticReadUsage, StereoCamera, StreamCopyUsage, StreamDrawUsage, StreamReadUsage, StringKeyframeTrack, SubtractEquation, SubtractiveBlending, TOUCH, TangentSpaceNormalMap, TetrahedronBufferGeometry, TetrahedronGeometry, TextGeometry, Texture, TextureLoader, TorusBufferGeometry, TorusGeometry, TorusKnotBufferGeometry, TorusKnotGeometry, Triangle, TriangleFanDrawMode, TriangleStripDrawMode, TrianglesDrawMode, TubeBufferGeometry, TubeGeometry, UVMapping, Uint16BufferAttribute, Uint32BufferAttribute, Uint8BufferAttribute, Uint8ClampedBufferAttribute, Uniform, UniformsGroup, UniformsLib, UniformsUtils, UnsignedByteType, UnsignedInt248Type, UnsignedIntType, UnsignedShort4444Type, UnsignedShort5551Type, UnsignedShortType, VSMShadowMap, Vector2, Vector3, Vector4, VectorKeyframeTrack, VideoTexture, WebGL1Renderer, WebGL3DRenderTarget, WebGLArrayRenderTarget, WebGLCubeRenderTarget, WebGLMultipleRenderTargets, WebGLMultisampleRenderTarget, WebGLRenderTarget, WebGLRenderer, WebGLUtils, WireframeGeometry, WrapAroundEnding, ZeroCurvatureEnding, ZeroFactor, ZeroSlopeEnding, ZeroStencilOp, _SRGBAFormat, sRGBEncoding } = THREE;
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/typeChecks.ts
-function isMesh(obj) {
-  return isDefined(obj) && obj.isMesh;
-}
-function isMaterial(obj) {
-  return isDefined(obj) && obj.isMaterial;
-}
-function isNamedMaterial(name, obj) {
-  return isMaterial(obj) && obj.type === name;
-}
-function isMeshBasicMaterial(obj) {
-  return isNamedMaterial("MeshBasicMaterial", obj);
-}
-function isObject3D(obj) {
-  return isDefined(obj) && obj.isObject3D;
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/objects.ts
-function isErsatzObject(obj) {
-  return isDefined(obj) && isObject3D(obj.object);
-}
-function objectResolve(obj) {
-  if (isErsatzObject(obj)) {
-    return obj.object;
-  }
-  return obj;
-}
-function objectIsFullyVisible(obj) {
-  obj = objectResolve(obj);
-  while (obj) {
-    if (!obj.visible) {
-      return false;
-    }
-    obj = obj.parent;
-  }
-  return true;
-}
-function objGraph(obj, ...children) {
-  const toAdd = children.filter(isDefined).map(objectResolve);
-  if (toAdd.length > 0) {
-    objectResolve(obj).add(...toAdd);
-  }
-  return obj;
-}
-function mesh(name, geom, mat) {
-  const mesh2 = new Mesh(geom, mat);
-  mesh2.name = name;
-  return mesh2;
-}
-
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/canvas.ts
 var hasHTMLCanvas = "HTMLCanvasElement" in globalThis;
 var hasHTMLImage = "HTMLImageElement" in globalThis;
@@ -870,26 +546,6 @@ function isHTMLCanvas(obj) {
 }
 function isOffscreenCanvas(obj) {
   return hasOffscreenCanvas && obj instanceof OffscreenCanvas;
-}
-function isImageBitmap(img) {
-  return hasImageBitmap && img instanceof ImageBitmap;
-}
-function isImageData(img) {
-  return img instanceof ImageData;
-}
-function drawImageBitmapToCanvas(canv, img) {
-  const g = canv.getContext("2d");
-  if (isNullOrUndefined(g)) {
-    throw new Error("Could not create 2d context for canvas");
-  }
-  g.drawImage(img, 0, 0);
-}
-function drawImageDataToCanvas(canv, img) {
-  const g = canv.getContext("2d");
-  if (isNullOrUndefined(g)) {
-    throw new Error("Could not create 2d context for canvas");
-  }
-  g.putImageData(img, 0, 0);
 }
 function testOffscreen2D() {
   try {
@@ -922,34 +578,6 @@ function createCanvas(w, h) {
   }
   return Canvas(htmlWidth(w), htmlHeight(h));
 }
-function createOffscreenCanvasFromImageBitmap(img) {
-  const canv = createOffscreenCanvas(img.width, img.height);
-  drawImageBitmapToCanvas(canv, img);
-  return canv;
-}
-function createCanvasFromImageBitmap(img) {
-  if (false) {
-    throw new Error("HTML Canvas is not supported in workers");
-  }
-  const canv = createCanvas(img.width, img.height);
-  drawImageBitmapToCanvas(canv, img);
-  return canv;
-}
-var createUtilityCanvasFromImageBitmap = hasOffscreenCanvasRenderingContext2D && createOffscreenCanvasFromImageBitmap || hasHTMLCanvas && createCanvasFromImageBitmap || null;
-function createOffscreenCanvasFromImageData(img) {
-  const canv = createOffscreenCanvas(img.width, img.height);
-  drawImageDataToCanvas(canv, img);
-  return canv;
-}
-function createCanvasFromImageData(img) {
-  if (false) {
-    throw new Error("HTML Canvas is not supported in workers");
-  }
-  const canv = createCanvas(img.width, img.height);
-  drawImageDataToCanvas(canv, img);
-  return canv;
-}
-var createUtilityCanvasFromImageData = hasOffscreenCanvasRenderingContext2D && createOffscreenCanvasFromImageData || hasHTMLCanvas && createCanvasFromImageData || null;
 function drawImageToCanvas(canv, img) {
   const g = canv.getContext("2d");
   if (isNullOrUndefined(g)) {
@@ -969,1039 +597,179 @@ function canvasToBlob(canvas, type2, quality) {
   }
 }
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/arrayCompare.ts
-function arrayCompare(arr1, arr2) {
-  for (let i = 0; i < arr1.length; ++i) {
-    if (arr1[i] !== arr2[i]) {
-      return i;
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/util.ts
+var typePattern = /([^\/]+)\/(.+)/;
+var subTypePattern = /(?:([^\.]+)\.)?([^\+;]+)(?:\+([^;]+))?((?:; *([^=]+)=([^;]+))*)/;
+var MediaType = class {
+  constructor(_type, _fullSubType, extensions) {
+    this._type = _type;
+    this._fullSubType = _fullSubType;
+    this._primaryExtension = null;
+    this.depMessage = null;
+    const parameters = /* @__PURE__ */ new Map();
+    this._parameters = parameters;
+    const subTypeParts = this._fullSubType.match(subTypePattern);
+    this._tree = subTypeParts[1];
+    this._subType = subTypeParts[2];
+    this._suffix = subTypeParts[3];
+    const paramStr = subTypeParts[4];
+    this._value = this._fullValue = this._type + "/";
+    if (isDefined(this._tree)) {
+      this._value = this._fullValue += this._tree + ".";
     }
-  }
-  return -1;
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/arrayScan.ts
-function _arrayScan(forward, arr, tests) {
-  const start = forward ? 0 : arr.length - 1;
-  const end = forward ? arr.length : -1;
-  const inc = forward ? 1 : -1;
-  for (const test of tests) {
-    for (let i = start; i != end; i += inc) {
-      const item = arr[i];
-      if (test(item)) {
-        return item;
+    this._value = this._fullValue += this._subType;
+    if (isDefined(this._suffix)) {
+      this._value = this._fullValue += "+" + this._suffix;
+    }
+    if (isDefined(paramStr)) {
+      const pairs = paramStr.split(";").map((p) => p.trim()).filter((p) => p.length > 0).map((p) => p.split("="));
+      for (const [key, ...values] of pairs) {
+        const value = values.join("=");
+        parameters.set(key, value);
+        const slug = `; ${key}=${value}`;
+        this._fullValue += slug;
+        if (key !== "q") {
+          this._value += slug;
+        }
       }
     }
+    this._extensions = extensions || [];
+    this._primaryExtension = this._extensions[0] || null;
   }
-  return null;
-}
-function arrayScan(arr, ...tests) {
-  return _arrayScan(true, arr, tests);
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/units/length.ts
-var MICROMETERS_PER_MILLIMETER = 1e3;
-var MILLIMETERS_PER_CENTIMETER = 10;
-var CENTIMETERS_PER_INCH = 2.54;
-var CENTIMETERS_PER_METER = 100;
-var INCHES_PER_HAND = 4;
-var HANDS_PER_FOOT = 3;
-var FEET_PER_YARD = 3;
-var FEET_PER_ROD = 16.5;
-var METERS_PER_KILOMETER = 1e3;
-var RODS_PER_FURLONG = 40;
-var FURLONGS_PER_MILE = 8;
-var MICROMETERS_PER_CENTIMETER = MICROMETERS_PER_MILLIMETER * MILLIMETERS_PER_CENTIMETER;
-var MICROMETERS_PER_INCH = MICROMETERS_PER_CENTIMETER * CENTIMETERS_PER_INCH;
-var MICROMETERS_PER_HAND = MICROMETERS_PER_INCH * INCHES_PER_HAND;
-var MICROMETERS_PER_FOOT = MICROMETERS_PER_HAND * HANDS_PER_FOOT;
-var MICROMETERS_PER_YARD = MICROMETERS_PER_FOOT * FEET_PER_YARD;
-var MICROMETERS_PER_METER = MICROMETERS_PER_CENTIMETER * CENTIMETERS_PER_METER;
-var MICROMETERS_PER_ROD = MICROMETERS_PER_FOOT * FEET_PER_ROD;
-var MICROMETERS_PER_FURLONG = MICROMETERS_PER_ROD * RODS_PER_FURLONG;
-var MICROMETERS_PER_KILOMETER = MICROMETERS_PER_METER * METERS_PER_KILOMETER;
-var MICROMETERS_PER_MILE = MICROMETERS_PER_FURLONG * FURLONGS_PER_MILE;
-var MILLIMETERS_PER_INCH = MILLIMETERS_PER_CENTIMETER * CENTIMETERS_PER_INCH;
-var MILLIMETERS_PER_HAND = MILLIMETERS_PER_INCH * INCHES_PER_HAND;
-var MILLIMETERS_PER_FOOT = MILLIMETERS_PER_HAND * HANDS_PER_FOOT;
-var MILLIMETERS_PER_YARD = MILLIMETERS_PER_FOOT * FEET_PER_YARD;
-var MILLIMETERS_PER_METER = MILLIMETERS_PER_CENTIMETER * CENTIMETERS_PER_METER;
-var MILLIMETERS_PER_ROD = MILLIMETERS_PER_FOOT * FEET_PER_ROD;
-var MILLIMETERS_PER_FURLONG = MILLIMETERS_PER_ROD * RODS_PER_FURLONG;
-var MILLIMETERS_PER_KILOMETER = MILLIMETERS_PER_METER * METERS_PER_KILOMETER;
-var MILLIMETERS_PER_MILE = MILLIMETERS_PER_FURLONG * FURLONGS_PER_MILE;
-var CENTIMETERS_PER_HAND = CENTIMETERS_PER_INCH * INCHES_PER_HAND;
-var CENTIMETERS_PER_FOOT = CENTIMETERS_PER_HAND * HANDS_PER_FOOT;
-var CENTIMETERS_PER_YARD = CENTIMETERS_PER_FOOT * FEET_PER_YARD;
-var CENTIMETERS_PER_ROD = CENTIMETERS_PER_FOOT * FEET_PER_ROD;
-var CENTIMETERS_PER_FURLONG = CENTIMETERS_PER_ROD * RODS_PER_FURLONG;
-var CENTIMETERS_PER_KILOMETER = CENTIMETERS_PER_METER * METERS_PER_KILOMETER;
-var CENTIMETERS_PER_MILE = CENTIMETERS_PER_FURLONG * FURLONGS_PER_MILE;
-var INCHES_PER_FOOT = INCHES_PER_HAND * HANDS_PER_FOOT;
-var INCHES_PER_YARD = INCHES_PER_FOOT * FEET_PER_YARD;
-var INCHES_PER_METER = CENTIMETERS_PER_METER / CENTIMETERS_PER_INCH;
-var INCHES_PER_ROD = INCHES_PER_FOOT * FEET_PER_ROD;
-var INCHES_PER_FURLONG = INCHES_PER_ROD * RODS_PER_FURLONG;
-var INCHES_PER_KILOMETER = INCHES_PER_METER * METERS_PER_KILOMETER;
-var INCHES_PER_MILE = INCHES_PER_FURLONG * FURLONGS_PER_MILE;
-var HANDS_PER_YARD = HANDS_PER_FOOT * FEET_PER_YARD;
-var HANDS_PER_METER = CENTIMETERS_PER_METER / CENTIMETERS_PER_HAND;
-var HANDS_PER_ROD = HANDS_PER_FOOT * FEET_PER_ROD;
-var HANDS_PER_FURLONG = HANDS_PER_ROD * RODS_PER_FURLONG;
-var HANDS_PER_KILOMETER = HANDS_PER_METER * METERS_PER_KILOMETER;
-var HANDS_PER_MILE = HANDS_PER_FURLONG * FURLONGS_PER_MILE;
-var FEET_PER_METER = INCHES_PER_METER / INCHES_PER_FOOT;
-var FEET_PER_FURLONG = FEET_PER_ROD * RODS_PER_FURLONG;
-var FEET_PER_KILOMETER = FEET_PER_METER * METERS_PER_KILOMETER;
-var FEET_PER_MILE = FEET_PER_FURLONG * FURLONGS_PER_MILE;
-var YARDS_PER_METER = INCHES_PER_METER / INCHES_PER_YARD;
-var YARDS_PER_ROD = FEET_PER_ROD / FEET_PER_YARD;
-var YARDS_PER_FURLONG = YARDS_PER_ROD * RODS_PER_FURLONG;
-var YARDS_PER_KILOMETER = YARDS_PER_METER * METERS_PER_KILOMETER;
-var YARDS_PER_MILE = YARDS_PER_FURLONG * FURLONGS_PER_MILE;
-var METERS_PER_ROD = FEET_PER_ROD / FEET_PER_METER;
-var METERS_PER_FURLONG = METERS_PER_ROD * RODS_PER_FURLONG;
-var METERS_PER_MILE = METERS_PER_FURLONG * FURLONGS_PER_MILE;
-var RODS_PER_KILOMETER = METERS_PER_KILOMETER / METERS_PER_ROD;
-var RODS_PER_MILE = RODS_PER_FURLONG * FURLONGS_PER_MILE;
-var FURLONGS_PER_KILOMETER = METERS_PER_KILOMETER / METERS_PER_FURLONG;
-var KILOMETERS_PER_MILE = FURLONGS_PER_MILE / FURLONGS_PER_KILOMETER;
-function inches2Meters(inches) {
-  return inches / INCHES_PER_METER;
-}
-function meters2Inches(meters) {
-  return meters * INCHES_PER_METER;
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/using.ts
-function interfaceSigCheck(obj, ...funcNames) {
-  if (!isObject(obj)) {
-    return false;
-  }
-  obj = obj;
-  for (const funcName of funcNames) {
-    if (!(funcName in obj)) {
-      return false;
+  static parse(value) {
+    if (!value) {
+      return null;
     }
-    const func = obj[funcName];
-    if (!isFunction(func)) {
-      return false;
+    const match = value.match(typePattern);
+    if (!match) {
+      return null;
     }
+    const type2 = match[1];
+    const subType = match[2];
+    return new MediaType(type2, subType);
   }
-  return true;
-}
-function isDisposable(obj) {
-  return interfaceSigCheck(obj, "dispose");
-}
-function isDestroyable(obj) {
-  return interfaceSigCheck(obj, "destroy");
-}
-function isClosable(obj) {
-  return interfaceSigCheck(obj, "close");
-}
-function dispose(val) {
-  if (isDisposable(val)) {
-    val.dispose();
-  }
-  if (isClosable(val)) {
-    val.close();
-  }
-  if (isDestroyable(val)) {
-    val.destroy();
-  }
-}
-function using(val, thunk) {
-  try {
-    return thunk(val);
-  } finally {
-    dispose(val);
-  }
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/singleton.ts
-function singleton(name, create2) {
-  const box = globalThis;
-  let value = box[name];
-  if (isNullOrUndefined(value)) {
-    if (isNullOrUndefined(create2)) {
-      throw new Error(`No value ${name} found`);
-    }
-    value = create2();
-    box[name] = value;
-  }
-  return value;
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/animation/scaleOnHover.ts
-var scaledItems = singleton("Juniper:ScaledItems", () => /* @__PURE__ */ new Map());
-function removeScaledObj(obj) {
-  const state = scaledItems.get(obj);
-  if (state) {
-    scaledItems.delete(obj);
-    state.dispose();
-  }
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/cleanup.ts
-function cleanup(obj) {
-  const cleanupQ = new Array();
-  const cleanupSeen = /* @__PURE__ */ new Set();
-  cleanupQ.push(obj);
-  while (cleanupQ.length > 0) {
-    const here = cleanupQ.shift();
-    if (here && !cleanupSeen.has(here)) {
-      cleanupSeen.add(here);
-      if (here.isMesh) {
-        cleanupQ.push(
-          here.material,
-          here.geometry
-        );
-      }
-      if (here.isMaterial) {
-        cleanupQ.push(...Object.values(here));
-      }
-      if (here.isObject3D) {
-        cleanupQ.push(...here.children);
-        here.clear();
-        removeScaledObj(here);
-      }
-      if (isArray(here)) {
-        cleanupQ.push(...here);
-      }
-      dispose(here);
-    }
-  }
-  cleanupSeen.clear();
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/examples/lines/LineMaterial.js
-UniformsLib.line = {
-  worldUnits: { value: 1 },
-  linewidth: { value: 1 },
-  resolution: { value: new Vector2(1, 1) },
-  dashOffset: { value: 0 },
-  dashScale: { value: 1 },
-  dashSize: { value: 1 },
-  gapSize: { value: 1 }
-};
-ShaderLib["line"] = {
-  uniforms: UniformsUtils.merge([
-    UniformsLib.common,
-    UniformsLib.fog,
-    UniformsLib.line
-  ]),
-  vertexShader: `
-		#include <common>
-		#include <color_pars_vertex>
-		#include <fog_pars_vertex>
-		#include <logdepthbuf_pars_vertex>
-		#include <clipping_planes_pars_vertex>
-
-		uniform float linewidth;
-		uniform vec2 resolution;
-
-		attribute vec3 instanceStart;
-		attribute vec3 instanceEnd;
-
-		attribute vec3 instanceColorStart;
-		attribute vec3 instanceColorEnd;
-
-		#ifdef WORLD_UNITS
-
-			varying vec4 worldPos;
-			varying vec3 worldStart;
-			varying vec3 worldEnd;
-
-			#ifdef USE_DASH
-
-				varying vec2 vUv;
-
-			#endif
-
-		#else
-
-			varying vec2 vUv;
-
-		#endif
-
-		#ifdef USE_DASH
-
-			uniform float dashScale;
-			attribute float instanceDistanceStart;
-			attribute float instanceDistanceEnd;
-			varying float vLineDistance;
-
-		#endif
-
-		void trimSegment( const in vec4 start, inout vec4 end ) {
-
-			// trim end segment so it terminates between the camera plane and the near plane
-
-			// conservative estimate of the near plane
-			float a = projectionMatrix[ 2 ][ 2 ]; // 3nd entry in 3th column
-			float b = projectionMatrix[ 3 ][ 2 ]; // 3nd entry in 4th column
-			float nearEstimate = - 0.5 * b / a;
-
-			float alpha = ( nearEstimate - start.z ) / ( end.z - start.z );
-
-			end.xyz = mix( start.xyz, end.xyz, alpha );
-
-		}
-
-		void main() {
-
-			#ifdef USE_COLOR
-
-				vColor.xyz = ( position.y < 0.5 ) ? instanceColorStart : instanceColorEnd;
-
-			#endif
-
-			#ifdef USE_DASH
-
-				vLineDistance = ( position.y < 0.5 ) ? dashScale * instanceDistanceStart : dashScale * instanceDistanceEnd;
-				vUv = uv;
-
-			#endif
-
-			float aspect = resolution.x / resolution.y;
-
-			// camera space
-			vec4 start = modelViewMatrix * vec4( instanceStart, 1.0 );
-			vec4 end = modelViewMatrix * vec4( instanceEnd, 1.0 );
-
-			#ifdef WORLD_UNITS
-
-				worldStart = start.xyz;
-				worldEnd = end.xyz;
-
-			#else
-
-				vUv = uv;
-
-			#endif
-
-			// special case for perspective projection, and segments that terminate either in, or behind, the camera plane
-			// clearly the gpu firmware has a way of addressing this issue when projecting into ndc space
-			// but we need to perform ndc-space calculations in the shader, so we must address this issue directly
-			// perhaps there is a more elegant solution -- WestLangley
-
-			bool perspective = ( projectionMatrix[ 2 ][ 3 ] == - 1.0 ); // 4th entry in the 3rd column
-
-			if ( perspective ) {
-
-				if ( start.z < 0.0 && end.z >= 0.0 ) {
-
-					trimSegment( start, end );
-
-				} else if ( end.z < 0.0 && start.z >= 0.0 ) {
-
-					trimSegment( end, start );
-
-				}
-
-			}
-
-			// clip space
-			vec4 clipStart = projectionMatrix * start;
-			vec4 clipEnd = projectionMatrix * end;
-
-			// ndc space
-			vec3 ndcStart = clipStart.xyz / clipStart.w;
-			vec3 ndcEnd = clipEnd.xyz / clipEnd.w;
-
-			// direction
-			vec2 dir = ndcEnd.xy - ndcStart.xy;
-
-			// account for clip-space aspect ratio
-			dir.x *= aspect;
-			dir = normalize( dir );
-
-			#ifdef WORLD_UNITS
-
-				// get the offset direction as perpendicular to the view vector
-				vec3 worldDir = normalize( end.xyz - start.xyz );
-				vec3 offset;
-				if ( position.y < 0.5 ) {
-
-					offset = normalize( cross( start.xyz, worldDir ) );
-
-				} else {
-
-					offset = normalize( cross( end.xyz, worldDir ) );
-
-				}
-
-				// sign flip
-				if ( position.x < 0.0 ) offset *= - 1.0;
-
-				float forwardOffset = dot( worldDir, vec3( 0.0, 0.0, 1.0 ) );
-
-				// don't extend the line if we're rendering dashes because we
-				// won't be rendering the endcaps
-				#ifndef USE_DASH
-
-					// extend the line bounds to encompass  endcaps
-					start.xyz += - worldDir * linewidth * 0.5;
-					end.xyz += worldDir * linewidth * 0.5;
-
-					// shift the position of the quad so it hugs the forward edge of the line
-					offset.xy -= dir * forwardOffset;
-					offset.z += 0.5;
-
-				#endif
-
-				// endcaps
-				if ( position.y > 1.0 || position.y < 0.0 ) {
-
-					offset.xy += dir * 2.0 * forwardOffset;
-
-				}
-
-				// adjust for linewidth
-				offset *= linewidth * 0.5;
-
-				// set the world position
-				worldPos = ( position.y < 0.5 ) ? start : end;
-				worldPos.xyz += offset;
-
-				// project the worldpos
-				vec4 clip = projectionMatrix * worldPos;
-
-				// shift the depth of the projected points so the line
-				// segements overlap neatly
-				vec3 clipPose = ( position.y < 0.5 ) ? ndcStart : ndcEnd;
-				clip.z = clipPose.z * clip.w;
-
-			#else
-
-				vec2 offset = vec2( dir.y, - dir.x );
-				// undo aspect ratio adjustment
-				dir.x /= aspect;
-				offset.x /= aspect;
-
-				// sign flip
-				if ( position.x < 0.0 ) offset *= - 1.0;
-
-				// endcaps
-				if ( position.y < 0.0 ) {
-
-					offset += - dir;
-
-				} else if ( position.y > 1.0 ) {
-
-					offset += dir;
-
-				}
-
-				// adjust for linewidth
-				offset *= linewidth;
-
-				// adjust for clip-space to screen-space conversion // maybe resolution should be based on viewport ...
-				offset /= resolution.y;
-
-				// select end
-				vec4 clip = ( position.y < 0.5 ) ? clipStart : clipEnd;
-
-				// back to clip space
-				offset *= clip.w;
-
-				clip.xy += offset;
-
-			#endif
-
-			gl_Position = clip;
-
-			vec4 mvPosition = ( position.y < 0.5 ) ? start : end; // this is an approximation
-
-			#include <logdepthbuf_vertex>
-			#include <clipping_planes_vertex>
-			#include <fog_vertex>
-
-		}
-		`,
-  fragmentShader: `
-		uniform vec3 diffuse;
-		uniform float opacity;
-		uniform float linewidth;
-
-		#ifdef USE_DASH
-
-			uniform float dashOffset;
-			uniform float dashSize;
-			uniform float gapSize;
-
-		#endif
-
-		varying float vLineDistance;
-
-		#ifdef WORLD_UNITS
-
-			varying vec4 worldPos;
-			varying vec3 worldStart;
-			varying vec3 worldEnd;
-
-			#ifdef USE_DASH
-
-				varying vec2 vUv;
-
-			#endif
-
-		#else
-
-			varying vec2 vUv;
-
-		#endif
-
-		#include <common>
-		#include <color_pars_fragment>
-		#include <fog_pars_fragment>
-		#include <logdepthbuf_pars_fragment>
-		#include <clipping_planes_pars_fragment>
-
-		vec2 closestLineToLine(vec3 p1, vec3 p2, vec3 p3, vec3 p4) {
-
-			float mua;
-			float mub;
-
-			vec3 p13 = p1 - p3;
-			vec3 p43 = p4 - p3;
-
-			vec3 p21 = p2 - p1;
-
-			float d1343 = dot( p13, p43 );
-			float d4321 = dot( p43, p21 );
-			float d1321 = dot( p13, p21 );
-			float d4343 = dot( p43, p43 );
-			float d2121 = dot( p21, p21 );
-
-			float denom = d2121 * d4343 - d4321 * d4321;
-
-			float numer = d1343 * d4321 - d1321 * d4343;
-
-			mua = numer / denom;
-			mua = clamp( mua, 0.0, 1.0 );
-			mub = ( d1343 + d4321 * ( mua ) ) / d4343;
-			mub = clamp( mub, 0.0, 1.0 );
-
-			return vec2( mua, mub );
-
-		}
-
-		void main() {
-
-			#include <clipping_planes_fragment>
-
-			#ifdef USE_DASH
-
-				if ( vUv.y < - 1.0 || vUv.y > 1.0 ) discard; // discard endcaps
-
-				if ( mod( vLineDistance + dashOffset, dashSize + gapSize ) > dashSize ) discard; // todo - FIX
-
-			#endif
-
-			float alpha = opacity;
-
-			#ifdef WORLD_UNITS
-
-				// Find the closest points on the view ray and the line segment
-				vec3 rayEnd = normalize( worldPos.xyz ) * 1e5;
-				vec3 lineDir = worldEnd - worldStart;
-				vec2 params = closestLineToLine( worldStart, worldEnd, vec3( 0.0, 0.0, 0.0 ), rayEnd );
-
-				vec3 p1 = worldStart + lineDir * params.x;
-				vec3 p2 = rayEnd * params.y;
-				vec3 delta = p1 - p2;
-				float len = length( delta );
-				float norm = len / linewidth;
-
-				#ifndef USE_DASH
-
-					#ifdef USE_ALPHA_TO_COVERAGE
-
-						float dnorm = fwidth( norm );
-						alpha = 1.0 - smoothstep( 0.5 - dnorm, 0.5 + dnorm, norm );
-
-					#else
-
-						if ( norm > 0.5 ) {
-
-							discard;
-
-						}
-
-					#endif
-
-				#endif
-
-			#else
-
-				#ifdef USE_ALPHA_TO_COVERAGE
-
-					// artifacts appear on some hardware if a derivative is taken within a conditional
-					float a = vUv.x;
-					float b = ( vUv.y > 0.0 ) ? vUv.y - 1.0 : vUv.y + 1.0;
-					float len2 = a * a + b * b;
-					float dlen = fwidth( len2 );
-
-					if ( abs( vUv.y ) > 1.0 ) {
-
-						alpha = 1.0 - smoothstep( 1.0 - dlen, 1.0 + dlen, len2 );
-
-					}
-
-				#else
-
-					if ( abs( vUv.y ) > 1.0 ) {
-
-						float a = vUv.x;
-						float b = ( vUv.y > 0.0 ) ? vUv.y - 1.0 : vUv.y + 1.0;
-						float len2 = a * a + b * b;
-
-						if ( len2 > 1.0 ) discard;
-
-					}
-
-				#endif
-
-			#endif
-
-			vec4 diffuseColor = vec4( diffuse, alpha );
-
-			#include <logdepthbuf_fragment>
-			#include <color_fragment>
-
-			gl_FragColor = vec4( diffuseColor.rgb, alpha );
-
-			#include <tonemapping_fragment>
-			#include <encodings_fragment>
-			#include <fog_fragment>
-			#include <premultiplied_alpha_fragment>
-
-		}
-		`
-};
-var LineMaterial = class extends ShaderMaterial {
-  constructor(parameters) {
-    super({
-      type: "LineMaterial",
-      uniforms: UniformsUtils.clone(ShaderLib["line"].uniforms),
-      vertexShader: ShaderLib["line"].vertexShader,
-      fragmentShader: ShaderLib["line"].fragmentShader,
-      clipping: true
-    });
-    Object.defineProperties(this, {
-      color: {
-        enumerable: true,
-        get: function() {
-          return this.uniforms.diffuse.value;
-        },
-        set: function(value) {
-          this.uniforms.diffuse.value = value;
-        }
-      },
-      worldUnits: {
-        enumerable: true,
-        get: function() {
-          return "WORLD_UNITS" in this.defines;
-        },
-        set: function(value) {
-          if (value === true) {
-            this.defines.WORLD_UNITS = "";
-          } else {
-            delete this.defines.WORLD_UNITS;
-          }
-        }
-      },
-      linewidth: {
-        enumerable: true,
-        get: function() {
-          return this.uniforms.linewidth.value;
-        },
-        set: function(value) {
-          this.uniforms.linewidth.value = value;
-        }
-      },
-      dashed: {
-        enumerable: true,
-        get: function() {
-          return Boolean("USE_DASH" in this.defines);
-        },
-        set(value) {
-          if (Boolean(value) !== Boolean("USE_DASH" in this.defines)) {
-            this.needsUpdate = true;
-          }
-          if (value === true) {
-            this.defines.USE_DASH = "";
-          } else {
-            delete this.defines.USE_DASH;
-          }
-        }
-      },
-      dashScale: {
-        enumerable: true,
-        get: function() {
-          return this.uniforms.dashScale.value;
-        },
-        set: function(value) {
-          this.uniforms.dashScale.value = value;
-        }
-      },
-      dashSize: {
-        enumerable: true,
-        get: function() {
-          return this.uniforms.dashSize.value;
-        },
-        set: function(value) {
-          this.uniforms.dashSize.value = value;
-        }
-      },
-      dashOffset: {
-        enumerable: true,
-        get: function() {
-          return this.uniforms.dashOffset.value;
-        },
-        set: function(value) {
-          this.uniforms.dashOffset.value = value;
-        }
-      },
-      gapSize: {
-        enumerable: true,
-        get: function() {
-          return this.uniforms.gapSize.value;
-        },
-        set: function(value) {
-          this.uniforms.gapSize.value = value;
-        }
-      },
-      opacity: {
-        enumerable: true,
-        get: function() {
-          return this.uniforms.opacity.value;
-        },
-        set: function(value) {
-          this.uniforms.opacity.value = value;
-        }
-      },
-      resolution: {
-        enumerable: true,
-        get: function() {
-          return this.uniforms.resolution.value;
-        },
-        set: function(value) {
-          this.uniforms.resolution.value.copy(value);
-        }
-      },
-      alphaToCoverage: {
-        enumerable: true,
-        get: function() {
-          return Boolean("USE_ALPHA_TO_COVERAGE" in this.defines);
-        },
-        set: function(value) {
-          if (Boolean(value) !== Boolean("USE_ALPHA_TO_COVERAGE" in this.defines)) {
-            this.needsUpdate = true;
-          }
-          if (value === true) {
-            this.defines.USE_ALPHA_TO_COVERAGE = "";
-            this.extensions.derivatives = true;
-          } else {
-            delete this.defines.USE_ALPHA_TO_COVERAGE;
-            this.extensions.derivatives = false;
-          }
-        }
-      }
-    });
-    this.setValues(parameters);
-  }
-};
-LineMaterial.prototype.isLineMaterial = true;
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/materials.ts
-var materials = singleton("Juniper:Three:Materials", () => /* @__PURE__ */ new Map());
-function del(obj, name) {
-  if (name in obj) {
-    delete obj[name];
-  }
-}
-function makeMaterial(slug, material, options) {
-  const key = `${slug}_${Object.keys(options).map((k) => `${k}:${options[k]}`).join(",")}`;
-  if (!materials.has(key)) {
-    del(options, "name");
-    materials.set(key, new material(options));
-  }
-  return materials.get(key);
-}
-function trans(options) {
-  return Object.assign(options, {
-    transparent: true
-  });
-}
-function solidTransparent(options) {
-  return makeMaterial("solidTransparent", MeshBasicMaterial, trans(options));
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/objectGetRelativePose.ts
-var M = new Matrix4();
-var P = new Vector3();
-function objectGetRelativePose(ref, obj, position, quaternion, scale) {
-  M.copy(ref.matrixWorld).invert().multiply(obj.matrixWorld).decompose(P, quaternion, scale);
-  position.set(P.x, P.y, P.z, 1);
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/Plane.ts
-var plane = /* @__PURE__ */ new PlaneBufferGeometry(1, 1, 1, 1);
-plane.name = "PlaneGeom";
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/widgets/Image2D.ts
-var P2 = new Vector4();
-var Q = new Quaternion();
-var S = new Vector3();
-var copyCounter = 0;
-var Image2D = class extends Object3D {
-  constructor(env, name, webXRLayerType, materialOrOptions = null) {
-    super();
-    this.webXRLayerType = webXRLayerType;
-    this.lastMatrixWorld = new Matrix4();
-    this.layer = null;
-    this.wasUsingLayer = false;
-    this._imageWidth = 0;
-    this._imageHeight = 0;
-    this.curImage = null;
-    this.lastImage = null;
-    this.lastWidth = null;
-    this.lastHeight = null;
-    this.env = null;
-    this.mesh = null;
-    this.stereoLayoutName = "mono";
-    this.sizeMode = "none";
-    this.onTick = (evt) => this.checkWebXRLayer(evt.frame);
-    if (env) {
-      this.setEnvAndName(env, name);
-      let material = isMeshBasicMaterial(materialOrOptions) ? materialOrOptions : solidTransparent(Object.assign(
-        {},
-        materialOrOptions,
-        { name: this.name }
-      ));
-      objGraph(
-        this,
-        this.mesh = mesh(name + "-Mesh", plane, material)
-      );
-    }
-  }
-  copy(source, recursive = true) {
-    super.copy(source, recursive);
-    this.webXRLayerType = source.webXRLayerType;
-    this.setImageSize(source.imageWidth, source.imageHeight);
-    this.setEnvAndName(source.env, source.name + ++copyCounter);
-    this.mesh = arrayScan(this.children, isMesh);
-    if (isNullOrUndefined(this.mesh)) {
-      this.mesh = source.mesh.clone();
-      objGraph(this, this.mesh);
-    }
-    this.setTextureMap(source.curImage);
+  deprecate(message) {
+    this.depMessage = message;
     return this;
   }
-  dispose() {
-    this.env.timer.removeTickHandler(this.onTick);
-    this.disposeImage();
-    cleanup(this.mesh);
-  }
-  disposeImage() {
-    this.removeWebXRLayer();
-    cleanup(this.mesh.material.map);
-    this.curImage = null;
-  }
-  setImageSize(width, height) {
-    if (width !== this.imageWidth || height !== this.imageHeight) {
-      const { objectWidth, objectHeight } = this;
-      this._imageWidth = width;
-      this._imageHeight = height;
-      if (this.sizeMode !== "none") {
-        if (this.sizeMode === "fixed-width") {
-          this.objectWidth = objectWidth;
-        } else {
-          this.objectHeight = objectHeight;
-        }
-      }
+  check() {
+    if (isDefined(this.depMessage)) {
+      console.warn(`${this._value} is deprecated ${this.depMessage}`);
     }
   }
-  get imageWidth() {
-    return this._imageWidth;
-  }
-  get imageHeight() {
-    return this._imageHeight;
-  }
-  get imageAspectRatio() {
-    return this.imageWidth / this.imageHeight;
-  }
-  get objectWidth() {
-    return this.scale.x;
-  }
-  set objectWidth(v) {
-    this.scale.set(v, this.scale.y = v / this.imageAspectRatio, 1);
-  }
-  get objectHeight() {
-    return this.scale.y;
-  }
-  set objectHeight(v) {
-    this.scale.set(this.imageAspectRatio * v, v, 1);
-  }
-  get pixelDensity() {
-    const inches = meters2Inches(this.objectWidth);
-    const ppi = this.imageWidth / inches;
-    return ppi;
-  }
-  set pixelDensity(ppi) {
-    const inches = this.imageWidth / ppi;
-    const meters = inches2Meters(inches);
-    this.objectWidth = meters;
-  }
-  setEnvAndName(env, name) {
-    this.env = env;
-    this.name = name;
-    this.env.timer.addTickHandler(this.onTick);
-  }
-  get needsLayer() {
-    if (!objectIsFullyVisible(this) || isNullOrUndefined(this.mesh.material.map) || isNullOrUndefined(this.curImage)) {
+  matches(value) {
+    if (isNullOrUndefined(value)) {
       return false;
     }
-    if (!(this.curImage instanceof HTMLVideoElement)) {
+    if (this.typeName === "*" && this.subTypeName === "*") {
       return true;
     }
-    return !this.curImage.paused || this.curImage.currentTime > 0;
+    let typeName = null;
+    let subTypeName = null;
+    if (isString(value)) {
+      const match = value.match(typePattern);
+      if (!match) {
+        return false;
+      }
+      typeName = match[1];
+      subTypeName = match[2];
+    } else {
+      typeName = value.typeName;
+      subTypeName = value._fullSubType;
+    }
+    return this.typeName === typeName && (this._fullSubType === "*" || this._fullSubType === subTypeName);
   }
-  removeWebXRLayer() {
-    if (isDefined(this.layer)) {
-      this.wasUsingLayer = false;
-      this.env.removeWebXRLayer(this.layer);
-      this.mesh.visible = true;
-      const layer = this.layer;
-      this.layer = null;
-      setTimeout(() => layer.destroy(), 100);
+  withParameter(key, value) {
+    const newSubType = `${this._fullSubType}; ${key}=${value}`;
+    return new MediaType(this.typeName, newSubType, this.extensions);
+  }
+  get typeName() {
+    this.check();
+    return this._type;
+  }
+  get tree() {
+    this.check();
+    return this._tree;
+  }
+  get suffix() {
+    return this._suffix;
+  }
+  get subTypeName() {
+    this.check();
+    return this._subType;
+  }
+  get value() {
+    this.check();
+    return this._value;
+  }
+  __getValueUnsafe() {
+    return this._value;
+  }
+  get fullValue() {
+    this.check();
+    return this._fullValue;
+  }
+  get parameters() {
+    this.check();
+    return this._parameters;
+  }
+  get extensions() {
+    this.check();
+    return this._extensions;
+  }
+  __getExtensionsUnsafe() {
+    return this._extensions;
+  }
+  get primaryExtension() {
+    this.check();
+    return this._primaryExtension;
+  }
+  toString() {
+    if (this.parameters.get("q") === "1") {
+      return this.value;
+    } else {
+      return this.fullValue;
     }
   }
-  setTextureMap(img) {
-    if (this.curImage) {
-      this.disposeImage();
+  addExtension(fileName) {
+    if (!fileName) {
+      throw new Error("File name is not defined");
     }
-    if (img) {
-      if (isImageBitmap(img)) {
-        img = createUtilityCanvasFromImageBitmap(img);
-      } else if (isImageData(img)) {
-        img = createUtilityCanvasFromImageData(img);
-      }
-      if (isOffscreenCanvas(img)) {
-        img = img;
-      }
-      this.curImage = img;
-      if (img instanceof HTMLVideoElement) {
-        this.setImageSize(img.videoWidth, img.videoHeight);
-        this.mesh.material.map = new VideoTexture(img);
-      } else {
-        this.setImageSize(img.width, img.height);
-        this.mesh.material.map = new Texture(img);
-        this.mesh.material.map.needsUpdate = true;
-      }
-    }
-    this.mesh.material.needsUpdate = true;
-  }
-  get isVideo() {
-    return this.curImage instanceof HTMLVideoElement;
-  }
-  updateTexture() {
-    if (isDefined(this.curImage)) {
-      const curVideo = this.curImage;
-      const newWidth = this.isVideo ? curVideo.videoWidth : this.curImage.width;
-      const newHeight = this.isVideo ? curVideo.videoHeight : this.curImage.height;
-      if (this.imageWidth !== newWidth || this.imageHeight !== newHeight) {
-        const img = this.curImage;
-        this.disposeImage();
-        this.setTextureMap(img);
-      }
-    }
-  }
-  checkWebXRLayer(frame) {
-    if (this.mesh.material.map && this.curImage) {
-      const isLayersAvailable = this.webXRLayerType !== "none" && this.env.hasXRCompositionLayers && this.env.showWebXRLayers && isDefined(frame) && (this.isVideo && isDefined(this.env.xrMediaBinding) || !this.isVideo && isDefined(this.env.xrBinding));
-      const useLayer = isLayersAvailable && this.needsLayer;
-      const useLayerChanged = useLayer !== this.wasUsingLayer;
-      const imageChanged = this.curImage !== this.lastImage || this.mesh.material.needsUpdate || this.mesh.material.map.needsUpdate;
-      const sizeChanged = this.imageWidth !== this.lastWidth || this.imageHeight !== this.lastHeight;
-      this.wasUsingLayer = useLayer;
-      this.lastImage = this.curImage;
-      this.lastWidth = this.imageWidth;
-      this.lastHeight = this.imageHeight;
-      if (useLayerChanged || sizeChanged) {
-        if ((!useLayer || sizeChanged) && this.layer) {
-          this.removeWebXRLayer();
-        }
-        if (useLayer) {
-          const space = this.env.referenceSpace;
-          objectGetRelativePose(this.env.stage, this.mesh, P2, Q, S);
-          this.lastMatrixWorld.copy(this.matrixWorld);
-          const transform = new XRRigidTransform(P2, Q);
-          const width = S.x / 2;
-          const height = S.y / 2;
-          const layout = this.stereoLayoutName === "mono" ? "mono" : this.stereoLayoutName === "left-right" || this.stereoLayoutName === "right-left" ? "stereo-left-right" : "stereo-top-bottom";
-          if (this.isVideo) {
-            const invertStereo = this.stereoLayoutName === "right-left" || this.stereoLayoutName === "bottom-top";
-            this.layer = this.env.xrMediaBinding.createQuadLayer(this.curImage, {
-              space,
-              layout,
-              invertStereo,
-              transform,
-              width,
-              height
-            });
-          } else {
-            this.layer = this.env.xrBinding.createQuadLayer({
-              space,
-              layout,
-              textureType: "texture",
-              isStatic: this.webXRLayerType === "static",
-              viewPixelWidth: this.curImage.width,
-              viewPixelHeight: this.curImage.height,
-              transform,
-              width,
-              height
-            });
-          }
-          this.env.addWebXRLayer(this.layer, 500);
-          this.mesh.visible = false;
+    if (this.primaryExtension) {
+      const idx = fileName.lastIndexOf(".");
+      if (idx > -1) {
+        const currentExtension = fileName.substring(idx + 1);
+        ;
+        if (this.extensions.indexOf(currentExtension) > -1) {
+          fileName = fileName.substring(0, idx);
         }
       }
-      if (this.layer) {
-        if (imageChanged || this.layer.needsRedraw) {
-          const gl = this.env.gl;
-          const gLayer = this.env.xrBinding.getSubImage(this.layer, frame);
-          gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-          gl.bindTexture(gl.TEXTURE_2D, gLayer.colorTexture);
-          gl.texSubImage2D(
-            gl.TEXTURE_2D,
-            0,
-            0,
-            0,
-            gl.RGBA,
-            gl.UNSIGNED_BYTE,
-            this.curImage
-          );
-          gl.generateMipmap(gl.TEXTURE_2D);
-          gl.bindTexture(gl.TEXTURE_2D, null);
-        }
-        if (arrayCompare(this.matrixWorld.elements, this.lastMatrixWorld.elements) >= 0) {
-          objectGetRelativePose(this.env.stage, this.mesh, P2, Q, S);
-          this.lastMatrixWorld.copy(this.matrixWorld);
-          this.layer.transform = new XRRigidTransform(P2, Q);
-          this.layer.width = S.x / 2;
-          this.layer.height = S.y / 2;
-        }
-      }
+      fileName = `${fileName}.${this.primaryExtension}`;
     }
+    return fileName;
   }
 };
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math/deg2rad.ts
-function deg2rad(deg) {
-  return deg * Math.PI / 180;
+function create(group, value, ...extensions) {
+  return new MediaType(group, value, extensions);
 }
+function specialize(group) {
+  return create.bind(null, group);
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/application.ts
+var application = /* @__PURE__ */ specialize("application");
+var Application_Javascript = /* @__PURE__ */ application("javascript", "js");
+var Application_Json = /* @__PURE__ */ application("json", "json");
+var Application_Wasm = /* @__PURE__ */ application("wasm", "wasm");
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/image.ts
+var image = /* @__PURE__ */ specialize("image");
+var Image_Jpeg = /* @__PURE__ */ image("jpeg", "jpeg", "jpg", "jpe");
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/text.ts
+var text = /* @__PURE__ */ specialize("text");
+var Text_Plain = /* @__PURE__ */ text("plain", "txt", "text", "conf", "def", "list", "log", "in");
+var Text_Xml = /* @__PURE__ */ text("xml");
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/mapInvert.ts
 function mapInvert(map) {
@@ -2198,6 +966,51 @@ function waitFor(test) {
     }
   }, 100);
   return task;
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/using.ts
+function interfaceSigCheck(obj, ...funcNames) {
+  if (!isObject(obj)) {
+    return false;
+  }
+  obj = obj;
+  for (const funcName of funcNames) {
+    if (!(funcName in obj)) {
+      return false;
+    }
+    const func = obj[funcName];
+    if (!isFunction(func)) {
+      return false;
+    }
+  }
+  return true;
+}
+function isDisposable(obj) {
+  return interfaceSigCheck(obj, "dispose");
+}
+function isDestroyable(obj) {
+  return interfaceSigCheck(obj, "destroy");
+}
+function isClosable(obj) {
+  return interfaceSigCheck(obj, "close");
+}
+function dispose(val) {
+  if (isDisposable(val)) {
+    val.dispose();
+  }
+  if (isClosable(val)) {
+    val.close();
+  }
+  if (isDestroyable(val)) {
+    val.destroy();
+  }
+}
+function using(val, thunk) {
+  try {
+    return thunk(val);
+  } finally {
+    dispose(val);
+  }
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/translateResponse.ts
@@ -2696,6 +1509,16 @@ var FetchingService = class {
     );
   }
 };
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/arrayCompare.ts
+function arrayCompare(arr1, arr2) {
+  for (let i = 0; i < arr1.length; ++i) {
+    if (arr1[i] !== arr2[i]) {
+      return i;
+    }
+  }
+  return -1;
+}
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/mapMap.ts
 function mapMap(items, makeID, makeValue) {
@@ -3455,6 +2278,25 @@ var WorkerPool = class extends TypedEventBase {
   }
 };
 
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/arrayScan.ts
+function _arrayScan(forward, arr, tests) {
+  const start = forward ? 0 : arr.length - 1;
+  const end = forward ? arr.length : -1;
+  const inc = forward ? 1 : -1;
+  for (const test of tests) {
+    for (let i = start; i != end; i += inc) {
+      const item = arr[i];
+      if (test(item)) {
+        return item;
+      }
+    }
+  }
+  return null;
+}
+function arrayScan(arr, ...tests) {
+  return _arrayScan(true, arr, tests);
+}
+
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/flags.ts
 var oculusBrowserPattern = /OculusBrowser\/(\d+)\.(\d+)\.(\d+)/i;
 var oculusMatch = /* @__PURE__ */ navigator.userAgent.match(oculusBrowserPattern);
@@ -3831,6 +2673,20 @@ var url = /* @__PURE__ */ new URL(globalThis.location.href);
 var isDebug = !url.searchParams.has("RELEASE") || false;
 var JS_EXT = isDebug ? ".js" : ".min.js";
 
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/singleton.ts
+function singleton(name, create2) {
+  const box = globalThis;
+  let value = box[name];
+  if (isNullOrUndefined(value)) {
+    if (isNullOrUndefined(create2)) {
+      throw new Error(`No value ${name} found`);
+    }
+    value = create2();
+    box[name] = value;
+  }
+  return value;
+}
+
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/fonts.ts
 var DEFAULT_TEST_TEXT = "The quick brown fox jumps over the lazy dog";
 var loadedFonts = singleton("juniper::loadedFonts", () => []);
@@ -4039,21 +2895,23 @@ async function createTestEnvironment(addServiceWorker = false) {
   return env;
 }
 
-// src/webxr-layers-app/index.ts
-(async function() {
-  const env = await createTestEnvironment();
-  const skybox = new AssetImage("/skyboxes/BearfenceMountain.jpeg", Image_Jpeg, !isDebug);
-  const picture = new AssetImage("/img/logos/foxglove.png", Image_Png, !isDebug);
-  const img = new Image2D(env, "Foxglove", "static");
-  Object.assign(window, { img });
-  objGraph(env.foreground, img);
-  await env.fadeOut();
-  await env.load(skybox, picture);
-  env.eventSys.mouse.allowPointerLock = true;
-  env.skybox.setImage(skybox.path, skybox.result);
-  env.skybox.rotation = deg2rad(176);
-  img.setTextureMap(picture.result);
-  img.position.set(0, 1.5, -3);
-  await env.fadeIn();
-})();
+// src/editor/Editor.ts
+var Editor = class {
+  constructor(env) {
+    this.env = env;
+    this.element = Div();
+    console.log(this.env);
+  }
+};
+
+// src/editor/index.ts
+async function loadEditor() {
+  const env = await createTestEnvironment(false);
+  const editor = new Editor(env);
+  elementApply(document.body, editor);
+  Object.assign(window, { editor });
+}
+export {
+  loadEditor as default
+};
 //# sourceMappingURL=index.js.map

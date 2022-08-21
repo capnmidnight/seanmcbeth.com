@@ -1066,7 +1066,7 @@ var require_cardboard_vr_display = __commonJS({
         var noLensFrustum = deviceInfo.getLeftEyeNoLensTanAngles();
         var viewport = deviceInfo.getLeftEyeVisibleScreenRect(noLensFrustum);
         var vidx = 0;
-        for (var e2 = 0; e2 < 2; e2++) {
+        for (var e = 0; e < 2; e++) {
           for (var j = 0; j < height2; j++) {
             for (var i = 0; i < width2; i++, vidx++) {
               var u = i / (width2 - 1);
@@ -1087,7 +1087,7 @@ var require_cardboard_vr_display = __commonJS({
               vertices[vidx * 5 + 1] = v;
               vertices[vidx * 5 + 2] = s;
               vertices[vidx * 5 + 3] = t2;
-              vertices[vidx * 5 + 4] = e2;
+              vertices[vidx * 5 + 4] = e;
             }
           }
           var w = lensFrustum[2] - lensFrustum[0];
@@ -1106,7 +1106,7 @@ var require_cardboard_vr_display = __commonJS({
         var halfheight = height2 / 2;
         var vidx = 0;
         var iidx = 0;
-        for (var e2 = 0; e2 < 2; e2++) {
+        for (var e = 0; e < 2; e++) {
           for (var j = 0; j < height2; j++) {
             for (var i = 0; i < width2; i++, vidx++) {
               if (i == 0 || j == 0)
@@ -1307,13 +1307,13 @@ var require_cardboard_vr_display = __commonJS({
       };
       var degToRad = Math.PI / 180;
       var radToDeg = 180 / Math.PI;
-      var Vector3 = function Vector32(x, y, z) {
+      var Vector34 = function Vector35(x, y, z) {
         this.x = x || 0;
         this.y = y || 0;
         this.z = z || 0;
       };
-      Vector3.prototype = {
-        constructor: Vector3,
+      Vector34.prototype = {
+        constructor: Vector34,
         set: function set3(x, y, z) {
           this.x = x;
           this.y = y;
@@ -1375,14 +1375,14 @@ var require_cardboard_vr_display = __commonJS({
           return this;
         }
       };
-      var Quaternion = function Quaternion2(x, y, z, w) {
+      var Quaternion3 = function Quaternion4(x, y, z, w) {
         this.x = x || 0;
         this.y = y || 0;
         this.z = z || 0;
         this.w = w !== void 0 ? w : 1;
       };
-      Quaternion.prototype = {
-        constructor: Quaternion,
+      Quaternion3.prototype = {
+        constructor: Quaternion3,
         set: function set3(x, y, z, w) {
           this.x = x;
           this.y = y;
@@ -1510,7 +1510,7 @@ var require_cardboard_vr_display = __commonJS({
           var EPS = 1e-6;
           return function(vFrom, vTo) {
             if (v1 === void 0)
-              v1 = new Vector3();
+              v1 = new Vector34();
             r = vFrom.dot(vTo) + 1;
             if (r < EPS) {
               r = 0;
@@ -1904,17 +1904,17 @@ var require_cardboard_vr_display = __commonJS({
         this.currentGyroMeasurement = new SensorSample();
         this.previousGyroMeasurement = new SensorSample();
         if (isIOS2()) {
-          this.filterQ = new Quaternion(-1, 0, 0, 1);
+          this.filterQ = new Quaternion3(-1, 0, 0, 1);
         } else {
-          this.filterQ = new Quaternion(1, 0, 0, 1);
+          this.filterQ = new Quaternion3(1, 0, 0, 1);
         }
-        this.previousFilterQ = new Quaternion();
+        this.previousFilterQ = new Quaternion3();
         this.previousFilterQ.copy(this.filterQ);
-        this.accelQ = new Quaternion();
+        this.accelQ = new Quaternion3();
         this.isOrientationInitialized = false;
-        this.estimatedGravity = new Vector3();
-        this.measuredGravity = new Vector3();
-        this.gyroIntegralQ = new Quaternion();
+        this.estimatedGravity = new Vector34();
+        this.measuredGravity = new Vector34();
+        this.gyroIntegralQ = new Quaternion3();
       }
       ComplementaryFilter.prototype.addAccelMeasurement = function(vector, timestampS) {
         this.currentAccelMeasurement.set(vector, timestampS);
@@ -1939,7 +1939,7 @@ var require_cardboard_vr_display = __commonJS({
         this.gyroIntegralQ.multiply(gyroDeltaQ);
         this.filterQ.copy(this.previousFilterQ);
         this.filterQ.multiply(gyroDeltaQ);
-        var invFilterQ = new Quaternion();
+        var invFilterQ = new Quaternion3();
         invFilterQ.copy(this.filterQ);
         invFilterQ.inverse();
         this.estimatedGravity.set(0, 0, -1);
@@ -1947,13 +1947,13 @@ var require_cardboard_vr_display = __commonJS({
         this.estimatedGravity.normalize();
         this.measuredGravity.copy(this.currentAccelMeasurement.sample);
         this.measuredGravity.normalize();
-        var deltaQ = new Quaternion();
+        var deltaQ = new Quaternion3();
         deltaQ.setFromUnitVectors(this.estimatedGravity, this.measuredGravity);
         deltaQ.inverse();
         if (this.isDebug) {
           console.log("Delta: %d deg, G_est: (%s, %s, %s), G_meas: (%s, %s, %s)", radToDeg * getQuaternionAngle(deltaQ), this.estimatedGravity.x.toFixed(1), this.estimatedGravity.y.toFixed(1), this.estimatedGravity.z.toFixed(1), this.measuredGravity.x.toFixed(1), this.measuredGravity.y.toFixed(1), this.measuredGravity.z.toFixed(1));
         }
-        var targetQ = new Quaternion();
+        var targetQ = new Quaternion3();
         targetQ.copy(this.filterQ);
         targetQ.multiply(deltaQ);
         this.filterQ.slerp(targetQ, 1 - this.kFilter);
@@ -1963,17 +1963,17 @@ var require_cardboard_vr_display = __commonJS({
         return this.filterQ;
       };
       ComplementaryFilter.prototype.accelToQuaternion_ = function(accel) {
-        var normAccel = new Vector3();
+        var normAccel = new Vector34();
         normAccel.copy(accel);
         normAccel.normalize();
-        var quat = new Quaternion();
-        quat.setFromUnitVectors(new Vector3(0, 0, -1), normAccel);
+        var quat = new Quaternion3();
+        quat.setFromUnitVectors(new Vector34(0, 0, -1), normAccel);
         quat.inverse();
         return quat;
       };
       ComplementaryFilter.prototype.gyroToQuaternionDelta_ = function(gyro, dt) {
-        var quat = new Quaternion();
-        var axis = new Vector3();
+        var quat = new Quaternion3();
+        var axis = new Vector34();
         axis.copy(gyro);
         axis.normalize();
         quat.setFromAxisAngle(axis, gyro.length() * dt);
@@ -1982,10 +1982,10 @@ var require_cardboard_vr_display = __commonJS({
       function PosePredictor(predictionTimeS, isDebug) {
         this.predictionTimeS = predictionTimeS;
         this.isDebug = isDebug;
-        this.previousQ = new Quaternion();
+        this.previousQ = new Quaternion3();
         this.previousTimestampS = null;
-        this.deltaQ = new Quaternion();
-        this.outQ = new Quaternion();
+        this.deltaQ = new Quaternion3();
+        this.outQ = new Quaternion3();
       }
       PosePredictor.prototype.getPrediction = function(currentQ, gyro, timestampS) {
         if (!this.previousTimestampS) {
@@ -1993,7 +1993,7 @@ var require_cardboard_vr_display = __commonJS({
           this.previousTimestampS = timestampS;
           return currentQ;
         }
-        var axis = new Vector3();
+        var axis = new Vector34();
         axis.copy(gyro);
         axis.normalize();
         var angularSpeed = gyro.length();
@@ -2015,8 +2015,8 @@ var require_cardboard_vr_display = __commonJS({
       };
       function FusionPoseSensor(kFilter, predictionTime, yawOnly, isDebug) {
         this.yawOnly = yawOnly;
-        this.accelerometer = new Vector3();
-        this.gyroscope = new Vector3();
+        this.accelerometer = new Vector34();
+        this.gyroscope = new Vector34();
         this.filter = new ComplementaryFilter(kFilter, isDebug);
         this.posePredictor = new PosePredictor(predictionTime, isDebug);
         this.isFirefoxAndroid = isFirefoxAndroid();
@@ -2024,21 +2024,21 @@ var require_cardboard_vr_display = __commonJS({
         var chromeVersion = getChromeVersion();
         this.isDeviceMotionInRadians = !this.isIOS && chromeVersion && chromeVersion < 66;
         this.isWithoutDeviceMotion = isChromeWithoutDeviceMotion() || isSafariWithoutDeviceMotion();
-        this.filterToWorldQ = new Quaternion();
+        this.filterToWorldQ = new Quaternion3();
         if (isIOS2()) {
-          this.filterToWorldQ.setFromAxisAngle(new Vector3(1, 0, 0), Math.PI / 2);
+          this.filterToWorldQ.setFromAxisAngle(new Vector34(1, 0, 0), Math.PI / 2);
         } else {
-          this.filterToWorldQ.setFromAxisAngle(new Vector3(1, 0, 0), -Math.PI / 2);
+          this.filterToWorldQ.setFromAxisAngle(new Vector34(1, 0, 0), -Math.PI / 2);
         }
-        this.inverseWorldToScreenQ = new Quaternion();
-        this.worldToScreenQ = new Quaternion();
-        this.originalPoseAdjustQ = new Quaternion();
-        this.originalPoseAdjustQ.setFromAxisAngle(new Vector3(0, 0, 1), -window.orientation * Math.PI / 180);
+        this.inverseWorldToScreenQ = new Quaternion3();
+        this.worldToScreenQ = new Quaternion3();
+        this.originalPoseAdjustQ = new Quaternion3();
+        this.originalPoseAdjustQ.setFromAxisAngle(new Vector34(0, 0, 1), -window.orientation * Math.PI / 180);
         this.setScreenTransform_();
         if (isLandscapeMode()) {
           this.filterToWorldQ.multiply(this.inverseWorldToScreenQ);
         }
-        this.resetQ = new Quaternion();
+        this.resetQ = new Quaternion3();
         this.orientationOut_ = new Float32Array(4);
         this.start();
       }
@@ -2049,22 +2049,22 @@ var require_cardboard_vr_display = __commonJS({
         var orientation = void 0;
         if (this.isWithoutDeviceMotion && this._deviceOrientationQ) {
           this.deviceOrientationFixQ = this.deviceOrientationFixQ || function() {
-            var z = new Quaternion().setFromAxisAngle(new Vector3(0, 0, -1), 0);
-            var y = new Quaternion();
+            var z = new Quaternion3().setFromAxisAngle(new Vector34(0, 0, -1), 0);
+            var y = new Quaternion3();
             if (window.orientation === -90) {
-              y.setFromAxisAngle(new Vector3(0, 1, 0), Math.PI / -2);
+              y.setFromAxisAngle(new Vector34(0, 1, 0), Math.PI / -2);
             } else {
-              y.setFromAxisAngle(new Vector3(0, 1, 0), Math.PI / 2);
+              y.setFromAxisAngle(new Vector34(0, 1, 0), Math.PI / 2);
             }
             return z.multiply(y);
           }();
           this.deviceOrientationFilterToWorldQ = this.deviceOrientationFilterToWorldQ || function() {
-            var q = new Quaternion();
-            q.setFromAxisAngle(new Vector3(1, 0, 0), -Math.PI / 2);
+            var q = new Quaternion3();
+            q.setFromAxisAngle(new Vector34(1, 0, 0), -Math.PI / 2);
             return q;
           }();
           orientation = this._deviceOrientationQ;
-          var out = new Quaternion();
+          var out = new Quaternion3();
           out.copy(orientation);
           out.multiply(this.deviceOrientationFilterToWorldQ);
           out.multiply(this.resetQ);
@@ -2084,7 +2084,7 @@ var require_cardboard_vr_display = __commonJS({
           var filterOrientation = this.filter.getOrientation();
           orientation = this.posePredictor.getPrediction(filterOrientation, this.gyroscope, this.previousTimestampS);
         }
-        var out = new Quaternion();
+        var out = new Quaternion3();
         out.copy(this.filterToWorldQ);
         out.multiply(this.resetQ);
         out.multiply(orientation);
@@ -2111,13 +2111,13 @@ var require_cardboard_vr_display = __commonJS({
         }
         this.resetQ.multiply(this.originalPoseAdjustQ);
       };
-      FusionPoseSensor.prototype.onDeviceOrientation_ = function(e2) {
-        this._deviceOrientationQ = this._deviceOrientationQ || new Quaternion();
-        var alpha = e2.alpha, beta2 = e2.beta, gamma = e2.gamma;
+      FusionPoseSensor.prototype.onDeviceOrientation_ = function(e) {
+        this._deviceOrientationQ = this._deviceOrientationQ || new Quaternion3();
+        var alpha = e.alpha, beta = e.beta, gamma = e.gamma;
         alpha = (alpha || 0) * Math.PI / 180;
-        beta2 = (beta2 || 0) * Math.PI / 180;
+        beta = (beta || 0) * Math.PI / 180;
         gamma = (gamma || 0) * Math.PI / 180;
-        this._deviceOrientationQ.setFromEulerYXZ(beta2, alpha, -gamma);
+        this._deviceOrientationQ.setFromEulerYXZ(beta, alpha, -gamma);
       };
       FusionPoseSensor.prototype.onDeviceMotion_ = function(deviceMotion) {
         this.updateDeviceMotion_(deviceMotion);
@@ -2171,10 +2171,10 @@ var require_cardboard_vr_display = __commonJS({
           case 0:
             break;
           case 90:
-            this.worldToScreenQ.setFromAxisAngle(new Vector3(0, 0, 1), -Math.PI / 2);
+            this.worldToScreenQ.setFromAxisAngle(new Vector34(0, 0, 1), -Math.PI / 2);
             break;
           case -90:
-            this.worldToScreenQ.setFromAxisAngle(new Vector3(0, 0, 1), Math.PI / 2);
+            this.worldToScreenQ.setFromAxisAngle(new Vector34(0, 0, 1), Math.PI / 2);
             break;
           case 180:
             break;
@@ -2204,11 +2204,11 @@ var require_cardboard_vr_display = __commonJS({
         window.removeEventListener("message", this.onMessageCallback_);
       };
       var SENSOR_FREQUENCY = 60;
-      var X_AXIS = new Vector3(1, 0, 0);
-      var Z_AXIS = new Vector3(0, 0, 1);
-      var SENSOR_TO_VR = new Quaternion();
+      var X_AXIS = new Vector34(1, 0, 0);
+      var Z_AXIS = new Vector34(0, 0, 1);
+      var SENSOR_TO_VR = new Quaternion3();
       SENSOR_TO_VR.setFromAxisAngle(X_AXIS, -Math.PI / 2);
-      SENSOR_TO_VR.multiply(new Quaternion().setFromAxisAngle(Z_AXIS, Math.PI / 2));
+      SENSOR_TO_VR.multiply(new Quaternion3().setFromAxisAngle(Z_AXIS, Math.PI / 2));
       var PoseSensor = function() {
         function PoseSensor2(config2) {
           classCallCheck(this, PoseSensor2);
@@ -2218,8 +2218,8 @@ var require_cardboard_vr_display = __commonJS({
           this._out = new Float32Array(4);
           this.api = null;
           this.errors = [];
-          this._sensorQ = new Quaternion();
-          this._outQ = new Quaternion();
+          this._sensorQ = new Quaternion3();
+          this._outQ = new Quaternion3();
           this._onSensorRead = this._onSensorRead.bind(this);
           this._onSensorError = this._onSensorError.bind(this);
           this.init();
@@ -2643,7 +2643,7 @@ var require_cardboard_vr_display = __commonJS({
                     this.noSleepVideo = document.createElement("video");
                     this.noSleepVideo.setAttribute("playsinline", "");
                     this.noSleepVideo.setAttribute("src", mediaFile);
-                    this.noSleepVideo.addEventListener("timeupdate", function(e2) {
+                    this.noSleepVideo.addEventListener("timeupdate", function(e) {
                       if (this.noSleepVideo.currentTime > 0.5) {
                         this.noSleepVideo.currentTime = Math.random();
                       }
@@ -3201,14 +3201,14 @@ var require_cardboard_vr_display = __commonJS({
           this.distorter_.updateDeviceInfo(this.deviceInfo_);
         }
         if (this.cardboardUI_) {
-          this.cardboardUI_.listen(function(e2) {
+          this.cardboardUI_.listen(function(e) {
             this.viewerSelector_.show(this.layer_.source.parentElement);
-            e2.stopPropagation();
-            e2.preventDefault();
-          }.bind(this), function(e2) {
+            e.stopPropagation();
+            e.preventDefault();
+          }.bind(this), function(e) {
             this.exitPresent();
-            e2.stopPropagation();
-            e2.preventDefault();
+            e.stopPropagation();
+            e.preventDefault();
           }.bind(this));
         }
         if (this.rotateInstructions_) {
@@ -3263,14 +3263,14 @@ var require_cardboard_vr_display = __commonJS({
           this.cardboardUI_.render();
         }
       };
-      CardboardVRDisplay2.prototype.onOrientationChange_ = function(e2) {
+      CardboardVRDisplay2.prototype.onOrientationChange_ = function(e) {
         this.viewerSelector_.hide();
         if (this.rotateInstructions_) {
           this.rotateInstructions_.update();
         }
         this.onResize_();
       };
-      CardboardVRDisplay2.prototype.onResize_ = function(e2) {
+      CardboardVRDisplay2.prototype.onResize_ = function(e) {
         if (this.layer_) {
           var gl = this.layer_.source.getContext("webgl");
           if (!gl)
@@ -3315,442 +3315,6 @@ var require_cardboard_vr_display = __commonJS({
   }
 });
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/arrayBinarySearch.ts
-function defaultKeySelector(obj2) {
-  return obj2;
-}
-function arrayBinarySearchByKey(arr, itemKey, keySelector) {
-  let left2 = 0;
-  let right = arr.length;
-  let idx = Math.floor((left2 + right) / 2);
-  let found = false;
-  while (left2 < right && idx < arr.length) {
-    const compareTo = arr[idx];
-    const compareToKey = isNullOrUndefined(compareTo) ? null : keySelector(compareTo);
-    if (isDefined(compareToKey) && itemKey < compareToKey) {
-      right = idx;
-    } else {
-      if (itemKey === compareToKey) {
-        found = true;
-      }
-      left2 = idx + 1;
-    }
-    idx = Math.floor((left2 + right) / 2);
-  }
-  if (!found) {
-    idx += 0.5;
-  }
-  return idx;
-}
-function arrayBinarySearch(arr, item, keySelector) {
-  keySelector = keySelector || defaultKeySelector;
-  const itemKey = keySelector(item);
-  return arrayBinarySearchByKey(arr, itemKey, keySelector);
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/arrayRemoveAt.ts
-function arrayRemoveAt(arr, idx) {
-  return arr.splice(idx, 1)[0];
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/arrayClear.ts
-function arrayClear(arr) {
-  return arr.splice(0);
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/arrayCompare.ts
-function arrayCompare(arr1, arr2) {
-  for (let i = 0; i < arr1.length; ++i) {
-    if (arr1[i] !== arr2[i]) {
-      return i;
-    }
-  }
-  return -1;
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/arrayInsertAt.ts
-function arrayInsertAt(arr, item, idx) {
-  arr.splice(idx, 0, item);
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/arrayRemove.ts
-function arrayRemove(arr, value2) {
-  const idx = arr.indexOf(value2);
-  if (idx > -1) {
-    arrayRemoveAt(arr, idx);
-    return true;
-  }
-  return false;
-}
-function arrayFilter(arr, predicate) {
-  for (let i = arr.length - 1; i >= 0; --i) {
-    if (predicate(arr[i])) {
-      return arrayRemoveAt(arr, i);
-    }
-  }
-  return null;
-}
-function arrayRemoveByKey(arr, key, getKey) {
-  return arrayFilter(arr, (v) => getKey(v) === key);
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/arrayReplace.ts
-function arrayReplace(arr, ...items) {
-  arr.splice(0, arr.length, ...items);
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/arrayScan.ts
-function _arrayScan(forward, arr, tests) {
-  const start2 = forward ? 0 : arr.length - 1;
-  const end2 = forward ? arr.length : -1;
-  const inc2 = forward ? 1 : -1;
-  for (const test of tests) {
-    for (let i = start2; i != end2; i += inc2) {
-      const item = arr[i];
-      if (test(item)) {
-        return item;
-      }
-    }
-  }
-  return null;
-}
-function arrayScan(arr, ...tests) {
-  return _arrayScan(true, arr, tests);
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/arraySortedInsert.ts
-function arraySortedInsert(arr, item, keySelector, allowDuplicates) {
-  let ks;
-  if (isFunction(keySelector)) {
-    ks = keySelector;
-  } else if (isBoolean(keySelector)) {
-    allowDuplicates = keySelector;
-  }
-  if (isNullOrUndefined(allowDuplicates)) {
-    allowDuplicates = true;
-  }
-  return arraySortedInsertInternal(arr, item, ks, allowDuplicates);
-}
-function arraySortedInsertInternal(arr, item, ks, allowDuplicates) {
-  let idx = arrayBinarySearch(arr, item, ks);
-  const found = idx % 1 === 0;
-  idx = idx | 0;
-  if (!found || allowDuplicates) {
-    arrayInsertAt(arr, item, idx);
-  }
-  return idx;
-}
-function arraySortByKey(arr, keySelector) {
-  const newArr = Array.from(arr);
-  arraySortByKeyInPlace(newArr, keySelector);
-  return newArr;
-}
-function arraySortByKeyInPlace(newArr, keySelector) {
-  newArr.sort((a, b) => {
-    const keyA = keySelector(a);
-    const keyB = keySelector(b);
-    if (keyA < keyB) {
-      return -1;
-    } else if (keyA > keyB) {
-      return 1;
-    } else {
-      return 0;
-    }
-  });
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/BaseGraphNode.ts
-var BaseGraphNode = class {
-  constructor(value2) {
-    this.value = value2;
-    this._forward = new Array();
-    this._reverse = new Array();
-  }
-  connectSorted(child, keySelector) {
-    if (isDefined(keySelector)) {
-      arraySortedInsert(this._forward, child, (n2) => keySelector(n2.value));
-      arraySortedInsert(child._reverse, this, (n2) => keySelector(n2.value));
-    } else {
-      this.connectTo(child);
-    }
-  }
-  connectTo(child) {
-    this.connectAt(child, this._forward.length);
-  }
-  connectAt(child, index) {
-    arrayInsertAt(this._forward, child, index);
-    child._reverse.push(this);
-  }
-  disconnectFrom(child) {
-    arrayRemove(this._forward, child);
-    arrayRemove(child._reverse, this);
-  }
-  isConnectedTo(node) {
-    return this._forward.indexOf(node) >= 0 || this._reverse.indexOf(node) >= 0;
-  }
-  flatten() {
-    const nodes2 = /* @__PURE__ */ new Set();
-    const queue = [this];
-    while (queue.length > 0) {
-      const here = queue.shift();
-      if (isDefined(here) && !nodes2.has(here)) {
-        nodes2.add(here);
-        queue.push(...here._forward);
-      }
-    }
-    return Array.from(nodes2);
-  }
-  get _isEntryPoint() {
-    return this._reverse.length === 0;
-  }
-  get _isExitPoint() {
-    return this._forward.length === 0;
-  }
-  get isDisconnected() {
-    return this._isEntryPoint && this._isExitPoint;
-  }
-  get isConnected() {
-    return !this._isExitPoint || !this._isEntryPoint;
-  }
-  get isTerminus() {
-    return this._isEntryPoint || this._isExitPoint;
-  }
-  get isInternal() {
-    return !this._isEntryPoint && !this._isExitPoint;
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/GraphNode.ts
-var GraphNode = class extends BaseGraphNode {
-  connectTo(node) {
-    super.connectTo(node);
-  }
-  connectAt(child, index) {
-    super.connectAt(child, index);
-  }
-  connectSorted(child, sortKey) {
-    super.connectSorted(child, sortKey);
-  }
-  disconnectFrom(node) {
-    super.disconnectFrom(node);
-  }
-  isConnectedTo(node) {
-    return super.isConnectedTo(node);
-  }
-  flatten() {
-    return super.flatten();
-  }
-  get connections() {
-    return this._forward;
-  }
-  get isEntryPoint() {
-    return this._isEntryPoint;
-  }
-  get isExitPoint() {
-    return this._isExitPoint;
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/mapMap.ts
-function mapMap(items, makeID, makeValue) {
-  return new Map(items.map((item) => [makeID(item), makeValue(item)]));
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/makeLookup.ts
-function makeLookup(items, makeID) {
-  return mapMap(items, makeID, identity);
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/PriorityList.ts
-var PriorityList = class {
-  constructor(init) {
-    this.items = /* @__PURE__ */ new Map();
-    this.defaultItems = new Array();
-    if (isDefined(init)) {
-      for (const [key, value2] of init) {
-        this.add(key, value2);
-      }
-    }
-  }
-  add(key, value2) {
-    if (isNullOrUndefined(key)) {
-      this.defaultItems.push(value2);
-    } else {
-      let list = this.items.get(key);
-      if (isNullOrUndefined(list)) {
-        this.items.set(key, list = []);
-      }
-      list.push(value2);
-    }
-    return this;
-  }
-  entries() {
-    return this.items.entries();
-  }
-  [Symbol.iterator]() {
-    return this.entries();
-  }
-  keys() {
-    return this.items.keys();
-  }
-  *values() {
-    for (const item of this.defaultItems) {
-      yield item;
-    }
-    for (const list of this.items.values()) {
-      for (const item of list) {
-        yield item;
-      }
-    }
-  }
-  has(key) {
-    if (isDefined(key)) {
-      return this.items.has(key);
-    } else {
-      return this.defaultItems.length > 0;
-    }
-  }
-  get(key) {
-    if (isNullOrUndefined(key)) {
-      return this.defaultItems;
-    }
-    return this.items.get(key) || [];
-  }
-  count(key) {
-    if (isNullOrUndefined(key)) {
-      return this.defaultItems.length;
-    }
-    const list = this.get(key);
-    if (isDefined(list)) {
-      return list.length;
-    }
-    return 0;
-  }
-  get size() {
-    let size = this.defaultItems.length;
-    for (const list of this.items.values()) {
-      size += list.length;
-    }
-    return size;
-  }
-  delete(key) {
-    if (isNullOrUndefined(key)) {
-      return arrayClear(this.defaultItems).length > 0;
-    } else {
-      return this.items.delete(key);
-    }
-  }
-  remove(key, value2) {
-    if (isNullOrUndefined(key)) {
-      arrayRemove(this.defaultItems, value2);
-    } else {
-      const list = this.items.get(key);
-      if (isDefined(list)) {
-        arrayRemove(list, value2);
-        if (list.length === 0) {
-          this.items.delete(key);
-        }
-      }
-    }
-  }
-  clear() {
-    this.items.clear();
-    arrayClear(this.defaultItems);
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/PriorityMap.ts
-var PriorityMap = class {
-  constructor(init) {
-    this.items = /* @__PURE__ */ new Map();
-    if (isDefined(init)) {
-      for (const [key1, key2, value2] of init) {
-        this.add(key1, key2, value2);
-      }
-    }
-  }
-  add(key1, key2, value2) {
-    let level1 = this.items.get(key1);
-    if (isNullOrUndefined(level1)) {
-      this.items.set(key1, level1 = /* @__PURE__ */ new Map());
-    }
-    level1.set(key2, value2);
-    return this;
-  }
-  *entries() {
-    for (const [key1, level1] of this.items) {
-      for (const [key2, value2] of level1) {
-        yield [key1, key2, value2];
-      }
-    }
-  }
-  keys(key1) {
-    if (isNullOrUndefined(key1)) {
-      return this.items.keys();
-    } else {
-      return this.items.get(key1).keys();
-    }
-  }
-  *values() {
-    for (const level1 of this.items.values()) {
-      for (const value2 of level1.values()) {
-        yield value2;
-      }
-    }
-  }
-  has(key1, key2) {
-    return this.items.has(key1) && (isNullOrUndefined(key2) || this.items.get(key1).has(key2));
-  }
-  get(key1, key2) {
-    if (isNullOrUndefined(key2)) {
-      return this.items.get(key1);
-    } else if (this.items.has(key1)) {
-      return this.items.get(key1).get(key2);
-    } else {
-      return null;
-    }
-  }
-  count(key1) {
-    if (this.items.has(key1)) {
-      return this.items.get(key1).size;
-    }
-    return null;
-  }
-  get size() {
-    let size = 0;
-    for (const list of this.items.values()) {
-      size += list.size;
-    }
-    return size;
-  }
-  delete(key1, key2) {
-    if (isNullOrUndefined(key2)) {
-      return this.items.delete(key1);
-    } else if (this.items.has(key1)) {
-      return this.items.get(key1).delete(key2);
-    } else {
-      return false;
-    }
-  }
-  clear() {
-    this.items.clear();
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/identity.ts
-function identity(item) {
-  return item;
-}
-function alwaysTrue() {
-  return true;
-}
-function alwaysFalse() {
-  return false;
-}
-function and(a, b) {
-  return a && b;
-}
-
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/typeChecks.ts
 function t(o, s, c) {
   return typeof o === s || o instanceof c;
@@ -3787,6 +3351,343 @@ function isNullOrUndefined(obj2) {
 }
 function isDefined(obj2) {
   return !isNullOrUndefined(obj2);
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/attrs.ts
+var Attr = class {
+  constructor(key, value2, bySetAttribute, ...tags) {
+    this.key = key;
+    this.value = value2;
+    this.bySetAttribute = bySetAttribute;
+    this.tags = tags.map((t2) => t2.toLocaleUpperCase());
+    Object.freeze(this);
+  }
+  applyToElement(elem) {
+    const isDataSet = this.key.startsWith("data-");
+    const isValid = this.tags.length === 0 || this.tags.indexOf(elem.tagName) > -1 || isDataSet;
+    if (!isValid) {
+      console.warn(`Element ${elem.tagName} does not support Attribute ${this.key}`);
+    } else if (isDataSet) {
+      const subkey = this.key.substring(5);
+      elem.dataset[subkey] = this.value;
+    } else if (this.key === "style") {
+      Object.assign(elem.style, this.value);
+    } else if (this.key === "classList") {
+      this.value.forEach((v) => elem.classList.add(v));
+    } else if (this.bySetAttribute) {
+      elem.setAttribute(this.key, this.value);
+    } else if (this.key in elem) {
+      elem[this.key] = this.value;
+    } else if (this.value === false) {
+      elem.removeAttribute(this.key);
+    } else if (this.value === true) {
+      elem.setAttribute(this.key, "");
+    } else {
+      elem.setAttribute(this.key, this.value);
+    }
+  }
+};
+function autoPlay(value2) {
+  return new Attr("autoplay", value2, false, "audio", "video");
+}
+function className(value2) {
+  return new Attr("className", value2, false);
+}
+function classList(...values) {
+  return new Attr("classList", values, false);
+}
+function controls(value2) {
+  return new Attr("controls", value2, false, "audio", "video");
+}
+function customData(name2, value2) {
+  return new Attr("data-" + name2, value2, false);
+}
+function htmlHeight(value2) {
+  return new Attr("height", value2, false, "canvas", "embed", "iframe", "img", "input", "object", "video");
+}
+function id(value2) {
+  return new Attr("id", value2, false);
+}
+function loop(value2) {
+  return new Attr("loop", value2, false, "audio", "bgsound", "marquee", "video");
+}
+function max(value2) {
+  return new Attr("max", value2, false, "input", "meter", "progress");
+}
+function min(value2) {
+  return new Attr("min", value2, false, "input", "meter");
+}
+function muted(value2) {
+  return new Attr("muted", value2, false, "audio", "video");
+}
+function playsInline(value2) {
+  return new Attr("playsInline", value2, false, "audio", "video");
+}
+function unpackURL(value2) {
+  if (value2 instanceof URL) {
+    value2 = value2.href;
+  }
+  return value2;
+}
+function src(value2) {
+  return new Attr("src", unpackURL(value2), false, "audio", "embed", "iframe", "img", "input", "script", "source", "track", "video");
+}
+function srcObject(value2) {
+  return new Attr("srcObject", value2, false, "audio", "video");
+}
+function step(value2) {
+  return new Attr("step", value2, false, "input");
+}
+function title(value2) {
+  return new Attr("title", value2, false);
+}
+function type(value2) {
+  if (!isString(value2)) {
+    value2 = value2.value;
+  }
+  return new Attr("type", value2, false, "button", "input", "command", "embed", "link", "object", "script", "source", "style", "menu");
+}
+function value(value2) {
+  return new Attr("value", value2, false, "button", "data", "input", "li", "meter", "option", "progress", "param");
+}
+function htmlWidth(value2) {
+  return new Attr("width", value2, false, "canvas", "embed", "iframe", "img", "input", "object", "video");
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/css.ts
+var CssProp = class {
+  constructor(key, value2) {
+    this.key = key;
+    this.value = value2;
+    this.name = key.replace(/[A-Z]/g, (m) => `-${m.toLocaleLowerCase()}`);
+  }
+  applyToElement(elem) {
+    elem.style[this.key] = this.value;
+  }
+};
+var CssPropSet = class {
+  constructor(...rest) {
+    this.rest = rest;
+  }
+  applyToElement(elem) {
+    for (const prop of this.rest) {
+      prop.applyToElement(elem);
+    }
+  }
+};
+function styles(...rest) {
+  return new CssPropSet(...rest);
+}
+function backgroundColor(v) {
+  return new CssProp("backgroundColor", v);
+}
+function border(v) {
+  return new CssProp("border", v);
+}
+function borderRadius(v) {
+  return new CssProp("borderRadius", v);
+}
+function boxShadow(v) {
+  return new CssProp("boxShadow", v);
+}
+function color(v) {
+  return new CssProp("color", v);
+}
+function columnGap(v) {
+  return new CssProp("columnGap", v);
+}
+function display(v) {
+  return new CssProp("display", v);
+}
+function filter(v) {
+  return new CssProp("filter", v);
+}
+function flexFlow(v) {
+  return new CssProp("flexFlow", v);
+}
+function float(v) {
+  return new CssProp("float", v);
+}
+function fontSize(v) {
+  return new CssProp("fontSize", v);
+}
+function gridArea(vOrRowStart, colStart, rowEnd, colEnd) {
+  if (!isString(vOrRowStart)) {
+    vOrRowStart = [vOrRowStart, colStart, rowEnd, colEnd].filter(isDefined).join("/");
+  }
+  return new CssProp("gridArea", vOrRowStart);
+}
+function gridAutoFlow(v) {
+  return new CssProp("gridAutoFlow", v);
+}
+function gridColumn(vOrColStart, colEnd) {
+  if (!isString(vOrColStart)) {
+    vOrColStart = [vOrColStart, colEnd].filter(isDefined).join("/");
+  }
+  return new CssProp("gridColumn", vOrColStart);
+}
+function gridColumnGap(v) {
+  return new CssProp("gridColumnGap", v);
+}
+function gridRow(vOrRowStart, rowEnd) {
+  if (!isString(vOrRowStart)) {
+    vOrRowStart = [vOrRowStart, rowEnd].filter(isDefined).join("/");
+  }
+  return new CssProp("gridRow", vOrRowStart);
+}
+function gridTemplateColumns(v) {
+  return new CssProp("gridTemplateColumns", v);
+}
+function gridTemplateRows(v) {
+  return new CssProp("gridTemplateRows", v);
+}
+function height(v) {
+  return new CssProp("height", v);
+}
+function left(v) {
+  return new CssProp("left", v);
+}
+function margin(...v) {
+  return new CssProp("margin", v.join(" "));
+}
+function marginLeft(v) {
+  return new CssProp("marginLeft", v);
+}
+function maxHeight(v) {
+  return new CssProp("maxHeight", v);
+}
+function maxWidth(v) {
+  return new CssProp("maxWidth", v);
+}
+function minWidth(v) {
+  return new CssProp("minWidth", v);
+}
+function overflow(...v) {
+  return new CssProp("overflow", v.join(" "));
+}
+function padding(...v) {
+  return new CssProp("padding", v.join(" "));
+}
+function pointerEvents(v) {
+  return new CssProp("pointerEvents", v);
+}
+function position(v) {
+  return new CssProp("position", v);
+}
+function textAlign(v) {
+  return new CssProp("textAlign", v);
+}
+function top(v) {
+  return new CssProp("top", v);
+}
+function touchAction(v) {
+  return new CssProp("touchAction", v);
+}
+function transform(v) {
+  return new CssProp("transform", v);
+}
+function verticalAlign(v) {
+  return new CssProp("verticalAlign", v);
+}
+function width(v) {
+  return new CssProp("width", v);
+}
+function zIndex(v) {
+  return new CssProp("zIndex", isNumber(v) ? v.toFixed(0) : v);
+}
+function getMonospaceFonts() {
+  return "ui-monospace, 'Droid Sans Mono', 'Cascadia Mono', 'Segoe UI Mono', 'Ubuntu Mono', 'Roboto Mono', Menlo, Monaco, Consolas, monospace";
+}
+var CSSInJSRule = class {
+  constructor(selector, props) {
+    this.selector = selector;
+    this.props = props;
+  }
+  apply(sheet) {
+    const style = this.props.map((prop) => `${prop.name}: ${prop.value};`).join("");
+    sheet.insertRule(
+      `${this.selector} {${style}}`,
+      sheet.cssRules.length
+    );
+  }
+};
+function rule(selector, ...props) {
+  return new CSSInJSRule(selector, props);
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/identity.ts
+function identity(item) {
+  return item;
+}
+function alwaysTrue() {
+  return true;
+}
+function alwaysFalse() {
+  return false;
+}
+function and(a, b) {
+  return a && b;
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/onUserGesture.ts
+var gestures = [
+  "change",
+  "click",
+  "contextmenu",
+  "dblclick",
+  "mouseup",
+  "pointerup",
+  "reset",
+  "submit",
+  "touchend"
+];
+function onUserGesture(callback, test) {
+  const realTest = test || alwaysTrue;
+  const check = async (evt) => {
+    if (evt.isTrusted && await realTest()) {
+      for (const gesture of gestures) {
+        window.removeEventListener(gesture, check);
+      }
+      await callback();
+    }
+  };
+  for (const gesture of gestures) {
+    window.addEventListener(gesture, check);
+  }
+}
+function waitForUserGesture(callback, test) {
+  const realTest = test || alwaysTrue;
+  return new Promise((resolve) => {
+    const check = async (evt) => {
+      if (evt.isTrusted && await realTest()) {
+        for (const gesture of gestures) {
+          window.removeEventListener(gesture, check);
+        }
+        resolve(await callback());
+      }
+    };
+    for (const gesture of gestures) {
+      window.addEventListener(gesture, check);
+    }
+  });
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/Exception.ts
+var Exception = class extends Error {
+  constructor(message, innerError = null) {
+    super(message);
+    this.innerError = innerError;
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/arrayClear.ts
+function arrayClear(arr) {
+  return arr.splice(0);
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/arrayRemoveAt.ts
+function arrayRemoveAt(arr, idx) {
+  return arr.splice(idx, 1)[0];
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/events/EventBase.ts
@@ -3856,8 +3757,8 @@ var TypedEvent = class extends Event {
   get type() {
     return super.type;
   }
-  constructor(type2) {
-    super(type2);
+  constructor(type2, eventInitDict) {
+    super(type2, eventInitDict);
   }
 };
 var TypedEventBase = class extends EventBase {
@@ -3901,9 +3802,11 @@ var TypedEventBase = class extends EventBase {
     if (!super.dispatchEvent(evt)) {
       return false;
     }
-    for (const bubbler of this.bubblers) {
-      if (!bubbler.dispatchEvent(evt)) {
-        return false;
+    if (!evt.cancelBubble) {
+      for (const bubbler of this.bubblers) {
+        if (!bubbler.dispatchEvent(evt)) {
+          return false;
+        }
       }
     }
     return true;
@@ -4077,54 +3980,198 @@ function success(task) {
   return task.then(alwaysTrue).catch(alwaysFalse);
 }
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/events/Pointers.ts
-var PointerID = /* @__PURE__ */ ((PointerID2) => {
-  PointerID2[PointerID2["LocalUser"] = 0] = "LocalUser";
-  PointerID2[PointerID2["Mouse"] = 1] = "Mouse";
-  PointerID2[PointerID2["Pen"] = 2] = "Pen";
-  PointerID2[PointerID2["Touch"] = 3] = "Touch";
-  PointerID2[PointerID2["MotionController"] = 4] = "MotionController";
-  PointerID2[PointerID2["MotionControllerLeft"] = 5] = "MotionControllerLeft";
-  PointerID2[PointerID2["MotionControllerRight"] = 6] = "MotionControllerRight";
-  PointerID2[PointerID2["RemoteUser"] = 7] = "RemoteUser";
-  return PointerID2;
-})(PointerID || {});
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/events/Promisifier.ts
-var Promisifier = class {
-  constructor(resolveRejectTest, selectValue, selectRejectionReason) {
-    this.callback = null;
-    this.promise = new Promise((resolve, reject) => {
-      this.callback = (...args) => {
-        if (resolveRejectTest(...args)) {
-          resolve(selectValue(...args));
-        } else {
-          reject(selectRejectionReason(...args));
-        }
-      };
-    });
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/tags.ts
+function isErsatzElement(obj2) {
+  if (!isObject(obj2)) {
+    return false;
   }
-  get [Symbol.toStringTag]() {
-    return this.promise.toString();
+  const elem = obj2;
+  return elem.element instanceof HTMLElement;
+}
+function resolveElement(elem) {
+  if (isErsatzElement(elem)) {
+    return elem.element;
   }
-  then(onfulfilled, onrejected) {
-    return this.promise.then(onfulfilled, onrejected);
+  return elem;
+}
+function isIElementAppliable(obj2) {
+  return isObject(obj2) && "applyToElement" in obj2 && isFunction(obj2.applyToElement);
+}
+function elementSetDisplay(elem, visible, visibleDisplayType = "block") {
+  elem = resolveElement(elem);
+  elem.style.display = visible ? visibleDisplayType : "none";
+}
+function elementIsDisplayed(elem) {
+  elem = resolveElement(elem);
+  return elem.style.display !== "none";
+}
+function elementApply(elem, ...children) {
+  elem = resolveElement(elem);
+  for (const child of children) {
+    if (isDefined(child)) {
+      if (child instanceof Node) {
+        elem.append(child);
+      } else if (isErsatzElement(child)) {
+        elem.append(resolveElement(child));
+      } else if (isIElementAppliable(child)) {
+        child.applyToElement(elem);
+      } else {
+        elem.append(document.createTextNode(child.toLocaleString()));
+      }
+    }
   }
-  catch(onrejected) {
-    return this.promise.catch(onrejected);
+  return elem;
+}
+function tag(name2, ...rest) {
+  let elem = null;
+  for (const attr of rest) {
+    if (attr instanceof Attr && attr.key === "id") {
+      elem = document.getElementById(attr.value);
+      break;
+    }
   }
-  finally(onfinally) {
-    return this.promise.finally(onfinally);
+  if (elem == null) {
+    elem = document.createElement(name2);
   }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/Exception.ts
-var Exception = class extends Error {
-  constructor(message, innerError = null) {
-    super(message);
-    this.innerError = innerError;
+  elementApply(elem, ...rest);
+  return elem;
+}
+function isDisableable(obj2) {
+  return "disabled" in obj2 && isBoolean(obj2.disabled);
+}
+function elementClearChildren(elem) {
+  elem = resolveElement(elem);
+  while (elem.lastChild) {
+    elem.lastChild.remove();
   }
-};
+}
+function elementSetText(elem, text) {
+  elem = resolveElement(elem);
+  elementClearChildren(elem);
+  elem.append(TextNode(text));
+}
+function elementSetClass(elem, enabled, className2) {
+  elem = resolveElement(elem);
+  const canEnable = isDefined(className2);
+  const hasEnabled = canEnable && elem.classList.contains(className2);
+  if (canEnable && hasEnabled !== enabled) {
+    elem.classList.toggle(className2);
+  }
+}
+async function mediaElementCan(type2, elem, prog) {
+  if (isDefined(prog)) {
+    prog.start();
+  }
+  const expectedState = type2 === "canplay" ? elem.HAVE_CURRENT_DATA : elem.HAVE_ENOUGH_DATA;
+  if (elem.readyState >= expectedState) {
+    return true;
+  }
+  try {
+    await once(elem, type2, "error");
+    return true;
+  } catch (err) {
+    console.warn(elem.error, err);
+    return false;
+  } finally {
+    if (isDefined(prog)) {
+      prog.end();
+    }
+  }
+}
+function mediaElementCanPlay(elem, prog) {
+  return mediaElementCan("canplay", elem, prog);
+}
+function mediaElementCanPlayThrough(elem, prog) {
+  return mediaElementCan("canplaythrough", elem, prog);
+}
+function Audio(...rest) {
+  return tag("audio", ...rest);
+}
+function ButtonRaw(...rest) {
+  return tag("button", ...rest);
+}
+function Button(...rest) {
+  return ButtonRaw(...rest, type("button"));
+}
+function ButtonPrimary(...rest) {
+  return Button(...rest, classList("btn", "btn-primary"));
+}
+function ButtonSecondary(...rest) {
+  return Button(...rest, classList("btn", "btn-secondary"));
+}
+function Canvas(...rest) {
+  return tag("canvas", ...rest);
+}
+function DD(...rest) {
+  return tag("dd", ...rest);
+}
+function Div(...rest) {
+  return tag("div", ...rest);
+}
+function DL(...rest) {
+  return tag("dl", ...rest);
+}
+function DT(...rest) {
+  return tag("dt", ...rest);
+}
+function H1(...rest) {
+  return tag("h1", ...rest);
+}
+function H2(...rest) {
+  return tag("h2", ...rest);
+}
+function Img(...rest) {
+  return tag("img", ...rest);
+}
+function Input(...rest) {
+  return tag("input", ...rest);
+}
+function Label(...rest) {
+  return tag("label", ...rest);
+}
+function Meter(...rest) {
+  return tag("meter", ...rest);
+}
+function Option(...rest) {
+  return tag("option", ...rest);
+}
+function Select(...rest) {
+  return tag("select", ...rest);
+}
+function Video(...rest) {
+  return tag("video", ...rest);
+}
+function InputCheckbox(...rest) {
+  return Input(type("checkbox"), ...rest);
+}
+function InputNumber(...rest) {
+  return Input(type("number"), ...rest);
+}
+function InputRange(...rest) {
+  return Input(type("range"), ...rest);
+}
+function TextNode(txt) {
+  return document.createTextNode(txt);
+}
+function Style(...rest) {
+  let elem = document.createElement("style");
+  document.head.append(elem);
+  for (let x of rest) {
+    x.apply(elem.sheet);
+  }
+  return elem;
+}
+function BackgroundAudio(autoplay, mute, looping, ...rest) {
+  return Audio(
+    playsInline(true),
+    controls(false),
+    muted(mute),
+    autoPlay(autoplay),
+    loop(looping),
+    styles(display("none")),
+    ...rest
+  );
+}
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/flags.ts
 function isChrome() {
@@ -4158,7 +4205,7 @@ function isDesktop() {
   return !isMobile();
 }
 var oculusBrowserPattern = /OculusBrowser\/(\d+)\.(\d+)\.(\d+)/i;
-var oculusMatch = navigator.userAgent.match(oculusBrowserPattern);
+var oculusMatch = /* @__PURE__ */ navigator.userAgent.match(oculusBrowserPattern);
 var isOculusBrowser = !!oculusMatch;
 var oculusBrowserVersion = isOculusBrowser && {
   major: parseFloat(oculusMatch[1]),
@@ -4170,30 +4217,463 @@ var isOculusQuest = isOculusBrowser && /quest/i.test(navigator.userAgent);
 var isOculusQuest2 = isOculusBrowser && /quest 2/i.test(navigator.userAgent);
 var isWorkerSupported = "Worker" in globalThis;
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/gis/Datum.ts
-var invF = 298.257223563;
-var equatorialRadius = 6378137;
-var flattening = 1 / invF;
-var flatteningComp = 1 - flattening;
-var n = flattening / (2 - flattening);
-var A = equatorialRadius / (1 + n) * (1 + n * n / 4 + n * n * n * n / 64);
-var e = Math.sqrt(1 - flatteningComp * flatteningComp);
-var esq = 1 - flatteningComp * flatteningComp;
-var e0sq = e * e / (1 - e * e);
-var alpha1 = 1 - esq * (0.25 + esq * (3 / 64 + 5 * esq / 256));
-var alpha2 = esq * (3 / 8 + esq * (3 / 32 + 45 * esq / 1024));
-var alpha3 = esq * esq * (15 / 256 + esq * 45 / 1024);
-var alpha4 = esq * esq * esq * (35 / 3072);
-var beta = [
-  n / 2 - 2 * n * n / 3 + 37 * n * n * n / 96,
-  n * n / 48 + n * n * n / 15,
-  17 * n * n * n / 480
-];
-var delta = [
-  2 * n - 2 * n * n / 3,
-  7 * n * n / 3 - 8 * n * n * n / 5,
-  56 * n * n * n / 15
-];
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/strings/stringToName.ts
+function stringToName(...parts) {
+  const goodParts = [];
+  for (const part of parts) {
+    if (isDefined(part) && part.length > 0 && goodParts.indexOf(part) === -1) {
+      goodParts.push(part);
+    }
+  }
+  return goodParts.join("-");
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/using.ts
+function interfaceSigCheck(obj2, ...funcNames) {
+  if (!isObject(obj2)) {
+    return false;
+  }
+  obj2 = obj2;
+  for (const funcName of funcNames) {
+    if (!(funcName in obj2)) {
+      return false;
+    }
+    const func = obj2[funcName];
+    if (!isFunction(func)) {
+      return false;
+    }
+  }
+  return true;
+}
+function isDisposable(obj2) {
+  return interfaceSigCheck(obj2, "dispose");
+}
+function isDestroyable(obj2) {
+  return interfaceSigCheck(obj2, "destroy");
+}
+function isClosable(obj2) {
+  return interfaceSigCheck(obj2, "close");
+}
+function dispose(val) {
+  if (isDisposable(val)) {
+    val.dispose();
+  }
+  if (isClosable(val)) {
+    val.close();
+  }
+  if (isDestroyable(val)) {
+    val.destroy();
+  }
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/arrayInsertAt.ts
+function arrayInsertAt(arr, item, idx) {
+  arr.splice(idx, 0, item);
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/arrayRemove.ts
+function arrayRemove(arr, value2) {
+  const idx = arr.indexOf(value2);
+  if (idx > -1) {
+    arrayRemoveAt(arr, idx);
+    return true;
+  }
+  return false;
+}
+function arrayFilter(arr, predicate) {
+  for (let i = arr.length - 1; i >= 0; --i) {
+    if (predicate(arr[i])) {
+      return arrayRemoveAt(arr, i);
+    }
+  }
+  return null;
+}
+function arrayRemoveByKey(arr, key, getKey) {
+  return arrayFilter(arr, (v) => getKey(v) === key);
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/arrayBinarySearch.ts
+function defaultKeySelector(obj2) {
+  return obj2;
+}
+function arrayBinarySearchByKey(arr, itemKey, keySelector) {
+  let left2 = 0;
+  let right = arr.length;
+  let idx = Math.floor((left2 + right) / 2);
+  let found = false;
+  while (left2 < right && idx < arr.length) {
+    const compareTo = arr[idx];
+    const compareToKey = isNullOrUndefined(compareTo) ? null : keySelector(compareTo);
+    if (isDefined(compareToKey) && itemKey < compareToKey) {
+      right = idx;
+    } else {
+      if (itemKey === compareToKey) {
+        found = true;
+      }
+      left2 = idx + 1;
+    }
+    idx = Math.floor((left2 + right) / 2);
+  }
+  if (!found) {
+    idx += 0.5;
+  }
+  return idx;
+}
+function arrayBinarySearch(arr, item, keySelector) {
+  keySelector = keySelector || defaultKeySelector;
+  const itemKey = keySelector(item);
+  return arrayBinarySearchByKey(arr, itemKey, keySelector);
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/arraySortedInsert.ts
+function arraySortedInsert(arr, item, keySelector, allowDuplicates) {
+  let ks;
+  if (isFunction(keySelector)) {
+    ks = keySelector;
+  } else if (isBoolean(keySelector)) {
+    allowDuplicates = keySelector;
+  }
+  if (isNullOrUndefined(allowDuplicates)) {
+    allowDuplicates = true;
+  }
+  return arraySortedInsertInternal(arr, item, ks, allowDuplicates);
+}
+function arraySortedInsertInternal(arr, item, ks, allowDuplicates) {
+  let idx = arrayBinarySearch(arr, item, ks);
+  const found = idx % 1 === 0;
+  idx = idx | 0;
+  if (!found || allowDuplicates) {
+    arrayInsertAt(arr, item, idx);
+  }
+  return idx;
+}
+function arraySortByKey(arr, keySelector) {
+  const newArr = Array.from(arr);
+  arraySortByKeyInPlace(newArr, keySelector);
+  return newArr;
+}
+function arraySortByKeyInPlace(newArr, keySelector) {
+  newArr.sort((a, b) => {
+    const keyA = keySelector(a);
+    const keyB = keySelector(b);
+    if (keyA < keyB) {
+      return -1;
+    } else if (keyA > keyB) {
+      return 1;
+    } else {
+      return 0;
+    }
+  });
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/BaseGraphNode.ts
+var BaseGraphNode = class {
+  constructor(value2) {
+    this.value = value2;
+    this._forward = new Array();
+    this._reverse = new Array();
+  }
+  connectSorted(child, keySelector) {
+    if (isDefined(keySelector)) {
+      arraySortedInsert(this._forward, child, (n) => keySelector(n.value));
+      arraySortedInsert(child._reverse, this, (n) => keySelector(n.value));
+    } else {
+      this.connectTo(child);
+    }
+  }
+  connectTo(child) {
+    this.connectAt(child, this._forward.length);
+  }
+  connectAt(child, index) {
+    arrayInsertAt(this._forward, child, index);
+    child._reverse.push(this);
+  }
+  disconnectFrom(child) {
+    arrayRemove(this._forward, child);
+    arrayRemove(child._reverse, this);
+  }
+  isConnectedTo(node) {
+    return this._forward.indexOf(node) >= 0 || this._reverse.indexOf(node) >= 0;
+  }
+  flatten() {
+    const nodes2 = /* @__PURE__ */ new Set();
+    const queue = [this];
+    while (queue.length > 0) {
+      const here = queue.shift();
+      if (isDefined(here) && !nodes2.has(here)) {
+        nodes2.add(here);
+        queue.push(...here._forward);
+      }
+    }
+    return Array.from(nodes2);
+  }
+  get _isEntryPoint() {
+    return this._reverse.length === 0;
+  }
+  get _isExitPoint() {
+    return this._forward.length === 0;
+  }
+  get isDisconnected() {
+    return this._isEntryPoint && this._isExitPoint;
+  }
+  get isConnected() {
+    return !this._isExitPoint || !this._isEntryPoint;
+  }
+  get isTerminus() {
+    return this._isEntryPoint || this._isExitPoint;
+  }
+  get isInternal() {
+    return !this._isEntryPoint && !this._isExitPoint;
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/GraphNode.ts
+var GraphNode = class extends BaseGraphNode {
+  connectTo(node) {
+    super.connectTo(node);
+  }
+  connectAt(child, index) {
+    super.connectAt(child, index);
+  }
+  connectSorted(child, sortKey) {
+    super.connectSorted(child, sortKey);
+  }
+  disconnectFrom(node) {
+    super.disconnectFrom(node);
+  }
+  isConnectedTo(node) {
+    return super.isConnectedTo(node);
+  }
+  flatten() {
+    return super.flatten();
+  }
+  get connections() {
+    return this._forward;
+  }
+  get isEntryPoint() {
+    return this._isEntryPoint;
+  }
+  get isExitPoint() {
+    return this._isExitPoint;
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/singleton.ts
+function singleton(name2, create8) {
+  const box = globalThis;
+  let value2 = box[name2];
+  if (isNullOrUndefined(value2)) {
+    if (isNullOrUndefined(create8)) {
+      throw new Error(`No value ${name2} found`);
+    }
+    value2 = create8();
+    box[name2] = value2;
+  }
+  return value2;
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/nodes.ts
+var hasAudioContext = "AudioContext" in globalThis;
+var hasAudioListener = hasAudioContext && "AudioListener" in globalThis;
+var hasOldAudioListener = hasAudioListener && "setPosition" in AudioListener.prototype;
+var hasNewAudioListener = hasAudioListener && "positionX" in AudioListener.prototype;
+var canCaptureStream = /* @__PURE__ */ isFunction(HTMLMediaElement.prototype.captureStream) || isFunction(HTMLMediaElement.prototype.mozCaptureStream);
+function isWrappedAudioNode(value2) {
+  return isDefined(value2) && value2.node instanceof AudioNode;
+}
+function isErsatzAudioNode(value2) {
+  return isDefined(value2) && value2.input instanceof AudioNode && value2.output instanceof AudioNode;
+}
+var connections = singleton("Juniper:Audio:connections", () => /* @__PURE__ */ new Map());
+var names = singleton("Juniper:Audio:names", () => /* @__PURE__ */ new Map());
+function resolveOutput(node) {
+  if (isErsatzAudioNode(node)) {
+    return node.output;
+  } else if (isWrappedAudioNode(node)) {
+    return node.node;
+  }
+  return node;
+}
+function resolveInput(node) {
+  if (isNullOrUndefined(node)) {
+    return void 0;
+  }
+  let n = null;
+  if (isArray(node)) {
+    if (node.length === 2) {
+      n = node[1];
+    } else {
+      n = node[2];
+    }
+  } else {
+    n = node;
+  }
+  let n2 = null;
+  if (isErsatzAudioNode(n)) {
+    n2 = n.input;
+  } else if (isWrappedAudioNode(n)) {
+    n2 = n.node;
+  } else {
+    n2 = n;
+  }
+  return n2;
+}
+function resolveArray(node) {
+  if (!isArray(node)) {
+    return [];
+  } else if (node.length === 2) {
+    return [node[0]];
+  } else {
+    return [node[0], node[1]];
+  }
+}
+function isAudioNode(a) {
+  return isDefined(a) && isDefined(a.context);
+}
+function nameVertex(name2, v) {
+  names.set(v, name2);
+}
+function removeVertex(v) {
+  names.delete(v);
+  if (isAudioNode(v)) {
+    disconnect(v);
+  }
+}
+function chain(...nodes2) {
+  for (let i = 1; i < nodes2.length; ++i) {
+    connect(nodes2[i - 1], nodes2[i]);
+  }
+}
+function connect(left2, right) {
+  const a = resolveOutput(left2);
+  const b = resolveInput(right);
+  const c = resolveArray(right);
+  if (isNullOrUndefined(b)) {
+    throw new Error("Must have a target to connect to");
+  } else if (b instanceof AudioParam) {
+    a.connect(b, c[0]);
+  } else if (b instanceof AudioNode) {
+    a.connect(b, c[0], c[1]);
+  } else {
+    assertNever(b);
+  }
+  if (!connections.has(a)) {
+    connections.set(a, /* @__PURE__ */ new Set());
+  }
+  const g = connections.get(a);
+  if (g.has(b)) {
+    return false;
+  }
+  g.add(b);
+  return true;
+}
+function disconnect(left2, right) {
+  const a = resolveOutput(left2);
+  const b = resolveInput(right);
+  const c = resolveArray(right);
+  if (isNullOrUndefined(b)) {
+    a.disconnect();
+  } else if (b instanceof AudioParam) {
+    a.disconnect(b, c[0]);
+  } else if (b instanceof AudioNode) {
+    a.disconnect(b, c[0], c[1]);
+  } else {
+    assertNever(b);
+  }
+  if (!connections.has(a)) {
+    return false;
+  }
+  const g = connections.get(a);
+  let removed = false;
+  if (isNullOrUndefined(b)) {
+    removed = g.size > 0;
+    g.clear();
+  } else if (g.has(b)) {
+    removed = true;
+    g.delete(b);
+  }
+  if (g.size === 0) {
+    connections.delete(a);
+  }
+  return removed;
+}
+function getAudioGraph() {
+  const nodes2 = /* @__PURE__ */ new Map();
+  function maybeAdd(node) {
+    if (!nodes2.has(node)) {
+      nodes2.set(node, new GraphNode(node));
+    }
+  }
+  for (const node of names.keys()) {
+    maybeAdd(node);
+  }
+  for (const [parent, children] of connections) {
+    maybeAdd(parent);
+    for (const child of children) {
+      maybeAdd(child);
+    }
+  }
+  for (const [parent, children] of connections) {
+    const branch = nodes2.get(parent);
+    for (const child of children) {
+      if (nodes2.has(child)) {
+        branch.connectTo(nodes2.get(child));
+      }
+    }
+  }
+  return Array.from(nodes2.values());
+}
+globalThis.getAudioGraph = getAudioGraph;
+async function audioReady(audioCtx) {
+  nameVertex("speakers", audioCtx.destination);
+  if (audioCtx.state !== "running") {
+    if (audioCtx.state === "closed") {
+      await audioCtx.resume();
+    } else if (audioCtx.state === "suspended") {
+      const stateChange = once(audioCtx, "statechange");
+      onUserGesture(() => audioCtx.resume());
+      await stateChange;
+    } else {
+      assertNever(audioCtx.state);
+    }
+  }
+}
+function initAudio(name2, left2, ...rest) {
+  nameVertex(name2, left2);
+  for (const right of rest) {
+    if (isDefined(right)) {
+      connect(left2, right);
+    }
+  }
+  return left2;
+}
+function Analyser(name2, audioCtx, options, ...rest) {
+  return initAudio(name2, new AnalyserNode(audioCtx, options), ...rest);
+}
+function BiquadFilter(name2, audioCtx, options, ...rest) {
+  return initAudio(name2, new BiquadFilterNode(audioCtx, options), ...rest);
+}
+function Delay(name2, audioCtx, options, ...rest) {
+  return initAudio(name2, new DelayNode(audioCtx, options), ...rest);
+}
+function DynamicsCompressor(name2, audioCtx, options, ...rest) {
+  return initAudio(name2, new DynamicsCompressorNode(audioCtx, options), ...rest);
+}
+function Gain(name2, audioCtx, options, ...rest) {
+  return initAudio(name2, new GainNode(audioCtx, options), ...rest);
+}
+function MediaElementSource(name2, audioCtx, mediaElement, ...rest) {
+  return initAudio(name2, audioCtx.createMediaElementSource(mediaElement), ...rest);
+}
+function MediaStreamDestination(name2, audioCtx, options, ...rest) {
+  return initAudio(name2, new MediaStreamAudioDestinationNode(audioCtx, options), ...rest);
+}
+function MediaStreamSource(name2, audioCtx, mediaStream, ...rest) {
+  return initAudio(name2, audioCtx.createMediaStreamSource(mediaStream), ...rest);
+}
+function Panner(name2, audioCtx, options, ...rest) {
+  return initAudio(name2, new PannerNode(audioCtx, options), ...rest);
+}
 
 // ../Juniper/src/Juniper.TypeScript/node_modules/gl-matrix/esm/common.js
 var EPSILON = 1e-6;
@@ -4235,8 +4715,8 @@ __export(vec3_exports, {
   len: () => len,
   length: () => length,
   lerp: () => lerp,
-  max: () => max,
-  min: () => min,
+  max: () => max2,
+  min: () => min2,
   mul: () => mul,
   multiply: () => multiply,
   negate: () => negate,
@@ -4338,13 +4818,13 @@ function floor(out, a) {
   out[2] = Math.floor(a[2]);
   return out;
 }
-function min(out, a, b) {
+function min2(out, a, b) {
   out[0] = Math.min(a[0], b[0]);
   out[1] = Math.min(a[1], b[1]);
   out[2] = Math.min(a[2], b[2]);
   return out;
 }
-function max(out, a, b) {
+function max2(out, a, b) {
   out[0] = Math.max(a[0], b[0]);
   out[1] = Math.max(a[1], b[1]);
   out[2] = Math.max(a[2], b[2]);
@@ -4593,1352 +5073,6 @@ var forEach = function() {
   };
 }();
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math/angleClamp.ts
-var Tau = 2 * Math.PI;
-function angleClamp(v) {
-  return (v % Tau + Tau) % Tau;
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math/clamp.ts
-function clamp(v, min3, max3) {
-  return Math.min(max3, Math.max(min3, v));
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math/deg2rad.ts
-function deg2rad(deg) {
-  return deg * Math.PI / 180;
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math/lerp.ts
-function lerp2(a, b, p) {
-  return (1 - p) * a + p * b;
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math/powerOf2.ts
-function nextPowerOf2(v) {
-  return Math.pow(2, Math.ceil(Math.log2(v)));
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math/rad2deg.ts
-function rad2deg(rad) {
-  return rad * 180 / Math.PI;
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math/truncate.ts
-function truncate(v) {
-  if (Math.abs(v) > 1e-4) {
-    return v;
-  }
-  return 0;
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/progress/BaseProgress.ts
-var BaseProgress = class extends TypedEventBase {
-  constructor() {
-    super(...arguments);
-    this.attached = new Array();
-    this.soFar = null;
-    this.total = null;
-    this.msg = null;
-    this.est = null;
-  }
-  get p() {
-    return this.total > 0 ? this.soFar / this.total : 0;
-  }
-  report(soFar, total, msg, est) {
-    this.soFar = soFar;
-    this.total = total;
-    this.msg = msg;
-    this.est = est;
-    for (const attach of this.attached) {
-      attach.report(soFar, total, msg, est);
-    }
-  }
-  attach(prog) {
-    this.attached.push(prog);
-    prog.report(this.soFar, this.total, this.msg, this.est);
-  }
-  clear() {
-    this.report(0, 0);
-    this._clear();
-  }
-  start(msg) {
-    this.report(0, 1, msg || "starting");
-  }
-  end(msg) {
-    this.report(1, 1, msg || "done");
-    this._clear();
-  }
-  _clear() {
-    this.soFar = null;
-    this.total = null;
-    this.msg = null;
-    this.est = null;
-    arrayClear(this.attached);
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/progress/ChildProgressCallback.ts
-var ChildProgressCallback = class extends BaseProgress {
-  constructor(i, prog) {
-    super();
-    this.i = i;
-    this.prog = prog;
-  }
-  report(soFar, total, msg, est) {
-    super.report(soFar, total, msg, est);
-    this.prog.update(this.i, soFar, total, msg);
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/progress/BaseParentProgressCallback.ts
-var BaseParentProgressCallback = class {
-  constructor(prog) {
-    this.prog = prog;
-    this.weightTotal = 0;
-    this.subProgressCallbacks = new Array();
-    this.subProgressWeights = new Array();
-    this.subProgressValues = new Array();
-    this.start = performance.now();
-    for (let i = 0; i < this.subProgressWeights.length; ++i) {
-      this.subProgressValues[i] = 0;
-      this.subProgressCallbacks[i] = new ChildProgressCallback(i, this);
-    }
-  }
-  addSubProgress(weight) {
-    weight = weight || 1;
-    this.weightTotal += weight;
-    this.subProgressWeights.push(weight);
-    this.subProgressValues.push(0);
-    const child = new ChildProgressCallback(this.subProgressCallbacks.length, this);
-    this.subProgressCallbacks.push(child);
-    return child;
-  }
-  update(i, subSoFar, subTotal, msg) {
-    if (this.prog) {
-      this.subProgressValues[i] = subSoFar / subTotal;
-      let soFar = 0;
-      for (let j = 0; j < this.subProgressWeights.length; ++j) {
-        soFar += this.subProgressValues[j] * this.subProgressWeights[j];
-      }
-      const end2 = performance.now();
-      const delta2 = end2 - this.start;
-      const est = this.start - end2 + delta2 * this.weightTotal / soFar;
-      this.prog.report(soFar, this.weightTotal, msg, est);
-    }
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/progress/progressSplit.ts
-function progressSplitWeighted(prog, subProgressWeights) {
-  const subProg = new WeightedParentProgressCallback(subProgressWeights, prog);
-  return subProg.subProgressCallbacks;
-}
-var WeightedParentProgressCallback = class extends BaseParentProgressCallback {
-  constructor(subProgressWeights, prog) {
-    super(prog);
-    for (const weight of subProgressWeights) {
-      this.addSubProgress(weight);
-    }
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/progress/progressPopper.ts
-function progressPopper(progress) {
-  return new PoppableParentProgressCallback(progress);
-}
-var PoppableParentProgressCallback = class extends BaseParentProgressCallback {
-  pop(weight) {
-    return this.addSubProgress(weight);
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/progress/progressTasks.ts
-async function progressTasksWeighted(prog, taskDefs) {
-  const weights = new Array(taskDefs.length);
-  const callbacks = new Array(taskDefs.length);
-  for (let i = 0; i < taskDefs.length; ++i) {
-    const taskDef = taskDefs[i];
-    weights[i] = taskDef[0];
-    callbacks[i] = taskDef[1];
-  }
-  const progs = progressSplitWeighted(prog, weights);
-  const tasks = new Array(taskDefs.length);
-  for (let i = 0; i < taskDefs.length; ++i) {
-    tasks[i] = callbacks[i](progs[i]);
-  }
-  return await Promise.all(tasks);
-}
-function progressTasks(prog, ...subTaskDef) {
-  const taskDefs = subTaskDef.map((t2) => [1, t2]);
-  return progressTasksWeighted(prog, taskDefs);
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/singleton.ts
-function singleton(name2, create8) {
-  const box = globalThis;
-  let value2 = box[name2];
-  if (isNullOrUndefined(value2)) {
-    if (isNullOrUndefined(create8)) {
-      throw new Error(`No value ${name2} found`);
-    }
-    value2 = create8();
-    box[name2] = value2;
-  }
-  return value2;
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/strings/stringRandom.ts
-var DEFAULT_CHAR_SET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZ";
-function stringRandom(length4, charSet) {
-  if (length4 < 0) {
-    throw new Error("Length must be greater than 0");
-  }
-  if (isNullOrUndefined(charSet)) {
-    charSet = DEFAULT_CHAR_SET;
-  }
-  let str2 = "";
-  for (let i = 0; i < length4; ++i) {
-    const idx = Math.floor(Math.random() * charSet.length);
-    str2 += charSet[idx];
-  }
-  return str2;
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/strings/stringToName.ts
-function stringToName(...parts) {
-  const goodParts = [];
-  for (const part of parts) {
-    if (isDefined(part) && part.length > 0 && goodParts.indexOf(part) === -1) {
-      goodParts.push(part);
-    }
-  }
-  return goodParts.join("-");
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/timers/ITimer.ts
-var BaseTimerTickEvent = class {
-  constructor() {
-    this.t = 0;
-    this.dt = 0;
-    this.sdt = 0;
-    this.fps = 0;
-  }
-  set(t2, dt) {
-    this.t = t2;
-    this.dt = dt;
-    this.sdt = lerp2(this.sdt, dt, 0.01);
-    if (dt > 0) {
-      this.fps = 1e3 / dt;
-    }
-  }
-};
-var TimerTickEvent = class extends BaseTimerTickEvent {
-  constructor() {
-    super();
-    Object.seal(this);
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/timers/BaseTimer.ts
-var BaseTimer = class {
-  constructor(targetFrameRate) {
-    this.timer = null;
-    this.lt = -1;
-    this.tickHandlers = new Array();
-    this._targetFPS = null;
-    this.targetFPS = targetFrameRate;
-    const tickEvt = new TimerTickEvent();
-    let dt = 0;
-    this.onTick = (t2) => {
-      if (this.lt >= 0) {
-        dt = t2 - this.lt;
-        tickEvt.set(t2, dt);
-        this.tick(tickEvt);
-      }
-      this.lt = t2;
-    };
-  }
-  get targetFPS() {
-    return this._targetFPS;
-  }
-  set targetFPS(v) {
-    this._targetFPS = v;
-  }
-  addTickHandler(onTick) {
-    this.tickHandlers.push(onTick);
-  }
-  removeTickHandler(onTick) {
-    arrayRemove(this.tickHandlers, onTick);
-  }
-  tick(evt) {
-    for (const handler of this.tickHandlers) {
-      handler(evt);
-    }
-  }
-  restart() {
-    this.stop();
-    this.start();
-  }
-  get isRunning() {
-    return this.timer != null;
-  }
-  stop() {
-    this.timer = null;
-    this.lt = -1;
-  }
-  get targetFrameTime() {
-    return 1e3 / this.targetFPS;
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/timers/SetTimeoutTimer.ts
-var SetTimeoutTimer = class extends BaseTimer {
-  constructor(targetFrameRate) {
-    super(targetFrameRate);
-  }
-  start() {
-    const updater = () => {
-      this.timer = setTimeout(updater, this.targetFrameTime);
-      this.onTick(performance.now());
-    };
-    this.timer = setTimeout(updater, this.targetFrameTime);
-  }
-  stop() {
-    if (this.isRunning) {
-      clearTimeout(this.timer);
-      super.stop();
-    }
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/mapInvert.ts
-function mapInvert(map) {
-  const mapOut = /* @__PURE__ */ new Map();
-  for (const [key, value2] of map) {
-    mapOut.set(value2, key);
-  }
-  return mapOut;
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/units/fileSize.ts
-var base2Labels = /* @__PURE__ */ new Map([
-  [1, "KiB"],
-  [2, "MiB"],
-  [3, "GiB"],
-  [4, "TiB"]
-]);
-var base10Labels = /* @__PURE__ */ new Map([
-  [1, "KB"],
-  [2, "MB"],
-  [3, "GB"],
-  [4, "TB"]
-]);
-var base2Sizes = mapInvert(base2Labels);
-var base10Sizes = mapInvert(base10Labels);
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/units/length.ts
-var MICROMETERS_PER_MILLIMETER = 1e3;
-var MILLIMETERS_PER_CENTIMETER = 10;
-var CENTIMETERS_PER_INCH = 2.54;
-var CENTIMETERS_PER_METER = 100;
-var INCHES_PER_HAND = 4;
-var HANDS_PER_FOOT = 3;
-var FEET_PER_YARD = 3;
-var FEET_PER_ROD = 16.5;
-var METERS_PER_KILOMETER = 1e3;
-var RODS_PER_FURLONG = 40;
-var FURLONGS_PER_MILE = 8;
-var MICROMETERS_PER_CENTIMETER = MICROMETERS_PER_MILLIMETER * MILLIMETERS_PER_CENTIMETER;
-var MICROMETERS_PER_INCH = MICROMETERS_PER_CENTIMETER * CENTIMETERS_PER_INCH;
-var MICROMETERS_PER_HAND = MICROMETERS_PER_INCH * INCHES_PER_HAND;
-var MICROMETERS_PER_FOOT = MICROMETERS_PER_HAND * HANDS_PER_FOOT;
-var MICROMETERS_PER_YARD = MICROMETERS_PER_FOOT * FEET_PER_YARD;
-var MICROMETERS_PER_METER = MICROMETERS_PER_CENTIMETER * CENTIMETERS_PER_METER;
-var MICROMETERS_PER_ROD = MICROMETERS_PER_FOOT * FEET_PER_ROD;
-var MICROMETERS_PER_FURLONG = MICROMETERS_PER_ROD * RODS_PER_FURLONG;
-var MICROMETERS_PER_KILOMETER = MICROMETERS_PER_METER * METERS_PER_KILOMETER;
-var MICROMETERS_PER_MILE = MICROMETERS_PER_FURLONG * FURLONGS_PER_MILE;
-var MILLIMETERS_PER_INCH = MILLIMETERS_PER_CENTIMETER * CENTIMETERS_PER_INCH;
-var MILLIMETERS_PER_HAND = MILLIMETERS_PER_INCH * INCHES_PER_HAND;
-var MILLIMETERS_PER_FOOT = MILLIMETERS_PER_HAND * HANDS_PER_FOOT;
-var MILLIMETERS_PER_YARD = MILLIMETERS_PER_FOOT * FEET_PER_YARD;
-var MILLIMETERS_PER_METER = MILLIMETERS_PER_CENTIMETER * CENTIMETERS_PER_METER;
-var MILLIMETERS_PER_ROD = MILLIMETERS_PER_FOOT * FEET_PER_ROD;
-var MILLIMETERS_PER_FURLONG = MILLIMETERS_PER_ROD * RODS_PER_FURLONG;
-var MILLIMETERS_PER_KILOMETER = MILLIMETERS_PER_METER * METERS_PER_KILOMETER;
-var MILLIMETERS_PER_MILE = MILLIMETERS_PER_FURLONG * FURLONGS_PER_MILE;
-var CENTIMETERS_PER_HAND = CENTIMETERS_PER_INCH * INCHES_PER_HAND;
-var CENTIMETERS_PER_FOOT = CENTIMETERS_PER_HAND * HANDS_PER_FOOT;
-var CENTIMETERS_PER_YARD = CENTIMETERS_PER_FOOT * FEET_PER_YARD;
-var CENTIMETERS_PER_ROD = CENTIMETERS_PER_FOOT * FEET_PER_ROD;
-var CENTIMETERS_PER_FURLONG = CENTIMETERS_PER_ROD * RODS_PER_FURLONG;
-var CENTIMETERS_PER_KILOMETER = CENTIMETERS_PER_METER * METERS_PER_KILOMETER;
-var CENTIMETERS_PER_MILE = CENTIMETERS_PER_FURLONG * FURLONGS_PER_MILE;
-var INCHES_PER_FOOT = INCHES_PER_HAND * HANDS_PER_FOOT;
-var INCHES_PER_YARD = INCHES_PER_FOOT * FEET_PER_YARD;
-var INCHES_PER_METER = CENTIMETERS_PER_METER / CENTIMETERS_PER_INCH;
-var INCHES_PER_ROD = INCHES_PER_FOOT * FEET_PER_ROD;
-var INCHES_PER_FURLONG = INCHES_PER_ROD * RODS_PER_FURLONG;
-var INCHES_PER_KILOMETER = INCHES_PER_METER * METERS_PER_KILOMETER;
-var INCHES_PER_MILE = INCHES_PER_FURLONG * FURLONGS_PER_MILE;
-var HANDS_PER_YARD = HANDS_PER_FOOT * FEET_PER_YARD;
-var HANDS_PER_METER = CENTIMETERS_PER_METER / CENTIMETERS_PER_HAND;
-var HANDS_PER_ROD = HANDS_PER_FOOT * FEET_PER_ROD;
-var HANDS_PER_FURLONG = HANDS_PER_ROD * RODS_PER_FURLONG;
-var HANDS_PER_KILOMETER = HANDS_PER_METER * METERS_PER_KILOMETER;
-var HANDS_PER_MILE = HANDS_PER_FURLONG * FURLONGS_PER_MILE;
-var FEET_PER_METER = INCHES_PER_METER / INCHES_PER_FOOT;
-var FEET_PER_FURLONG = FEET_PER_ROD * RODS_PER_FURLONG;
-var FEET_PER_KILOMETER = FEET_PER_METER * METERS_PER_KILOMETER;
-var FEET_PER_MILE = FEET_PER_FURLONG * FURLONGS_PER_MILE;
-var YARDS_PER_METER = INCHES_PER_METER / INCHES_PER_YARD;
-var YARDS_PER_ROD = FEET_PER_ROD / FEET_PER_YARD;
-var YARDS_PER_FURLONG = YARDS_PER_ROD * RODS_PER_FURLONG;
-var YARDS_PER_KILOMETER = YARDS_PER_METER * METERS_PER_KILOMETER;
-var YARDS_PER_MILE = YARDS_PER_FURLONG * FURLONGS_PER_MILE;
-var METERS_PER_ROD = FEET_PER_ROD / FEET_PER_METER;
-var METERS_PER_FURLONG = METERS_PER_ROD * RODS_PER_FURLONG;
-var METERS_PER_MILE = METERS_PER_FURLONG * FURLONGS_PER_MILE;
-var RODS_PER_KILOMETER = METERS_PER_KILOMETER / METERS_PER_ROD;
-var RODS_PER_MILE = RODS_PER_FURLONG * FURLONGS_PER_MILE;
-var FURLONGS_PER_KILOMETER = METERS_PER_KILOMETER / METERS_PER_FURLONG;
-var KILOMETERS_PER_MILE = FURLONGS_PER_MILE / FURLONGS_PER_KILOMETER;
-function feet2Meters(feet) {
-  return feet / FEET_PER_METER;
-}
-function inches2Meters(inches) {
-  return inches / INCHES_PER_METER;
-}
-function meters2Inches(meters) {
-  return meters * INCHES_PER_METER;
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/URLBuilder.ts
-function parsePort(portString) {
-  if (isDefined(portString) && portString.length > 0) {
-    return parseFloat(portString);
-  }
-  return null;
-}
-var URLBuilder = class {
-  constructor(url, base) {
-    this._url = null;
-    this._base = void 0;
-    this._protocol = null;
-    this._host = null;
-    this._hostName = null;
-    this._userName = null;
-    this._password = null;
-    this._port = null;
-    this._pathName = null;
-    this._hash = null;
-    this._query = /* @__PURE__ */ new Map();
-    if (url !== void 0) {
-      this._url = new URL(url, base);
-      this.rehydrate();
-    }
-  }
-  rehydrate() {
-    if (isDefined(this._protocol) && this._protocol !== this._url.protocol) {
-      this._url.protocol = this._protocol;
-    }
-    if (isDefined(this._host) && this._host !== this._url.host) {
-      this._url.host = this._host;
-    }
-    if (isDefined(this._hostName) && this._hostName !== this._url.hostname) {
-      this._url.hostname = this._hostName;
-    }
-    if (isDefined(this._userName) && this._userName !== this._url.username) {
-      this._url.username = this._userName;
-    }
-    if (isDefined(this._password) && this._password !== this._url.password) {
-      this._url.password = this._password;
-    }
-    if (isDefined(this._port) && this._port.toFixed(0) !== this._url.port) {
-      this._url.port = this._port.toFixed(0);
-    }
-    if (isDefined(this._pathName) && this._pathName !== this._url.pathname) {
-      this._url.pathname = this._pathName;
-    }
-    if (isDefined(this._hash) && this._hash !== this._url.hash) {
-      this._url.hash = this._hash;
-    }
-    for (const [k, v] of this._query) {
-      this._url.searchParams.set(k, v);
-    }
-    this._protocol = this._url.protocol;
-    this._host = this._url.host;
-    this._hostName = this._url.hostname;
-    this._userName = this._url.username;
-    this._password = this._url.password;
-    this._port = parsePort(this._url.port);
-    this._pathName = this._url.pathname;
-    this._hash = this._url.hash;
-    this._url.searchParams.forEach((v, k) => this._query.set(k, v));
-  }
-  refresh() {
-    if (this._url === null) {
-      if (isDefined(this._protocol) && (isDefined(this._host) || isDefined(this._hostName))) {
-        if (isDefined(this._host)) {
-          this._url = new URL(`${this._protocol}//${this._host}`, this._base);
-          this._port = parsePort(this._url.port);
-          this.rehydrate();
-          return false;
-        } else if (isDefined(this._hostName)) {
-          this._url = new URL(`${this._protocol}//${this._hostName}`, this._base);
-          this.rehydrate();
-          return false;
-        }
-      } else if (isDefined(this._pathName) && isDefined(this._base)) {
-        this._url = new URL(this._pathName, this._base);
-        this.rehydrate();
-        return false;
-      }
-    }
-    return isDefined(this._url);
-  }
-  base(base) {
-    if (this._url !== null) {
-      throw new Error("Cannot redefine base after defining the protocol and domain");
-    }
-    this._base = base;
-    this.refresh();
-    return this;
-  }
-  protocol(protocol) {
-    this._protocol = protocol;
-    if (this.refresh()) {
-      this._url.protocol = protocol;
-    }
-    return this;
-  }
-  host(host) {
-    this._host = host;
-    if (this.refresh()) {
-      this._url.host = host;
-      this._hostName = this._url.hostname;
-      this._port = parsePort(this._url.port);
-    }
-    return this;
-  }
-  hostName(hostName) {
-    this._hostName = hostName;
-    if (this.refresh()) {
-      this._url.hostname = hostName;
-      this._host = `${this._url.hostname}:${this._url.port}`;
-    }
-    return this;
-  }
-  port(port) {
-    this._port = port;
-    if (this.refresh()) {
-      this._url.port = port.toFixed(0);
-      this._host = `${this._url.hostname}:${this._url.port}`;
-    }
-    return this;
-  }
-  userName(userName) {
-    this._userName = userName;
-    if (this.refresh()) {
-      this._url.username = userName;
-    }
-    return this;
-  }
-  password(password) {
-    this._password = password;
-    if (this.refresh()) {
-      this._url.password = password;
-    }
-    return this;
-  }
-  path(path) {
-    this._pathName = path;
-    if (this.refresh()) {
-      this._url.pathname = path;
-    }
-    return this;
-  }
-  pathPop(pattern) {
-    pattern = pattern || /\/[^\/]+\/?$/;
-    return this.path(this._pathName.replace(pattern, ""));
-  }
-  pathPush(part) {
-    let path = this._pathName;
-    if (!path.endsWith("/")) {
-      path += "/";
-    }
-    path += part;
-    return this.path(path);
-  }
-  query(name2, value2) {
-    this._query.set(name2, value2);
-    if (this.refresh()) {
-      this._url.searchParams.set(name2, value2);
-    }
-    return this;
-  }
-  hash(hash) {
-    this._hash = hash;
-    if (this.refresh()) {
-      this._url.hash = hash;
-    }
-    return this;
-  }
-  toURL() {
-    return this._url;
-  }
-  toString() {
-    return this._url.href;
-  }
-  [Symbol.toStringTag]() {
-    return this.toString();
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/using.ts
-function interfaceSigCheck(obj2, ...funcNames) {
-  if (!isObject(obj2)) {
-    return false;
-  }
-  obj2 = obj2;
-  for (const funcName of funcNames) {
-    if (!(funcName in obj2)) {
-      return false;
-    }
-    const func = obj2[funcName];
-    if (!isFunction(func)) {
-      return false;
-    }
-  }
-  return true;
-}
-function isDisposable(obj2) {
-  return interfaceSigCheck(obj2, "dispose");
-}
-function isDestroyable(obj2) {
-  return interfaceSigCheck(obj2, "destroy");
-}
-function isClosable(obj2) {
-  return interfaceSigCheck(obj2, "close");
-}
-function dispose(val) {
-  if (isDisposable(val)) {
-    val.dispose();
-  }
-  if (isClosable(val)) {
-    val.close();
-  }
-  if (isDestroyable(val)) {
-    val.destroy();
-  }
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/attrs.ts
-var Attr = class {
-  constructor(key, value2, bySetAttribute, ...tags) {
-    this.key = key;
-    this.value = value2;
-    this.bySetAttribute = bySetAttribute;
-    this.tags = tags.map((t2) => t2.toLocaleUpperCase());
-    Object.freeze(this);
-  }
-  applyToElement(elem) {
-    const isDataSet = this.key.startsWith("data-");
-    const isValid = this.tags.length === 0 || this.tags.indexOf(elem.tagName) > -1 || isDataSet;
-    if (!isValid) {
-      console.warn(`Element ${elem.tagName} does not support Attribute ${this.key}`);
-    } else if (isDataSet) {
-      const subkey = this.key.substring(5);
-      elem.dataset[subkey] = this.value;
-    } else if (this.key === "style") {
-      Object.assign(elem.style, this.value);
-    } else if (this.key === "classList") {
-      this.value.forEach((v) => elem.classList.add(v));
-    } else if (this.bySetAttribute) {
-      elem.setAttribute(this.key, this.value);
-    } else if (this.key in elem) {
-      elem[this.key] = this.value;
-    } else if (this.value === false) {
-      elem.removeAttribute(this.key);
-    } else if (this.value === true) {
-      elem.setAttribute(this.key, "");
-    } else {
-      elem.setAttribute(this.key, this.value);
-    }
-  }
-};
-function autoPlay(value2) {
-  return new Attr("autoplay", value2, false, "audio", "video");
-}
-function className(value2) {
-  return new Attr("className", value2, false);
-}
-function classList(...values) {
-  return new Attr("classList", values, false);
-}
-function controls(value2) {
-  return new Attr("controls", value2, false, "audio", "video");
-}
-function customData(name2, value2) {
-  return new Attr("data-" + name2, value2, false);
-}
-function htmlHeight(value2) {
-  return new Attr("height", value2, false, "canvas", "embed", "iframe", "img", "input", "object", "video");
-}
-function id(value2) {
-  return new Attr("id", value2, false);
-}
-function loop(value2) {
-  return new Attr("loop", value2, false, "audio", "bgsound", "marquee", "video");
-}
-function max2(value2) {
-  return new Attr("max", value2, false, "input", "meter", "progress");
-}
-function min2(value2) {
-  return new Attr("min", value2, false, "input", "meter");
-}
-function muted(value2) {
-  return new Attr("muted", value2, false, "audio", "video");
-}
-function playsInline(value2) {
-  return new Attr("playsInline", value2, false, "audio", "video");
-}
-function unpackURL(value2) {
-  if (value2 instanceof URL) {
-    value2 = value2.href;
-  }
-  return value2;
-}
-function src(value2) {
-  return new Attr("src", unpackURL(value2), false, "audio", "embed", "iframe", "img", "input", "script", "source", "track", "video");
-}
-function srcObject(value2) {
-  return new Attr("srcObject", value2, false, "audio", "video");
-}
-function step(value2) {
-  return new Attr("step", value2, false, "input");
-}
-function title(value2) {
-  return new Attr("title", value2, false);
-}
-function type(value2) {
-  if (!isString(value2)) {
-    value2 = value2.value;
-  }
-  return new Attr("type", value2, false, "button", "input", "command", "embed", "link", "object", "script", "source", "style", "menu");
-}
-function value(value2) {
-  return new Attr("value", value2, false, "button", "data", "input", "li", "meter", "option", "progress", "param");
-}
-function htmlWidth(value2) {
-  return new Attr("width", value2, false, "canvas", "embed", "iframe", "img", "input", "object", "video");
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/css.ts
-var CssProp = class {
-  constructor(key, value2) {
-    this.key = key;
-    this.value = value2;
-    this.name = key.replace(/[A-Z]/g, (m) => `-${m.toLocaleLowerCase()}`);
-  }
-  applyToElement(elem) {
-    elem.style[this.key] = this.value;
-  }
-};
-var CssPropSet = class {
-  constructor(...rest) {
-    this.rest = rest;
-  }
-  applyToElement(elem) {
-    for (const prop of this.rest) {
-      prop.applyToElement(elem);
-    }
-  }
-};
-function styles(...rest) {
-  return new CssPropSet(...rest);
-}
-function backgroundColor(v) {
-  return new CssProp("backgroundColor", v);
-}
-function border(v) {
-  return new CssProp("border", v);
-}
-function borderRadius(v) {
-  return new CssProp("borderRadius", v);
-}
-function boxShadow(v) {
-  return new CssProp("boxShadow", v);
-}
-function color(v) {
-  return new CssProp("color", v);
-}
-function columnGap(v) {
-  return new CssProp("columnGap", v);
-}
-function display(v) {
-  return new CssProp("display", v);
-}
-function filter(v) {
-  return new CssProp("filter", v);
-}
-function flexFlow(v) {
-  return new CssProp("flexFlow", v);
-}
-function float(v) {
-  return new CssProp("float", v);
-}
-function fontSize(v) {
-  return new CssProp("fontSize", v);
-}
-function gridArea(vOrRowStart, colStart, rowEnd, colEnd) {
-  if (!isString(vOrRowStart)) {
-    vOrRowStart = [vOrRowStart, colStart, rowEnd, colEnd].filter(isDefined).join("/");
-  }
-  return new CssProp("gridArea", vOrRowStart);
-}
-function gridAutoFlow(v) {
-  return new CssProp("gridAutoFlow", v);
-}
-function gridColumn(vOrColStart, colEnd) {
-  if (!isString(vOrColStart)) {
-    vOrColStart = [vOrColStart, colEnd].filter(isDefined).join("/");
-  }
-  return new CssProp("gridColumn", vOrColStart);
-}
-function gridColumnGap(v) {
-  return new CssProp("gridColumnGap", v);
-}
-function gridRow(vOrRowStart, rowEnd) {
-  if (!isString(vOrRowStart)) {
-    vOrRowStart = [vOrRowStart, rowEnd].filter(isDefined).join("/");
-  }
-  return new CssProp("gridRow", vOrRowStart);
-}
-function gridTemplateColumns(v) {
-  return new CssProp("gridTemplateColumns", v);
-}
-function gridTemplateRows(v) {
-  return new CssProp("gridTemplateRows", v);
-}
-function height(v) {
-  return new CssProp("height", v);
-}
-function left(v) {
-  return new CssProp("left", v);
-}
-function margin(...v) {
-  return new CssProp("margin", v.join(" "));
-}
-function marginLeft(v) {
-  return new CssProp("marginLeft", v);
-}
-function maxHeight(v) {
-  return new CssProp("maxHeight", v);
-}
-function maxWidth(v) {
-  return new CssProp("maxWidth", v);
-}
-function minWidth(v) {
-  return new CssProp("minWidth", v);
-}
-function overflow(...v) {
-  return new CssProp("overflow", v.join(" "));
-}
-function padding(...v) {
-  return new CssProp("padding", v.join(" "));
-}
-function pointerEvents(v) {
-  return new CssProp("pointerEvents", v);
-}
-function position(v) {
-  return new CssProp("position", v);
-}
-function textAlign(v) {
-  return new CssProp("textAlign", v);
-}
-function top(v) {
-  return new CssProp("top", v);
-}
-function touchAction(v) {
-  return new CssProp("touchAction", v);
-}
-function transform(v) {
-  return new CssProp("transform", v);
-}
-function verticalAlign(v) {
-  return new CssProp("verticalAlign", v);
-}
-function width(v) {
-  return new CssProp("width", v);
-}
-function zIndex(v) {
-  return new CssProp("zIndex", isNumber(v) ? v.toFixed(0) : v);
-}
-function getMonospaceFonts() {
-  return "ui-monospace, 'Droid Sans Mono', 'Cascadia Mono', 'Segoe UI Mono', 'Ubuntu Mono', 'Roboto Mono', Menlo, Monaco, Consolas, monospace";
-}
-var CSSInJSRule = class {
-  constructor(selector, props) {
-    this.selector = selector;
-    this.props = props;
-  }
-  apply(sheet) {
-    const style = this.props.map((prop) => `${prop.name}: ${prop.value};`).join("");
-    sheet.insertRule(
-      `${this.selector} {${style}}`,
-      sheet.cssRules.length
-    );
-  }
-};
-function rule(selector, ...props) {
-  return new CSSInJSRule(selector, props);
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/onUserGesture.ts
-var gestures = [
-  "change",
-  "click",
-  "contextmenu",
-  "dblclick",
-  "mouseup",
-  "pointerup",
-  "reset",
-  "submit",
-  "touchend"
-];
-function onUserGesture(callback, test) {
-  const realTest = test || alwaysTrue;
-  const check = async (evt) => {
-    if (evt.isTrusted && await realTest()) {
-      for (const gesture of gestures) {
-        window.removeEventListener(gesture, check);
-      }
-      await callback();
-    }
-  };
-  for (const gesture of gestures) {
-    window.addEventListener(gesture, check);
-  }
-}
-function waitForUserGesture(callback, test) {
-  const realTest = test || alwaysTrue;
-  return new Promise((resolve) => {
-    const check = async (evt) => {
-      if (evt.isTrusted && await realTest()) {
-        for (const gesture of gestures) {
-          window.removeEventListener(gesture, check);
-        }
-        resolve(await callback());
-      }
-    };
-    for (const gesture of gestures) {
-      window.addEventListener(gesture, check);
-    }
-  });
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/tags.ts
-function isErsatzElement(obj2) {
-  if (!isObject(obj2)) {
-    return false;
-  }
-  const elem = obj2;
-  return elem.element instanceof Node;
-}
-function resolveElement(elem) {
-  if (isErsatzElement(elem)) {
-    return elem.element;
-  }
-  return elem;
-}
-function isIElementAppliable(obj2) {
-  return isObject(obj2) && "applyToElement" in obj2 && isFunction(obj2.applyToElement);
-}
-function elementSetDisplay(elem, visible, visibleDisplayType = "block") {
-  elem = resolveElement(elem);
-  elem.style.display = visible ? visibleDisplayType : "none";
-}
-function elementIsDisplayed(elem) {
-  elem = resolveElement(elem);
-  return elem.style.display !== "none";
-}
-function elementApply(elem, ...children) {
-  elem = resolveElement(elem);
-  for (const child of children) {
-    if (isDefined(child)) {
-      if (child instanceof Node) {
-        elem.append(child);
-      } else if (isErsatzElement(child)) {
-        elem.append(resolveElement(child));
-      } else if (isIElementAppliable(child)) {
-        child.applyToElement(elem);
-      } else {
-        elem.append(document.createTextNode(child.toLocaleString()));
-      }
-    }
-  }
-  return elem;
-}
-function tag(name2, ...rest) {
-  let elem = null;
-  for (const attr of rest) {
-    if (attr instanceof Attr && attr.key === "id") {
-      elem = document.getElementById(attr.value);
-      break;
-    }
-  }
-  if (elem == null) {
-    elem = document.createElement(name2);
-  }
-  elementApply(elem, ...rest);
-  return elem;
-}
-function isDisableable(obj2) {
-  return "disabled" in obj2 && isBoolean(obj2.disabled);
-}
-function elementClearChildren(elem) {
-  elem = resolveElement(elem);
-  while (elem.lastChild) {
-    elem.lastChild.remove();
-  }
-}
-function elementSetText(elem, text) {
-  elem = resolveElement(elem);
-  elementClearChildren(elem);
-  elem.append(TextNode(text));
-}
-function elementSetClass(elem, enabled, className2) {
-  elem = resolveElement(elem);
-  const canEnable = isDefined(className2);
-  const hasEnabled = canEnable && elem.classList.contains(className2);
-  if (canEnable && hasEnabled !== enabled) {
-    if (enabled) {
-      elem.classList.add(className2);
-    } else {
-      elem.classList.remove(className2);
-    }
-  }
-}
-async function mediaElementCan(type2, elem, prog) {
-  if (isDefined(prog)) {
-    prog.start();
-  }
-  const expectedState = type2 === "canplay" ? elem.HAVE_CURRENT_DATA : elem.HAVE_ENOUGH_DATA;
-  if (elem.readyState >= expectedState) {
-    return true;
-  }
-  try {
-    await once(elem, type2, "error");
-    return true;
-  } catch (err) {
-    console.warn(elem.error, err);
-    return false;
-  } finally {
-    if (isDefined(prog)) {
-      prog.end();
-    }
-  }
-}
-function mediaElementCanPlay(elem, prog) {
-  return mediaElementCan("canplay", elem, prog);
-}
-function mediaElementCanPlayThrough(elem, prog) {
-  return mediaElementCan("canplaythrough", elem, prog);
-}
-function Audio2(...rest) {
-  return tag("audio", ...rest);
-}
-function ButtonRaw(...rest) {
-  return tag("button", ...rest);
-}
-function Button(...rest) {
-  return ButtonRaw(...rest, type("button"));
-}
-function ButtonPrimary(...rest) {
-  return Button(...rest, classList("btn", "btn-primary"));
-}
-function ButtonSecondary(...rest) {
-  return Button(...rest, classList("btn", "btn-secondary"));
-}
-function Canvas(...rest) {
-  return tag("canvas", ...rest);
-}
-function DD(...rest) {
-  return tag("dd", ...rest);
-}
-function Div(...rest) {
-  return tag("div", ...rest);
-}
-function DL(...rest) {
-  return tag("dl", ...rest);
-}
-function DT(...rest) {
-  return tag("dt", ...rest);
-}
-function H1(...rest) {
-  return tag("h1", ...rest);
-}
-function H2(...rest) {
-  return tag("h2", ...rest);
-}
-function Img(...rest) {
-  return tag("img", ...rest);
-}
-function Input(...rest) {
-  return tag("input", ...rest);
-}
-function Label(...rest) {
-  return tag("label", ...rest);
-}
-function Meter(...rest) {
-  return tag("meter", ...rest);
-}
-function Option(...rest) {
-  return tag("option", ...rest);
-}
-function Select(...rest) {
-  return tag("select", ...rest);
-}
-function Video(...rest) {
-  return tag("video", ...rest);
-}
-function InputCheckbox(...rest) {
-  return Input(type("checkbox"), ...rest);
-}
-function InputNumber(...rest) {
-  return Input(type("number"), ...rest);
-}
-function InputRange(...rest) {
-  return Input(type("range"), ...rest);
-}
-function TextNode(txt) {
-  return document.createTextNode(txt);
-}
-function Style(...rest) {
-  let elem = document.createElement("style");
-  document.head.append(elem);
-  for (let x of rest) {
-    x.apply(elem.sheet);
-  }
-  return elem;
-}
-function BackgroundAudio(autoplay, mute, looping, ...rest) {
-  return Audio2(
-    playsInline(true),
-    controls(false),
-    muted(mute),
-    autoPlay(autoplay),
-    loop(looping),
-    styles(display("none")),
-    ...rest
-  );
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/nodes.ts
-var hasAudioContext = "AudioContext" in globalThis;
-var hasAudioListener = hasAudioContext && "AudioListener" in globalThis;
-var hasOldAudioListener = hasAudioListener && "setPosition" in AudioListener.prototype;
-var hasNewAudioListener = hasAudioListener && "positionX" in AudioListener.prototype;
-var canCaptureStream = /* @__PURE__ */ isFunction(HTMLMediaElement.prototype.captureStream) || isFunction(HTMLMediaElement.prototype.mozCaptureStream);
-function isWrappedAudioNode(value2) {
-  return isDefined(value2) && value2.node instanceof AudioNode;
-}
-function isErsatzAudioNode(value2) {
-  return isDefined(value2) && value2.input instanceof AudioNode && value2.output instanceof AudioNode;
-}
-var connections = singleton("Juniper:Audio:connections", () => /* @__PURE__ */ new Map());
-var names = singleton("Juniper:Audio:names", () => /* @__PURE__ */ new Map());
-function resolveOutput(node) {
-  if (isErsatzAudioNode(node)) {
-    return node.output;
-  } else if (isWrappedAudioNode(node)) {
-    return node.node;
-  }
-  return node;
-}
-function resolveInput(node) {
-  if (isNullOrUndefined(node)) {
-    return void 0;
-  }
-  let n2 = null;
-  if (isArray(node)) {
-    if (node.length === 2) {
-      n2 = node[1];
-    } else {
-      n2 = node[2];
-    }
-  } else {
-    n2 = node;
-  }
-  let n22 = null;
-  if (isErsatzAudioNode(n2)) {
-    n22 = n2.input;
-  } else if (isWrappedAudioNode(n2)) {
-    n22 = n2.node;
-  } else {
-    n22 = n2;
-  }
-  return n22;
-}
-function resolveArray(node) {
-  if (!isArray(node)) {
-    return [];
-  } else if (node.length === 2) {
-    return [node[0]];
-  } else {
-    return [node[0], node[1]];
-  }
-}
-function isAudioNode(a) {
-  return isDefined(a) && isDefined(a.context);
-}
-function nameVertex(name2, v) {
-  names.set(v, name2);
-}
-function removeVertex(v) {
-  names.delete(v);
-  if (isAudioNode(v)) {
-    disconnect(v);
-  }
-}
-function chain(...nodes2) {
-  for (let i = 1; i < nodes2.length; ++i) {
-    connect(nodes2[i - 1], nodes2[i]);
-  }
-}
-function connect(left2, right) {
-  const a = resolveOutput(left2);
-  const b = resolveInput(right);
-  const c = resolveArray(right);
-  if (isNullOrUndefined(b)) {
-    throw new Error("Must have a target to connect to");
-  } else if (b instanceof AudioParam) {
-    a.connect(b, c[0]);
-  } else if (b instanceof AudioNode) {
-    a.connect(b, c[0], c[1]);
-  } else {
-    assertNever(b);
-  }
-  if (!connections.has(a)) {
-    connections.set(a, /* @__PURE__ */ new Set());
-  }
-  const g = connections.get(a);
-  if (g.has(b)) {
-    return false;
-  }
-  g.add(b);
-  return true;
-}
-function disconnect(left2, right) {
-  const a = resolveOutput(left2);
-  const b = resolveInput(right);
-  const c = resolveArray(right);
-  if (isNullOrUndefined(b)) {
-    a.disconnect();
-  } else if (b instanceof AudioParam) {
-    a.disconnect(b, c[0]);
-  } else if (b instanceof AudioNode) {
-    a.disconnect(b, c[0], c[1]);
-  } else {
-    assertNever(b);
-  }
-  if (!connections.has(a)) {
-    return false;
-  }
-  const g = connections.get(a);
-  let removed = false;
-  if (isNullOrUndefined(b)) {
-    removed = g.size > 0;
-    g.clear();
-  } else if (g.has(b)) {
-    removed = true;
-    g.delete(b);
-  }
-  if (g.size === 0) {
-    connections.delete(a);
-  }
-  return removed;
-}
-function getAudioGraph() {
-  const nodes2 = /* @__PURE__ */ new Map();
-  function maybeAdd(node) {
-    if (!nodes2.has(node)) {
-      nodes2.set(node, new GraphNode(node));
-    }
-  }
-  for (const node of names.keys()) {
-    maybeAdd(node);
-  }
-  for (const [parent, children] of connections) {
-    maybeAdd(parent);
-    for (const child of children) {
-      maybeAdd(child);
-    }
-  }
-  for (const [parent, children] of connections) {
-    const branch = nodes2.get(parent);
-    for (const child of children) {
-      if (nodes2.has(child)) {
-        branch.connectTo(nodes2.get(child));
-      }
-    }
-  }
-  return Array.from(nodes2.values());
-}
-globalThis.getAudioGraph = getAudioGraph;
-async function audioReady(audioCtx) {
-  nameVertex("speakers", audioCtx.destination);
-  if (audioCtx.state !== "running") {
-    if (audioCtx.state === "closed") {
-      await audioCtx.resume();
-    } else if (audioCtx.state === "suspended") {
-      const stateChange = once(audioCtx, "statechange");
-      onUserGesture(() => audioCtx.resume());
-      await stateChange;
-    } else {
-      assertNever(audioCtx.state);
-    }
-  }
-}
-function initAudio(name2, left2, ...rest) {
-  nameVertex(name2, left2);
-  for (const right of rest) {
-    if (isDefined(right)) {
-      connect(left2, right);
-    }
-  }
-  return left2;
-}
-function Analyser(name2, audioCtx, options, ...rest) {
-  return initAudio(name2, new AnalyserNode(audioCtx, options), ...rest);
-}
-function BiquadFilter(name2, audioCtx, options, ...rest) {
-  return initAudio(name2, new BiquadFilterNode(audioCtx, options), ...rest);
-}
-function Delay(name2, audioCtx, options, ...rest) {
-  return initAudio(name2, new DelayNode(audioCtx, options), ...rest);
-}
-function DynamicsCompressor(name2, audioCtx, options, ...rest) {
-  return initAudio(name2, new DynamicsCompressorNode(audioCtx, options), ...rest);
-}
-function Gain(name2, audioCtx, options, ...rest) {
-  return initAudio(name2, new GainNode(audioCtx, options), ...rest);
-}
-function MediaElementSource(name2, audioCtx, mediaElement, ...rest) {
-  return initAudio(name2, audioCtx.createMediaElementSource(mediaElement), ...rest);
-}
-function MediaStreamDestination(name2, audioCtx, options, ...rest) {
-  return initAudio(name2, new MediaStreamAudioDestinationNode(audioCtx, options), ...rest);
-}
-function MediaStreamSource(name2, audioCtx, mediaStream, ...rest) {
-  return initAudio(name2, audioCtx.createMediaStreamSource(mediaStream), ...rest);
-}
-function Panner(name2, audioCtx, options, ...rest) {
-  return initAudio(name2, new PannerNode(audioCtx, options), ...rest);
-}
-
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/Pose.ts
 var Pose = class {
   constructor() {
@@ -5999,6 +5133,23 @@ var BaseAudioElement = class extends TypedEventBase {
     this.spatializer.setPose(this.pose, t2);
   }
 };
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/strings/stringRandom.ts
+var DEFAULT_CHAR_SET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZ";
+function stringRandom(length4, charSet) {
+  if (length4 < 0) {
+    throw new Error("Length must be greater than 0");
+  }
+  if (isNullOrUndefined(charSet)) {
+    charSet = DEFAULT_CHAR_SET;
+  }
+  let str2 = "";
+  for (let i = 0; i < length4; ++i) {
+    const idx = Math.floor(Math.random() * charSet.length);
+    str2 += charSet[idx];
+  }
+  return str2;
+}
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/BaseSpatializer.ts
 var BaseSpatializer = class {
@@ -6374,11 +5525,11 @@ var MediaElementSourceProgressEvent = class extends MediaElementSourceEvent {
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/sources/AudioElementSource.ts
 var elementRefCounts = /* @__PURE__ */ new WeakMap();
 var nodeRefCounts = /* @__PURE__ */ new WeakMap();
-function count(source, delta2) {
-  const nodeCount = (nodeRefCounts.get(source) || 0) + delta2;
+function count(source, delta) {
+  const nodeCount = (nodeRefCounts.get(source) || 0) + delta;
   nodeRefCounts.set(source, nodeCount);
   const elem = source.mediaElement;
-  const elementCount = (elementRefCounts.get(elem) || 0) + delta2;
+  const elementCount = (elementRefCounts.get(elem) || 0) + delta;
   elementRefCounts.set(elem, elementCount);
   return elementCount;
 }
@@ -6568,6 +5719,25 @@ var WebAudioPannerOld = class extends BaseWebAudioPanner {
   }
 };
 
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/arrayScan.ts
+function _arrayScan(forward, arr, tests) {
+  const start2 = forward ? 0 : arr.length - 1;
+  const end2 = forward ? arr.length : -1;
+  const inc2 = forward ? 1 : -1;
+  for (const test of tests) {
+    for (let i = start2; i != end2; i += inc2) {
+      const item = arr[i];
+      if (test(item)) {
+        return item;
+      }
+    }
+  }
+  return null;
+}
+function arrayScan(arr, ...tests) {
+  return _arrayScan(true, arr, tests);
+}
+
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/filterDeviceDuplicates.ts
 function filterDeviceDuplicates(devices) {
   const filtered = [];
@@ -6742,7 +5912,7 @@ var AudioManager = class extends TypedEventBase {
     this.counter = 0;
     this.audioCtx = new AudioContext();
     const destination = MediaStreamDestination("final-destination", this.audioCtx);
-    this.element = Audio2(
+    this.element = Audio(
       id("Audio-Device-Manager"),
       playsInline(true),
       autoPlay(true),
@@ -7101,6 +6271,11 @@ var AudioManager = class extends TypedEventBase {
   }
 };
 
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/arrayReplace.ts
+function arrayReplace(arr, ...items) {
+  arr.splice(0, arr.length, ...items);
+}
+
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/sources/IPlayer.ts
 var MediaPlayerEvent = class extends MediaElementSourceEvent {
   constructor(type2, source) {
@@ -7122,7 +6297,7 @@ var AudioPlayer = class extends BaseAudioSource {
     this.sourcesByURL = /* @__PURE__ */ new Map();
     this.sources = new Array();
     this.potatoes = new Array();
-    this.element = Audio2(
+    this.element = Audio(
       playsInline(true),
       autoPlay(false),
       loop(false),
@@ -7327,6 +6502,138 @@ var AudioPlayer = class extends BaseAudioSource {
     return this.play();
   }
 };
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/canvas.ts
+var hasHTMLCanvas = "HTMLCanvasElement" in globalThis;
+var hasHTMLImage = "HTMLImageElement" in globalThis;
+var disableAdvancedSettings = false;
+var hasOffscreenCanvas = !disableAdvancedSettings && "OffscreenCanvas" in globalThis;
+var hasImageBitmap = !disableAdvancedSettings && "createImageBitmap" in globalThis;
+function isHTMLCanvas(obj2) {
+  return hasHTMLCanvas && obj2 instanceof HTMLCanvasElement;
+}
+function isOffscreenCanvas(obj2) {
+  return hasOffscreenCanvas && obj2 instanceof OffscreenCanvas;
+}
+function isImageBitmap(img) {
+  return hasImageBitmap && img instanceof ImageBitmap;
+}
+function isImageData(img) {
+  return img instanceof ImageData;
+}
+function drawImageBitmapToCanvas(canv, img) {
+  const g = canv.getContext("2d");
+  if (isNullOrUndefined(g)) {
+    throw new Error("Could not create 2d context for canvas");
+  }
+  g.drawImage(img, 0, 0);
+}
+function drawImageDataToCanvas(canv, img) {
+  const g = canv.getContext("2d");
+  if (isNullOrUndefined(g)) {
+    throw new Error("Could not create 2d context for canvas");
+  }
+  g.putImageData(img, 0, 0);
+}
+function testOffscreen2D() {
+  try {
+    const canv = new OffscreenCanvas(1, 1);
+    const g = canv.getContext("2d");
+    return g != null;
+  } catch (exp) {
+    return false;
+  }
+}
+var hasOffscreenCanvasRenderingContext2D = hasOffscreenCanvas && testOffscreen2D();
+var createUtilityCanvas = hasOffscreenCanvasRenderingContext2D && createOffscreenCanvas || hasHTMLCanvas && createCanvas || null;
+var createUICanvas = hasHTMLCanvas ? createCanvas : createUtilityCanvas;
+function testOffscreen3D() {
+  try {
+    const canv = new OffscreenCanvas(1, 1);
+    const g = canv.getContext("webgl2");
+    return g != null;
+  } catch (exp) {
+    return false;
+  }
+}
+var hasOffscreenCanvasRenderingContext3D = hasOffscreenCanvas && testOffscreen3D();
+function createOffscreenCanvas(width2, height2) {
+  return new OffscreenCanvas(width2, height2);
+}
+function createCanvas(w, h) {
+  if (false) {
+    throw new Error("HTML Canvas is not supported in workers");
+  }
+  return Canvas(htmlWidth(w), htmlHeight(h));
+}
+function createOffscreenCanvasFromImageBitmap(img) {
+  const canv = createOffscreenCanvas(img.width, img.height);
+  drawImageBitmapToCanvas(canv, img);
+  return canv;
+}
+function createCanvasFromImageBitmap(img) {
+  if (false) {
+    throw new Error("HTML Canvas is not supported in workers");
+  }
+  const canv = createCanvas(img.width, img.height);
+  drawImageBitmapToCanvas(canv, img);
+  return canv;
+}
+var createUtilityCanvasFromImageBitmap = hasOffscreenCanvasRenderingContext2D && createOffscreenCanvasFromImageBitmap || hasHTMLCanvas && createCanvasFromImageBitmap || null;
+function createOffscreenCanvasFromImageData(img) {
+  const canv = createOffscreenCanvas(img.width, img.height);
+  drawImageDataToCanvas(canv, img);
+  return canv;
+}
+function createCanvasFromImageData(img) {
+  if (false) {
+    throw new Error("HTML Canvas is not supported in workers");
+  }
+  const canv = createCanvas(img.width, img.height);
+  drawImageDataToCanvas(canv, img);
+  return canv;
+}
+var createUtilityCanvasFromImageData = hasOffscreenCanvasRenderingContext2D && createOffscreenCanvasFromImageData || hasHTMLCanvas && createCanvasFromImageData || null;
+function setCanvasSize(canv, w, h, superscale = 1) {
+  w = Math.floor(w * superscale);
+  h = Math.floor(h * superscale);
+  if (canv.width != w || canv.height != h) {
+    canv.width = w;
+    canv.height = h;
+    return true;
+  }
+  return false;
+}
+function is2DRenderingContext(ctx) {
+  return isDefined(ctx.textBaseline);
+}
+function setCanvas2DContextSize(ctx, w, h, superscale = 1) {
+  const oldImageSmoothingEnabled = ctx.imageSmoothingEnabled, oldTextBaseline = ctx.textBaseline, oldTextAlign = ctx.textAlign, oldFont = ctx.font, resized = setCanvasSize(
+    ctx.canvas,
+    w,
+    h,
+    superscale
+  );
+  if (resized) {
+    ctx.imageSmoothingEnabled = oldImageSmoothingEnabled;
+    ctx.textBaseline = oldTextBaseline;
+    ctx.textAlign = oldTextAlign;
+    ctx.font = oldFont;
+  }
+  return resized;
+}
+function setContextSize(ctx, w, h, superscale = 1) {
+  if (is2DRenderingContext(ctx)) {
+    return setCanvas2DContextSize(ctx, w, h, superscale);
+  } else {
+    return setCanvasSize(
+      ctx.canvas,
+      w,
+      h,
+      superscale
+    );
+  }
+}
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/util.ts
 var typePattern = /([^\/]+)\/(.+)/;
@@ -7608,160 +6915,9 @@ var AssetImage = class extends BaseFetchedAsset {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/canvas.ts
-var hasHTMLCanvas = "HTMLCanvasElement" in globalThis;
-var hasHTMLImage = "HTMLImageElement" in globalThis;
-var disableAdvancedSettings = false;
-var hasOffscreenCanvas = !disableAdvancedSettings && "OffscreenCanvas" in globalThis;
-var hasImageBitmap = !disableAdvancedSettings && "createImageBitmap" in globalThis;
-function isHTMLCanvas(obj2) {
-  return hasHTMLCanvas && obj2 instanceof HTMLCanvasElement;
-}
-function isOffscreenCanvas(obj2) {
-  return hasOffscreenCanvas && obj2 instanceof OffscreenCanvas;
-}
-function isImageBitmap(img) {
-  return hasImageBitmap && img instanceof ImageBitmap;
-}
-function isImageData(img) {
-  return img instanceof ImageData;
-}
-function drawImageBitmapToCanvas(canv, img) {
-  const g = canv.getContext("2d");
-  if (isNullOrUndefined(g)) {
-    throw new Error("Could not create 2d context for canvas");
-  }
-  g.drawImage(img, 0, 0);
-}
-function drawImageDataToCanvas(canv, img) {
-  const g = canv.getContext("2d");
-  if (isNullOrUndefined(g)) {
-    throw new Error("Could not create 2d context for canvas");
-  }
-  g.putImageData(img, 0, 0);
-}
-function testOffscreen2D() {
-  try {
-    const canv = new OffscreenCanvas(1, 1);
-    const g = canv.getContext("2d");
-    return g != null;
-  } catch (exp) {
-    return false;
-  }
-}
-var hasOffscreenCanvasRenderingContext2D = hasOffscreenCanvas && testOffscreen2D();
-var createUtilityCanvas = hasOffscreenCanvasRenderingContext2D && createOffscreenCanvas || hasHTMLCanvas && createCanvas || null;
-var createUICanvas = hasHTMLCanvas ? createCanvas : createUtilityCanvas;
-function testOffscreen3D() {
-  try {
-    const canv = new OffscreenCanvas(1, 1);
-    const g = canv.getContext("webgl2");
-    return g != null;
-  } catch (exp) {
-    return false;
-  }
-}
-var hasOffscreenCanvasRenderingContext3D = hasOffscreenCanvas && testOffscreen3D();
-function createOffscreenCanvas(width2, height2) {
-  return new OffscreenCanvas(width2, height2);
-}
-function createCanvas(w, h) {
-  if (false) {
-    throw new Error("HTML Canvas is not supported in workers");
-  }
-  return Canvas(htmlWidth(w), htmlHeight(h));
-}
-function createOffscreenCanvasFromImageBitmap(img) {
-  const canv = createOffscreenCanvas(img.width, img.height);
-  drawImageBitmapToCanvas(canv, img);
-  return canv;
-}
-function createCanvasFromImageBitmap(img) {
-  if (false) {
-    throw new Error("HTML Canvas is not supported in workers");
-  }
-  const canv = createCanvas(img.width, img.height);
-  drawImageBitmapToCanvas(canv, img);
-  return canv;
-}
-var createUtilityCanvasFromImageBitmap = hasOffscreenCanvasRenderingContext2D && createOffscreenCanvasFromImageBitmap || hasHTMLCanvas && createCanvasFromImageBitmap || null;
-function createOffscreenCanvasFromImageData(img) {
-  const canv = createOffscreenCanvas(img.width, img.height);
-  drawImageDataToCanvas(canv, img);
-  return canv;
-}
-function createCanvasFromImageData(img) {
-  if (false) {
-    throw new Error("HTML Canvas is not supported in workers");
-  }
-  const canv = createCanvas(img.width, img.height);
-  drawImageDataToCanvas(canv, img);
-  return canv;
-}
-var createUtilityCanvasFromImageData = hasOffscreenCanvasRenderingContext2D && createOffscreenCanvasFromImageData || hasHTMLCanvas && createCanvasFromImageData || null;
-function setCanvasSize(canv, w, h, superscale = 1) {
-  w = Math.floor(w * superscale);
-  h = Math.floor(h * superscale);
-  if (canv.width != w || canv.height != h) {
-    canv.width = w;
-    canv.height = h;
-    return true;
-  }
-  return false;
-}
-function is2DRenderingContext(ctx) {
-  return isDefined(ctx.textBaseline);
-}
-function setCanvas2DContextSize(ctx, w, h, superscale = 1) {
-  const oldImageSmoothingEnabled = ctx.imageSmoothingEnabled, oldTextBaseline = ctx.textBaseline, oldTextAlign = ctx.textAlign, oldFont = ctx.font, resized = setCanvasSize(
-    ctx.canvas,
-    w,
-    h,
-    superscale
-  );
-  if (resized) {
-    ctx.imageSmoothingEnabled = oldImageSmoothingEnabled;
-    ctx.textBaseline = oldTextBaseline;
-    ctx.textAlign = oldTextAlign;
-    ctx.font = oldFont;
-  }
-  return resized;
-}
-function setContextSize(ctx, w, h, superscale = 1) {
-  if (is2DRenderingContext(ctx)) {
-    return setCanvas2DContextSize(ctx, w, h, superscale);
-  } else {
-    return setCanvasSize(
-      ctx.canvas,
-      w,
-      h,
-      superscale
-    );
-  }
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/translateResponse.ts
-async function translateResponse(response, translate) {
-  const {
-    status,
-    path,
-    content,
-    contentType,
-    contentLength,
-    fileName,
-    headers,
-    date
-  } = response;
-  return {
-    status,
-    path,
-    content: await translate(content),
-    contentType,
-    contentLength,
-    fileName,
-    headers,
-    date
-  };
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math/deg2rad.ts
+function deg2rad(deg) {
+  return deg * Math.PI / 180;
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/graphics2d/CanvasImage.ts
@@ -8045,6 +7201,11 @@ var BatteryImage = class extends CanvasImage {
   }
 };
 BatteryImage.isAvailable = isBatteryNavigator(navigator);
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math/clamp.ts
+function clamp(v, min3, max3) {
+  return Math.min(max3, Math.max(min3, v));
+}
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/graphics2d/TextImage.ts
 var TextImage = class extends CanvasImage {
@@ -8533,195 +7694,46 @@ var ClockImage = class extends TextImage {
   }
 };
 
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math/rad2deg.ts
+function rad2deg(rad) {
+  return rad * 180 / Math.PI;
+}
+
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/webrtc/constants.ts
 var DEFAULT_LOCAL_USER_ID = "local-user";
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/graphics2d/animation/Animator.ts
-function isDead(task) {
-  return !task.started || task.finished;
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/InteractionAudio.ts
+function makeClipName(type2, isDisabled) {
+  if (type2 === "click" && isDisabled) {
+    type2 = "error";
+  }
+  return `InteractionAudio-${type2}`;
 }
-var AnimationTask = class extends Task {
-  constructor() {
-    super(false);
-    this.time = 0;
-    this.duration = 0;
-    this.onTick = null;
-  }
-  begin(delay, duration, onTick) {
-    this.reset();
-    this.start();
-    this.time = -delay;
-    this.duration = duration;
-    this.onTick = onTick;
-    this.onTick(0);
-  }
-  update(dt) {
-    if (!isDead(this)) {
-      this.time += dt / this.duration;
-      if (this.time >= 1) {
-        this.onTick(1);
-        this.resolve();
-      } else if (this.time >= 0) {
-        this.onTick(this.time);
+var InteractionAudio = class {
+  constructor(audio2, eventSys) {
+    this.audio = audio2;
+    this.eventSys = eventSys;
+    const playClip = (evt) => {
+      if (evt.rayTarget && evt.rayTarget.clickable) {
+        const clipName = makeClipName(evt.type, !evt.rayTarget.enabled);
+        if (this.audio.hasClip(clipName)) {
+          const { x, y, z } = evt.point;
+          this.audio.setClipPosition(clipName, x, y, z);
+          this.audio.playClip(clipName);
+        }
       }
-    }
+    };
+    this.eventSys.addEventListener("enter", playClip);
+    this.eventSys.addEventListener("exit", playClip);
+    this.eventSys.addEventListener("click", playClip);
   }
-};
-var Animator = class {
-  constructor() {
-    this.animations = new Array();
-  }
-  update(dt) {
-    dt = 1e-3 * dt;
-    for (const animation of this.animations) {
-      animation.update(dt);
-    }
-  }
-  clear() {
-    for (const animation of this.animations) {
-      animation.resolve();
-    }
-  }
-  start(delay, duration, update) {
-    let task = arrayScan(this.animations, isDead);
-    if (!task) {
-      this.animations.push(task = new AnimationTask());
-    }
-    task.begin(delay, duration, update);
-    return task;
+  create(type2, element, volume) {
+    return this.audio.createClip(makeClipName(type2, false), element, false, true, false, volume, []);
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/graphics2d/animation/tween.ts
-function bump(t2, k) {
-  const a = t2 * Math.PI;
-  return 0.5 * (1 - Math.cos(a)) - k * Math.sin(2 * a);
-}
-function jump(t2, k) {
-  const a = (t2 - 0.5) * Math.PI;
-  return t2 * t2 + k * Math.cos(a);
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/widgets/DialogBox/styles.ts
-Style(
-  rule(
-    ".dialog, .dialog-container",
-    position("fixed")
-  ),
-  rule(
-    ".dialog",
-    top(0),
-    left(0),
-    width("100%"),
-    height("100%"),
-    backgroundColor("rgba(0, 0, 0, 0.5)"),
-    zIndex(100)
-  ),
-  rule(
-    ".dialog-container",
-    top("50%"),
-    left("50%"),
-    maxWidth("100%"),
-    maxHeight("100%"),
-    transform("translateX(-50%) translateY(-50%)"),
-    backgroundColor("white"),
-    boxShadow("rgba(0,0,0,0.5) 0px 5px 30px"),
-    display("grid"),
-    gridTemplateColumns("2em auto 2em"),
-    gridTemplateRows("auto 1fr auto 2em")
-  ),
-  rule(
-    ".dialog .title-bar",
-    gridArea(1, 1, 2, -1),
-    padding("0.25em")
-  ),
-  rule(
-    ".dialog-content",
-    gridArea(2, 2, -4, -2),
-    overflow("auto")
-  ),
-  rule(
-    ".dialog-controls",
-    gridArea(-2, 2, -3, -2)
-  ),
-  rule(
-    ".dialog .confirm-button",
-    float("right")
-  ),
-  rule(
-    ".dialog h1, .dialog h2, .dialog h3, .dialog h4, .dialog h5, .dialog h6",
-    textAlign("left")
-  ),
-  rule(
-    ".dialog select",
-    maxWidth("10em")
-  )
-);
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/widgets/DialogBox/index.ts
-var DialogBox = class {
-  constructor(title2) {
-    this.subEventer = new TypedEventBase();
-    this.element = Div(
-      className("dialog"),
-      customData("dialogname", title2),
-      styles(display("none")),
-      this.container = Div(
-        className("dialog-container"),
-        this.titleElement = H1(className("title-bar"), title2),
-        this.contentArea = Div(className("dialog-content")),
-        Div(
-          className("dialog-controls"),
-          this.confirmButton = ButtonPrimary("Confirm", classList("confirm-button")),
-          this.cancelButton = ButtonSecondary("Cancel", classList("cancel-button"))
-        )
-      )
-    );
-    this.confirmButton.addEventListener("click", () => this.subEventer.dispatchEvent(new TypedEvent("confirm")));
-    this.cancelButton.addEventListener("click", () => this.subEventer.dispatchEvent(new TypedEvent("cancel")));
-    elementApply(document.body, this);
-  }
-  get title() {
-    return this._title;
-  }
-  set title(v) {
-    elementSetText(this.titleElement, this._title = v);
-  }
-  async onShowing() {
-  }
-  onShown() {
-  }
-  async onConfirm() {
-  }
-  onCancel() {
-  }
-  async onClosing() {
-  }
-  onClosed() {
-  }
-  show(v) {
-    elementSetDisplay(this, v);
-  }
-  get isOpen() {
-    return elementIsDisplayed(this);
-  }
-  async showDialog() {
-    await this.onShowing();
-    this.show(true);
-    this.onShown();
-    const confirming = once(this.subEventer, "confirm", "cancel");
-    const confirmed = await success(confirming);
-    if (confirmed) {
-      await this.onConfirm();
-    } else {
-      this.onCancel();
-    }
-    await this.onClosing();
-    this.show(false);
-    this.onClosed();
-    return confirmed;
-  }
-};
+// global-externals:three
+var { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlendMode, AdditiveBlending, AlphaFormat, AlwaysDepth, AlwaysStencilFunc, AmbientLight, AmbientLightProbe, AnimationClip, AnimationLoader, AnimationMixer, AnimationObjectGroup, AnimationUtils, ArcCurve, ArrayCamera, ArrowHelper, Audio: Audio2, AudioAnalyser, AudioContext: AudioContext2, AudioListener: AudioListener2, AudioLoader, AxesHelper, BackSide, BasicDepthPacking, BasicShadowMap, Bone, BooleanKeyframeTrack, Box2, Box3, Box3Helper, BoxBufferGeometry, BoxGeometry, BoxHelper, BufferAttribute, BufferGeometry, BufferGeometryLoader, ByteType, Cache, Camera, CameraHelper, CanvasTexture, CapsuleBufferGeometry, CapsuleGeometry, CatmullRomCurve3, CineonToneMapping, CircleBufferGeometry, CircleGeometry, ClampToEdgeWrapping, Clock, Color, ColorKeyframeTrack, ColorManagement, CompressedTexture, CompressedTextureLoader, ConeBufferGeometry, ConeGeometry, CubeCamera, CubeReflectionMapping, CubeRefractionMapping, CubeTexture, CubeTextureLoader, CubeUVReflectionMapping, CubicBezierCurve, CubicBezierCurve3, CubicInterpolant, CullFaceBack, CullFaceFront, CullFaceFrontBack, CullFaceNone, Curve, CurvePath, CustomBlending, CustomToneMapping, CylinderBufferGeometry, CylinderGeometry, Cylindrical, Data3DTexture, DataArrayTexture, DataTexture, DataTexture2DArray, DataTexture3D, DataTextureLoader, DataUtils, DecrementStencilOp, DecrementWrapStencilOp, DefaultLoadingManager, DepthFormat, DepthStencilFormat, DepthTexture, DirectionalLight, DirectionalLightHelper, DiscreteInterpolant, DodecahedronBufferGeometry, DodecahedronGeometry, DoubleSide, DstAlphaFactor, DstColorFactor, DynamicCopyUsage, DynamicDrawUsage, DynamicReadUsage, EdgesGeometry, EllipseCurve, EqualDepth, EqualStencilFunc, EquirectangularReflectionMapping, EquirectangularRefractionMapping, Euler, EventDispatcher, ExtrudeBufferGeometry, ExtrudeGeometry, FileLoader, FlatShading, Float16BufferAttribute, Float32BufferAttribute, Float64BufferAttribute, FloatType, Fog, FogExp2, Font, FontLoader, FramebufferTexture, FrontSide, Frustum, GLBufferAttribute, GLSL1, GLSL3, GreaterDepth, GreaterEqualDepth, GreaterEqualStencilFunc, GreaterStencilFunc, GridHelper, Group, HalfFloatType, HemisphereLight, HemisphereLightHelper, HemisphereLightProbe, IcosahedronBufferGeometry, IcosahedronGeometry, ImageBitmapLoader, ImageLoader, ImageUtils, ImmediateRenderObject, IncrementStencilOp, IncrementWrapStencilOp, InstancedBufferAttribute, InstancedBufferGeometry, InstancedInterleavedBuffer, InstancedMesh, Int16BufferAttribute, Int32BufferAttribute, Int8BufferAttribute, IntType, InterleavedBuffer, InterleavedBufferAttribute, Interpolant, InterpolateDiscrete, InterpolateLinear, InterpolateSmooth, InvertStencilOp, KeepStencilOp, KeyframeTrack, LOD, LatheBufferGeometry, LatheGeometry, Layers, LessDepth, LessEqualDepth, LessEqualStencilFunc, LessStencilFunc, Light, LightProbe, Line, Line3, LineBasicMaterial, LineCurve, LineCurve3, LineDashedMaterial, LineLoop, LineSegments, LinearEncoding, LinearFilter, LinearInterpolant, LinearMipMapLinearFilter, LinearMipMapNearestFilter, LinearMipmapLinearFilter, LinearMipmapNearestFilter, LinearSRGBColorSpace, LinearToneMapping, Loader, LoaderUtils, LoadingManager, LoopOnce, LoopPingPong, LoopRepeat, LuminanceAlphaFormat, LuminanceFormat, MOUSE, Material, MaterialLoader, MathUtils, Matrix3, Matrix4, MaxEquation, Mesh, MeshBasicMaterial, MeshDepthMaterial, MeshDistanceMaterial, MeshLambertMaterial, MeshMatcapMaterial, MeshNormalMaterial, MeshPhongMaterial, MeshPhysicalMaterial, MeshStandardMaterial, MeshToonMaterial, MinEquation, MirroredRepeatWrapping, MixOperation, MultiplyBlending, MultiplyOperation, NearestFilter, NearestMipMapLinearFilter, NearestMipMapNearestFilter, NearestMipmapLinearFilter, NearestMipmapNearestFilter, NeverDepth, NeverStencilFunc, NoBlending, NoColorSpace, NoToneMapping, NormalAnimationBlendMode, NormalBlending, NotEqualDepth, NotEqualStencilFunc, NumberKeyframeTrack, Object3D, ObjectLoader, ObjectSpaceNormalMap, OctahedronBufferGeometry, OctahedronGeometry, OneFactor, OneMinusDstAlphaFactor, OneMinusDstColorFactor, OneMinusSrcAlphaFactor, OneMinusSrcColorFactor, OrthographicCamera, PCFShadowMap, PCFSoftShadowMap, PMREMGenerator, ParametricGeometry, Path, PerspectiveCamera, Plane, PlaneBufferGeometry, PlaneGeometry, PlaneHelper, PointLight, PointLightHelper, Points, PointsMaterial, PolarGridHelper, PolyhedronBufferGeometry, PolyhedronGeometry, PositionalAudio, PropertyBinding, PropertyMixer, QuadraticBezierCurve, QuadraticBezierCurve3, Quaternion, QuaternionKeyframeTrack, QuaternionLinearInterpolant, REVISION, RGBADepthPacking, RGBAFormat, RGBAIntegerFormat, RGBA_ASTC_10x10_Format, RGBA_ASTC_10x5_Format, RGBA_ASTC_10x6_Format, RGBA_ASTC_10x8_Format, RGBA_ASTC_12x10_Format, RGBA_ASTC_12x12_Format, RGBA_ASTC_4x4_Format, RGBA_ASTC_5x4_Format, RGBA_ASTC_5x5_Format, RGBA_ASTC_6x5_Format, RGBA_ASTC_6x6_Format, RGBA_ASTC_8x5_Format, RGBA_ASTC_8x6_Format, RGBA_ASTC_8x8_Format, RGBA_BPTC_Format, RGBA_ETC2_EAC_Format, RGBA_PVRTC_2BPPV1_Format, RGBA_PVRTC_4BPPV1_Format, RGBA_S3TC_DXT1_Format, RGBA_S3TC_DXT3_Format, RGBA_S3TC_DXT5_Format, RGBFormat, RGB_ETC1_Format, RGB_ETC2_Format, RGB_PVRTC_2BPPV1_Format, RGB_PVRTC_4BPPV1_Format, RGB_S3TC_DXT1_Format, RGFormat, RGIntegerFormat, RawShaderMaterial, Ray, Raycaster, RectAreaLight, RedFormat, RedIntegerFormat, ReinhardToneMapping, RepeatWrapping, ReplaceStencilOp, ReverseSubtractEquation, RingBufferGeometry, RingGeometry, SRGBColorSpace, Scene, ShaderChunk, ShaderLib, ShaderMaterial, ShadowMaterial, Shape, ShapeBufferGeometry, ShapeGeometry, ShapePath, ShapeUtils, ShortType, Skeleton, SkeletonHelper, SkinnedMesh, SmoothShading, Source, Sphere, SphereBufferGeometry, SphereGeometry, Spherical, SphericalHarmonics3, SplineCurve, SpotLight, SpotLightHelper, Sprite, SpriteMaterial, SrcAlphaFactor, SrcAlphaSaturateFactor, SrcColorFactor, StaticCopyUsage, StaticDrawUsage, StaticReadUsage, StereoCamera, StreamCopyUsage, StreamDrawUsage, StreamReadUsage, StringKeyframeTrack, SubtractEquation, SubtractiveBlending, TOUCH, TangentSpaceNormalMap, TetrahedronBufferGeometry, TetrahedronGeometry, TextGeometry, Texture, TextureLoader, TorusBufferGeometry, TorusGeometry, TorusKnotBufferGeometry, TorusKnotGeometry, Triangle, TriangleFanDrawMode, TriangleStripDrawMode, TrianglesDrawMode, TubeBufferGeometry, TubeGeometry, UVMapping, Uint16BufferAttribute, Uint32BufferAttribute, Uint8BufferAttribute, Uint8ClampedBufferAttribute, Uniform, UniformsGroup, UniformsLib, UniformsUtils, UnsignedByteType, UnsignedInt248Type, UnsignedIntType, UnsignedShort4444Type, UnsignedShort5551Type, UnsignedShortType, VSMShadowMap, Vector2, Vector3, Vector4, VectorKeyframeTrack, VideoTexture, WebGL1Renderer, WebGL3DRenderTarget, WebGLArrayRenderTarget, WebGLCubeRenderTarget, WebGLMultipleRenderTargets, WebGLMultisampleRenderTarget, WebGLRenderTarget, WebGLRenderer, WebGLUtils, WireframeGeometry, WrapAroundEnding, ZeroCurvatureEnding, ZeroFactor, ZeroSlopeEnding, ZeroStencilOp, _SRGBAFormat, sRGBEncoding } = THREE;
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/typeChecks.ts
 function isMesh(obj2) {
@@ -8783,7 +7795,7 @@ function objGraph(obj2, ...children) {
   return obj2;
 }
 function obj(name2, ...rest) {
-  const obj2 = new THREE.Object3D();
+  const obj2 = new Object3D();
   obj2.name = name2;
   objGraph(obj2, ...rest);
   return obj2;
@@ -8795,9 +7807,813 @@ function objectSetEnabled(obj2, enabled) {
   }
 }
 function mesh(name2, geom2, mat) {
-  const mesh2 = new THREE.Mesh(geom2, mat);
+  const mesh2 = new Mesh(geom2, mat);
   mesh2.name = name2;
   return mesh2;
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/ScreenMode.ts
+var ScreenMode = /* @__PURE__ */ ((ScreenMode2) => {
+  ScreenMode2["None"] = "None";
+  ScreenMode2["Fullscreen"] = "Fullscreen";
+  ScreenMode2["VR"] = "VR";
+  ScreenMode2["AR"] = "AR";
+  return ScreenMode2;
+})(ScreenMode || {});
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/ScreenUI.ts
+Style(
+  rule(
+    "#controls",
+    position("absolute"),
+    left(0),
+    top(0),
+    width("100%"),
+    height("100%")
+  ),
+  rule(
+    "#controls",
+    display("grid"),
+    fontSize("20pt"),
+    gridTemplateRows("auto 1fr auto"),
+    zIndex(1)
+  ),
+  rule(
+    "#controls, #controls *",
+    pointerEvents("none")
+  ),
+  rule(
+    "#controls canvas",
+    height("58px")
+  ),
+  rule(
+    "#controls > .row",
+    display("grid"),
+    margin("10px", "5px"),
+    gridTemplateColumns("repeat(2, auto)")
+  ),
+  rule(
+    "#controls > .row.top",
+    gridRow(1)
+  ),
+  rule(
+    "#controls > .row.middle",
+    gridRow(2, -2)
+  ),
+  rule(
+    "#controls > .row.bottom",
+    gridRow(-2)
+  ),
+  rule(
+    "#controls > .row > .cell",
+    display("flex")
+  ),
+  rule(
+    "#controls > .row > .cell.left",
+    gridColumn(1)
+  ),
+  rule(
+    "#controls > .row > .cell.right",
+    gridColumn(-2),
+    flexFlow("row-reverse")
+  ),
+  rule(
+    "#controls > .row > .cell > .btn",
+    borderRadius(0),
+    backgroundColor("#1e4388"),
+    height("58px !important"),
+    width("58px"),
+    padding("0.25em"),
+    margin("0", "5px"),
+    pointerEvents("initial")
+  ),
+  rule(
+    "#controls .btn img",
+    height("calc(100% - 0.5em)")
+  ),
+  rule(
+    "#controls button:disabled img",
+    filter("invert(.5)")
+  )
+);
+var ScreenUI = class {
+  constructor() {
+    this.element = Div(
+      id("controls"),
+      Div(
+        className("row top"),
+        this.topRowLeft = Div(className("cell left")),
+        this.topRowRight = Div(className("cell right"))
+      ),
+      Div(
+        className("row middle"),
+        this.middleRowLeft = Div(className("cell left")),
+        this.middleRowRight = Div(className("cell right"))
+      ),
+      Div(
+        className("row bottom"),
+        this.bottomRowLeft = Div(className("cell left")),
+        this.bottomRowRight = Div(className("cell right"))
+      )
+    );
+    this.cells = [
+      [this.topRowLeft, this.topRowRight],
+      [this.middleRowLeft, this.middleRowRight],
+      [this.bottomRowLeft, this.bottomRowRight]
+    ];
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/SpaceUI.ts
+function isPoint2DHeight(v) {
+  return "height" in v;
+}
+function isPoint2DWidth(v) {
+  return "width" in v;
+}
+var radius = 1.25;
+var dAngleH = deg2rad(30);
+var dAngleV = deg2rad(32);
+var headPos = new Vector3(0, 0, 0);
+var SpaceUI = class extends Object3D {
+  constructor() {
+    super();
+    this.name = "SpaceUI";
+    this.position.y = -0.25;
+  }
+  addItem(child, position2) {
+    child = objectResolve(child);
+    objGraph(this, child);
+    child.position.set(
+      radius * Math.sin(position2.x * dAngleH),
+      radius * Math.sin(position2.y * dAngleV),
+      -radius * Math.cos(position2.x * dAngleH)
+    );
+    if (isPoint2DHeight(position2) && isPoint2DWidth(position2)) {
+      child.scale.set(position2.width, position2.height, 1);
+    } else if (isPoint2DHeight(position2)) {
+      child.scale.multiplyScalar(position2.height / child.scale.y);
+    } else if (isPoint2DWidth(position2)) {
+      child.scale.multiplyScalar(position2.width / child.scale.x);
+    } else {
+      child.scale.setScalar(position2.scale);
+    }
+    child.scale.z = 1;
+    for (const child2 of this.children) {
+      child2.lookAt(headPos);
+    }
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/PriorityMap.ts
+var PriorityMap = class {
+  constructor(init) {
+    this.items = /* @__PURE__ */ new Map();
+    if (isDefined(init)) {
+      for (const [key1, key2, value2] of init) {
+        this.add(key1, key2, value2);
+      }
+    }
+  }
+  add(key1, key2, value2) {
+    let level1 = this.items.get(key1);
+    if (isNullOrUndefined(level1)) {
+      this.items.set(key1, level1 = /* @__PURE__ */ new Map());
+    }
+    level1.set(key2, value2);
+    return this;
+  }
+  *entries() {
+    for (const [key1, level1] of this.items) {
+      for (const [key2, value2] of level1) {
+        yield [key1, key2, value2];
+      }
+    }
+  }
+  keys(key1) {
+    if (isNullOrUndefined(key1)) {
+      return this.items.keys();
+    } else {
+      return this.items.get(key1).keys();
+    }
+  }
+  *values() {
+    for (const level1 of this.items.values()) {
+      for (const value2 of level1.values()) {
+        yield value2;
+      }
+    }
+  }
+  has(key1, key2) {
+    return this.items.has(key1) && (isNullOrUndefined(key2) || this.items.get(key1).has(key2));
+  }
+  get(key1, key2) {
+    if (isNullOrUndefined(key2)) {
+      return this.items.get(key1);
+    } else if (this.items.has(key1)) {
+      return this.items.get(key1).get(key2);
+    } else {
+      return null;
+    }
+  }
+  count(key1) {
+    if (this.items.has(key1)) {
+      return this.items.get(key1).size;
+    }
+    return null;
+  }
+  get size() {
+    let size = 0;
+    for (const list of this.items.values()) {
+      size += list.size;
+    }
+    return size;
+  }
+  delete(key1, key2) {
+    if (isNullOrUndefined(key2)) {
+      return this.items.delete(key1);
+    } else if (this.items.has(key1)) {
+      return this.items.get(key1).delete(key2);
+    } else {
+      return false;
+    }
+  }
+  clear() {
+    this.items.clear();
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/PriorityList.ts
+var PriorityList = class {
+  constructor(init) {
+    this.items = /* @__PURE__ */ new Map();
+    this.defaultItems = new Array();
+    if (isDefined(init)) {
+      for (const [key, value2] of init) {
+        this.add(key, value2);
+      }
+    }
+  }
+  add(key, value2) {
+    if (isNullOrUndefined(key)) {
+      this.defaultItems.push(value2);
+    } else {
+      let list = this.items.get(key);
+      if (isNullOrUndefined(list)) {
+        this.items.set(key, list = []);
+      }
+      list.push(value2);
+    }
+    return this;
+  }
+  entries() {
+    return this.items.entries();
+  }
+  [Symbol.iterator]() {
+    return this.entries();
+  }
+  keys() {
+    return this.items.keys();
+  }
+  *values() {
+    for (const item of this.defaultItems) {
+      yield item;
+    }
+    for (const list of this.items.values()) {
+      for (const item of list) {
+        yield item;
+      }
+    }
+  }
+  has(key) {
+    if (isDefined(key)) {
+      return this.items.has(key);
+    } else {
+      return this.defaultItems.length > 0;
+    }
+  }
+  get(key) {
+    if (isNullOrUndefined(key)) {
+      return this.defaultItems;
+    }
+    return this.items.get(key) || [];
+  }
+  count(key) {
+    if (isNullOrUndefined(key)) {
+      return this.defaultItems.length;
+    }
+    const list = this.get(key);
+    if (isDefined(list)) {
+      return list.length;
+    }
+    return 0;
+  }
+  get size() {
+    let size = this.defaultItems.length;
+    for (const list of this.items.values()) {
+      size += list.length;
+    }
+    return size;
+  }
+  delete(key) {
+    if (isNullOrUndefined(key)) {
+      return arrayClear(this.defaultItems).length > 0;
+    } else {
+      return this.items.delete(key);
+    }
+  }
+  remove(key, value2) {
+    if (isNullOrUndefined(key)) {
+      arrayRemove(this.defaultItems, value2);
+    } else {
+      const list = this.items.get(key);
+      if (isDefined(list)) {
+        arrayRemove(list, value2);
+        if (list.length === 0) {
+          this.items.delete(key);
+        }
+      }
+    }
+  }
+  clear() {
+    this.items.clear();
+    arrayClear(this.defaultItems);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/progress/BaseProgress.ts
+var BaseProgress = class extends TypedEventBase {
+  constructor() {
+    super(...arguments);
+    this.attached = new Array();
+    this.soFar = null;
+    this.total = null;
+    this.msg = null;
+    this.est = null;
+  }
+  get p() {
+    return this.total > 0 ? this.soFar / this.total : 0;
+  }
+  report(soFar, total, msg, est) {
+    this.soFar = soFar;
+    this.total = total;
+    this.msg = msg;
+    this.est = est;
+    for (const attach of this.attached) {
+      attach.report(soFar, total, msg, est);
+    }
+  }
+  attach(prog) {
+    this.attached.push(prog);
+    prog.report(this.soFar, this.total, this.msg, this.est);
+  }
+  clear() {
+    this.report(0, 0);
+    this._clear();
+  }
+  start(msg) {
+    this.report(0, 1, msg || "starting");
+  }
+  end(msg) {
+    this.report(1, 1, msg || "done");
+    this._clear();
+  }
+  _clear() {
+    this.soFar = null;
+    this.total = null;
+    this.msg = null;
+    this.est = null;
+    arrayClear(this.attached);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/progress/ChildProgressCallback.ts
+var ChildProgressCallback = class extends BaseProgress {
+  constructor(i, prog) {
+    super();
+    this.i = i;
+    this.prog = prog;
+  }
+  report(soFar, total, msg, est) {
+    super.report(soFar, total, msg, est);
+    this.prog.update(this.i, soFar, total, msg);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/progress/BaseParentProgressCallback.ts
+var BaseParentProgressCallback = class {
+  constructor(prog) {
+    this.prog = prog;
+    this.weightTotal = 0;
+    this.subProgressCallbacks = new Array();
+    this.subProgressWeights = new Array();
+    this.subProgressValues = new Array();
+    this.start = performance.now();
+    for (let i = 0; i < this.subProgressWeights.length; ++i) {
+      this.subProgressValues[i] = 0;
+      this.subProgressCallbacks[i] = new ChildProgressCallback(i, this);
+    }
+  }
+  addSubProgress(weight) {
+    weight = weight || 1;
+    this.weightTotal += weight;
+    this.subProgressWeights.push(weight);
+    this.subProgressValues.push(0);
+    const child = new ChildProgressCallback(this.subProgressCallbacks.length, this);
+    this.subProgressCallbacks.push(child);
+    return child;
+  }
+  update(i, subSoFar, subTotal, msg) {
+    if (this.prog) {
+      this.subProgressValues[i] = subSoFar / subTotal;
+      let soFar = 0;
+      for (let j = 0; j < this.subProgressWeights.length; ++j) {
+        soFar += this.subProgressValues[j] * this.subProgressWeights[j];
+      }
+      const end2 = performance.now();
+      const delta = end2 - this.start;
+      const est = this.start - end2 + delta * this.weightTotal / soFar;
+      this.prog.report(soFar, this.weightTotal, msg, est);
+    }
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/progress/progressSplit.ts
+function progressSplitWeighted(prog, subProgressWeights) {
+  const subProg = new WeightedParentProgressCallback(subProgressWeights, prog);
+  return subProg.subProgressCallbacks;
+}
+var WeightedParentProgressCallback = class extends BaseParentProgressCallback {
+  constructor(subProgressWeights, prog) {
+    super(prog);
+    for (const weight of subProgressWeights) {
+      this.addSubProgress(weight);
+    }
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/progress/progressTasks.ts
+async function progressTasksWeighted(prog, taskDefs) {
+  const weights = new Array(taskDefs.length);
+  const callbacks = new Array(taskDefs.length);
+  for (let i = 0; i < taskDefs.length; ++i) {
+    const taskDef = taskDefs[i];
+    weights[i] = taskDef[0];
+    callbacks[i] = taskDef[1];
+  }
+  const progs = progressSplitWeighted(prog, weights);
+  const tasks = new Array(taskDefs.length);
+  for (let i = 0; i < taskDefs.length; ++i) {
+    tasks[i] = callbacks[i](progs[i]);
+  }
+  return await Promise.all(tasks);
+}
+function progressTasks(prog, ...subTaskDef) {
+  const taskDefs = subTaskDef.map((t2) => [1, t2]);
+  return progressTasksWeighted(prog, taskDefs);
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/video/data.ts
+function isVideoRecord(obj2) {
+  return isString(obj2.vcodec);
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/video/BaseVideoPlayer.ts
+var BaseVideoPlayer = class extends BaseAudioSource {
+  constructor(audioCtx) {
+    super("JuniperVideoPlayer", audioCtx, NoSpatializationNode.instance(audioCtx));
+    this.onTimeUpdate = null;
+    this.wasUsingAudioElement = false;
+    this.nextStartTime = null;
+    this._data = null;
+    this._loaded = false;
+    this.onError = /* @__PURE__ */ new Map();
+    this.sourcesByURL = /* @__PURE__ */ new Map();
+    this.sources = new PriorityList();
+    this.potatoes = new PriorityList();
+    this.video = this.createMediaElement(Video, controls(true));
+    this.audio = this.createMediaElement(Audio, controls(false));
+    this.input = Gain("JuniperVideoPlayer-combiner", audioCtx);
+    this.videoSource = MediaElementSource(
+      "JuniperVideoPlayer-VideoNode",
+      audioCtx,
+      this.video,
+      this.input
+    );
+    this.audioSource = MediaElementSource(
+      "JuniperVideoPlayer-AudioNode",
+      audioCtx,
+      this.audio,
+      this.input
+    );
+    this.loadingEvt = new MediaPlayerLoadingEvent(this);
+    this.loadEvt = new MediaElementSourceLoadedEvent(this);
+    this.playEvt = new MediaElementSourcePlayedEvent(this);
+    this.pauseEvt = new MediaElementSourcePausedEvent(this);
+    this.stopEvt = new MediaElementSourceStoppedEvent(this);
+    this.progEvt = new MediaElementSourceProgressEvent(this);
+    this.onSeeked = () => {
+      if (this.useAudioElement) {
+        this.audio.currentTime = this.video.currentTime;
+      }
+    };
+    this.onPlay = async () => {
+      this.connect();
+      this.onSeeked();
+      if (this.useAudioElement) {
+        await audioReady(this.audioCtx);
+        await this.audio.play();
+      }
+      this.dispatchEvent(this.playEvt);
+    };
+    this.onPause = (evt) => {
+      this.disconnect();
+      if (this.useAudioElement) {
+        this.onSeeked();
+        this.audio.pause();
+      }
+      if (this.video.currentTime === 0 || evt.type === "ended") {
+        this.dispatchEvent(this.stopEvt);
+      } else {
+        this.dispatchEvent(this.pauseEvt);
+      }
+    };
+    let wasWaiting = false;
+    this.onWaiting = () => {
+      if (this.useAudioElement) {
+        wasWaiting = true;
+        this.audio.pause();
+      }
+    };
+    this.onCanPlay = async () => {
+      if (this.useAudioElement && wasWaiting) {
+        await audioReady(this.audioCtx);
+        await this.audio.play();
+        wasWaiting = false;
+      }
+    };
+    this.wasUsingAudioElement = false;
+    this.onTimeUpdate = async () => {
+      const quality = this.video.getVideoPlaybackQuality();
+      if (quality.totalVideoFrames === 0) {
+        const onError = this.onError.get(this.video);
+        if (isDefined(onError)) {
+          await onError();
+        }
+      } else if (this.useAudioElement) {
+        this.wasUsingAudioElement = false;
+        const delta = this.video.currentTime - this.audio.currentTime;
+        if (Math.abs(delta) > 0.25) {
+          this.audio.currentTime = this.video.currentTime;
+        }
+      } else if (!this.wasUsingAudioElement) {
+        this.wasUsingAudioElement = true;
+        this.audio.pause();
+      }
+      this.progEvt.value = this.video.currentTime;
+      this.progEvt.total = this.video.duration;
+      this.dispatchEvent(this.progEvt);
+    };
+    this.video.addEventListener("seeked", this.onSeeked);
+    this.video.addEventListener("play", this.onPlay);
+    this.video.addEventListener("pause", this.onPause);
+    this.video.addEventListener("ended", this.onPause);
+    this.video.addEventListener("waiting", this.onWaiting);
+    this.video.addEventListener("canplay", this.onCanPlay);
+    this.video.addEventListener("timeupdate", this.onTimeUpdate);
+    Object.assign(window, { videoPlayer: this });
+  }
+  get data() {
+    return this._data;
+  }
+  get loaded() {
+    return this._loaded;
+  }
+  get title() {
+    return this.video.title;
+  }
+  setTitle(v) {
+    this.video.title = v;
+    this.audio.title = v;
+  }
+  elementHasAudio(elem) {
+    const source = this.sourcesByURL.get(elem.src);
+    return isDefined(source) && source.acodec !== "none" || isDefined(elem.audioTracks) && elem.audioTracks.length > 0 || isDefined(elem.webkitAudioDecodedByteCount) && elem.webkitAudioDecodedByteCount > 0 || isDefined(elem.mozHasAudio) && elem.mozHasAudio;
+  }
+  get useAudioElement() {
+    return !this.elementHasAudio(this.video) && this.elementHasAudio(this.audio);
+  }
+  onDisposing() {
+    super.onDisposing();
+    this.clear();
+    removeVertex(this.input);
+    removeVertex(this.videoSource);
+    removeVertex(this.audioSource);
+    this.video.removeEventListener("seeked", this.onSeeked);
+    this.video.removeEventListener("play", this.onPlay);
+    this.video.removeEventListener("pause", this.onPause);
+    this.video.removeEventListener("ended", this.onPause);
+    this.video.removeEventListener("waiting", this.onWaiting);
+    this.video.removeEventListener("canplay", this.onCanPlay);
+    this.video.removeEventListener("timeupdate", this.onTimeUpdate);
+  }
+  clear() {
+    this.stop();
+    for (const [elem, onError] of this.onError) {
+      elem.removeEventListener("error", onError);
+    }
+    this.onError.clear();
+    this.sourcesByURL.clear();
+    this.sources.clear();
+    this.potatoes.clear();
+    this.video.src = "";
+    this.audio.src = "";
+    this.wasUsingAudioElement = false;
+    this._data = null;
+    this._loaded = false;
+  }
+  async load(data, prog) {
+    this.clear();
+    this._data = data;
+    if (isString(data)) {
+      this.setTitle(data);
+      this.potatoes.add(this.video, data);
+    } else {
+      this.setTitle(data.title);
+      this.fillSources(this.video, data.videos);
+      this.fillSources(this.audio, data.audios);
+    }
+    if (!this.hasSources(this.video)) {
+      throw new Error("No video sources found");
+    }
+    this.dispatchEvent(this.loadingEvt);
+    await progressTasks(
+      prog,
+      (prog2) => this.loadMediaElement(this.audio, prog2),
+      (prog2) => this.loadMediaElement(this.video, prog2)
+    );
+    if (isString(data)) {
+      this.nextStartTime = null;
+    } else {
+      this.nextStartTime = data.startTime;
+    }
+    if (!this.hasSources(this.video)) {
+      throw new Error("No video playable sources");
+    }
+    this._loaded = true;
+    this.dispatchEvent(this.loadEvt);
+    return this;
+  }
+  fillSources(elem, formats) {
+    arraySortByKeyInPlace(formats, (f) => -f.resolution);
+    for (const format of formats) {
+      if (!Video_Vendor_Mpeg_Dash_Mpd.matches(format.contentType)) {
+        this.sources.add(elem, format);
+        this.sourcesByURL.set(format.url, format);
+      }
+    }
+  }
+  createMediaElement(MediaElement, ...rest) {
+    return MediaElement(
+      playsInline(true),
+      autoPlay(false),
+      loop(false),
+      ...rest
+    );
+  }
+  async getMediaCapabilities(source) {
+    const config = {
+      type: "file"
+    };
+    if (isVideoRecord(source)) {
+      config.video = {
+        contentType: source.contentType,
+        bitrate: source.vbr * 1024,
+        framerate: source.fps,
+        width: source.width,
+        height: source.height
+      };
+    } else if (source.acodec !== "none") {
+      config.audio = {
+        contentType: source.contentType,
+        bitrate: source.abr * 1024,
+        samplerate: source.asr
+      };
+    }
+    try {
+      return await navigator.mediaCapabilities.decodingInfo(config);
+    } catch {
+      return {
+        supported: true,
+        powerEfficient: false,
+        smooth: false,
+        configuration: config
+      };
+    }
+  }
+  hasSources(elem) {
+    return this.sources.get(elem).length > 0 || this.potatoes.count(elem) > 0;
+  }
+  async loadMediaElement(elem, prog) {
+    if (isDefined(prog)) {
+      prog.start();
+    }
+    if (this.onError.has(elem)) {
+      elem.removeEventListener("error", this.onError.get(elem));
+      this.onError.delete(elem);
+    }
+    while (this.hasSources(elem)) {
+      let url = null;
+      const source = this.sources.get(elem).shift();
+      if (isDefined(source)) {
+        const caps = await this.getMediaCapabilities(source);
+        if (!caps.smooth || !caps.powerEfficient) {
+          this.potatoes.add(elem, source.url);
+          continue;
+        } else {
+          url = source.url;
+        }
+      } else {
+        url = this.potatoes.get(elem).shift();
+      }
+      elem.src = url;
+      elem.load();
+      if (await mediaElementCanPlayThrough(elem)) {
+        if (isDefined(source)) {
+          this.sources.get(elem).unshift(source);
+        } else {
+          this.potatoes.get(elem).unshift(url);
+        }
+        const onError = () => this.loadMediaElement(elem, prog);
+        elem.addEventListener("error", onError);
+        this.onError.set(elem, onError);
+        this.wasUsingAudioElement = this.wasUsingAudioElement;
+        if (isDefined(prog)) {
+          prog.end();
+        }
+        return;
+      }
+    }
+  }
+  get width() {
+    return this.video.videoWidth;
+  }
+  get height() {
+    return this.video.videoHeight;
+  }
+  get playbackState() {
+    if (isNullOrUndefined(this.data)) {
+      return "empty";
+    }
+    if (!this.loaded) {
+      return "loading";
+    }
+    if (this.video.error) {
+      return "errored";
+    }
+    if (this.video.ended || this.video.paused && this.video.currentTime === 0) {
+      return "stopped";
+    }
+    if (this.video.paused) {
+      return "paused";
+    }
+    return "playing";
+  }
+  async play() {
+    await audioReady(this.audioCtx);
+    if (isDefined(this.nextStartTime) && this.nextStartTime > 0) {
+      this.video.pause();
+      this.video.currentTime = this.nextStartTime;
+      this.nextStartTime = null;
+    }
+    await this.video.play();
+  }
+  async playThrough() {
+    const endTask = once(this, "stopped");
+    await this.play();
+    await endTask;
+  }
+  pause() {
+    this.video.pause();
+  }
+  stop() {
+    this.pause();
+    this.video.currentTime = 0;
+  }
+  restart() {
+    this.stop();
+    return this.play();
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/graphics2d/animation/tween.ts
+function bump(t2, k) {
+  const a = t2 * Math.PI;
+  return 0.5 * (1 - Math.cos(a)) - k * Math.sin(2 * a);
+}
+function jump(t2, k) {
+  const a = (t2 - 0.5) * Math.PI;
+  return t2 * t2 + k * Math.cos(a);
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/animation/scaleOnHover.ts
@@ -8911,21 +8727,187 @@ function cleanup(obj2) {
   cleanupSeen.clear();
 }
 
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/CustomGeometry.ts
+function normalizeQuad(quad) {
+  return [
+    normalizeTriangle([quad[1], quad[0], quad[2]]),
+    normalizeTriangle([quad[2], quad[0], quad[3]])
+  ];
+}
+function normalizeQuads(quads) {
+  return quads.map(normalizeQuad).flat();
+}
+var A = new Vector3();
+var B = new Vector3();
+var C = new Vector3();
+function normalizeTriangle(tria) {
+  const positions = [
+    [tria[0][0], tria[0][1], tria[0][2]],
+    [tria[1][0], tria[1][1], tria[1][2]],
+    [tria[2][0], tria[2][1], tria[2][2]]
+  ];
+  const uvs = [
+    [tria[0][3], tria[0][4]],
+    [tria[1][3], tria[1][4]],
+    [tria[2][3], tria[2][4]]
+  ];
+  C.fromArray(positions[0]);
+  A.fromArray(positions[1]).sub(C);
+  C.fromArray(positions[2]);
+  B.fromArray(positions[1]).sub(C);
+  A.cross(B);
+  const normal = A.toArray();
+  return {
+    positions,
+    uvs,
+    normal
+  };
+}
+function createGeometry(nFaces) {
+  const positions = nFaces.map((f) => f.positions).flat(2);
+  const uvs = nFaces.map((f) => f.uvs).flat(2);
+  const normals = nFaces.flatMap((f) => f.normal);
+  const geom2 = new BufferGeometry();
+  geom2.setAttribute("position", new BufferAttribute(new Float32Array(positions), 3, false));
+  geom2.setAttribute("uv", new BufferAttribute(new Float32Array(uvs), 2, false));
+  geom2.setAttribute("normal", new BufferAttribute(new Float32Array(normals), 3, true));
+  return geom2;
+}
+function createQuadGeometry(...quads) {
+  const faces = normalizeQuads(quads);
+  return createGeometry(faces);
+}
+function createEACGeometry(subDivs, ...quads) {
+  let remappingQuads = mapEACSubdivision(quads);
+  for (let i = 0; i < subDivs; ++i) {
+    remappingQuads = subdivide(remappingQuads);
+  }
+  quads = unmapEACSubdivision(remappingQuads);
+  const faces = normalizeQuads(quads);
+  return createGeometry(faces);
+}
+function mapEACSubdivision(quads) {
+  return quads.map((quad) => {
+    let minU = Number.MAX_VALUE;
+    let maxU = Number.MIN_VALUE;
+    let minV = Number.MAX_VALUE;
+    let maxV = Number.MIN_VALUE;
+    for (const vert of quad) {
+      const u = vert[3];
+      const v = vert[4];
+      minU = Math.min(minU, u);
+      maxU = Math.max(maxU, u);
+      minV = Math.min(minV, v);
+      maxV = Math.max(maxV, v);
+    }
+    const minUV = [minU, minV];
+    const deltaUV = [maxU - minU, maxV - minV];
+    return {
+      minUV,
+      deltaUV,
+      verts: [
+        mapEACSubdivVert(minUV, deltaUV, quad[0]),
+        mapEACSubdivVert(minUV, deltaUV, quad[1]),
+        mapEACSubdivVert(minUV, deltaUV, quad[2]),
+        mapEACSubdivVert(minUV, deltaUV, quad[3])
+      ]
+    };
+  });
+}
+function mapEACSubdivVert(minUV, deltaUV, vert) {
+  return {
+    pos: [vert[0], vert[1], vert[2]],
+    uv: [vert[3], vert[4]],
+    pUV: [
+      (vert[3] - minUV[0]) / deltaUV[0],
+      (vert[4] - minUV[1]) / deltaUV[1]
+    ]
+  };
+}
+function unmapEACSubdivision(quadsx) {
+  return quadsx.map((quadx) => [
+    unmapEACSubdivVert(quadx, 0),
+    unmapEACSubdivVert(quadx, 1),
+    unmapEACSubdivVert(quadx, 2),
+    unmapEACSubdivVert(quadx, 3)
+  ]);
+}
+function unmapEACSubdivVert(quadx, i) {
+  const vert = quadx.verts[i];
+  return [
+    vert.pos[0],
+    vert.pos[1],
+    vert.pos[2],
+    vert.uv[0],
+    vert.uv[1]
+  ];
+}
+function subdivide(quadsx) {
+  return quadsx.flatMap((quadx) => {
+    const midU1 = midpoint(quadx, quadx.verts[0], quadx.verts[1]);
+    const midU2 = midpoint(quadx, quadx.verts[2], quadx.verts[3]);
+    const midV1 = midpoint(quadx, quadx.verts[0], quadx.verts[3]);
+    const midV2 = midpoint(quadx, quadx.verts[1], quadx.verts[2]);
+    const mid = midpoint(quadx, midU1, midU2);
+    return [{
+      minUV: quadx.minUV,
+      deltaUV: quadx.deltaUV,
+      verts: [quadx.verts[0], midU1, mid, midV1]
+    }, {
+      minUV: quadx.minUV,
+      deltaUV: quadx.deltaUV,
+      verts: [midU1, quadx.verts[1], midV2, mid]
+    }, {
+      minUV: quadx.minUV,
+      deltaUV: quadx.deltaUV,
+      verts: [mid, midV2, quadx.verts[2], midU2]
+    }, {
+      minUV: quadx.minUV,
+      deltaUV: quadx.deltaUV,
+      verts: [midV1, mid, midU2, quadx.verts[3]]
+    }];
+  });
+}
+function midpoint(quadx, from, to) {
+  const dx = to.pos[0] - from.pos[0];
+  const dy = to.pos[1] - from.pos[1];
+  const dz = to.pos[2] - from.pos[2];
+  const x = from.pos[0] + 0.5 * dx;
+  const y = from.pos[1] + 0.5 * dy;
+  const z = from.pos[2] + 0.5 * dz;
+  const dpu = to.pUV[0] - from.pUV[0];
+  const dpv = to.pUV[1] - from.pUV[1];
+  const pu = from.pUV[0] + 0.5 * dpu;
+  const pv = from.pUV[1] + 0.5 * dpv;
+  const mu = mapEACUV(pu - 0.5) + 0.5;
+  const mv = mapEACUV(pv - 0.5) + 0.5;
+  const u = mu * quadx.deltaUV[0] + quadx.minUV[0];
+  const v = mv * quadx.deltaUV[1] + quadx.minUV[1];
+  return {
+    pos: [x, y, z],
+    pUV: [pu, pv],
+    uv: [u, v]
+  };
+}
+function mapEACUV(uv) {
+  return 2 * Math.atan(2 * uv) / Math.PI;
+}
+
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/examples/lines/LineMaterial.js
-THREE.UniformsLib.line = {
+UniformsLib.line = {
   worldUnits: { value: 1 },
   linewidth: { value: 1 },
-  resolution: { value: new THREE.Vector2(1, 1) },
+  resolution: { value: new Vector2(1, 1) },
   dashOffset: { value: 0 },
   dashScale: { value: 1 },
   dashSize: { value: 1 },
   gapSize: { value: 1 }
 };
-THREE.ShaderLib["line"] = {
-  uniforms: THREE.UniformsUtils.merge([
-    THREE.UniformsLib.common,
-    THREE.UniformsLib.fog,
-    THREE.UniformsLib.line
+ShaderLib["line"] = {
+  uniforms: UniformsUtils.merge([
+    UniformsLib.common,
+    UniformsLib.fog,
+    UniformsLib.line
   ]),
   vertexShader: `
 		#include <common>
@@ -9317,13 +9299,13 @@ THREE.ShaderLib["line"] = {
 		}
 		`
 };
-var LineMaterial = class extends THREE.ShaderMaterial {
+var LineMaterial = class extends ShaderMaterial {
   constructor(parameters) {
     super({
       type: "LineMaterial",
-      uniforms: THREE.UniformsUtils.clone(THREE.ShaderLib["line"].uniforms),
-      vertexShader: THREE.ShaderLib["line"].vertexShader,
-      fragmentShader: THREE.ShaderLib["line"].fragmentShader,
+      uniforms: UniformsUtils.clone(ShaderLib["line"].uniforms),
+      vertexShader: ShaderLib["line"].vertexShader,
+      fragmentShader: ShaderLib["line"].fragmentShader,
       clipping: true
     });
     Object.defineProperties(this, {
@@ -9473,13 +9455,13 @@ function trans(options) {
   });
 }
 function solid(options) {
-  return makeMaterial("solid", THREE.MeshBasicMaterial, options);
+  return makeMaterial("solid", MeshBasicMaterial, options);
 }
 function solidTransparent(options) {
-  return makeMaterial("solidTransparent", THREE.MeshBasicMaterial, trans(options));
+  return makeMaterial("solidTransparent", MeshBasicMaterial, trans(options));
 }
 function lit(options) {
-  return makeMaterial("lit", THREE.MeshPhongMaterial, options);
+  return makeMaterial("lit", MeshPhongMaterial, options);
 }
 function line2(options) {
   return makeMaterial("line2", LineMaterial, options);
@@ -9563,41 +9545,122 @@ function materialStandardToBasic(oldMat) {
       delete params[key];
     }
   }
-  return new THREE.MeshBasicMaterial(params);
+  return new MeshBasicMaterial(params);
 }
 var grey = 12632256;
 var white = 16777215;
 var litGrey = /* @__PURE__ */ lit({ color: grey });
 var litWhite = /* @__PURE__ */ lit({ color: white });
 
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/arrayCompare.ts
+function arrayCompare(arr1, arr2) {
+  for (let i = 0; i < arr1.length; ++i) {
+    if (arr1[i] !== arr2[i]) {
+      return i;
+    }
+  }
+  return -1;
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/units/length.ts
+var MICROMETERS_PER_MILLIMETER = 1e3;
+var MILLIMETERS_PER_CENTIMETER = 10;
+var CENTIMETERS_PER_INCH = 2.54;
+var CENTIMETERS_PER_METER = 100;
+var INCHES_PER_HAND = 4;
+var HANDS_PER_FOOT = 3;
+var FEET_PER_YARD = 3;
+var FEET_PER_ROD = 16.5;
+var METERS_PER_KILOMETER = 1e3;
+var RODS_PER_FURLONG = 40;
+var FURLONGS_PER_MILE = 8;
+var MICROMETERS_PER_CENTIMETER = MICROMETERS_PER_MILLIMETER * MILLIMETERS_PER_CENTIMETER;
+var MICROMETERS_PER_INCH = MICROMETERS_PER_CENTIMETER * CENTIMETERS_PER_INCH;
+var MICROMETERS_PER_HAND = MICROMETERS_PER_INCH * INCHES_PER_HAND;
+var MICROMETERS_PER_FOOT = MICROMETERS_PER_HAND * HANDS_PER_FOOT;
+var MICROMETERS_PER_YARD = MICROMETERS_PER_FOOT * FEET_PER_YARD;
+var MICROMETERS_PER_METER = MICROMETERS_PER_CENTIMETER * CENTIMETERS_PER_METER;
+var MICROMETERS_PER_ROD = MICROMETERS_PER_FOOT * FEET_PER_ROD;
+var MICROMETERS_PER_FURLONG = MICROMETERS_PER_ROD * RODS_PER_FURLONG;
+var MICROMETERS_PER_KILOMETER = MICROMETERS_PER_METER * METERS_PER_KILOMETER;
+var MICROMETERS_PER_MILE = MICROMETERS_PER_FURLONG * FURLONGS_PER_MILE;
+var MILLIMETERS_PER_INCH = MILLIMETERS_PER_CENTIMETER * CENTIMETERS_PER_INCH;
+var MILLIMETERS_PER_HAND = MILLIMETERS_PER_INCH * INCHES_PER_HAND;
+var MILLIMETERS_PER_FOOT = MILLIMETERS_PER_HAND * HANDS_PER_FOOT;
+var MILLIMETERS_PER_YARD = MILLIMETERS_PER_FOOT * FEET_PER_YARD;
+var MILLIMETERS_PER_METER = MILLIMETERS_PER_CENTIMETER * CENTIMETERS_PER_METER;
+var MILLIMETERS_PER_ROD = MILLIMETERS_PER_FOOT * FEET_PER_ROD;
+var MILLIMETERS_PER_FURLONG = MILLIMETERS_PER_ROD * RODS_PER_FURLONG;
+var MILLIMETERS_PER_KILOMETER = MILLIMETERS_PER_METER * METERS_PER_KILOMETER;
+var MILLIMETERS_PER_MILE = MILLIMETERS_PER_FURLONG * FURLONGS_PER_MILE;
+var CENTIMETERS_PER_HAND = CENTIMETERS_PER_INCH * INCHES_PER_HAND;
+var CENTIMETERS_PER_FOOT = CENTIMETERS_PER_HAND * HANDS_PER_FOOT;
+var CENTIMETERS_PER_YARD = CENTIMETERS_PER_FOOT * FEET_PER_YARD;
+var CENTIMETERS_PER_ROD = CENTIMETERS_PER_FOOT * FEET_PER_ROD;
+var CENTIMETERS_PER_FURLONG = CENTIMETERS_PER_ROD * RODS_PER_FURLONG;
+var CENTIMETERS_PER_KILOMETER = CENTIMETERS_PER_METER * METERS_PER_KILOMETER;
+var CENTIMETERS_PER_MILE = CENTIMETERS_PER_FURLONG * FURLONGS_PER_MILE;
+var INCHES_PER_FOOT = INCHES_PER_HAND * HANDS_PER_FOOT;
+var INCHES_PER_YARD = INCHES_PER_FOOT * FEET_PER_YARD;
+var INCHES_PER_METER = CENTIMETERS_PER_METER / CENTIMETERS_PER_INCH;
+var INCHES_PER_ROD = INCHES_PER_FOOT * FEET_PER_ROD;
+var INCHES_PER_FURLONG = INCHES_PER_ROD * RODS_PER_FURLONG;
+var INCHES_PER_KILOMETER = INCHES_PER_METER * METERS_PER_KILOMETER;
+var INCHES_PER_MILE = INCHES_PER_FURLONG * FURLONGS_PER_MILE;
+var HANDS_PER_YARD = HANDS_PER_FOOT * FEET_PER_YARD;
+var HANDS_PER_METER = CENTIMETERS_PER_METER / CENTIMETERS_PER_HAND;
+var HANDS_PER_ROD = HANDS_PER_FOOT * FEET_PER_ROD;
+var HANDS_PER_FURLONG = HANDS_PER_ROD * RODS_PER_FURLONG;
+var HANDS_PER_KILOMETER = HANDS_PER_METER * METERS_PER_KILOMETER;
+var HANDS_PER_MILE = HANDS_PER_FURLONG * FURLONGS_PER_MILE;
+var FEET_PER_METER = INCHES_PER_METER / INCHES_PER_FOOT;
+var FEET_PER_FURLONG = FEET_PER_ROD * RODS_PER_FURLONG;
+var FEET_PER_KILOMETER = FEET_PER_METER * METERS_PER_KILOMETER;
+var FEET_PER_MILE = FEET_PER_FURLONG * FURLONGS_PER_MILE;
+var YARDS_PER_METER = INCHES_PER_METER / INCHES_PER_YARD;
+var YARDS_PER_ROD = FEET_PER_ROD / FEET_PER_YARD;
+var YARDS_PER_FURLONG = YARDS_PER_ROD * RODS_PER_FURLONG;
+var YARDS_PER_KILOMETER = YARDS_PER_METER * METERS_PER_KILOMETER;
+var YARDS_PER_MILE = YARDS_PER_FURLONG * FURLONGS_PER_MILE;
+var METERS_PER_ROD = FEET_PER_ROD / FEET_PER_METER;
+var METERS_PER_FURLONG = METERS_PER_ROD * RODS_PER_FURLONG;
+var METERS_PER_MILE = METERS_PER_FURLONG * FURLONGS_PER_MILE;
+var RODS_PER_KILOMETER = METERS_PER_KILOMETER / METERS_PER_ROD;
+var RODS_PER_MILE = RODS_PER_FURLONG * FURLONGS_PER_MILE;
+var FURLONGS_PER_KILOMETER = METERS_PER_KILOMETER / METERS_PER_FURLONG;
+var KILOMETERS_PER_MILE = FURLONGS_PER_MILE / FURLONGS_PER_KILOMETER;
+function feet2Meters(feet) {
+  return feet / FEET_PER_METER;
+}
+function inches2Meters(inches) {
+  return inches / INCHES_PER_METER;
+}
+function meters2Inches(meters) {
+  return meters * INCHES_PER_METER;
+}
+
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/objectGetRelativePose.ts
-var M = new THREE.Matrix4();
-var P = new THREE.Vector3();
+var M = new Matrix4();
+var P = new Vector3();
 function objectGetRelativePose(ref, obj2, position2, quaternion, scale4) {
   M.copy(ref.matrixWorld).invert().multiply(obj2.matrixWorld).decompose(P, quaternion, scale4);
   position2.set(P.x, P.y, P.z, 1);
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/Plane.ts
-var plane = /* @__PURE__ */ new THREE.PlaneBufferGeometry(1, 1, 1, 1);
+var plane = /* @__PURE__ */ new PlaneBufferGeometry(1, 1, 1, 1);
 plane.name = "PlaneGeom";
-var Plane = class extends THREE.Mesh {
-  constructor(sx, sy, material) {
-    super(plane, material);
-    this.scale.set(sx, sy, 1);
-  }
-};
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/widgets/Image2D.ts
-var P2 = new THREE.Vector4();
-var Q = new THREE.Quaternion();
-var S = new THREE.Vector3();
+var P2 = new Vector4();
+var Q = new Quaternion();
+var S = new Vector3();
 var copyCounter = 0;
-var Image2D = class extends THREE.Object3D {
+var Image2D = class extends Object3D {
   constructor(env, name2, webXRLayerType, materialOrOptions = null) {
     super();
     this.webXRLayerType = webXRLayerType;
-    this.lastMatrixWorld = new THREE.Matrix4();
+    this.lastMatrixWorld = new Matrix4();
     this.layer = null;
     this.wasUsingLayer = false;
     this._imageWidth = 0;
@@ -9732,10 +9795,10 @@ var Image2D = class extends THREE.Object3D {
       this.curImage = img;
       if (img instanceof HTMLVideoElement) {
         this.setImageSize(img.videoWidth, img.videoHeight);
-        this.mesh.material.map = new THREE.VideoTexture(img);
+        this.mesh.material.map = new VideoTexture(img);
       } else {
         this.setImageSize(img.width, img.height);
-        this.mesh.material.map = new THREE.Texture(img);
+        this.mesh.material.map = new Texture(img);
         this.mesh.material.map.needsUpdate = true;
       }
     }
@@ -9835,1019 +9898,6 @@ var Image2D = class extends THREE.Object3D {
     }
   }
 };
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/widgets/CanvasImageMesh.ts
-var redrawnEvt = { type: "redrawn" };
-var CanvasImageMesh = class extends Image2D {
-  constructor(env, name2, webXRLayerType, image2, materialOptions) {
-    super(env, name2, webXRLayerType, materialOptions);
-    this._image = null;
-    this.image = image2;
-  }
-  get object() {
-    return this;
-  }
-  get element() {
-    if (isHTMLCanvas(this.image.canvas)) {
-      return this.image.canvas;
-    } else {
-      return null;
-    }
-  }
-  onRedrawn() {
-    this.updateTexture();
-    this.dispatchEvent(redrawnEvt);
-  }
-  get image() {
-    return this._image;
-  }
-  set image(v) {
-    if (this.image) {
-      this.image.removeScope(this);
-    }
-    this._image = v;
-    if (this.image) {
-      this.image.addScopedEventListener(this, "redrawn", () => this.onRedrawn());
-      this.setTextureMap(this.image.canvas);
-      this.onRedrawn();
-    }
-  }
-  get imageWidth() {
-    return this.image.width;
-  }
-  get imageHeight() {
-    return this.image.height;
-  }
-  copy(source, recursive = true) {
-    super.copy(source, recursive);
-    this.image = source.image;
-    return this;
-  }
-  get isVisible() {
-    return elementIsDisplayed(this);
-  }
-  set isVisible(v) {
-    elementSetDisplay(this, v, "inline-block");
-    objectSetVisible(this, v);
-    objectSetVisible(this.mesh, v);
-    this.image.visible = v;
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/widgets/TextMesh.ts
-var TextMesh = class extends CanvasImageMesh {
-  constructor(env, name2, textOptions, materialOptions) {
-    let image2;
-    if (textOptions instanceof TextImage) {
-      image2 = textOptions;
-    } else {
-      image2 = new TextImage(textOptions);
-    }
-    super(env, name2, "none", image2, materialOptions);
-  }
-  onRedrawn() {
-    this.objectHeight = this.imageHeight;
-    super.onRedrawn();
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/RayTarget.ts
-var RAY_TARGET_KEY = "Juniper:ThreeJS:EventSystem:RayTarget";
-var RayTarget = class extends TypedEventBase {
-  constructor(object) {
-    super();
-    this.object = object;
-    this.meshes = new Array();
-    this._disabled = false;
-    this._clickable = false;
-    this._draggable = false;
-    this._navigable = false;
-    this.object.userData[RAY_TARGET_KEY] = this;
-  }
-  addMesh(mesh2) {
-    mesh2.userData[RAY_TARGET_KEY] = this;
-    this.meshes.push(mesh2);
-    return this;
-  }
-  get disabled() {
-    return this._disabled;
-  }
-  set disabled(v) {
-    this._disabled = v;
-  }
-  get enabled() {
-    return !this.disabled;
-  }
-  set enabled(v) {
-    this.disabled = !v;
-  }
-  get clickable() {
-    return this._clickable;
-  }
-  set clickable(v) {
-    this._clickable = v;
-  }
-  get draggable() {
-    return this._draggable;
-  }
-  set draggable(v) {
-    this._draggable = v;
-  }
-  get navigable() {
-    return this._navigable;
-  }
-  set navigable(v) {
-    this._navigable = v;
-  }
-};
-function isRayTarget(obj2) {
-  return obj2 instanceof RayTarget;
-}
-function getRayTarget(obj2) {
-  let target = null;
-  if (obj2) {
-    if (isRayTarget(obj2)) {
-      target = obj2;
-    } else {
-      obj2 = objectResolve(obj2);
-      if (obj2) {
-        target = obj2.userData[RAY_TARGET_KEY];
-      }
-    }
-    if (target && !objectIsFullyVisible(target)) {
-      target = null;
-    }
-  }
-  return target;
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/widgets/TextMeshButton.ts
-var TextMeshButton = class extends RayTarget {
-  constructor(env, name2, value2, textImageOptions) {
-    super(obj(name2));
-    this.env = env;
-    if (isDefined(value2)) {
-      textImageOptions = Object.assign({
-        textFillColor: "#ffffff",
-        fontFamily: "Segoe UI Emoji",
-        fontSize: 20,
-        minHeight: 0.25,
-        maxHeight: 0.25
-      }, textImageOptions, {
-        value: value2
-      });
-      this.image = new TextImage(textImageOptions);
-      const id2 = stringRandom(16);
-      this.enabledImage = this.createImage(`${id2}-enabled`, 1);
-      this.disabledImage = this.createImage(`${id2}-disabled`, 0.5);
-      this.disabledImage.visible = false;
-      objGraph(this, this.enabledImage, this.disabledImage);
-    }
-    this.addMesh(this.enabledImage.mesh);
-    this.addMesh(this.disabledImage.mesh);
-    this.clickable = true;
-    if (isDefined(value2)) {
-      scaleOnHover(this, true);
-    }
-  }
-  createImage(id2, opacity) {
-    const image2 = new TextMesh(
-      this.env,
-      `text-${id2}`,
-      this.image,
-      {
-        side: THREE.FrontSide,
-        opacity
-      }
-    );
-    return image2;
-  }
-  get disabled() {
-    return super.disabled;
-  }
-  set disabled(v) {
-    super.disabled = v;
-    this.enabledImage.visible = !v;
-    this.disabledImage.visible = v;
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/ConfirmationDialog.ts
-var baseTextStyle = {
-  bgStrokeColor: "#000000",
-  bgStrokeSize: 0.04,
-  wrapWords: false,
-  textFillColor: "#ffffff",
-  scale: 150
-};
-var textButtonStyle = Object.assign({}, baseTextStyle, {
-  padding: {
-    left: 0.1,
-    right: 0.1,
-    top: 0.025,
-    bottom: 0.025
-  },
-  fontSize: 20,
-  minHeight: 0.5,
-  maxHeight: 0.5
-});
-var confirmButton3DStyle = Object.assign({}, textButtonStyle, {
-  bgFillColor: "#0078d7"
-});
-var cancelButton3DStyle = Object.assign({}, textButtonStyle, {
-  bgFillColor: "#780000"
-});
-var textLabelStyle = Object.assign({}, baseTextStyle, {
-  bgFillColor: "#ffffff",
-  textFillColor: "#000000",
-  padding: {
-    top: 0.1,
-    left: 0.1,
-    bottom: 0.4,
-    right: 0.1
-  },
-  fontSize: 25,
-  minHeight: 1,
-  maxHeight: 1
-});
-var JUMP_FACTOR = 0.9;
-function newStyle(baseStyle, fontFamily) {
-  return Object.assign({}, baseStyle, { fontFamily });
-}
-var ConfirmationDialog = class extends DialogBox {
-  constructor(env, fontFamily) {
-    super("Confirm action");
-    this.env = env;
-    this.object = obj("ConfirmationDialog");
-    this.root = obj("Root");
-    this.animator = new Animator();
-    this.a = 0;
-    this.b = 0;
-    this.confirmButton.innerText = "Yes";
-    this.cancelButton.innerText = "No";
-    this.mesh = new TextMesh(this.env, "confirmationDialogLabel", newStyle(textLabelStyle, fontFamily));
-    this.confirmButton3D = new TextMeshButton(this.env, "confirmationDialogConfirmButton", "Yes", newStyle(confirmButton3DStyle, fontFamily));
-    this.confirmButton3D.addEventListener("click", () => this.confirmButton.click());
-    this.confirmButton3D.object.position.set(1, -0.5, 0.5);
-    this.cancelButton3D = new TextMeshButton(this.env, "confirmationDialogCancelButton", "No", newStyle(cancelButton3DStyle, fontFamily));
-    this.cancelButton3D.addEventListener("click", () => this.cancelButton.click());
-    this.cancelButton3D.object.position.set(2, -0.5, 0.5);
-    elementApply(this.container, styles(
-      maxWidth("calc(100% - 2em)"),
-      width("max-content")
-    ));
-    elementApply(this.contentArea, styles(
-      fontSize("18pt"),
-      textAlign("center"),
-      padding("1em")
-    ));
-    objGraph(
-      this,
-      objGraph(
-        this.root,
-        this.mesh,
-        this.confirmButton3D,
-        this.cancelButton3D
-      )
-    );
-    objectSetVisible(this.root, false);
-    this.root.scale.setScalar(0);
-    this.onTick = (t2) => {
-      const scale4 = jump(this.a + this.b * t2, JUMP_FACTOR);
-      this.root.scale.set(scale4, scale4, 0.01);
-    };
-  }
-  get name() {
-    return this.object.name;
-  }
-  get visible() {
-    return elementIsDisplayed(this);
-  }
-  set visible(visible) {
-    elementSetDisplay(this, visible, "inline-block");
-    this.mesh.visible = visible;
-  }
-  update(dt) {
-    this.animator.update(dt);
-  }
-  async showHide(a, b) {
-    this.a = a;
-    this.b = b;
-    await this.animator.start(0, 0.25, this.onTick);
-    this.animator.clear();
-  }
-  get use3D() {
-    return this.env.renderer.xr.isPresenting || this.env.testSpaceLayout;
-  }
-  async onShowing() {
-    await super.onShowing();
-    if (this.use3D) {
-      this.root.visible = true;
-      await this.showHide(0, 1);
-    }
-  }
-  onShown() {
-    if (this.use3D) {
-      this.element.style.display = "none";
-    }
-  }
-  async onClosing() {
-    if (this.use3D) {
-      await this.showHide(1, -1);
-      this.root.visible = false;
-    }
-    await super.onClosing();
-  }
-  prompt(title2, message) {
-    this.title = title2;
-    elementSetText(this.contentArea, message);
-    this.mesh.image.value = message;
-    return this.showDialog();
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/InteractionAudio.ts
-function makeClipName(type2, isDisabled) {
-  if (type2 === "click" && isDisabled) {
-    type2 = "error";
-  }
-  return `InteractionAudio-${type2}`;
-}
-var InteractionAudio = class {
-  constructor(audio2, pointers) {
-    this.audio = audio2;
-    this.pointers = pointers;
-    this.enabled = true;
-    const playClip = (evt) => {
-      if (this.enabled && evt.rayTarget && evt.rayTarget.clickable) {
-        const clipName = makeClipName(evt.type, !evt.rayTarget.enabled);
-        if (this.audio.hasClip(clipName)) {
-          const { x, y, z } = evt.point;
-          this.audio.setClipPosition(clipName, x, y, z);
-          this.audio.playClip(clipName);
-        }
-      }
-    };
-    this.pointers.addEventListener("enter", playClip);
-    this.pointers.addEventListener("exit", playClip);
-    this.pointers.addEventListener("click", playClip);
-  }
-  create(type2, element, volume) {
-    return this.audio.createClip(makeClipName(type2, false), element, false, true, false, volume, []);
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/ScreenMode.ts
-var ScreenMode = /* @__PURE__ */ ((ScreenMode2) => {
-  ScreenMode2["None"] = "None";
-  ScreenMode2["Fullscreen"] = "Fullscreen";
-  ScreenMode2["VR"] = "VR";
-  ScreenMode2["AR"] = "AR";
-  return ScreenMode2;
-})(ScreenMode || {});
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/ScreenUI.ts
-Style(
-  rule(
-    "#controls",
-    position("absolute"),
-    left(0),
-    top(0),
-    width("100%"),
-    height("100%")
-  ),
-  rule(
-    "#controls",
-    display("grid"),
-    fontSize("20pt"),
-    gridTemplateRows("auto 1fr auto"),
-    zIndex(1)
-  ),
-  rule(
-    "#controls, #controls *",
-    pointerEvents("none")
-  ),
-  rule(
-    "#controls canvas",
-    height("58px")
-  ),
-  rule(
-    "#controls > .row",
-    display("grid"),
-    margin("10px", "5px"),
-    gridTemplateColumns("repeat(2, auto)")
-  ),
-  rule(
-    "#controls > .row.top",
-    gridRow(1)
-  ),
-  rule(
-    "#controls > .row.middle",
-    gridRow(2, -2)
-  ),
-  rule(
-    "#controls > .row.bottom",
-    gridRow(-2)
-  ),
-  rule(
-    "#controls > .row > .cell",
-    display("flex")
-  ),
-  rule(
-    "#controls > .row > .cell.left",
-    gridColumn(1)
-  ),
-  rule(
-    "#controls > .row > .cell.right",
-    gridColumn(-2),
-    flexFlow("row-reverse")
-  ),
-  rule(
-    "#controls > .row > .cell > .btn",
-    borderRadius(0),
-    backgroundColor("#1e4388"),
-    height("58px !important"),
-    width("58px"),
-    padding("0.25em"),
-    margin("0", "5px"),
-    pointerEvents("initial")
-  ),
-  rule(
-    "#controls .btn img",
-    height("calc(100% - 0.5em)")
-  ),
-  rule(
-    "#controls button:disabled img",
-    filter("invert(.5)")
-  )
-);
-var ScreenUI = class {
-  constructor() {
-    this.element = Div(
-      id("controls"),
-      Div(
-        className("row top"),
-        this.topRowLeft = Div(className("cell left")),
-        this.topRowRight = Div(className("cell right"))
-      ),
-      Div(
-        className("row middle"),
-        this.middleRowLeft = Div(className("cell left")),
-        this.middleRowRight = Div(className("cell right"))
-      ),
-      Div(
-        className("row bottom"),
-        this.bottomRowLeft = Div(className("cell left")),
-        this.bottomRowRight = Div(className("cell right"))
-      )
-    );
-    this.cells = [
-      [this.topRowLeft, this.topRowRight],
-      [this.middleRowLeft, this.middleRowRight],
-      [this.bottomRowLeft, this.bottomRowRight]
-    ];
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/SpaceUI.ts
-function isPoint2DHeight(v) {
-  return "height" in v;
-}
-function isPoint2DWidth(v) {
-  return "width" in v;
-}
-var radius = 1.25;
-var dAngleH = deg2rad(30);
-var dAngleV = deg2rad(32);
-var headPos = new THREE.Vector3(0, 0, 0);
-var SpaceUI = class extends THREE.Object3D {
-  constructor() {
-    super();
-    this.name = "SpaceUI";
-    this.position.y = -0.25;
-  }
-  addItem(child, position2) {
-    child = objectResolve(child);
-    objGraph(this, child);
-    child.position.set(
-      radius * Math.sin(position2.x * dAngleH),
-      radius * Math.sin(position2.y * dAngleV),
-      -radius * Math.cos(position2.x * dAngleH)
-    );
-    if (isPoint2DHeight(position2) && isPoint2DWidth(position2)) {
-      child.scale.set(position2.width, position2.height, 1);
-    } else if (isPoint2DHeight(position2)) {
-      child.scale.multiplyScalar(position2.height / child.scale.y);
-    } else if (isPoint2DWidth(position2)) {
-      child.scale.multiplyScalar(position2.width / child.scale.x);
-    } else {
-      child.scale.setScalar(position2.scale);
-    }
-    child.scale.z = 1;
-    for (const child2 of this.children) {
-      child2.lookAt(headPos);
-    }
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/video/data.ts
-function isVideoRecord(obj2) {
-  return isString(obj2.vcodec);
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/video/BaseVideoPlayer.ts
-var BaseVideoPlayer = class extends BaseAudioSource {
-  constructor(audioCtx) {
-    super("JuniperVideoPlayer", audioCtx, NoSpatializationNode.instance(audioCtx));
-    this.onTimeUpdate = null;
-    this.wasUsingAudioElement = false;
-    this.nextStartTime = null;
-    this._data = null;
-    this._loaded = false;
-    this.onError = /* @__PURE__ */ new Map();
-    this.sourcesByURL = /* @__PURE__ */ new Map();
-    this.sources = new PriorityList();
-    this.potatoes = new PriorityList();
-    this.video = this.createMediaElement(Video, controls(true));
-    this.audio = this.createMediaElement(Audio2, controls(false));
-    this.input = Gain("JuniperVideoPlayer-combiner", audioCtx);
-    this.videoSource = MediaElementSource(
-      "JuniperVideoPlayer-VideoNode",
-      audioCtx,
-      this.video,
-      this.input
-    );
-    this.audioSource = MediaElementSource(
-      "JuniperVideoPlayer-AudioNode",
-      audioCtx,
-      this.audio,
-      this.input
-    );
-    this.loadingEvt = new MediaPlayerLoadingEvent(this);
-    this.loadEvt = new MediaElementSourceLoadedEvent(this);
-    this.playEvt = new MediaElementSourcePlayedEvent(this);
-    this.pauseEvt = new MediaElementSourcePausedEvent(this);
-    this.stopEvt = new MediaElementSourceStoppedEvent(this);
-    this.progEvt = new MediaElementSourceProgressEvent(this);
-    this.onSeeked = () => {
-      if (this.useAudioElement) {
-        this.audio.currentTime = this.video.currentTime;
-      }
-    };
-    this.onPlay = async () => {
-      this.connect();
-      this.onSeeked();
-      if (this.useAudioElement) {
-        await audioReady(this.audioCtx);
-        await this.audio.play();
-      }
-      this.dispatchEvent(this.playEvt);
-    };
-    this.onPause = (evt) => {
-      this.disconnect();
-      if (this.useAudioElement) {
-        this.onSeeked();
-        this.audio.pause();
-      }
-      if (this.video.currentTime === 0 || evt.type === "ended") {
-        this.dispatchEvent(this.stopEvt);
-      } else {
-        this.dispatchEvent(this.pauseEvt);
-      }
-    };
-    let wasWaiting = false;
-    this.onWaiting = () => {
-      if (this.useAudioElement) {
-        wasWaiting = true;
-        this.audio.pause();
-      }
-    };
-    this.onCanPlay = async () => {
-      if (this.useAudioElement && wasWaiting) {
-        await audioReady(this.audioCtx);
-        await this.audio.play();
-        wasWaiting = false;
-      }
-    };
-    this.wasUsingAudioElement = false;
-    this.onTimeUpdate = async () => {
-      const quality = this.video.getVideoPlaybackQuality();
-      if (quality.totalVideoFrames === 0) {
-        const onError = this.onError.get(this.video);
-        if (isDefined(onError)) {
-          await onError();
-        }
-      } else if (this.useAudioElement) {
-        this.wasUsingAudioElement = false;
-        const delta2 = this.video.currentTime - this.audio.currentTime;
-        if (Math.abs(delta2) > 0.25) {
-          this.audio.currentTime = this.video.currentTime;
-        }
-      } else if (!this.wasUsingAudioElement) {
-        this.wasUsingAudioElement = true;
-        this.audio.pause();
-      }
-      this.progEvt.value = this.video.currentTime;
-      this.progEvt.total = this.video.duration;
-      this.dispatchEvent(this.progEvt);
-    };
-    this.video.addEventListener("seeked", this.onSeeked);
-    this.video.addEventListener("play", this.onPlay);
-    this.video.addEventListener("pause", this.onPause);
-    this.video.addEventListener("ended", this.onPause);
-    this.video.addEventListener("waiting", this.onWaiting);
-    this.video.addEventListener("canplay", this.onCanPlay);
-    this.video.addEventListener("timeupdate", this.onTimeUpdate);
-    Object.assign(window, { videoPlayer: this });
-  }
-  get data() {
-    return this._data;
-  }
-  get loaded() {
-    return this._loaded;
-  }
-  get title() {
-    return this.video.title;
-  }
-  setTitle(v) {
-    this.video.title = v;
-    this.audio.title = v;
-  }
-  elementHasAudio(elem) {
-    const source = this.sourcesByURL.get(elem.src);
-    return isDefined(source) && source.acodec !== "none" || isDefined(elem.audioTracks) && elem.audioTracks.length > 0 || isDefined(elem.webkitAudioDecodedByteCount) && elem.webkitAudioDecodedByteCount > 0 || isDefined(elem.mozHasAudio) && elem.mozHasAudio;
-  }
-  get useAudioElement() {
-    return !this.elementHasAudio(this.video) && this.elementHasAudio(this.audio);
-  }
-  onDisposing() {
-    super.onDisposing();
-    this.clear();
-    removeVertex(this.input);
-    removeVertex(this.videoSource);
-    removeVertex(this.audioSource);
-    this.video.removeEventListener("seeked", this.onSeeked);
-    this.video.removeEventListener("play", this.onPlay);
-    this.video.removeEventListener("pause", this.onPause);
-    this.video.removeEventListener("ended", this.onPause);
-    this.video.removeEventListener("waiting", this.onWaiting);
-    this.video.removeEventListener("canplay", this.onCanPlay);
-    this.video.removeEventListener("timeupdate", this.onTimeUpdate);
-  }
-  clear() {
-    this.stop();
-    for (const [elem, onError] of this.onError) {
-      elem.removeEventListener("error", onError);
-    }
-    this.onError.clear();
-    this.sourcesByURL.clear();
-    this.sources.clear();
-    this.potatoes.clear();
-    this.video.src = "";
-    this.audio.src = "";
-    this.wasUsingAudioElement = false;
-    this._data = null;
-    this._loaded = false;
-  }
-  async load(data, prog) {
-    this.clear();
-    this._data = data;
-    if (isString(data)) {
-      this.setTitle(data);
-      this.potatoes.add(this.video, data);
-    } else {
-      this.setTitle(data.title);
-      this.fillSources(this.video, data.videos);
-      this.fillSources(this.audio, data.audios);
-    }
-    if (!this.hasSources(this.video)) {
-      throw new Error("No video sources found");
-    }
-    this.dispatchEvent(this.loadingEvt);
-    await progressTasks(
-      prog,
-      (prog2) => this.loadMediaElement(this.audio, prog2),
-      (prog2) => this.loadMediaElement(this.video, prog2)
-    );
-    if (isString(data)) {
-      this.nextStartTime = null;
-    } else {
-      this.nextStartTime = data.startTime;
-    }
-    if (!this.hasSources(this.video)) {
-      throw new Error("No video playable sources");
-    }
-    this._loaded = true;
-    this.dispatchEvent(this.loadEvt);
-    return this;
-  }
-  fillSources(elem, formats) {
-    arraySortByKeyInPlace(formats, (f) => -f.resolution);
-    for (const format of formats) {
-      if (!Video_Vendor_Mpeg_Dash_Mpd.matches(format.contentType)) {
-        this.sources.add(elem, format);
-        this.sourcesByURL.set(format.url, format);
-      }
-    }
-  }
-  createMediaElement(MediaElement, ...rest) {
-    return MediaElement(
-      playsInline(true),
-      autoPlay(false),
-      loop(false),
-      ...rest
-    );
-  }
-  async getMediaCapabilities(source) {
-    const config = {
-      type: "file"
-    };
-    if (isVideoRecord(source)) {
-      config.video = {
-        contentType: source.contentType,
-        bitrate: source.vbr * 1024,
-        framerate: source.fps,
-        width: source.width,
-        height: source.height
-      };
-    } else if (source.acodec !== "none") {
-      config.audio = {
-        contentType: source.contentType,
-        bitrate: source.abr * 1024,
-        samplerate: source.asr
-      };
-    }
-    try {
-      return await navigator.mediaCapabilities.decodingInfo(config);
-    } catch {
-      return {
-        supported: true,
-        powerEfficient: false,
-        smooth: false,
-        configuration: config
-      };
-    }
-  }
-  hasSources(elem) {
-    return this.sources.get(elem).length > 0 || this.potatoes.count(elem) > 0;
-  }
-  async loadMediaElement(elem, prog) {
-    if (isDefined(prog)) {
-      prog.start();
-    }
-    if (this.onError.has(elem)) {
-      elem.removeEventListener("error", this.onError.get(elem));
-      this.onError.delete(elem);
-    }
-    while (this.hasSources(elem)) {
-      let url = null;
-      const source = this.sources.get(elem).shift();
-      if (isDefined(source)) {
-        const caps = await this.getMediaCapabilities(source);
-        if (!caps.smooth || !caps.powerEfficient) {
-          this.potatoes.add(elem, source.url);
-          continue;
-        } else {
-          url = source.url;
-        }
-      } else {
-        url = this.potatoes.get(elem).shift();
-      }
-      elem.src = url;
-      elem.load();
-      if (await mediaElementCanPlayThrough(elem)) {
-        if (isDefined(source)) {
-          this.sources.get(elem).unshift(source);
-        } else {
-          this.potatoes.get(elem).unshift(url);
-        }
-        const onError = () => this.loadMediaElement(elem, prog);
-        elem.addEventListener("error", onError);
-        this.onError.set(elem, onError);
-        this.wasUsingAudioElement = this.wasUsingAudioElement;
-        if (isDefined(prog)) {
-          prog.end();
-        }
-        return;
-      }
-    }
-  }
-  get width() {
-    return this.video.videoWidth;
-  }
-  get height() {
-    return this.video.videoHeight;
-  }
-  get playbackState() {
-    if (isNullOrUndefined(this.data)) {
-      return "empty";
-    }
-    if (!this.loaded) {
-      return "loading";
-    }
-    if (this.video.error) {
-      return "errored";
-    }
-    if (this.video.ended || this.video.paused && this.video.currentTime === 0) {
-      return "stopped";
-    }
-    if (this.video.paused) {
-      return "paused";
-    }
-    return "playing";
-  }
-  async play() {
-    await audioReady(this.audioCtx);
-    if (isDefined(this.nextStartTime) && this.nextStartTime > 0) {
-      this.video.pause();
-      this.video.currentTime = this.nextStartTime;
-      this.nextStartTime = null;
-    }
-    await this.video.play();
-  }
-  async playThrough() {
-    const endTask = once(this, "stopped");
-    await this.play();
-    await endTask;
-  }
-  pause() {
-    this.video.pause();
-  }
-  stop() {
-    this.pause();
-    this.video.currentTime = 0;
-  }
-  restart() {
-    this.stop();
-    return this.play();
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/CustomGeometry.ts
-function normalizeQuad(quad) {
-  return [
-    normalizeTriangle([quad[1], quad[0], quad[2]]),
-    normalizeTriangle([quad[2], quad[0], quad[3]])
-  ];
-}
-function normalizeQuads(quads) {
-  return quads.map(normalizeQuad).flat();
-}
-var A2 = new THREE.Vector3();
-var B = new THREE.Vector3();
-var C = new THREE.Vector3();
-function normalizeTriangle(tria) {
-  const positions = [
-    [tria[0][0], tria[0][1], tria[0][2]],
-    [tria[1][0], tria[1][1], tria[1][2]],
-    [tria[2][0], tria[2][1], tria[2][2]]
-  ];
-  const uvs = [
-    [tria[0][3], tria[0][4]],
-    [tria[1][3], tria[1][4]],
-    [tria[2][3], tria[2][4]]
-  ];
-  C.fromArray(positions[0]);
-  A2.fromArray(positions[1]).sub(C);
-  C.fromArray(positions[2]);
-  B.fromArray(positions[1]).sub(C);
-  A2.cross(B);
-  const normal = A2.toArray();
-  return {
-    positions,
-    uvs,
-    normal
-  };
-}
-function createGeometry(nFaces) {
-  const positions = nFaces.map((f) => f.positions).flat(2);
-  const uvs = nFaces.map((f) => f.uvs).flat(2);
-  const normals = nFaces.flatMap((f) => f.normal);
-  const geom2 = new THREE.BufferGeometry();
-  geom2.setAttribute("position", new THREE.BufferAttribute(new Float32Array(positions), 3, false));
-  geom2.setAttribute("uv", new THREE.BufferAttribute(new Float32Array(uvs), 2, false));
-  geom2.setAttribute("normal", new THREE.BufferAttribute(new Float32Array(normals), 3, true));
-  return geom2;
-}
-function createQuadGeometry(...quads) {
-  const faces = normalizeQuads(quads);
-  return createGeometry(faces);
-}
-function createEACGeometry(subDivs, ...quads) {
-  let remappingQuads = mapEACSubdivision(quads);
-  for (let i = 0; i < subDivs; ++i) {
-    remappingQuads = subdivide(remappingQuads);
-  }
-  quads = unmapEACSubdivision(remappingQuads);
-  const faces = normalizeQuads(quads);
-  return createGeometry(faces);
-}
-function mapEACSubdivision(quads) {
-  return quads.map((quad) => {
-    let minU = Number.MAX_VALUE;
-    let maxU = Number.MIN_VALUE;
-    let minV = Number.MAX_VALUE;
-    let maxV = Number.MIN_VALUE;
-    for (const vert of quad) {
-      const u = vert[3];
-      const v = vert[4];
-      minU = Math.min(minU, u);
-      maxU = Math.max(maxU, u);
-      minV = Math.min(minV, v);
-      maxV = Math.max(maxV, v);
-    }
-    const minUV = [minU, minV];
-    const deltaUV = [maxU - minU, maxV - minV];
-    return {
-      minUV,
-      deltaUV,
-      verts: [
-        mapEACSubdivVert(minUV, deltaUV, quad[0]),
-        mapEACSubdivVert(minUV, deltaUV, quad[1]),
-        mapEACSubdivVert(minUV, deltaUV, quad[2]),
-        mapEACSubdivVert(minUV, deltaUV, quad[3])
-      ]
-    };
-  });
-}
-function mapEACSubdivVert(minUV, deltaUV, vert) {
-  return {
-    pos: [vert[0], vert[1], vert[2]],
-    uv: [vert[3], vert[4]],
-    pUV: [
-      (vert[3] - minUV[0]) / deltaUV[0],
-      (vert[4] - minUV[1]) / deltaUV[1]
-    ]
-  };
-}
-function unmapEACSubdivision(quadsx) {
-  return quadsx.map((quadx) => [
-    unmapEACSubdivVert(quadx, 0),
-    unmapEACSubdivVert(quadx, 1),
-    unmapEACSubdivVert(quadx, 2),
-    unmapEACSubdivVert(quadx, 3)
-  ]);
-}
-function unmapEACSubdivVert(quadx, i) {
-  const vert = quadx.verts[i];
-  return [
-    vert.pos[0],
-    vert.pos[1],
-    vert.pos[2],
-    vert.uv[0],
-    vert.uv[1]
-  ];
-}
-function subdivide(quadsx) {
-  return quadsx.flatMap((quadx) => {
-    const midU1 = midpoint(quadx, quadx.verts[0], quadx.verts[1]);
-    const midU2 = midpoint(quadx, quadx.verts[2], quadx.verts[3]);
-    const midV1 = midpoint(quadx, quadx.verts[0], quadx.verts[3]);
-    const midV2 = midpoint(quadx, quadx.verts[1], quadx.verts[2]);
-    const mid = midpoint(quadx, midU1, midU2);
-    return [{
-      minUV: quadx.minUV,
-      deltaUV: quadx.deltaUV,
-      verts: [quadx.verts[0], midU1, mid, midV1]
-    }, {
-      minUV: quadx.minUV,
-      deltaUV: quadx.deltaUV,
-      verts: [midU1, quadx.verts[1], midV2, mid]
-    }, {
-      minUV: quadx.minUV,
-      deltaUV: quadx.deltaUV,
-      verts: [mid, midV2, quadx.verts[2], midU2]
-    }, {
-      minUV: quadx.minUV,
-      deltaUV: quadx.deltaUV,
-      verts: [midV1, mid, midU2, quadx.verts[3]]
-    }];
-  });
-}
-function midpoint(quadx, from, to) {
-  const dx = to.pos[0] - from.pos[0];
-  const dy = to.pos[1] - from.pos[1];
-  const dz = to.pos[2] - from.pos[2];
-  const x = from.pos[0] + 0.5 * dx;
-  const y = from.pos[1] + 0.5 * dy;
-  const z = from.pos[2] + 0.5 * dz;
-  const dpu = to.pUV[0] - from.pUV[0];
-  const dpv = to.pUV[1] - from.pUV[1];
-  const pu = from.pUV[0] + 0.5 * dpu;
-  const pv = from.pUV[1] + 0.5 * dpv;
-  const mu = mapEACUV(pu - 0.5) + 0.5;
-  const mv = mapEACUV(pv - 0.5) + 0.5;
-  const u = mu * quadx.deltaUV[0] + quadx.minUV[0];
-  const v = mv * quadx.deltaUV[1] + quadx.minUV[1];
-  return {
-    pos: [x, y, z],
-    pUV: [pu, pv],
-    uv: [u, v]
-  };
-}
-function mapEACUV(uv) {
-  return 2 * Math.atan(2 * uv) / Math.PI;
-}
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/VideoPlayer3D.ts
 var VideoPlayer3D = class extends BaseVideoPlayer {
@@ -11081,6 +10131,11 @@ function rot(def) {
   return def.map(rotQuad);
 }
 
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math/powerOf2.ts
+function nextPowerOf2(v) {
+  return Math.pow(2, Math.ceil(Math.log2(v)));
+}
+
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/widgets/ButtonFactory.ts
 var ButtonFactory = class {
   constructor(imagePaths, padding2, debug) {
@@ -11145,12 +10200,12 @@ var ButtonFactory = class {
       this.uvDescrips.add(setName, imgName, { u, v, du, dv });
       ++i;
     }
-    this.texture = new THREE.CanvasTexture(this.canvas);
-    this.enabledMaterial = new THREE.MeshBasicMaterial({
+    this.texture = new CanvasTexture(this.canvas);
+    this.enabledMaterial = new MeshBasicMaterial({
       map: this.texture
     });
     this.enabledMaterial.needsUpdate = true;
-    this.disabledMaterial = new THREE.MeshBasicMaterial({
+    this.disabledMaterial = new MeshBasicMaterial({
       map: this.texture,
       transparent: true,
       opacity: 0.5
@@ -11179,7 +10234,7 @@ var ButtonFactory = class {
     }
     let geom2 = this.geoms.get(setName, iconName);
     if (!geom2) {
-      geom2 = new THREE.PlaneBufferGeometry(1, 1, 1, 1);
+      geom2 = new PlaneBufferGeometry(1, 1, 1, 1);
       geom2.name = `Geometry:${setName}/${iconName}`;
       this.geoms.add(setName, iconName, geom2);
       const uvBuffer = geom2.getAttribute("uv");
@@ -11219,6 +10274,76 @@ var ButtonFactory = class {
     );
   }
 };
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/RayTarget.ts
+var RAY_TARGET_KEY = "Juniper:ThreeJS:EventSystem:RayTarget";
+var RayTarget = class extends TypedEventBase {
+  constructor(object) {
+    super();
+    this.object = object;
+    this.meshes = new Array();
+    this._disabled = false;
+    this._clickable = false;
+    this._draggable = false;
+    this._navigable = false;
+    this.object.userData[RAY_TARGET_KEY] = this;
+  }
+  addMesh(mesh2) {
+    mesh2.userData[RAY_TARGET_KEY] = this;
+    this.meshes.push(mesh2);
+    return this;
+  }
+  get disabled() {
+    return this._disabled;
+  }
+  set disabled(v) {
+    this._disabled = v;
+  }
+  get enabled() {
+    return !this.disabled;
+  }
+  set enabled(v) {
+    this.disabled = !v;
+  }
+  get clickable() {
+    return this._clickable;
+  }
+  set clickable(v) {
+    this._clickable = v;
+  }
+  get draggable() {
+    return this._draggable;
+  }
+  set draggable(v) {
+    this._draggable = v;
+  }
+  get navigable() {
+    return this._navigable;
+  }
+  set navigable(v) {
+    this._navigable = v;
+  }
+};
+function isRayTarget(obj2) {
+  return obj2 instanceof RayTarget;
+}
+function getRayTarget(obj2) {
+  let target = null;
+  if (obj2) {
+    if (isRayTarget(obj2)) {
+      target = obj2;
+    } else {
+      obj2 = objectResolve(obj2);
+      if (obj2) {
+        target = obj2.userData[RAY_TARGET_KEY];
+      }
+    }
+    if (target && !objectIsFullyVisible(target)) {
+      target = null;
+    }
+  }
+  return target;
+}
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/widgets/MeshButton.ts
 var MeshButton = class extends RayTarget {
@@ -11306,6 +10431,443 @@ var ButtonImageWidget = class {
     if (this.mesh) {
       this.mesh.disabled = v;
     }
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/widgets/CanvasImageMesh.ts
+var redrawnEvt = { type: "redrawn" };
+var CanvasImageMesh = class extends Image2D {
+  constructor(env, name2, webXRLayerType, image2, materialOptions) {
+    super(env, name2, webXRLayerType, materialOptions);
+    this._image = null;
+    this.image = image2;
+  }
+  get object() {
+    return this;
+  }
+  get element() {
+    if (isHTMLCanvas(this.image.canvas)) {
+      return this.image.canvas;
+    } else {
+      return null;
+    }
+  }
+  onRedrawn() {
+    this.updateTexture();
+    this.dispatchEvent(redrawnEvt);
+  }
+  get image() {
+    return this._image;
+  }
+  set image(v) {
+    if (this.image) {
+      this.image.removeScope(this);
+    }
+    this._image = v;
+    if (this.image) {
+      this.image.addScopedEventListener(this, "redrawn", () => this.onRedrawn());
+      this.setTextureMap(this.image.canvas);
+      this.onRedrawn();
+    }
+  }
+  get imageWidth() {
+    return this.image.width;
+  }
+  get imageHeight() {
+    return this.image.height;
+  }
+  copy(source, recursive = true) {
+    super.copy(source, recursive);
+    this.image = source.image;
+    return this;
+  }
+  get isVisible() {
+    return elementIsDisplayed(this);
+  }
+  set isVisible(v) {
+    elementSetDisplay(this, v, "inline-block");
+    objectSetVisible(this, v);
+    objectSetVisible(this.mesh, v);
+    this.image.visible = v;
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/graphics2d/animation/Animator.ts
+function isDead(task) {
+  return !task.started || task.finished;
+}
+var AnimationTask = class extends Task {
+  constructor() {
+    super(false);
+    this.time = 0;
+    this.duration = 0;
+    this.onTick = null;
+  }
+  begin(delay, duration, onTick) {
+    this.reset();
+    this.start();
+    this.time = -delay;
+    this.duration = duration;
+    this.onTick = onTick;
+    this.onTick(0);
+  }
+  update(dt) {
+    if (!isDead(this)) {
+      this.time += dt / this.duration;
+      if (this.time >= 1) {
+        this.onTick(1);
+        this.resolve();
+      } else if (this.time >= 0) {
+        this.onTick(this.time);
+      }
+    }
+  }
+};
+var Animator = class {
+  constructor() {
+    this.animations = new Array();
+  }
+  update(dt) {
+    dt = 1e-3 * dt;
+    for (const animation of this.animations) {
+      animation.update(dt);
+    }
+  }
+  clear() {
+    for (const animation of this.animations) {
+      animation.resolve();
+    }
+  }
+  start(delay, duration, update) {
+    let task = arrayScan(this.animations, isDead);
+    if (!task) {
+      this.animations.push(task = new AnimationTask());
+    }
+    task.begin(delay, duration, update);
+    return task;
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/widgets/DialogBox/styles.ts
+Style(
+  rule(
+    ".dialog, .dialog-container",
+    position("fixed")
+  ),
+  rule(
+    ".dialog",
+    top(0),
+    left(0),
+    width("100%"),
+    height("100%"),
+    backgroundColor("rgba(0, 0, 0, 0.5)"),
+    zIndex(100)
+  ),
+  rule(
+    ".dialog-container",
+    top("50%"),
+    left("50%"),
+    maxWidth("100%"),
+    maxHeight("100%"),
+    transform("translateX(-50%) translateY(-50%)"),
+    backgroundColor("white"),
+    boxShadow("rgba(0,0,0,0.5) 0px 5px 30px"),
+    display("grid"),
+    gridTemplateColumns("2em auto 2em"),
+    gridTemplateRows("auto 1fr auto 2em")
+  ),
+  rule(
+    ".dialog .title-bar",
+    gridArea(1, 1, 2, -1),
+    padding("0.25em")
+  ),
+  rule(
+    ".dialog-content",
+    gridArea(2, 2, -4, -2),
+    overflow("auto")
+  ),
+  rule(
+    ".dialog-controls",
+    gridArea(-2, 2, -3, -2)
+  ),
+  rule(
+    ".dialog .confirm-button",
+    float("right")
+  ),
+  rule(
+    ".dialog h1, .dialog h2, .dialog h3, .dialog h4, .dialog h5, .dialog h6",
+    textAlign("left")
+  ),
+  rule(
+    ".dialog select",
+    maxWidth("10em")
+  )
+);
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/widgets/DialogBox/index.ts
+var DialogBox = class {
+  constructor(title2) {
+    this.subEventer = new TypedEventBase();
+    this.element = Div(
+      className("dialog"),
+      customData("dialogname", title2),
+      styles(display("none")),
+      this.container = Div(
+        className("dialog-container"),
+        this.titleElement = H1(className("title-bar"), title2),
+        this.contentArea = Div(className("dialog-content")),
+        Div(
+          className("dialog-controls"),
+          this.confirmButton = ButtonPrimary("Confirm", classList("confirm-button")),
+          this.cancelButton = ButtonSecondary("Cancel", classList("cancel-button"))
+        )
+      )
+    );
+    this.confirmButton.addEventListener("click", () => this.subEventer.dispatchEvent(new TypedEvent("confirm")));
+    this.cancelButton.addEventListener("click", () => this.subEventer.dispatchEvent(new TypedEvent("cancel")));
+    elementApply(document.body, this);
+  }
+  get title() {
+    return this._title;
+  }
+  set title(v) {
+    elementSetText(this.titleElement, this._title = v);
+  }
+  async onShowing() {
+  }
+  onShown() {
+  }
+  async onConfirm() {
+  }
+  onCancel() {
+  }
+  async onClosing() {
+  }
+  onClosed() {
+  }
+  show(v) {
+    elementSetDisplay(this, v);
+  }
+  get isOpen() {
+    return elementIsDisplayed(this);
+  }
+  async showDialog() {
+    await this.onShowing();
+    this.show(true);
+    this.onShown();
+    const confirming = once(this.subEventer, "confirm", "cancel");
+    const confirmed = await success(confirming);
+    if (confirmed) {
+      await this.onConfirm();
+    } else {
+      this.onCancel();
+    }
+    await this.onClosing();
+    this.show(false);
+    this.onClosed();
+    return confirmed;
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/widgets/TextMesh.ts
+var TextMesh = class extends CanvasImageMesh {
+  constructor(env, name2, textOptions, materialOptions) {
+    let image2;
+    if (textOptions instanceof TextImage) {
+      image2 = textOptions;
+    } else {
+      image2 = new TextImage(textOptions);
+    }
+    super(env, name2, "none", image2, materialOptions);
+  }
+  onRedrawn() {
+    this.objectHeight = this.imageHeight;
+    super.onRedrawn();
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/widgets/TextMeshButton.ts
+var TextMeshButton = class extends RayTarget {
+  constructor(env, name2, value2, textImageOptions) {
+    super(obj(name2));
+    this.env = env;
+    if (isDefined(value2)) {
+      textImageOptions = Object.assign({
+        textFillColor: "#ffffff",
+        fontFamily: "Segoe UI Emoji",
+        fontSize: 20,
+        minHeight: 0.25,
+        maxHeight: 0.25
+      }, textImageOptions, {
+        value: value2
+      });
+      this.image = new TextImage(textImageOptions);
+      const id2 = stringRandom(16);
+      this.enabledImage = this.createImage(`${id2}-enabled`, 1);
+      this.disabledImage = this.createImage(`${id2}-disabled`, 0.5);
+      this.disabledImage.visible = false;
+      objGraph(this, this.enabledImage, this.disabledImage);
+    }
+    this.addMesh(this.enabledImage.mesh);
+    this.addMesh(this.disabledImage.mesh);
+    this.clickable = true;
+    if (isDefined(value2)) {
+      scaleOnHover(this, true);
+    }
+  }
+  createImage(id2, opacity) {
+    const image2 = new TextMesh(
+      this.env,
+      `text-${id2}`,
+      this.image,
+      {
+        side: FrontSide,
+        opacity
+      }
+    );
+    return image2;
+  }
+  get disabled() {
+    return super.disabled;
+  }
+  set disabled(v) {
+    super.disabled = v;
+    this.enabledImage.visible = !v;
+    this.disabledImage.visible = v;
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/widgets/ConfirmationDialog.ts
+var baseTextStyle = {
+  bgStrokeColor: "#000000",
+  bgStrokeSize: 0.04,
+  wrapWords: false,
+  textFillColor: "#ffffff",
+  scale: 150
+};
+var textButtonStyle = Object.assign({}, baseTextStyle, {
+  padding: {
+    left: 0.1,
+    right: 0.1,
+    top: 0.025,
+    bottom: 0.025
+  },
+  fontSize: 20,
+  minHeight: 0.5,
+  maxHeight: 0.5
+});
+var confirmButton3DStyle = Object.assign({}, textButtonStyle, {
+  bgFillColor: "#0078d7"
+});
+var cancelButton3DStyle = Object.assign({}, textButtonStyle, {
+  bgFillColor: "#780000"
+});
+var textLabelStyle = Object.assign({}, baseTextStyle, {
+  bgFillColor: "#ffffff",
+  textFillColor: "#000000",
+  padding: {
+    top: 0.1,
+    left: 0.1,
+    bottom: 0.4,
+    right: 0.1
+  },
+  fontSize: 25,
+  minHeight: 1,
+  maxHeight: 1
+});
+var JUMP_FACTOR = 0.9;
+function newStyle(baseStyle, fontFamily) {
+  return Object.assign({}, baseStyle, { fontFamily });
+}
+var ConfirmationDialog = class extends DialogBox {
+  constructor(env, fontFamily) {
+    super("Confirm action");
+    this.env = env;
+    this.object = obj("ConfirmationDialog");
+    this.root = obj("Root");
+    this.animator = new Animator();
+    this.a = 0;
+    this.b = 0;
+    this.confirmButton.innerText = "Yes";
+    this.cancelButton.innerText = "No";
+    this.mesh = new TextMesh(this.env, "confirmationDialogLabel", newStyle(textLabelStyle, fontFamily));
+    this.confirmButton3D = new TextMeshButton(this.env, "confirmationDialogConfirmButton", "Yes", newStyle(confirmButton3DStyle, fontFamily));
+    this.confirmButton3D.addEventListener("click", () => this.confirmButton.click());
+    this.confirmButton3D.object.position.set(1, -0.5, 0.5);
+    this.cancelButton3D = new TextMeshButton(this.env, "confirmationDialogCancelButton", "No", newStyle(cancelButton3DStyle, fontFamily));
+    this.cancelButton3D.addEventListener("click", () => this.cancelButton.click());
+    this.cancelButton3D.object.position.set(2, -0.5, 0.5);
+    elementApply(this.container, styles(
+      maxWidth("calc(100% - 2em)"),
+      width("max-content")
+    ));
+    elementApply(this.contentArea, styles(
+      fontSize("18pt"),
+      textAlign("center"),
+      padding("1em")
+    ));
+    objGraph(
+      this,
+      objGraph(
+        this.root,
+        this.mesh,
+        this.confirmButton3D,
+        this.cancelButton3D
+      )
+    );
+    objectSetVisible(this.root, false);
+    this.root.scale.setScalar(0);
+    this.onTick = (t2) => {
+      const scale4 = jump(this.a + this.b * t2, JUMP_FACTOR);
+      this.root.scale.set(scale4, scale4, 0.01);
+    };
+  }
+  get name() {
+    return this.object.name;
+  }
+  get visible() {
+    return elementIsDisplayed(this);
+  }
+  set visible(visible) {
+    elementSetDisplay(this, visible, "inline-block");
+    this.mesh.visible = visible;
+  }
+  update(dt) {
+    this.animator.update(dt);
+  }
+  async showHide(a, b) {
+    this.a = a;
+    this.b = b;
+    await this.animator.start(0, 0.25, this.onTick);
+    this.animator.clear();
+  }
+  get use3D() {
+    return this.env.renderer.xr.isPresenting || this.env.testSpaceLayout;
+  }
+  async onShowing() {
+    await super.onShowing();
+    if (this.use3D) {
+      this.root.visible = true;
+      await this.showHide(0, 1);
+    }
+  }
+  onShown() {
+    if (this.use3D) {
+      this.element.style.display = "none";
+    }
+  }
+  async onClosing() {
+    if (this.use3D) {
+      await this.showHide(1, -1);
+      this.root.visible = false;
+    }
+    await super.onClosing();
+  }
+  prompt(title2, message) {
+    this.title = title2;
+    elementSetText(this.contentArea, message);
+    this.mesh.image.value = message;
+    return this.showDialog();
   }
 };
 
@@ -11421,6 +10983,198 @@ function widgetSetEnabled(obj2, enabled) {
   objectSetEnabled(obj2, enabled);
 }
 
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/progress/progressPopper.ts
+function progressPopper(progress) {
+  return new PoppableParentProgressCallback(progress);
+}
+var PoppableParentProgressCallback = class extends BaseParentProgressCallback {
+  pop(weight) {
+    return this.addSubProgress(weight);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/URLBuilder.ts
+function parsePort(portString) {
+  if (isDefined(portString) && portString.length > 0) {
+    return parseFloat(portString);
+  }
+  return null;
+}
+var URLBuilder = class {
+  constructor(url, base) {
+    this._url = null;
+    this._base = void 0;
+    this._protocol = null;
+    this._host = null;
+    this._hostName = null;
+    this._userName = null;
+    this._password = null;
+    this._port = null;
+    this._pathName = null;
+    this._hash = null;
+    this._query = /* @__PURE__ */ new Map();
+    if (url !== void 0) {
+      this._url = new URL(url, base);
+      this.rehydrate();
+    }
+  }
+  rehydrate() {
+    if (isDefined(this._protocol) && this._protocol !== this._url.protocol) {
+      this._url.protocol = this._protocol;
+    }
+    if (isDefined(this._host) && this._host !== this._url.host) {
+      this._url.host = this._host;
+    }
+    if (isDefined(this._hostName) && this._hostName !== this._url.hostname) {
+      this._url.hostname = this._hostName;
+    }
+    if (isDefined(this._userName) && this._userName !== this._url.username) {
+      this._url.username = this._userName;
+    }
+    if (isDefined(this._password) && this._password !== this._url.password) {
+      this._url.password = this._password;
+    }
+    if (isDefined(this._port) && this._port.toFixed(0) !== this._url.port) {
+      this._url.port = this._port.toFixed(0);
+    }
+    if (isDefined(this._pathName) && this._pathName !== this._url.pathname) {
+      this._url.pathname = this._pathName;
+    }
+    if (isDefined(this._hash) && this._hash !== this._url.hash) {
+      this._url.hash = this._hash;
+    }
+    for (const [k, v] of this._query) {
+      this._url.searchParams.set(k, v);
+    }
+    this._protocol = this._url.protocol;
+    this._host = this._url.host;
+    this._hostName = this._url.hostname;
+    this._userName = this._url.username;
+    this._password = this._url.password;
+    this._port = parsePort(this._url.port);
+    this._pathName = this._url.pathname;
+    this._hash = this._url.hash;
+    this._url.searchParams.forEach((v, k) => this._query.set(k, v));
+  }
+  refresh() {
+    if (this._url === null) {
+      if (isDefined(this._protocol) && (isDefined(this._host) || isDefined(this._hostName))) {
+        if (isDefined(this._host)) {
+          this._url = new URL(`${this._protocol}//${this._host}`, this._base);
+          this._port = parsePort(this._url.port);
+          this.rehydrate();
+          return false;
+        } else if (isDefined(this._hostName)) {
+          this._url = new URL(`${this._protocol}//${this._hostName}`, this._base);
+          this.rehydrate();
+          return false;
+        }
+      } else if (isDefined(this._pathName) && isDefined(this._base)) {
+        this._url = new URL(this._pathName, this._base);
+        this.rehydrate();
+        return false;
+      }
+    }
+    return isDefined(this._url);
+  }
+  base(base) {
+    if (this._url !== null) {
+      throw new Error("Cannot redefine base after defining the protocol and domain");
+    }
+    this._base = base;
+    this.refresh();
+    return this;
+  }
+  protocol(protocol) {
+    this._protocol = protocol;
+    if (this.refresh()) {
+      this._url.protocol = protocol;
+    }
+    return this;
+  }
+  host(host) {
+    this._host = host;
+    if (this.refresh()) {
+      this._url.host = host;
+      this._hostName = this._url.hostname;
+      this._port = parsePort(this._url.port);
+    }
+    return this;
+  }
+  hostName(hostName) {
+    this._hostName = hostName;
+    if (this.refresh()) {
+      this._url.hostname = hostName;
+      this._host = `${this._url.hostname}:${this._url.port}`;
+    }
+    return this;
+  }
+  port(port) {
+    this._port = port;
+    if (this.refresh()) {
+      this._url.port = port.toFixed(0);
+      this._host = `${this._url.hostname}:${this._url.port}`;
+    }
+    return this;
+  }
+  userName(userName) {
+    this._userName = userName;
+    if (this.refresh()) {
+      this._url.username = userName;
+    }
+    return this;
+  }
+  password(password) {
+    this._password = password;
+    if (this.refresh()) {
+      this._url.password = password;
+    }
+    return this;
+  }
+  path(path) {
+    this._pathName = path;
+    if (this.refresh()) {
+      this._url.pathname = path;
+    }
+    return this;
+  }
+  pathPop(pattern) {
+    pattern = pattern || /\/[^\/]+\/?$/;
+    return this.path(this._pathName.replace(pattern, ""));
+  }
+  pathPush(part) {
+    let path = this._pathName;
+    if (!path.endsWith("/")) {
+      path += "/";
+    }
+    path += part;
+    return this.path(path);
+  }
+  query(name2, value2) {
+    this._query.set(name2, value2);
+    if (this.refresh()) {
+      this._url.searchParams.set(name2, value2);
+    }
+    return this;
+  }
+  hash(hash) {
+    this._hash = hash;
+    if (this.refresh()) {
+      this._url.hash = hash;
+    }
+    return this;
+  }
+  toURL() {
+    return this._url;
+  }
+  toString() {
+    return this._url.href;
+  }
+  [Symbol.toStringTag]() {
+    return this.toString();
+  }
+};
+
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/environment/ApplicationLoader.ts
 var ApplicationLoaderEvent = class extends TypedEvent {
   constructor(type2, appName) {
@@ -11483,15 +11237,16 @@ var ApplicationLoader = class extends TypedEventBase {
     if (this.isLoaded(name2)) {
       return Promise.resolve(this.get(name2));
     }
-    return new Promise((resolve) => {
-      const onLoaded = (evt) => {
-        if (evt.appName === name2) {
-          this.removeEventListener("apploaded", onLoaded);
-          resolve(evt.app);
-        }
-      };
-      this.addEventListener("apploaded", onLoaded);
-    });
+    const task = new Task();
+    const onLoaded = (evt) => {
+      if (evt.appName === name2) {
+        this.removeEventListener("apploaded", onLoaded);
+        task.resolve(evt.app);
+      }
+    };
+    once(this, "apploaded").then((evt) => evt.app);
+    this.addEventListener("apploaded", onLoaded);
+    return task;
   }
   async loadAppConstructor(name2, prog) {
     if (!this.loadedModules.has(name2)) {
@@ -11564,8 +11319,14 @@ var ApplicationLoader = class extends TypedEventBase {
   }
 };
 
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math/angleClamp.ts
+var Tau = 2 * Math.PI;
+function angleClamp(v) {
+  return (v % Tau + Tau) % Tau;
+}
+
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/animation/lookAngles.ts
-var D = new THREE.Vector3();
+var D = new Vector3();
 function getLookHeading(dir) {
   D.copy(dir);
   D.y = 0;
@@ -11577,22 +11338,22 @@ function getLookPitch(dir) {
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/animation/BodyFollower.ts
-var targetPos = new THREE.Vector3();
+var targetPos = new Vector3();
 var targetAngle = 0;
-var dPos = new THREE.Vector3();
-var curPos = new THREE.Vector3();
-var curDir = new THREE.Vector3();
-var dQuat = new THREE.Quaternion();
+var dPos = new Vector3();
+var curPos = new Vector3();
+var curDir = new Vector3();
+var dQuat = new Quaternion();
 var curAngle = 0;
 var copyCounter2 = 0;
 function minRotAngle(to, from) {
   const a = to - from;
   const b = a + 2 * Math.PI;
   const c = a - 2 * Math.PI;
-  const A3 = Math.abs(a);
+  const A2 = Math.abs(a);
   const B2 = Math.abs(b);
   const C2 = Math.abs(c);
-  if (A3 < B2 && A3 < C2) {
+  if (A2 < B2 && A2 < C2) {
     return a;
   } else if (B2 < C2) {
     return b;
@@ -11600,7 +11361,7 @@ function minRotAngle(to, from) {
     return c;
   }
 }
-var BodyFollower = class extends THREE.Object3D {
+var BodyFollower = class extends Object3D {
   constructor(name2, minDistance, minAngle, heightOffset, speed = 1) {
     super();
     this.minDistance = minDistance;
@@ -11670,6 +11431,30 @@ var BodyFollower = class extends THREE.Object3D {
   }
 };
 
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/translateResponse.ts
+async function translateResponse(response, translate) {
+  const {
+    status,
+    path,
+    content,
+    contentType,
+    contentLength,
+    fileName,
+    headers,
+    date
+  } = response;
+  return {
+    status,
+    path,
+    content: await translate(content),
+    contentType,
+    contentLength,
+    fileName,
+    headers,
+    date
+  };
+}
+
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/AssetGltfModel.ts
 var AssetGltfModel = class extends BaseFetchedAsset {
   constructor(env, path, type2, useCache) {
@@ -11716,6 +11501,19 @@ function onInput(callback, opts) {
   return new HtmlEvt("input", callback, opts);
 }
 
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/events/Pointers.ts
+var PointerID = /* @__PURE__ */ ((PointerID2) => {
+  PointerID2[PointerID2["LocalUser"] = 0] = "LocalUser";
+  PointerID2[PointerID2["Mouse"] = 1] = "Mouse";
+  PointerID2[PointerID2["Pen"] = 2] = "Pen";
+  PointerID2[PointerID2["Touch"] = 3] = "Touch";
+  PointerID2[PointerID2["MotionController"] = 4] = "MotionController";
+  PointerID2[PointerID2["MotionControllerLeft"] = 5] = "MotionControllerLeft";
+  PointerID2[PointerID2["MotionControllerRight"] = 6] = "MotionControllerRight";
+  PointerID2[PointerID2["RemoteUser"] = 7] = "RemoteUser";
+  return PointerID2;
+})(PointerID || {});
+
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/AvatarMovedEvent.ts
 var AvatarMovedEvent = class extends TypedEvent {
   constructor() {
@@ -11747,6 +11545,14 @@ var AvatarMovedEvent = class extends TypedEvent {
     this.height = height2;
   }
 };
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math/truncate.ts
+function truncate(v) {
+  if (Math.abs(v) > 1e-4) {
+    return v;
+  }
+  return 0;
+}
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/resolveCamera.ts
 function resolveCamera(renderer, camera) {
@@ -11785,28 +11591,28 @@ var AvatarLocal = class extends TypedEventBase {
       ["touchswipe" /* Touch */, 50],
       ["gamepad" /* Gamepad */, 1]
     ]);
-    this.B = new THREE.Vector3(0, 0, 1);
-    this.R = new THREE.Vector3();
-    this.F = new THREE.Vector3();
-    this.U = new THREE.Vector3();
-    this.P = new THREE.Vector3();
-    this.M = new THREE.Matrix4();
-    this.E = new THREE.Euler();
-    this.Q1 = new THREE.Quaternion();
-    this.Q2 = new THREE.Quaternion();
-    this.Q3 = new THREE.Quaternion(-Math.sqrt(0.5), 0, 0, Math.sqrt(0.5));
-    this.Q4 = new THREE.Quaternion();
-    this.motion = new THREE.Vector2();
-    this.rotStage = new THREE.Matrix4();
+    this.B = new Vector3(0, 0, 1);
+    this.R = new Vector3();
+    this.F = new Vector3();
+    this.U = new Vector3();
+    this.P = new Vector3();
+    this.M = new Matrix4();
+    this.E = new Euler();
+    this.Q1 = new Quaternion();
+    this.Q2 = new Quaternion();
+    this.Q3 = new Quaternion(-Math.sqrt(0.5), 0, 0, Math.sqrt(0.5));
+    this.Q4 = new Quaternion();
+    this.motion = new Vector2();
+    this.rotStage = new Matrix4();
     this.userMovedEvt = new AvatarMovedEvent();
-    this.acceleration = new THREE.Vector2(2, 2);
-    this.speed = new THREE.Vector2(3, 2);
-    this.axisControl = new THREE.Vector2(0, 0);
-    this.deviceQ = new THREE.Quaternion().identity();
-    this.uv = new THREE.Vector2();
-    this.duv = new THREE.Vector2();
-    this.move = new THREE.Vector3();
-    this.move2 = new THREE.Vector3();
+    this.acceleration = new Vector2(2, 2);
+    this.speed = new Vector2(3, 2);
+    this.axisControl = new Vector2(0, 0);
+    this.deviceQ = new Quaternion().identity();
+    this.uv = new Vector2();
+    this.duv = new Vector2();
+    this.move = new Vector3();
+    this.move2 = new Vector3();
     this.followers = new Array();
     this.dz = 0;
     this._heading = 0;
@@ -11829,8 +11635,8 @@ var AvatarLocal = class extends TypedEventBase {
     this.grow = false;
     this.shrk = false;
     this._keyboardControlEnabled = false;
-    this.worldPos = new THREE.Vector3();
-    this.worldQuat = new THREE.Quaternion();
+    this.worldPos = new Vector3();
+    this.worldQuat = new Quaternion();
     this.fovZoomEnabled = true;
     this.minFOV = 15;
     this.maxFOV = 120;
@@ -11945,11 +11751,11 @@ var AvatarLocal = class extends TypedEventBase {
     if (this._keyboardControlEnabled !== v) {
       this._keyboardControlEnabled = v;
       if (this._keyboardControlEnabled) {
-        globalThis.addEventListener("keydown", this.onKeyDown);
-        globalThis.addEventListener("keyup", this.onKeyUp);
+        this.env.renderer.domElement.addEventListener("keydown", this.onKeyDown);
+        this.env.renderer.domElement.addEventListener("keyup", this.onKeyUp);
       } else {
-        globalThis.removeEventListener("keydown", this.onKeyDown);
-        globalThis.removeEventListener("keyup", this.onKeyUp);
+        this.env.renderer.domElement.removeEventListener("keydown", this.onKeyDown);
+        this.env.renderer.domElement.removeEventListener("keyup", this.onKeyUp);
       }
     }
   }
@@ -11969,12 +11775,12 @@ var AvatarLocal = class extends TypedEventBase {
       this.controlMode = "none" /* None */;
     } else if (pointer.type === "gamepad") {
       this.controlMode = "gamepad" /* Gamepad */;
-    } else if (pointer.rayTarget && pointer.rayTarget.draggable && !this.env.pointers.mouse.isPointerLocked && pointer.isPressed(0 /* Primary */)) {
+    } else if (pointer.rayTarget && pointer.rayTarget.draggable && !this.env.eventSys.mouse.isPointerLocked && pointer.isPressed(0 /* Primary */)) {
       this.controlMode = "mouseedge" /* ScreenEdge */;
     } else if (pointer.type === "touch" || pointer.type === "pen") {
       this.controlMode = "touchswipe" /* Touch */;
     } else if (pointer.type === "mouse") {
-      this.controlMode = this.env.pointers.mouse.isPointerLocked ? "mousefirstperson" /* MouseFPS */ : "mousedrag" /* MouseDrag */;
+      this.controlMode = this.env.eventSys.mouse.isPointerLocked ? "mousefirstperson" /* MouseFPS */ : "mousedrag" /* MouseDrag */;
     } else {
       assertNever(pointer.type);
     }
@@ -12033,10 +11839,10 @@ var AvatarLocal = class extends TypedEventBase {
     const device = this.deviceOrientation;
     if (device && isGoodNumber(device.alpha) && isGoodNumber(device.beta) && isGoodNumber(device.gamma)) {
       const alpha = deg2rad(device.alpha) + this.alphaOffset;
-      const beta2 = deg2rad(device.beta);
+      const beta = deg2rad(device.beta);
       const gamma = deg2rad(device.gamma);
       const orient = this.screenOrientation ? deg2rad(this.screenOrientation) : 0;
-      this.E.set(beta2, alpha, -gamma, "YXZ");
+      this.E.set(beta, alpha, -gamma, "YXZ");
       this.Q2.setFromAxisAngle(this.B, -orient);
       this.Q4.setFromEuler(this.E).multiply(this.Q3).multiply(this.Q2);
       this.deviceQ.slerp(this.Q4, 0.8);
@@ -12108,9 +11914,9 @@ var AvatarLocal = class extends TypedEventBase {
       this.duv.setScalar(0);
     }
   }
-  scaleRadialComponent(n2, dn, ddn) {
-    const absN = Math.abs(n2);
-    return Math.sign(n2) * Math.pow(Math.max(0, absN - this.edgeFactor) / (1 - this.edgeFactor), ddn) * dn;
+  scaleRadialComponent(n, dn, ddn) {
+    const absN = Math.abs(n);
+    return Math.sign(n) * Math.pow(Math.max(0, absN - this.edgeFactor) / (1 - this.edgeFactor), ddn) * dn;
   }
   updateOrientation() {
     const cam = resolveCamera(this.env.renderer, this.env.camera);
@@ -12197,7 +12003,7 @@ function deepEnableLayer(obj2, level) {
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/setMatrixFromUpFwdPos.ts
-var R = new THREE.Vector3();
+var R = new Vector3();
 function setMatrixFromUpFwdPos(U2, F, P3, matrix) {
   R.crossVectors(F, U2);
   U2.crossVectors(R, F);
@@ -12224,16 +12030,16 @@ function setMatrixFromUpFwdPos(U2, F, P3, matrix) {
   );
 }
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/BaseCursor.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/cursors/BaseCursor.ts
 var BaseCursor = class {
   constructor(env) {
     this.env = env;
     this._object = null;
     this._visible = true;
     this._style = "default";
-    this.T = new THREE.Vector3();
-    this.V = new THREE.Vector3();
-    this.Q = new THREE.Quaternion();
+    this.T = new Vector3();
+    this.V = new Vector3();
+    this.Q = new Quaternion();
     this._side = -1;
   }
   get side() {
@@ -12284,14 +12090,14 @@ var BaseCursor = class {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/Cursor3D.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/cursors/Cursor3D.ts
 var Cursor3D = class extends BaseCursor {
   constructor(env, cursorSystem) {
     super(env);
     this.cursorSystem = null;
-    this.f = new THREE.Vector3();
-    this.up = new THREE.Vector3();
-    this.right = new THREE.Vector3();
+    this.f = new Vector3();
+    this.up = new Vector3();
+    this.right = new Vector3();
     this.object = obj("Cursor3D");
     this.cursorSystem = cursorSystem;
     this.object.matrixAutoUpdate = false;
@@ -12515,7 +12321,7 @@ var EventedGamepad = class extends TypedEventBase {
 };
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/examples/loaders/GLTFLoader.js
-var GLTFLoader = class extends THREE.Loader {
+var GLTFLoader = class extends Loader {
   constructor(manager) {
     super(manager);
     this.dracoLoader = null;
@@ -12561,19 +12367,19 @@ var GLTFLoader = class extends THREE.Loader {
     } else if (this.path !== "") {
       resourcePath = this.path;
     } else {
-      resourcePath = THREE.LoaderUtils.extractUrlBase(url);
+      resourcePath = LoaderUtils.extractUrlBase(url);
     }
     this.manager.itemStart(url);
-    const _onError = function(e2) {
+    const _onError = function(e) {
       if (onError) {
-        onError(e2);
+        onError(e);
       } else {
-        console.error(e2);
+        console.error(e);
       }
       scope.manager.itemError(url);
       scope.manager.itemEnd(url);
     };
-    const loader = new THREE.FileLoader(this.manager);
+    const loader = new FileLoader(this.manager);
     loader.setPath(this.path);
     loader.setResponseType("arraybuffer");
     loader.setRequestHeader(this.requestHeader);
@@ -12584,8 +12390,8 @@ var GLTFLoader = class extends THREE.Loader {
           onLoad(gltf);
           scope.manager.itemEnd(url);
         }, _onError);
-      } catch (e2) {
-        _onError(e2);
+      } catch (e) {
+        _onError(e);
       }
     }, onProgress, _onError);
   }
@@ -12595,7 +12401,7 @@ var GLTFLoader = class extends THREE.Loader {
   }
   setDDSLoader() {
     throw new Error(
-      'THREE.GLTFLoader: "MSFT_texture_dds" no longer supported. Please update to "KHR_texture_basisu".'
+      'GLTFLoader: "MSFT_texture_dds" no longer supported. Please update to "KHR_texture_basisu".'
     );
   }
   setKTX2Loader(ktx2Loader) {
@@ -12625,7 +12431,7 @@ var GLTFLoader = class extends THREE.Loader {
     if (typeof data === "string") {
       content = data;
     } else {
-      const magic = THREE.LoaderUtils.decodeText(new Uint8Array(data, 0, 4));
+      const magic = LoaderUtils.decodeText(new Uint8Array(data, 0, 4));
       if (magic === BINARY_EXTENSION_HEADER_MAGIC) {
         try {
           extensions[EXTENSIONS.KHR_BINARY_GLTF] = new GLTFBinaryExtension(data);
@@ -12636,13 +12442,13 @@ var GLTFLoader = class extends THREE.Loader {
         }
         content = extensions[EXTENSIONS.KHR_BINARY_GLTF].content;
       } else {
-        content = THREE.LoaderUtils.decodeText(new Uint8Array(data));
+        content = LoaderUtils.decodeText(new Uint8Array(data));
       }
     }
     const json = JSON.parse(content);
     if (json.asset === void 0 || json.asset.version[0] < 2) {
       if (onError)
-        onError(new Error("THREE.GLTFLoader: Unsupported asset. glTF versions >=2.0 are supported."));
+        onError(new Error("GLTFLoader: Unsupported asset. glTF versions >=2.0 are supported."));
       return;
     }
     const parser = new GLTFParser(json, {
@@ -12681,7 +12487,7 @@ var GLTFLoader = class extends THREE.Loader {
             break;
           default:
             if (extensionsRequired.indexOf(extensionName) >= 0 && plugins[extensionName] === void 0) {
-              console.warn('THREE.GLTFLoader: Unknown extension "' + extensionName + '".');
+              console.warn('GLTFLoader: Unknown extension "' + extensionName + '".');
             }
         }
       }
@@ -12759,22 +12565,22 @@ var GLTFLightsExtension = class {
     const lightDefs = extensions.lights || [];
     const lightDef = lightDefs[lightIndex];
     let lightNode;
-    const color2 = new THREE.Color(16777215);
+    const color2 = new Color(16777215);
     if (lightDef.color !== void 0)
       color2.fromArray(lightDef.color);
     const range = lightDef.range !== void 0 ? lightDef.range : 0;
     switch (lightDef.type) {
       case "directional":
-        lightNode = new THREE.DirectionalLight(color2);
+        lightNode = new DirectionalLight(color2);
         lightNode.target.position.set(0, 0, -1);
         lightNode.add(lightNode.target);
         break;
       case "point":
-        lightNode = new THREE.PointLight(color2);
+        lightNode = new PointLight(color2);
         lightNode.distance = range;
         break;
       case "spot":
-        lightNode = new THREE.SpotLight(color2);
+        lightNode = new SpotLight(color2);
         lightNode.distance = range;
         lightDef.spot = lightDef.spot || {};
         lightDef.spot.innerConeAngle = lightDef.spot.innerConeAngle !== void 0 ? lightDef.spot.innerConeAngle : 0;
@@ -12785,7 +12591,7 @@ var GLTFLightsExtension = class {
         lightNode.add(lightNode.target);
         break;
       default:
-        throw new Error("THREE.GLTFLoader: Unexpected light type: " + lightDef.type);
+        throw new Error("GLTFLoader: Unexpected light type: " + lightDef.type);
     }
     lightNode.position.set(0, 0, 0);
     lightNode.decay = 2;
@@ -12815,11 +12621,11 @@ var GLTFMaterialsUnlitExtension = class {
     this.name = EXTENSIONS.KHR_MATERIALS_UNLIT;
   }
   getMaterialType() {
-    return THREE.MeshBasicMaterial;
+    return MeshBasicMaterial;
   }
   extendParams(materialParams, materialDef, parser) {
     const pending = [];
-    materialParams.color = new THREE.Color(1, 1, 1);
+    materialParams.color = new Color(1, 1, 1);
     materialParams.opacity = 1;
     const metallicRoughness = materialDef.pbrMetallicRoughness;
     if (metallicRoughness) {
@@ -12845,7 +12651,7 @@ var GLTFMaterialsClearcoatExtension = class {
     const materialDef = parser.json.materials[materialIndex];
     if (!materialDef.extensions || !materialDef.extensions[this.name])
       return null;
-    return THREE.MeshPhysicalMaterial;
+    return MeshPhysicalMaterial;
   }
   extendMaterialParams(materialIndex, materialParams) {
     const parser = this.parser;
@@ -12871,7 +12677,7 @@ var GLTFMaterialsClearcoatExtension = class {
       pending.push(parser.assignTexture(materialParams, "clearcoatNormalMap", extension.clearcoatNormalTexture));
       if (extension.clearcoatNormalTexture.scale !== void 0) {
         const scale4 = extension.clearcoatNormalTexture.scale;
-        materialParams.clearcoatNormalScale = new THREE.Vector2(scale4, scale4);
+        materialParams.clearcoatNormalScale = new Vector2(scale4, scale4);
       }
     }
     return Promise.all(pending);
@@ -12887,7 +12693,7 @@ var GLTFMaterialsSheenExtension = class {
     const materialDef = parser.json.materials[materialIndex];
     if (!materialDef.extensions || !materialDef.extensions[this.name])
       return null;
-    return THREE.MeshPhysicalMaterial;
+    return MeshPhysicalMaterial;
   }
   extendMaterialParams(materialIndex, materialParams) {
     const parser = this.parser;
@@ -12896,7 +12702,7 @@ var GLTFMaterialsSheenExtension = class {
       return Promise.resolve();
     }
     const pending = [];
-    materialParams.sheenColor = new THREE.Color(0, 0, 0);
+    materialParams.sheenColor = new Color(0, 0, 0);
     materialParams.sheenRoughness = 0;
     materialParams.sheen = 1;
     const extension = materialDef.extensions[this.name];
@@ -12925,7 +12731,7 @@ var GLTFMaterialsTransmissionExtension = class {
     const materialDef = parser.json.materials[materialIndex];
     if (!materialDef.extensions || !materialDef.extensions[this.name])
       return null;
-    return THREE.MeshPhysicalMaterial;
+    return MeshPhysicalMaterial;
   }
   extendMaterialParams(materialIndex, materialParams) {
     const parser = this.parser;
@@ -12954,7 +12760,7 @@ var GLTFMaterialsVolumeExtension = class {
     const materialDef = parser.json.materials[materialIndex];
     if (!materialDef.extensions || !materialDef.extensions[this.name])
       return null;
-    return THREE.MeshPhysicalMaterial;
+    return MeshPhysicalMaterial;
   }
   extendMaterialParams(materialIndex, materialParams) {
     const parser = this.parser;
@@ -12970,7 +12776,7 @@ var GLTFMaterialsVolumeExtension = class {
     }
     materialParams.attenuationDistance = extension.attenuationDistance || 0;
     const colorArray = extension.attenuationColor || [1, 1, 1];
-    materialParams.attenuationColor = new THREE.Color(colorArray[0], colorArray[1], colorArray[2]);
+    materialParams.attenuationColor = new Color(colorArray[0], colorArray[1], colorArray[2]);
     return Promise.all(pending);
   }
 };
@@ -12984,7 +12790,7 @@ var GLTFMaterialsIorExtension = class {
     const materialDef = parser.json.materials[materialIndex];
     if (!materialDef.extensions || !materialDef.extensions[this.name])
       return null;
-    return THREE.MeshPhysicalMaterial;
+    return MeshPhysicalMaterial;
   }
   extendMaterialParams(materialIndex, materialParams) {
     const parser = this.parser;
@@ -13007,7 +12813,7 @@ var GLTFMaterialsSpecularExtension = class {
     const materialDef = parser.json.materials[materialIndex];
     if (!materialDef.extensions || !materialDef.extensions[this.name])
       return null;
-    return THREE.MeshPhysicalMaterial;
+    return MeshPhysicalMaterial;
   }
   extendMaterialParams(materialIndex, materialParams) {
     const parser = this.parser;
@@ -13022,10 +12828,10 @@ var GLTFMaterialsSpecularExtension = class {
       pending.push(parser.assignTexture(materialParams, "specularIntensityMap", extension.specularTexture));
     }
     const colorArray = extension.specularColorFactor || [1, 1, 1];
-    materialParams.specularColor = new THREE.Color(colorArray[0], colorArray[1], colorArray[2]);
+    materialParams.specularColor = new Color(colorArray[0], colorArray[1], colorArray[2]);
     if (extension.specularColorTexture !== void 0) {
       pending.push(parser.assignTexture(materialParams, "specularColorMap", extension.specularColorTexture).then(function(texture) {
-        texture.encoding = THREE.sRGBEncoding;
+        texture.encoding = sRGBEncoding;
       }));
     }
     return Promise.all(pending);
@@ -13048,7 +12854,7 @@ var GLTFTextureBasisUExtension = class {
     const loader = parser.options.ktx2Loader;
     if (!loader) {
       if (json.extensionsRequired && json.extensionsRequired.indexOf(this.name) >= 0) {
-        throw new Error("THREE.GLTFLoader: setKTX2Loader must be called before loading KTX2 textures");
+        throw new Error("GLTFLoader: setKTX2Loader must be called before loading KTX2 textures");
       } else {
         return null;
       }
@@ -13082,7 +12888,7 @@ var GLTFTextureWebPExtension = class {
       if (isSupported)
         return parser.loadTextureImage(textureIndex, source, loader);
       if (json.extensionsRequired && json.extensionsRequired.indexOf(name2) >= 0) {
-        throw new Error("THREE.GLTFLoader: WebP required by asset but unsupported.");
+        throw new Error("GLTFLoader: WebP required by asset but unsupported.");
       }
       return parser.loadTexture(textureIndex);
     });
@@ -13114,7 +12920,7 @@ var GLTFMeshoptCompression = class {
       const decoder = this.parser.options.meshoptDecoder;
       if (!decoder || !decoder.supported) {
         if (json.extensionsRequired && json.extensionsRequired.indexOf(this.name) >= 0) {
-          throw new Error("THREE.GLTFLoader: setMeshoptDecoder must be called before loading compressed files");
+          throw new Error("GLTFLoader: setMeshoptDecoder must be called before loading compressed files");
         } else {
           return null;
         }
@@ -13144,14 +12950,14 @@ var GLTFBinaryExtension = class {
     this.body = null;
     const headerView = new DataView(data, 0, BINARY_EXTENSION_HEADER_LENGTH);
     this.header = {
-      magic: THREE.LoaderUtils.decodeText(new Uint8Array(data.slice(0, 4))),
+      magic: LoaderUtils.decodeText(new Uint8Array(data.slice(0, 4))),
       version: headerView.getUint32(4, true),
       length: headerView.getUint32(8, true)
     };
     if (this.header.magic !== BINARY_EXTENSION_HEADER_MAGIC) {
-      throw new Error("THREE.GLTFLoader: Unsupported glTF-Binary header.");
+      throw new Error("GLTFLoader: Unsupported glTF-Binary header.");
     } else if (this.header.version < 2) {
-      throw new Error("THREE.GLTFLoader: Legacy binary file detected.");
+      throw new Error("GLTFLoader: Legacy binary file detected.");
     }
     const chunkContentsLength = this.header.length - BINARY_EXTENSION_HEADER_LENGTH;
     const chunkView = new DataView(data, BINARY_EXTENSION_HEADER_LENGTH);
@@ -13163,7 +12969,7 @@ var GLTFBinaryExtension = class {
       chunkIndex += 4;
       if (chunkType === BINARY_EXTENSION_CHUNK_TYPES.JSON) {
         const contentArray = new Uint8Array(data, BINARY_EXTENSION_HEADER_LENGTH + chunkIndex, chunkLength);
-        this.content = THREE.LoaderUtils.decodeText(contentArray);
+        this.content = LoaderUtils.decodeText(contentArray);
       } else if (chunkType === BINARY_EXTENSION_CHUNK_TYPES.BIN) {
         const byteOffset = BINARY_EXTENSION_HEADER_LENGTH + chunkIndex;
         this.body = data.slice(byteOffset, byteOffset + chunkLength);
@@ -13171,14 +12977,14 @@ var GLTFBinaryExtension = class {
       chunkIndex += chunkLength;
     }
     if (this.content === null) {
-      throw new Error("THREE.GLTFLoader: JSON content not found.");
+      throw new Error("GLTFLoader: JSON content not found.");
     }
   }
 };
 var GLTFDracoMeshCompressionExtension = class {
   constructor(json, dracoLoader) {
     if (!dracoLoader) {
-      throw new Error("THREE.GLTFLoader: No DRACOLoader instance provided.");
+      throw new Error("GLTFLoader: No DRACOLoader instance provided.");
     }
     this.name = EXTENSIONS.KHR_DRACO_MESH_COMPRESSION;
     this.json = json;
@@ -13227,7 +13033,7 @@ var GLTFTextureTransformExtension = class {
   }
   extendTexture(texture, transform2) {
     if (transform2.texCoord !== void 0) {
-      console.warn('THREE.GLTFLoader: Custom UV sets in "' + this.name + '" extension not yet supported.');
+      console.warn('GLTFLoader: Custom UV sets in "' + this.name + '" extension not yet supported.');
     }
     if (transform2.offset === void 0 && transform2.rotation === void 0 && transform2.scale === void 0) {
       return texture;
@@ -13246,7 +13052,7 @@ var GLTFTextureTransformExtension = class {
     return texture;
   }
 };
-var GLTFMeshStandardSGMaterial = class extends THREE.MeshStandardMaterial {
+var GLTFMeshStandardSGMaterial = class extends MeshStandardMaterial {
   constructor(params) {
     super();
     this.isGLTFSpecularGlossinessMaterial = true;
@@ -13287,7 +13093,7 @@ var GLTFMeshStandardSGMaterial = class extends THREE.MeshStandardMaterial {
       "material.specularColor = specularFactor;"
     ].join("\n");
     const uniforms = {
-      specular: { value: new THREE.Color().setHex(16777215) },
+      specular: { value: new Color().setHex(16777215) },
       glossiness: { value: 1 },
       specularMap: { value: null },
       glossinessMap: { value: null }
@@ -13399,7 +13205,7 @@ var GLTFMaterialsPbrSpecularGlossinessExtension = class {
   }
   extendParams(materialParams, materialDef, parser) {
     const pbrSpecularGlossiness = materialDef.extensions[this.name];
-    materialParams.color = new THREE.Color(1, 1, 1);
+    materialParams.color = new Color(1, 1, 1);
     materialParams.opacity = 1;
     const pending = [];
     if (Array.isArray(pbrSpecularGlossiness.diffuseFactor)) {
@@ -13410,9 +13216,9 @@ var GLTFMaterialsPbrSpecularGlossinessExtension = class {
     if (pbrSpecularGlossiness.diffuseTexture !== void 0) {
       pending.push(parser.assignTexture(materialParams, "map", pbrSpecularGlossiness.diffuseTexture));
     }
-    materialParams.emissive = new THREE.Color(0, 0, 0);
+    materialParams.emissive = new Color(0, 0, 0);
     materialParams.glossiness = pbrSpecularGlossiness.glossinessFactor !== void 0 ? pbrSpecularGlossiness.glossinessFactor : 1;
-    materialParams.specular = new THREE.Color(1, 1, 1);
+    materialParams.specular = new Color(1, 1, 1);
     if (Array.isArray(pbrSpecularGlossiness.specularFactor)) {
       materialParams.specular.fromArray(pbrSpecularGlossiness.specularFactor);
     }
@@ -13438,7 +13244,7 @@ var GLTFMaterialsPbrSpecularGlossinessExtension = class {
     material.bumpMap = materialParams.bumpMap === void 0 ? null : materialParams.bumpMap;
     material.bumpScale = 1;
     material.normalMap = materialParams.normalMap === void 0 ? null : materialParams.normalMap;
-    material.normalMapType = THREE.TangentSpaceNormalMap;
+    material.normalMapType = TangentSpaceNormalMap;
     if (materialParams.normalScale)
       material.normalScale = materialParams.normalScale;
     material.displacementMap = null;
@@ -13460,7 +13266,7 @@ var GLTFMeshQuantizationExtension = class {
     this.name = EXTENSIONS.KHR_MESH_QUANTIZATION;
   }
 };
-var GLTFCubicSplineInterpolant = class extends THREE.Interpolant {
+var GLTFCubicSplineInterpolant = class extends Interpolant {
   constructor(parameterPositions, sampleValues, sampleSize, resultBuffer) {
     super(parameterPositions, sampleValues, sampleSize, resultBuffer);
   }
@@ -13499,7 +13305,7 @@ GLTFCubicSplineInterpolant.prototype.interpolate_ = function(i1, t0, t2, t1) {
   }
   return result;
 };
-var _q = new THREE.Quaternion();
+var _q = new Quaternion();
 var GLTFCubicSplineQuaternionInterpolant = class extends GLTFCubicSplineInterpolant {
   interpolate_(i1, t0, t2, t1) {
     const result = super.interpolate_(i1, t0, t2, t1);
@@ -13536,17 +13342,17 @@ var WEBGL_COMPONENT_TYPES = {
   5126: Float32Array
 };
 var WEBGL_FILTERS = {
-  9728: THREE.NearestFilter,
-  9729: THREE.LinearFilter,
-  9984: THREE.NearestMipmapNearestFilter,
-  9985: THREE.LinearMipmapNearestFilter,
-  9986: THREE.NearestMipmapLinearFilter,
-  9987: THREE.LinearMipmapLinearFilter
+  9728: NearestFilter,
+  9729: LinearFilter,
+  9984: NearestMipmapNearestFilter,
+  9985: LinearMipmapNearestFilter,
+  9986: NearestMipmapLinearFilter,
+  9987: LinearMipmapLinearFilter
 };
 var WEBGL_WRAPPINGS = {
-  33071: THREE.ClampToEdgeWrapping,
-  33648: THREE.MirroredRepeatWrapping,
-  10497: THREE.RepeatWrapping
+  33071: ClampToEdgeWrapping,
+  33648: MirroredRepeatWrapping,
+  10497: RepeatWrapping
 };
 var WEBGL_TYPE_SIZES = {
   "SCALAR": 1,
@@ -13575,8 +13381,8 @@ var PATH_PROPERTIES = {
 };
 var INTERPOLATION = {
   CUBICSPLINE: void 0,
-  LINEAR: THREE.InterpolateLinear,
-  STEP: THREE.InterpolateDiscrete
+  LINEAR: InterpolateLinear,
+  STEP: InterpolateDiscrete
 };
 var ALPHA_MODES = {
   OPAQUE: "OPAQUE",
@@ -13585,14 +13391,14 @@ var ALPHA_MODES = {
 };
 function createDefaultMaterial(cache) {
   if (cache["DefaultMaterial"] === void 0) {
-    cache["DefaultMaterial"] = new THREE.MeshStandardMaterial({
+    cache["DefaultMaterial"] = new MeshStandardMaterial({
       color: 16777215,
       emissive: 0,
       metalness: 1,
       roughness: 1,
       transparent: false,
       depthTest: true,
-      side: THREE.FrontSide
+      side: FrontSide
     });
   }
   return cache["DefaultMaterial"];
@@ -13610,7 +13416,7 @@ function assignExtrasToUserData(object, gltfDef) {
     if (typeof gltfDef.extras === "object") {
       Object.assign(object.userData, gltfDef.extras);
     } else {
-      console.warn("THREE.GLTFLoader: Ignoring primitive type .extras, " + gltfDef.extras);
+      console.warn("GLTFLoader: Ignoring primitive type .extras, " + gltfDef.extras);
     }
   }
 }
@@ -13670,7 +13476,7 @@ function updateMorphTargets(mesh2, meshDef) {
         mesh2.morphTargetDictionary[targetNames[i]] = i;
       }
     } else {
-      console.warn("THREE.GLTFLoader: Invalid extras.targetNames length. Ignoring names.");
+      console.warn("GLTFLoader: Invalid extras.targetNames length. Ignoring names.");
     }
   }
 }
@@ -13703,7 +13509,7 @@ function getNormalizedComponentScale(constructor) {
     case Uint16Array:
       return 1 / 65535;
     default:
-      throw new Error("THREE.GLTFLoader: Unsupported normalized accessor component type.");
+      throw new Error("GLTFLoader: Unsupported normalized accessor component type.");
   }
 }
 var GLTFParser = class {
@@ -13721,13 +13527,13 @@ var GLTFParser = class {
     this.textureCache = {};
     this.nodeNamesUsed = {};
     if (typeof createImageBitmap !== "undefined" && /Firefox|^((?!chrome|android).)*safari/i.test(navigator.userAgent) === false) {
-      this.textureLoader = new THREE.ImageBitmapLoader(this.options.manager);
+      this.textureLoader = new ImageBitmapLoader(this.options.manager);
     } else {
-      this.textureLoader = new THREE.TextureLoader(this.options.manager);
+      this.textureLoader = new TextureLoader(this.options.manager);
     }
     this.textureLoader.setCrossOrigin(this.options.crossOrigin);
     this.textureLoader.setRequestHeader(this.options.requestHeader);
-    this.fileLoader = new THREE.FileLoader(this.options.manager);
+    this.fileLoader = new FileLoader(this.options.manager);
     this.fileLoader.setResponseType("arraybuffer");
     if (this.options.crossOrigin === "use-credentials") {
       this.fileLoader.setWithCredentials(true);
@@ -13912,15 +13718,15 @@ var GLTFParser = class {
     const bufferDef = this.json.buffers[bufferIndex];
     const loader = this.fileLoader;
     if (bufferDef.type && bufferDef.type !== "arraybuffer") {
-      throw new Error("THREE.GLTFLoader: " + bufferDef.type + " buffer type is not supported.");
+      throw new Error("GLTFLoader: " + bufferDef.type + " buffer type is not supported.");
     }
     if (bufferDef.uri === void 0 && bufferIndex === 0) {
       return Promise.resolve(this.extensions[EXTENSIONS.KHR_BINARY_GLTF].body);
     }
     const options = this.options;
     return new Promise(function(resolve, reject) {
-      loader.load(THREE.LoaderUtils.resolveURL(bufferDef.uri, options.path), resolve, void 0, function() {
-        reject(new Error('THREE.GLTFLoader: Failed to load buffer "' + bufferDef.uri + '".'));
+      loader.load(LoaderUtils.resolveURL(bufferDef.uri, options.path), resolve, void 0, function() {
+        reject(new Error('GLTFLoader: Failed to load buffer "' + bufferDef.uri + '".'));
       });
     });
   }
@@ -13961,21 +13767,21 @@ var GLTFParser = class {
       let array, bufferAttribute;
       if (byteStride && byteStride !== itemBytes) {
         const ibSlice = Math.floor(byteOffset / byteStride);
-        const ibCacheKey = "THREE.InterleavedBuffer:" + accessorDef.bufferView + ":" + accessorDef.componentType + ":" + ibSlice + ":" + accessorDef.count;
+        const ibCacheKey = "InterleavedBuffer:" + accessorDef.bufferView + ":" + accessorDef.componentType + ":" + ibSlice + ":" + accessorDef.count;
         let ib = parser.cache.get(ibCacheKey);
         if (!ib) {
           array = new TypedArray(bufferView, ibSlice * byteStride, accessorDef.count * byteStride / elementBytes);
-          ib = new THREE.InterleavedBuffer(array, byteStride / elementBytes);
+          ib = new InterleavedBuffer(array, byteStride / elementBytes);
           parser.cache.add(ibCacheKey, ib);
         }
-        bufferAttribute = new THREE.InterleavedBufferAttribute(ib, itemSize, byteOffset % byteStride / elementBytes, normalized);
+        bufferAttribute = new InterleavedBufferAttribute(ib, itemSize, byteOffset % byteStride / elementBytes, normalized);
       } else {
         if (bufferView === null) {
           array = new TypedArray(accessorDef.count * itemSize);
         } else {
           array = new TypedArray(bufferView, byteOffset, accessorDef.count * itemSize);
         }
-        bufferAttribute = new THREE.BufferAttribute(array, itemSize, normalized);
+        bufferAttribute = new BufferAttribute(array, itemSize, normalized);
       }
       if (accessorDef.sparse !== void 0) {
         const itemSizeIndices = WEBGL_TYPE_SIZES.SCALAR;
@@ -13985,7 +13791,7 @@ var GLTFParser = class {
         const sparseIndices = new TypedArrayIndices(bufferViews[1], byteOffsetIndices, accessorDef.sparse.count * itemSizeIndices);
         const sparseValues = new TypedArray(bufferViews[2], byteOffsetValues, accessorDef.sparse.count * itemSize);
         if (bufferView !== null) {
-          bufferAttribute = new THREE.BufferAttribute(bufferAttribute.array.slice(), bufferAttribute.itemSize, bufferAttribute.normalized);
+          bufferAttribute = new BufferAttribute(bufferAttribute.array.slice(), bufferAttribute.itemSize, bufferAttribute.normalized);
         }
         for (let i = 0, il = sparseIndices.length; i < il; i++) {
           const index = sparseIndices[i];
@@ -13997,7 +13803,7 @@ var GLTFParser = class {
           if (itemSize >= 4)
             bufferAttribute.setW(index, sparseValues[i * itemSize + 3]);
           if (itemSize >= 5)
-            throw new Error("THREE.GLTFLoader: Unsupported itemSize in sparse THREE.BufferAttribute.");
+            throw new Error("GLTFLoader: Unsupported itemSize in sparse BufferAttribute.");
         }
       }
       return bufferAttribute;
@@ -14036,19 +13842,19 @@ var GLTFParser = class {
         return sourceURI;
       });
     } else if (source.uri === void 0) {
-      throw new Error("THREE.GLTFLoader: Image " + textureIndex + " is missing URI and bufferView");
+      throw new Error("GLTFLoader: Image " + textureIndex + " is missing URI and bufferView");
     }
     const promise = Promise.resolve(sourceURI).then(function(sourceURI2) {
       return new Promise(function(resolve, reject) {
         let onLoad = resolve;
         if (loader.isImageBitmapLoader === true) {
           onLoad = function(imageBitmap) {
-            const texture = new THREE.Texture(imageBitmap);
+            const texture = new Texture(imageBitmap);
             texture.needsUpdate = true;
             resolve(texture);
           };
         }
-        loader.load(THREE.LoaderUtils.resolveURL(sourceURI2, options.path), onLoad, void 0, reject);
+        loader.load(LoaderUtils.resolveURL(sourceURI2, options.path), onLoad, void 0, reject);
       });
     }).then(function(texture) {
       if (isObjectURL === true) {
@@ -14059,14 +13865,14 @@ var GLTFParser = class {
         texture.name = textureDef.name;
       const samplers = json.samplers || {};
       const sampler = samplers[textureDef.sampler] || {};
-      texture.magFilter = WEBGL_FILTERS[sampler.magFilter] || THREE.LinearFilter;
-      texture.minFilter = WEBGL_FILTERS[sampler.minFilter] || THREE.LinearMipmapLinearFilter;
-      texture.wrapS = WEBGL_WRAPPINGS[sampler.wrapS] || THREE.RepeatWrapping;
-      texture.wrapT = WEBGL_WRAPPINGS[sampler.wrapT] || THREE.RepeatWrapping;
+      texture.magFilter = WEBGL_FILTERS[sampler.magFilter] || LinearFilter;
+      texture.minFilter = WEBGL_FILTERS[sampler.minFilter] || LinearMipmapLinearFilter;
+      texture.wrapS = WEBGL_WRAPPINGS[sampler.wrapS] || RepeatWrapping;
+      texture.wrapT = WEBGL_WRAPPINGS[sampler.wrapT] || RepeatWrapping;
       parser.associations.set(texture, { textures: textureIndex });
       return texture;
     }).catch(function() {
-      console.error("THREE.GLTFLoader: Couldn't load texture", sourceURI);
+      console.error("GLTFLoader: Couldn't load texture", sourceURI);
       return null;
     });
     this.textureCache[cacheKey] = promise;
@@ -14076,7 +13882,7 @@ var GLTFParser = class {
     const parser = this;
     return this.getDependency("texture", mapDef.index).then(function(texture) {
       if (mapDef.texCoord !== void 0 && mapDef.texCoord != 0 && !(mapName === "aoMap" && mapDef.texCoord == 1)) {
-        console.warn("THREE.GLTFLoader: Custom UV set " + mapDef.texCoord + " for texture " + mapName + " not yet supported.");
+        console.warn("GLTFLoader: Custom UV set " + mapDef.texCoord + " for texture " + mapName + " not yet supported.");
       }
       if (parser.extensions[EXTENSIONS.KHR_TEXTURE_TRANSFORM]) {
         const transform2 = mapDef.extensions !== void 0 ? mapDef.extensions[EXTENSIONS.KHR_TEXTURE_TRANSFORM] : void 0;
@@ -14097,11 +13903,11 @@ var GLTFParser = class {
     const useVertexColors = geometry.attributes.color !== void 0;
     const useFlatShading = geometry.attributes.normal === void 0;
     if (mesh2.isPoints) {
-      const cacheKey = "THREE.PointsMaterial:" + material.uuid;
+      const cacheKey = "PointsMaterial:" + material.uuid;
       let pointsMaterial = this.cache.get(cacheKey);
       if (!pointsMaterial) {
-        pointsMaterial = new THREE.PointsMaterial();
-        THREE.Material.prototype.copy.call(pointsMaterial, material);
+        pointsMaterial = new PointsMaterial();
+        Material.prototype.copy.call(pointsMaterial, material);
         pointsMaterial.color.copy(material.color);
         pointsMaterial.map = material.map;
         pointsMaterial.sizeAttenuation = false;
@@ -14109,11 +13915,11 @@ var GLTFParser = class {
       }
       material = pointsMaterial;
     } else if (mesh2.isLine) {
-      const cacheKey = "THREE.LineBasicMaterial:" + material.uuid;
+      const cacheKey = "LineBasicMaterial:" + material.uuid;
       let lineMaterial = this.cache.get(cacheKey);
       if (!lineMaterial) {
-        lineMaterial = new THREE.LineBasicMaterial();
-        THREE.Material.prototype.copy.call(lineMaterial, material);
+        lineMaterial = new LineBasicMaterial();
+        Material.prototype.copy.call(lineMaterial, material);
         lineMaterial.color.copy(material.color);
         this.cache.add(cacheKey, lineMaterial);
       }
@@ -14153,7 +13959,7 @@ var GLTFParser = class {
     mesh2.material = material;
   }
   getMaterialType() {
-    return THREE.MeshStandardMaterial;
+    return MeshStandardMaterial;
   }
   loadMaterial(materialIndex) {
     const parser = this;
@@ -14174,7 +13980,7 @@ var GLTFParser = class {
       pending.push(kmuExtension.extendParams(materialParams, materialDef, parser));
     } else {
       const metallicRoughness = materialDef.pbrMetallicRoughness || {};
-      materialParams.color = new THREE.Color(1, 1, 1);
+      materialParams.color = new Color(1, 1, 1);
       materialParams.opacity = 1;
       if (Array.isArray(metallicRoughness.baseColorFactor)) {
         const array = metallicRoughness.baseColorFactor;
@@ -14198,7 +14004,7 @@ var GLTFParser = class {
       })));
     }
     if (materialDef.doubleSided === true) {
-      materialParams.side = THREE.DoubleSide;
+      materialParams.side = DoubleSide;
     }
     const alphaMode = materialDef.alphaMode || ALPHA_MODES.OPAQUE;
     if (alphaMode === ALPHA_MODES.BLEND) {
@@ -14210,24 +14016,24 @@ var GLTFParser = class {
         materialParams.alphaTest = materialDef.alphaCutoff !== void 0 ? materialDef.alphaCutoff : 0.5;
       }
     }
-    if (materialDef.normalTexture !== void 0 && materialType !== THREE.MeshBasicMaterial) {
+    if (materialDef.normalTexture !== void 0 && materialType !== MeshBasicMaterial) {
       pending.push(parser.assignTexture(materialParams, "normalMap", materialDef.normalTexture));
-      materialParams.normalScale = new THREE.Vector2(1, 1);
+      materialParams.normalScale = new Vector2(1, 1);
       if (materialDef.normalTexture.scale !== void 0) {
         const scale4 = materialDef.normalTexture.scale;
         materialParams.normalScale.set(scale4, scale4);
       }
     }
-    if (materialDef.occlusionTexture !== void 0 && materialType !== THREE.MeshBasicMaterial) {
+    if (materialDef.occlusionTexture !== void 0 && materialType !== MeshBasicMaterial) {
       pending.push(parser.assignTexture(materialParams, "aoMap", materialDef.occlusionTexture));
       if (materialDef.occlusionTexture.strength !== void 0) {
         materialParams.aoMapIntensity = materialDef.occlusionTexture.strength;
       }
     }
-    if (materialDef.emissiveFactor !== void 0 && materialType !== THREE.MeshBasicMaterial) {
-      materialParams.emissive = new THREE.Color().fromArray(materialDef.emissiveFactor);
+    if (materialDef.emissiveFactor !== void 0 && materialType !== MeshBasicMaterial) {
+      materialParams.emissive = new Color().fromArray(materialDef.emissiveFactor);
     }
-    if (materialDef.emissiveTexture !== void 0 && materialType !== THREE.MeshBasicMaterial) {
+    if (materialDef.emissiveTexture !== void 0 && materialType !== MeshBasicMaterial) {
       pending.push(parser.assignTexture(materialParams, "emissiveMap", materialDef.emissiveTexture));
     }
     return Promise.all(pending).then(function() {
@@ -14240,9 +14046,9 @@ var GLTFParser = class {
       if (materialDef.name)
         material.name = materialDef.name;
       if (material.map)
-        material.map.encoding = THREE.sRGBEncoding;
+        material.map.encoding = sRGBEncoding;
       if (material.emissiveMap)
-        material.emissiveMap.encoding = THREE.sRGBEncoding;
+        material.emissiveMap.encoding = sRGBEncoding;
       assignExtrasToUserData(material, materialDef);
       parser.associations.set(material, { materials: materialIndex });
       if (materialDef.extensions)
@@ -14251,7 +14057,7 @@ var GLTFParser = class {
     });
   }
   createUniqueName(originalName) {
-    const sanitizedName = THREE.PropertyBinding.sanitizeNodeName(originalName || "");
+    const sanitizedName = PropertyBinding.sanitizeNodeName(originalName || "");
     let name2 = sanitizedName;
     for (let i = 1; this.nodeNamesUsed[name2]; ++i) {
       name2 = sanitizedName + "_" + i;
@@ -14280,7 +14086,7 @@ var GLTFParser = class {
         if (primitive.extensions && primitive.extensions[EXTENSIONS.KHR_DRACO_MESH_COMPRESSION]) {
           geometryPromise = createDracoPrimitive(primitive);
         } else {
-          geometryPromise = addPrimitiveAttributes(new THREE.BufferGeometry(), primitive, parser);
+          geometryPromise = addPrimitiveAttributes(new BufferGeometry(), primitive, parser);
         }
         cache[cacheKey] = { primitive, promise: geometryPromise };
         pending.push(geometryPromise);
@@ -14310,25 +14116,25 @@ var GLTFParser = class {
         let mesh2;
         const material = materials2[i];
         if (primitive.mode === WEBGL_CONSTANTS.TRIANGLES || primitive.mode === WEBGL_CONSTANTS.TRIANGLE_STRIP || primitive.mode === WEBGL_CONSTANTS.TRIANGLE_FAN || primitive.mode === void 0) {
-          mesh2 = meshDef.isSkinnedMesh === true ? new THREE.SkinnedMesh(geometry, material) : new THREE.Mesh(geometry, material);
+          mesh2 = meshDef.isSkinnedMesh === true ? new SkinnedMesh(geometry, material) : new Mesh(geometry, material);
           if (mesh2.isSkinnedMesh === true && !mesh2.geometry.attributes.skinWeight.normalized) {
             mesh2.normalizeSkinWeights();
           }
           if (primitive.mode === WEBGL_CONSTANTS.TRIANGLE_STRIP) {
-            mesh2.geometry = toTrianglesDrawMode(mesh2.geometry, THREE.TriangleStripDrawMode);
+            mesh2.geometry = toTrianglesDrawMode(mesh2.geometry, TriangleStripDrawMode);
           } else if (primitive.mode === WEBGL_CONSTANTS.TRIANGLE_FAN) {
-            mesh2.geometry = toTrianglesDrawMode(mesh2.geometry, THREE.TriangleFanDrawMode);
+            mesh2.geometry = toTrianglesDrawMode(mesh2.geometry, TriangleFanDrawMode);
           }
         } else if (primitive.mode === WEBGL_CONSTANTS.LINES) {
-          mesh2 = new THREE.LineSegments(geometry, material);
+          mesh2 = new LineSegments(geometry, material);
         } else if (primitive.mode === WEBGL_CONSTANTS.LINE_STRIP) {
-          mesh2 = new THREE.Line(geometry, material);
+          mesh2 = new Line(geometry, material);
         } else if (primitive.mode === WEBGL_CONSTANTS.LINE_LOOP) {
-          mesh2 = new THREE.LineLoop(geometry, material);
+          mesh2 = new LineLoop(geometry, material);
         } else if (primitive.mode === WEBGL_CONSTANTS.POINTS) {
-          mesh2 = new THREE.Points(geometry, material);
+          mesh2 = new Points(geometry, material);
         } else {
-          throw new Error("THREE.GLTFLoader: Primitive mode unsupported: " + primitive.mode);
+          throw new Error("GLTFLoader: Primitive mode unsupported: " + primitive.mode);
         }
         if (Object.keys(mesh2.geometry.morphAttributes).length > 0) {
           updateMorphTargets(mesh2, meshDef);
@@ -14349,7 +14155,7 @@ var GLTFParser = class {
       if (meshes.length === 1) {
         return meshes[0];
       }
-      const group2 = new THREE.Group();
+      const group2 = new Group();
       parser.associations.set(group2, { meshes: meshIndex });
       for (let i = 0, il = meshes.length; i < il; i++) {
         group2.add(meshes[i]);
@@ -14362,13 +14168,13 @@ var GLTFParser = class {
     const cameraDef = this.json.cameras[cameraIndex];
     const params = cameraDef[cameraDef.type];
     if (!params) {
-      console.warn("THREE.GLTFLoader: Missing camera parameters.");
+      console.warn("GLTFLoader: Missing camera parameters.");
       return;
     }
     if (cameraDef.type === "perspective") {
-      camera = new THREE.PerspectiveCamera(THREE.MathUtils.radToDeg(params.yfov), params.aspectRatio || 1, params.znear || 1, params.zfar || 2e6);
+      camera = new PerspectiveCamera(MathUtils.radToDeg(params.yfov), params.aspectRatio || 1, params.znear || 1, params.zfar || 2e6);
     } else if (cameraDef.type === "orthographic") {
-      camera = new THREE.OrthographicCamera(-params.xmag, params.xmag, params.ymag, -params.ymag, params.znear, params.zfar);
+      camera = new OrthographicCamera(-params.xmag, params.xmag, params.ymag, -params.ymag, params.znear, params.zfar);
     }
     if (cameraDef.name)
       camera.name = this.createUniqueName(cameraDef.name);
@@ -14433,19 +14239,19 @@ var GLTFParser = class {
         let TypedKeyframeTrack;
         switch (PATH_PROPERTIES[target.path]) {
           case PATH_PROPERTIES.weights:
-            TypedKeyframeTrack = THREE.NumberKeyframeTrack;
+            TypedKeyframeTrack = NumberKeyframeTrack;
             break;
           case PATH_PROPERTIES.rotation:
-            TypedKeyframeTrack = THREE.QuaternionKeyframeTrack;
+            TypedKeyframeTrack = QuaternionKeyframeTrack;
             break;
           case PATH_PROPERTIES.position:
           case PATH_PROPERTIES.scale:
           default:
-            TypedKeyframeTrack = THREE.VectorKeyframeTrack;
+            TypedKeyframeTrack = VectorKeyframeTrack;
             break;
         }
         const targetName = node.name ? node.name : node.uuid;
-        const interpolation = sampler.interpolation !== void 0 ? INTERPOLATION[sampler.interpolation] : THREE.InterpolateLinear;
+        const interpolation = sampler.interpolation !== void 0 ? INTERPOLATION[sampler.interpolation] : InterpolateLinear;
         const targetNames = [];
         if (PATH_PROPERTIES[target.path] === PATH_PROPERTIES.weights) {
           node.traverse(function(object) {
@@ -14474,7 +14280,7 @@ var GLTFParser = class {
           );
           if (sampler.interpolation === "CUBICSPLINE") {
             track.createInterpolant = function InterpolantFactoryMethodGLTFCubicSpline(result) {
-              const interpolantType = this instanceof THREE.QuaternionKeyframeTrack ? GLTFCubicSplineQuaternionInterpolant : GLTFCubicSplineInterpolant;
+              const interpolantType = this instanceof QuaternionKeyframeTrack ? GLTFCubicSplineQuaternionInterpolant : GLTFCubicSplineInterpolant;
               return new interpolantType(this.times, this.values, this.getValueSize() / 3, result);
             };
             track.createInterpolant.isInterpolantFactoryMethodGLTFCubicSpline = true;
@@ -14483,7 +14289,7 @@ var GLTFParser = class {
         }
       }
       const name2 = animationDef.name ? animationDef.name : "animation_" + animationIndex;
-      return new THREE.AnimationClip(name2, void 0, tracks);
+      return new AnimationClip(name2, void 0, tracks);
     });
   }
   createNodeMesh(nodeIndex) {
@@ -14534,13 +14340,13 @@ var GLTFParser = class {
     }().then(function(objects) {
       let node;
       if (nodeDef.isBone === true) {
-        node = new THREE.Bone();
+        node = new Bone();
       } else if (objects.length > 1) {
-        node = new THREE.Group();
+        node = new Group();
       } else if (objects.length === 1) {
         node = objects[0];
       } else {
-        node = new THREE.Object3D();
+        node = new Object3D();
       }
       if (node !== objects[0]) {
         for (let i = 0, il = objects.length; i < il; i++) {
@@ -14555,7 +14361,7 @@ var GLTFParser = class {
       if (nodeDef.extensions)
         addUnknownExtensionsToUserData(extensions, node, nodeDef);
       if (nodeDef.matrix !== void 0) {
-        const matrix = new THREE.Matrix4();
+        const matrix = new Matrix4();
         matrix.fromArray(nodeDef.matrix);
         node.applyMatrix4(matrix);
       } else {
@@ -14581,7 +14387,7 @@ var GLTFParser = class {
     const extensions = this.extensions;
     const sceneDef = this.json.scenes[sceneIndex];
     const parser = this;
-    const scene = new THREE.Group();
+    const scene = new Group();
     if (sceneDef.name)
       scene.name = parser.createUniqueName(sceneDef.name);
     assignExtrasToUserData(scene, sceneDef);
@@ -14596,7 +14402,7 @@ var GLTFParser = class {
       const reduceAssociations = (node) => {
         const reducedAssociations = /* @__PURE__ */ new Map();
         for (const [key, value2] of parser.associations) {
-          if (key instanceof THREE.Material || key instanceof THREE.Texture) {
+          if (key instanceof Material || key instanceof Texture) {
             reducedAssociations.set(key, value2);
           }
         }
@@ -14636,16 +14442,16 @@ function buildNodeHierarchy(nodeId, parentObject, json, parser) {
           const jointNode = jointNodes[j];
           if (jointNode) {
             bones.push(jointNode);
-            const mat = new THREE.Matrix4();
+            const mat = new Matrix4();
             if (skinEntry.inverseBindMatrices !== void 0) {
               mat.fromArray(skinEntry.inverseBindMatrices.array, j * 16);
             }
             boneInverses.push(mat);
           } else {
-            console.warn('THREE.GLTFLoader: Joint "%s" could not be found.', skinEntry.joints[j]);
+            console.warn('GLTFLoader: Joint "%s" could not be found.', skinEntry.joints[j]);
           }
         }
-        mesh2.bind(new THREE.Skeleton(bones, boneInverses), mesh2.matrixWorld);
+        mesh2.bind(new Skeleton(bones, boneInverses), mesh2.matrixWorld);
       });
       return node;
     });
@@ -14664,15 +14470,15 @@ function buildNodeHierarchy(nodeId, parentObject, json, parser) {
 }
 function computeBounds(geometry, primitiveDef, parser) {
   const attributes = primitiveDef.attributes;
-  const box = new THREE.Box3();
+  const box = new Box3();
   if (attributes.POSITION !== void 0) {
     const accessor = parser.json.accessors[attributes.POSITION];
     const min3 = accessor.min;
     const max3 = accessor.max;
     if (min3 !== void 0 && max3 !== void 0) {
       box.set(
-        new THREE.Vector3(min3[0], min3[1], min3[2]),
-        new THREE.Vector3(max3[0], max3[1], max3[2])
+        new Vector3(min3[0], min3[1], min3[2]),
+        new Vector3(max3[0], max3[1], max3[2])
       );
       if (accessor.normalized) {
         const boxScale = getNormalizedComponentScale(WEBGL_COMPONENT_TYPES[accessor.componentType]);
@@ -14680,7 +14486,7 @@ function computeBounds(geometry, primitiveDef, parser) {
         box.max.multiplyScalar(boxScale);
       }
     } else {
-      console.warn("THREE.GLTFLoader: Missing min/max properties for accessor POSITION.");
+      console.warn("GLTFLoader: Missing min/max properties for accessor POSITION.");
       return;
     }
   } else {
@@ -14688,8 +14494,8 @@ function computeBounds(geometry, primitiveDef, parser) {
   }
   const targets = primitiveDef.targets;
   if (targets !== void 0) {
-    const maxDisplacement = new THREE.Vector3();
-    const vector = new THREE.Vector3();
+    const maxDisplacement = new Vector3();
+    const vector = new Vector3();
     for (let i = 0, il = targets.length; i < il; i++) {
       const target = targets[i];
       if (target.POSITION !== void 0) {
@@ -14706,14 +14512,14 @@ function computeBounds(geometry, primitiveDef, parser) {
           }
           maxDisplacement.max(vector);
         } else {
-          console.warn("THREE.GLTFLoader: Missing min/max properties for accessor POSITION.");
+          console.warn("GLTFLoader: Missing min/max properties for accessor POSITION.");
         }
       }
     }
     box.expandByVector(maxDisplacement);
   }
   geometry.boundingBox = box;
-  const sphere = new THREE.Sphere();
+  const sphere = new Sphere();
   box.getCenter(sphere.center);
   sphere.radius = box.min.distanceTo(box.max) / 2;
   geometry.boundingSphere = sphere;
@@ -14756,13 +14562,13 @@ function toTrianglesDrawMode(geometry, drawMode) {
       geometry.setIndex(indices);
       index = geometry.getIndex();
     } else {
-      console.error("THREE.GLTFLoader.toTrianglesDrawMode(): Undefined position attribute. Processing not possible.");
+      console.error("GLTFLoader.toTrianglesDrawMode(): Undefined position attribute. Processing not possible.");
       return geometry;
     }
   }
   const numberOfTriangles = index.count - 2;
   const newIndices = [];
-  if (drawMode === THREE.TriangleFanDrawMode) {
+  if (drawMode === TriangleFanDrawMode) {
     for (let i = 1; i <= numberOfTriangles; i++) {
       newIndices.push(index.getX(0));
       newIndices.push(index.getX(i));
@@ -14782,7 +14588,7 @@ function toTrianglesDrawMode(geometry, drawMode) {
     }
   }
   if (newIndices.length / 3 !== numberOfTriangles) {
-    console.error("THREE.GLTFLoader.toTrianglesDrawMode(): Unable to generate correct amount of triangles.");
+    console.error("GLTFLoader.toTrianglesDrawMode(): Unable to generate correct amount of triangles.");
   }
   const newGeometry = geometry.clone();
   newGeometry.setIndex(newIndices);
@@ -15056,7 +14862,7 @@ var MotionController = class {
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/examples/webxr/XRControllerModelFactory.js
 var DEFAULT_PROFILES_PATH = "https://cdn.jsdelivr.net/npm/@webxr-input-profiles/assets@1.0/dist/profiles";
 var DEFAULT_PROFILE = "generic-trigger";
-var XRControllerModel = class extends THREE.Object3D {
+var XRControllerModel = class extends Object3D {
   constructor() {
     super();
     this.motionController = null;
@@ -15109,9 +14915,9 @@ function findNodes(motionController, scene) {
     if (type2 === Constants.ComponentType.TOUCHPAD) {
       component.touchPointNode = scene.getObjectByName(touchPointNodeName);
       if (component.touchPointNode) {
-        const sphereGeometry = new THREE.SphereGeometry(1e-3);
-        const material = new THREE.MeshBasicMaterial({ color: 255 });
-        const sphere = new THREE.Mesh(sphereGeometry, material);
+        const sphereGeometry = new SphereGeometry(1e-3);
+        const material = new MeshBasicMaterial({ color: 255 });
+        const sphere = new Mesh(sphereGeometry, material);
         component.touchPointNode.add(sphere);
       } else {
         console.warn(`Could not find touch dot, ${component.touchPointNodeName}, in touchpad component ${component.id}`);
@@ -15208,10 +15014,10 @@ var XRControllerModelFactory = class {
 };
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/examples/webxr/XRHandPrimitiveModel.js
-var _matrix = new THREE.Matrix4();
-var _vector = new THREE.Vector3();
-var _oculusBrowserV14CorrectionRight = new THREE.Matrix4().identity();
-var _oculusBrowserV14CorrectionLeft = new THREE.Matrix4().identity();
+var _matrix = new Matrix4();
+var _vector = new Vector3();
+var _oculusBrowserV14CorrectionRight = new Matrix4().identity();
+var _oculusBrowserV14CorrectionLeft = new Matrix4().identity();
 if (/OculusBrowser\/14\./.test(navigator.userAgent)) {
   _oculusBrowserV14CorrectionRight.makeRotationY(Math.PI / 2);
   _oculusBrowserV14CorrectionLeft.makeRotationY(-Math.PI / 2);
@@ -15224,15 +15030,15 @@ var XRHandPrimitiveModel = class {
     this.oculusBrowserV14Correction = handedness === "left" ? _oculusBrowserV14CorrectionLeft : _oculusBrowserV14CorrectionRight;
     let geometry;
     if (!options || !options.primitive || options.primitive === "sphere") {
-      geometry = new THREE.SphereGeometry(1, 10, 10);
+      geometry = new SphereGeometry(1, 10, 10);
     } else if (options.primitive === "box") {
-      geometry = new THREE.BoxGeometry(1, 1, 1);
+      geometry = new BoxGeometry(1, 1, 1);
     } else if (options.primitive === "bone") {
-      geometry = new THREE.CylinderGeometry(0.5, 0.75, 2.25, 10, 1).rotateX(-Math.PI / 2);
+      geometry = new CylinderGeometry(0.5, 0.75, 2.25, 10, 1).rotateX(-Math.PI / 2);
     }
-    const material = new THREE.MeshStandardMaterial();
-    this.handMesh = new THREE.InstancedMesh(geometry, material, 30);
-    this.handMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    const material = new MeshStandardMaterial();
+    this.handMesh = new InstancedMesh(geometry, material, 30);
+    this.handMesh.instanceMatrix.setUsage(DynamicDrawUsage);
     this.handMesh.castShadow = true;
     this.handMesh.receiveShadow = true;
     this.handModel.add(this.handMesh);
@@ -15284,8 +15090,8 @@ var XRHandPrimitiveModel = class {
 };
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/examples/webxr/XRHandMeshModel.js
-var _oculusBrowserV14CorrectionRight2 = new THREE.Quaternion().identity();
-var _oculusBrowserV14CorrectionLeft2 = new THREE.Quaternion().identity();
+var _oculusBrowserV14CorrectionRight2 = new Quaternion().identity();
+var _oculusBrowserV14CorrectionLeft2 = new Quaternion().identity();
 if (/OculusBrowser\/14\./.test(navigator.userAgent)) {
   _oculusBrowserV14CorrectionRight2.setFromAxisAngle({ x: 0, y: 1, z: 0 }, Math.PI / 2);
   _oculusBrowserV14CorrectionLeft2.setFromAxisAngle({ x: 1, y: 0, z: 0 }, Math.PI).premultiply(_oculusBrowserV14CorrectionRight2);
@@ -15363,7 +15169,7 @@ var XRHandMeshModel = class {
 };
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/examples/webxr/XRHandModelFactory.js
-var XRHandModel = class extends THREE.Object3D {
+var XRHandModel = class extends Object3D {
   constructor(controller) {
     super();
     this.controller = controller;
@@ -15414,8 +15220,8 @@ function setGeometryUVsForCubemaps(geom2) {
   const positions = geom2.attributes.position;
   const normals = geom2.attributes.normal;
   const uvs = geom2.attributes.uv;
-  for (let n2 = 0; n2 < normals.count; ++n2) {
-    const _x = n2 * normals.itemSize, _y = n2 * normals.itemSize + 1, _z = n2 * normals.itemSize + 2, nx = normals.array[_x], ny = normals.array[_y], nz = normals.array[_z], _nx_ = Math.abs(nx), _ny_ = Math.abs(ny), _nz_ = Math.abs(nz), px = positions.array[_x], py = positions.array[_y], pz = positions.array[_z], _px_ = Math.abs(px), _py_ = Math.abs(py), _pz_ = Math.abs(pz), _u = n2 * uvs.itemSize, _v = n2 * uvs.itemSize + 1;
+  for (let n = 0; n < normals.count; ++n) {
+    const _x = n * normals.itemSize, _y = n * normals.itemSize + 1, _z = n * normals.itemSize + 2, nx = normals.array[_x], ny = normals.array[_y], nz = normals.array[_z], _nx_ = Math.abs(nx), _ny_ = Math.abs(ny), _nz_ = Math.abs(nz), px = positions.array[_x], py = positions.array[_y], pz = positions.array[_z], _px_ = Math.abs(px), _py_ = Math.abs(py), _pz_ = Math.abs(pz), _u = n * uvs.itemSize, _v = n * uvs.itemSize + 1;
     let u = uvs.array[_u], v = uvs.array[_v], largest = 0, mx = _nx_, max3 = _px_;
     if (_ny_ > mx) {
       largest = 1;
@@ -15486,25 +15292,19 @@ function setGeometryUVsForCubemaps(geom2) {
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/Cube.ts
-var cube = /* @__PURE__ */ new THREE.BoxBufferGeometry(1, 1, 1, 1, 1, 1);
+var cube = /* @__PURE__ */ new BoxBufferGeometry(1, 1, 1, 1, 1, 1);
 cube.name = "CubeGeom";
 var invCube = /* @__PURE__ */ cube.clone();
 invCube.name = "InvertedCubeGeom";
 setGeometryUVsForCubemaps(invCube);
-var Cube = class extends THREE.Mesh {
+var Cube = class extends Mesh {
   constructor(sx, sy, sz, material) {
     super(cube, material);
     this.scale.set(sx, sy, sz);
   }
 };
-var InvCube = class extends THREE.Mesh {
-  constructor(sx, sy, sz, material) {
-    super(invCube, material);
-    this.scale.set(sx, sy, sz);
-  }
-};
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/CursorColor.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/cursors/CursorColor.ts
 var CursorColor = class extends BaseCursor {
   constructor(env) {
     super(env);
@@ -15525,28 +15325,28 @@ var CursorColor = class extends BaseCursor {
     if (isMesh(this.object) && !isArray(this.object.material)) {
       switch (this._currentStyle) {
         case "pointer":
-          this.material.color = new THREE.Color(65280);
+          this.material.color = new Color(65280);
           this.material.needsUpdate = true;
           break;
         case "not-allowed":
-          this.material.color = new THREE.Color(16711680);
+          this.material.color = new Color(16711680);
           this.material.needsUpdate = true;
           break;
         case "move":
-          this.material.color = new THREE.Color(255);
+          this.material.color = new Color(255);
           this.material.needsUpdate = true;
           break;
         case "grab":
-          this.material.color = new THREE.Color(16711935);
+          this.material.color = new Color(16711935);
           this.material.needsUpdate = true;
           break;
         case "grabbing":
-          this.material.color = new THREE.Color(65535);
+          this.material.color = new Color(65535);
           this.material.needsUpdate = true;
           break;
         default:
           this._currentStyle = "default";
-          this.material.color = new THREE.Color(16776960);
+          this.material.color = new Color(16776960);
           this.material.needsUpdate = true;
           break;
       }
@@ -15560,7 +15360,372 @@ var CursorColor = class extends BaseCursor {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/CursorSystem.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/examples/lines/LineSegmentsGeometry.js
+var _box = new Box3();
+var _vector2 = new Vector3();
+var LineSegmentsGeometry = class extends InstancedBufferGeometry {
+  constructor() {
+    super();
+    this.type = "LineSegmentsGeometry";
+    const positions = [-1, 2, 0, 1, 2, 0, -1, 1, 0, 1, 1, 0, -1, 0, 0, 1, 0, 0, -1, -1, 0, 1, -1, 0];
+    const uvs = [-1, 2, 1, 2, -1, 1, 1, 1, -1, -1, 1, -1, -1, -2, 1, -2];
+    const index = [0, 2, 1, 2, 3, 1, 2, 4, 3, 4, 5, 3, 4, 6, 5, 6, 7, 5];
+    this.setIndex(index);
+    this.setAttribute("position", new Float32BufferAttribute(positions, 3));
+    this.setAttribute("uv", new Float32BufferAttribute(uvs, 2));
+  }
+  applyMatrix4(matrix) {
+    const start2 = this.attributes.instanceStart;
+    const end2 = this.attributes.instanceEnd;
+    if (start2 !== void 0) {
+      start2.applyMatrix4(matrix);
+      end2.applyMatrix4(matrix);
+      start2.needsUpdate = true;
+    }
+    if (this.boundingBox !== null) {
+      this.computeBoundingBox();
+    }
+    if (this.boundingSphere !== null) {
+      this.computeBoundingSphere();
+    }
+    return this;
+  }
+  setPositions(array) {
+    let lineSegments;
+    if (array instanceof Float32Array) {
+      lineSegments = array;
+    } else if (Array.isArray(array)) {
+      lineSegments = new Float32Array(array);
+    }
+    const instanceBuffer = new InstancedInterleavedBuffer(lineSegments, 6, 1);
+    this.setAttribute("instanceStart", new InterleavedBufferAttribute(instanceBuffer, 3, 0));
+    this.setAttribute("instanceEnd", new InterleavedBufferAttribute(instanceBuffer, 3, 3));
+    this.computeBoundingBox();
+    this.computeBoundingSphere();
+    return this;
+  }
+  setColors(array) {
+    let colors;
+    if (array instanceof Float32Array) {
+      colors = array;
+    } else if (Array.isArray(array)) {
+      colors = new Float32Array(array);
+    }
+    const instanceColorBuffer = new InstancedInterleavedBuffer(colors, 6, 1);
+    this.setAttribute("instanceColorStart", new InterleavedBufferAttribute(instanceColorBuffer, 3, 0));
+    this.setAttribute("instanceColorEnd", new InterleavedBufferAttribute(instanceColorBuffer, 3, 3));
+    return this;
+  }
+  fromWireframeGeometry(geometry) {
+    this.setPositions(geometry.attributes.position.array);
+    return this;
+  }
+  fromEdgesGeometry(geometry) {
+    this.setPositions(geometry.attributes.position.array);
+    return this;
+  }
+  fromMesh(mesh2) {
+    this.fromWireframeGeometry(new WireframeGeometry(mesh2.geometry));
+    return this;
+  }
+  fromLineSegments(lineSegments) {
+    const geometry = lineSegments.geometry;
+    if (geometry.isGeometry) {
+      console.error("LineSegmentsGeometry no longer supports Geometry. Use BufferGeometry instead.");
+      return;
+    } else if (geometry.isBufferGeometry) {
+      this.setPositions(geometry.attributes.position.array);
+    }
+    return this;
+  }
+  computeBoundingBox() {
+    if (this.boundingBox === null) {
+      this.boundingBox = new Box3();
+    }
+    const start2 = this.attributes.instanceStart;
+    const end2 = this.attributes.instanceEnd;
+    if (start2 !== void 0 && end2 !== void 0) {
+      this.boundingBox.setFromBufferAttribute(start2);
+      _box.setFromBufferAttribute(end2);
+      this.boundingBox.union(_box);
+    }
+  }
+  computeBoundingSphere() {
+    if (this.boundingSphere === null) {
+      this.boundingSphere = new Sphere();
+    }
+    if (this.boundingBox === null) {
+      this.computeBoundingBox();
+    }
+    const start2 = this.attributes.instanceStart;
+    const end2 = this.attributes.instanceEnd;
+    if (start2 !== void 0 && end2 !== void 0) {
+      const center = this.boundingSphere.center;
+      this.boundingBox.getCenter(center);
+      let maxRadiusSq = 0;
+      for (let i = 0, il = start2.count; i < il; i++) {
+        _vector2.fromBufferAttribute(start2, i);
+        maxRadiusSq = Math.max(maxRadiusSq, center.distanceToSquared(_vector2));
+        _vector2.fromBufferAttribute(end2, i);
+        maxRadiusSq = Math.max(maxRadiusSq, center.distanceToSquared(_vector2));
+      }
+      this.boundingSphere.radius = Math.sqrt(maxRadiusSq);
+      if (isNaN(this.boundingSphere.radius)) {
+        console.error("LineSegmentsGeometry.computeBoundingSphere(): Computed radius is NaN. The instanced position data is likely to have NaN values.", this);
+      }
+    }
+  }
+  toJSON() {
+  }
+  applyMatrix(matrix) {
+    console.warn("LineSegmentsGeometry: applyMatrix() has been renamed to applyMatrix4().");
+    return this.applyMatrix4(matrix);
+  }
+};
+LineSegmentsGeometry.prototype.isLineSegmentsGeometry = true;
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/examples/lines/LineSegments2.js
+var _start = new Vector3();
+var _end = new Vector3();
+var _start4 = new Vector4();
+var _end4 = new Vector4();
+var _ssOrigin = new Vector4();
+var _ssOrigin3 = new Vector3();
+var _mvMatrix = new Matrix4();
+var _line = new Line3();
+var _closestPoint = new Vector3();
+var _box2 = new Box3();
+var _sphere = new Sphere();
+var _clipToWorldVector = new Vector4();
+function getWorldSpaceHalfWidth(camera, distance2, lineWidth, resolution) {
+  _clipToWorldVector.set(0, 0, -distance2, 1).applyMatrix4(camera.projectionMatrix);
+  _clipToWorldVector.multiplyScalar(1 / _clipToWorldVector.w);
+  _clipToWorldVector.x = lineWidth / resolution.width;
+  _clipToWorldVector.y = lineWidth / resolution.height;
+  _clipToWorldVector.applyMatrix4(camera.projectionMatrixInverse);
+  _clipToWorldVector.multiplyScalar(1 / _clipToWorldVector.w);
+  return Math.abs(Math.max(_clipToWorldVector.x, _clipToWorldVector.y));
+}
+var LineSegments2 = class extends Mesh {
+  constructor(geometry = new LineSegmentsGeometry(), material = new LineMaterial({ color: Math.random() * 16777215 })) {
+    super(geometry, material);
+    this.type = "LineSegments2";
+  }
+  computeLineDistances() {
+    const geometry = this.geometry;
+    const instanceStart = geometry.attributes.instanceStart;
+    const instanceEnd = geometry.attributes.instanceEnd;
+    const lineDistances = new Float32Array(2 * instanceStart.count);
+    for (let i = 0, j = 0, l = instanceStart.count; i < l; i++, j += 2) {
+      _start.fromBufferAttribute(instanceStart, i);
+      _end.fromBufferAttribute(instanceEnd, i);
+      lineDistances[j] = j === 0 ? 0 : lineDistances[j - 1];
+      lineDistances[j + 1] = lineDistances[j] + _start.distanceTo(_end);
+    }
+    const instanceDistanceBuffer = new InstancedInterleavedBuffer(lineDistances, 2, 1);
+    geometry.setAttribute("instanceDistanceStart", new InterleavedBufferAttribute(instanceDistanceBuffer, 1, 0));
+    geometry.setAttribute("instanceDistanceEnd", new InterleavedBufferAttribute(instanceDistanceBuffer, 1, 1));
+    return this;
+  }
+  raycast(raycaster, intersects) {
+    if (raycaster.camera === null) {
+      console.error('LineSegments2: "Raycaster.camera" needs to be set in order to raycast against LineSegments2.');
+    }
+    const threshold = raycaster.params.Line2 !== void 0 ? raycaster.params.Line2.threshold || 0 : 0;
+    const ray = raycaster.ray;
+    const camera = raycaster.camera;
+    const projectionMatrix = camera.projectionMatrix;
+    const matrixWorld = this.matrixWorld;
+    const geometry = this.geometry;
+    const material = this.material;
+    const resolution = material.resolution;
+    const lineWidth = material.linewidth + threshold;
+    const instanceStart = geometry.attributes.instanceStart;
+    const instanceEnd = geometry.attributes.instanceEnd;
+    const near = -camera.near;
+    if (geometry.boundingSphere === null) {
+      geometry.computeBoundingSphere();
+    }
+    _sphere.copy(geometry.boundingSphere).applyMatrix4(matrixWorld);
+    const distanceToSphere = Math.max(camera.near, _sphere.distanceToPoint(ray.origin));
+    const sphereMargin = getWorldSpaceHalfWidth(camera, distanceToSphere, lineWidth, resolution);
+    _sphere.radius += sphereMargin;
+    if (raycaster.ray.intersectsSphere(_sphere) === false) {
+      return;
+    }
+    if (geometry.boundingBox === null) {
+      geometry.computeBoundingBox();
+    }
+    _box2.copy(geometry.boundingBox).applyMatrix4(matrixWorld);
+    const distanceToBox = Math.max(camera.near, _box2.distanceToPoint(ray.origin));
+    const boxMargin = getWorldSpaceHalfWidth(camera, distanceToBox, lineWidth, resolution);
+    _box2.max.x += boxMargin;
+    _box2.max.y += boxMargin;
+    _box2.max.z += boxMargin;
+    _box2.min.x -= boxMargin;
+    _box2.min.y -= boxMargin;
+    _box2.min.z -= boxMargin;
+    if (raycaster.ray.intersectsBox(_box2) === false) {
+      return;
+    }
+    ray.at(1, _ssOrigin);
+    _ssOrigin.w = 1;
+    _ssOrigin.applyMatrix4(camera.matrixWorldInverse);
+    _ssOrigin.applyMatrix4(projectionMatrix);
+    _ssOrigin.multiplyScalar(1 / _ssOrigin.w);
+    _ssOrigin.x *= resolution.x / 2;
+    _ssOrigin.y *= resolution.y / 2;
+    _ssOrigin.z = 0;
+    _ssOrigin3.copy(_ssOrigin);
+    _mvMatrix.multiplyMatrices(camera.matrixWorldInverse, matrixWorld);
+    for (let i = 0, l = instanceStart.count; i < l; i++) {
+      _start4.fromBufferAttribute(instanceStart, i);
+      _end4.fromBufferAttribute(instanceEnd, i);
+      _start4.w = 1;
+      _end4.w = 1;
+      _start4.applyMatrix4(_mvMatrix);
+      _end4.applyMatrix4(_mvMatrix);
+      var isBehindCameraNear = _start4.z > near && _end4.z > near;
+      if (isBehindCameraNear) {
+        continue;
+      }
+      if (_start4.z > near) {
+        const deltaDist = _start4.z - _end4.z;
+        const t2 = (_start4.z - near) / deltaDist;
+        _start4.lerp(_end4, t2);
+      } else if (_end4.z > near) {
+        const deltaDist = _end4.z - _start4.z;
+        const t2 = (_end4.z - near) / deltaDist;
+        _end4.lerp(_start4, t2);
+      }
+      _start4.applyMatrix4(projectionMatrix);
+      _end4.applyMatrix4(projectionMatrix);
+      _start4.multiplyScalar(1 / _start4.w);
+      _end4.multiplyScalar(1 / _end4.w);
+      _start4.x *= resolution.x / 2;
+      _start4.y *= resolution.y / 2;
+      _end4.x *= resolution.x / 2;
+      _end4.y *= resolution.y / 2;
+      _line.start.copy(_start4);
+      _line.start.z = 0;
+      _line.end.copy(_end4);
+      _line.end.z = 0;
+      const param = _line.closestPointToPointParameter(_ssOrigin3, true);
+      _line.at(param, _closestPoint);
+      const zPos = MathUtils.lerp(_start4.z, _end4.z, param);
+      const isInClipSpace = zPos >= -1 && zPos <= 1;
+      const isInside = _ssOrigin3.distanceTo(_closestPoint) < lineWidth * 0.5;
+      if (isInClipSpace && isInside) {
+        _line.start.fromBufferAttribute(instanceStart, i);
+        _line.end.fromBufferAttribute(instanceEnd, i);
+        _line.start.applyMatrix4(matrixWorld);
+        _line.end.applyMatrix4(matrixWorld);
+        const pointOnLine = new Vector3();
+        const point = new Vector3();
+        ray.distanceSqToSegment(_line.start, _line.end, point, pointOnLine);
+        intersects.push({
+          point,
+          pointOnLine,
+          distance: ray.origin.distanceTo(point),
+          object: this,
+          face: null,
+          faceIndex: i,
+          uv: null,
+          uv2: null
+        });
+      }
+    }
+  }
+};
+LineSegments2.prototype.isLineSegments2 = true;
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/examples/lines/LineGeometry.js
+var LineGeometry = class extends LineSegmentsGeometry {
+  constructor() {
+    super();
+    this.type = "LineGeometry";
+  }
+  setPositions(array) {
+    var length4 = array.length - 3;
+    var points = new Float32Array(2 * length4);
+    for (var i = 0; i < length4; i += 3) {
+      points[2 * i] = array[i];
+      points[2 * i + 1] = array[i + 1];
+      points[2 * i + 2] = array[i + 2];
+      points[2 * i + 3] = array[i + 3];
+      points[2 * i + 4] = array[i + 4];
+      points[2 * i + 5] = array[i + 5];
+    }
+    super.setPositions(points);
+    return this;
+  }
+  setColors(array) {
+    var length4 = array.length - 3;
+    var colors = new Float32Array(2 * length4);
+    for (var i = 0; i < length4; i += 3) {
+      colors[2 * i] = array[i];
+      colors[2 * i + 1] = array[i + 1];
+      colors[2 * i + 2] = array[i + 2];
+      colors[2 * i + 3] = array[i + 3];
+      colors[2 * i + 4] = array[i + 4];
+      colors[2 * i + 5] = array[i + 5];
+    }
+    super.setColors(colors);
+    return this;
+  }
+  fromLine(line) {
+    var geometry = line.geometry;
+    if (geometry.isGeometry) {
+      console.error("LineGeometry no longer supports Geometry. Use BufferGeometry instead.");
+      return;
+    } else if (geometry.isBufferGeometry) {
+      this.setPositions(geometry.attributes.position.array);
+    }
+    return this;
+  }
+};
+LineGeometry.prototype.isLineGeometry = true;
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/examples/lines/Line2.js
+var Line2 = class extends LineSegments2 {
+  constructor(geometry = new LineGeometry(), material = new LineMaterial({ color: Math.random() * 16777215 })) {
+    super(geometry, material);
+    this.type = "Line2";
+  }
+};
+Line2.prototype.isLine2 = true;
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/Laser.ts
+var geom = new LineGeometry();
+geom.setPositions([
+  0,
+  0,
+  0,
+  0,
+  0,
+  -1
+]);
+var Laser = class extends Object3D {
+  constructor(color2, linewidth = 1) {
+    super();
+    this._length = 1;
+    this.line = new Line2(geom, line2({
+      color: color2,
+      linewidth
+    }));
+    this.line.computeLineDistances();
+    objGraph(this, this.line);
+  }
+  get length() {
+    return this._length;
+  }
+  set length(v) {
+    this._length = v;
+    this.line.scale.set(1, 1, v);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/cursors/CursorSystem.ts
 var CursorSystem = class extends BaseCursor {
   constructor(env, element) {
     super(env);
@@ -15595,7 +15760,7 @@ var CursorSystem = class extends BaseCursor {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/CursorXRMouse.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/cursors/CursorXRMouse.ts
 var CursorXRMouse = class extends BaseCursor {
   constructor(env) {
     super(env);
@@ -15640,7 +15805,7 @@ var CursorXRMouse = class extends BaseCursor {
     this._refresh();
   }
   _refresh() {
-    const isPointerLocked = this.env.pointers && this.env.pointers.mouse && this.env.pointers.mouse.isPointerLocked;
+    const isPointerLocked = this.env.eventSys && this.env.eventSys.mouse && this.env.eventSys.mouse.isPointerLocked;
     const showXR = this.env.renderer.xr.isPresenting || isPointerLocked;
     objectSetVisible(this.xr, this.visible && showXR);
     this.system.visible = this.visible && !showXR;
@@ -15650,7 +15815,7 @@ var CursorXRMouse = class extends BaseCursor {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/Pointer3DEvent.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/devices/Pointer3DEvent.ts
 var Pointer3DEvent = class extends TypedEvent {
   constructor(type2, pointer) {
     super(type2);
@@ -15688,18 +15853,18 @@ var Pointer3DEvent = class extends TypedEvent {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/BasePointer.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/devices/BasePointer.ts
 var MAX_DRAG_DISTANCE = 5;
-var ZERO = new THREE.Vector3();
+var ZERO = new Vector3();
 var BasePointer = class extends TypedEventBase {
   constructor(type2, id2, env, cursor) {
     super();
     this.type = type2;
     this.id = id2;
     this.env = env;
-    this.origin = new THREE.Vector3();
-    this.direction = new THREE.Vector3();
-    this.up = new THREE.Vector3(0, 1, 0);
+    this.origin = new Vector3();
+    this.direction = new Vector3();
+    this.up = new Vector3(0, 1, 0);
     this.canMoveView = false;
     this.mayTeleport = false;
     this.buttons = 0;
@@ -15826,7 +15991,7 @@ var BasePointer = class extends TypedEventBase {
   }
   fireRay(origin, direction) {
     arrayClear(this.hits);
-    this.env.pointers.fireRay(origin, direction, this.hits);
+    this.env.eventSys.fireRay(origin, direction, this.hits);
     let minHit = null;
     let minDist = Number.MAX_VALUE;
     for (const hit of this.hits) {
@@ -15944,375 +16109,10 @@ var BasePointer = class extends TypedEventBase {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/examples/lines/LineSegmentsGeometry.js
-var _box = new THREE.Box3();
-var _vector2 = new THREE.Vector3();
-var LineSegmentsGeometry = class extends THREE.InstancedBufferGeometry {
-  constructor() {
-    super();
-    this.type = "LineSegmentsGeometry";
-    const positions = [-1, 2, 0, 1, 2, 0, -1, 1, 0, 1, 1, 0, -1, 0, 0, 1, 0, 0, -1, -1, 0, 1, -1, 0];
-    const uvs = [-1, 2, 1, 2, -1, 1, 1, 1, -1, -1, 1, -1, -1, -2, 1, -2];
-    const index = [0, 2, 1, 2, 3, 1, 2, 4, 3, 4, 5, 3, 4, 6, 5, 6, 7, 5];
-    this.setIndex(index);
-    this.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
-    this.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
-  }
-  applyMatrix4(matrix) {
-    const start2 = this.attributes.instanceStart;
-    const end2 = this.attributes.instanceEnd;
-    if (start2 !== void 0) {
-      start2.applyMatrix4(matrix);
-      end2.applyMatrix4(matrix);
-      start2.needsUpdate = true;
-    }
-    if (this.boundingBox !== null) {
-      this.computeBoundingBox();
-    }
-    if (this.boundingSphere !== null) {
-      this.computeBoundingSphere();
-    }
-    return this;
-  }
-  setPositions(array) {
-    let lineSegments;
-    if (array instanceof Float32Array) {
-      lineSegments = array;
-    } else if (Array.isArray(array)) {
-      lineSegments = new Float32Array(array);
-    }
-    const instanceBuffer = new THREE.InstancedInterleavedBuffer(lineSegments, 6, 1);
-    this.setAttribute("instanceStart", new THREE.InterleavedBufferAttribute(instanceBuffer, 3, 0));
-    this.setAttribute("instanceEnd", new THREE.InterleavedBufferAttribute(instanceBuffer, 3, 3));
-    this.computeBoundingBox();
-    this.computeBoundingSphere();
-    return this;
-  }
-  setColors(array) {
-    let colors;
-    if (array instanceof Float32Array) {
-      colors = array;
-    } else if (Array.isArray(array)) {
-      colors = new Float32Array(array);
-    }
-    const instanceColorBuffer = new THREE.InstancedInterleavedBuffer(colors, 6, 1);
-    this.setAttribute("instanceColorStart", new THREE.InterleavedBufferAttribute(instanceColorBuffer, 3, 0));
-    this.setAttribute("instanceColorEnd", new THREE.InterleavedBufferAttribute(instanceColorBuffer, 3, 3));
-    return this;
-  }
-  fromWireframeGeometry(geometry) {
-    this.setPositions(geometry.attributes.position.array);
-    return this;
-  }
-  fromEdgesGeometry(geometry) {
-    this.setPositions(geometry.attributes.position.array);
-    return this;
-  }
-  fromMesh(mesh2) {
-    this.fromWireframeGeometry(new THREE.WireframeGeometry(mesh2.geometry));
-    return this;
-  }
-  fromLineSegments(lineSegments) {
-    const geometry = lineSegments.geometry;
-    if (geometry.isGeometry) {
-      console.error("THREE.LineSegmentsGeometry no longer supports Geometry. Use THREE.BufferGeometry instead.");
-      return;
-    } else if (geometry.isBufferGeometry) {
-      this.setPositions(geometry.attributes.position.array);
-    }
-    return this;
-  }
-  computeBoundingBox() {
-    if (this.boundingBox === null) {
-      this.boundingBox = new THREE.Box3();
-    }
-    const start2 = this.attributes.instanceStart;
-    const end2 = this.attributes.instanceEnd;
-    if (start2 !== void 0 && end2 !== void 0) {
-      this.boundingBox.setFromBufferAttribute(start2);
-      _box.setFromBufferAttribute(end2);
-      this.boundingBox.union(_box);
-    }
-  }
-  computeBoundingSphere() {
-    if (this.boundingSphere === null) {
-      this.boundingSphere = new THREE.Sphere();
-    }
-    if (this.boundingBox === null) {
-      this.computeBoundingBox();
-    }
-    const start2 = this.attributes.instanceStart;
-    const end2 = this.attributes.instanceEnd;
-    if (start2 !== void 0 && end2 !== void 0) {
-      const center = this.boundingSphere.center;
-      this.boundingBox.getCenter(center);
-      let maxRadiusSq = 0;
-      for (let i = 0, il = start2.count; i < il; i++) {
-        _vector2.fromBufferAttribute(start2, i);
-        maxRadiusSq = Math.max(maxRadiusSq, center.distanceToSquared(_vector2));
-        _vector2.fromBufferAttribute(end2, i);
-        maxRadiusSq = Math.max(maxRadiusSq, center.distanceToSquared(_vector2));
-      }
-      this.boundingSphere.radius = Math.sqrt(maxRadiusSq);
-      if (isNaN(this.boundingSphere.radius)) {
-        console.error("THREE.LineSegmentsGeometry.computeBoundingSphere(): Computed radius is NaN. The instanced position data is likely to have NaN values.", this);
-      }
-    }
-  }
-  toJSON() {
-  }
-  applyMatrix(matrix) {
-    console.warn("THREE.LineSegmentsGeometry: applyMatrix() has been renamed to applyMatrix4().");
-    return this.applyMatrix4(matrix);
-  }
-};
-LineSegmentsGeometry.prototype.isLineSegmentsGeometry = true;
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/examples/lines/LineSegments2.js
-var _start = new THREE.Vector3();
-var _end = new THREE.Vector3();
-var _start4 = new THREE.Vector4();
-var _end4 = new THREE.Vector4();
-var _ssOrigin = new THREE.Vector4();
-var _ssOrigin3 = new THREE.Vector3();
-var _mvMatrix = new THREE.Matrix4();
-var _line = new THREE.Line3();
-var _closestPoint = new THREE.Vector3();
-var _box2 = new THREE.Box3();
-var _sphere = new THREE.Sphere();
-var _clipToWorldVector = new THREE.Vector4();
-function getWorldSpaceHalfWidth(camera, distance2, lineWidth, resolution) {
-  _clipToWorldVector.set(0, 0, -distance2, 1).applyMatrix4(camera.projectionMatrix);
-  _clipToWorldVector.multiplyScalar(1 / _clipToWorldVector.w);
-  _clipToWorldVector.x = lineWidth / resolution.width;
-  _clipToWorldVector.y = lineWidth / resolution.height;
-  _clipToWorldVector.applyMatrix4(camera.projectionMatrixInverse);
-  _clipToWorldVector.multiplyScalar(1 / _clipToWorldVector.w);
-  return Math.abs(Math.max(_clipToWorldVector.x, _clipToWorldVector.y));
-}
-var LineSegments2 = class extends THREE.Mesh {
-  constructor(geometry = new LineSegmentsGeometry(), material = new LineMaterial({ color: Math.random() * 16777215 })) {
-    super(geometry, material);
-    this.type = "LineSegments2";
-  }
-  computeLineDistances() {
-    const geometry = this.geometry;
-    const instanceStart = geometry.attributes.instanceStart;
-    const instanceEnd = geometry.attributes.instanceEnd;
-    const lineDistances = new Float32Array(2 * instanceStart.count);
-    for (let i = 0, j = 0, l = instanceStart.count; i < l; i++, j += 2) {
-      _start.fromBufferAttribute(instanceStart, i);
-      _end.fromBufferAttribute(instanceEnd, i);
-      lineDistances[j] = j === 0 ? 0 : lineDistances[j - 1];
-      lineDistances[j + 1] = lineDistances[j] + _start.distanceTo(_end);
-    }
-    const instanceDistanceBuffer = new THREE.InstancedInterleavedBuffer(lineDistances, 2, 1);
-    geometry.setAttribute("instanceDistanceStart", new THREE.InterleavedBufferAttribute(instanceDistanceBuffer, 1, 0));
-    geometry.setAttribute("instanceDistanceEnd", new THREE.InterleavedBufferAttribute(instanceDistanceBuffer, 1, 1));
-    return this;
-  }
-  raycast(raycaster, intersects) {
-    if (raycaster.camera === null) {
-      console.error('LineSegments2: "Raycaster.camera" needs to be set in order to raycast against LineSegments2.');
-    }
-    const threshold = raycaster.params.Line2 !== void 0 ? raycaster.params.Line2.threshold || 0 : 0;
-    const ray = raycaster.ray;
-    const camera = raycaster.camera;
-    const projectionMatrix = camera.projectionMatrix;
-    const matrixWorld = this.matrixWorld;
-    const geometry = this.geometry;
-    const material = this.material;
-    const resolution = material.resolution;
-    const lineWidth = material.linewidth + threshold;
-    const instanceStart = geometry.attributes.instanceStart;
-    const instanceEnd = geometry.attributes.instanceEnd;
-    const near = -camera.near;
-    if (geometry.boundingSphere === null) {
-      geometry.computeBoundingSphere();
-    }
-    _sphere.copy(geometry.boundingSphere).applyMatrix4(matrixWorld);
-    const distanceToSphere = Math.max(camera.near, _sphere.distanceToPoint(ray.origin));
-    const sphereMargin = getWorldSpaceHalfWidth(camera, distanceToSphere, lineWidth, resolution);
-    _sphere.radius += sphereMargin;
-    if (raycaster.ray.intersectsSphere(_sphere) === false) {
-      return;
-    }
-    if (geometry.boundingBox === null) {
-      geometry.computeBoundingBox();
-    }
-    _box2.copy(geometry.boundingBox).applyMatrix4(matrixWorld);
-    const distanceToBox = Math.max(camera.near, _box2.distanceToPoint(ray.origin));
-    const boxMargin = getWorldSpaceHalfWidth(camera, distanceToBox, lineWidth, resolution);
-    _box2.max.x += boxMargin;
-    _box2.max.y += boxMargin;
-    _box2.max.z += boxMargin;
-    _box2.min.x -= boxMargin;
-    _box2.min.y -= boxMargin;
-    _box2.min.z -= boxMargin;
-    if (raycaster.ray.intersectsBox(_box2) === false) {
-      return;
-    }
-    ray.at(1, _ssOrigin);
-    _ssOrigin.w = 1;
-    _ssOrigin.applyMatrix4(camera.matrixWorldInverse);
-    _ssOrigin.applyMatrix4(projectionMatrix);
-    _ssOrigin.multiplyScalar(1 / _ssOrigin.w);
-    _ssOrigin.x *= resolution.x / 2;
-    _ssOrigin.y *= resolution.y / 2;
-    _ssOrigin.z = 0;
-    _ssOrigin3.copy(_ssOrigin);
-    _mvMatrix.multiplyMatrices(camera.matrixWorldInverse, matrixWorld);
-    for (let i = 0, l = instanceStart.count; i < l; i++) {
-      _start4.fromBufferAttribute(instanceStart, i);
-      _end4.fromBufferAttribute(instanceEnd, i);
-      _start4.w = 1;
-      _end4.w = 1;
-      _start4.applyMatrix4(_mvMatrix);
-      _end4.applyMatrix4(_mvMatrix);
-      var isBehindCameraNear = _start4.z > near && _end4.z > near;
-      if (isBehindCameraNear) {
-        continue;
-      }
-      if (_start4.z > near) {
-        const deltaDist = _start4.z - _end4.z;
-        const t2 = (_start4.z - near) / deltaDist;
-        _start4.lerp(_end4, t2);
-      } else if (_end4.z > near) {
-        const deltaDist = _end4.z - _start4.z;
-        const t2 = (_end4.z - near) / deltaDist;
-        _end4.lerp(_start4, t2);
-      }
-      _start4.applyMatrix4(projectionMatrix);
-      _end4.applyMatrix4(projectionMatrix);
-      _start4.multiplyScalar(1 / _start4.w);
-      _end4.multiplyScalar(1 / _end4.w);
-      _start4.x *= resolution.x / 2;
-      _start4.y *= resolution.y / 2;
-      _end4.x *= resolution.x / 2;
-      _end4.y *= resolution.y / 2;
-      _line.start.copy(_start4);
-      _line.start.z = 0;
-      _line.end.copy(_end4);
-      _line.end.z = 0;
-      const param = _line.closestPointToPointParameter(_ssOrigin3, true);
-      _line.at(param, _closestPoint);
-      const zPos = THREE.MathUtils.lerp(_start4.z, _end4.z, param);
-      const isInClipSpace = zPos >= -1 && zPos <= 1;
-      const isInside = _ssOrigin3.distanceTo(_closestPoint) < lineWidth * 0.5;
-      if (isInClipSpace && isInside) {
-        _line.start.fromBufferAttribute(instanceStart, i);
-        _line.end.fromBufferAttribute(instanceEnd, i);
-        _line.start.applyMatrix4(matrixWorld);
-        _line.end.applyMatrix4(matrixWorld);
-        const pointOnLine = new THREE.Vector3();
-        const point = new THREE.Vector3();
-        ray.distanceSqToSegment(_line.start, _line.end, point, pointOnLine);
-        intersects.push({
-          point,
-          pointOnLine,
-          distance: ray.origin.distanceTo(point),
-          object: this,
-          face: null,
-          faceIndex: i,
-          uv: null,
-          uv2: null
-        });
-      }
-    }
-  }
-};
-LineSegments2.prototype.isLineSegments2 = true;
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/examples/lines/LineGeometry.js
-var LineGeometry = class extends LineSegmentsGeometry {
-  constructor() {
-    super();
-    this.type = "LineGeometry";
-  }
-  setPositions(array) {
-    var length4 = array.length - 3;
-    var points = new Float32Array(2 * length4);
-    for (var i = 0; i < length4; i += 3) {
-      points[2 * i] = array[i];
-      points[2 * i + 1] = array[i + 1];
-      points[2 * i + 2] = array[i + 2];
-      points[2 * i + 3] = array[i + 3];
-      points[2 * i + 4] = array[i + 4];
-      points[2 * i + 5] = array[i + 5];
-    }
-    super.setPositions(points);
-    return this;
-  }
-  setColors(array) {
-    var length4 = array.length - 3;
-    var colors = new Float32Array(2 * length4);
-    for (var i = 0; i < length4; i += 3) {
-      colors[2 * i] = array[i];
-      colors[2 * i + 1] = array[i + 1];
-      colors[2 * i + 2] = array[i + 2];
-      colors[2 * i + 3] = array[i + 3];
-      colors[2 * i + 4] = array[i + 4];
-      colors[2 * i + 5] = array[i + 5];
-    }
-    super.setColors(colors);
-    return this;
-  }
-  fromLine(line) {
-    var geometry = line.geometry;
-    if (geometry.isGeometry) {
-      console.error("THREE.LineGeometry no longer supports Geometry. Use THREE.BufferGeometry instead.");
-      return;
-    } else if (geometry.isBufferGeometry) {
-      this.setPositions(geometry.attributes.position.array);
-    }
-    return this;
-  }
-};
-LineGeometry.prototype.isLineGeometry = true;
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/examples/lines/Line2.js
-var Line2 = class extends LineSegments2 {
-  constructor(geometry = new LineGeometry(), material = new LineMaterial({ color: Math.random() * 16777215 })) {
-    super(geometry, material);
-    this.type = "Line2";
-  }
-};
-Line2.prototype.isLine2 = true;
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/Laser.ts
-var geom = new LineGeometry();
-geom.setPositions([
-  0,
-  0,
-  0,
-  0,
-  0,
-  -1
-]);
-var Laser = class extends THREE.Object3D {
-  constructor(color2, linewidth = 1) {
-    super();
-    this._length = 1;
-    this.line = new Line2(geom, line2({
-      color: color2,
-      linewidth
-    }));
-    this.line.computeLineDistances();
-    objGraph(this, this.line);
-  }
-  get length() {
-    return this._length;
-  }
-  set length(v) {
-    this._length = v;
-    this.line.scale.set(1, 1, v);
-  }
-};
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/PointerHand.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/devices/PointerHand.ts
 var mcModelFactory = new XRControllerModelFactory();
 var handModelFactory = new XRHandModelFactory();
-var riftSCorrection = new THREE.Matrix4().makeRotationX(-7 * Math.PI / 9);
+var riftSCorrection = new Matrix4().makeRotationX(-7 * Math.PI / 9);
 var pointerIDs = /* @__PURE__ */ new Map([
   ["none", 4 /* MotionController */],
   ["left", 5 /* MotionControllerLeft */],
@@ -16329,10 +16129,10 @@ var PointerHand = class extends BasePointer {
     this._isHand = false;
     this.inputSource = null;
     this._gamepad = new EventedGamepad();
-    this.delta = new THREE.Vector3();
-    this.newOrigin = new THREE.Vector3();
-    this.quaternion = new THREE.Quaternion();
-    this.newQuat = new THREE.Quaternion();
+    this.delta = new Vector3();
+    this.newOrigin = new Vector3();
+    this.quaternion = new Quaternion();
+    this.newQuat = new Quaternion();
     this.useHaptics = true;
     this.mayTeleport = true;
     this.object = obj("PointerHand" + index);
@@ -16388,7 +16188,7 @@ var PointerHand = class extends BasePointer {
         this.hand.visible = this.isHand;
         this.enabled = true;
         this.isActive = true;
-        this.env.pointers.checkXRMouse();
+        this.env.eventSys.checkXRMouse();
         this.updateCursorSide();
         console.log(this.handedness, "connected");
       }
@@ -16404,7 +16204,7 @@ var PointerHand = class extends BasePointer {
         this.hand.visible = false;
         this.enabled = false;
         this.isActive = false;
-        this.env.pointers.checkXRMouse();
+        this.env.eventSys.checkXRMouse();
         this.updateCursorSide();
         console.log(this.handedness, "disconnected");
       }
@@ -16462,16 +16262,16 @@ var PointerHand = class extends BasePointer {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/BaseScreenPointer.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/devices/BaseScreenPointer.ts
 var BaseScreenPointer = class extends BasePointer {
   constructor(type2, id2, env, cursor) {
     super(type2, id2, env, cursor);
-    this.position = new THREE.Vector2();
-    this.motion = new THREE.Vector2();
-    this.uv = new THREE.Vector2();
-    this.duv = new THREE.Vector2();
-    this.uvComp = new THREE.Vector2(1, -1);
-    this.uvOff = new THREE.Vector2(-1, 1);
+    this.position = new Vector2();
+    this.motion = new Vector2();
+    this.uv = new Vector2();
+    this.duv = new Vector2();
+    this.uvComp = new Vector2(1, -1);
+    this.uvOff = new Vector2(-1, 1);
     this.canMoveView = true;
     const onPointerEvent = (evt) => {
       if (this.checkEvent(evt)) {
@@ -16523,7 +16323,7 @@ var BaseScreenPointer = class extends BasePointer {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/BaseScreenPointerSinglePoint.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/devices/BaseScreenPointerSinglePoint.ts
 var BaseScreenPointerSinglePoint = class extends BaseScreenPointer {
   constructor(type2, id2, env) {
     const onPrep = (evt) => {
@@ -16558,7 +16358,7 @@ var BaseScreenPointerSinglePoint = class extends BaseScreenPointer {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/PointerMouse.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/devices/PointerMouse.ts
 var PointerMouse = class extends BaseScreenPointerSinglePoint {
   constructor(env) {
     super("mouse", 1 /* Mouse */, env);
@@ -16629,7 +16429,7 @@ var PointerMouse = class extends BaseScreenPointerSinglePoint {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/PointerPen.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/devices/PointerPen.ts
 var PointerPen = class extends BaseScreenPointerSinglePoint {
   constructor(env) {
     super("pen", 2 /* Pen */, env);
@@ -16639,7 +16439,7 @@ var PointerPen = class extends BaseScreenPointerSinglePoint {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/PointerTouch.ts
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/devices/PointerTouch.ts
 function getPointerID(evt) {
   return evt.pointerId;
 }
@@ -16720,12 +16520,12 @@ var PointerTouch = class extends BaseScreenPointer {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/PointerManager.ts
-var PointerManager = class extends TypedEventBase {
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/eventSystem/EventSystem.ts
+var EventSystem = class extends TypedEventBase {
   constructor(env) {
     super();
     this.env = env;
-    this.raycaster = new THREE.Raycaster();
+    this.raycaster = new Raycaster();
     this.queue = new Array();
     this.targetsFound = /* @__PURE__ */ new Set();
     this.targets = new Array();
@@ -16810,7 +16610,7 @@ var Fader = class extends TypedEventBase {
     this.material = solidTransparent({
       name: "FaderMaterial",
       color: 0,
-      side: THREE.BackSide
+      side: BackSide
     });
     this.object = mesh(name2, cube, this.material);
     this.object.renderOrder = Number.MAX_VALUE;
@@ -19691,7 +19491,7 @@ var WebVRDevice = class extends XRDevice {
   }
   onWindowResize() {
   }
-  onVRDisplayPresentChange(e2) {
+  onVRDisplayPresentChange(e) {
     if (!this.display.isPresenting) {
       this.sessions.forEach((session) => {
         if (session.immersive && !session.ended) {
@@ -19846,7 +19646,7 @@ var getWebVRDevice = async function(global2) {
       if (displays && displays.length) {
         device = new WebVRDevice(global2, displays[0]);
       }
-    } catch (e2) {
+    } catch (e) {
     }
   }
   return device;
@@ -20202,7 +20002,7 @@ var ScreenControl = class extends TypedEventBase {
 };
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/Skybox.ts
-var U = new THREE.Vector3(0, 1, 0);
+var U = new Vector3(0, 1, 0);
 var FACE_SIZE = 2048;
 var FACE_SIZE_HALF = FACE_SIZE / 2;
 var FACES = [
@@ -20227,16 +20027,16 @@ var CUBEMAP_PATTERN = {
     [0, Math.PI, 0, 0]
   ]
 };
-var black = new THREE.Color(0);
+var black = new Color(0);
 var Skybox = class {
   constructor(env) {
     this.env = env;
-    this.rt = new THREE.WebGLCubeRenderTarget(FACE_SIZE);
-    this.rtScene = new THREE.Scene();
-    this.rtCamera = new THREE.CubeCamera(0.01, 10, this.rt);
-    this._rotation = new THREE.Quaternion();
-    this.layerRotation = new THREE.Quaternion().identity();
-    this.stageRotation = new THREE.Quaternion().identity();
+    this.rt = new WebGLCubeRenderTarget(FACE_SIZE);
+    this.rtScene = new Scene();
+    this.rtCamera = new CubeCamera(0.01, 10, this.rt);
+    this._rotation = new Quaternion();
+    this.layerRotation = new Quaternion().identity();
+    this.stageRotation = new Quaternion().identity();
     this.canvases = new Array(6);
     this.contexts = new Array(6);
     this.layerOrientation = null;
@@ -20323,7 +20123,7 @@ var Skybox = class {
           cleanup(this.cube);
         }
         this.images = images;
-        this.rtScene.background = this.cube = new THREE.CubeTexture(this.images);
+        this.rtScene.background = this.cube = new CubeTexture(this.images);
         this.cube.name = "SkyboxInput";
       }
     }
@@ -20453,6 +20253,35 @@ var Skybox = class {
   }
 };
 
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math/lerp.ts
+function lerp3(a, b, p) {
+  return (1 - p) * a + p * b;
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/timers/ITimer.ts
+var BaseTimerTickEvent = class {
+  constructor() {
+    this.t = 0;
+    this.dt = 0;
+    this.sdt = 0;
+    this.fps = 0;
+  }
+  set(t2, dt) {
+    this.t = t2;
+    this.dt = dt;
+    this.sdt = lerp3(this.sdt, dt, 0.01);
+    if (dt > 0) {
+      this.fps = 1e3 / dt;
+    }
+  }
+};
+var TimerTickEvent = class extends BaseTimerTickEvent {
+  constructor() {
+    super();
+    Object.seal(this);
+  }
+};
+
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/environment/XRTimer.ts
 var XRTimerTickEvent = class extends BaseTimerTickEvent {
   constructor() {
@@ -20542,17 +20371,17 @@ var BaseEnvironment = class extends TypedEventBase {
     this.DEBUG = DEBUG;
     this.layers = new Array();
     this.layerSortOrder = /* @__PURE__ */ new Map();
-    this.spectator = new THREE.PerspectiveCamera();
-    this.lastViewport = new THREE.Vector4();
-    this.curViewport = new THREE.Vector4();
+    this.spectator = new PerspectiveCamera();
+    this.lastViewport = new Vector4();
+    this.curViewport = new Vector4();
     this.gltfLoader = new GLTFLoader();
     this.fadeDepth = 0;
-    this.camera = new THREE.PerspectiveCamera(50, 1, 0.01, 1e3);
-    this.scene = new THREE.Scene();
+    this.camera = new PerspectiveCamera(50, 1, 0.01, 1e3);
+    this.scene = new Scene();
     this.stage = obj("Stage");
-    this.ambient = new THREE.AmbientLight(16777215, 0.5);
-    this.sun = new THREE.DirectionalLight(16777215, 0.75);
-    this.ground = new THREE.GridHelper(gridSize, gridWidth, 12632256, 8421504);
+    this.ambient = new AmbientLight(16777215, 0.5);
+    this.sun = new DirectionalLight(16777215, 0.75);
+    this.ground = new GridHelper(gridSize, gridWidth, 12632256, 8421504);
     this.foreground = obj("Foreground");
     this.loadingBar = new LoadingBar();
     this.enableSpectator = false;
@@ -20563,8 +20392,11 @@ var BaseEnvironment = class extends TypedEventBase {
     this.cursor3D = new Cursor3D(this);
     if (isHTMLCanvas(canvas)) {
       canvas.style.backgroundColor = "black";
+      if (isNullOrUndefined(canvas.parentElement)) {
+        throw new Error("The provided canvas must be included in a parent element before constructing the environment.");
+      }
     }
-    this.renderer = new THREE.WebGLRenderer({
+    this.renderer = new WebGLRenderer({
       canvas,
       powerPreference: "high-performance",
       precision: "lowp",
@@ -20578,12 +20410,14 @@ var BaseEnvironment = class extends TypedEventBase {
     });
     this.renderer.domElement.setAttribute("touch-action", "none");
     this.renderer.domElement.tabIndex = 1;
-    this.screenControl = new ScreenControl(
-      this.renderer,
-      this.camera,
-      this.renderer.domElement.parentElement,
-      enableFullResolution
-    );
+    if (isHTMLCanvas(canvas)) {
+      this.screenControl = new ScreenControl(
+        this.renderer,
+        this.camera,
+        this.renderer.domElement.parentElement,
+        enableFullResolution
+      );
+    }
     this.fader = new Fader("ViewFader");
     this.worldUISpace = new BodyFollower("WorldUISpace", 0.2, 20, 0.125);
     this.avatar = new AvatarLocal(
@@ -20591,7 +20425,7 @@ var BaseEnvironment = class extends TypedEventBase {
       this.fader,
       defaultAvatarHeight
     );
-    this.pointers = new PointerManager(this);
+    this.eventSys = new EventSystem(this);
     this.timer = new XRTimer(this.renderer);
     this.skybox = new Skybox(this);
     this.renderer.xr.enabled = true;
@@ -20620,7 +20454,7 @@ var BaseEnvironment = class extends TypedEventBase {
         this.ground,
         this.camera,
         this.avatar,
-        ...this.pointers.hands
+        ...this.eventSys.hands
       ),
       this.foreground,
       objGraph(
@@ -20661,7 +20495,7 @@ var BaseEnvironment = class extends TypedEventBase {
         }
       }
       this.screenControl.resize();
-      this.pointers.update();
+      this.eventSys.update();
       this.avatar.update(evt.dt);
       this.worldUISpace.update(this.avatar.height, this.avatar.worldPos, this.avatar.worldHeading, evt.dt);
       this.fader.update(evt.dt);
@@ -20796,7 +20630,7 @@ var BaseEnvironment = class extends TypedEventBase {
     for (const child of children) {
       this.cursor3D.add(child.name, child);
     }
-    this.pointers.refreshCursors();
+    this.eventSys.refreshCursors();
     this.dispatchEvent(new TypedEvent("newcursorloaded"));
   }
   async load(progOrAsset, ...assets) {
@@ -20814,6 +20648,88 @@ var BaseEnvironment = class extends TypedEventBase {
   }
   loadGltf(file) {
     return this.gltfLoader.loadAsync(file);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/mapMap.ts
+function mapMap(items, makeID, makeValue) {
+  return new Map(items.map((item) => [makeID(item), makeValue(item)]));
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/collections/makeLookup.ts
+function makeLookup(items, makeID) {
+  return mapMap(items, makeID, identity);
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/timers/BaseTimer.ts
+var BaseTimer = class {
+  constructor(targetFrameRate) {
+    this.timer = null;
+    this.lt = -1;
+    this.tickHandlers = new Array();
+    this._targetFPS = null;
+    this.targetFPS = targetFrameRate;
+    const tickEvt = new TimerTickEvent();
+    let dt = 0;
+    this.onTick = (t2) => {
+      if (this.lt >= 0) {
+        dt = t2 - this.lt;
+        tickEvt.set(t2, dt);
+        this.tick(tickEvt);
+      }
+      this.lt = t2;
+    };
+  }
+  get targetFPS() {
+    return this._targetFPS;
+  }
+  set targetFPS(v) {
+    this._targetFPS = v;
+  }
+  addTickHandler(onTick) {
+    this.tickHandlers.push(onTick);
+  }
+  removeTickHandler(onTick) {
+    arrayRemove(this.tickHandlers, onTick);
+  }
+  tick(evt) {
+    for (const handler of this.tickHandlers) {
+      handler(evt);
+    }
+  }
+  restart() {
+    this.stop();
+    this.start();
+  }
+  get isRunning() {
+    return this.timer != null;
+  }
+  stop() {
+    this.timer = null;
+    this.lt = -1;
+  }
+  get targetFrameTime() {
+    return 1e3 / this.targetFPS;
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/timers/SetTimeoutTimer.ts
+var SetTimeoutTimer = class extends BaseTimer {
+  constructor(targetFrameRate) {
+    super(targetFrameRate);
+  }
+  start() {
+    const updater = () => {
+      this.timer = setTimeout(updater, this.targetFrameTime);
+      this.onTick(performance.now());
+    };
+    this.timer = setTimeout(updater, this.targetFrameTime);
+  }
+  stop() {
+    if (this.isRunning) {
+      clearTimeout(this.timer);
+      super.stop();
+    }
   }
 };
 
@@ -21009,7 +20925,7 @@ var PropertyList = class {
     const group2 = new Array();
     if (entry instanceof PropertyGroup) {
       name2 = entry.name;
-      group2.push(...entry.properties.map((e2) => this.createRow(e2)));
+      group2.push(...entry.properties.map((e) => this.createRow(e)));
     } else {
       group2.push(this.createRow(entry));
     }
@@ -21107,8 +21023,8 @@ var DeviceDialog = class extends DialogBox {
             this.micScenario = Meter()
           ],
           ["Volume", this.micVolumeControl = new InputRangeWithNumber(
-            min2(0),
-            max2(100),
+            min(0),
+            max(100),
             step(1),
             value(0),
             onInput(() => {
@@ -21166,8 +21082,8 @@ var DeviceDialog = class extends DialogBox {
       [
         "Volume",
         this.spkrVolumeControl = new InputRangeWithNumber(
-          min2(0),
-          max2(100),
+          min(0),
+          max(100),
           step(1),
           value(0),
           onInput(() => env.audio.audioDestination.volume = this.spkrVolumeControl.valueAsNumber / 100)
@@ -21297,7 +21213,7 @@ var Environment = class extends BaseEnvironment {
     this.audioPlayer = new AudioPlayer(this.audio.audioCtx);
     this.videoPlayer = new VideoPlayer3D(this, this.audio.audioCtx);
     this.videoPlayer.object.visible = false;
-    this.interactionAudio = new InteractionAudio(this.audio, this.pointers);
+    this.interactionAudio = new InteractionAudio(this.audio, this.eventSys);
     this.confirmationDialog = new ConfirmationDialog(this, dialogFontFamily);
     this.devicesDialog = new DeviceDialog(this);
     this.uiButtons = new ButtonFactory(uiImagePaths, 20, this.DEBUG);
@@ -21446,13 +21362,15 @@ var Environment = class extends BaseEnvironment {
     } else {
       prog = progOrAsset;
     }
-    elementApply(
-      this.renderer.domElement.parentElement,
-      this.screenUISpace,
-      this.confirmationDialog,
-      this.devicesDialog,
-      this.renderer.domElement
-    );
+    if (isHTMLCanvas(this.renderer.domElement)) {
+      elementApply(
+        this.renderer.domElement.parentElement,
+        this.screenUISpace,
+        this.confirmationDialog,
+        this.devicesDialog,
+        this.renderer.domElement
+      );
+    }
     const footsteps = new AssetAudio("/audio/footsteps.mp3", Audio_Mpeg, !this.DEBUG);
     const enter = new AssetAudio("/audio/basic_enter.mp3", Audio_Mpeg, !this.DEBUG);
     const exit = new AssetAudio("/audio/basic_exit.mp3", Audio_Mpeg, !this.DEBUG);
