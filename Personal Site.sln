@@ -50,8 +50,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		bundle3.ps1 = bundle3.ps1
 		clean-deploy.ps1 = clean-deploy.ps1
 		commit.ps1 = commit.ps1
-		publish.ps1 = publish.ps1
 		LICENSE.md = LICENSE.md
+		publish.ps1 = publish.ps1
 		rebuild.ps1 = rebuild.ps1
 		tool.ps1 = tool.ps1
 	EndProjectSection
