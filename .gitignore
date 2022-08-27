@@ -62,3 +62,4 @@ build/Release
 buildinfo.json
 package-lock.json
 /Personal Site/wwwroot/js/
+/deploy/

@@ -2,8 +2,10 @@ cd ..\
     # Bundle the TypeScript code
     dotnet run --project ".\Build\"
 cd -
-    
-mkdir ..\deploy\
+
+if(-not (Test-Path ..\deploy\linux -PathType Container)) {
+    mkdir ..\deploy\
+}
 
 # Create the .NET package
 dotnet publish "..\Personal Site\" --configuration Release --no-self-contained --runtime linux-x64 --output ..\deploy\linux\
