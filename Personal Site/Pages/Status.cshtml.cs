@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace Yarrow.Pages
+namespace SeanMcBeth.Pages
 {
     public class StatusModel : PageModel
     {

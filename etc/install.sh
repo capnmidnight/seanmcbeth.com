@@ -1,40 +1,37 @@
-# ONE TIME
+# Get .NET 6
+sudo apt-get update
+sudo apt-get install -y dotnet6
 
-## get dotnet core 3.1
-wget https://packages.microsoft.com/config/ubuntu/21.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
-sudo dpkg -i packages-microsoft-prod.deb
-rm packages-microsoft-prod.deb
+# Create a directory for it
+mkdir ~/bin ~/bin/SeanMcBeth.Site ~/bin/SeanMcBeth.Site/certs
 
-sudo apt-get update; \
-  sudo apt-get install -y apt-transport-https && \
-  sudo apt-get update && \
-  sudo apt-get install -y dotnet-sdk-6.0
+# Unpack the package
+tar -xf ~/seanmcbeth.com.linux.tar --directory ~/bin/SeanMcBeth.Site
 
-## clone repo
-mkdir src
-cd src
-git clone --branch dotnet git@github.com:capnmidnight/seanmcbeth.com
-cd seanmcbeth.com
-git submodule init
-git submodule update --recursive --depth 1
+# Set executable bits
+chmod 700 ~/bin/SeanMcBeth.Site/SeanMcBeth.Site
+chmod 700 ~/bin/SeanMcBeth.Site/yt-dlp
 
-## CTRL+C to cancel test, then publish
-dotnet publish ~/src/seanmcbeth.com/src/Personal\ Site -c Release -o ~/bin/SeanMcBeth.Site
+# Install the Let's Encrypt renewal hooks
+sudo cp -r ~/letsencrypt/* /etc/letsencrypt/
+sudo chown -R root:root /etc/letsencrypt/renewal-hooks/*
 
-## run it
-cd ~/bin/SeanMcBeth.Site
-./SeanMcBeth.Site
+# Copy the Let's Encrypt certs so we can use them from the server
+for certfile in cert.pem chain.pem fullchain.pem privkey.pem ; do
+	sudo cp -L /etc/letsencrypt/live/seanmcbeth.com/"${certfile}" ~/bin/SeanMcBeth.Site.new/certs/"${certfile}"
+	sudo chown smcbeth:smcbeth ~/bin/SeanMcBeth.Site.new/certs/"${certfile}"
+done
 
-## CTRL+C to cancel, then publish the systemd service
-sudo cp ~/SeanMcBeth.Site.service /etc/systemd/system/
+# Create the SystemD service
+sudo mv ~/SeanMcBeth.Site.service /etc/systemd/system/SeanMcBeth.Site.service
+sudo chown root:root /etc/systemd/system/SeanMcBeth.Site.service
 sudo systemctl daemon-reload
-
-## Allow app to run on port 80/443
 sudo setcap CAP_NET_BIND_SERVICE=+eip ~/bin/SeanMcBeth.Site/SeanMcBeth.Site
-
-## enable auto startup
 sudo systemctl enable SeanMcBeth.Site
 
-## start systemd service
+# Startup
 sudo systemctl start SeanMcBeth.Site
-sudo systemctl status SeanMcBeth.Site
+
+# Cleanup
+rm ~/seanmcbeth.com.linux.tar
+rm -rf ~/letsencrypt/

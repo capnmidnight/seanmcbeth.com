@@ -1,7 +1,7 @@
 #!/bin/bash -e
 
 domain=dev.seanmcbeth.com
-user=azureuser
+user=smcbeth
 assembly=SeanMcBeth.Site
 
 for certfile in cert.pem chain.pem fullchain.pem privkey.pem ; do

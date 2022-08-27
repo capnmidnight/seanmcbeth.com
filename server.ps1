@@ -1,0 +1,1 @@
+ssh -i ~\.ssh\sean-mcbeth.pem smcbeth@www.seanmcbeth.com 

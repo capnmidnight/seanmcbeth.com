@@ -88,9 +88,9 @@ namespace SeanMcBeth
                     && appInDir.Touch("index.ts").Exists)
                 {
                     var appOutDir = jsOutput.CD(appInDir.Name);
-                    foreach (var fileName in FilePatterns)
+                    foreach (var pattern in FilePatterns)
                     {
-                        var files = appInDir.GetFiles(fileName);
+                        var files = appInDir.GetFiles(pattern);
                         foreach (var file in files)
                         {
                             options.OptionalDependencies.Add(
