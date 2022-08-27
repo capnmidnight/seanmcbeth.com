@@ -1,2 +1,0 @@
-Chess.makeUI();
-Chess.showBoard();

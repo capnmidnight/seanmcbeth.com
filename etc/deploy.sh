@@ -7,7 +7,6 @@ tar -xf ~/seanmcbeth.com.linux.tar --directory ~/bin/SeanMcBeth.Site.new/
 
 # Enable execution of certain parts
 chmod 700 ~/bin/SeanMcBeth.Site.new/SeanMcBeth.Site
-chmod 700 ~/bin/SeanMcBeth.Site.new/yt-dlp
 
 # Copy the Let's Encrypt certificates
 for certfile in cert.pem chain.pem fullchain.pem privkey.pem ; do

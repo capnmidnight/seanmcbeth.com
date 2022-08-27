@@ -5,5 +5,5 @@ if(Test-Path ..\deploy\linux -PathType Container) {
 }
 
 if(Test-Path ..\deploy\seanmcbeth.com.linux.tar -PathType Leaf) {
-    rm ..\deploy\seanmcbeth.linux.tar
+    rm ..\deploy\seanmcbeth.com.linux.tar
 }
