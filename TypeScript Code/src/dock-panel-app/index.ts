@@ -1,6 +1,6 @@
-import { backgroundColor, border, borderRadius, gridGap, height, rule, width } from "@juniper-lib/dom/css";
+import { backgroundColor, border, borderRadius, gridGap, height, px, rule, width } from "@juniper-lib/dom/css";
 import { elementApply, H3, Style } from "@juniper-lib/dom/tags";
-import { DockCell, DockGroupColumn, DockPanel, DockGroupRow, rearrangeable, resizable } from "@juniper-lib/widgets/DockPanel";
+import { DockCell, DockGroupColumn, DockGroupRow, DockPanel, rearrangeable, resizable } from "@juniper-lib/widgets/DockPanel";
 
 Style(
     rule(".dock.panel",
@@ -10,7 +10,7 @@ Style(
 
     rule(".dock.cell",
         border("1px solid black"),
-        borderRadius("5px"),
+        borderRadius(px(5)),
         backgroundColor("#ccc")
     ),
 
@@ -19,12 +19,13 @@ Style(
     )
 );
 
+
 elementApply(document.body.querySelector("main"),
     DockPanel(
         "Test",
         resizable(true),
         rearrangeable(true),
-        gridGap("3px"),
+        gridGap(px(3)),
         DockGroupRow(
             DockGroupColumn(
                 DockCell(

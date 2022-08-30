@@ -1,5 +1,5 @@
 ﻿import { htmlHeight, htmlWidth } from "@juniper-lib/dom/attrs";
-import { styles, touchAction, width } from "@juniper-lib/dom/css";
+import { px, touchAction, width } from "@juniper-lib/dom/css";
 import { onPointerCancel, onPointerDown, onPointerEnter, onPointerLeave, onPointerRawUpdate, onPointerUp } from "@juniper-lib/dom/evts";
 import { Canvas, elementApply } from "@juniper-lib/dom/tags";
 import { Application_Javascript } from "@juniper-lib/mediatypes";
@@ -41,10 +41,8 @@ const fetcher = createFetcher();
             onPointerLeave(checkPointer),
             onPointerRawUpdate(checkPointer),
             onPointerUp(checkPointer),
-            styles(
-                touchAction("none"),
-                width("600px")
-            )
+            touchAction("none"),
+            width(px(600))
         )
     );
 

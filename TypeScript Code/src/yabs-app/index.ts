@@ -1,6 +1,6 @@
 ﻿import { audioReady } from "@juniper-lib/audio/nodes";
 import { className, id } from "@juniper-lib/dom/attrs";
-import { backgroundColor, backgroundImage, border, borderBottomLeftRadius, borderBottomRightRadius, borderRadius, borderTopLeftRadius, borderTopRightRadius, boxShadow, color, display, fontFamily, fontSize, fontWeight, height, left, margin, marginLeft, marginRight, marginTop, overflow, padding, pointerEvents, position, rule, styles, textTransform, top, transform, width, zIndex } from "@juniper-lib/dom/css";
+import { backgroundColor, backgroundImage, border, borderBottomLeftRadius, borderBottomRightRadius, borderRadius, borderTopLeftRadius, borderTopRightRadius, boxShadow, color, display, fontFamily, fontSize, fontWeight, height, left, margin, marginLeft, marginRight, marginTop, overflow, padding, pointerEvents, position, px, rule, textTransform, top, transform, width, zIndex } from "@juniper-lib/dom/css";
 import { onClick, onMouseOut, onTouchStart } from "@juniper-lib/dom/evts";
 import { Button, Div, elementApply, ErsatzElement, getElement, P, Span, Style } from "@juniper-lib/dom/tags";
 import { arrayRandom } from "@juniper-lib/tslib/collections/arrays";
@@ -51,29 +51,29 @@ Style(
 
     rule(".cloud-bit",
         backgroundColor("white"),
-        width("100px"),
-        height("50px"),
-        borderBottomRightRadius("25px"),
-        borderBottomLeftRadius("50px"),
-        borderTopRightRadius("12.5px"),
-        borderTopLeftRadius("6.25px")
+        width(px(100)),
+        height(px(50)),
+        borderBottomRightRadius(px(25)),
+        borderBottomLeftRadius(px(50)),
+        borderTopRightRadius(px(12.5)),
+        borderTopLeftRadius(px(6.25))
     ),
 
     rule(".frowny",
         fontFamily("fixedsys, monospace"),
-        padding("5px"),
-        border("solid 2px black"),
-        borderRadius("10px"),
+        padding(px(5)),
+        border(`solid ${px(2)} black`),
+        borderRadius(px(10)),
         transform("rotate(90deg)"),
-        width("50px"),
-        height("50px"),
+        width(px(50)),
+        height(px(50)),
         overflow("hidden")
     ),
 
     rule(".shadow",
-        width("45px"),
-        height("10px"),
-        borderRadius("5px"),
+        width(px(45)),
+        height(px(10)),
+        borderRadius(px(5)),
         backgroundImage("radial-gradient(black, transparent)"),
         backgroundColor("grey")
     ),
@@ -91,20 +91,20 @@ Style(
     rule(".beam, .subBeam",
         display("none"),
         backgroundColor("red"),
-        boxShadow("0 0 25px red"),
+        boxShadow(`0 0 ${px(25)} red`),
         left("0")
     ),
 
     rule(".beam",
         top("0"),
-        width("50px"),
-        height("50px"),
+        width(px(50)),
+        height(px(50)),
         borderRadius("50%")
     ),
 
     rule(".subBeam",
         top("50%"),
-        height("2000px")
+        height(px(2000))
     ),
 
     rule("#instructions, #starter",
@@ -158,7 +158,7 @@ elementApply(document.body,
         P("You got your points. All ", PointDisplay(), "  of them. What will you do with them? There's noone left. And it's not like they took them as currency, anyway."),
         P("I...I don't understand you."),
     ),
-    Div(id("messageN"), className("endMessage"), styles(color("black")),
+    Div(id("messageN"), className("endMessage"), color("black"),
         P("\"Hi there!\""),
         P("You blink. Did someone speak?"),
         P("\"Down here!\""),
@@ -245,7 +245,7 @@ function music(t: number) {
 
     if (lnt !== nt) {
         let len = 0.2;
-        
+
         if (nt >= randomInt(0, 4)) {
             nt = Math.floor(nt);
             len /= 2;
@@ -266,8 +266,9 @@ function music(t: number) {
 
 function shake(elem?: HTMLElement) {
     elem = elem || document.body;
-    elem.style.transform = "translate(" + randomRange(-4, 4) +
-        "px," + randomRange(-4, 4) + "px)";
+    const dx = randomRange(-4, 4);
+    const dy = randomRange(-4, 4);
+    elem.style.transform = `translate(${px(dx)}, ${px(dy)})`;
 }
 
 function isFace(obj: GameObject): obj is Face {
@@ -311,10 +312,8 @@ class Face implements GameObject {
             className("frowny"),
             onMouseOut(this.jump.bind(this, "boop")),
             onTouchStart(this.jump.bind(this, "boop")),
-            styles(
-                backgroundColor(arrayRandom(skins)),
-                zIndex(this.z)
-            )
+            backgroundColor(arrayRandom(skins)),
+            zIndex(this.z)
         );
 
         this.width = 5;
@@ -351,20 +350,19 @@ class Face implements GameObject {
 
     render() {
         this.boop.style.display = this.boopFor > 0 ? "block" : "none";
-        this.boop.style.left = this.boopX + "px";
-        this.boop.style.top = this.boopY + "px";
-        this.boop.style.transform = "scale(" + (0.5 + this.boopFor / 200) +
-            ")";
-        this.shadow.style.left = this.element.style.left = this.x + "px";
-        this.element.style.top = (this.y + 10 * this.z - 120) + "px";
-        this.shadow.style.top = (10 * this.z + window.innerHeight - 120) + "px";
+        this.boop.style.left = px(this.boopX);
+        this.boop.style.top = px(this.boopY);
+        this.boop.style.transform = `scale(${(0.5 + this.boopFor / 200)})`;
+        this.shadow.style.left = this.element.style.left = px(this.x);
+        this.element.style.top = px(this.y + 10 * this.z - 120);
+        this.shadow.style.top = px(10 * this.z + window.innerHeight - 120);
 
 
         const sy = Math.sqrt(Math.abs(this.dy)) * 10
         this.element.style.paddingLeft =
-            this.element.style.paddingRight = (this.height + sy) + "px";
+            this.element.style.paddingRight = px(this.height + sy);
         this.element.style.paddingTop =
-            this.element.style.paddingBottom = (this.width - sy) + "px";
+            this.element.style.paddingBottom = px(this.width - sy);
 
         if (this.alive && this.f > 1) {
             this.element.innerHTML = arrayRandom(score > 0 ? sadFaces : happyFaces);
@@ -426,8 +424,8 @@ class Cloud implements GameObject {
         for (let i = 0; i < n; ++i) {
             const b = document.createElement("div");
             b.className = "cloud-bit";
-            b.style.top = randomRange(-25, 25) + "px";
-            b.style.left = randomRange(-50, 50) + "px";
+            b.style.top = px(randomRange(-25, 25));
+            b.style.left = px(randomRange(-50, 50));
             this.element.appendChild(b);
         }
 
@@ -439,8 +437,8 @@ class Cloud implements GameObject {
     }
 
     render() {
-        this.element.style.left = this.x + "px";
-        this.element.style.top = this.y + "px";
+        this.element.style.left = px(this.x);
+        this.element.style.top = px(this.y);
     }
 
     update(dt: number) {
@@ -578,14 +576,14 @@ class Beam implements GameObject {
             "block" : "none";
         this.subBeam.style.display = this.firing ? "block" : "none";
 
-        this.element.style.left = this.x + "px";
-        this.element.style.top = this.y + "px";
+        this.element.style.left = px(this.x);
+        this.element.style.top = px(this.y);
 
         const c = "hsl(0, 100%, " + this.t + "%)";
         this.element.style.backgroundColor =
             this.subBeam.style.backgroundColor = c;
         this.element.style.boxShadow = this.subBeam.style.boxShadow =
-            "0 0 25px " + c;
+            `0 0 ${px(25)} ${c}`;
 
         this.subBeam.style.width = this.t + "%";
         this.subBeam.style.left = (100 - this.t) / 2 + "%";
