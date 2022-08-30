@@ -21,7 +21,7 @@
     {
         <link rel="manifest" href="@Model.ManifestPath">
     }
-    @if (!Model.SkipThreeJS)
+    @if (Model.IncludeThreeJS)
     {
         <bundle-js name="three" versioned />
     }

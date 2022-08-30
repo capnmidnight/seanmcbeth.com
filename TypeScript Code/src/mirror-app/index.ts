@@ -10,7 +10,9 @@ const camvid = Video(
     autoPlay(true),
     maxHeight("100%"),
     width("100%"),
-    transform("scaleX(-1)")
+    left("50%"),
+    top("50%"),
+    transform("translate(-50%, -50%)", "scaleX(-1)")
 );
 
 const button = ButtonPrimary(
