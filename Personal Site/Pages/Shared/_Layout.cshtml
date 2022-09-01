@@ -65,24 +65,27 @@
             <nav id="menu">
                 <ul>
                     @RenderSection("Menu", required: false)
-                    <li>
-                        <a href="~/"
-                       role="menuitem"
-                       aria-label="Home"
-                       title="Home">home/</a>
-                    </li>
-                    <li>
-                        <a href="~/vr"
-                       role="menuitem"
-                       aria-label="Virtual Reality"
-                       title="VR"><abbr>vr</abbr>/</a>
-                    </li>
-                    <li>
-                        <a href="~/other"
-                       role="menuitem"
-                       aria-label="Other info"
-                       title="Other">etc/</a>
-                    </li>
+
+                    @{
+                        var defaultMenuItems = new Models.MenuItem[]
+                        {
+                            new ("home/", "Home", "/"),
+                            new ("vr/", "Virtual Reality", "/vr"),
+                            new ("etc/", "Other", "/other"),
+                        };
+                    }
+
+                    @foreach (var item in defaultMenuItems)
+                    {
+                        <li style="display:@(item.Hide?"none":"")">
+                            <a href="@item.Target"
+                               role="menuItem"
+                               aria-label="@item.Label"
+                               title="@item.Label">
+                                @item.Text
+                            </a>
+                        </li>
+                    }
                 </ul>
             </nav>
         </header>

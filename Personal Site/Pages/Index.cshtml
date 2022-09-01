@@ -7,111 +7,72 @@
 }
 
 @section Menu {
-    <li style="display:none">
-        <a href="#contact"
-       role="menuitem"
-       aria-label="Contact"
-       title="Contact">Contact</a>
-    </li>
-    <li style="display:none">
-        <a href="#bio"
-       role="menuitem"
-       aria-label="Bio"
-       title="Bop">Bio</a>
-    </li>
-    <li>
-        <a href="#projects"
-       role="menuitem"
-       aria-label="Projects"
-       title="Projects">.com</a>
-    </li>
-    <li>
-        <a href="#talks"
-       role="menuitem"
-       aria-label="Talks and Interviews"
-       title="Talks and Inteviews">.net</a>
-    </li>
-    <li>
-        <a href="#press"
-       role="menuitem"
-       aria-label="Press"
-       title="Press">.tv</a>
-    </li>
+    @{
+        var menuItems = new Models.MenuItem[]
+        {
+            new ("Contact", "Contact", "#contact", true),
+            new ("Bio", "Bio", "#bio", true),
+            new (".com", "Projects", "#projects"),
+            new (".net", "Talks and Interviews", "#talks"),
+            new (".tv", "Press", "#press")
+        };
+
+        foreach (var item in menuItems)
+        {
+            <li style="display:@(item.Hide?"none":"")">
+                <a href="@item.Target"
+                   role="menuItem"
+                   aria-label="@item.Label"
+                   title="@item.Label">
+                    @item.Text
+                </a>
+            </li>
+        }
+    }
 }
 
-    @section Footer {
+@section Footer {
     <h2>Thanks for reading</h2>
     <p>
-        Thank you for reading my website, v@(@Model.SiteVersion). 
-        If you have any questions, please feel free to reach out to me. 
+        Thank you for reading my website, v@(@Model.SiteVersion).
+        If you have any questions, please feel free to reach out to me.
         All of my contact information is available at the top of the site.
-    </p>        
+    </p>
 }
 
     <img id="portrait"
      src="~/img/2021-03.min.jpg"
      alt="portrait"
      aria-label="Portrait of Sean T. McBeth"
-     title="Sean T. McBeth">
+     title="Sean T. McBeth" />
 
     <section id="contact"
          aria-label="contact">
         <h1>Sean T. McBeth</h1>
 
         <ul>
-            <li>
-                <a href="mailto:sean@seanmcbeth.com?subject=Website%20contact"
-               aria-label="Email Sean"
-               title="Email Sean">
-                    <span class="icon icon-email" role="presentation"></span>
-                    <span class="print-only">Email Sean</span>
-                </a>
-            </li>
+            @{
+                var contactList = new Models.MenuItem[] {
+                    new ("Follow @Sean_McBeth on Twitter", "twitter", "https://twitter.com/Sean_McBeth"),
+                    new ("Follow Sean on GitHub", "github", "https://github.com/capnmidnight"),
+                    new ("Follow Sean on LinkedIn", "linkedin", "https://www.linkedin.com/pub/sean-mcbeth/6/727/378"),
+                    new ("Call Sean", "telephone", "tel:+17172617689"),
+                    new ("Email Sean", "email", "mailto:sean@removethis.seanmcbeth.com"),
+                    new ("Download Sean's résumé (PDF 159KB)", "resume", "Resume-STMcBeth-2019.pdf")
+                };
 
-            <li>
-                <a href="https://twitter.com/Sean_McBeth"
-               aria-label="Follow Sean on Twitter"
-               title="Follow @@Sean_McBeth on Twitter">
-                    <span class="icon icon-twitter" role="presentation"></span>
-                    <span class="print-only">Follow @@Sean_McBeth on Twitter</span>
-                </a>
-            </li>
-
-            <li>
-                <a href="https://www.linkedin.com/pub/sean-mcbeth/6/727/378"
-               aria-label="Follow Sean on LinkedIn"
-               title="Follow Sean on LinkedIn">
-                    <span class="icon icon-linkedin" role="presentation"></span>
-                    <span class="print-only">Follow Sean on LinkedIn</span>
-                </a>
-            </li>
-
-            <li>
-                <a href="https://github.com/capnmidnight"
-               aria-label="Follow Sean on Git hub"
-               title="Follow Sean on Github">
-                    <span class="icon icon-github" role="presentation"></span>
-                    <span class="print-only">Follow Sean on GitHub</span>
-                </a>
-            </li>
-
-            <li>
-                <a href="tel:+17172617689"
-               aria-label="Call Sean"
-               title="Call Sean">
-                    <span class="icon icon-telephone" role="presentation"></span>
-                    <span class="print-only">Call Sean</span>
-                </a>
-            </li>
-
-            <li>
-                <a href="Resume-STMcBeth-2019.pdf"
-               aria-label="Download Sean's résumé (PDF 159KB)"
-               title="Download Sean's résumé">
-                    <span class="icon icon-resume" role="presentation"></span>
-                    <span class="print-only">Download Sean's résumé</span>
-                </a>
-            </li>
+                foreach(var item in contactList)
+                {
+                    <li>
+                        <a href="@item.Target"
+                           aria-label="@item.Text"
+                           title="@item.Text">
+                            <span class="icon icon-@item.Label" role="presentation"></span>
+                            <span class="print-only">@item.Text</span>
+                        </a>
+                    </li>
+                }
+            }
         </ul>
     </section>
 
@@ -138,11 +99,7 @@
         <ul>
             <li>
                 <a href="https://github.com/capnmidnight/Juniper/">Juniper</a>:
-                Juniper is a Unity3D framework for building cross-platform <abbr>VR</abbr> and <abbr>AR</abbr> applications.
-            </li>
-            <li>
-                <a href="https://www.calla.chat">Calla</a>:
-                Calla is a spatialized audio chat app for meetups and parties. <a href="https://github.com/capnmidnight/Calla/" aria-label="Calla on git hub">Calla on GitHub.</a>
+                Juniper is an ASP.NET 6 and TypeScript framework for building WebXR applications.
             </li>
             <li>
                 <a href="https://www.primrosevr.com/">Primrose</a>:
@@ -322,7 +279,7 @@
         </p>
 
         <ul>
-            @foreach (var appName in AppModel.AppNames)
+        @foreach (var appName in AppModel.AppNames)
         {
             <li><a href="~/app/@appName">@appName.ToTitleCase().Replace('-', ' ')</a></li>
         }
