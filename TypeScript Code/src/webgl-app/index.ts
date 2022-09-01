@@ -2,7 +2,7 @@ import { id } from "@juniper-lib/dom/attrs";
 import { isModifierless } from "@juniper-lib/dom/evts";
 import { Canvas, Div } from "@juniper-lib/dom/tags";
 import { playOrPauseButton } from "@juniper-lib/emoji";
-import { TextImage } from "@juniper-lib/graphics2d/TextImage";
+import { TextImage, TextImageOptions } from "@juniper-lib/graphics2d/TextImage";
 import { isMobileVR } from "@juniper-lib/tslib/flags";
 import { usingAsync } from "@juniper-lib/tslib/using";
 import { Avatar } from "@juniper-lib/webgl/Avatar";
@@ -51,8 +51,8 @@ document.body.append(
     });
     const avatar = new Avatar();
     const xrManager = new XRSessionManager(gl, cam);
-    const emojiFont = {
-        textFillColor: "#000000",
+    const emojiFont: Partial<TextImageOptions> = {
+        textFillColor: "black",
         fontFamily: "sans-serif",
         fontSize: 20,
         minWidth: 0.25,

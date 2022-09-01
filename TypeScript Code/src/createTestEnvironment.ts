@@ -50,6 +50,7 @@ export async function createTestEnvironment(addServiceWorker = false): Promise<E
         fetcher,
         defaultFont.fontFamily,
         getUIImagePaths(),
+        "blue",
         defaultAvatarHeight,
         enableFullResolution, {
         DEBUG: isDebug

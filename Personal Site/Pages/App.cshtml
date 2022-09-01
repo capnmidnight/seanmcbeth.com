@@ -25,6 +25,10 @@
     {
         <bundle-js name="three" versioned />
     }
+    @if(Model.IncludeStylesheet) 
+    {
+        <bundle-css dir="js" name="@(Model.Name + "-app")/index" versioned />
+    }
     <bundle-js name="@(Model.Name + "-app")" versioned />
 }
 

@@ -55,6 +55,7 @@ namespace SeanMcBeth.Pages
         public string? FullName => AppRoot.Touch("name.txt").MaybeReadText();
         public string? Description => AppRoot.Touch("description.txt").MaybeReadText();
         public bool IncludeThreeJS => AppRoot.Touch("includeThreeJS.bool").Exists;
+        public bool IncludeStylesheet => AppRoot.Touch("index.css").Exists;
 
         public string? ManifestPath =>
             ScreenshotPath is not null

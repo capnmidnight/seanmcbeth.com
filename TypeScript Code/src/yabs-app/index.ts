@@ -1,123 +1,13 @@
 ﻿import { audioReady } from "@juniper-lib/audio/nodes";
 import { className, id } from "@juniper-lib/dom/attrs";
-import { backgroundColor, backgroundImage, border, borderBottomLeftRadius, borderBottomRightRadius, borderRadius, borderTopLeftRadius, borderTopRightRadius, boxShadow, color, display, fontFamily, fontSize, fontWeight, height, left, margin, marginLeft, marginRight, marginTop, overflow, padding, pointerEvents, position, px, rule, textTransform, top, transform, width, zIndex } from "@juniper-lib/dom/css";
+import { backgroundColor, color, px, zIndex } from "@juniper-lib/dom/css";
 import { onClick, onMouseOut, onTouchStart } from "@juniper-lib/dom/evts";
-import { Button, Div, elementApply, ErsatzElement, getElement, P, Span, Style } from "@juniper-lib/dom/tags";
+import { Button, Div, elementApply, ErsatzElement, getElement, P, Span } from "@juniper-lib/dom/tags";
 import { arrayRandom } from "@juniper-lib/tslib/collections/arrays";
 
+import "./styles.css";
+
 document.title = "No More Jabber Yabs: The Game";
-
-Style(
-    rule("html, body, .cloud, .cloud-bit, .frowny, .shadow, .boop, .beam, .subBeam, .endMessage, #scoreBox",
-        position("absolute")
-    ),
-
-    rule("html, body",
-        height("100%"),
-        width("100%"),
-        padding(0),
-        margin(0),
-        border(0),
-        overflow("hidden")
-    ),
-
-    rule("body",
-        fontFamily("sans-serif"),
-        backgroundColor("hsl(200, 50%, 75%)"),
-        backgroundImage("linear-gradient(hsl(200, 50%, 50%), hsl(200, 20%, 75%) 75%, hsl(100, 75%, 50%) 75%, hsl(100, 100%, 20%))")
-    ),
-
-    rule("#scoreBox, .endMessage, .frowny, #instructions, #starter",
-        fontSize("24pt")
-    ),
-
-    rule("#scoreBox",
-        display("none"),
-        color("white"),
-        top("5em"),
-        left(0),
-        padding("1em")
-    ),
-
-    rule(".endMessage",
-        display("none"),
-        padding("1em"),
-        top(0),
-        zIndex(9001),
-        pointerEvents("none"),
-        color("white")
-    ),
-
-
-    rule(".cloud-bit",
-        backgroundColor("white"),
-        width(px(100)),
-        height(px(50)),
-        borderBottomRightRadius(px(25)),
-        borderBottomLeftRadius(px(50)),
-        borderTopRightRadius(px(12.5)),
-        borderTopLeftRadius(px(6.25))
-    ),
-
-    rule(".frowny",
-        fontFamily("fixedsys, monospace"),
-        padding(px(5)),
-        border(`solid ${px(2)} black`),
-        borderRadius(px(10)),
-        transform("rotate(90deg)"),
-        width(px(50)),
-        height(px(50)),
-        overflow("hidden")
-    ),
-
-    rule(".shadow",
-        width(px(45)),
-        height(px(10)),
-        borderRadius(px(5)),
-        backgroundImage("radial-gradient(black, transparent)"),
-        backgroundColor("grey")
-    ),
-
-    rule(".boop",
-        display("none"),
-        color("white"),
-        textTransform("uppercase"),
-        fontFamily("sans-serif"),
-        fontWeight("bold"),
-        fontSize("10pt"),
-        zIndex(9001)
-    ),
-
-    rule(".beam, .subBeam",
-        display("none"),
-        backgroundColor("red"),
-        boxShadow(`0 0 ${px(25)} red`),
-        left("0")
-    ),
-
-    rule(".beam",
-        top("0"),
-        width(px(50)),
-        height(px(50)),
-        borderRadius("50%")
-    ),
-
-    rule(".subBeam",
-        top("50%"),
-        height(px(2000))
-    ),
-
-    rule("#instructions, #starter",
-        position("relative"),
-        display("none"),
-        fontWeight("bold"),
-        marginLeft("auto"),
-        marginRight("auto"),
-        marginTop("3em"),
-        width("20em"),
-        zIndex(9001)
-    )
-);
 
 interface GameObject extends ErsatzElement {
     update(dt: number): void;
