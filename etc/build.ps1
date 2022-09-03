@@ -11,4 +11,4 @@ if(-not (Test-Path ..\deploy\linux -PathType Container)) {
 dotnet publish "..\Personal Site\" --configuration Release --no-self-contained --runtime linux-x64 --output ..\deploy\linux\
 
 # Archive the .NET package for deployment
-7z a -ttar ..\deploy\seanmcbeth.com.linux.tar ..\deploy\linux\*
+7z a -tzip -mx9 ..\deploy\seanmcbeth.com.linux.zip ..\deploy\linux\*

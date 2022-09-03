@@ -1,9 +1,10 @@
 # Make a space to do work
 rm -rf ~/bin/SeanMcBeth.Site.old/
+rm -rf ~/bin/SeanMcBeth.Site.new/
 mkdir ~/bin/SeanMcBeth.Site.new/ ~/bin/SeanMcBeth.Site.new/certs/
 
 # Unpack the .NET package archive
-tar -xf ~/seanmcbeth.com.linux.tar --directory ~/bin/SeanMcBeth.Site.new/
+unzip ~/seanmcbeth.com.linux.zip -d ~/bin/SeanMcBeth.Site.new/
 
 # Enable execution of certain parts
 chmod 700 ~/bin/SeanMcBeth.Site.new/SeanMcBeth.Site
@@ -21,4 +22,4 @@ mv ~/bin/SeanMcBeth.Site.new/ ~/bin/SeanMcBeth.Site/
 sudo systemctl start SeanMcBeth.Site
 
 # Cleanup
-rm ~/seanmcbeth.com.linux.tar
+rm ~/seanmcbeth.com.linux.zip

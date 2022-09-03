@@ -9,7 +9,7 @@ else {
 
     git add -A
     git commit -m $v
-    git push
+    git push --recurse-submodules=on-demand --progress
 
     .\deploy.ps1
 }
