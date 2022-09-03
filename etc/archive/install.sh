@@ -1,12 +1,17 @@
-# Get .NET 6
+# Get .NET 6, Zip, Unzip, and Certbot
 sudo apt-get update
-sudo apt-get install -y dotnet6
+sudo apt-get install -y \
+	dotnet6 \
+	zip \
+	unzip
+
+sudo snap install --classic certbot
 
 # Create a directory for it
 mkdir ~/bin ~/bin/SeanMcBeth.Site ~/bin/SeanMcBeth.Site/certs
 
 # Unpack the package
-tar -xf ~/seanmcbeth.com.linux.tar --directory ~/bin/SeanMcBeth.Site
+unzip ~/seanmcbeth.com.linux.zip -d ~/bin/SeanMcBeth.Site
 
 # Set executable bits
 chmod 700 ~/bin/SeanMcBeth.Site/SeanMcBeth.Site
@@ -33,5 +38,5 @@ sudo systemctl enable SeanMcBeth.Site
 sudo systemctl start SeanMcBeth.Site
 
 # Cleanup
-rm ~/seanmcbeth.com.linux.tar
+rm ~/seanmcbeth.com.linux.zip
 rm -rf ~/letsencrypt/
