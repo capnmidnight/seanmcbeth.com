@@ -17,7 +17,7 @@ const displayValues = new Map<Options, string>([
     ["cancel", "Cancel Selection"]
 ]);
 
-const menu = new ContextMenu<Options>(displayValues);
+const menu = new ContextMenu();
 
 const target = Div(
     padding("3em"),
@@ -36,6 +36,7 @@ const target = Div(
         target.style.backgroundColor = "grey";
 
         const selection = await menu.show(
+            displayValues,
             "red",
             "green",
             "blue",

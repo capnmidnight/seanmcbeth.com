@@ -10,11 +10,11 @@ for (let i = 0; i < 0xff; ++i) {
 const tv = new TreeView<number>({
     defaultLabel: "numbers",
     getParent: v => v === 0 ? null : v >> 1,
-    canHaveChildren: v => parseFloat(v.toString()) === v,
     getChildDescription: v => v.toString(),
     getDescription: v => v.toLocaleString(),
     getLabel: v => v.toFixed(0),
-    getOrder: v => parseFloat(v.toString())
+    getOrder: v => parseFloat(v.toString()),
+    canHaveChildren: node => node.isRoot || parseFloat(node.value.toString()) === node.value
 },
     height("100vh"),
     width("100vw"),
