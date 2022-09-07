@@ -7,7 +7,7 @@ import { EnvironmentModule } from "@juniper-lib/threejs/environment/EnvironmentM
 import { isNullOrUndefined } from "@juniper-lib/tslib/typeChecks";
 import { toBytes } from "@juniper-lib/tslib/units/fileSize";
 import { createFetcher } from "./createFetcher";
-import { isDebug, JS_EXT } from "./isDebug";
+import { CSS_EXT, isDebug, JS_EXT } from "./isDebug";
 import { defaultAvatarHeight, defaultFont, enableFullResolution, getUIImagePaths, loadFonts, version } from "./settings";
 
 async function registerWorker() {
@@ -39,6 +39,11 @@ export async function createTestEnvironment(addServiceWorker = false): Promise<E
     await loadFonts();
 
     const fetcher = createFetcher(!isDebug);
+
+    await fetcher
+        .get(`/js/environment/index${CSS_EXT}?${version}`)
+        .useCache(!isDebug)
+        .style();
 
     const { default: EnvironmentConstructor } = await fetcher
         .get(`/js/environment/index${JS_EXT}?${version}`)

@@ -15,7 +15,7 @@ import { isDebug } from "../isDebug";
     await env.load(skybox);
 
     env.skybox.setImage(skybox.path, skybox.result);
-    env.skybox.rotation = deg2rad(176)
+    env.skybox.rotation = deg2rad(176);
 
     const obj = new Cube(0.25, 0.25, 0.25, lit({
         color: "yellow"
