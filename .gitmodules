@@ -2,3 +2,7 @@
 	path = Juniper
 	url = git@github.com:capnmidnight/Juniper.git
 	branch = master
+[submodule "Primrose"]
+	path = Primrose
+	url = git@github.com:capnmidnight/Primrose.git
+	branch = master

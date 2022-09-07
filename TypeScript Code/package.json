@@ -41,6 +41,7 @@
     "@juniper-lib/workers": "file:../Juniper/src/Juniper.TypeScript/@juniper-lib/workers",
     "gl-matrix": "3.4.3",
     "pdfjs-dist": "2.14.305",
+    "primrose": "file:../Primrose/Primrose.TypeScript",
     "three": "0.143.0",
     "typescript": "4.8.2"
   }

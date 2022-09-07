@@ -98,6 +98,50 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "Juniper.TypeScript", "Junip
 		SlnRelativePath = "Juniper\src\Juniper.TypeScript\"
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Primrose", "Primrose", "{9B97CCB2-8C6A-4307-B208-A9A863B6329C}"
+EndProject
+Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "Primrose.TypeScript", "Primrose\Primrose.TypeScript\", "{29B9F1CE-74B3-41BB-BE67-4315897A1231}"
+	ProjectSection(WebsiteProperties) = preProject
+		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.0"
+		Debug.AspNetCompiler.VirtualPath = "/localhost_60987"
+		Debug.AspNetCompiler.PhysicalPath = "Primrose\Primrose.TypeScript\"
+		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_60987\"
+		Debug.AspNetCompiler.Updateable = "true"
+		Debug.AspNetCompiler.ForceOverwrite = "true"
+		Debug.AspNetCompiler.FixedNames = "false"
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.VirtualPath = "/localhost_60987"
+		Release.AspNetCompiler.PhysicalPath = "Primrose\Primrose.TypeScript\"
+		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_60987\"
+		Release.AspNetCompiler.Updateable = "true"
+		Release.AspNetCompiler.ForceOverwrite = "true"
+		Release.AspNetCompiler.FixedNames = "false"
+		Release.AspNetCompiler.Debug = "False"
+		VWDPort = "60987"
+		SlnRelativePath = "Primrose\Primrose.TypeScript\"
+	EndProjectSection
+EndProject
+Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "js", "Primrose\js\", "{C763C1C2-62F8-4774-BFAD-BF75F3DD3682}"
+	ProjectSection(WebsiteProperties) = preProject
+		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.0"
+		Debug.AspNetCompiler.VirtualPath = "/localhost_60957"
+		Debug.AspNetCompiler.PhysicalPath = "Primrose\js\"
+		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_60957\"
+		Debug.AspNetCompiler.Updateable = "true"
+		Debug.AspNetCompiler.ForceOverwrite = "true"
+		Debug.AspNetCompiler.FixedNames = "false"
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.VirtualPath = "/localhost_60957"
+		Release.AspNetCompiler.PhysicalPath = "Primrose\js\"
+		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_60957\"
+		Release.AspNetCompiler.Updateable = "true"
+		Release.AspNetCompiler.ForceOverwrite = "true"
+		Release.AspNetCompiler.FixedNames = "false"
+		Release.AspNetCompiler.Debug = "False"
+		VWDPort = "60957"
+		SlnRelativePath = "Primrose\js\"
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -144,6 +188,14 @@ Global
 		{F99E624E-B311-4BC4-BD94-8014176CD049}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F99E624E-B311-4BC4-BD94-8014176CD049}.Release|Any CPU.ActiveCfg = Debug|Any CPU
 		{F99E624E-B311-4BC4-BD94-8014176CD049}.Release|Any CPU.Build.0 = Debug|Any CPU
+		{29B9F1CE-74B3-41BB-BE67-4315897A1231}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{29B9F1CE-74B3-41BB-BE67-4315897A1231}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{29B9F1CE-74B3-41BB-BE67-4315897A1231}.Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{29B9F1CE-74B3-41BB-BE67-4315897A1231}.Release|Any CPU.Build.0 = Debug|Any CPU
+		{C763C1C2-62F8-4774-BFAD-BF75F3DD3682}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C763C1C2-62F8-4774-BFAD-BF75F3DD3682}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C763C1C2-62F8-4774-BFAD-BF75F3DD3682}.Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{C763C1C2-62F8-4774-BFAD-BF75F3DD3682}.Release|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -153,6 +205,8 @@ Global
 		{493C82A6-C05A-4478-8D43-F6175934A457} = {1A1CC9DD-8A9A-4C5A-A3ED-E338AFD42D44}
 		{7CFD0886-274C-408B-8C5B-28EB1B647130} = {1A1CC9DD-8A9A-4C5A-A3ED-E338AFD42D44}
 		{22056282-2E21-42B3-AB63-CE7F0A39E7B3} = {1A1CC9DD-8A9A-4C5A-A3ED-E338AFD42D44}
+		{29B9F1CE-74B3-41BB-BE67-4315897A1231} = {9B97CCB2-8C6A-4307-B208-A9A863B6329C}
+		{C763C1C2-62F8-4774-BFAD-BF75F3DD3682} = {9B97CCB2-8C6A-4307-B208-A9A863B6329C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0EBFC1BB-A80E-4F88-8356-8D1C030FA004}
