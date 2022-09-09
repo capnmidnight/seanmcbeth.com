@@ -35,11 +35,21 @@ import { defaultAvatarHeight } from "../settings";
 
     const target = new RayTarget(img);
     target.addMesh(img.mesh);
-    target.addEventListener("enter", () => editor.touch.readOverEventUV());
-    target.addEventListener("exit", () => editor.touch.readOutEventUV());
-    target.addEventListener("down", (evt) => editor.touch.readDownEventUV(evt.hit));
-    target.addEventListener("up", (evt) => editor.touch.readUpEventUV(evt.hit));
-    target.addEventListener("move", (evt) => editor.touch.readMoveEventUV(evt.hit));
+
+    function chooseDevice() {
+        if (env.eventSys.mouse.isActive) {
+            return editor.mouse;
+        }
+        else {
+            return editor.touch;
+        }
+    }
+
+    target.addEventListener("enter", () => chooseDevice().readOverEventUV());
+    target.addEventListener("exit", () => chooseDevice().readOutEventUV());
+    target.addEventListener("down", (evt) => chooseDevice().readDownEventUV(evt.hit));
+    target.addEventListener("up", (evt) => chooseDevice().readUpEventUV(evt.hit));
+    target.addEventListener("move", (evt) => chooseDevice().readMoveEventUV(evt.hit));
     target.addEventListener("click", () => editor.focus());
     target.clickable = true;
 
