@@ -1,5 +1,5 @@
-import { AssetAudio, AssetImage } from "@juniper-lib/fetcher/Asset";
-import { Audio_Mpeg, Image_Jpeg } from "@juniper-lib/mediatypes";
+import { AssetImage } from "@juniper-lib/fetcher/Asset";
+import { Image_Jpeg } from "@juniper-lib/mediatypes";
 import { getRayTarget, RayTarget } from "@juniper-lib/threejs/eventSystem/RayTarget";
 import { Image2D } from "@juniper-lib/threejs/widgets/Image2D";
 import { JavaScript, Primrose } from "primrose/src";
@@ -21,20 +21,16 @@ import { defaultAvatarHeight } from "../settings";
 
     editor.value = createTestEnvironment.toString();
 
-    const shaboom = new AssetAudio("/audio/basic_dragged.mp3", Audio_Mpeg);
     const skybox = new AssetImage("/skyboxes/BearfenceMountain.jpeg", Image_Jpeg, !isDebug);
     const env = await createTestEnvironment();
 
     await env.fadeOut();
-    await env.load(skybox, shaboom);
 
-    env.audio.createBasicClip("shaboom", shaboom.result, 0.125);
     env.skybox.setImage(skybox.path, skybox.result);
 
     const img = new Image2D(env, "Editor", "dynamic");
     img.setTextureMap(editor.canvas);
     img.position.set(0, defaultAvatarHeight, -2);
-    img.addEventListener("shaboom", () => env.audio.playClip("shaboom"));
 
     const target = new RayTarget(img);
     target.addMesh(img.mesh);
@@ -47,7 +43,7 @@ import { defaultAvatarHeight } from "../settings";
     target.clickable = true;
 
     editor.addEventListener("update", () =>
-        img.updateTexture(true));
+        img.updateTexture());
 
     if (env.avatar.keyboardControlEnabled) {
         editor.addEventListener("focus", () => env.avatar.keyboardControlEnabled = false);
