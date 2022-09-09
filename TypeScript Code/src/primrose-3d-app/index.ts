@@ -25,6 +25,7 @@ import { defaultAvatarHeight } from "../settings";
     const env = await createTestEnvironment();
 
     await env.fadeOut();
+    await env.load(skybox);
 
     env.skybox.setImage(skybox.path, skybox.result);
 
@@ -46,8 +47,8 @@ import { defaultAvatarHeight } from "../settings";
         img.updateTexture());
 
     if (env.avatar.keyboardControlEnabled) {
-        editor.addEventListener("focus", () => env.avatar.keyboardControlEnabled = false);
-        editor.addEventListener("blur", () => env.avatar.keyboardControlEnabled = true);
+        editor.addEventListener("focus", () => env.avatar.lockMovement = true);
+        editor.addEventListener("blur", () => env.avatar.lockMovement = false);
     }
 
     env.eventSys.addEventListener("click", (evt) => {
