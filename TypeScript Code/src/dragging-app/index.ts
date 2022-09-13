@@ -1,9 +1,12 @@
-﻿import { AssetImage } from "@juniper-lib/fetcher/Asset";
+﻿import { onClick } from "@juniper-lib/dom/evts";
+import { ButtonPrimary, elementApply, elementSetText } from "@juniper-lib/dom/tags";
+import { AssetImage } from "@juniper-lib/fetcher/Asset";
 import { Image_Jpeg } from "@juniper-lib/mediatypes";
 import { Cube } from "@juniper-lib/threejs/Cube";
 import { lit } from "@juniper-lib/threejs/materials";
 import { objGraph } from "@juniper-lib/threejs/objects";
 import { TransformEditor } from "@juniper-lib/threejs/TransformEditor";
+import { TransformMode } from "@juniper-lib/threejs/Translator";
 import { deg2rad } from "@juniper-lib/tslib/math";
 import { createTestEnvironment } from "../createTestEnvironment";
 import { isDebug } from "../isDebug";
@@ -21,16 +24,32 @@ import { isDebug } from "../isDebug";
         color: "yellow"
     }));
 
-    const transformer = new TransformEditor(true, 1.75);
-    transformer.size = 2;
+    const transformer = new TransformEditor(env);
 
     obj.position.set(0, 1.75, -2);
 
     objGraph(env.foreground,
-        objGraph(obj,
-            transformer
-        )
+        obj,
+        transformer
     );
+
+    transformer.addEventListener("freeze", () => env.avatar.lockMovement = true);
+    transformer.addEventListener("unfreeze", () => env.avatar.lockMovement = false);
+    transformer.setTarget(obj);
+    transformer.mode = TransformMode.Rotate;
+
+    const modes = Object.values(TransformMode);
+    const switchModeButton = ButtonPrimary(
+        transformer.mode,
+        onClick(() => {
+            const modeIdx = modes.indexOf(transformer.mode);
+            const nextMode = modes[(modeIdx + 1) % modes.length];
+            transformer.mode = nextMode;
+            elementSetText(switchModeButton, transformer.mode);
+        })
+    );
+
+    elementApply(env.screenUISpace.bottomRowLeft, switchModeButton)
 
     await env.fadeIn();
 })();
