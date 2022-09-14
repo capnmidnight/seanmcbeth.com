@@ -5,8 +5,7 @@ import { Image_Jpeg } from "@juniper-lib/mediatypes";
 import { Cube } from "@juniper-lib/threejs/Cube";
 import { lit } from "@juniper-lib/threejs/materials";
 import { objGraph } from "@juniper-lib/threejs/objects";
-import { TransformEditor } from "@juniper-lib/threejs/TransformEditor";
-import { TransformMode } from "@juniper-lib/threejs/Translator";
+import { TransformEditor, TransformMode } from "@juniper-lib/threejs/TransformEditor";
 import { deg2rad } from "@juniper-lib/tslib/math";
 import { createTestEnvironment } from "../createTestEnvironment";
 import { isDebug } from "../isDebug";
@@ -36,7 +35,7 @@ import { isDebug } from "../isDebug";
     transformer.addEventListener("freeze", () => env.avatar.lockMovement = true);
     transformer.addEventListener("unfreeze", () => env.avatar.lockMovement = false);
     transformer.setTarget(obj);
-    transformer.mode = TransformMode.Rotate;
+    transformer.mode = TransformMode.Orbit;
 
     const modes = Object.values(TransformMode);
     const switchModeButton = ButtonPrimary(
