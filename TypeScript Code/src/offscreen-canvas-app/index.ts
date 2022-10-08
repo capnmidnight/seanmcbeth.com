@@ -1,7 +1,7 @@
 ﻿import { Application_Javascript } from "@juniper-lib/mediatypes";
 import { cleanup } from "@juniper-lib/threejs/cleanup";
 import { hasWebXR } from "@juniper-lib/tslib/flags";
-import { Float32BufferAttribute, Mesh, MeshBasicMaterial, PlaneBufferGeometry, Texture } from "three";
+import { Float32BufferAttribute, Mesh, MeshBasicMaterial, PlaneGeometry, Texture } from "three";
 import { createTestEnvironment } from "../createTestEnvironment";
 import Environment from "../environment";
 
@@ -102,7 +102,7 @@ const workerScriptBlobUrl = URL.createObjectURL(workerScriptBlob);
     await env.fadeIn();
 })();
 
-const geom = new PlaneBufferGeometry(1, 1, 1, 1);
+const geom = new PlaneGeometry(1, 1, 1, 1);
 const uv = geom.getAttribute("uv") as Float32BufferAttribute;
 for (let i = 0; i < uv.count; ++i) {
     uv.setY(i, 1 - uv.getY(i));

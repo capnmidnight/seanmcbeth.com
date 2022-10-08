@@ -3,7 +3,7 @@ import { Application_Javascript, Image_Jpeg } from "@juniper-lib/mediatypes";
 import type { Pointer3DEvent } from "@juniper-lib/threejs/eventSystem/devices/Pointer3DEvent";
 import { RayTarget } from "@juniper-lib/threejs/eventSystem/RayTarget";
 import { mesh } from "@juniper-lib/threejs/objects";
-import { FrontSide, LinearFilter, LinearMipmapLinearFilter, MeshPhongMaterial, PlaneBufferGeometry, Texture } from "three";
+import { FrontSide, LinearFilter, LinearMipmapLinearFilter, MeshPhongMaterial, PlaneGeometry, Texture } from "three";
 import { createTestEnvironment } from "../createTestEnvironment";
 import { DirtWorkerClient } from "../dirt-worker/DirtWorkerClient";
 import { Forest } from "../forest-app/Forest";
@@ -48,7 +48,7 @@ import { version } from "../settings";
     });
     await dirtBumpMap.init(R, R, F, P);
 
-    const dirtGeom = new PlaneBufferGeometry(S, S, R, R);
+    const dirtGeom = new PlaneGeometry(S, S, R, R);
 
     const dirtMat = new MeshPhongMaterial({
         precision: "highp",
@@ -67,7 +67,7 @@ import { version } from "../settings";
     dirt.position.set(0, 0.1, 1);
     dirt.rotation.x = -Math.PI / 2;
 
-    const dirtSurface = mesh("DirtSurface", new PlaneBufferGeometry(S, S, 1, 1));
+    const dirtSurface = mesh("DirtSurface", new PlaneGeometry(S, S, 1, 1));
     dirtSurface.visible = false;
     dirt.add(dirtSurface);
 

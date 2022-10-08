@@ -1,9 +1,9 @@
 ﻿import { Environment } from "@juniper-lib/threejs/environment/Environment";
 import { obj } from "@juniper-lib/threejs/objects";
-import { CanvasTexture, Color, DoubleSide, InstancedMesh, MeshBasicMaterial, PlaneBufferGeometry } from "three";
+import { CanvasTexture, Color, DoubleSide, InstancedMesh, MeshBasicMaterial, PlaneGeometry } from "three";
 
 export function makeGrass(env: Environment, spatter: HTMLImageElement | HTMLCanvasElement | HTMLVideoElement | ImageBitmap): void {
-    const grassGeom = new PlaneBufferGeometry(5, 5, 1, 1);
+    const grassGeom = new PlaneGeometry(5, 5, 1, 1);
     const grassTex = new CanvasTexture(spatter);
     const grassMat = new MeshBasicMaterial({
         map: grassTex,

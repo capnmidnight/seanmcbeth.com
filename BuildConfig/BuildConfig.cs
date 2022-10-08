@@ -53,6 +53,7 @@ namespace SeanMcBeth
 
             var options = new BuildSystemOptions()
             {
+                CleanDirs = new[] { jsOutput },
                 InProjectName = ScriptProjectName,
                 OutProjectName = ServerProjectName,
                 Dependencies = new()

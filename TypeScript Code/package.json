@@ -15,9 +15,9 @@
     "@juniper-types/extra-types": "file:../Juniper/src/Juniper.TypeScript/@juniper-types/extra-types",
     "@juniper-types/indexdb": "file:../Juniper/src/Juniper.TypeScript/@juniper-types/indexdb",
     "@types/dom-chromium-installation-events": "101.0.0",
-    "@types/dom-mediacapture-record": "1.0.11",
+    "@types/dom-mediacapture-record": "1.0.13",
     "@types/offscreencanvas": "2019.7.0",
-    "@types/three": "0.143.0",
+    "@types/three": "0.144.0",
     "@types/web-bluetooth": "0.0.14",
     "@types/webxr": "0.5.0",
     "esbuild": "0.15.5",
@@ -42,7 +42,7 @@
     "gl-matrix": "3.4.3",
     "pdfjs-dist": "2.14.305",
     "primrose": "file:../Primrose/Primrose.TypeScript",
-    "three": "0.143.0",
-    "typescript": "4.8.2"
+    "three": "0.144.0",
+    "typescript": "4.8.4"
   }
 }

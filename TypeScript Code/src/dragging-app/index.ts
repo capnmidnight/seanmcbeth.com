@@ -2,7 +2,7 @@
 import { ButtonPrimary, elementApply, elementSetText } from "@juniper-lib/dom/tags";
 import { AssetImage } from "@juniper-lib/fetcher/Asset";
 import { Image_Jpeg } from "@juniper-lib/mediatypes";
-import { Cube } from "@juniper-lib/threejs/Cube";
+import { cube } from "@juniper-lib/threejs/Cube";
 import { lit } from "@juniper-lib/threejs/materials";
 import { objGraph } from "@juniper-lib/threejs/objects";
 import { TransformEditor, TransformMode } from "@juniper-lib/threejs/TransformEditor";
@@ -19,7 +19,7 @@ import { isDebug } from "../isDebug";
     env.skybox.setImage(skybox.path, skybox.result);
     env.skybox.rotation = deg2rad(176);
 
-    const obj = new Cube(0.25, 0.25, 0.25, lit({
+    const obj = cube("TestObj", 0.25, 0.25, 0.25, lit({
         color: "yellow"
     }));
 
@@ -32,8 +32,6 @@ import { isDebug } from "../isDebug";
         transformer
     );
 
-    transformer.addEventListener("freeze", () => env.avatar.lockMovement = true);
-    transformer.addEventListener("unfreeze", () => env.avatar.lockMovement = false);
     transformer.setTarget(obj);
     transformer.mode = TransformMode.Orbit;
 
