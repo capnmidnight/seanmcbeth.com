@@ -1,5 +1,5 @@
-﻿import { AssetImage } from "@juniper-lib/fetcher/Asset";
-import { Application_Javascript, Image_Jpeg } from "@juniper-lib/mediatypes";
+﻿import { AssetImage, AssetWorker } from "@juniper-lib/fetcher/Asset";
+import { Image_Jpeg } from "@juniper-lib/mediatypes";
 import type { Pointer3DEvent } from "@juniper-lib/threejs/eventSystem/devices/Pointer3DEvent";
 import { RayTarget } from "@juniper-lib/threejs/eventSystem/RayTarget";
 import { mesh } from "@juniper-lib/threejs/objects";
@@ -16,14 +16,15 @@ import { version } from "../settings";
     const F = 2;
     const P = 1;
 
-    const env = await createTestEnvironment(true);
+    const env = await createTestEnvironment();
 
     await env.fadeOut();
 
     const dirtMapAsset = new AssetImage("/img/dirt.jpg", Image_Jpeg, !isDebug);
+    const dirtWorkerAsset = new AssetWorker(`/js/dirt-worker/index${JS_EXT}?${version}`);
 
     const forest = new Forest(env);
-    await env.load(dirtMapAsset, ...forest.assets);
+    await env.load(dirtMapAsset, dirtWorkerAsset, ...forest.assets);
 
     const dirtMapTex = new Texture(dirtMapAsset.result);
     dirtMapTex.minFilter = LinearMipmapLinearFilter;
@@ -34,11 +35,7 @@ import { version } from "../settings";
     dirtBumpMapTex.minFilter = LinearMipmapLinearFilter;
     dirtBumpMapTex.magFilter = LinearFilter;
 
-    const dirtBumpMap = new DirtWorkerClient(await env.fetcher
-        .get(`/js/dirt-worker/index${JS_EXT}?${version}`)
-        .useCache(!isDebug)
-        .accept(Application_Javascript)
-        .worker());
+    const dirtBumpMap = new DirtWorkerClient(dirtWorkerAsset.result);
     dirtBumpMap.addEventListener("update", (evt) => {
         if (dirtBumpMapTex.image instanceof ImageBitmap) {
             dirtBumpMapTex.image.close();
