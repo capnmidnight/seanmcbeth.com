@@ -19,14 +19,14 @@
 
         foreach (var item in menuItems)
         {
-            <li style="display:@(item.Hide?"none":"")">
-                <a href="@item.Target"
-                   role="menuItem"
-                   aria-label="@item.Label"
-                   title="@item.Label">
-                    @item.Text
-                </a>
-            </li>
+    <li style="display:@(item.Hide?"none":"")">
+                    <a href="@item.Target"
+                       role="menuItem"
+                       aria-label="@item.Label"
+                       title="@item.Label">
+                        @item.Text
+                    </a>
+    </li>
         }
     }
 }
@@ -53,6 +53,7 @@
         <ul>
             @{
                 var contactList = new Models.MenuItem[] {
+                    new ("Follow @seanmcbeth on Mastodon", "mastodon", "https://mstdn.social/seanmcbeth"),
                     new ("Follow @Sean_McBeth on Twitter", "twitter", "https://twitter.com/Sean_McBeth"),
                     new ("Follow Sean on GitHub", "github", "https://github.com/capnmidnight"),
                     new ("Follow Sean on LinkedIn", "linkedin", "https://www.linkedin.com/pub/sean-mcbeth/6/727/378"),
@@ -63,14 +64,14 @@
 
                 foreach(var item in contactList)
                 {
-                    <li>
-                        <a href="@item.Target"
-                           aria-label="@item.Text"
-                           title="@item.Text">
-                            <span class="icon icon-@item.Label" role="presentation"></span>
-                            <span class="print-only">@item.Text</span>
-                        </a>
-                    </li>
+                        <li>
+                            <a href="@item.Target"
+                               aria-label="@item.Text"
+                               title="@item.Text">
+                                <span class="icon icon-@item.Label" role="presentation"></span>
+                                <span class="print-only">@item.Text</span>
+                            </a>
+                        </li>
                 }
             }
         </ul>

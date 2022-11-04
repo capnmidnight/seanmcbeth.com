@@ -97,6 +97,10 @@ h2 {
     background-position: 0px -225px;
 }
 
+.icon-mastodon {
+    background-position: 0px -250px;
+}
+
 #menu {
     text-align: center;
     position: fixed;
