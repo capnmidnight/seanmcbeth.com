@@ -1,6 +1,6 @@
-import { id, title } from "@juniper-lib/dom/attrs";
+import { href, id, title } from "@juniper-lib/dom/attrs";
 import { onClick } from "@juniper-lib/dom/evts";
-import { ButtonSecondary, buttonSetEnabled, Div, elementApply, H1 } from "@juniper-lib/dom/tags";
+import { A, ButtonSecondary, buttonSetEnabled, Div, elementApply, H1, P } from "@juniper-lib/dom/tags";
 
 import "./styles.css";
 
@@ -16,10 +16,15 @@ for (let i = 0; i < 9; ++i) {
 }
 
 elementApply("main",
-    H1("Tic Tac Toe"),
+    H1("Tic Tac Toe 1"),
+    P("This was a quick slap-together of a Tic Tac Toe board. I didn't get the AI right."),
+    P("Code is available ", A(href("https://github.com/capnmidnight/seanmcbeth.com/blob/master/TypeScript%20Code/src/tic-tac-toe-1-app/index.ts"), "here"), "."),
     Div(
         id("board"),
         ...buttons
+    ),
+    P(
+        "> ", A(href("tic-tac-toe-2"), "2")
     )
 );
 
