@@ -20,4 +20,32 @@ const editor = new Primrose({
     wordWrap: true
 });
 
-editor.value = Canvas.toString();
+editor.value = `const gestures = [
+    "change",
+    "click",
+    "contextmenu",
+    "dblclick",
+    "mouseup",
+    "pointerup",
+    "reset",
+    "submit",
+    "touchend"
+];
+
+function onUserGesture(callback, test) {
+    const realTest = test || () => true;
+
+    const check = async (evt) => {
+        if (evt.isTrusted && await realTest()) {
+            for (const gesture of gestures) {
+                window.removeEventListener(gesture, check);
+            }
+
+            await callback();
+        }
+    };
+
+    for (const gesture of gestures) {
+        window.addEventListener(gesture, check);
+    }
+}`;
