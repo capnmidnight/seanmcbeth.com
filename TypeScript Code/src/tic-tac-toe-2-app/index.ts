@@ -301,4 +301,5 @@ elementApply("main",
     board,
     P(
         "< ", A(href("tic-tac-toe-1"), "1")
-    ));
+    )
+);
