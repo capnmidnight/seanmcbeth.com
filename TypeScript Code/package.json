@@ -18,9 +18,9 @@
     "@types/dom-mediacapture-record": "1.0.13",
     "@types/offscreencanvas": "2019.7.0",
     "@types/three": "0.144.0",
-    "@types/web-bluetooth": "0.0.14",
+    "@types/web-bluetooth": "0.0.16",
     "@types/webxr": "0.5.0",
-    "esbuild": "0.15.5",
+    "esbuild": "0.15.13",
     "esbuild-plugin-glsl": "1.1.0"
   },
   "dependencies": {

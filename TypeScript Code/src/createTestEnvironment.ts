@@ -2,8 +2,7 @@
 import { canvasToBlob, createUICanvas } from "@juniper-lib/dom/canvas";
 import { Canvas, Div } from "@juniper-lib/dom/tags";
 import { Image_Jpeg } from "@juniper-lib/mediatypes";
-import type { Environment } from "@juniper-lib/threejs/environment/Environment";
-import { EnvironmentModule } from "@juniper-lib/threejs/environment/EnvironmentModule";
+import type { Environment, EnvironmentModule } from "@juniper-lib/threejs/environment/Environment";
 import { isNullOrUndefined } from "@juniper-lib/tslib/typeChecks";
 import { toBytes } from "@juniper-lib/tslib/units/fileSize";
 import { createFetcher } from "./createFetcher";
@@ -56,6 +55,7 @@ export async function createTestEnvironment(addServiceWorker = false): Promise<E
         defaultFont.fontFamily,
         getUIImagePaths(),
         "blue",
+        "white",
         defaultAvatarHeight,
         enableFullResolution, {
         DEBUG: isDebug

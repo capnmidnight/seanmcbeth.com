@@ -8,8 +8,7 @@ const buttonStyle: Partial<TextImageOptions> = {
     scale: 500,
     padding: 0.05,
     maxHeight: 0.25,
-    minHeight: 0.25,
-    wrapWords: false
+    minHeight: 0.25
 };
 
 (async function () {
