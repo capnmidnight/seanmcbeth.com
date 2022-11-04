@@ -5,6 +5,6 @@ import { Editor } from "./Editor";
 export default async function loadEditor() {
     const env = await createTestEnvironment();
     const editor = new Editor(env);
-    elementApply(document.body, editor);
+    elementApply("main", editor);
     Object.assign(window, { editor });
 }

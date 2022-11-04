@@ -11,7 +11,7 @@ const canv = Canvas(
     left(0)
 );
 
-elementApply(document.body, canv);
+elementApply("main", canv);
 
 const editor = new Primrose({
     element: canv,

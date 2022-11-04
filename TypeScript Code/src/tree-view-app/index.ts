@@ -30,7 +30,9 @@ const tv = new TreeView<number, "even" | "odd">({
     left(0)
 );
 
-elementApply(document.body, tv);
+elementApply("main",
+    tv
+);
 
 tv.values = values;
 

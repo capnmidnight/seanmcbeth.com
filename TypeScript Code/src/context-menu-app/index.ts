@@ -56,7 +56,4 @@ const target = Div(
     })
 );
 
-elementApply(document.body,
-    menu,
-    target
-);
+elementApply("main", menu, target);

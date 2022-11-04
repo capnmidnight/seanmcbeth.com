@@ -32,7 +32,7 @@ const fetcher = createFetcher();
 
     await dirt.init(R, R, F, P);
 
-    elementApply(document.body,
+    elementApply("main",
         elementApply(
             canv,
             onPointerCancel(checkPointer),

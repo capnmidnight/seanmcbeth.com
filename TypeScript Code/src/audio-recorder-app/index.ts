@@ -2,7 +2,7 @@ import { AudioManager } from "@juniper-lib/audio/AudioManager";
 import { MicrophoneManager } from "@juniper-lib/audio/MicrophoneManager";
 import { controls, href, src, value } from "@juniper-lib/dom/attrs";
 import { makeBlobURL } from "@juniper-lib/dom/makeBlobURL";
-import { A, Audio, BR, Button, elementSetText, Option, Select } from "@juniper-lib/dom/tags";
+import { A, Audio, BR, Button, elementApply, elementSetText, Option, Select } from "@juniper-lib/dom/tags";
 import * as _allAudio from "@juniper-lib/mediatypes/audio";
 import { arrayClear } from "@juniper-lib/tslib/collections/arrays";
 import { once } from "@juniper-lib/tslib/events/once";
@@ -20,7 +20,7 @@ const options = supportedTypes
     .map(v => Option(value(v), v));
 const types = Select(...options);
 
-document.body.append(types, BR(), startStop);
+elementApply("main", types, BR(), startStop);
 
 (async function () {
     while (true) {

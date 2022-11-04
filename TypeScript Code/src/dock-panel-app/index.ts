@@ -4,7 +4,7 @@ import { DockCell, DockGroupColumn, DockGroupRow, DockPanel, rearrangeable, resi
 import "./styles.css";
 
 
-elementApply(document.body.querySelector("main"),
+elementApply("main",
     DockPanel(
         "Test",
         resizable(true),

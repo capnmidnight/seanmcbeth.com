@@ -19,7 +19,7 @@ function PointDisplay() {
     return Span(className("pointDisplay"), 0);
 }
 
-elementApply(document.body,
+elementApply("main",
     Button(
         id("starter"),
         "Start",

@@ -1,7 +1,7 @@
 import { autoPlay, controls, muted } from "@juniper-lib/dom/attrs";
 import { left, maxHeight, position, top, transform, width } from "@juniper-lib/dom/css";
 import { onClick } from "@juniper-lib/dom/evts";
-import { ButtonPrimary, elementSetDisplay, Video } from "@juniper-lib/dom/tags";
+import { ButtonPrimary, elementApply, elementSetDisplay, Video } from "@juniper-lib/dom/tags";
 
 const camvid = Video(
     position("absolute"),
@@ -29,7 +29,4 @@ const button = ButtonPrimary(
     })
 )
 
-document.body.append(
-    camvid,
-    button
-);
+elementApply("main", camvid, button);
