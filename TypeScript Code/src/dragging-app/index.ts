@@ -46,7 +46,7 @@ import { isDebug } from "../isDebug";
         })
     );
 
-    elementApply(env.screenUISpace.bottomRowLeft, switchModeButton)
+    elementApply(env.screenUISpace.bottomLeft, switchModeButton)
 
     await env.fadeIn();
 })();

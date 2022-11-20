@@ -32,24 +32,20 @@ namespace SeanMcBeth
                 throw new DirectoryNotFoundException("Could not find project root from " + workingDir.FullName);
             }
 
-
-            var juniperAssets = here.CD("Juniper", "etc", "Assets");
+            var juniperDir = here.CD("Juniper");
             var projectInDir = here.CD(ScriptProjectName);
             var projectOutDir = here.CD(ServerProjectName);
             var nodeModules = projectInDir.CD("node_modules");
-            var threeJsIn = nodeModules.CD("three", "build");
-            var wwwRoot = projectOutDir.CD("wwwroot");
             var jsInput = projectInDir.CD("src");
+            var wwwRoot = projectOutDir.CD("wwwroot");
             var jsOutput = wwwRoot.CD("js");
-            var threeJsOut = jsOutput.CD("three");
             var modelOutput = wwwRoot.CD("models");
             var audioOutput = wwwRoot.CD("audio");
             var imgOutput = wwwRoot.CD("img");
+            var threeJsOut = jsOutput.CD("three");
             var uiImgOUtput = imgOutput.CD("ui");
-            var juniperTextures = juniperAssets.CD("Textures");
-            var juniperAudio = juniperAssets.CD("Audio");
-            var juniperModels = juniperAssets.CD("Models");
-            var juniperModelsForest = juniperModels.CD("Forest");
+
+            var pathHelper = new PathHelper(juniperDir, nodeModules);
 
             var options = new BuildSystemOptions()
             {
@@ -58,28 +54,28 @@ namespace SeanMcBeth
                 OutProjectName = ServerProjectName,
                 Dependencies = new()
                     {
-                        { "Three.js", (threeJsIn.Touch("three.js"), threeJsOut.Touch("index.js")) },
-                        { "Three.js min", (threeJsIn.Touch("three.min.js"), threeJsOut.Touch("index.min.js")) },
-                        { "Cursor", (juniperModels.CD("Cursors").Touch("Cursors.glb"), modelOutput.Touch("Cursors.glb")) },
-                        { "Forest Ground", (juniperModelsForest.Touch("Forest-Ground.glb"), modelOutput.Touch("Forest-Ground.glb")) },
-                        { "Forest Tree", (juniperModelsForest.Touch("Forest-Tree.glb"), modelOutput.Touch("Forest-Tree.glb")) },
-                        { "Forest Audio", (juniperAudio.Touch("forest.mp3"),  audioOutput.Touch("forest.mp3")) },
-                        { "Test Audio", (juniperAudio.CD("Star Trek").Touch("computerbeep_55.mp3"),  audioOutput.Touch("test-clip.mp3")) },
-                        { "Footsteps", (juniperAudio.Touch("footsteps_fast.mp3"),  audioOutput.Touch("footsteps.mp3")) },
-                        { "Button Press", (juniperAudio.Touch("vintage_radio_button_pressed.mp3"),  audioOutput.Touch("vintage_radio_button_pressed.mp3")) },
-                        { "Door Open", (juniperAudio.Touch("door_open.mp3"),  audioOutput.Touch("door_open.mp3")) },
-                        { "Door Close", (juniperAudio.Touch("door_close.mp3"),  audioOutput.Touch("door_close.mp3")) },
-                        { "UI Dragged", (juniperAudio.Touch("basic_dragged.mp3"),  audioOutput.Touch("basic_dragged.mp3")) },
-                        { "UI Enter", (juniperAudio.Touch("basic_enter.mp3"),  audioOutput.Touch("basic_enter.mp3")) },
-                        { "UI Error", (juniperAudio.Touch("basic_error.mp3"),  audioOutput.Touch("basic_error.mp3")) },
-                        { "UI Exit", (juniperAudio.Touch("basic_exit.mp3"),  audioOutput.Touch("basic_exit.mp3")) }
+                        { "Three.js", (pathHelper.ThreeJsBundle, threeJsOut.Touch("index.js")) },
+                        { "Three.js min", (pathHelper.ThreeJsMinBundle, threeJsOut.Touch("index.min.js")) },
+
+                        { "Cursor", (pathHelper.CursorModel, modelOutput.Touch("Cursors.glb")) },
+                        { "Watch", (pathHelper.WatchModel, modelOutput.Touch("watch1.glb")) },
+
+                        { "Forest Ground", (pathHelper.ForestGroundModel, modelOutput.Touch("Forest-Ground.glb")) },
+                        { "Forest Tree", (pathHelper.ForestTreeModel, modelOutput.Touch("Forest-Tree.glb")) },
+                        { "Forest Audio", (pathHelper.ForestAudio,  audioOutput.Touch("forest.mp3")) },
+                        { "Test Audio", (pathHelper.StarTrekComputerBeep55Audio,  audioOutput.Touch("test-clip.mp3")) },
+                        { "Footsteps", (pathHelper.FootStepsAudio,  audioOutput.Touch("footsteps.mp3")) },
+                        { "Button Press", (pathHelper.ButtonPressAudio,  audioOutput.Touch("vintage_radio_button_pressed.mp3")) },
+                        { "Door Open", (pathHelper.DoorOpenAudio,  audioOutput.Touch("door_open.mp3")) },
+                        { "Door Close", (pathHelper.DoorCloseAudio,  audioOutput.Touch("door_close.mp3")) },
+                        { "UI Dragged", (pathHelper.UIDraggedAudio,  audioOutput.Touch("basic_dragged.mp3")) },
+                        { "UI Enter", (pathHelper.UIEnterAudio,  audioOutput.Touch("basic_enter.mp3")) },
+                        { "UI Error", (pathHelper.UIErrorAudio,  audioOutput.Touch("basic_error.mp3")) },
+                        { "UI Exit", (pathHelper.UIExitAudio,  audioOutput.Touch("basic_exit.mp3")) }
                     }
             };
 
-            foreach (var file in juniperTextures.CD("UI").EnumerateFiles())
-            {
-                options.Dependencies.Add(file.Name, (file, uiImgOUtput.Touch(file.Name)));
-            }
+            pathHelper.AddUITextures(options, uiImgOUtput);
 
             options.OptionalDependencies = new();
 

@@ -8,25 +8,22 @@
 
 @section Menu {
     @{
-        var menuItems = new Models.MenuItem[]
+        foreach (var (text, title, href, hide) in new[] {
+            ("Contact", "Contact", "#contact", true),
+            ("Bio", "Bio", "#bio", true),
+            (".com", "Projects", "#projects", false),
+            (".net", "Talks and Interviews", "#talks", false),
+            (".tv", "Press", "#press", false)
+        })
         {
-            new ("Contact", "Contact", "#contact", true),
-            new ("Bio", "Bio", "#bio", true),
-            new (".com", "Projects", "#projects"),
-            new (".net", "Talks and Interviews", "#talks"),
-            new (".tv", "Press", "#press")
-        };
-
-        foreach (var item in menuItems)
-        {
-    <li style="display:@(item.Hide?"none":"")">
-                    <a href="@item.Target"
-                       role="menuItem"
-                       aria-label="@item.Label"
-                       title="@item.Label">
-                        @item.Text
-                    </a>
-    </li>
+            <li style="display:@(hide?"none":"")">
+                <a href="@href"
+                    role="menuItem"
+                    aria-label="@title"
+                    title="@title">
+                        @text
+                </a>
+            </li>
         }
     }
 }
@@ -52,25 +49,21 @@
 
         <ul>
             @{
-                var contactList = new Models.MenuItem[] {
-                    new ("Follow @seanmcbeth on Mastodon", "mastodon", "https://mstdn.social/@seanmcbeth", Rel: "me"),
-                    new ("Follow @Sean_McBeth on Twitter", "twitter", "https://twitter.com/Sean_McBeth"),
-                    new ("Follow Sean on GitHub", "github", "https://github.com/capnmidnight"),
-                    new ("Follow Sean on LinkedIn", "linkedin", "https://www.linkedin.com/pub/sean-mcbeth/6/727/378"),
-                    new ("Call Sean", "telephone", "tel:+17172617689"),
-                    new ("Email Sean", "email", "mailto:sean@removethis.seanmcbeth.com"),
-                    new ("Download Sean's résumé (PDF 159KB)", "resume", "Resume-STMcBeth-2019.pdf")
-                };
-
-                foreach(var item in contactList)
+                foreach (var (text, icon, url, rel) in new[] {
+                    ("Follow @seanmcbeth on Mastodon", "mastodon", "https://mstdn.social/@seanmcbeth", "me"),
+                    ("Follow Sean on GitHub", "github", "https://github.com/capnmidnight", ""),
+                    ("Follow Sean on LinkedIn", "linkedin", "https://www.linkedin.com/pub/sean-mcbeth/6/727/378", ""),
+                    ("Email Sean", "email", "mailto:sean@removethis.seanmcbeth.com", ""),
+                    ("Download Sean's résumé (PDF 159KB)", "resume", "Resume-STMcBeth-2019.pdf", "")
+                    })
                 {
                     <li>
-                        <a href="@item.Target"
-                            rel="@item.Rel"
-                            aria-label="@item.Text"
-                            title="@item.Text">
-                            <span class="icon icon-@item.Label" role="presentation"></span>
-                            <span class="print-only">@item.Text</span>
+                        <a href="@url"
+                            rel="@rel"
+                            aria-label="@text"
+                            title="@text">
+                            <span class="icon icon-@icon" role="presentation"></span>
+                            <span class="print-only">@text</span>
                         </a>
                     </li>
                 }
@@ -122,6 +115,59 @@
             These are talks and podcasts that I've done in the past.
         </p>
 
+        <h3>2022</h3>
+        <ul>
+            <li>
+            <a href="https://www.airuniversity.af.edu/Portals/10/AFCLC/documents/LREC/2022/2022-AU-LREC-Symposium-Program.pdf">Air Force
+                Culture and Language Center - Air University: Language, Regional Expertise, and Culture Symposium</a>: A colleague and I
+                gave a presentation on designing proficiency-oriented virtual reality scenarios for foreign language training.
+            </li>
+        </ul>
+
+        <h3>2021</h3>
+        <ul>
+            <li>
+                <em>Virtual Worlds Forum</em>: I gave a presentation on using WebXR to create environments for foreign language students to
+                meet with their instructors and practice conversation skills in culturally appropriate settings.
+            </li>
+            <li>
+            <a href="https://podcasts.apple.com/us/podcast/vernacular-reality-vr-for-training-with-jordan-higgins/id1364646421?i=1000513488490">
+                Vernacular Reality (Ep4):
+                VR for Training with Jordan Higgins</a>: In this episode, Blythe and Sean sit down with Jordan Higgins, XR Designer and adjunct 
+                faculty at the George Mason University School of Art! The two VR experts discuss their experiences working with AR/VR in general 
+                and for training, plus exciting innovations in the industry.
+            </li>
+            <li>
+            <a href="https://podcasts.apple.com/us/podcast/vernacular-reality-weird-interfaces-with-jim-toepel/id1364646421?i=1000520540588">
+                Vernacular Reality (Ep5):
+                Weird Interfaces with Jim Toepel</a>: In this episode of Vernacular Reality, Blythe and Sean talk with Jim Toepel, design/product 
+                manager working with "weird interfaces" (from VR to Rock Band). They discuss the formative experience where they met, how one's 
+                relationship to software changes when moving our bodies in new and different ways, and all the benefits of engaging with immersive software.
+            </li>
+            <li>
+            <a href="https://podcasts.apple.com/us/podcast/vernacular-reality-designing-experiences-with-doug/id1364646421?i=1000527409207">
+                Vernacular Reality
+                (Ep6): Designing Experiences with Doug North Cook</a>: In this episode of Vernacular Reality, listen in on our conversation with Doug 
+                North Cook, immersive media program coordinator and professor, and lead instructor at Falling Water's Immersive Design Residency. We 
+                discuss all aspects of designing immersive software, including the inspiration for it, the execution of it, and how to optimize user 
+                experiences - especially for learning.
+            </li>
+            <li>
+            <a href="https://podcasts.apple.com/us/podcast/vernacular-reality-chinese-language-immersions-at-dls/id1364646421?i=1000541377150">
+                Vernacular Reality
+                (Ep7): Chinese Language Immersions at DLS</a>: In this episode of Vernacular Reality, we talk with DLS Language Training team 
+                member, Lia, about language immersions in virtual reality. As a Chinese instructor herself, Lia shares insights from the 
+                development of DLS Chinese immersions to the student trials.
+            </li>
+            <li>
+            <a href="https://podcasts.apple.com/us/podcast/vernacular-reality-developing-vr-for-language-learning/id1364646421?i=1000553465584">
+                Vernacular Reality (Ep8):
+                Developing VR for Language Learning</a>: In this episode of Vernacular Reality, we talk with DLS Project Manager, Katia, about 
+                her role in developing virtual reality scenarios for language learning. Katia shares insights on the ability to customize VR 
+                scenarios for different levels, plus the continuity of pre- and post-work.
+            </li>
+        </ul>
+
         <h3>2020</h3>
         <ul>
             <li>
@@ -129,7 +175,27 @@
                 I chatted with a Zoomcast on <abbr>VR</abbr>, Internet privacy, and learning.
             </li>
             <li>
-                I was scheduled to talk at <abbr>UMD</abbr> <abbr>MAVRIC</abbr> Conference 2020, but the COVID-19 pandemic has caused an indefinite delay.
+            <a href="https://podcasts.apple.com/us/podcast/vernacular-reality-intro-to-language-learning-with-vr/id1364646421?i=1000479341353">
+                Vernacular Reality (Ep1): Intro to Language Learning with VR</a>: Welcome to Vernacular Reality, the VR-focused extension of our 
+                podcast Language Matters! In this episode, our host, Blythe, sits down with DLS staff Sean McBeth (Immersive Software Developer) 
+                and Chris Bellas (President) to discuss what they are doing to bring virtual reality into language learning at Diplomatic Language 
+                Services, why they decided to do so, and what we can expect.
+            </li>
+            <li>
+            <a href="https://podcasts.apple.com/us/podcast/vernacular-reality-different-perspectives-on-language/id1364646421?i=1000488598377">
+                Vernacular Reality (Ep2): Different Perspectives on Language Learning with VR</a>: 'What if VR makes me feel sick?' 'Will my 
+                instructor be with me in this virtual environment?' 'What makes your application so special?' These are all potential perspectives 
+                from students that we address in episode two of Vernacular Reality. Listen in as Blythe, Chris, and Sean tackle perspectives that 
+                students may have regarding adding a virtual reality component into their language training, discuss why implementing VR makes sense 
+                for the individualized language training that is at the core of our business, and why this makes sense for the language learning 
+                industry in general.
+            </li>
+            <li>
+            <a href="https://podcasts.apple.com/us/podcast/vernacular-reality-inspiration-for-the-dls-vr-program/id1364646421?i=1000502616162">
+                Vernacular Reality (Ep3):
+                Inspiration for DLS VR Program</a>: In this episode of Vernacular Reality, Blythe and Sean discuss a variety of virtual reality apps that 
+                Sean has used in the past, the features he likes about each, and how each program has influenced his VR work at Diplomatic Language Services. 
+                From exercise to meditation, you might be surprised at just how much inspiration our language learning program took from other apps.
             </li>
         </ul>
 

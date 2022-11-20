@@ -161,17 +161,17 @@ namespace SeanMcBeth.Pages
         private DirectoryInfo SrcRoot => SrcsRoot.CD(Name + "-app");
         private FileInfo ScreenshotFile => SrcRoot.Touch("screenshot.jpg");
 
-        public async Task<IActionResult> OnPostAsync([FromForm] FileInput input)
+        public async Task<IActionResult> OnPostAsync([FromForm] SingleFormFile input)
         {
             if (!env.IsDevelopment()
                 || input is null
-                || input.File is null)
+                || input.FormFile is null)
             {
                 return NotFound();
             }
 
             using var fileStream = ScreenshotFile.OpenWrite();
-            await input.File.CopyToAsync(fileStream);
+            await input.FormFile.CopyToAsync(fileStream);
             await fileStream.FlushAsync();
             return new OkResult();
         }

@@ -57,8 +57,10 @@ export async function createTestEnvironment(addServiceWorker = false): Promise<E
         "blue",
         "white",
         defaultAvatarHeight,
+        65,
         enableFullResolution, {
-        DEBUG: isDebug
+            DEBUG: isDebug,
+            watchModelPath: "/models/watch1.glb"
     });
 
     if (isDebug) {

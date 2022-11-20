@@ -7,7 +7,7 @@
     var keywords = ViewData["Keywords"] as string;
     var twitterCardType = screenshot is null ? "summary" : "summary_large_image";
 
-    if(screenshot is not null)
+    if (screenshot is not null)
     {
         screenshot = "https://seanmcbeth.com" + screenshot;
     }
@@ -66,23 +66,18 @@
                 <ul>
                     @RenderSection("Menu", required: false)
 
-                    @{
-                        var defaultMenuItems = new Models.MenuItem[]
-                        {
-                            new ("home/", "Home", "/"),
-                            new ("vr/", "Virtual Reality", "/vr"),
-                            new ("etc/", "Other", "/other"),
-                        };
-                    }
-
-                    @foreach (var item in defaultMenuItems)
+                    @foreach (var (text, label, href) in new[] {
+                        ("home/", "Home", "/"),
+                        ("vr/", "Virtual Reality", "/vr"),
+                        ("etc/", "Other", "/other")
+                    })
                     {
-                        <li style="display:@(item.Hide?"none":"")">
-                            <a href="@item.Target"
-                               role="menuItem"
-                               aria-label="@item.Label"
-                               title="@item.Label">
-                                @item.Text
+                        <li>
+                            <a href="@href"
+                       role="menuItem"
+                       aria-label="@label"
+                       title="@label">
+                                @text
                             </a>
                         </li>
                     }
