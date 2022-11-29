@@ -4,21 +4,18 @@ import type { Pointer3DEvent } from "@juniper-lib/threejs/eventSystem/devices/Po
 import { RayTarget } from "@juniper-lib/threejs/eventSystem/RayTarget";
 import { mesh } from "@juniper-lib/threejs/objects";
 import { FrontSide, LinearFilter, LinearMipmapLinearFilter, MeshPhongMaterial, PlaneGeometry, Texture } from "three";
-import { createTestEnvironment } from "../createTestEnvironment";
+import { withTestEnvironment } from "../createTestEnvironment";
 import { DirtWorkerClient } from "../dirt-worker/DirtWorkerClient";
 import { Forest } from "../forest-app/Forest";
 import { isDebug, JS_EXT } from "../isDebug";
 import { version } from "../settings";
 
-(async function () {
-    const S = 5;
-    const R = 200;
-    const F = 2;
-    const P = 1;
+const S = 5;
+const R = 200;
+const F = 2;
+const P = 1;
 
-    const env = await createTestEnvironment();
-
-    await env.fadeOut();
+withTestEnvironment(async (env) => {
 
     const dirtMapAsset = new AssetImage("/img/dirt.jpg", Image_Jpeg, !isDebug);
     const dirtWorkerAsset = new AssetWorker(`/js/dirt-worker/index${JS_EXT}?${version}`);
@@ -81,8 +78,6 @@ import { version } from "../settings";
 
     env.sun.position.set(-1, 3, -2);
 
-    await env.fadeIn();
-
     function checkPointer(evt: Pointer3DEvent) {
         dirtBumpMap.checkPointerUV(
             evt.pointer.id,
@@ -90,4 +85,4 @@ import { version } from "../settings";
             1 - evt.hit.uv.y,
             evt.type);
     }
-})();
+});

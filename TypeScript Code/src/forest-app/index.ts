@@ -1,14 +1,8 @@
-﻿import { createTestEnvironment } from "../createTestEnvironment";
+﻿import { withTestEnvironment } from "../createTestEnvironment";
 import { Forest } from "./Forest";
 
-(async function () {
-    const env = await createTestEnvironment();
-    await env.fadeOut();
-
+withTestEnvironment(async (env) => {
     const forest = new Forest(env);
     await env.load(...forest.assets);
-
     env.eventSys.mouse.allowPointerLock = true;
-
-    await env.fadeIn();
-})();
+});

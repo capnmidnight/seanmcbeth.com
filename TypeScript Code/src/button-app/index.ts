@@ -1,7 +1,7 @@
-﻿import { objGraph } from "@juniper-lib/threejs/objects";
+﻿import { TextImageOptions } from "@juniper-lib/graphics2d/TextImage";
+import { objGraph } from "@juniper-lib/threejs/objects";
 import { TextMeshButton } from "@juniper-lib/threejs/widgets/TextMeshButton";
-import { TextImageOptions } from "@juniper-lib/graphics2d/TextImage";
-import { createTestEnvironment } from "../createTestEnvironment";
+import { withTestEnvironment } from "../createTestEnvironment";
 
 const buttonStyle: Partial<TextImageOptions> = {
     bgFillColor: "#1e4388",
@@ -11,10 +11,7 @@ const buttonStyle: Partial<TextImageOptions> = {
     minHeight: 0.25
 };
 
-(async function () {
-    const env = await createTestEnvironment();
-
-    await env.fadeOut();
+withTestEnvironment(async (env) => {
     await env.load();
 
     const button1 = new TextMeshButton(env, "Button1", "Click Me?", buttonStyle);
@@ -29,6 +26,4 @@ const buttonStyle: Partial<TextImageOptions> = {
     objGraph(env.foreground,
         button1,
         button2);
-    
-    await env.fadeIn();
-})();
+});

@@ -1,6 +1,7 @@
 ﻿import { id } from "@juniper-lib/dom/attrs";
 import { canvasToBlob, createUICanvas } from "@juniper-lib/dom/canvas";
 import { Canvas, Div } from "@juniper-lib/dom/tags";
+import { unwrapResponse } from "@juniper-lib/fetcher/unwrapResponse";
 import { Image_Jpeg } from "@juniper-lib/mediatypes";
 import type { Environment, EnvironmentModule } from "@juniper-lib/threejs/environment/Environment";
 import { isNullOrUndefined } from "@juniper-lib/tslib/typeChecks";
@@ -39,15 +40,11 @@ export async function createTestEnvironment(addServiceWorker = false): Promise<E
 
     const fetcher = createFetcher(!isDebug);
 
-    await fetcher
-        .get(`/js/environment/index${CSS_EXT}?${version}`)
-        .useCache(!isDebug)
-        .style();
-
     const { default: EnvironmentConstructor } = await fetcher
         .get(`/js/environment/index${JS_EXT}?${version}`)
         .useCache(!isDebug)
-        .module<EnvironmentModule>();
+        .module<EnvironmentModule>()
+        .then(unwrapResponse);
 
     const env = new EnvironmentConstructor(
         canvas,
@@ -60,7 +57,8 @@ export async function createTestEnvironment(addServiceWorker = false): Promise<E
         65,
         enableFullResolution, {
             DEBUG: isDebug,
-            watchModelPath: "/models/watch1.glb"
+            watchModelPath: "/models/watch1.glb",
+            styleSheetPath: `/js/environment/index${CSS_EXT}?${version}`
     });
 
     if (isDebug) {
@@ -108,4 +106,9 @@ export async function createTestEnvironment(addServiceWorker = false): Promise<E
     }
 
     return env;
+}
+
+export async function withTestEnvironment<T>(action: (env: Environment) => Promise<T>): Promise<T> {
+    const env = await createTestEnvironment();
+    return await env.withFade(() => action(env));
 }

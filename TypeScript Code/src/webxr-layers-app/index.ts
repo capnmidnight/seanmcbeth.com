@@ -3,11 +3,10 @@ import { Image_Jpeg, Image_Png } from "@juniper-lib/mediatypes";
 import { objGraph } from "@juniper-lib/threejs/objects";
 import { Image2D } from "@juniper-lib/threejs/widgets/Image2D";
 import { deg2rad } from "@juniper-lib/tslib/math";
-import { createTestEnvironment } from "../createTestEnvironment";
+import { withTestEnvironment } from "../createTestEnvironment";
 import { isDebug } from "../isDebug";
 
-(async function () {
-    const env = await createTestEnvironment();
+withTestEnvironment(async (env) => {
     const skybox = new AssetImage("/skyboxes/BearfenceMountain.jpeg", Image_Jpeg, !isDebug);
     const picture = new AssetImage("/img/logos/foxglove.png", Image_Png, !isDebug);
     const img = new Image2D(env, "Foxglove", "static");
@@ -15,7 +14,6 @@ import { isDebug } from "../isDebug";
     Object.assign(window, { img });
     objGraph(env.foreground, img);
 
-    await env.fadeOut();
     await env.load(skybox, picture);
 
     env.eventSys.mouse.allowPointerLock = true;
@@ -25,6 +23,4 @@ import { isDebug } from "../isDebug";
 
     img.setTextureMap(picture.result);
     img.position.set(0, 1.5, -3);
-
-    await env.fadeIn();
-})();
+});

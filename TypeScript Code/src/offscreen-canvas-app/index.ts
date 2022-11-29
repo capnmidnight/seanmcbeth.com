@@ -2,7 +2,7 @@
 import { cleanup } from "@juniper-lib/threejs/cleanup";
 import { hasWebXR } from "@juniper-lib/tslib/flags";
 import { Float32BufferAttribute, Mesh, MeshBasicMaterial, PlaneGeometry, Texture } from "three";
-import { createTestEnvironment } from "../createTestEnvironment";
+import { withTestEnvironment } from "../createTestEnvironment";
 import Environment from "../environment";
 
 const colors = [
@@ -59,9 +59,7 @@ addEventListener("message", (evt) => {
 const workerScriptBlob = new Blob([workerScript], { type: Application_Javascript.value });
 const workerScriptBlobUrl = URL.createObjectURL(workerScriptBlob);
 
-(async function () {
-    const env = await createTestEnvironment();
-    await env.fadeOut();
+withTestEnvironment(async (env) => {
     await env.load();
 
     env.arButton.visible = hasWebXR();
@@ -98,9 +96,7 @@ const workerScriptBlobUrl = URL.createObjectURL(workerScriptBlob);
             map2.needsUpdate = true;
         }
     });
-
-    await env.fadeIn();
-})();
+});
 
 const geom = new PlaneGeometry(1, 1, 1, 1);
 const uv = geom.getAttribute("uv") as Float32BufferAttribute;

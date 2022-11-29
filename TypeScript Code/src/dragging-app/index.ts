@@ -7,13 +7,11 @@ import { lit } from "@juniper-lib/threejs/materials";
 import { objGraph } from "@juniper-lib/threejs/objects";
 import { TransformEditor, TransformMode } from "@juniper-lib/threejs/TransformEditor";
 import { deg2rad } from "@juniper-lib/tslib/math";
-import { createTestEnvironment } from "../createTestEnvironment";
+import { withTestEnvironment } from "../createTestEnvironment";
 import { isDebug } from "../isDebug";
 
-(async function () {
-    const env = await createTestEnvironment();
+withTestEnvironment(async (env) => {
     const skybox = new AssetImage("/skyboxes/BearfenceMountain.jpeg", Image_Jpeg, !isDebug);
-    await env.fadeOut();
     await env.load(skybox);
 
     env.skybox.setImage(skybox.path, skybox.result);
@@ -47,6 +45,4 @@ import { isDebug } from "../isDebug";
     );
 
     elementApply(env.screenUISpace.bottomLeft, switchModeButton)
-
-    await env.fadeIn();
-})();
+});
