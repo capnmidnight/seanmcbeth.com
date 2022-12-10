@@ -1,5 +1,6 @@
 ﻿import { id } from "@juniper-lib/dom/attrs";
 import { canvasToBlob, createUICanvas } from "@juniper-lib/dom/canvas";
+import { rgb } from "@juniper-lib/dom/css";
 import { Canvas, Div } from "@juniper-lib/dom/tags";
 import { unwrapResponse } from "@juniper-lib/fetcher/unwrapResponse";
 import { Image_Jpeg } from "@juniper-lib/mediatypes";
@@ -51,8 +52,8 @@ export async function createTestEnvironment(addServiceWorker = false): Promise<E
         fetcher,
         defaultFont.fontFamily,
         getUIImagePaths(),
-        "blue",
-        "white",
+        rgb(30, 67, 136),
+        rgb(78, 77, 77),
         defaultAvatarHeight,
         65,
         enableFullResolution, {

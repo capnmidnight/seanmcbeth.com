@@ -1,4 +1,4 @@
-﻿import { audioReady } from "@juniper-lib/audio/nodes";
+﻿import { JuniperAudioContext } from "@juniper-lib/audio/context/JuniperAudioContext";
 import { className, id } from "@juniper-lib/dom/attrs";
 import { backgroundColor, color, px, zIndex } from "@juniper-lib/dom/css";
 import { onClick, onMouseOut, onTouchStart } from "@juniper-lib/dom/evts";
@@ -78,7 +78,7 @@ const NUM_YABS = Math.round(window.innerWidth / 30),
     scoreBox = getElement("#scoreBox"),
     scoreBoxes = document.querySelectorAll<HTMLElement>(".pointDisplay"),
     messages = document.querySelectorAll<HTMLElement>(".endMessage"),
-    audio = new AudioContext(),
+    audio = new JuniperAudioContext(),
     out = audio.createGain(),
     fs = new Array<GameObject>(),
     osc = new Array<GainNode>(),
@@ -586,7 +586,7 @@ inst.style.opacity = "1";
 starter.style.display = "block";
 
 (async function () {
-    await audioReady(audio);
+    await audio.ready;
     starter.style.display = "none";
     inst.style.display = "block";
     requestAnimationFrame(animate);

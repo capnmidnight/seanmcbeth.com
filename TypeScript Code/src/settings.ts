@@ -29,7 +29,7 @@ export const emojiFont: FontDescription = {
 
 export async function loadFonts() {
     await Promise.all([
-        //loadFont(defaultFont),
+        loadFont(defaultFont),
         loadFont(emojiFont)
     ]);
 }

@@ -1,9 +1,10 @@
 ﻿import { AssetAudio, AssetImage, BaseAsset } from "@juniper-lib/fetcher/Asset";
 import { Audio_Mpeg, Image_Jpeg, Model_Gltf_Binary } from "@juniper-lib/mediatypes";
 import { AssetGltfModel } from "@juniper-lib/threejs/AssetGltfModel";
+import { Cube } from "@juniper-lib/threejs/Cube";
 import { Environment } from "@juniper-lib/threejs/environment/Environment";
 import { RayTarget } from "@juniper-lib/threejs/eventSystem/RayTarget";
-import { materialStandardToBasic } from "@juniper-lib/threejs/materials";
+import { materialStandardToBasic, solidRed } from "@juniper-lib/threejs/materials";
 import { objectScan } from "@juniper-lib/threejs/objectScan";
 import { isMesh } from "@juniper-lib/threejs/typeChecks";
 import { arrayClear, arrayScan } from "@juniper-lib/tslib/collections/arrays";
@@ -74,18 +75,30 @@ export class Forest {
 
     private finish(): void {
         this.env.skybox.setImage("forest", this.skybox.result);
-        const clip = this.env.audio.createClip("forest", this.bgAudio.result, true, true, true, 1, []);
-        this.env.addEventListener("environmentaudiotoggled", () => {
-            if (this.env.environmentAudioMuted) {
-                clip.stop();
-            }
-            else {
-                clip.play();
-            }
-        });
+        this.env.audio.setAudioProperties(0.1, 100, "inverse");
 
+        for (let i = 0; i < 5; ++i) {
+            const name = `forest-${i}`;
+            const clip = this.env.audio.createClip(name, this.bgAudio.result, true, true, true, 1, []);
+            this.env.addEventListener("environmentaudiotoggled", () => {
+                if (this.env.environmentAudioMuted) {
+                    clip.stop();
+                }
+                else {
+                    clip.play();
+                }
+            });
 
-        this.env.audio.setClipPosition("forest", 25, 5, 25);
+            const x = Math.random() * 50 - 25;
+            const z = Math.random() * 50 - 25;
+            clip.volume = 0.25;
+
+            const obj = new Cube(1, 1, 1, solidRed);
+            clip.setPosition(x, 5, z);
+            obj.position.set(x, 5, z);
+            this.env.foreground.add(obj);
+        }
+
         this.env.foreground.add(this.forest.result.scene);
         this.forest.result.scene.updateMatrixWorld();
         this.raycaster.camera = this.env.camera;
