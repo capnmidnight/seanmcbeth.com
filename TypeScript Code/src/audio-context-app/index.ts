@@ -1,6 +1,5 @@
 import { JuniperAudioContext } from "@juniper-lib/audio/context/JuniperAudioContext";
 import { WebAudioDestination } from "@juniper-lib/audio/destinations/WebAudioDestination";
-import { WebAudioListenerNew } from "@juniper-lib/audio/listeners/WebAudioListenerNew";
 import { AudioElementSource } from "@juniper-lib/audio/sources/AudioElementSource";
 import { WebAudioPannerNew } from "@juniper-lib/audio/spatializers/WebAudioPannerNew";
 import { max, min, srcObject, step, value } from "@juniper-lib/dom/attrs";
@@ -21,8 +20,7 @@ import { createFetcher } from "../createFetcher";
         latencyHint: "interactive"
     });
 
-    const listener = new WebAudioListenerNew(context);
-    const dest = new WebAudioDestination(context, listener);
+    const dest = new WebAudioDestination(context);
     BackgroundAudio(
         true,
         false,
@@ -60,7 +58,6 @@ import { createFetcher } from "../createFetcher";
 
     Object.assign(window, {
         context,
-        listener,
         dest,
         spatializer
     });
