@@ -61,12 +61,12 @@ h2 {
     width: 25px;
     height: 25px;
     margin: 0 0 0 7px;
-    box-shadow: 1px 1px 5px #0005;
+    box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.33);
 }
 
     .icon:hover {
         margin: -1px 1px 1px 6px;
-        box-shadow: 2px 2px 7px #0005;
+        box-shadow: 2px 2px 7px rgba(0, 0, 0, 0.33);
     }
 
 .icon-linkedin {
