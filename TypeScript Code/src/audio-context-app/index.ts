@@ -9,6 +9,7 @@ import { BackgroundAudio, ButtonPrimary, elementApply, InputRange } from "@junip
 import { unwrapResponse } from "@juniper-lib/fetcher/unwrapResponse";
 import { AudioGraphDialog } from "@juniper-lib/graphics2d/AudioGraphDialog";
 import { Audio_Mpeg } from "@juniper-lib/mediatypes";
+import { isSafari } from "@juniper-lib/tslib/flags";
 import { createFetcher } from "../createFetcher";
 
 
@@ -21,7 +22,7 @@ import { createFetcher } from "../createFetcher";
     });
 
     const dest = new WebAudioDestination(context);
-    BackgroundAudio(
+    const audio = BackgroundAudio(
         true,
         false,
         false,
@@ -30,12 +31,12 @@ import { createFetcher } from "../createFetcher";
 
     const diag = new AudioGraphDialog(context);
 
-    const audio = await fetcher
+    const forest = await fetcher
         .get("/audio/forest.mp3")
         .audio(true, false, Audio_Mpeg)
         .then(unwrapResponse);
 
-    const source = context.createMediaElementSource(audio);
+    const source = context.createMediaElementSource(forest);
     const spatializer = new WebAudioPannerNew(context);
     const node = new AudioElementSource(context, source, false, spatializer);
     node.connect(dest.spatializedInput);
@@ -62,10 +63,14 @@ import { createFetcher } from "../createFetcher";
         spatializer
     });
 
-    if (!context.isReady) {
+    if (!context.isReady || isSafari) {
         const startButton = ButtonPrimary(
             "Start",
-            onClick(() => context.resume())
+            onClick(() => {
+                audio.play();
+                source.mediaElement.play();
+                context.resume();
+            })
         );
 
         elementApply(document.body,

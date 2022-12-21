@@ -1,5 +1,5 @@
 {
-  "version": "1.3.0",
+  "version": "1.3.1",
   "name": "seanmcbeth-com",
   "private": true,
   "type": "module",
@@ -15,12 +15,12 @@
     "@juniper-types/extra-types": "file:../Juniper/src/Juniper.TypeScript/@juniper-types/extra-types",
     "@juniper-types/indexdb": "file:../Juniper/src/Juniper.TypeScript/@juniper-types/indexdb",
     "@types/dom-chromium-installation-events": "101.0.0",
-    "@types/dom-mediacapture-record": "1.0.13",
+    "@types/dom-mediacapture-record": "1.0.14",
     "@types/offscreencanvas": "2019.7.0",
-    "@types/three": "0.144.0",
+    "@types/three": "0.146.0",
     "@types/web-bluetooth": "0.0.16",
     "@types/webxr": "0.5.0",
-    "esbuild": "0.15.13",
+    "esbuild": "0.16.10",
     "esbuild-plugin-glsl": "1.1.0"
   },
   "dependencies": {
@@ -42,7 +42,7 @@
     "gl-matrix": "3.4.3",
     "pdfjs-dist": "2.14.305",
     "primrose": "file:../Primrose/Primrose.TypeScript",
-    "three": "0.144.0",
+    "three": "0.146.0",
     "typescript": "4.8.4"
   }
 }

@@ -3,28 +3,26 @@ import { max, min, step, value } from "@juniper-lib/dom/attrs";
 import { em, width } from "@juniper-lib/dom/css";
 import { isModifierless, onClick, onInput } from "@juniper-lib/dom/evts";
 import { ButtonPrimary, elementApply, InputRange } from "@juniper-lib/dom/tags";
-import { unwrapResponse } from "@juniper-lib/fetcher/unwrapResponse";
+import { AssetAudio } from "@juniper-lib/fetcher/Asset";
 import { AudioGraphDialog } from "@juniper-lib/graphics2d/AudioGraphDialog";
 import { Audio_Mpeg } from "@juniper-lib/mediatypes";
 import { createFetcher } from "../createFetcher";
+import { isDebug } from "../isDebug";
 
 
 (async function () {
-
     const fetcher = await createFetcher();
     const audio = new AudioManager("local");
 
     const diag = new AudioGraphDialog(audio.context);
 
-    const forest = await fetcher
-        .get("/audio/forest.mp3")
-        .audio(true, false, Audio_Mpeg)
-        .then(unwrapResponse);
+    const clip1Asset = new AssetAudio("/audio/forest.mp3", Audio_Mpeg, !isDebug);
+    const clip2Asset = new AssetAudio("/audio/test-clip.mp3", Audio_Mpeg, !isDebug);
 
-    const clip1 = audio.createClip("forest", forest, true, true, false, 1, []);
-    clip1.volume = 0.25;
+    await fetcher.assets(clip1Asset, clip2Asset);
 
-    const clip2 = await audio.loadBasicClip("test-clip", "/audio/test-clip.mp3", 1);
+    const clip1 = audio.createClip("forest", clip1Asset, true, true, false, 0.25, []);
+    const clip2 = audio.createBasicClip("test-clip", clip2Asset, 1);
 
     const slider = InputRange(
         min(-10),
