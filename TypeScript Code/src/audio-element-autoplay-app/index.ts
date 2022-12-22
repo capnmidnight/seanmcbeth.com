@@ -1,21 +1,16 @@
-import { controls, disabled, muted, src } from "@juniper-lib/dom/attrs";
+import { controls, disabled, muted, src, srcObject } from "@juniper-lib/dom/attrs";
 import { onClick } from "@juniper-lib/dom/evts";
 import { onUserGesture } from "@juniper-lib/dom/onUserGesture";
 import { Audio, ButtonPrimary, Div, elementApply } from "@juniper-lib/dom/tags";
 import { once } from "@juniper-lib/tslib/events/once";
 
 (async function () {
+    const context = new AudioContext();
+    const streamNode = context.createMediaStreamDestination();
     const elem1 = Audio(
         controls(false),
         muted(true),
-        src("/audio/test-clip.mp3"));
-
-    const elem2 = Audio(
-        controls(false),
-        muted(false),
-        src("/audio/door_close.mp3"));
-
-    let elem3: HTMLAudioElement;
+        srcObject(streamNode.stream));
 
     const startButton = ButtonPrimary(
         "Start",
@@ -51,11 +46,18 @@ import { once } from "@juniper-lib/tslib/events/once";
     elem1.pause();
     elem1.autoplay = false;
     elem1.muted = false;
+    elem1.srcObject = null;
     elem1.src = "/audio/door_open.mp3";
     startButton.remove();
     playButton1.disabled = false;
     playButton2.disabled = false;
 
+    const elem2 = Audio(
+        controls(false),
+        muted(false),
+        src("/audio/door_close.mp3"));
+
+    let elem3: HTMLAudioElement;
     let firstTime = true;
 
     setInterval(() => {
