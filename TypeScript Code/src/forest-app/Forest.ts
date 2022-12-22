@@ -1,4 +1,4 @@
-﻿import { AssetAudio, AssetImage, BaseAsset } from "@juniper-lib/fetcher/Asset";
+﻿import { AssetFile, AssetImage, BaseAsset } from "@juniper-lib/fetcher/Asset";
 import { Audio_Mpeg, Image_Jpeg, Model_Gltf_Binary } from "@juniper-lib/mediatypes";
 import { AssetGltfModel } from "@juniper-lib/threejs/AssetGltfModel";
 import { Cube } from "@juniper-lib/threejs/Cube";
@@ -22,7 +22,7 @@ export class Forest {
     private readonly skybox: AssetImage;
     private readonly forest: AssetGltfModel;
     private readonly tree: AssetGltfModel;
-    private readonly bgAudio: AssetAudio;
+    private readonly bgAudio: AssetFile;
     private readonly raycaster: Raycaster;
     private readonly hits: Array<Intersection>;
 
@@ -49,7 +49,7 @@ export class Forest {
         this.assets = [
             this.skybox = new AssetImage("/skyboxes/BearfenceMountain.jpeg", Image_Jpeg, !isDebug),
             this.forest = new AssetGltfModel(this.env, "/models/Forest-Ground.glb", Model_Gltf_Binary, !isDebug),
-            this.bgAudio = new AssetAudio("/audio/forest.mp3", Audio_Mpeg, !isDebug),
+            this.bgAudio = new AssetFile("/audio/forest.mp3", Audio_Mpeg, !isDebug),
             this.tree = new AssetGltfModel(this.env, "/models/Forest-Tree.glb", Model_Gltf_Binary, !isDebug)
         ];
 
@@ -73,13 +73,13 @@ export class Forest {
         return newMesh;
     }
 
-    private finish(): void {
+    private async finish(): Promise<void> {
         this.env.skybox.setImage("forest", this.skybox.result);
         this.env.audio.setAudioProperties(0.1, 100, "inverse");
 
         for (let i = 0; i < 5; ++i) {
             const name = `forest-${i}`;
-            const clip = this.env.audio.createClip(name, this.bgAudio, true, true, true, 1, []);
+            const clip = await this.env.audio.createClip(name, this.bgAudio, true, true, true, 1, []);
             this.env.addEventListener("environmentaudiotoggled", () => {
                 if (this.env.environmentAudioMuted) {
                     clip.stop();

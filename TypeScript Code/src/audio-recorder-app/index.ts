@@ -7,8 +7,11 @@ import * as _allAudio from "@juniper-lib/mediatypes/audio";
 import { arrayClear } from "@juniper-lib/tslib/collections/arrays";
 import { once } from "@juniper-lib/tslib/events/once";
 import { sleep } from "@juniper-lib/tslib/events/sleep";
+import { blobToDataURL } from "@juniper-lib/dom/blobToDataURL";
+import { createFetcher } from "../createFetcher";
 
-const audio = new AudioManager("localuser");
+const fetcher = createFetcher();
+const audio = new AudioManager(fetcher, "localuser");
 const microphones = new MicrophoneManager();
 const chunks = new Array<Blob>();
 const startStop = Button("Start");
@@ -60,6 +63,9 @@ elementApply("main", types, BR(), startStop);
             type: recorder.mimeType
         });
         const url = makeBlobURL(blob);
+        const base64 = await blobToDataURL(blob);
+
+        console.log(url, base64);
         const aud = Audio(src(url), controls(true));
         const link = A(href(url), "download");
         console.log({ aud });

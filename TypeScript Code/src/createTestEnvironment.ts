@@ -1,7 +1,8 @@
 ﻿import { id } from "@juniper-lib/dom/attrs";
 import { canvasToBlob, createUICanvas } from "@juniper-lib/dom/canvas";
-import { rgb } from "@juniper-lib/dom/css";
-import { Canvas, Div } from "@juniper-lib/dom/tags";
+import { display, rgb } from "@juniper-lib/dom/css";
+import { onClick } from "@juniper-lib/dom/evts";
+import { ButtonPrimary, Canvas, Div, elementApply, getElement } from "@juniper-lib/dom/tags";
 import { unwrapResponse } from "@juniper-lib/fetcher/unwrapResponse";
 import { Image_Jpeg } from "@juniper-lib/mediatypes";
 import type { Environment, EnvironmentModule } from "@juniper-lib/threejs/environment/Environment";
@@ -25,17 +26,7 @@ export async function createTestEnvironment(addServiceWorker = false): Promise<E
         registerWorker();
     }
 
-    const canvas = Canvas(
-        id("frontBuffer")
-    );
-
-    document.body.append(
-        Div(
-            id("appContainer"),
-            canvas
-        )
-    );
-
+    const main = getElement("body > main");
 
     await loadFonts();
 
@@ -47,6 +38,14 @@ export async function createTestEnvironment(addServiceWorker = false): Promise<E
         .module<EnvironmentModule>()
         .then(unwrapResponse);
 
+    const canvas = Canvas(id("frontBuffer"));
+    const appContainer = Div(
+        id("appContainer"),
+        display("none"),
+        canvas
+    );
+    elementApply(document.body, appContainer);
+
     const env = new EnvironmentConstructor(
         canvas,
         fetcher,
@@ -57,10 +56,20 @@ export async function createTestEnvironment(addServiceWorker = false): Promise<E
         defaultAvatarHeight,
         65,
         enableFullResolution, {
-            DEBUG: isDebug,
-            watchModelPath: "/models/watch1.glb",
-            styleSheetPath: `/js/environment/index${CSS_EXT}?${version}`
+        DEBUG: isDebug,
+        watchModelPath: "/models/watch1.glb",
+        styleSheetPath: `/js/environment/index${CSS_EXT}?${version}`
     });
+
+    if (!env.audio.isReady) {
+        const button = ButtonPrimary(
+            "Start",
+            onClick(() => button.disabled = true, true));
+        elementApply(main, button)
+        await env.audio.ready;
+        button.remove();
+    }
+
 
     if (isDebug) {
         const MAX_IMAGE_SIZE = toBytes(200, "KiB");
@@ -106,10 +115,11 @@ export async function createTestEnvironment(addServiceWorker = false): Promise<E
         });
     }
 
+    appContainer.style.removeProperty("display");
     return env;
 }
 
-export async function withTestEnvironment<T>(action: (env: Environment) => Promise<T>): Promise<T> {
+export async function withTestEnvironment(action: (env: Environment) => Promise<any>): Promise<void> {
     const env = await createTestEnvironment();
-    return await env.withFade(() => action(env));
+    await env.withFade(() => action(env));
 }
