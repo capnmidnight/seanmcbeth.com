@@ -1,13 +1,14 @@
 import { JuniperAudioBufferSourceNode } from "@juniper-lib/audio/context/JuniperAudioBufferSourceNode";
 import { JuniperAudioContext } from "@juniper-lib/audio/context/JuniperAudioContext";
 import { value } from "@juniper-lib/dom/attrs";
-import { isModifierless, onClick } from "@juniper-lib/dom/evts";
-import { ButtonPrimary, Progress } from "@juniper-lib/dom/tags";
+import { isModifierless } from "@juniper-lib/dom/evts";
+import { Progress } from "@juniper-lib/dom/tags";
 import { unwrapResponse } from "@juniper-lib/fetcher/unwrapResponse";
 import { AudioGraphDialog } from "@juniper-lib/graphics2d/AudioGraphDialog";
 import { Audio_Mpeg } from "@juniper-lib/mediatypes";
 import { progressHTML } from "@juniper-lib/widgets/progressHTML";
 import { createFetcher } from "../createFetcher";
+import { tilReady } from "../createTestEnvironment";
 
 (async function () {
     const progress = Progress(value(0));
@@ -27,14 +28,7 @@ import { createFetcher } from "../createFetcher";
     source.loop = true;
     source.start();
 
-    if (!context.isReady) {
-        const button = ButtonPrimary(
-            "Start",
-            onClick(() => button.disabled = true, true));
-        document.body.append(button);
-        await context.ready;
-        button.remove();
-    }
+    await tilReady(context);
 
     window.addEventListener("keypress", evt => {
         if (isModifierless(evt)) {

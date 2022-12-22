@@ -38,8 +38,6 @@ import { AudioGraphDialog } from "@juniper-lib/graphics2d/AudioGraphDialog";
         slider
     );
 
-    await context.ready;
-
     window.addEventListener("keypress", evt => {
         if (isModifierless(evt)) {
             if (evt.key === "`") {

@@ -2,10 +2,11 @@
 import { canvasToBlob, createUICanvas } from "@juniper-lib/dom/canvas";
 import { display, rgb } from "@juniper-lib/dom/css";
 import { onClick } from "@juniper-lib/dom/evts";
-import { ButtonPrimary, Canvas, Div, elementApply, getElement } from "@juniper-lib/dom/tags";
+import { ButtonPrimary, Canvas, Div, elementApply } from "@juniper-lib/dom/tags";
 import { unwrapResponse } from "@juniper-lib/fetcher/unwrapResponse";
 import { Image_Jpeg } from "@juniper-lib/mediatypes";
 import type { Environment, EnvironmentModule } from "@juniper-lib/threejs/environment/Environment";
+import { IReadyable } from "@juniper-lib/tslib/events/IReadyable";
 import { isNullOrUndefined } from "@juniper-lib/tslib/typeChecks";
 import { toBytes } from "@juniper-lib/tslib/units/fileSize";
 import { createFetcher } from "./createFetcher";
@@ -25,8 +26,6 @@ export async function createTestEnvironment(addServiceWorker = false): Promise<E
     if (addServiceWorker && "serviceWorker" in navigator) {
         registerWorker();
     }
-
-    const main = getElement("body > main");
 
     await loadFonts();
 
@@ -61,15 +60,7 @@ export async function createTestEnvironment(addServiceWorker = false): Promise<E
         styleSheetPath: `/js/environment/index${CSS_EXT}?${version}`
     });
 
-    if (!env.audio.isReady) {
-        const button = ButtonPrimary(
-            "Start",
-            onClick(() => button.disabled = true, true));
-        elementApply(main, button)
-        await env.audio.ready;
-        button.remove();
-    }
-
+    await tilReady(env.audio);
 
     if (isDebug) {
         const MAX_IMAGE_SIZE = toBytes(200, "KiB");
@@ -117,6 +108,17 @@ export async function createTestEnvironment(addServiceWorker = false): Promise<E
 
     appContainer.style.removeProperty("display");
     return env;
+}
+
+export async function tilReady(obj: IReadyable) {
+    if (!obj.isReady) {
+        const button = ButtonPrimary(
+            "Start",
+            onClick(() => button.disabled = true, true));
+        elementApply("main", button);
+        await obj.ready;
+        button.remove();
+    }
 }
 
 export async function withTestEnvironment(action: (env: Environment) => Promise<any>): Promise<void> {

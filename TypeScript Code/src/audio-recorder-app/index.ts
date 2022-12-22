@@ -1,14 +1,15 @@
 import { AudioManager } from "@juniper-lib/audio/AudioManager";
 import { MicrophoneManager } from "@juniper-lib/audio/MicrophoneManager";
 import { controls, href, src, value } from "@juniper-lib/dom/attrs";
-import { makeBlobURL } from "@juniper-lib/dom/makeBlobURL";
 import { A, Audio, BR, Button, elementApply, elementSetText, Option, Select } from "@juniper-lib/dom/tags";
 import * as _allAudio from "@juniper-lib/mediatypes/audio";
+import { blobToDataURL } from "@juniper-lib/tslib/blobToDataURL";
+import { blobToObjectURL } from "@juniper-lib/tslib/blobToObjectURL";
 import { arrayClear } from "@juniper-lib/tslib/collections/arrays";
 import { once } from "@juniper-lib/tslib/events/once";
 import { sleep } from "@juniper-lib/tslib/events/sleep";
-import { blobToDataURL } from "@juniper-lib/dom/blobToDataURL";
 import { createFetcher } from "../createFetcher";
+import { tilReady } from "../createTestEnvironment";
 
 const fetcher = createFetcher();
 const audio = new AudioManager(fetcher, "localuser");
@@ -26,12 +27,12 @@ const types = Select(...options);
 elementApply("main", types, BR(), startStop);
 
 (async function () {
+    await tilReady(audio);
+    await microphones.ready;
+
     while (true) {
         await once<HTMLElementEventMap>(startStop, "click");
         startStop.disabled = true;
-
-        await audio.ready;
-        await microphones.ready;
 
         await microphones.startPreferredAudioInput();
 
@@ -62,7 +63,7 @@ elementApply("main", types, BR(), startStop);
         const blob = new Blob(chunks, {
             type: recorder.mimeType
         });
-        const url = makeBlobURL(blob);
+        const url = blobToObjectURL(blob);
         const base64 = await blobToDataURL(blob);
 
         console.log(url, base64);

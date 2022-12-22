@@ -1,8 +1,8 @@
 import { JuniperAudioContext } from "@juniper-lib/audio/context/JuniperAudioContext";
 import { JuniperOscillatorNode } from "@juniper-lib/audio/context/JuniperOscillatorNode";
-import { isModifierless, onClick } from "@juniper-lib/dom/evts";
-import { ButtonPrimary } from "@juniper-lib/dom/tags";
+import { isModifierless } from "@juniper-lib/dom/evts";
 import { AudioGraphDialog } from "@juniper-lib/graphics2d/AudioGraphDialog";
+import { tilReady } from "../createTestEnvironment";
 
 (async function () {
     const context = new JuniperAudioContext({ latencyHint: "interactive" });
@@ -15,14 +15,7 @@ import { AudioGraphDialog } from "@juniper-lib/graphics2d/AudioGraphDialog";
     source.connect(context.destination);
     source.start();
 
-    if (!context.isReady) {
-        const button = ButtonPrimary(
-            "Start",
-            onClick(() => button.disabled = true, true));
-        document.body.append(button);
-        await context.ready;
-        button.remove();
-    }
+    await tilReady(context);
 
     window.addEventListener("keypress", evt => {
         if (isModifierless(evt)) {

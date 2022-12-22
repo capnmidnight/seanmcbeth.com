@@ -2,41 +2,36 @@ import { AudioManager } from "@juniper-lib/audio/AudioManager";
 import { max, min, step, value } from "@juniper-lib/dom/attrs";
 import { em, width } from "@juniper-lib/dom/css";
 import { isModifierless, onClick, onInput } from "@juniper-lib/dom/evts";
-import { ButtonPrimary, InputRange } from "@juniper-lib/dom/tags";
+import { ButtonPrimary, Div, elementApply, InputRange, Progress } from "@juniper-lib/dom/tags";
 import { AssetFile } from "@juniper-lib/fetcher/Asset";
 import { AudioGraphDialog } from "@juniper-lib/graphics2d/AudioGraphDialog";
 import { Audio_Mpeg } from "@juniper-lib/mediatypes";
+import { all } from "@juniper-lib/tslib/events/all";
+import { progressHTML } from "@juniper-lib/widgets/progressHTML";
 import { createFetcher } from "../createFetcher";
+import { tilReady } from "../createTestEnvironment";
 import { isDebug } from "../isDebug";
 
 
 (async function () {
+    const prog = Progress(value(0));
+    elementApply("main", prog);
+
     const fetcher = createFetcher();
     const audio = new AudioManager(fetcher, "local");
-
-    Object.assign(window, {
-        audio
-    });
-
-    if (!audio.isReady) {
-        const button = ButtonPrimary(
-            "Start",
-            onClick(() => button.disabled = true, true));
-        document.body.append(button);
-        await audio.ready;
-        button.remove();
-    }
-
-    const diag = new AudioGraphDialog(audio.context);
-
     const clip1Asset = new AssetFile("/audio/forest.mp3", Audio_Mpeg, !isDebug);
     const clip2Asset = new AssetFile("/audio/test-clip.mp3", Audio_Mpeg, !isDebug);
 
-    await fetcher.assets(clip1Asset, clip2Asset);
+    await all(
+        fetcher.assets(progressHTML(prog), clip1Asset, clip2Asset),
+        tilReady(audio)
+    );
+
+    prog.remove();
 
     const clip1 = await audio.createClip("forest", clip1Asset, true, true, false, 0.25, []);
     const clip2 = await audio.createBasicClip("test-clip", clip2Asset, 1);
-
+    const diag = new AudioGraphDialog(audio.context);
     const slider = InputRange(
         min(-10),
         max(10),
@@ -48,8 +43,13 @@ import { isDebug } from "../isDebug";
         })
     );
 
-    document.body.appendChild(slider);
+    elementApply("main",
+        Div(ButtonPrimary("A", onClick(() => clip1.tog()))),
+        Div(ButtonPrimary("B", onClick(() => clip2.play()))),
+        Div(ButtonPrimary("Graph", onClick(() => diag.toggle()))),
+        slider);
 
+    clip1.play();
 
     audio.setUserPosition("local", 0, 0, -2);
 
@@ -71,5 +71,13 @@ import { isDebug } from "../isDebug";
                 }
             }
         }
+    });
+
+    Object.assign(window, {
+        audio,
+        clip1Asset,
+        clip2Asset,
+        clip1,
+        clip2
     });
 })();
