@@ -343,14 +343,30 @@
         <h2>Demos</h2>
 
         <p>
+            A few simple apps I'm working on.
+        </p>
+
+        <ul>
+            @foreach (var appName in AppModel.AppNames)
+            {
+                <li><a href="~/app/@appName">@appName.ToTitleCase().Replace('-', ' ')</a></li>
+            }
+        </ul>
+    </section>
+
+    <section id="tests"
+             aria-label="tests">
+
+        <h2>Tests</h2>
+
+        <p>
             Just some faffing about
         </p>
 
         <ul>
-        @foreach (var appName in AppModel.AppNames)
-        {
-            <li><a href="~/app/@appName">@appName.ToTitleCase().Replace('-', ' ')</a></li>
-        }
-    </ul>
-
-</section>
+            @foreach (var testName in TestModel.TestNames)
+            {
+                <li><a href="~/test/@testName">@testName.ToTitleCase().Replace('-', ' ')</a></li>
+            }
+        </ul>
+    </section>

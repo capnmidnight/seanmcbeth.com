@@ -12,7 +12,7 @@ export function createFetcher(enableWorkers = true): IFetcher {
 
     if (!IS_WORKER && enableWorkers) {
         fallback = new FetchingServicePool({
-            scriptPath: `/js/fetcher-worker/index${JS_EXT}?${version}`
+            scriptPath: `/js/workers/fetcher/index${JS_EXT}?${version}`
         }, fallback);
     }
 

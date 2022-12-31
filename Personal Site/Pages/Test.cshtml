@@ -1,5 +1,5 @@
 @page "{name}"
-@model AppModel
+@model TestModel
 @{
     ViewData["Title"] = Model.FullName;
     ViewData["SubURL"] = "app/" + Model.Name;
@@ -24,13 +24,13 @@
     <bundle-css name="apps" versioned />
     @if(Model.IncludeStylesheet) 
     {
-        <bundle-css dir="js" name="apps/@Model.Name/index" versioned />
+        <bundle-css dir="js" name="tests/@Model.Name/index" versioned />
     }
     @if (Model.IncludeThreeJS)
     {
         <bundle-js name="three" versioned />
     }
-    <bundle-js name="apps/@Model.Name" versioned />
+    <bundle-js name="tests/@Model.Name" versioned />
 }
 
     @Html.AntiForgeryToken()

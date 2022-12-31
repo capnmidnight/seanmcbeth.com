@@ -79,12 +79,19 @@ namespace SeanMcBeth
 
             options.OptionalDependencies = new();
 
-            foreach (var appInDir in jsInput.EnumerateDirectories())
+            CopyMetaFiles("apps", jsInput, jsOutput, options);
+            CopyMetaFiles("tests", jsInput, jsOutput, options);
+
+            return options;
+        }
+
+        private static void CopyMetaFiles(string subName, DirectoryInfo jsInput, DirectoryInfo jsOutput, BuildSystemOptions options)
+        {
+            foreach (var appInDir in jsInput.CD(subName).EnumerateDirectories())
             {
-                if (appInDir.Name.EndsWith("-app")
-                    && appInDir.Touch("index.ts").Exists)
+                if (appInDir.Touch("index.ts").Exists)
                 {
-                    var appOutDir = jsOutput.CD(appInDir.Name);
+                    var appOutDir = jsOutput.CD(subName, appInDir.Name);
                     foreach (var pattern in FilePatterns)
                     {
                         var files = appInDir.GetFiles(pattern);
@@ -97,8 +104,6 @@ namespace SeanMcBeth
                     }
                 }
             }
-
-            return options;
         }
     }
 }

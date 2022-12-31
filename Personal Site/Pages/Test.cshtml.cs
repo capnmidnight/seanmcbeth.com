@@ -7,7 +7,7 @@ using System.Text.Json;
 
 namespace SeanMcBeth.Pages
 {
-    public class AppModel : PageModel
+    public class TestModel : PageModel
     {
         private static readonly JsonSerializerOptions SerializerOptions = new()
         {
@@ -15,22 +15,14 @@ namespace SeanMcBeth.Pages
             DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
         };
 
-        internal static string[] GetBundleNames(DirectoryInfo dir) =>
-            dir
-                .EnumerateDirectories()
-                .Where(d => d.Touch("index.js").Exists)
-                .Select(d => d.Name)
-                .OrderBy(d => d)
-                .ToArray();
+        private static readonly DirectoryInfo TestsRoot =
+            new DirectoryInfo("wwwroot").CD("js", "tests");
 
-        private static readonly DirectoryInfo AppsRoot =
-            new DirectoryInfo("wwwroot").CD("js", "apps");
-
-        public static readonly string[] AppNames = GetBundleNames(AppsRoot);
+        public static readonly string[] TestNames = AppModel.GetBundleNames(TestsRoot);
 
         private readonly IWebHostEnvironment env;
 
-        public AppModel(IWebHostEnvironment env)
+        public TestModel(IWebHostEnvironment env)
         {
             this.env = env;
         }
@@ -38,23 +30,23 @@ namespace SeanMcBeth.Pages
         [BindProperty(SupportsGet = true), FromRoute]
         public string? Name { get; set; }
 
-        private DirectoryInfo AppRoot => AppsRoot.CD(Name);
-        private string AppPathRoot => string.Join('/', "js", "app", Name);
+        private DirectoryInfo TestRoot => TestsRoot.CD(Name);
+        private string TestPathRoot => string.Join('/', "js", "test", Name);
 
         private string? MapFile(string name)
         {
-            return AppRoot.Touch(name).Exists
-                ? string.Join('/', "", AppPathRoot, name)
+            return TestRoot.Touch(name).Exists
+                ? string.Join('/', "", TestPathRoot, name)
                 : null;
         }
 
         public string? ScreenshotPath => MapFile("screenshot.jpg");
         private string? LogoPath => MapFile("screenshot.jpg");
         private string? LogoSmallPath => MapFile("screenshot.jpg");
-        public string? FullName => AppRoot.Touch("name.txt").MaybeReadText();
-        public string? Description => AppRoot.Touch("description.txt").MaybeReadText();
-        public bool IncludeThreeJS => AppRoot.Touch("includeThreeJS.bool").Exists;
-        public bool IncludeStylesheet => AppRoot.Touch("index.css").Exists;
+        public string? FullName => TestRoot.Touch("name.txt").MaybeReadText();
+        public string? Description => TestRoot.Touch("description.txt").MaybeReadText();
+        public bool IncludeThreeJS => TestRoot.Touch("includeThreeJS.bool").Exists;
+        public bool IncludeStylesheet => TestRoot.Touch("index.css").Exists;
 
         public string? ManifestPath =>
             ScreenshotPath is not null
@@ -78,7 +70,7 @@ namespace SeanMcBeth.Pages
                 .Replace(".webmanifest", "")
                 .Replace(".service", "");
 
-            if (!AppNames.Contains(Name))
+            if (!TestNames.Contains(Name))
             {
                 return NotFound();
             }
@@ -157,7 +149,7 @@ namespace SeanMcBeth.Pages
 
 #if DEBUG
         private static readonly DirectoryInfo SrcsRoot = new("src");
-        private DirectoryInfo SrcRoot => SrcsRoot.CD("apps", Name);
+        private DirectoryInfo SrcRoot => SrcsRoot.CD("tests", Name);
         private FileInfo ScreenshotFile => SrcRoot.Touch("screenshot.jpg");
 
         public async Task<IActionResult> OnPostAsync([FromForm] SingleFormFile input)
