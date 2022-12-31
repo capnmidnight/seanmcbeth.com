@@ -1,5 +1,5 @@
 import { touchAction } from "@juniper-lib/dom/css";
-import { onPointerCancel, onPointerDown, onPointerEnter, onPointerLeave, onPointerMove, onPointerOut, onTouchCancel, onTouchEnd, onTouchMove, onTouchStart } from "@juniper-lib/dom/evts";
+import { onPointerCancel, onPointerDown, onPointerEnter, onPointerLeave, onPointerMove, onPointerOut } from "@juniper-lib/dom/evts";
 import { Div, elementApply, elementSetText } from "@juniper-lib/dom/tags";
 
 elementApply(document.body,
