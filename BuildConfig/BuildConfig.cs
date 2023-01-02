@@ -49,9 +49,16 @@ namespace SeanMcBeth
 
             var options = new BuildSystemOptions()
             {
-                CleanDirs = new[] { jsOutput },
+                CleanDirs = new[] 
+                {
+                    jsOutput
+                },
                 InProjectName = ScriptProjectName,
                 OutProjectName = ServerProjectName,
+                BannedDependencies = new[]
+                {
+                    ("pdfjs-dist", "2.15.349", "Internal KeyboardManager does not work on old Oculus for Business Quest 2s. Use 2.14.305 instead.")
+                },
                 Dependencies = new()
                     {
                         { "Three.js", (pathHelper.ThreeJsBundle, threeJsOut.Touch("index.js")) },
