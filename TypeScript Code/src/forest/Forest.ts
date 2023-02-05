@@ -79,7 +79,7 @@ export class Forest {
 
         for (let i = 0; i < 5; ++i) {
             const name = `forest-${i}`;
-            const clip = await this.env.audio.createClip(name, this.bgAudio, true, true, true, 1, []);
+            const clip = await this.env.audio.createClip(name, this.bgAudio, true, true, true, true, true, 1, []);
             this.env.addEventListener("environmentaudiotoggled", () => {
                 if (this.env.environmentAudioMuted) {
                     clip.stop();

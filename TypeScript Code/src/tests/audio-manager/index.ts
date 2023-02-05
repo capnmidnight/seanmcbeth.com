@@ -24,12 +24,12 @@ import { isDebug } from "../../isDebug";
 
     await all(
         fetcher.assets(progressHTML(prog), clip1Asset, clip2Asset),
-        tilReady(audio)
+        tilReady("main", audio)
     );
 
     prog.remove();
 
-    const clip1 = await audio.createClip("forest", clip1Asset, true, true, false, 0.25, []);
+    const clip1 = await audio.createClip("forest", clip1Asset, true, true, true, false, false, 0.25, []);
     const clip2 = await audio.createBasicClip("test-clip", clip2Asset, 1);
     const diag = new AudioGraphDialog(audio.context);
     const slider = InputRange(

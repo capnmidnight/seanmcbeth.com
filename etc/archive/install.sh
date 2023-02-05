@@ -1,7 +1,8 @@
 # Get .NET 6, Zip, Unzip, and Certbot
 sudo apt-get update
 sudo apt-get install -y \
-	dotnet6 \
+	aspnetcore-runtime-7.0 \
+	dotnet-runtime-7.0 \
 	zip \
 	unzip
 

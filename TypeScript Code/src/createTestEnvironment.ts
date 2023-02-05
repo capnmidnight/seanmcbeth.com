@@ -2,7 +2,7 @@
 import { canvasToBlob, createUICanvas } from "@juniper-lib/dom/canvas";
 import { display, rgb } from "@juniper-lib/dom/css";
 import { onClick } from "@juniper-lib/dom/evts";
-import { ButtonPrimary, Canvas, Div, elementApply } from "@juniper-lib/dom/tags";
+import { ButtonPrimary, Canvas, Div, elementApply, Elements } from "@juniper-lib/dom/tags";
 import { unwrapResponse } from "@juniper-lib/fetcher/unwrapResponse";
 import { Image_Jpeg } from "@juniper-lib/mediatypes";
 import type { Environment, EnvironmentModule } from "@juniper-lib/threejs/environment/Environment";
@@ -49,6 +49,7 @@ export async function createTestEnvironment(addServiceWorker = false): Promise<E
         canvas,
         fetcher,
         defaultFont.fontFamily,
+        name => `/js/apps/${name}/index${JS_EXT}?${version}`,
         getUIImagePaths(),
         rgb(30, 67, 136),
         rgb(78, 77, 77),
@@ -60,7 +61,7 @@ export async function createTestEnvironment(addServiceWorker = false): Promise<E
         styleSheetPath: `/js/environment/index${CSS_EXT}?${version}`
     });
 
-    await tilReady(env.audio);
+    await tilReady("main", env.audio);
 
     if (isDebug) {
         const MAX_IMAGE_SIZE = toBytes(200, "KiB");
@@ -110,12 +111,12 @@ export async function createTestEnvironment(addServiceWorker = false): Promise<E
     return env;
 }
 
-export async function tilReady(obj: IReadyable) {
+export async function tilReady(root: string | Elements, obj: IReadyable) {
     if (!obj.isReady) {
         const button = ButtonPrimary(
             "Start",
             onClick(() => button.disabled = true, true));
-        elementApply("main", button);
+        elementApply(root, button);
         await obj.ready;
         button.remove();
     }

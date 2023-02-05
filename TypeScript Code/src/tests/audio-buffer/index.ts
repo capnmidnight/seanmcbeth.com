@@ -28,7 +28,7 @@ import { tilReady } from "../../createTestEnvironment";
     source.loop = true;
     source.start();
 
-    await tilReady(context);
+    await tilReady("main", context);
 
     window.addEventListener("keypress", evt => {
         if (isModifierless(evt)) {
