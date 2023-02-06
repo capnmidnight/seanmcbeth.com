@@ -69,6 +69,7 @@ namespace SeanMcBeth
 
                         { "Forest Ground", (pathHelper.ForestGroundModel, modelOutput.Touch("Forest-Ground.glb")) },
                         { "Forest Tree", (pathHelper.ForestTreeModel, modelOutput.Touch("Forest-Tree.glb")) },
+
                         { "Forest Audio", (pathHelper.ForestAudio,  audioOutput.Touch("forest.mp3")) },
                         { "Test Audio", (pathHelper.StarTrekComputerBeep55Audio,  audioOutput.Touch("test-clip.mp3")) },
                         { "Footsteps", (pathHelper.FootStepsAudio,  audioOutput.Touch("footsteps.mp3")) },
