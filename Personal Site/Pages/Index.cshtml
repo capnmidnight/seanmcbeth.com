@@ -404,20 +404,3 @@
         }
     </ul>
 </section>
-
-<section id="tests"
-         aria-label="tests">
-
-    <h2>Tests</h2>
-
-    <p>
-        Just some faffing about
-    </p>
-
-    <ul>
-        @foreach (var testName in TestModel.TestNames)
-        {
-            <li><a href="~/test/@testName">@testName.ToTitleCase().Replace('-', ' ')</a></li>
-        }
-    </ul>
-</section>
