@@ -1,5 +1,5 @@
 ﻿import { id } from "@juniper-lib/dom/attrs";
-import { canvasToBlob, createUICanvas } from "@juniper-lib/dom/canvas";
+import { canvasToBlob, Context2D, createUICanvas } from "@juniper-lib/dom/canvas";
 import { display, rgb } from "@juniper-lib/dom/css";
 import { onClick } from "@juniper-lib/dom/evts";
 import { ButtonPrimary, Canvas, Div, elementApply, Elements } from "@juniper-lib/dom/tags";
@@ -79,7 +79,7 @@ export async function createTestEnvironment(addServiceWorker = false): Promise<E
                     height = width / aspectRatio;
                 }
                 const canvResize = createUICanvas(width, height);
-                const gResize = canvResize.getContext("2d", { alpha: false, desynchronized: true });
+                const gResize = canvResize.getContext("2d", { alpha: false, desynchronized: true }) as Context2D;
                 gResize.drawImage(canv, 0, 0, canv.width, canv.height, 0, 0, canvResize.width, canvResize.height);
                 let blob: Blob = null;
                 for (let quality = 1; quality >= 0.05; quality -= 0.05) {
