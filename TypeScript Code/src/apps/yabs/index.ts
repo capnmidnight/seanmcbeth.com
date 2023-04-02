@@ -111,7 +111,7 @@ function play(i: number, volume: number, duration: number) {
         timers.set(o, setTimeout(() => {
             o.gain.value = 0;
             timers.delete(o);
-        }, duration * 1000));
+        }, duration * 1000) as any);
     }
 }
 
@@ -425,7 +425,7 @@ class Beam implements GameObject {
                                     messages[2].style.display = "block";
                                     scoreBox.style.display = "none";
                                     this.disable();
-                                }, MSG_TIMEOUT);
+                                }, MSG_TIMEOUT) as any;
                             }
                             else if (kills === NUM_YABS - 1) {
                                 clearTimeout(repopulateTimer);
@@ -433,7 +433,7 @@ class Beam implements GameObject {
                                     messages[1].style.display = "block";
                                     scoreBox.style.display = "none";
                                     this.disable();
-                                }, MSG_TIMEOUT);
+                                }, MSG_TIMEOUT) as any;
                             }
                             else if (kills === NUM_YABS) {
                                 clearTimeout(dystopianTimer);

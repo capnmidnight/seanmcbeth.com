@@ -2,8 +2,8 @@
 import { Image_Png } from "@juniper-lib/mediatypes";
 import { withTestEnvironment } from "../../createTestEnvironment";
 import { Forest } from "../../forest/Forest";
-import { isDebug } from "../../isDebug";
 import { makeGrass } from "../../forest/makeGrass";
+import { isDebug } from "../../isDebug";
 
 withTestEnvironment(async (env) => {
     const forest = new Forest(env);

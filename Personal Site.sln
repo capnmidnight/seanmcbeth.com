@@ -77,27 +77,6 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "TypeScript Code", "TypeScri
 		SlnRelativePath = "TypeScript Code\"
 	EndProjectSection
 EndProject
-Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "Juniper.TypeScript", "Juniper\src\Juniper.TypeScript\", "{F99E624E-B311-4BC4-BD94-8014176CD049}"
-	ProjectSection(WebsiteProperties) = preProject
-		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.8"
-		Debug.AspNetCompiler.VirtualPath = "/localhost_50809"
-		Debug.AspNetCompiler.PhysicalPath = "Juniper\src\Juniper.TypeScript\"
-		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_50809\"
-		Debug.AspNetCompiler.Updateable = "true"
-		Debug.AspNetCompiler.ForceOverwrite = "true"
-		Debug.AspNetCompiler.FixedNames = "false"
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.VirtualPath = "/localhost_50809"
-		Release.AspNetCompiler.PhysicalPath = "Juniper\src\Juniper.TypeScript\"
-		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_50809\"
-		Release.AspNetCompiler.Updateable = "true"
-		Release.AspNetCompiler.ForceOverwrite = "true"
-		Release.AspNetCompiler.FixedNames = "false"
-		Release.AspNetCompiler.Debug = "False"
-		VWDPort = "50809"
-		SlnRelativePath = "Juniper\src\Juniper.TypeScript\"
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Primrose", "Primrose", "{9B97CCB2-8C6A-4307-B208-A9A863B6329C}"
 EndProject
 Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "Primrose.TypeScript", "Primrose\Primrose.TypeScript\", "{29B9F1CE-74B3-41BB-BE67-4315897A1231}"
@@ -142,6 +121,27 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "js", "Primrose\js\", "{C763
 		SlnRelativePath = "Primrose\js\"
 	EndProjectSection
 EndProject
+Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "Juniper.TypeScript", "Juniper\src\Juniper.TypeScript\", "{F99E624E-B311-4BC4-BD94-8014176CD049}"
+	ProjectSection(WebsiteProperties) = preProject
+		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.8"
+		Debug.AspNetCompiler.VirtualPath = "/localhost_50809"
+		Debug.AspNetCompiler.PhysicalPath = "Juniper\src\Juniper.TypeScript\"
+		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_50809\"
+		Debug.AspNetCompiler.Updateable = "true"
+		Debug.AspNetCompiler.ForceOverwrite = "true"
+		Debug.AspNetCompiler.FixedNames = "false"
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.VirtualPath = "/localhost_50809"
+		Release.AspNetCompiler.PhysicalPath = "Juniper\src\Juniper.TypeScript\"
+		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_50809\"
+		Release.AspNetCompiler.Updateable = "true"
+		Release.AspNetCompiler.ForceOverwrite = "true"
+		Release.AspNetCompiler.FixedNames = "false"
+		Release.AspNetCompiler.Debug = "False"
+		VWDPort = "50809"
+		SlnRelativePath = "Juniper\src\Juniper.TypeScript\"
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -184,10 +184,6 @@ Global
 		{599BC1A8-5765-4CE0-B562-F15888981908}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{599BC1A8-5765-4CE0-B562-F15888981908}.Release|Any CPU.ActiveCfg = Debug|Any CPU
 		{599BC1A8-5765-4CE0-B562-F15888981908}.Release|Any CPU.Build.0 = Debug|Any CPU
-		{F99E624E-B311-4BC4-BD94-8014176CD049}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F99E624E-B311-4BC4-BD94-8014176CD049}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F99E624E-B311-4BC4-BD94-8014176CD049}.Release|Any CPU.ActiveCfg = Debug|Any CPU
-		{F99E624E-B311-4BC4-BD94-8014176CD049}.Release|Any CPU.Build.0 = Debug|Any CPU
 		{29B9F1CE-74B3-41BB-BE67-4315897A1231}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{29B9F1CE-74B3-41BB-BE67-4315897A1231}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{29B9F1CE-74B3-41BB-BE67-4315897A1231}.Release|Any CPU.ActiveCfg = Debug|Any CPU
@@ -196,6 +192,10 @@ Global
 		{C763C1C2-62F8-4774-BFAD-BF75F3DD3682}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C763C1C2-62F8-4774-BFAD-BF75F3DD3682}.Release|Any CPU.ActiveCfg = Debug|Any CPU
 		{C763C1C2-62F8-4774-BFAD-BF75F3DD3682}.Release|Any CPU.Build.0 = Debug|Any CPU
+		{F99E624E-B311-4BC4-BD94-8014176CD049}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F99E624E-B311-4BC4-BD94-8014176CD049}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F99E624E-B311-4BC4-BD94-8014176CD049}.Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{F99E624E-B311-4BC4-BD94-8014176CD049}.Release|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

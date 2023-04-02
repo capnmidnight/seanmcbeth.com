@@ -1,3 +1,4 @@
+import { ActivityDetector } from "@juniper-lib/audio/ActivityDetector";
 import { AudioManager } from "@juniper-lib/audio/AudioManager";
 import { DeviceManager } from "@juniper-lib/audio/DeviceManager";
 import { LocalUserMicrophone } from "@juniper-lib/audio/LocalUserMicrophone";
@@ -9,7 +10,6 @@ import * as allAudioTypes from "@juniper-lib/mediatypes/audio";
 import { blobToObjectURL } from "@juniper-lib/tslib/blobToObjectURL";
 import { arrayClear } from "@juniper-lib/tslib/collections/arrays";
 import { stringRandom } from "@juniper-lib/tslib/strings/stringRandom";
-import { ActivityDetector } from "@juniper-lib/webrtc/ActivityDetector";
 import { PropertyList } from "@juniper-lib/widgets/PropertyList";
 import { createFetcher } from "../../createFetcher";
 import { tilReady } from "../../createTestEnvironment";
@@ -157,7 +157,7 @@ tilReady("main", audio).then(async () => {
                 stopRecordingTimer = setTimeout(() => {
                     stopRecordingTimer = null;
                     stopRecording();
-                }, RECORDING_DELAY * 2000);
+                }, RECORDING_DELAY * 2000) as any;
             }
         }
     };

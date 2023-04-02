@@ -61,7 +61,7 @@ namespace SeanMcBeth
                 app.UseIPBanList("::ffff:10.20.22.108");
             }
 
-            app.ConfigureRequestPipeline(env, config, Program.ports)
+            app.ConfigureRequestPipeline(env, config, logger, Program.ports)
                 .UseHttpLogging();
         }
     }

@@ -45,17 +45,17 @@ export async function createTestEnvironment(addServiceWorker = false): Promise<E
     );
     elementApply(document.body, appContainer);
 
-    const env = new EnvironmentConstructor(
+    const env = new EnvironmentConstructor({
         canvas,
         fetcher,
-        defaultFont.fontFamily,
-        name => `/js/apps/${name}/index${JS_EXT}?${version}`,
-        getUIImagePaths(),
-        rgb(30, 67, 136),
-        rgb(78, 77, 77),
+        dialogFontFamily: defaultFont.fontFamily,
+        getAppUrl: name => `/js/apps/${name}/index${JS_EXT}?${version}`,
+        uiImagePaths: getUIImagePaths(),
+        buttonFillColor: rgb(30, 67, 136),
+        labelFillColor: rgb(78, 77, 77),
+        defaultFOV: 65,
         defaultAvatarHeight,
-        65,
-        enableFullResolution, {
+        enableFullResolution,
         DEBUG: isDebug,
         watchModelPath: "/models/watch1.glb",
         styleSheetPath: `/js/environment/index${CSS_EXT}?${version}`
