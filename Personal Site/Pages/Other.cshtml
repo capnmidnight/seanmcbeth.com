@@ -47,6 +47,7 @@
     <p>Here are some of the projects I had worked on in the past, that are either now finished or defunct.</p>
     <h3>Virtual and Augmented Reality Projects</h3>
     <ul>
+        <li><a href="https://vr.dlsdc.com" target="_blank" rel="noopener">DLS VR</a>: a Web-based Virtual Reality platform for students of foriegn language to practice conversational skills and learn about culture.</li>
         <li><a href="https://github.com/capnmidnight/plume" target="_blank" rel="noopener">Plume</a>: a VR teleconferencing system for the Web</li>
         <li>
             <a href="https://www.youtube.com/watch?v=PWvPEEpLCT0&amp;feature=youtu.be&amp;t=55" target="_blank" rel="noopener">Smart-city VR diorama</a>: with:
@@ -114,6 +115,23 @@
         <li>President for Shippensburg University's student ACM chapter.</li>
         <li>Vice-President for Shippensburg University's programming team.</li>
         <li>President for Penn State Mont Alto's engineering club.</li>
+    </ul>
+</section>
+
+<section id="tests"
+         aria-label="tests">
+
+    <h2>Tests</h2>
+
+    <p>
+        Just some faffing about
+    </p>
+
+    <ul>
+        @foreach (var testName in TestModel.TestNames)
+        {
+            <li><a href="~/test/@testName">@testName.ToTitleCase().Replace('-', ' ')</a></li>
+        }
     </ul>
 </section>
 
