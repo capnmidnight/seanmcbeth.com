@@ -144,11 +144,6 @@ section img {
     margin: auto 1em;
 }
 
-#projects img {
-    width: calc(100% - 20em);
-    margin: auto 10em;
-}
-
 @media screen {
     .print-only {
         display: none;
@@ -167,6 +162,11 @@ section img {
         }
 
     @media (min-width: 640px) {
+
+        #projects img {
+            width: calc(100% - 20em);
+            margin: auto 10em;
+        }
 
         main {
             max-width: 1000px;
