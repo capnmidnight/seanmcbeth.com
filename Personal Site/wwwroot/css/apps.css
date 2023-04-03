@@ -1,3 +1,7 @@
+@font-face {
+    font-family: "Segoe UI Emoji";
+    src: local("Segoe UI Emoji"), url("../fonts/seguiemj.ttf") format("truetype");
+}
 
 .btn {
     display: inline-block;

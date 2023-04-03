@@ -1,10 +1,10 @@
-@font-face {
-    font-family: "Segoe UI Emoji";
-    src: local("Segoe UI Emoji"), url("../fonts/seguiemj.ttf") format("truetype");
-}
-
 * {
     box-sizing: border-box;
+}
+
+:root {
+    --main-bg-color: #cbdae9;
+    --main-fg-color: #0e1b28;
 }
 
 html,
@@ -20,7 +20,12 @@ body {
 body {
     font-family: -apple-system, '.SFNSText-Regular', 'San Francisco', 'Roboto', 'Segoe UI', 'Helvetica Neue', 'Lucida Grande', sans-serif;
     font-size: 12pt;
-    line-height: 1.5;
+    line-height: 1.75;
+}
+
+body, #menu {
+    background-color: var(--main-bg-color);
+    color: var(--main-fg-color);
 }
 
 a:visited,
@@ -107,8 +112,7 @@ h2 {
     display: block;
     width: 100%;
     font-family: monospace;
-    border-bottom: solid 2px #000;
-    background-color: #fff;
+    border-bottom: solid 2px var(--main-fg-color);
     z-index: 3;
 }
 
@@ -120,7 +124,7 @@ h2 {
         flex-direction: row;
     }
 
-        #menu ul li {
+        #menu ul li:not(.hidden) {
             display: inline-block;
             flex: auto;
         }
@@ -133,6 +137,16 @@ h2 {
 
 #portrait {
     width: 100%;
+}
+
+section img {
+    width: calc(100% - 2em);
+    margin: auto 1em;
+}
+
+#projects img {
+    width: calc(100% - 20em);
+    margin: auto 10em;
 }
 
 @media screen {
@@ -153,13 +167,19 @@ h2 {
         }
 
     @media (min-width: 640px) {
+
+        main {
+            max-width: 1000px;
+            margin: auto;
+        }
+
         #menu {
             display: inline-block;
             width: initial;
         }
 
         #portrait {
-            max-width: 50%;
+            max-width: 320px;
             float: right;
             margin-left: 2.5em;
         }
@@ -190,4 +210,34 @@ h2 {
         width: 80%;
         margin-left: 10%;
     }
+}
+
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --main-bg-color: hsl(248.85deg 31.04% 15.94%);
+        --main-fg-color: #d5d3e4;
+    }
+
+    a {
+        color: #ffff1a;
+    }
+
+    body {
+        font-weight: lighter;
+    }
+
+        a:visited,
+        a:focus {
+            color: #a9a91d;
+        }
+
+    .icon {
+        filter: invert();
+    }
+}
+
+
+.hidden {
+    display: none;
 }

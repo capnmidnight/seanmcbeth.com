@@ -67,16 +67,15 @@
                     @RenderSection("Menu", required: false)
 
                     @foreach (var (text, label, href) in new[] {
-                        ("home/", "Home", "/"),
-                        ("vr/", "Virtual Reality", "/vr"),
-                        ("etc/", "Other", "/other")
+                ("home/", "Home", "/"),
+                ("vr/", "Virtual Reality", "/vr"),
+                ("etc/", "Other", "/other")
                     })
                     {
                         <li>
                             <a href="@href"
-                       role="menuItem"
-                       aria-label="@label"
-                       title="@label">
+                               aria-label="@label"
+                               title="@label">
                                 @text
                             </a>
                         </li>
