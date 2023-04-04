@@ -13,7 +13,7 @@
             ("Bio", "Bio", "#bio", true),
             (".com", "Projects", "#projects", false),
             (".net", "Talks and Interviews", "#talks", false),
-            (".tv", "Press", "#press", false)
+            ("etc/", "Extras", "/other", false)
         })
         {
             <li class="@(hide?"hidden":null)">
@@ -25,15 +25,6 @@
             </li>
         }
     }
-}
-
-@section Footer {
-    <h2>Thanks for reading</h2>
-    <p>
-        Thank you for reading my website, v@(@Model.SiteVersion).
-        If you have any questions, please feel free to reach out to me.
-        All of my contact information is available at the top of the site.
-    </p>
 }
 
 <img id="portrait"
@@ -51,6 +42,7 @@
         ("Follow @seanmcbeth on Mastodon", "mastodon", "https://arvr.social/@seanmcbeth", "me"),
         ("Follow Sean on GitHub", "github", "https://github.com/capnmidnight", null),
         ("Follow Sean on LinkedIn", "linkedin", "https://www.linkedin.com/pub/sean-mcbeth/6/727/378", null),
+        ("Follow Sean on Twitter", "twitter", "https://twitter.com/Sean_McBeth", null),
         ("Email Sean", "email", "mailto:sean@removethis.seanmcbeth.com", null),
         ("Download Sean's résumé (PDF 180KB)", "resume", "Resume-Sean_McBeth-2023.pdf", null)
         })
@@ -83,8 +75,7 @@
     </p>
 
     <p>
-        The programming languages I work in most often are C#, TypeScript, HTML, and CSS. I'm also very experienced with SQL on MS SQL Server and PostgreSQL
-        (though lately I just defer to Entity Framework; it does a good enough job).
+        The programming languages I work in most often are C#, TypeScript, HTML, and CSS. I'm also very experienced with SQL on MS SQL Server and PostgreSQL.
     </p>
 
     <p>
@@ -97,6 +88,7 @@
         anywhere, or hybrid work in the Arlington/Alexandria area. I'm interested in technical lead or project managment positions for projects
         in VR, AR, audio, and/or AI, especially in the training and education markets.
     </p>
+
 </section>
 
 <section id="projects"
@@ -105,131 +97,32 @@
 
     <p>Here are some of my most recent projects.</p>
 
-    <h3><a href="https://vr.dlsdc.com" target="_blank">Diplomatic Language Services Virtual Reality</a></h3>
-    <p>
-        DLS VR is a multiuser, multimodal, Web-based VR application that includes a full, online editor, designed for
-        subject matter experts to be able to rapidly create new immersion scenarios.
-    </p>
+    <h3><a href="~/dlsvr">Diplomatic Language Services Virtual Reality</a></h3>
+    <figure>
+        <img src="~/img/dlsvr/landing.jpeg" alt="Screenshot of DLS VR Landing Page" title="DLS VR Landing Page" />
+        <figcaption>
+            DLS VR is a multiuser, multimodal, Web-based VR application that includes a full, online editor, designed for
+            subject matter experts to be able to rapidly create new immersion scenarios.
+        </figcaption>
+    </figure>
 
-    <img src="~/img/dlsvr/landing.jpeg" alt="Screenshot of DLS VR Landing Page" title="DLS VR Landing Page" />
+    <h3><a href="~/juniper">Juniper</a></h3>
+    <figure>
+        <img src="~/img/juniper.jpeg" alt="Screenshot from Juniper" title="A forest demo built with Juniper" />
+        <figcaption>
+            Juniper is an .NET 7 and TypeScript framework for building WebXR applications. It is an evolution of my previous project, Primrose.
+        </figcaption>
+    </figure>
 
-    <p>
-        I built DLS VR from scratch, over the course of approximately 4 years, in tight collaboration with the Language Training Department (LT).
-        In "seeking first to understand", I took a language course from one of our instructors to gain first-hand knowledge
-        of the student experience at DLS. I incorporated several experienced instructors and curriculum designers directly into the
-        project planning and development process. The LT department and I worked together to collect the latest research in EdTech
-        and VR for language training to incorporate into the project. And I instituted bi-monthly and quarterly meetings pulling
-        all stakeholders together to ensure every voice was heard.
-    </p>
-
-    <p>
-        DLS VR uses the <a href="https://threejs.org">Three.js</a> library and my <a href="https://github.com/capnmidnight/Juniper/">Juniper</a> library,
-        to run on desktop computers, mobile devices, and VR headsets. Users in the VR front end see each other as a synthetic
-        avatar, with spatialized voice chat, shared pointers, and full body language through shared head and hand tracking.
-    </p>
-
-    <img src="~/img/dlsvr/screen1.jpeg" alt="Screenshot from DLS VR" title="Users meeting together in DLS VR" />
-
-    <p>
-        Following my belief that technology should be used to help great people do even better work, I designed a "guided tour" metaphor for
-        the application. Unlike competitor VR language training applications that put students on their own inside in a fixed environment,
-        DLS VR serves as supplement to our existing, accredited, best-in-class, instructor-led training, allowing students and instructors to 
-        interact in real-life locations. Participants engage in open-ended discussion about the culture of their target language through the 
-        visuals they see, listen to voice-overs, and watch videos providing historical details, and practice role-play scenarios <em>in situ</em>.
-    </p>
-
-    <img src="~/img/dlsvr/screen2.jpeg" alt="Screenshot from DLS VR" title="Users roleplaying together in DLS VR" />
-
-    <p>
-        The backend editor is a Google Maps-based application that allows instructors and curriculum developers to self-service their own
-        creation of scenarios, without bottlenecking on requiring input from developers or 3D modelers. Scenarios are designed around
-        a travel narrative using Google Street View imagery. Scenario designers can add spatialized background audio to enhance the
-        immersion of the scenario, as well as a wide variety of pedagogical materials: callout images, vocabulary cards,
-        videos, listening tasks, reading tasks, and role-play stations. Instructors can also see reports on student activity, including
-        how much and how long they performed the material, as well as how long they directed their attention to each, individual piece
-        of media provided in the scenario.
-    </p>
-
-    <img src="~/img/dlsvr/screen3.jpeg" alt="Screenshot from DLS VR" title="The DLS VR Editor" />
-
-    <p>
-        I also managed a fleet of 35 Meta Quest 2 headsets and built VR training labs at each of DLS' three locations. I was heavily
-        involved in developing marketing materials, promoting the project with students and instructors, facilitating training sessions,
-        training new students, instructors, and content developers on using the system, speaking at conferences and webinars to promote
-        VR as a valuable tool for language training, demoing, and selling the system to clients, and searching for business partnerships
-        to sublicense the software.
-    </p>
-
-    <p>
-        I had direct supervisor responsibility for one fulltime employee and served as mentor for other employees within the company.
-    </p>
-
-    <h3><a href="https://github.com/capnmidnight/Juniper/">Juniper</a></h3>
-
-    <p>
-        Juniper is an ASP.NET 7 and TypeScript framework for building WebXR applications. It is an evolution of my previous project, Primrose.
-    </p>
-
-    <img src="~/img/juniper.jpeg" alt="Screenshot from Juniper" title="A forest demo built with Juniper" />
-
-    <p>
-        Juniper provides a number of major elements:
-    </p>
-
-    <ul>
-        <li>A light set of conventions for configuring ASP.NET Core projects with Kestrel.</li>
-        <li>A build tool, based on <a href="https://esbuild.github.io">ESBuild</a>, for managing TypeScript projects.</li>
-        <li>
-            C# libraries for a variety of tasks:
-            <ul>
-                <li>configuring HTTP servers (Kestrel),</li>
-                <li>graph solving,</li>
-                <li>units of measure conversion, and</li>
-                <li>media asset management, decoding, and processing.</li>
-            </ul>
-        </li>
-        <li>
-            TypeScript libraries for a very wide variety of tasks:
-            <ul>
-                <li>a framework for building WebXR applications,</li>
-                <li>reusable components for Three.js, including an event system, text rendering, and an Environment metaphor for WebXR apps</li>
-                <li>managing complex, spatialized WebAudio graphs,</li>
-                <li>managing WebRTC teleconferencing sessions,</li>
-                <li>speech recognition,</li>
-                <li>structured manipulation of the browser DOM and CSS,</li>
-                <li>WebWorkers with async/await-capable wrapper interfaces,</li>
-                <li>DOM widget objects, including: dialog boxes, tab panels, dock panels, tree views, property lists, and context menus,</li>
-                <li>asynchronous request management with progress tracking, IndexedDB caching, and media type awareness,</li>
-                <li>text rendering and animation with 2D HTML Canvas image rendering,</li>
-                <li>an async/await-capable wrapper around IndexedDB,</li>
-                <li>XUnit-style testing framework,</li>
-                <li>logging and testing of DOM and WebGL apps,</li>
-                <li>an addressable lookup of Unicode Emoji code points,</li>
-                <li>an addressable lookup of extant Media Types,</li>
-                <li>graph and tree collections,</li>
-                <li>typesafe event handlers,</li>
-                <li>units of measure conversion, and</li>
-                <li>string manipulation and similarity matching.</li>
-            </ul>
-        </li>
-    </ul>
-
-    <h3><a href="https://www.primrosevr.com/">Primrose</a> (<a href="https://www.github.com/capnmidnight/Primrose/" aria-label="Primrose on git hub">GitHub</a>)</h3>
-
-    <p>
-        Primrose was the world's first JavaScript framework for developing WebXR applications, back when WebXR was still called "WebVR". 
-        My first release of Primrose was sometime in 2014, almost a full year before Mozilla's A-Frame. I built Primrose with the
-        purpose of being able to create cross-platform, multiuser, live-editable VR environments.
-    </p>
-
-    <img src="~/img/primrose.jpeg" alt="Screenshot from Primrose" title="Primrose Text Editor" />
-
-    <p>
-        Today, I've moved the WebXR framework portions of Primrose to <a href="https://www.github.com/capnmidnight/Juniper">Juniper</a>. 
-        Primrose is now just the syntax-highlighting text-editor that renders to an HTML5 Canvas element. Rendering to an HTML Canvas 
-        element makes it useful for using as a texture in WebGL contexts.
-    </p>
-
+    <h3><a href="~/primrose">Primrose</a></h3>
+    <figure>
+        <img src="~/img/primrose.jpeg" alt="Screenshot from Primrose" title="Primrose Text Editor" />
+        <figcaption>
+            Primrose was the world's first JavaScript framework for developing WebXR applications, back when WebXR was still called "WebVR".
+            My first release of Primrose was sometime in 2014, almost a full year before Mozilla's A-Frame.
+            I built Primrose with the purpose of being able to create cross-platform, multiuser, live-editable VR environments.
+        </figcaption>
+    </figure>
 </section>
 
 <section id="talks"
@@ -237,263 +130,34 @@
 
     <h2>Talks &amp; Interviews</h2>
     <p>
-        These are talks and podcasts that I've done in the past.
+        These are the most recent talks and podcasts that I've done in the past. <a href="~/talks">View the full list</a>.
     </p>
 
-    <h3>2023</h3>
     <ul>
         <li>
-            <a href="https://calico.org/sigs/virtual-worlds/">CALICO Immersive Realities SIG</a>: A colleauge and I gave a
+            <a href="https://calico.org/sigs/virtual-worlds/">CALICO Immersive Realities SIG</a> (2023): A colleauge and I gave a
             presentation and answered extensive Q+A on designing proficiency-oriented virtual reality scenarios for foreign
             language training.
         </li>
-    </ul>
-
-    <h3>2022</h3>
-    <ul>
         <li>
             <a href="https://www.airuniversity.af.edu/Portals/10/AFCLC/documents/LREC/2022/2022-AU-LREC-Symposium-Program.pdf">
                 Air Force
                 Culture and Language Center - Air University: Language, Regional Expertise, and Culture Symposium
-            </a>: A colleague and I
+            </a> (2022): A colleague and I
             gave a presentation on designing proficiency-oriented virtual reality scenarios for foreign language training.
         </li>
-    </ul>
-
-    <h3>2021</h3>
-    <ul>
         <li>
-            <em>Virtual Worlds Forum</em>: I gave a presentation on using WebXR to create environments for foreign language students to
+            <em>Virtual Worlds Forum</em> (2021): I gave a presentation on using WebXR to create environments for foreign language students to
             meet with their instructors and practice conversation skills in culturally appropriate settings.
         </li>
-        <li>
-            <a href="https://podcasts.apple.com/us/podcast/vernacular-reality-vr-for-training-with-jordan-higgins/id1364646421?i=1000513488490">
-                Vernacular Reality (Ep4):
-                VR for Training with Jordan Higgins
-            </a>: In this episode, Blythe and Sean sit down with Jordan Higgins, XR Designer and adjunct
-            faculty at the George Mason University School of Art! The two VR experts discuss their experiences working with AR/VR in general
-            and for training, plus exciting innovations in the industry.
-        </li>
-        <li>
-            <a href="https://podcasts.apple.com/us/podcast/vernacular-reality-weird-interfaces-with-jim-toepel/id1364646421?i=1000520540588">
-                Vernacular Reality (Ep5):
-                Weird Interfaces with Jim Toepel
-            </a>: In this episode of Vernacular Reality, Blythe and Sean talk with Jim Toepel, design/product
-            manager working with "weird interfaces" (from VR to Rock Band). They discuss the formative experience where they met, how one's
-            relationship to software changes when moving our bodies in new and different ways, and all the benefits of engaging with immersive software.
-        </li>
-        <li>
-            <a href="https://podcasts.apple.com/us/podcast/vernacular-reality-designing-experiences-with-doug/id1364646421?i=1000527409207">
-                Vernacular Reality
-                (Ep6): Designing Experiences with Doug North Cook
-            </a>: In this episode of Vernacular Reality, listen in on our conversation with Doug
-            North Cook, immersive media program coordinator and professor, and lead instructor at Falling Water's Immersive Design Residency. We
-            discuss all aspects of designing immersive software, including the inspiration for it, the execution of it, and how to optimize user
-            experiences - especially for learning.
-        </li>
-        <li>
-            <a href="https://podcasts.apple.com/us/podcast/vernacular-reality-chinese-language-immersions-at-dls/id1364646421?i=1000541377150">
-                Vernacular Reality
-                (Ep7): Chinese Language Immersions at DLS
-            </a>: In this episode of Vernacular Reality, we talk with DLS Language Training team
-            member, Lia, about language immersions in virtual reality. As a Chinese instructor herself, Lia shares insights from the
-            development of DLS Chinese immersions to the student trials.
-        </li>
-        <li>
-            <a href="https://podcasts.apple.com/us/podcast/vernacular-reality-developing-vr-for-language-learning/id1364646421?i=1000553465584">
-                Vernacular Reality (Ep8):
-                Developing VR for Language Learning
-            </a>: In this episode of Vernacular Reality, we talk with DLS Project Manager, Katia, about
-            her role in developing virtual reality scenarios for language learning. Katia shares insights on the ability to customize VR
-            scenarios for different levels, plus the continuity of pre- and post-work.
-        </li>
-    </ul>
-
-    <h3>2020</h3>
-    <ul>
-        <li>
-            <a href="https://www.youtube.com/watch?v=Y5Z_atwryHE">Project Genesiz: Virtual Reality Implications & Insights with Sean McBeth</a>:
-            I chatted with a Zoomcast on <abbr>VR</abbr>, Internet privacy, and learning.
-        </li>
-        <li>
-            <a href="https://podcasts.apple.com/us/podcast/vernacular-reality-intro-to-language-learning-with-vr/id1364646421?i=1000479341353">
-                Vernacular Reality (Ep1): Intro to Language Learning with VR
-            </a>: Welcome to Vernacular Reality, the VR-focused extension of our
-            podcast Language Matters! In this episode, our host, Blythe, sits down with DLS staff Sean McBeth (Immersive Software Developer)
-            and Chris Bellas (President) to discuss what they are doing to bring virtual reality into language learning at Diplomatic Language
-            Services, why they decided to do so, and what we can expect.
-        </li>
-        <li>
-            <a href="https://podcasts.apple.com/us/podcast/vernacular-reality-different-perspectives-on-language/id1364646421?i=1000488598377">
-                Vernacular Reality (Ep2): Different Perspectives on Language Learning with VR
-            </a>: 'What if VR makes me feel sick?' 'Will my
-            instructor be with me in this virtual environment?' 'What makes your application so special?' These are all potential perspectives
-            from students that we address in episode two of Vernacular Reality. Listen in as Blythe, Chris, and Sean tackle perspectives that
-            students may have regarding adding a virtual reality component into their language training, discuss why implementing VR makes sense
-            for the individualized language training that is at the core of our business, and why this makes sense for the language learning
-            industry in general.
-        </li>
-        <li>
-            <a href="https://podcasts.apple.com/us/podcast/vernacular-reality-inspiration-for-the-dls-vr-program/id1364646421?i=1000502616162">
-                Vernacular Reality (Ep3):
-                Inspiration for DLS VR Program
-            </a>: In this episode of Vernacular Reality, Blythe and Sean discuss a variety of virtual reality apps that
-            Sean has used in the past, the features he likes about each, and how each program has influenced his VR work at Diplomatic Language Services.
-            From exercise to meditation, you might be surprised at just how much inspiration our language learning program took from other apps.
-        </li>
-    </ul>
-
-    <h3>2019</h3>
-    <ul>
-        <li>
-            <a href="https://mavricconference.umd.edu/src/pages/SethT.McBeth.html"><abbr>UMD</abbr> <abbr>MAVRIC</abbr> Conference 2019</a>:
-            I spoke on accessibility for immersive applications and devices, software, and design techniques for achieving better access. (<a href="https://www.youtube.com/watch?v=Bzhp5g4HbKQ">Watch VR and AR for Everyone on YouTube</a><!--, <a href="presentations/vr-and-ar-for-everyon.pdf" aria-label="VR and AR for everyone PDF">PDF</a>, <a href="presentations/vr-and-ar-for-everyon.pptx" aria-label="VR and AR for everyone PowerPoint">PPTX</a>-->)
-        </li>
-
-        <li>
-            <a href="https://www.meetup.com/CDK-Coder-Designer-Keggers/events/261603470/"><abbr>CDK</abbr>: Virtual Reality (<abbr>VR</abbr>) vs Augmented Reality (<abbr>AR</abbr>) Which Tech Will Win the Battle?</a>:
-            I spoke on the current state of the Augmented Reality market, both of the progress of hardware and on design best-practices, with recommendations on how to get started in <abbr>AR</abbr> software development, primarily in the context of Enterprise-level software consulting.<!--(<a href="presentations/ar-for-fun-and-profit.pdf" aria-label="AR for Fun and Profit PDF">PDF</a>, <a href="presentations/ar-for-fun-and-profit.pptx" aria-label="AR for Fun and Profit PowerPoint">PPTX</a>)-->
-        </li>
-    </ul>
-
-    <h3>2018</h3>
-    <ul>
-        <li>
-            <a href="https://mavric.umd.edu/Sean%20T.%20McBeth"><abbr>UMD</abbr> <abbr>MAVRIC</abbr> Conference 2018</a>:
-            I spoke on my experience at the Fallingwater Immersive Design Residency. (<a href="https://www.fallingwater.org/education/fallingwater-institute/immersive-design-residency/">Fallingwater Institute</a><!--, <a href="presentations/immersive-design.pdf" aria-label="Immersive Design PDF">PDF</a>, <a href="presentations/immersive-design.pptx" aria-label="Immersive Design PowerPoint">PPTX</a>-->)
-        </li>
-    </ul>
-
-    <h3>2017</h3>
-    <ul>
-        <li>
-            <a href="http://washington-dc.siggraph.org/2017/11/05/exploring-webvrchapter-board-elections/">DC <abbr>ACM</abbr> <abbr>SIGGRAPH</abbr>, November 2017</a>:
-            I spoke on the history and current state of <abbr>VR</abbr> on the Web.
-        </li>
-        <li>
-            <a href="https://www.facebook.com/dcvirtualreality/videos/1452036654839849/"><abbr>DCVR</abbr>, June 2017</a>:
-            I spoke on getting started with Augmented Reality programming.
-        </li>
-        <li>
-            <a href="https://www.evensi.us/virtual-reality-seminar-hosted-by-sean-mcbeth-northern/208134705"><abbr>NOVA</abbr> National Society of Collegiate Scholars'</a>:
-            I was the keynote speaker for their annual event at Northern Virginia Community College's Loudoun campus.
-        </li>
-        <li>
-            <a href="https://soundcloud.com/jon-wilkening/episode-16-sean-mcbeth">The Creative Bar: Episode 16</a>:
-            I was interviewed on a podcast about entrepreneurship.
-        </li>
-        <li>
-            <a href="http://arinaction.org/speakers/sean-mcbeth/"><abbr>AR</abbr> In Action 2017</a>:
-            I spoke on two panels on haptics and content development.
-        </li>
-        <li>
-            <a href="http://virtualrealityobserver.com/interview-sean-mcbeth-lead-vr-developer-of-notiontheory/">The Virtual Reality Observer</a>:
-            I was interviewed for a tech blog about the future of <abbr>VR</abbr>.
-        </li>
-        <li>
-            <a href="https://leanagiledc.com/speaker/sean-mcbeth/">Lean+Agile DC</a>:
-            I gave a talk on rapid application development for <abbr>VR</abbr>.
-        </li>
-        <li>
-            <a href="https://www.youtube.com/watch?v=TU1rG_tZp-I"><abbr>NOVAVR</abbr></a>:
-            I spoke on a panel about the current state and future of Virtual and Augmented Reality.
-        </li>
-        <li>
-            <a href="http://vrar.withthebest.com/#speakers"><abbr>VR</abbr>/<abbr>AR</abbr> With The Best</a>:
-            I gave a webinar and ran personal Q&amp;A sessions on using Primrose to build <abbr>VR</abbr> applications.
-        </li>
-        <li>
-            <a href="https://storify.com/ShahnazKamberi/stratfordwbcsit">Stratford University</a>:
-            I described the essentials of Virtual Reality for Stratford's Computer Science/Information Technology students.
-        </li>
-    </ul>
-
-    <h3>2016</h3>
-    <ul>
-        <li>
-            <a href="https://www.facebook.com/dcvirtualreality/videos/1091494284227423/"><abbr>DCVR</abbr> Breakout Session #5</a>:
-            I conducted a seminar on getting started with WebVR through Primrose.
-        </li>
-        <li>
-            <a href="https://nvite.com/CodePenDC/ec85">CodePen DC</a>:
-            I spoke on the emerging WebVR <abbr>API</abbr> and how developers can get started.
-        </li>
-        <li>
-            <a href="https://devdiner.com/interviews/sean-mcbeth-on-primrose-webvr">Sean McBeth on Primrose and WebVR development (Dev Diner)</a>:
-            I was interviewed for a blog about learning <abbr>VR</abbr> programming.
-        </li>
-        <li>
-            <a href="http://www.blogtalkradio.com/dc-entrepreneur/2015/11/05/interview-with-sean-mcbeth-future-of-vr">DC Entrepreneur: Episode 2</a>:
-            I was interviewed on a podcast about entrepreneurship.
-        </li>
-        <li>
-            <a href="https://www.meetup.com/DCRealities/events/229971228/">2nd Annual <abbr>DCVR</abbr> Innovation Panel</a>:
-            I spoke on a panel about the current state and future of <abbr>VR</abbr>.
-        </li>
-        <li>
-            <a href="http://makezine.com/projects/make-35/making-pigments/">MAKE Magazine, Issue 35: Making Pigments</a>:
-            I wrote an article about making paint pigments from basic chemicals.
-        </li>
     </ul>
 </section>
 
-<section id="press"
-         aria-label="press">
-    <h2>Press</h2>
-
+<section id="thanks">
+    <h2>Thanks for reading</h2>
     <p>
-        These are articles online that have talked about my work.
+        Thank you for reading my website, v@(@Model.SiteVersion).
+        If you have any questions, please feel free to reach out to me.
+        All of my contact information is available at the top of the site.
     </p>
-
-    <ul>
-        <li>
-            <a href="http://dcinno.streetwise.co/2017/03/06/a-dc-virtual-reality-startup-now-lets-you-feel-in-vr/">DC Inno</a>:
-            A DC Virtual Reality Startup Now Lets You Feel in <abbr>VR</abbr>.
-        </li>
-        <li>
-            <a href="http://dailyfreepress.com/2017/01/18/ar-in-action-features-current-and-future-developments-in-technological-field/">Daily Free Press, Boston University</a>:
-            <abbr>AR</abbr> in Action features current and future developments in technological field.
-        </li>
-        <li>
-            <a href="https://venturebeat.com/2016/09/17/how-webvr-will-make-virtual-reality-massively-available/">VentureBeat</a>:
-            How WebVR will make virtual reality massively available.
-        </li>
-        <li>
-            <a href="http://www.thehoya.com/first-east-coast-virtual-reality-arcade-opens-in-d-c/">The Hoya, Georgetown University</a>:
-            First East Coast Virtual Reality Arcade Opens in DC.
-        </li>
-        <li>
-            <a href="http://www.techradar.com/news/gaming/how-one-of-the-first-vr-arcades-will-bring-us-together-in-our-own-little-worlds-1327005">TechRadar</a>:
-            How one of the first <abbr>VR</abbr> arcades will bring us together in our own little worlds.
-        </li>
-        <li>
-            <a href="http://sensics.com/why-webvr/">Sensics blog</a>:
-            Why WebVR.
-        </li>
-        <li>
-            <a href="https://www.sitepoint.com/build-virtual-reality-with-primrose-and-webvr/">SitePoint</a>:
-            Build Virtual Reality in <abbr>VR</abbr> with Primrose and WebVR.
-        </li>
-        <li>
-            <a href="http://dcinno.streetwise.co/2015/08/14/washington-dc-virtual-reality-vr-tech-startups-hub/">DC Inno</a>:
-            The State of DC Virtual Reality Innovation: Part 1.
-        </li>
-    </ul>
-</section>
-
-<section id="demos"
-         aria-label="demos">
-
-    <h2>Demos</h2>
-
-    <p>
-        A few simple apps I'm working on.
-    </p>
-
-    <ul>
-        @foreach (var appName in AppModel.AppNames)
-        {
-            <li><a href="~/app/@appName">@appName.ToTitleCase().Replace('-', ' ')</a></li>
-        }
-    </ul>
 </section>

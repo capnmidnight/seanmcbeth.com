@@ -53,7 +53,7 @@
         }
     }
 
-    <link rel="stylesheet" type="text/css" href="~/css/index.css?bust3">
+    <link rel="stylesheet" type="text/css" href="~/css/index.css?bust4">
 
     @RenderSection("Head", required: false)
 </head>
@@ -65,21 +65,9 @@
             <nav id="menu">
                 <ul>
                     @RenderSection("Menu", required: false)
-
-                    @foreach (var (text, label, href) in new[] {
-                ("home/", "Home", "/"),
-                ("vr/", "Virtual Reality", "/vr"),
-                ("etc/", "Other", "/other")
-                    })
-                    {
-                        <li>
-                            <a href="@href"
-                               aria-label="@label"
-                               title="@label">
-                                @text
-                            </a>
-                        </li>
-                    }
+                    <li>
+                        <a href="~/" aria-label="Navigate to the Home page" title="Home">home/</a>
+                    </li>
                 </ul>
             </nav>
         </header>

@@ -21,7 +21,6 @@ body {
     font-family: 'Noto Sans', -apple-system, '.SFNSText-Regular', 'San Francisco', 'Roboto', 'Segoe UI', 'Helvetica Neue', 'Lucida Grande', sans-serif;
     font-size: 12pt;
     line-height: 2;
-    text-align: justify;
 }
 
 body, #menu {
@@ -29,7 +28,7 @@ body, #menu {
     color: var(--main-fg-color);
 }
 
-a {
+a[href] {
     color: #0874ec;
     font-weight: 900;
     text-decoration: underline 2px solid #ec0808;
@@ -227,7 +226,7 @@ section img {
         --main-fg-color: #d3dde4;
     }
 
-    a {
+    a[href] {
         color: #f5ffa8;
         text-decoration-color: #8ef20b;
     }

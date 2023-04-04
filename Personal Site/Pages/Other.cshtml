@@ -5,10 +5,22 @@
 }
 
 @section Menu {
-<li><a href="#edu">.edu</a></li>
-<li><a href="#profiles">.net</a></li>
-<li><a href="#projects">.com</a></li>
-<li><a href="#volunteer">.org</a></li>
+    @foreach (var (text, title, href) in new[] {
+            (".edu", "Education", "#edu"),
+            (".net", "Profiles", "#profiles"),
+            (".io", "Demos", "#demos"),
+            (".com", "Projects", "#projects"),
+            (".tv", "Press", "#press")
+        })
+    {
+        <li>
+            <a href="@href"
+               aria-label="@title"
+               title="@title">
+                @text
+            </a>
+        </li>
+    }
 }
 
 <section id="bonafides">
@@ -16,32 +28,53 @@
     <ul>
         <li>Bachelors of Science, Computer Science&mdash;<a href="http://www.ship.edu/CSE/">Shippensburg University</a>, <em>cum laude</em> 2005.</li>
     </ul>
+
     <h2><a name="profiles">Online Profiles</a></h2>
     <ul>
         @{
             foreach (var (id, site, href) in new[] {
-                ("@seanmcbeth", "Mastodon", "https://arvr.social/@seanmcbeth"),
-                ("capnmidnight", "Github", "https://github.com/capnmidnight"),
-                ("moron4hire", "YouTube", "https://www.youtube.com/user/moron4hire"),
-                ("SeanMcBeth", "CodePen", "https://codepen.io/SeanMcBeth/"),
-                ("seanmcbeth", "NPM", "https://www.npmjs.com/~seanmcbeth"),
-                ("Sean T. McBeth", "LinkedIn", "https://www.linkedin.com/pub/sean-mcbeth/6/727/378"),
-                ("moron4hire", "Hacker News", "https://news.ycombinator.com/user?id=moron4hire"),
-                ("Sean_McBeth", "Twitter", "https://twitter.com/Sean_McBeth"),
-                ("Sean T. McBeth", "IMDB", "https://www.imdb.com/name/nm5111059/")
-            })
+        ("@seanmcbeth", "Mastodon", "https://arvr.social/@seanmcbeth"),
+        ("capnmidnight", "Github", "https://github.com/capnmidnight"),
+        ("moron4hire", "YouTube", "https://www.youtube.com/user/moron4hire"),
+        ("SeanMcBeth", "CodePen", "https://codepen.io/SeanMcBeth/"),
+        ("seanmcbeth", "NPM", "https://www.npmjs.com/~seanmcbeth"),
+        ("Sean T. McBeth", "LinkedIn", "https://www.linkedin.com/pub/sean-mcbeth/6/727/378"),
+        ("moron4hire", "Hacker News", "https://news.ycombinator.com/user?id=moron4hire"),
+        ("Sean_McBeth", "Twitter", "https://twitter.com/Sean_McBeth"),
+        ("Sean T. McBeth", "IMDB", "https://www.imdb.com/name/nm5111059/")
+        })
             {
                 <li>
                     <a href="@href"
-                        target="_blank"
-                        aria-label="Follow @id on @site"
-                        title="Follow @id on @site">
+                       target="_blank"
+                       aria-label="Follow @id on @site"
+                       title="Follow @id on @site">
                         @site
                     </a>
                 </li>
             }
         }
     </ul>
+</section>
+
+<section id="demos"
+         aria-label="demos">
+
+    <h2>Demos</h2>
+
+    <p>
+        A few simple apps I'm working on.
+    </p>
+
+    <ul>
+        @foreach (var appName in AppModel.AppNames)
+        {
+            <li><a href="~/app/@appName">@appName.ToTitleCase().Replace('-', ' ')</a></li>
+        }
+    </ul>
+</section>
+
+<section id="projects">
     <h2><a name="projects">Past Projects</a></h2>
     <p>Here are some of the projects I had worked on in the past, that are either now finished or defunct.</p>
     <h3>Virtual and Augmented Reality Projects</h3>
@@ -153,5 +186,49 @@
         <li><a href="~/archive/research/mapping">mapping</a></li>
         <li><a href="~/archive/research/optical_illusions">optical_illusions</a></li>
         <li><a href="~/archive/research/testing">testing</a></li>
+    </ul>
+</section>
+
+<section id="press"
+         aria-label="press">
+    <h2>Press</h2>
+
+    <p>
+        These are articles online that have talked about my work.
+    </p>
+
+    <ul>
+        <li>
+            <a href="http://dcinno.streetwise.co/2017/03/06/a-dc-virtual-reality-startup-now-lets-you-feel-in-vr/">DC Inno</a>:
+            A DC Virtual Reality Startup Now Lets You Feel in <abbr>VR</abbr>.
+        </li>
+        <li>
+            <a href="http://dailyfreepress.com/2017/01/18/ar-in-action-features-current-and-future-developments-in-technological-field/">Daily Free Press, Boston University</a>:
+            <abbr>AR</abbr> in Action features current and future developments in technological field.
+        </li>
+        <li>
+            <a href="https://venturebeat.com/2016/09/17/how-webvr-will-make-virtual-reality-massively-available/">VentureBeat</a>:
+            How WebVR will make virtual reality massively available.
+        </li>
+        <li>
+            <a href="http://www.thehoya.com/first-east-coast-virtual-reality-arcade-opens-in-d-c/">The Hoya, Georgetown University</a>:
+            First East Coast Virtual Reality Arcade Opens in DC.
+        </li>
+        <li>
+            <a href="http://www.techradar.com/news/gaming/how-one-of-the-first-vr-arcades-will-bring-us-together-in-our-own-little-worlds-1327005">TechRadar</a>:
+            How one of the first <abbr>VR</abbr> arcades will bring us together in our own little worlds.
+        </li>
+        <li>
+            <a href="http://sensics.com/why-webvr/">Sensics blog</a>:
+            Why WebVR.
+        </li>
+        <li>
+            <a href="https://www.sitepoint.com/build-virtual-reality-with-primrose-and-webvr/">SitePoint</a>:
+            Build Virtual Reality in <abbr>VR</abbr> with Primrose and WebVR.
+        </li>
+        <li>
+            <a href="http://dcinno.streetwise.co/2015/08/14/washington-dc-virtual-reality-vr-tech-startups-hub/">DC Inno</a>:
+            The State of DC Virtual Reality Innovation: Part 1.
+        </li>
     </ul>
 </section>

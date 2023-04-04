@@ -1,0 +1,26 @@
+﻿@page
+@{
+    ViewData["Title"] = "Sean T. McBeth: engineer, photographer, mad scientist";
+    ViewData["Keywords"] = "software development, software engineering, programming, freelancing, Sean T. McBeth, embedded programming, virtual reality, agumented reality, VR, AR, 3D, graphics programming, game development, simulation, abstract data visualization, audio synthesis, signals processing, computer vision, peer-to-peer, networking, desktop software, Web applications, mobile apps, WebRTC, hardware, embedded systems, reporting, GIS, databases";
+    ViewData["Description"] = "Sean T. McBeth is a software engineer and dad.";
+}
+
+<section id="projects"
+         aria-label="projects">
+    <h2>Primrose</h2>
+
+    <p>
+        <a href="https://www.primrosevr.com/">Primrose</a> was the world's first JavaScript framework for developing WebXR applications, back when WebXR was still called "WebVR".
+        My first release of Primrose was sometime in 2014, almost a full year before Mozilla's A-Frame. I built Primrose with the
+        purpose of being able to create cross-platform, multiuser, live-editable VR environments. <a href="https://www.github.com/capnmidnight/Primrose/" aria-label="Primrose on git hub">View the Primrose GitHub repository</a>.
+    </p>
+
+    <img src="~/img/primrose.jpeg" alt="Screenshot from Primrose" title="Primrose Text Editor" />
+
+    <p>
+        Today, I've moved the WebXR framework portions of Primrose to <a href="https://www.github.com/capnmidnight/Juniper">Juniper</a>.
+        Primrose is now just the syntax-highlighting text-editor that renders to an HTML5 Canvas element. Rendering to an HTML Canvas
+        element makes it useful for using as a texture in WebGL contexts.
+    </p>
+
+</section>
