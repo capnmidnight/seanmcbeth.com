@@ -50,17 +50,18 @@
         @{
             foreach (var (text, icon, url, rel) in new[] {
         ("Follow @seanmcbeth on Mastodon", "mastodon", "https://arvr.social/@seanmcbeth", "me"),
-        ("Follow Sean on GitHub", "github", "https://github.com/capnmidnight", ""),
-        ("Follow Sean on LinkedIn", "linkedin", "https://www.linkedin.com/pub/sean-mcbeth/6/727/378", ""),
-        ("Email Sean", "email", "mailto:sean@removethis.seanmcbeth.com", ""),
-        ("Download Sean's résumé (PDF 180KB)", "resume", "Resume-Sean_McBeth-2023.pdf", "")
+        ("Follow Sean on GitHub", "github", "https://github.com/capnmidnight", null),
+        ("Follow Sean on LinkedIn", "linkedin", "https://www.linkedin.com/pub/sean-mcbeth/6/727/378", null),
+        ("Email Sean", "email", "mailto:sean@removethis.seanmcbeth.com", null),
+        ("Download Sean's résumé (PDF 180KB)", "resume", "Resume-Sean_McBeth-2023.pdf", null)
         })
             {
                 <li>
                     <a href="@url"
-                       rel="@rel"
                        aria-label="@text"
-                       title="@text">
+                       title="@text"
+                       target="_blank"
+                       rel="@rel">
                         <span class="icon icon-@icon" role="presentation"></span>
                         <span class="print-only">@text</span>
                     </a>
@@ -75,15 +76,38 @@
     <h2>Bio</h2>
 
     <p>
-        I am a cross-disciplinary software engineer and project manager with 20 years of professional experience building projects
-        for a wide variety of clients and customers. My current work is focused on Immersive Media. I've successfully bootstrapped
-        and deployed multiple <abbr>VR</abbr> and <abbr>AR</abbr> projects over the last 8 years. I've also built a number of
-        hardware prototypes in radio and wireless input devices. Before <abbr>VR</abbr>, I built several analytics-heavy
-        <abbr>OLTP</abbr> applications for desktop, Web, and mobile Web.
+        I am a cross-disciplinary technical lead and project manager with 20 years of professional experience. My most recent
+        work is focused on Immersive Media (Virtual and Augmented Reality) for training and adult education. I've successfully
+        bootstrapped and deployed multiple <abbr>VR</abbr> and <abbr>AR</abbr> projects over the last 8 years. Before <abbr>VR</abbr>,
+        I worked primarily on Web and desktop applications for GIS, database management and reporting (Online Transaction Processing),
+        and industrial simulation.
     </p>
 
     <p>
-        My most recent project was <a href="https://vr.dlsdc.com">Diplomatic Language Services Virtual Reality</a>.
+        The programming languages I work in most often are C#, TypeScript, HTML, and CSS. I'm also very experienced with SQL on MS SQL Server and PostgreSQL
+        (though lately I just defer to Entity Framework; it does a good enough job).
+    </p>
+
+    <p>
+        In my free time, I dabble in AI (genetic algorithms, interfacing with OpenAI's large language models), embedded software development
+        (Arduino and Adafruit Feather microcontrollers), photography, woodworking, and wine making.
+    </p>
+
+    <p>
+        I'm currently on the market for a new position. I live in Alexandria, Virginia, with my wife and 2 kids. I'm open to 100% remote projects
+        anywhere, or hybrid work in the Arlington/Alexandria area. I'm interested in technical lead or project managment positions for projects
+        in VR, AR, audio, and/or AI, especially in the training and education markets.
+    </p>
+</section>
+
+<section id="projects"
+         aria-label="projects">
+    <h2>Projects</h2>
+
+    <p>Here are some of the most recent projects I've worked on.</p>
+
+    <h3><a href="https://vr.dlsdc.com" target="_blank">Diplomatic Language Services Virtual Reality</a></h3>
+    <p>
         DLS VR is a multiuser, multimodal, Web-based VR application that includes a full, online editor, designed for
         subject matter experts to be able to rapidly create new immersion scenarios.
     </p>
@@ -142,38 +166,72 @@
         I had direct supervisor responsibility for one fulltime employee and served as mentor for other employees within the company.
     </p>
 
+    <h3><a href="https://github.com/capnmidnight/Juniper/">Juniper</a></h3>
+
     <p>
-        I'm currently on the market for a new position. I live in Alexandria, Virginia, but am also open to 100% remote projects
-        anywhere, or hybrid work in the Arlington/Alexandria area.
+        Juniper is an ASP.NET 7 and TypeScript framework for building WebXR applications. It is an evolution of my previous project, Primrose.
     </p>
-</section>
 
-<section id="projects"
-         aria-label="projects">
-    <h2>Projects</h2>
+    <img src="~/img/juniper.jpeg" title="Screenshot from Juniper" />
 
     <p>
-        These are some of my current side-projects. I name all of my projects after plants. For more information on my <abbr>VR</abbr> and <abbr>AR</abbr> capabilities, please see my <abbr>XR</abbr> devices page at the following link: <a href="vr.html"><abbr>XR</abbr> devices.</a>
+        Juniper provides a number of major elements:
     </p>
 
     <ul>
+        <li>A light set of conventions for configuring ASP.NET Core projects with Kestrel.</li>
+        <li>A build tool, based on <a href="https://esbuild.github.io">ESBuild</a>, for managing TypeScript projects.</li>
         <li>
-            <a href="https://github.com/capnmidnight/Juniper/">Juniper</a>:
-            Juniper is an ASP.NET 7 and TypeScript framework for building WebXR applications.
-
-            <img src="~/img/juniper.jpeg" title="Screenshot from Juniper" />
+            C# libraries for a variety of tasks:
+            <ul>
+                <li>configuring HTTP servers (Kestrel),</li>
+                <li>graph solving,</li>
+                <li>units of measure conversion, and</li>
+                <li>media asset management, decoding, and processing.</li>
+            </ul>
         </li>
         <li>
-            <a href="https://www.primrosevr.com/">Primrose</a>:
-            Primrose is a syntax-highlighting text-editor that renders to an HTML5 Canvas element. Useful for generating textures for WebGL apps. <a href="https://www.github.com/capnmidnight/Primrose/" aria-label="Primrose on git hub">Primrose on GitHub.</a>
-
-            <img src="~/img/primrose.jpeg" title="Screenshot from Primrose" />
-        </li>
-        <li>
-            <a href="https://www.potatovr.com/">Potato <abbr>VR</abbr></a>:
-            Potato VR is a new project, coming soon.
+            TypeScript libraries for a very wide variety of tasks:
+            <ul>
+                <li>a framework for building WebXR applications,</li>
+                <li>reusable components for Three.js, including an event system, text rendering, and an Environment metaphor for WebXR apps</li>
+                <li>managing complex, spatialized WebAudio graphs,</li>
+                <li>managing WebRTC teleconferencing sessions,</li>
+                <li>speech recognition,</li>
+                <li>structured manipulation of the browser DOM and CSS,</li>
+                <li>WebWorkers with async/await-capable wrapper interfaces,</li>
+                <li>DOM widget objects, including: dialog boxes, tab panels, dock panels, tree views, property lists, and context menus,</li>
+                <li>asynchronous request management with progress tracking, IndexedDB caching, and media type awareness,</li>
+                <li>text rendering and animation with 2D HTML Canvas image rendering,</li>
+                <li>an async/await-capable wrapper around IndexedDB,</li>
+                <li>XUnit-style testing framework,</li>
+                <li>logging and testing of DOM and WebGL apps,</li>
+                <li>an addressable lookup of Unicode Emoji code points,</li>
+                <li>an addressable lookup of extant Media Types,</li>
+                <li>graph and tree collections,</li>
+                <li>typesafe event handlers,</li>
+                <li>units of measure conversion, and</li>
+                <li>string manipulation and similarity matching.</li>
+            </ul>
         </li>
     </ul>
+
+    <h3><a href="https://www.primrosevr.com/">Primrose</a> (<a href="https://www.github.com/capnmidnight/Primrose/" aria-label="Primrose on git hub">GitHub</a>)</h3>
+
+    <p>
+        Primrose was the world's first JavaScript framework for developing WebXR applications, back when WebXR was still called "WebVR". 
+        My first release of Primrose was sometime in 2014, almost a full year before Mozilla's A-Frame. I built Primrose with the
+        purpose of being able to create cross-platform, multiuser, live-editable VR environments.
+    </p>
+
+    <img src="~/img/primrose.jpeg" title="Screenshot from Primrose" />
+
+    <p>
+        Today, I've moved the WebXR framework portions of Primrose to <a href="https://www.github.com/capnmidnight/Juniper">Juniper</a>. 
+        Primrose is now just the syntax-highlighting text-editor that renders to an HTML5 Canvas element. Rendering to an HTML Canvas 
+        element makes it useful for using as a texture in WebGL contexts.
+    </p>
+
 </section>
 
 <section id="talks"
