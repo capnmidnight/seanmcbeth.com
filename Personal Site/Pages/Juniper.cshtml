@@ -1,8 +1,9 @@
 ﻿@page
 @{
-    ViewData["Title"] = "Sean T. McBeth: engineer, photographer, mad scientist";
-    ViewData["Keywords"] = "software development, software engineering, programming, freelancing, Sean T. McBeth, embedded programming, virtual reality, agumented reality, VR, AR, 3D, graphics programming, game development, simulation, abstract data visualization, audio synthesis, signals processing, computer vision, peer-to-peer, networking, desktop software, Web applications, mobile apps, WebRTC, hardware, embedded systems, reporting, GIS, databases";
-    ViewData["Description"] = "Sean T. McBeth is a software engineer and dad.";
+    ViewData["SubURL"] = "juniper";
+    ViewData["Title"] = "Sean T. McBeth: Project Juniper";
+    ViewData["Description"] = "Juniper is an .NET 7 and TypeScript framework for building WebXR applications.";
+    ViewData["Screenshot"] = "/img/juniper.jpeg";
 }
 
 
@@ -11,7 +12,7 @@
     <h2>Juniper</h2>
 
     <p>
-        Juniper is an .NET 7 and TypeScript framework for building WebXR applications. It is an evolution of my previous project, Primrose. <a href="https://github.com/capnmidnight/Juniper/">View the Juniper GitHub repository.</a>
+        @ViewData["Description"] It is an evolution of my previous project, Primrose. <a href="https://github.com/capnmidnight/Juniper/">View the Juniper GitHub repository.</a>
     </p>
 
     <img src="~/img/juniper.jpeg" alt="Screenshot from Juniper" title="A forest demo built with Juniper" />
