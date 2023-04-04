@@ -3,8 +3,8 @@
 }
 
 :root {
-    --main-bg-color: #cbdae9;
-    --main-fg-color: #0e1b28;
+    --main-bg-color: #b5c3ca;
+    --main-fg-color: #021822;
 }
 
 html,
@@ -29,10 +29,17 @@ body, #menu {
     color: var(--main-fg-color);
 }
 
-a:visited,
-a:focus {
-    color: #5a5a33;
+a {
+    color: #0874ec;
+    font-weight: 900;
+    text-decoration: underline 2px solid #ec0808;
 }
+
+    a:visited,
+    a:focus {
+        color: #5696dd;
+        text-decoration: underline 2px dashed #e25e5e;
+    }
 
 main, footer {
     padding: 3em;
@@ -216,17 +223,19 @@ section img {
 
 @media (prefers-color-scheme: dark) {
     :root {
-        --main-bg-color: hsl(248.85deg 31.04% 15.94%);
-        --main-fg-color: #d5d3e4;
+        --main-bg-color: #1c3235;
+        --main-fg-color: #d3dde4;
     }
 
     a {
-        color: #ffff1a;
+        color: #f5ffa8;
+        text-decoration-color: #8ef20b;
     }
 
         a:visited,
         a:focus {
-            color: #a9a91d;
+            color: #9da27a;
+            text-decoration-color: #71bf0b;
         }
 
     .icon {
