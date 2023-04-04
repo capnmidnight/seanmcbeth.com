@@ -18,9 +18,10 @@ body {
 }
 
 body {
-    font-family: -apple-system, '.SFNSText-Regular', 'San Francisco', 'Roboto', 'Segoe UI', 'Helvetica Neue', 'Lucida Grande', sans-serif;
+    font-family: 'Noto Sans', -apple-system, '.SFNSText-Regular', 'San Francisco', 'Roboto', 'Segoe UI', 'Helvetica Neue', 'Lucida Grande', sans-serif;
     font-size: 12pt;
-    line-height: 1.75;
+    line-height: 2;
+    text-align: justify;
 }
 
 body, #menu {
@@ -47,7 +48,7 @@ h2 {
 }
 
 h2 {
-    font-family: monospace;
+    font-family: 'Noto Mono', monospace;
 }
 
     h2::before {
@@ -129,11 +130,11 @@ h2 {
             flex: auto;
         }
 
-            #menu ul li a {
-                display: inline-block;
-                text-decoration: none;
-                padding: 0.75em 0.5em;
-            }
+        #menu ul li a {
+            display: inline-block;
+            text-decoration: none;
+            padding: 0.75em 0.5em;
+        }
 
 #portrait {
     width: 100%;
@@ -221,10 +222,6 @@ section img {
 
     a {
         color: #ffff1a;
-    }
-
-    body {
-        font-weight: lighter;
     }
 
         a:visited,
