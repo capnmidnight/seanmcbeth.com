@@ -43,16 +43,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{549D12B3-54F6-4AF5-AC2D-98F7F5B4D04B}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
-		build-scripts.ps1 = build-scripts.ps1
-		build.ps1 = build.ps1
-		bundle.ps1 = bundle.ps1
-		bundle2.ps1 = bundle2.ps1
-		bundle3.ps1 = bundle3.ps1
-		clean-deploy.ps1 = clean-deploy.ps1
-		commit.ps1 = commit.ps1
 		LICENSE.md = LICENSE.md
-		publish.ps1 = publish.ps1
-		rebuild.ps1 = rebuild.ps1
 		tool.ps1 = tool.ps1
 	EndProjectSection
 EndProject
