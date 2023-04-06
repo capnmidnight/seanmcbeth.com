@@ -46,6 +46,9 @@ namespace SeanMcBeth
             var uiImgOUtput = imgOutput.CD("ui");
 
             var pathHelper = new PathHelper(juniperDir, nodeModules);
+            var keyFile = new DirectoryInfo(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile))
+                .CD(".ssh")
+                .Touch("sean-mcbeth.pem");
 
             var options = new BuildSystemOptions()
             {
@@ -55,6 +58,11 @@ namespace SeanMcBeth
                 },
                 InProjectName = ScriptProjectName,
                 OutProjectName = ServerProjectName,
+                Deployment = new DeploymentOptions(
+                    "seanmcbeth.com", 
+                    "smcbeth", 
+                    keyFile,
+                    "SeanMcBeth.Site"),
                 BannedDependencies = new[]
                 {
                     ("pdfjs-dist", "2.15.349", "Internal KeyboardManager does not work on old Oculus for Business Quest 2s. Use 2.14.305 instead.")
