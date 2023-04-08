@@ -133,6 +133,8 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "Juniper.TypeScript", "Junip
 		SlnRelativePath = "Juniper\src\Juniper.TypeScript\"
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sandbox", "Sandbox\Sandbox.csproj", "{12947AE6-1917-40B3-884C-45D806788A78}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -187,6 +189,10 @@ Global
 		{F99E624E-B311-4BC4-BD94-8014176CD049}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F99E624E-B311-4BC4-BD94-8014176CD049}.Release|Any CPU.ActiveCfg = Debug|Any CPU
 		{F99E624E-B311-4BC4-BD94-8014176CD049}.Release|Any CPU.Build.0 = Debug|Any CPU
+		{12947AE6-1917-40B3-884C-45D806788A78}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{12947AE6-1917-40B3-884C-45D806788A78}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{12947AE6-1917-40B3-884C-45D806788A78}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{12947AE6-1917-40B3-884C-45D806788A78}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
