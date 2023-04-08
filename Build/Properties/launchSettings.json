@@ -1,8 +1,7 @@
 {
   "profiles": {
     "Build": {
-      "commandName": "Project",
-      "commandLineArgs": "--interactive"
+      "commandName": "Project"
     }
   }
 }
