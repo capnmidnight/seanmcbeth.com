@@ -97,6 +97,7 @@ export class Forest {
             clip.setPosition(x, 5, z);
             obj.position.set(x, 5, z);
             this.env.foreground.add(obj);
+            clip.play();
         }
 
         this.env.foreground.add(this.forest.result.scene);
