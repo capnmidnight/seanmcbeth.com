@@ -2,6 +2,12 @@ using Juniper.Services;
 
 using Microsoft.AspNetCore.HttpLogging;
 
+using Juniper.Azure;
+
+using OpenAI.GPT3.Extensions;
+
+using SeanMcBeth.Services;
+
 #if DEBUG
 using Juniper.TSBuild;
 #endif
@@ -28,7 +34,17 @@ namespace SeanMcBeth
         {
             var config = new DefaultConfiguration.Options();
 
-            services.ConfigureDefaultServices(env, config);
+            services.ConfigureDefaultServices(env, config)
+                .AddSingleton(new HttpClient(new HttpClientHandler
+                {
+                    AllowAutoRedirect = false,
+                    UseCookies = false
+                }))
+                .AddTransient<ISpeechService, AzureSpeechService>()
+                .AddOpenAIService(settings =>
+                {
+                    settings.ApiKey = this.config.GetOpenAIKey();
+                }); ;
 
             if (env.IsDevelopment())
             {

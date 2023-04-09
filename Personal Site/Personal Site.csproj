@@ -3,13 +3,13 @@
 	<PropertyGroup>
 		<TargetFramework>net7.0</TargetFramework>
 		<RuntimeIdentifiers>win-x86;win-x64;linux-x64;osx-x64;osx-arm64</RuntimeIdentifiers>
-		<UserSecretsId>6dce2b4c-ea2e-47c8-9a46-1c9f0ab49ba0</UserSecretsId>
 		<RootNamespace>SeanMcBeth</RootNamespace>
 		<AssemblyName>SeanMcBeth.Site</AssemblyName>
 		<StartupObject>SeanMcBeth.Program</StartupObject>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
 		<Nullable>enable</Nullable>
+		<UserSecretsId>a3da341e-81da-4b01-b99e-ac92445d82fd</UserSecretsId>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -25,6 +25,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+        <PackageReference Include="Betalgo.OpenAI.GPT3" Version="6.8.3" />
 		<PackageReference Include="BuildBundlerMinifier" Version="3.2.449" />
 		<PackageReference Include="Microsoft.ASPNetCore.Hosting.Abstractions" Version="2.2.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="7.0.4" />
@@ -33,8 +34,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\Juniper\src\Juniper.Azure\Juniper.Azure.csproj" />
+		<ProjectReference Include="..\Juniper\src\Juniper.GoogleMaps\Juniper.GoogleMaps.csproj" />
 		<ProjectReference Include="..\Juniper\src\Juniper.Root\Juniper.Root.csproj" />
 		<ProjectReference Include="..\Juniper\src\Juniper.Server\Juniper.Server.csproj" />
+		<ProjectReference Include="..\Juniper\src\Juniper.Sound\Juniper.Sound.csproj" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(Configuration)'=='Debug'">
