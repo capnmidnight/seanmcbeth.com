@@ -186,7 +186,7 @@ import { ConversationClient } from "./ConversationClient";
     async function getImagesAsync() {
         const imagePaths = new Array<string>(22);
         for (let i = 0; i < 22; ++i) {
-            imagePaths[i] = `/images/visemes/${i}.png`;
+            imagePaths[i] = `/img/visemes/${i}.png`;
         }
 
         return await Promise.all(imagePaths.map(path =>

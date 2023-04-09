@@ -5,8 +5,8 @@ using Microsoft.AspNetCore.HttpLogging;
 using Juniper.Azure;
 
 using OpenAI.GPT3.Extensions;
-
-using SeanMcBeth.Services;
+using Juniper.World.GIS.Google;
+using Juniper.IO;
 
 #if DEBUG
 using Juniper.TSBuild;
@@ -32,19 +32,47 @@ namespace SeanMcBeth
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var config = new DefaultConfiguration.Options();
+            var options = new DefaultConfiguration.Options
+            {
+                UseEmail = false,
+                UseIdentity = false,
+                UseSignalR = false
+            };
 
-            services.ConfigureDefaultServices(env, config)
-                .AddSingleton(new HttpClient(new HttpClientHandler
-                {
-                    AllowAutoRedirect = false,
-                    UseCookies = false
-                }))
-                .AddTransient<ISpeechService, AzureSpeechService>()
-                .AddOpenAIService(settings =>
-                {
-                    settings.ApiKey = this.config.GetOpenAIKey();
-                }); ;
+            var http = new HttpClient(new HttpClientHandler
+            {
+                AllowAutoRedirect = false,
+                UseCookies = false
+            });
+
+            services.ConfigureDefaultServices(env, options)
+                .AddSingleton(http);
+
+            var azureSubscriptionKey = config.GetValue<string>("Azure:Speech:SubscriptionKey");
+            var azureRegion = config.GetValue<string>("Azure:Speech:Region");
+            if (azureSubscriptionKey is not null
+                && azureRegion is not null)
+            {
+                services.AddTransient<ISpeechService>(provider =>
+                    new SpeechService(azureSubscriptionKey, azureRegion));
+            }
+
+            var openAIKey = config.GetValue<string>("OpenAI:APIKey");
+            if (openAIKey is not null)
+            {
+                services.AddOpenAIService(settings =>
+                    settings.ApiKey = openAIKey);
+            }
+
+
+            var googleMapsAPIKey = config.GetValue<string>("Google:APIKey");
+            var googleMapsSigningKey = config.GetValue<string>("Google:SigningKey");
+            if(googleMapsAPIKey is not null
+                && googleMapsSigningKey is not null)
+            {
+                services.AddTransient<IGoogleMapsStreamingClient>(provider =>
+                    new GoogleMapsStreamingClient(http, googleMapsAPIKey, googleMapsSigningKey, CachingStrategy.GetNoCache()));
+            }
 
             if (env.IsDevelopment())
             {
@@ -70,15 +98,8 @@ namespace SeanMcBeth
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, ILogger<Startup> logger)
-        {
-            if (env.IsDevelopment())
-            {
-                app.UseIPBanList("::ffff:10.20.22.108");
-            }
-
+        public void Configure(IApplicationBuilder app, ILogger<Startup> logger) => 
             app.ConfigureRequestPipeline(env, config, logger, Program.ports)
                 .UseHttpLogging();
-        }
     }
 }

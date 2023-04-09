@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using OpenAI.GPT3.Interfaces;
 using OpenAI.GPT3.ObjectModels.RequestModels;
 
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace SeanMcBeth.Controllers.Public
@@ -18,10 +19,10 @@ namespace SeanMcBeth.Controllers.Public
     {
         private readonly ISpeechService speech;
         private readonly IOpenAIService openAI;
-        private readonly UserManager<IdentityUser> users;
+        private readonly UserManager<IdentityUser>? users;
         private readonly ILogger logger;
 
-        public Conversation(ISpeechService speech, IOpenAIService openAI, UserManager<IdentityUser> users, ILogger<Conversation> logger)
+        public Conversation(ISpeechService speech, IOpenAIService openAI, ILogger<Conversation> logger , UserManager<IdentityUser>? users = null)
         {
             this.speech = speech;
             this.openAI = openAI;
@@ -252,8 +253,13 @@ namespace SeanMcBeth.Controllers.Public
 
                 Response.Headers.Add("x-prompt-text", Uri.EscapeDataString(messages));
 
-                var user = await users.GetUserAsync(User);
-                var userID = user?.Id;
+                string? userID = null;
+                if (users is not null)
+                {
+                    var user = await users.GetUserAsync(User);
+                    userID = user?.Id;
+                }
+                
                 var text = await ExecutePromptAsync(messages, userID);
                 if (text is not null)
                 {
@@ -295,10 +301,14 @@ namespace SeanMcBeth.Controllers.Public
 
                 Response.Headers.Add("x-prompt-text", Uri.EscapeDataString(messages));
 
-                var user = await users.GetUserAsync(User);
-                var userID = user?.Id;
-                var text = await ExecutePromptAsync(messages, userID);
+                string? userID = null;
+                if (users is not null)
+                {
+                    var user = await users.GetUserAsync(User);
+                    userID = user?.Id;
+                }
 
+                var text = await ExecutePromptAsync(messages, userID);
                 if (text is not null)
                 {
                     Response.Headers.Add("X-Generated-Text", Uri.EscapeDataString(text));
