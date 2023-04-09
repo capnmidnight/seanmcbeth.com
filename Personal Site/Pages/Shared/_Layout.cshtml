@@ -1,10 +1,13 @@
-﻿@{
+﻿@using Microsoft.Extensions.Configuration
+@inject IConfiguration config
+@{
     var title = ViewData["Title"] as string;
     var subURL = ViewData["SubURL"] as string;
     var description = ViewData["Description"] as string;
     var screenshot = ViewData["Screenshot"] as string;
     var showMenu = (ViewData["HideMenu"] as bool?) != true;
     var keywords = ViewData["Keywords"] as string;
+    var version = config.GetValue<string>("Version");
     var twitterCardType = screenshot is null ? "summary" : "summary_large_image";
 
     if (screenshot is not null)
@@ -12,6 +15,7 @@
         screenshot = "https://seanmcbeth.com" + screenshot;
     }
 }
+
 <!DOCTYPE html>
 <html lang="en-us" prefix="og: http://ogp.me/ns#">
 
@@ -53,7 +57,7 @@
         }
     }
 
-    <link rel="stylesheet" type="text/css" href="~/css/index.css?bust4">
+    <link rel="stylesheet" type="text/css" href="~/css/index.css?v@(version)">
 
     @RenderSection("Head", required: false)
 </head>

@@ -23,6 +23,20 @@ body {
     line-height: 2;
 }
 
+figure{
+    counter-increment: figure;
+}
+
+figcaption {
+    font-size: 10pt;
+    font-style: italic;
+    text-align: center;
+}
+
+    figcaption::before {
+        content: 'Figure ' counter(figure) ': ';
+    }
+
 body, #menu {
     background-color: var(--main-bg-color);
     color: var(--main-fg-color);
@@ -146,9 +160,13 @@ h2 {
     width: 100%;
 }
 
-section img {
+section img, section iframe {
     width: calc(100% - 2em);
     margin: auto 1em;
+}
+
+section iframe {
+    aspect-ratio: 16 / 9;
 }
 
 @media screen {
@@ -170,9 +188,17 @@ section img {
 
     @media (min-width: 640px) {
 
-        #projects img {
-            width: calc(100% - 20em);
-            margin: auto 10em;
+        body {
+            font-size: 14pt;
+        }
+
+        figcaption {
+            font-size: 12pt;
+        }
+
+        section img, section iframe {
+            width: calc(100% - 10em);
+            margin: auto 5em;
         }
 
         main {
