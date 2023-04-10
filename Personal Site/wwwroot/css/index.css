@@ -5,6 +5,9 @@
 :root {
     --main-bg-color: #b5c3ca;
     --main-fg-color: #021822;
+    --box-bg-color: #a8b2b8;
+    --box-shadow-color: #949ca1;
+    --text-shadow-color: #949ca1;
 }
 
 html,
@@ -23,18 +26,29 @@ body {
     line-height: 2;
 }
 
-figure{
+figure {
+    position: relative;
     counter-increment: figure;
+    padding: 0 0.5em;
+    margin: 0;
+    background-color: var(--box-bg-color);
+    box-shadow: var(--box-shadow-color) 5px 5px 5px;
 }
 
-figcaption {
-    font-size: 10pt;
-    font-style: italic;
-    text-align: center;
-}
+    figure > h3, figure > a[href] {
+        display: block;
+    }
 
-    figcaption::before {
-        content: 'Figure ' counter(figure) ': ';
+    figure > a[href] {
+        text-align: right;
+    }
+
+    figure > figcaption {
+        font-size: 10pt;
+        font-style: italic;
+        text-align: center;
+        padding: 0.25em;
+        margin: 0 auto;
     }
 
 body, #menu {
@@ -48,11 +62,11 @@ a[href] {
     text-decoration: underline 2px solid #ec0808;
 }
 
-    a:visited,
-    a:focus {
-        color: #5696dd;
-        text-decoration: underline 2px dashed #e25e5e;
-    }
+a:visited,
+a:focus {
+    color: #5696dd;
+    text-decoration: underline 2px dashed #e25e5e;
+}
 
 main, footer {
     padding: 3em;
@@ -192,9 +206,35 @@ section iframe {
             font-size: 14pt;
         }
 
-        figcaption {
-            font-size: 12pt;
+        figure {
+            background-color: unset;
+            box-shadow: unset;
         }
+
+            figure > h3, figure > a[href], figure > img, figure > iframe {
+                background-color: var(--box-bg-color);
+                box-shadow: var(--box-shadow-color) 5px 5px 5px;
+            }
+
+            figure > h3, figure > a[href] {
+                width: 80%;
+            }
+
+            figure > h3 {
+                padding: 0.25em 0 20em 0.5em;
+                margin: 2em 20% -20em 0;
+            }
+
+            figure > a[href] {
+                padding: 20em 0.25em 0.25em 0;
+                margin: -20em 0 0 20%;
+            }
+
+            figure > figcaption {
+                font-size: 12pt;
+                width: 60%;
+                text-shadow: var(--text-shadow-color) 1.25px 1.25px 2.5px;
+            }
 
         section img, section iframe {
             width: calc(100% - 10em);
@@ -250,6 +290,9 @@ section iframe {
     :root {
         --main-bg-color: #1c3235;
         --main-fg-color: #d3dde4;
+        --box-bg-color: #294c55;
+        --box-shadow-color: #172225;
+        --text-shadow-color: #172225;
     }
 
     a[href] {
@@ -257,11 +300,11 @@ section iframe {
         text-decoration-color: #8ef20b;
     }
 
-        a:visited,
-        a:focus {
-            color: #9da27a;
-            text-decoration-color: #71bf0b;
-        }
+    a:visited,
+    a:focus {
+        color: #9da27a;
+        text-decoration-color: #71bf0b;
+    }
 
     .icon {
         filter: invert();
