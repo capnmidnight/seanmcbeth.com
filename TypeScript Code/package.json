@@ -9,6 +9,9 @@
     "check": "tsc --noEmit"
   },
   "devDependencies": {
+    "@babylonjs/core": "5.55.0",
+    "@babylonjs/loaders": "5.55.0",
+    "@babylonjs/materials": "5.55.0",
     "@juniper-lib/esbuild": "file:../Juniper/src/Juniper.TypeScript/@juniper-lib/esbuild",
     "@juniper-lib/testing": "file:../Juniper/src/Juniper.TypeScript/@juniper-lib/testing",
     "@juniper-types/dom-types": "file:../Juniper/src/Juniper.TypeScript/@juniper-types/dom-types",
@@ -24,11 +27,11 @@
     "esbuild-plugin-glsl": "1.1.1"
   },
   "dependencies": {
-    "@juniper-lib/graphics2d": "file:../Juniper/src/Juniper.TypeScript/@juniper-lib/graphics2d",
     "@juniper-lib/audio": "file:../Juniper/src/Juniper.TypeScript/@juniper-lib/audio",
     "@juniper-lib/dom": "file:../Juniper/src/Juniper.TypeScript/@juniper-lib/dom",
     "@juniper-lib/emoji": "file:../Juniper/src/Juniper.TypeScript/@juniper-lib/emoji",
     "@juniper-lib/fetcher": "file:../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher",
+    "@juniper-lib/graphics2d": "file:../Juniper/src/Juniper.TypeScript/@juniper-lib/graphics2d",
     "@juniper-lib/indexdb": "file:../Juniper/src/Juniper.TypeScript/@juniper-lib/indexdb",
     "@juniper-lib/mediatypes": "file:../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes",
     "@juniper-lib/speech": "file:../Juniper/src/Juniper.TypeScript/@juniper-lib/speech",

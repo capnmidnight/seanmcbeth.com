@@ -1,0 +1,118 @@
+* {
+    box-sizing: border-box;
+}
+
+:root {
+    --main-bg-color: #b5c3ca;
+    --main-fg-color: #021822;
+    --box-bg-color: #a8b2b8;
+    --box-shadow-color: #949ca1;
+    --text-shadow-color: #949ca1;
+}
+
+html,
+body {
+    position: absolute;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    width: 100%;
+    height: 100%;
+}
+
+body {
+    font-family: 'Noto Sans', -apple-system, '.SFNSText-Regular', 'San Francisco', 'Roboto', 'Segoe UI', 'Helvetica Neue', 'Lucida Grande', sans-serif;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    background-color: var(--main-bg-color);
+    color: var(--main-fg-color);
+}
+
+a[href] {
+    color: #0874ec;
+}
+
+a:visited,
+a:focus {
+    color: #5696dd;
+}
+
+h1 {
+    font-size: 22pt;
+    text-align: center;
+    padding: 0.5em 2em;
+}
+
+.button, a.button {
+    display: block;
+    background-color: var(--box-bg-color);
+    border: solid 2px var(--main-fg-color);
+    color: var(--main-fg-color);
+    text-decoration: none;
+    text-align: center;
+}
+
+#GitHubBanner {
+    width: 75%;
+    margin: 0 auto 1em auto;
+}
+
+#GitHubBanner {
+    box-shadow: var(--box-shadow-color) 5px 5px 5px;
+    text-shadow: var(--text-shadow-color) 5px 5px 5px;
+}
+
+#appContainer {
+    overflow: hidden;
+    margin: 0;
+}
+
+#frontBuffer {
+    width: 100%;
+    height: 100%;
+}
+
+#status {
+    font-family: monospace;
+}
+
+#status::before {
+    content: ":> ";
+}
+
+@media screen and (min-width: 640px) {
+    body {
+        padding: 3em;
+        grid-gap: 1em;
+    }
+
+    #GitHubBanner {
+        position: fixed;
+        top: 0;
+        left: 0;
+        font-size: 10pt;
+        width: 20em;
+        transform: translate(-4em, 4em) rotate(-45deg) translate(-0.5em, 0);
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --main-bg-color: #1c3235;
+        --main-fg-color: #d3dde4;
+        --box-bg-color: #294c55;
+        --box-shadow-color: #172225;
+        --text-shadow-color: #172225;
+    }
+
+    a[href] {
+        color: #f5ffa8;
+        text-decoration-color: #8ef20b;
+    }
+
+    a:visited,
+    a:focus {
+        color: #9da27a;
+        text-decoration-color: #71bf0b;
+    }
+}
