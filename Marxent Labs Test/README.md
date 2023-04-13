@@ -26,36 +26,6 @@ Please submit as an self-contained zip file. You may either keep it as simple as
 
 ## Notes
 
-<style>
-
-    #notes ul {
-        list-style: none;
-    }
-
-    #notes li::before { 
-      font-weight: bold;
-    }
-
-    #notes > ul > li {
-      margin-bottom: 1em;
-    }
-
-    #notes > ul > li::before {
-      content: "Q: ";
-    }
-
-    #notes > ul > li > ul > li {
-      font-style: italic;
-    }
-
-    #notes > ul > li > ul > li::before {
-      content: "A: "
-    }
-
-</style>
-
-<div id="notes">
-
  - How should the canvas fit in the page? Should it be fully-covering, or have room for other content around it?
     - I'm assuming it should have room for other content, because that's generally harder to do right, but generalizes to the full-page experience.
  - Should there be visual feedback when the user has hovered over the object? 
@@ -72,8 +42,6 @@ Please submit as an self-contained zip file. You may either keep it as simple as
     - Models are more easily modifiable.
  - Should it support touch-screen interaction?
     - Might as well, it's not that much more work.
-
-</div> 
 
 ## Tasks
 
