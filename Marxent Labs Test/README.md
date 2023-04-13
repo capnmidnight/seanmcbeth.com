@@ -5,7 +5,6 @@
 Please use BabylonJS as your rendering engine.
 
 Create 3 shapes in the scene. 
-
  - A sphere, 
  - a 3-dimensional arrow, and 
  - a box. 
@@ -18,8 +17,86 @@ The box should remain static at a position of 0,0,0. As you can see in the diagr
 1.	The arrow's old position
 2.	The arrow's new position
 3.	The sphere's old position
+
 After the arrow complete's movement, if the box is within the triangle formed by the preceding three points, the box should turn green. Otherwise, the box should turn yellow.
 
 Please submit as an self-contained zip file. You may either keep it as simple as an index.html and index.js, or you may use webpack/npm so that the site may be viewable using "npm start".
 
 <img src="diagram.jpg" title="Diagram of object motion">
+
+## Notes
+
+<style>
+
+    #notes ul {
+        list-style: none;
+    }
+
+    #notes li::before { 
+      font-weight: bold;
+    }
+
+    #notes > ul > li {
+      margin-bottom: 1em;
+    }
+
+    #notes > ul > li::before {
+      content: "Q: ";
+    }
+
+    #notes > ul > li > ul > li {
+      font-style: italic;
+    }
+
+    #notes > ul > li > ul > li::before {
+      content: "A: "
+    }
+
+</style>
+
+<div id="notes">
+
+ - How should the canvas fit in the page? Should it be fully-covering, or have room for other content around it?
+    - I'm assuming it should have room for other content, because that's generally harder to do right, but generalizes to the full-page experience.
+ - Should there be visual feedback when the user has hovered over the object? 
+    - I'm assuming yes. More feedback is usually good.
+ - Should there be audio feedback with user interactions?
+   - Stretch goal
+ - Where should the camera be located? Should the camera be movable?
+   - asdf
+ - How should the scene be lit? Dramatic real-time spotlighting? Soft, low-key lighting with high ambient? 
+    - Soft lighting is probably more usable in editor-like interfaces.
+ - Should there be a ground plane?
+    - Yes, and it should have a blob shadow for the objects, to help judge the 3D movement.
+ - How should the arrow be created? A cone and a cylinder? gLTF 3D model?
+    - Models are more easily modifiable.
+ - Should it support touch-screen interaction?
+    - Might as well, it's not that much more work.
+
+</div> 
+
+## Tasks
+
+ - [ ] Create stub page with canvas
+ - [ ] Get BabylonJS running
+ - [ ] Add a sphere to the scene
+ - [ ] Make window resizing work right
+ - [ ] Wire up basic pointer events
+ - [ ] Figure out raycasting in BabylonJS
+ - [ ] Create a simple event system
+ - [ ] Make the sphere draggable in the X/Z axes
+ - [ ] Add a cube
+ - [ ] Figure out gLTF loading in BabylonJS
+ - [ ] Model an arrow and load it into the scene
+ - [ ] Move the arrow after the sphere is moved
+ - [ ] Point the arrow at the sphere
+ - [ ] Lerp/slerp the arrow pose
+ - [ ] Perform the triangle test
+ - [ ] Make the sphere highlight on hover. Bump the size a little and outline it
+ - [ ] Make the arrow and box dim/go translucent on hover (indicating not interactive)
+ - [ ] Pan the camera on left-click background drag
+ - [ ] Rotate the camera on right-click background drag
+ - [ ] (Optional) Create buttons to switch between top-down and in-scene camera angle
+ - [ ] (Optional) Animate camera pose
+ - [ ] (Optional) Add scroll ticking sound while dragging the sphere
+ - [ ] (Optional) add pop sound when arrow finishes moving
