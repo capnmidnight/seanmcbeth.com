@@ -45,7 +45,7 @@ Please submit as an self-contained zip file. You may either keep it as simple as
 
 ## Tasks
 
- - [ ] Create stub page with canvas
+ - [x] Create stub page with canvas
  - [ ] Get BabylonJS running
  - [ ] Add a sphere to the scene
  - [ ] Make window resizing work right
