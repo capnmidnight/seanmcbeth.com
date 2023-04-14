@@ -48,25 +48,23 @@ Please submit as an self-contained zip file. You may either keep it as simple as
 
 ## Tasks
 
- - [x] Create stub page with canvas
- - [x] Get BabylonJS running
- - [x] Add a sphere to the scene
- - [x] Make window resizing work right
- - [ ] <strike>Wire up basic pointer events</strike> (BabylonJS has its own event system)
- - [ ] <strike>Figure out raycasting in BabylonJS</strike> (BabylonJS has pointer behaviors of its own)
- - [ ] <strike>Create a simple event system</strike> (BabylonJS has its own event system)
- - [x] Make the sphere draggable in the X/Z axes
- - [x] Add a cube
- - [x] Add shadows
- - [x] Figure out gLTF loading in BabylonJS
- - [x] Model an arrow and load it into the scene
- - [x] Move the arrow after the sphere is moved
- - [x] Point the arrow at the sphere
- - [x] Lerp/slerp the arrow pose
- - [ ] Perform the triangle test
- - [ ] Make the sphere highlight on hover. Bump the size a little and outline it
- - [ ] Make the arrow and box dim/go translucent on hover (indicating not interactive)
- - [ ] (Optional) Create buttons to switch between top-down and in-scene camera angle
- - [ ] (Optional) Animate camera pose
- - [ ] (Optional) Add scroll ticking sound while dragging the sphere
- - [ ] (Optional) add pop sound when arrow finishes moving
+- [x] Create stub page with canvas
+- [x] Get BabylonJS running
+- [x] Add a sphere to the scene
+- [x] Make window resizing work right
+- [ ] <strike>Wire up basic pointer events</strike> (BabylonJS has its own event system)
+- [ ] <strike>Figure out raycasting in BabylonJS</strike> (BabylonJS has pointer behaviors of its own)
+- [ ] <strike>Create a simple event system</strike> (BabylonJS has its own event system)
+- [x] Make the sphere draggable in the X/Z axes
+- [x] Add a cube
+- [x] Add shadows
+- [x] Figure out gLTF loading in BabylonJS
+- [x] Model an arrow and load it into the scene
+- [x] Move the arrow after the sphere is moved
+- [x] Point the arrow at the sphere
+- [x] Lerp/slerp the arrow pose
+- [x] Perform the triangle test
+- [ ] Make the sphere highlight on hover. Bump the size a little and outline it
+- [ ] Make the arrow and box dim/go translucent on hover (indicating not interactive)
+- [ ] (Optional) Add scroll ticking sound while dragging the sphere
+- [ ] (Optional) add pop sound when arrow finishes moving

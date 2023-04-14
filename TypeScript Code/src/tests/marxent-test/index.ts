@@ -21,10 +21,29 @@ import "@babylonjs/loaders";
 
 import "./index.css";
 
-const objectSize = 0.25;
+const objectSize = 0.1;
 const animationFrameRate = 30;
 const animationLength = 0.25;
 const animationFrames = animationLength * animationFrameRate;
+
+const deltaA = new Vector3();
+const deltaB = new Vector3();
+function testSide(segA: Vector3, segB: Vector3, point: Vector3): number {
+    deltaA.copyFrom(segA)
+        .subtractInPlace(point);
+    deltaB.copyFrom(segB)
+        .subtractInPlace(point);
+    return deltaA.x * deltaB.z - deltaB.x * deltaA.z;
+}
+
+function pointInTriangle(triA: Vector3, triB: Vector3, triC: Vector3, point: Vector3): boolean {
+    const a = testSide(triA, triB, point);
+    const b = testSide(triB, triC, point);
+    const c = testSide(triC, triA, point);
+    const allPos = Math.min(a, b, c) > 0;
+    const allNeg = Math.max(a, b, c) < 0;
+    return allPos || allNeg;
+}
 
 (async function () {
     const canvas = document.querySelector<HTMLCanvasElement>("#frontBuffer");
@@ -35,7 +54,7 @@ const animationFrames = animationLength * animationFrameRate;
     resizer.observe(canvas);
 
     const camera = new UniversalCamera("camera",
-        new Vector3(0, 2, -5));
+        new Vector3(0, 1, -2));
     camera.setTarget(Vector3.Zero());
     camera.attachControl(canvas, true);
 
@@ -51,24 +70,38 @@ const animationFrames = animationLength * animationFrameRate;
     keyLight.intensity = 0.3;
     keyLight.shadowEnabled = true;
 
-    const basicMat = new StandardMaterial("sphereMat");
+    const basicMat = new StandardMaterial("basicMat");
     basicMat.diffuseColor = new Color3(0.75, 0.75, 1);
+    const interiorMat = new StandardMaterial("interiorMat");
+    interiorMat.diffuseColor = new Color3(0.5, 1, 0.5);
+    const exteriorMat = new StandardMaterial("exteriorMat");
+    exteriorMat.diffuseColor = new Color3(1, 1, 0.5);
 
-    const sphere = MeshBuilder.CreateSphere("sphere", { diameter: objectSize, segments: 32 });
-    sphere.position.set(-1, 0.5 * objectSize, -0.5);
+    const sphere = MeshBuilder.CreateSphere("sphere", {
+        diameter: objectSize,
+        segments: 32
+    });
+    sphere.position.set(-0.5, 0.5 * objectSize, -0.5);
     sphere.material = basicMat;
 
-    const box = MeshBuilder.CreateBox("box", { width: objectSize, height: objectSize, depth: objectSize });
+    const box = MeshBuilder.CreateBox("box", {
+        width: objectSize,
+        height: objectSize,
+        depth: objectSize
+    });
     box.position.set(0, 0.5 * objectSize, 0);
     box.material = basicMat;
 
-    const ground = MeshBuilder.CreateGround("ground", { width: 10, height: 10 });
+    const ground = MeshBuilder.CreateGround("ground", {
+        width: 30 * objectSize,
+        height: 30 * objectSize
+    });
     ground.receiveShadows = true;
 
     const arrowResult = await SceneLoader.ImportMeshAsync("", "/models/", "Arrow.glb");
     const arrow = arrowResult.meshes[0];
     arrowResult.meshes[1].scaling.setAll(objectSize)
-    arrow.position.set(1, 0.5 * objectSize, -0.5);
+    arrow.position.set(0.5, 0.5 * objectSize, -0.5);
     arrow.lookAt(sphere.position);
 
     const shadows = new ShadowGenerator(1024, keyLight);
@@ -78,10 +111,7 @@ const animationFrames = animationLength * animationFrameRate;
     shadows.addShadowCaster(arrow);
 
     const lastSpherePosition = new Vector3();
-    lastSpherePosition.copyFrom(sphere.position);
-
     const spherePositionDelta = new Vector3();
-
     const arrowStartPosition = new Vector3();
     const arrowEndPosition = new Vector3();
     const arrowStartQuaternion = new Quaternion();
@@ -111,6 +141,10 @@ const animationFrames = animationLength * animationFrameRate;
     dragSphereBehavior.updateDragPlane = false;
     dragSphereBehavior.dragDeltaRatio = 1;
     dragSphereBehavior.attach(sphere);
+
+    dragSphereBehavior.onDragStartObservable.add(() =>
+        lastSpherePosition.copyFrom(sphere.position));
+
     dragSphereBehavior.onDragEndObservable.add(() => {
         arrowStartPosition.copyFrom(arrow.position);
         arrowStartQuaternion.copyFrom(arrow.rotationQuaternion);
@@ -119,7 +153,7 @@ const animationFrames = animationLength * animationFrameRate;
             .copyFrom(sphere.position)
             .subtractInPlace(lastSpherePosition);
 
-        const len = spherePositionDelta.length();
+        const len = spherePositionDelta.length(); 1
         if (len > 0) {
             spherePositionDelta.normalizeFromLength(len);
 
@@ -140,28 +174,18 @@ const animationFrames = animationLength * animationFrameRate;
                 { frame: animationFrames, value: arrowEndQuaternion }
             ]);
 
-            scene.beginAnimation(arrow, 0, animationFrames);
+            const mat = pointInTriangle(lastSpherePosition, arrowStartPosition, arrowEndPosition, box.position)
+                ? interiorMat
+                : exteriorMat
 
-            lastSpherePosition.copyFrom(sphere.position);
+            scene.beginAnimation(arrow, 0, animationFrames)
+                .waitAsync()
+                .then(() => box.material = mat);
         }
     });
 
     engine.runRenderLoop(() => scene.render());
 
-    Object.assign(window, {
-        canvas,
-        engine,
-        scene,
-        camera,
-        fillLight,
-        keyLight,
-        sphere,
-        box,
-        ground,
-        arrowResult,
-        arrow,
-        shadows
-    });
 })().catch(exp => {
     console.error(exp);
 });
