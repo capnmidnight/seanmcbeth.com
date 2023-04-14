@@ -1,12 +1,18 @@
 import {
+    Animation,
+    CircleEase,
+    Color3,
     DirectionalLight,
+    EasingFunction,
     Engine,
     HemisphericLight,
     MeshBuilder,
     PointerDragBehavior,
+    Quaternion,
     Scene,
     SceneLoader,
     ShadowGenerator,
+    StandardMaterial,
     UniversalCamera,
     Vector3
 } from "@babylonjs/core";
@@ -14,6 +20,11 @@ import {
 import "@babylonjs/loaders";
 
 import "./index.css";
+
+const objectSize = 0.25;
+const animationFrameRate = 30;
+const animationLength = 0.25;
+const animationFrames = animationLength * animationFrameRate;
 
 (async function () {
     const canvas = document.querySelector<HTMLCanvasElement>("#frontBuffer");
@@ -24,7 +35,7 @@ import "./index.css";
     resizer.observe(canvas);
 
     const camera = new UniversalCamera("camera",
-        new Vector3(0, 5, -10));
+        new Vector3(0, 2, -5));
     camera.setTarget(Vector3.Zero());
     camera.attachControl(canvas, true);
 
@@ -36,25 +47,32 @@ import "./index.css";
     const keyLight = new DirectionalLight("keyLight",
         new Vector3(-10, -10, 7).normalize(),
         scene);
-    keyLight.position.set(10, 10, -7);
+    keyLight.position.set(5, 5, -7);
     keyLight.intensity = 0.3;
     keyLight.shadowEnabled = true;
 
-    const sphere = MeshBuilder.CreateSphere("sphere", { diameter: 1, segments: 32 });
-    sphere.position.set(-3, 0.5, -1.5);
+    const basicMat = new StandardMaterial("sphereMat");
+    basicMat.diffuseColor = new Color3(0.75, 0.75, 1);
 
-    const box = MeshBuilder.CreateBox("box", { width: 1, height: 1 });
-    box.position.set(0, 0.5, 0);
+    const sphere = MeshBuilder.CreateSphere("sphere", { diameter: objectSize, segments: 32 });
+    sphere.position.set(-1, 0.5 * objectSize, -0.5);
+    sphere.material = basicMat;
+
+    const box = MeshBuilder.CreateBox("box", { width: objectSize, height: objectSize, depth: objectSize });
+    box.position.set(0, 0.5 * objectSize, 0);
+    box.material = basicMat;
 
     const ground = MeshBuilder.CreateGround("ground", { width: 10, height: 10 });
     ground.receiveShadows = true;
 
     const arrowResult = await SceneLoader.ImportMeshAsync("", "/models/", "Arrow.glb");
     const arrow = arrowResult.meshes[0];
-    arrow.position.set(3, 0.5, -1.5);
+    arrowResult.meshes[1].scaling.setAll(objectSize)
+    arrow.position.set(1, 0.5 * objectSize, -0.5);
     arrow.lookAt(sphere.position);
 
     const shadows = new ShadowGenerator(1024, keyLight);
+    shadows.bias = 0.000005;
     shadows.addShadowCaster(sphere);
     shadows.addShadowCaster(box);
     shadows.addShadowCaster(arrow);
@@ -62,7 +80,29 @@ import "./index.css";
     const lastSpherePosition = new Vector3();
     lastSpherePosition.copyFrom(sphere.position);
 
-    const spherePosDelta = new Vector3();
+    const spherePositionDelta = new Vector3();
+
+    const arrowStartPosition = new Vector3();
+    const arrowEndPosition = new Vector3();
+    const arrowStartQuaternion = new Quaternion();
+
+    const ease = new CircleEase();
+    ease.setEasingMode(EasingFunction.EASINGMODE_EASEINOUT);
+
+    const arrowPosAnimation = new Animation("arrowPos",
+        "position",
+        animationFrameRate,
+        Animation.ANIMATIONTYPE_VECTOR3,
+        Animation.ANIMATIONLOOPMODE_CONSTANT);
+    arrowPosAnimation.setEasingFunction(ease);
+
+    const arrowQuatAnimation = new Animation("arrowQuat",
+        "rotationQuaternion",
+        animationFrameRate,
+        Animation.ANIMATIONTYPE_QUATERNION,
+        Animation.ANIMATIONLOOPMODE_CONSTANT);
+
+    arrow.animations.push(arrowPosAnimation, arrowQuatAnimation);
 
     const dragSphereBehavior = new PointerDragBehavior({
         dragPlaneNormal: Vector3.Up()
@@ -72,19 +112,38 @@ import "./index.css";
     dragSphereBehavior.dragDeltaRatio = 1;
     dragSphereBehavior.attach(sphere);
     dragSphereBehavior.onDragEndObservable.add(() => {
-        spherePosDelta
+        arrowStartPosition.copyFrom(arrow.position);
+        arrowStartQuaternion.copyFrom(arrow.rotationQuaternion);
+
+        spherePositionDelta
             .copyFrom(sphere.position)
-            .subtractInPlace(lastSpherePosition)
-            .normalize()
-            .scale(0.5);
+            .subtractInPlace(lastSpherePosition);
 
-        arrow.position
-            .copyFrom(sphere.position)
-            .addInPlace(spherePosDelta);
+        const len = spherePositionDelta.length();
+        if (len > 0) {
+            spherePositionDelta.normalizeFromLength(len);
 
-        arrow.lookAt(sphere.position);
+            const arrowEndQuaternion = Quaternion.FromLookDirectionLH(spherePositionDelta, Vector3.Up());
 
-        lastSpherePosition.copyFrom(sphere.position);
+            arrowEndPosition
+                .copyFrom(spherePositionDelta)
+                .scaleInPlace(0.5)
+                .addInPlace(sphere.position);
+
+            arrowPosAnimation.setKeys([
+                { frame: 0, value: arrowStartPosition },
+                { frame: animationFrames, value: arrowEndPosition }
+            ]);
+
+            arrowQuatAnimation.setKeys([
+                { frame: 0, value: arrowStartQuaternion },
+                { frame: animationFrames, value: arrowEndQuaternion }
+            ]);
+
+            scene.beginAnimation(arrow, 0, animationFrames);
+
+            lastSpherePosition.copyFrom(sphere.position);
+        }
     });
 
     engine.runRenderLoop(() => scene.render());
@@ -100,7 +159,8 @@ import "./index.css";
         box,
         ground,
         arrowResult,
-        arrow
+        arrow,
+        shadows
     });
 })().catch(exp => {
     console.error(exp);
