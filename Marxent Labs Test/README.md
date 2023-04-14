@@ -55,8 +55,8 @@ Please submit as an self-contained zip file. You may either keep it as simple as
  - [ ] Make the sphere draggable in the X/Z axes
  - [x] Add a cube
  - [x] Add shadows
- - [ ] Figure out gLTF loading in BabylonJS
- - [ ] Model an arrow and load it into the scene
+ - [x] Figure out gLTF loading in BabylonJS
+ - [x] Model an arrow and load it into the scene
  - [ ] Move the arrow after the sphere is moved
  - [ ] Point the arrow at the sphere
  - [ ] Lerp/slerp the arrow pose

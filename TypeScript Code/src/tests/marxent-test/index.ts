@@ -4,14 +4,17 @@ import {
     HemisphericLight,
     MeshBuilder,
     Scene,
+    SceneLoader,
     ShadowGenerator,
     UniversalCamera,
     Vector3
 } from "@babylonjs/core";
 
+import "@babylonjs/loaders";
+
 import "./index.css";
 
-try {
+(async function () {
     const canvas = document.querySelector<HTMLCanvasElement>("#frontBuffer");
     const engine = new Engine(canvas, true, { adaptToDeviceRatio: true });
     const scene = new Scene(engine);
@@ -45,9 +48,17 @@ try {
     const ground = MeshBuilder.CreateGround("ground", { width: 10, height: 10 });
     ground.receiveShadows = true;
 
+
+
+    const arrowResult = await SceneLoader.ImportMeshAsync("", "/models/", "Arrow.glb");
+    const arrow = arrowResult.meshes[0];
+    arrow.position.set(-2, 2, 2);
+    arrow.lookAt(Vector3.Zero())
+
     const shadows = new ShadowGenerator(1024, keyLight);
     shadows.addShadowCaster(sphere);
     shadows.addShadowCaster(box);
+    shadows.addShadowCaster(arrow);
 
     engine.runRenderLoop(() => scene.render());
 
@@ -60,9 +71,10 @@ try {
         keyLight,
         sphere,
         box,
-        ground
+        ground,
+        arrowResult,
+        arrow
     });
-}
-catch (exp) {
+})().catch(exp => {
     console.error(exp);
-}
+});
