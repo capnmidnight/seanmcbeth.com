@@ -68,6 +68,8 @@ h1 {
 }
 
 #frontBuffer {
+    box-shadow: var(--box-shadow-color) 5px 5px 5px;
+    touch-action: none;
     width: 100%;
     height: 100%;
 }

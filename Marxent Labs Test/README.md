@@ -27,27 +27,27 @@ Please submit as an self-contained zip file. You may either keep it as simple as
 ## Notes
 
  - How should the canvas fit in the page? Should it be fully-covering, or have room for other content around it?
-    - I'm assuming it should have room for other content, because that's generally harder to do right, but generalizes to the full-page experience.
+   - I'm assuming it should have room for other content, because that's generally harder to do right, but generalizes to the full-page experience.
  - Should there be visual feedback when the user has hovered over the object? 
-    - I'm assuming yes. More feedback is usually good.
+   - I'm assuming yes. More feedback is usually good.
  - Should there be audio feedback with user interactions?
    - Stretch goal
  - Where should the camera be located? Should the camera be movable?
-   - asdf
+   - No, keep it simple.
  - How should the scene be lit? Dramatic real-time spotlighting? Soft, low-key lighting with high ambient? 
-    - Soft lighting is probably more usable in editor-like interfaces.
+   - Soft lighting is probably more usable in editor-like interfaces.
  - Should there be a ground plane?
-    - Yes, and it should have a blob shadow for the objects, to help judge the 3D movement.
+   - Yes, and it should have a blob shadow for the objects, to help judge the 3D movement.
  - How should the arrow be created? A cone and a cylinder? gLTF 3D model?
-    - Models are more easily modifiable.
+   - Models are more easily modifiable.
  - Should it support touch-screen interaction?
-    - Might as well, it's not that much more work.
+   - Might as well, it's not that much more work.
 
 ## Tasks
 
  - [x] Create stub page with canvas
- - [ ] Get BabylonJS running
- - [ ] Add a sphere to the scene
+ - [x] Get BabylonJS running
+ - [x] Add a sphere to the scene
  - [x] Make window resizing work right
  - [ ] Wire up basic pointer events
  - [ ] Figure out raycasting in BabylonJS
@@ -62,8 +62,6 @@ Please submit as an self-contained zip file. You may either keep it as simple as
  - [ ] Perform the triangle test
  - [ ] Make the sphere highlight on hover. Bump the size a little and outline it
  - [ ] Make the arrow and box dim/go translucent on hover (indicating not interactive)
- - [ ] Pan the camera on left-click background drag
- - [ ] Rotate the camera on right-click background drag
  - [ ] (Optional) Create buttons to switch between top-down and in-scene camera angle
  - [ ] (Optional) Animate camera pose
  - [ ] (Optional) Add scroll ticking sound while dragging the sphere
