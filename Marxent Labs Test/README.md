@@ -37,11 +37,12 @@ Please submit as an self-contained zip file. You may either keep it as simple as
  - How should the scene be lit? Dramatic real-time spotlighting? Soft, low-key lighting with high ambient? 
    - Soft lighting is probably more usable in editor-like interfaces.
  - Should there be a ground plane?
-   - Yes, and it should have a blob shadow for the objects, to help judge the 3D movement.
+   - Yes, and it should have shadows for the objects, to help judge the 3D movement.
  - How should the arrow be created? A cone and a cylinder? gLTF 3D model?
    - Models are more easily modifiable.
  - Should it support touch-screen interaction?
    - Might as well, it's not that much more work.
+- I'm finding that each of the features of the test has a specific BabylonJS feature that fulfills it, whereas in Three.js I'd have to do things more manually. So I'm starting from the assumption "oh, I need to do X to get this done" and then finding that there isn't an easy way to do it that way. But I don't have awareness of the existence of all the features of BabylonJS, so it's a little difficult to figure out the right approach.
 
 ## Tasks
 
@@ -49,10 +50,10 @@ Please submit as an self-contained zip file. You may either keep it as simple as
  - [x] Get BabylonJS running
  - [x] Add a sphere to the scene
  - [x] Make window resizing work right
- - [ ] Wire up basic pointer events
- - [ ] Figure out raycasting in BabylonJS
- - [ ] Create a simple event system
- - [ ] Make the sphere draggable in the X/Z axes
+ - [ ] <strike>Wire up basic pointer events</strike> (BabylonJS has its own event system)
+ - [ ] <strike>Figure out raycasting in BabylonJS</strike> (BabylonJS has pointer behaviors of its own)
+ - [ ] <strike>Create a simple event system</strike> (BabylonJS has its own event system)
+ - [x] Make the sphere draggable in the X/Z axes
  - [x] Add a cube
  - [x] Add shadows
  - [x] Figure out gLTF loading in BabylonJS

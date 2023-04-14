@@ -3,6 +3,7 @@ import {
     Engine,
     HemisphericLight,
     MeshBuilder,
+    PointerDragBehavior,
     Scene,
     SceneLoader,
     ShadowGenerator,
@@ -48,8 +49,6 @@ import "./index.css";
     const ground = MeshBuilder.CreateGround("ground", { width: 10, height: 10 });
     ground.receiveShadows = true;
 
-
-
     const arrowResult = await SceneLoader.ImportMeshAsync("", "/models/", "Arrow.glb");
     const arrow = arrowResult.meshes[0];
     arrow.position.set(-2, 2, 2);
@@ -59,6 +58,14 @@ import "./index.css";
     shadows.addShadowCaster(sphere);
     shadows.addShadowCaster(box);
     shadows.addShadowCaster(arrow);
+
+    const dragSphereBehavior = new PointerDragBehavior({
+        dragPlaneNormal: Vector3.Up()
+    });
+    dragSphereBehavior.useObjectOrientationForDragging = false;
+    dragSphereBehavior.updateDragPlane = false;
+    dragSphereBehavior.attach(sphere);
+    
 
     engine.runRenderLoop(() => scene.render());
 
