@@ -52,9 +52,6 @@ Please submit as an self-contained zip file. You may either keep it as simple as
 - [x] Get BabylonJS running
 - [x] Add a sphere to the scene
 - [x] Make window resizing work right
-- [ ] <strike>Wire up basic pointer events</strike> (BabylonJS has its own event system)
-- [ ] <strike>Figure out raycasting in BabylonJS</strike> (BabylonJS has pointer behaviors of its own)
-- [ ] <strike>Create a simple event system</strike> (BabylonJS has its own event system)
 - [x] Make the sphere draggable in the X/Z axes
 - [x] Add a cube
 - [x] Add shadows
@@ -64,7 +61,5 @@ Please submit as an self-contained zip file. You may either keep it as simple as
 - [x] Point the arrow at the sphere
 - [x] Lerp/slerp the arrow pose
 - [x] Perform the triangle test
-- [ ] Make the sphere highlight on hover. Bump the size a little and outline it
-- [ ] Make the arrow and box dim/go translucent on hover (indicating not interactive)
-- [ ] (Optional) Add scroll ticking sound while dragging the sphere
-- [ ] (Optional) add pop sound when arrow finishes moving
+- [x] (Optional) Make the sphere highlight on hover. Bump the size a little and outline it
+- [x] (Optional) Make the box dim translucent on hover (indicating not interactive)

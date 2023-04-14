@@ -1,4 +1,5 @@
 import {
+    ActionManager,
     Animation,
     CircleEase,
     Color3,
@@ -7,10 +8,10 @@ import {
     Engine,
     HemisphericLight,
     MeshBuilder,
-    PointerDragBehavior,
-    Quaternion,
+    PointerDragBehavior, Quaternion,
     Scene,
     SceneLoader,
+    SetValueAction,
     ShadowGenerator,
     StandardMaterial,
     UniversalCamera,
@@ -70,10 +71,18 @@ function pointInTriangle(triA: Vector3, triB: Vector3, triC: Vector3, point: Vec
     keyLight.intensity = 0.3;
     keyLight.shadowEnabled = true;
 
+    const activeMat = new StandardMaterial("activeMat");
+    activeMat.diffuseColor = new Color3(0.25, 0.25, 1);
+
     const basicMat = new StandardMaterial("basicMat");
-    basicMat.diffuseColor = new Color3(0.75, 0.75, 1);
+    basicMat.diffuseColor = new Color3(0.5, 0.5, 1);
+
+    const inactiveMat = new StandardMaterial("inactiveMat");
+    inactiveMat.diffuseColor = new Color3(0.75, 0.75, 1);
+
     const interiorMat = new StandardMaterial("interiorMat");
     interiorMat.diffuseColor = new Color3(0.5, 1, 0.5);
+
     const exteriorMat = new StandardMaterial("exteriorMat");
     exteriorMat.diffuseColor = new Color3(1, 1, 0.5);
 
@@ -183,6 +192,50 @@ function pointInTriangle(triA: Vector3, triB: Vector3, triC: Vector3, point: Vec
                 .then(() => box.material = mat);
         }
     });
+
+    box.actionManager = new ActionManager();
+    box.actionManager.registerAction(new SetValueAction(
+        { trigger: ActionManager.OnPointerOverTrigger },
+        box,
+        "material",
+        inactiveMat
+    ));
+
+    box.actionManager.registerAction(new SetValueAction(
+        { trigger: ActionManager.OnPointerOutTrigger },
+        box,
+        "material",
+        basicMat
+    ));
+
+    sphere.actionManager = new ActionManager();
+    sphere.actionManager.registerAction(new SetValueAction(
+        { trigger: ActionManager.OnPointerOverTrigger },
+        sphere,
+        "material",
+        activeMat
+    ));
+
+    sphere.actionManager.registerAction(new SetValueAction(
+        { trigger: ActionManager.OnPointerOverTrigger },
+        sphere,
+        "scaling",
+        new Vector3(1.1, 1.1, 1.1)
+    ));
+
+    sphere.actionManager.registerAction(new SetValueAction(
+        { trigger: ActionManager.OnPointerOutTrigger },
+        sphere,
+        "material",
+        basicMat
+    ));
+
+    sphere.actionManager.registerAction(new SetValueAction(
+        { trigger: ActionManager.OnPointerOutTrigger },
+        sphere,
+        "scaling",
+        new Vector3(1, 1, 1)
+    ));
 
     engine.runRenderLoop(() => scene.render());
 
