@@ -23,7 +23,7 @@ body {
 body {
     font-family: 'Noto Sans', -apple-system, '.SFNSText-Regular', 'San Francisco', 'Roboto', 'Segoe UI', 'Helvetica Neue', 'Lucida Grande', sans-serif;
     display: grid;
-    grid-template-rows: auto 1fr auto;
+    grid-template-rows: auto 1fr;
     background-color: var(--main-bg-color);
     color: var(--main-fg-color);
 }

@@ -9,33 +9,8 @@ import {
 
 import "./index.css";
 
-const logOutput = document.querySelector("#status");
-const logs = new Array<Node>();
-
-
-function log(msg: any) {
-    console.info(msg);
-    if (typeof msg === "object" && "toString" in msg) {
-        msg = msg.toString();
-    }
-    const logText = document.createTextNode(msg);
-    const logLine = document.createElement("div");
-    logLine.appendChild(logText);
-    logs.push(logLine);
-    logs.splice(0, Math.max(0, logs.length - 5));
-
-    logOutput.replaceChildren(...logs);
-}
-
 try {
-
-    log("Starting up");
-
     const canvas = document.querySelector<HTMLCanvasElement>("#frontBuffer");
-
-    log("Got canvas");
-    log(canvas);
-
     // Creates a basic Babylon Scene object
     const engine = new Engine(canvas, true, {
         adaptToDeviceRatio: true,
@@ -73,11 +48,10 @@ try {
         { width: 6, height: 6 },
         scene);
 
-    log(ground);
 
     engine.runRenderLoop(() =>
         scene.render());
 }
 catch (exp) {
-    log(exp);
+    console.error(exp);
 }
