@@ -17,6 +17,8 @@ import { AIForm } from "./AIForm";
 import { CharacterLine } from "./CharacterLine";
 import { ConversationClient } from "./ConversationClient";
 
+import "./styles.css";
+
 (async function () {
 
     const form = new AIForm();

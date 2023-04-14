@@ -1,0 +1,8 @@
+﻿em {
+    font-style: normal;
+    font-weight: bold;
+}
+
+.tab-panel > .panels > * {
+    padding: 1em;
+}

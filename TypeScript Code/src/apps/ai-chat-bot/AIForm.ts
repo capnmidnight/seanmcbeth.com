@@ -1,12 +1,13 @@
-import { disabled, max, min, placeHolder, selected, step, value } from "@juniper-lib/dom/attrs";
-import { display, em, flexDirection, fontFamily, height, perc, textAlign, width } from "@juniper-lib/dom/css";
+import { allow, disabled, frameBorder, href, htmlHeight, htmlWidth, max, min, placeHolder, scrolling, selected, src, step, target, title, value } from "@juniper-lib/dom/attrs";
+import { color, display, em, flexDirection, fontFamily, fontSize, fontWeight, height, justifyContent, lineBreak, overflow, perc, textAlign, textDecoration, textOverflow, whiteSpace, width, wordBreak } from "@juniper-lib/dom/css";
 import { onClick, onInput } from "@juniper-lib/dom/evts";
-import { ButtonDanger, ButtonPrimary, Div, elementApply, elementClearChildren, elementSetText, ErsatzElement, H2, Img, InputRange, Meter, Option, Pre, Select, TextArea } from "@juniper-lib/dom/tags";
+import { A, ButtonDanger, ButtonPrimary, Div, elementApply, elementClearChildren, elementSetText, Em, ErsatzElement, IFrame, Img, InputRange, Meter, Option, P, Pre, Select, TextArea, UL } from "@juniper-lib/dom/tags";
 import { arrayReplace, arraySortByKey } from "@juniper-lib/tslib/collections/arrays";
 import { debounce } from "@juniper-lib/tslib/events/debounce";
 import { TypedEvent, TypedEventBase } from "@juniper-lib/tslib/events/EventBase";
 import { CultureDescriptions, LanguageDescriptions } from "@juniper-lib/tslib/Languages";
-import { group, PropertyList } from "@juniper-lib/widgets/PropertyList";
+import { PropertyList } from "@juniper-lib/widgets/PropertyList";
+import { TabPanel } from "@juniper-lib/widgets/TabPanel";
 import { CharacterLine } from "./CharacterLine";
 import { genderNames, Viseme, Voice } from "./ConversationClient";
 
@@ -26,6 +27,47 @@ export interface AIFormEvents {
     export: TypedEvent<"export">;
     microphoneselected: MicrophoneSelectedEvent;
     volumechanged: TypedEvent<"volumechanged">;
+}
+
+function embedSoundCloud(trackId: string, linkUrl: string, linkTitle: string) {
+    return Div(
+        IFrame(
+            htmlWidth("100%"),
+            htmlHeight("166"),
+            scrolling(false),
+            frameBorder(false),
+            allow("autoplay"),
+            src(`https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/${trackId}&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true`)
+        ),
+        Div(
+            fontSize("10px"),
+            color("#cccccc"),
+            lineBreak("anywhere"),
+            wordBreak("normal"),
+            overflow("hidden"),
+            whiteSpace("nowrap"),
+            textOverflow("ellipsis"),
+            fontFamily("Interstate,Lucida Grande,Lucida Sans Unicode,Lucida Sans,Garuda,Verdana,Tahoma,sans-serif"),
+            fontWeight("100"),
+            A(
+                color("#cccccc"),
+                textDecoration("none"),
+                href("https://soundcloud.com/sean-t-mcbeth"),
+                title("Sean McBeth"),
+                target("_blank"),
+                "Sean McBeth"
+            ),
+            " · ",
+            A(
+                color("#cccccc"),
+                textDecoration("none"),
+                href(linkUrl),
+                title(linkTitle),
+                target("_blank"),
+                linkTitle
+            )
+        )
+    );
 }
 
 export class AIForm extends TypedEventBase<AIFormEvents> implements ErsatzElement {
@@ -200,39 +242,91 @@ export class AIForm extends TypedEventBase<AIFormEvents> implements ErsatzElemen
             Div(
                 display("flex"),
                 flexDirection("column"),
-                new PropertyList(
-                    display("inline-grid"),
-                    Div(
-                        this.startStopButton = ButtonPrimary(
-                            onClick(() => {
-                                this.dispatchEvent(this.listening ? this.stopEvt : this.startEvt);
-                                this.listening = !this.listening;
-                            }),
-                            "Start listening"
-                        ),
-
-                        this.repromptButton = ButtonPrimary(
-                            "Reprompt",
-                            onClick(() => this.dispatchEvent(this.repromptEvt))
-                        ),
-
-                        this.exportButton = ButtonPrimary(
-                            "Export",
-                            disabled(true),
-                            onClick(() => this.dispatchEvent(this.exportEvt))
-                        ),
-
-                        this.resetButton = ButtonDanger(
-                            "Reset",
-                            disabled(true),
-                            onClick(reset)
-                        )
+                Div(
+                    display("flex"),
+                    flexDirection("row"),
+                    justifyContent("center"),
+                    this.startStopButton = ButtonPrimary(
+                        onClick(() => {
+                            this.dispatchEvent(this.listening ? this.stopEvt : this.startEvt);
+                            this.listening = !this.listening;
+                        }),
+                        "Start listening"
                     ),
 
-                    this.recordingStatus = Pre("Not listening, click 'Start listening'"),
+                    this.repromptButton = ButtonPrimary(
+                        "Reprompt",
+                        onClick(() => this.dispatchEvent(this.repromptEvt))
+                    ),
 
-                    group("Input",
-                        H2("Input"),
+                    this.exportButton = ButtonPrimary(
+                        "Export",
+                        disabled(true),
+                        onClick(() => this.dispatchEvent(this.exportEvt))
+                    ),
+
+                    this.resetButton = ButtonDanger(
+                        "Reset",
+                        disabled(true),
+                        onClick(reset)
+                    )
+                ),
+
+                this.recordingStatus = Pre("Not listening, click 'Start listening'"),
+
+                new TabPanel<"input" | "output" | "about" | "usage" | "examples">(
+                    ["about", "About", Div(
+                        P(`This basic AI chat-bot experiment uses Speech-to-Text technology
+                           and some clever prompting of an OpenAI LLM to generate characterized 
+                           responses, which are then piped out to a Text-to-Speech engine,
+                           with a lip-sync visualization.`),
+                        P(`I've found it to be an entertaining distraction to start conversations 
+                           with the AI, change up characters, and build out fake "Podcasts" from
+                           the exported audio. Check the `, Em(`"Examples tab"`), ` for links to
+                           a few of them`)
+                    )],
+
+                    ["usage", "Usage", Div(
+                        P(`Grant the `, Em(`Microphone Permission`), ` when the page loads. Without it, there
+                           is no other way to interface with the AI.`),
+                        P(`Use the `, Em(`Output tab`), ` to change characters and output language. There is
+                           also an "Additional prompt" field in which you can provide extra
+                           background on the conversation, like character background notes,
+                           or situational details.`),
+                        P(`Check the `, Em(`Input tab`), ` to make sure your microphone and language settings
+                           are correct. The input language doesn't matter too much, but it's helpful
+                           in the context I originally wrote this demo: building conversation
+                           practice tools for learning foreign languages.`),
+                        P(`Click the `, Em(`"Start listening"`), ` button to begin recording speech. The app
+                           attempts to detect quiet spaces around your utterances, so you don't
+                           need to click `, Em(`"Stop listening"`), ` in between each of your prompts.`),
+                        P(`However, if you're in a noisy environment, or your speakers are turned
+                           up too loud and your microphone ends up hearing the generated speech
+                           and interprets it as your own speech, you can use the "Start/stop"
+                           button to pause recording when you're done talking to avoid erroneous
+                           prompt recordings`),
+                        P(`The `, Em(`"Reprompt"`), ` button will force another reply from the AI without
+                           requiring your verbal input.`),
+                        P(`The `, Em(`"Export"`), ` button will concatenate all of the audio clips, both
+                           your own and the AI's generated clips, into a single audio file,
+                           which you can then do with as you wish.`)
+                    )],
+
+                    ["output", "Output", new PropertyList(
+                        ["Language", this.outLanguageSelector = Select(onInput(() => this.onOutLanguageSelected(true)))],
+                        ["Culture", this.outCultureSelector = Select(onInput(() => this.onOutCultureSelected(true)))],
+                        ["Gender", this.outGenderSelector = Select(onInput(() => this.onOutGenderLookup(true)))],
+                        ["Voice", this.outNameSelector = Select(onInput(() => this.onOutNameLookup()))],
+                        ["Style", this.outStyleSelector = Select()],
+                        ["Additional prompt", this.promptInput = TextArea(
+                            fontFamily("monospace"),
+                            textAlign("left"),
+                            height(em(5)),
+                            placeHolder("Add additional prompt text here, e.g. to change instructions mid-conversation...")
+                        )]
+                    )],
+
+                    ["input", "Input", new PropertyList(
                         ["Microphone", this.micSelector = Select(
                             onInput(async () => {
                                 const mic = this.mics.get(this.micSelector.value);
@@ -254,24 +348,18 @@ export class AIForm extends TypedEventBase<AIFormEvents> implements ErsatzElemen
                         )],
                         ["Language", this.inLanguageSelector = Select(onInput(() => this.onInLanguageSelected(false)))],
                         ["Culture", this.inCultureSelector = Select(onInput(() => this.onInCultureSelected()))],
-                    ),
+                    )],
 
-                    group("Output",
-                        H2("Output"),
-                        ["Language", this.outLanguageSelector = Select(onInput(() => this.onOutLanguageSelected(true)))],
-                        ["Culture", this.outCultureSelector = Select(onInput(() => this.onOutCultureSelected(true)))],
-                        ["Gender", this.outGenderSelector = Select(onInput(() => this.onOutGenderLookup(true)))],
-                        ["Voice", this.outNameSelector = Select(onInput(() => this.onOutNameLookup()))],
-                        ["Style", this.outStyleSelector = Select()],
-                        ["Additional prompt", this.promptInput = TextArea(
-                            fontFamily("monospace"),
-                            textAlign("left"),
-                            height(em(5)),
-                            placeHolder("Add additional prompt text here, e.g. to change instructions mid-conversation...")
-                        )],
-                        ["Face", this.visemeImage = Img()]
-                    )
+                    ["examples", "Examples", Div(
+                        embedSoundCloud("1443401830", "https://soundcloud.com/sean-t-mcbeth/a-conversation-with-gpt-3", "A conversation with GPT-3"),
+
+                        embedSoundCloud("1443481762", "https://soundcloud.com/sean-t-mcbeth/ai-podcast", "AI Podcast"),
+
+                        embedSoundCloud("1445106046", "https://soundcloud.com/sean-t-mcbeth/conversations-with-ai", "conversations with AI")
+                    )]
                 ),
+
+                this.visemeImage = Img(),
 
                 this.output = Div(
                     fontFamily("monospace"),
