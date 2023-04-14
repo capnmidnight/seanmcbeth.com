@@ -91,13 +91,7 @@ namespace SeanMcBeth
                         { "UI Dragged", (pathHelper.UIDraggedAudio,  audioOutput.Touch("basic_dragged.mp3")) },
                         { "UI Enter", (pathHelper.UIEnterAudio,  audioOutput.Touch("basic_enter.mp3")) },
                         { "UI Error", (pathHelper.UIErrorAudio,  audioOutput.Touch("basic_error.mp3")) },
-                        { "UI Exit", (pathHelper.UIExitAudio,  audioOutput.Touch("basic_exit.mp3")) },
-
-                        //{ "Marxent Test HTML", (wwwRoot.CD("marxent-test").Touch("index.html"), marxentOutput.Touch("index.html")) },
-                        { "Marxent Test CSS", (marxentBundle.Touch("index.css"), marxentOutput.Touch("index.css")) },
-                        { "Marxent Test Bundle", (marxentBundle.Touch("index.js"), marxentOutput.Touch("bundle.js")) },
-                        { "Marxent Test TS", (marxentInput.Touch("index.ts"), marxentOutput.Touch("index.ts")) },
-                        { "Marxent Test JS", (marxentInput.Touch("index.js"), marxentOutput.Touch("index.ts")) }
+                        { "UI Exit", (pathHelper.UIExitAudio,  audioOutput.Touch("basic_exit.mp3")) }
                     }
             };
 

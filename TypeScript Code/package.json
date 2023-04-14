@@ -9,9 +9,6 @@
     "check": "tsc --noEmit"
   },
   "devDependencies": {
-    "@babylonjs/core": "5.55.0",
-    "@babylonjs/loaders": "5.55.0",
-    "@babylonjs/materials": "5.55.0",
     "@juniper-lib/esbuild": "file:../Juniper/src/Juniper.TypeScript/@juniper-lib/esbuild",
     "@juniper-lib/testing": "file:../Juniper/src/Juniper.TypeScript/@juniper-lib/testing",
     "@juniper-types/dom-types": "file:../Juniper/src/Juniper.TypeScript/@juniper-types/dom-types",
