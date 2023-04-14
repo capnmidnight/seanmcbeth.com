@@ -53,7 +53,7 @@ Please submit as an self-contained zip file. You may either keep it as simple as
  - [ ] Figure out raycasting in BabylonJS
  - [ ] Create a simple event system
  - [ ] Make the sphere draggable in the X/Z axes
- - [ ] Add a cube
+ - [x] Add a cube
  - [ ] Figure out gLTF loading in BabylonJS
  - [ ] Model an arrow and load it into the scene
  - [ ] Move the arrow after the sphere is moved

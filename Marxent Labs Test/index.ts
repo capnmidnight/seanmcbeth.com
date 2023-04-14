@@ -27,17 +27,26 @@ try {
         scene);
     light.intensity = 0.7;
 
-    const sphere = MeshBuilder.CreateSphere("sphere",
-        { diameter: 2, segments: 32 },
-        scene);
-    sphere.position.y = 1;
+    const sphere = MeshBuilder.CreateSphere("sphere", { diameter: 1, segments: 32 });
+    sphere.position.set(-3, 0.5, -1.5);
 
-    const ground = MeshBuilder.CreateGround("ground",
-        { width: 6, height: 6 },
-        scene);
+    const box = MeshBuilder.CreateBox("box", { width: 1, height: 1 });
+    box.position.set(0, 0.5, 0);
+
+    const ground = MeshBuilder.CreateGround("ground", { width: 10, height: 10 });
 
     engine.runRenderLoop(() => scene.render());
 
+    Object.assign(window, {
+        canvas,
+        engine,
+        scene,
+        camera,
+        light,
+        sphere,
+        box,
+        ground
+    });
 }
 catch (exp) {
     console.error(exp);
