@@ -51,21 +51,41 @@ import "./index.css";
 
     const arrowResult = await SceneLoader.ImportMeshAsync("", "/models/", "Arrow.glb");
     const arrow = arrowResult.meshes[0];
-    arrow.position.set(-2, 2, 2);
-    arrow.lookAt(Vector3.Zero())
+    arrow.position.set(3, 0.5, -1.5);
+    arrow.lookAt(sphere.position);
 
     const shadows = new ShadowGenerator(1024, keyLight);
     shadows.addShadowCaster(sphere);
     shadows.addShadowCaster(box);
     shadows.addShadowCaster(arrow);
 
+    const lastSpherePosition = new Vector3();
+    lastSpherePosition.copyFrom(sphere.position);
+
+    const spherePosDelta = new Vector3();
+
     const dragSphereBehavior = new PointerDragBehavior({
         dragPlaneNormal: Vector3.Up()
     });
     dragSphereBehavior.useObjectOrientationForDragging = false;
     dragSphereBehavior.updateDragPlane = false;
+    dragSphereBehavior.dragDeltaRatio = 1;
     dragSphereBehavior.attach(sphere);
-    
+    dragSphereBehavior.onDragEndObservable.add(() => {
+        spherePosDelta
+            .copyFrom(sphere.position)
+            .subtractInPlace(lastSpherePosition)
+            .normalize()
+            .scale(0.5);
+
+        arrow.position
+            .copyFrom(sphere.position)
+            .addInPlace(spherePosDelta);
+
+        arrow.lookAt(sphere.position);
+
+        lastSpherePosition.copyFrom(sphere.position);
+    });
 
     engine.runRenderLoop(() => scene.render());
 

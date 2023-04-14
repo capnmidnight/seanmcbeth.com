@@ -58,8 +58,8 @@ Please submit as an self-contained zip file. You may either keep it as simple as
  - [x] Add shadows
  - [x] Figure out gLTF loading in BabylonJS
  - [x] Model an arrow and load it into the scene
- - [ ] Move the arrow after the sphere is moved
- - [ ] Point the arrow at the sphere
+ - [x] Move the arrow after the sphere is moved
+ - [x] Point the arrow at the sphere
  - [ ] Lerp/slerp the arrow pose
  - [ ] Perform the triangle test
  - [ ] Make the sphere highlight on hover. Bump the size a little and outline it
