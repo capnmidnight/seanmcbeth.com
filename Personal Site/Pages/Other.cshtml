@@ -11,7 +11,8 @@
             (".net", "Profiles", "#profiles"),
             (".io", "Demos", "#demos"),
             (".com", "Projects", "#projects"),
-            (".tv", "Press", "#press")
+            (".tv", "Press", "#press"),
+            ("home/", "Home", "/")
         })
     {
         <li>
@@ -68,9 +69,9 @@
     </p>
 
     <ul>
-        @foreach (var appName in AppModel.AppNames)
+        @foreach (var appName in AppModel.BundleNames)
         {
-            <li><a href="~/app/@appName">@appName.ToTitleCase().Replace('-', ' ')</a></li>
+            <li><a href="~/apps/@appName">@appName.ToTitleCase().Replace('-', ' ')</a></li>
         }
     </ul>
 </section>
@@ -119,7 +120,7 @@
         <li><a href="https://github.com/capnmidnight/pliny" target="_blank">Pliny: a live-documentation system for JavaScript projects</a>:</li>
         <li><a href="https://www.youtube.com/watch?v=9_6_w-dXVw0" target="_blank">Electron/WebRTC app for screen sharing and web app collaboration</a>:</li>
         <li><a href="https://www.bloomberg.com/news/articles/2016-12-06/goldman-sachs-alum-turns-to-virtual-reality-to-sell-57-million-mansion" target="_blank">REX</a>: 360° Real Estate Tours</li>
-        <li><a href="~/app/yabs" target="_blank">No More Jabber Yabs</a>: A game about the consequences of following orders.</li>
+        <li><a href="~/apps/yabs" target="_blank">No More Jabber Yabs</a>: A game about the consequences of following orders.</li>
         <li><a href="http://www.highlandas.com" target="_blank">Highland Solutions</a>: a consultancy for helping people wrangle their data</li>
         <li><a href="https://www.youtube.com/watch?v=5SXsu_MEzmU" target="_blank">Genetic algorithm visualizer</a>:</li>
         <li><a href="~/archive/jwd" target="_blank">Just Write, Dammit!</a>: A book writing platform</li>
@@ -161,9 +162,9 @@
     </p>
 
     <ul>
-        @foreach (var testName in TestModel.TestNames)
+        @foreach (var testName in TestModel.BundleNames)
         {
-            <li><a href="~/test/@testName">@testName.ToTitleCase().Replace('-', ' ')</a></li>
+            <li><a href="~/tests/@testName">@testName.ToTitleCase().Replace('-', ' ')</a></li>
         }
     </ul>
 </section>

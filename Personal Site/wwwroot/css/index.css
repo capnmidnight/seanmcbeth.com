@@ -8,6 +8,7 @@
     --box-bg-color: #a8b2b8;
     --box-shadow-color: #949ca1;
     --text-shadow-color: #949ca1;
+    font-size: clamp(1em, 1.3vw, 1.3em);
 }
 
 html,
@@ -22,7 +23,6 @@ body {
 
 body {
     font-family: 'Noto Sans', -apple-system, '.SFNSText-Regular', 'San Francisco', 'Roboto', 'Segoe UI', 'Helvetica Neue', 'Lucida Grande', sans-serif;
-    font-size: 12pt;
     line-height: 2;
 }
 
@@ -35,12 +35,17 @@ figure {
     box-shadow: var(--box-shadow-color) 5px 5px 5px;
 }
 
-    figure > h3, figure > a[href] {
+    figure > h3, figure > a[href]:last-child {
         display: block;
     }
 
-    figure > a[href] {
+    figure > a[href]:last-child {
         text-align: right;
+    }
+
+    figure > h3 > a[href], figure > h3 > a[href]:visited {
+        color: var(--main-fg-color);
+        text-decoration: none;
     }
 
     figure > figcaption {
@@ -202,21 +207,17 @@ section iframe {
 
     @media (min-width: 640px) {
 
-        body {
-            font-size: 14pt;
-        }
-
         figure {
             background-color: unset;
             box-shadow: unset;
         }
 
-            figure > h3, figure > a[href], figure > img, figure > iframe {
+            figure > h3, figure > a[href]:last-child, figure > a > img, figure > iframe {
                 background-color: var(--box-bg-color);
                 box-shadow: var(--box-shadow-color) 5px 5px 5px;
             }
 
-            figure > h3, figure > a[href] {
+            figure > h3, figure > a[href]:last-child {
                 width: 80%;
             }
 
@@ -225,7 +226,7 @@ section iframe {
                 margin: 2em 20% -20em 0;
             }
 
-            figure > a[href] {
+            figure > a[href]:last-child {
                 padding: 20em 0.25em 0.25em 0;
                 margin: -20em 0 0 20%;
             }

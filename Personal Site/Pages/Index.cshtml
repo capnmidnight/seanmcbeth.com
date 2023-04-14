@@ -94,45 +94,28 @@
 
     <p>Here are some of my most recent projects.</p>
 
-    <figure>
-        <h3>Diplomatic Language Services Virtual Reality</h3>
-        <img src="~/img/dlsvr/screen1.jpeg" alt="Screenshot of DLS VR Landing Page" title="DLS VR Landing Page" />
-        <figcaption>
-            DLS VR is a multiuser, multimodal, Web-based VR application that includes a full, online editor, designed for
-            subject matter experts to be able to rapidly create new immersion scenarios.
-        </figcaption>
-        <a href="~/dlsvr">Read more&hellip;</a>
-    </figure>
-
-    <figure>
-        <h3>Juniper</h3>
-        <img src="~/img/juniper.jpeg" alt="Screenshot from Juniper" title="A forest demo built with Juniper" />
-        <figcaption>
-            Juniper is an .NET 7 and TypeScript framework for building WebXR applications. It is an evolution of my previous project, Primrose.
-        </figcaption>
-        <a href="~/juniper">Read more&hellip;</a>
-    </figure>
-
-    <figure>
-        <h3>AI Chat Bot</h3>
-        <img src="~/img/ai-chat-bot.jpeg" alt="Screenshot from AI Chat Bot" title="A audible speech-based conversation with AI"
-        style="border: solid 1px grey"/>
-        <figcaption>
-            The AI Chat Bot uses Speech-to-Text technology and some clever prompting of an OpenAI LLM to generate characterized responses,
-            which are then piped out to a Text-to-Speech engine, with lip-sync.
-        </figcaption>
-        <a href="~/app/ai-chat-bot">Read more&hellip;</a>
-    </figure>
-
-    <figure>
-        <h3>Primrose</h3>
-        <img src="~/img/primrose.jpeg" alt="Screenshot from Primrose" title="Primrose Text Editor" />
-        <figcaption>
-            Primrose was the world's first JavaScript framework for developing WebXR applications, back when WebXR was still called "WebVR".
-            My first release of Primrose was sometime in 2014, almost a full year before Mozilla's A-Frame.
-        </figcaption>
-        <a href="~/primrose">Read more&hellip;</a>
-    </figure>
+    @foreach(var (name, title, shortTitle, href, screenshot, description) in new[]
+    {
+        ("DLS VR", "Diplomatic Language Services Virtual Reality", "DLS VR Landing Page", "/dlsvr", "/img/dlsvr/screen1.jpeg",
+            @"DLS VR is a multiuser, multimodal, Web-based VR application that includes a full, online editor, designed for
+            subject matter experts to be able to rapidly create new immersion scenarios."),
+        ("Juniper", "Juniper", "A forest demo built with Juniper", "/juniper", "/img/juniper.jpeg",
+            @"Juniper is an .NET 7 and TypeScript framework for building WebXR applications. It is an evolution of my previous project, Primrose."),
+        ("AI Chat Bot", "AI Chat Bot", "An speech-based conversation with AI", "/apps/ai-chat-bot", "img/ai-chat-bot.jpeg",
+            @"The AI Chat Bot uses Speech-to-Text technology and some clever prompting of an OpenAI LLM to generate characterized responses,
+            which are then piped out to a Text-to-Speech engine, with lip-sync."),
+        ("Primrose", "Primrose", "Primrose text editor", "/primrose", "/img/primrose.jpeg",
+            @"Primrose was the world's first JavaScript framework for developing WebXR applications, back when WebXR was still called ""WebVR"".
+            My first release of Primrose was sometime in 2014, almost a full year before Mozilla's A-Frame.")
+     })
+    {
+        <figure>
+            <h3><a href="@href">@title</a></h3>
+            <a href="@href"><img src="@screenshot" alt="Screenshot of @name" title="@shortTitle" /></a>
+            <figcaption>@description</figcaption>
+            <a href="@href">Read more&hellip;</a>
+        </figure>        
+    }
 </section>
 
 <section id="talks"

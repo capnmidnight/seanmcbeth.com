@@ -5,7 +5,25 @@
     ViewData["SubURL"] = "app/" + Model.Name;
     ViewData["Description"] = Model.Description;
     ViewData["Screenshot"] = Model.ScreenshotPath;
-    ViewData["HideMenu"] = true;
+    ViewData["HideMenu"] = Model.HideMenu;
+}
+
+@section Menu {
+    @{
+        foreach (var (text, title, href) in new[] {
+            ("home/", "Home", "/"),
+            ("etc/", "Extras", "/other")
+        })
+            {
+                <li>
+                    <a href="@href"
+                       aria-label="@title"
+                       title="@title">
+                        @text
+                    </a>
+                </li>
+            }
+        }
 }
 
 @section Head {
@@ -13,7 +31,7 @@
     {
         <style>
             body {
-            background: fixed center/cover url(@Model.ScreenshotPath);
+                background: fixed center/cover url(@Model.ScreenshotPath);
             }
         </style>
     }
@@ -22,7 +40,7 @@
         <link rel="manifest" href="@Model.ManifestPath">
     }
     <bundle-css name="apps" versioned />
-    @if(Model.IncludeStylesheet) 
+    @if (Model.IncludeStylesheet)
     {
         <bundle-css dir="js" name="apps/@Model.Name/index" versioned />
     }
@@ -33,4 +51,4 @@
     <bundle-js name="apps/@Model.Name" versioned />
 }
 
-    @Html.AntiForgeryToken()
+@Html.AntiForgeryToken()

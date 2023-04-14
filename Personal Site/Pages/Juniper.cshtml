@@ -6,6 +6,24 @@
     ViewData["Screenshot"] = "/img/juniper.jpeg";
 }
 
+@section Menu {
+    @{
+        foreach (var (text, title, href) in new[] {
+            ("home/", "Home", "/"),
+            ("etc/", "Extras", "/other")
+        })
+        {
+            <li>
+                <a href="@href"
+                   aria-label="@title"
+                   title="@title">
+                    @text
+                </a>
+            </li>
+        }
+    }
+}
+
 
 <section id="projects"
          aria-label="projects">
@@ -336,9 +354,9 @@
     </p>
 
     <ul>
-        @foreach (var appName in AppModel.AppNames)
+        @foreach (var appName in AppModel.BundleNames)
         {
-            <li><a href="~/app/@appName">@appName.ToTitleCase().Replace('-', ' ')</a></li>
+            <li><a href="~/apps/@appName">@appName.ToTitleCase().Replace('-', ' ')</a></li>
         }
     </ul>
 </section>

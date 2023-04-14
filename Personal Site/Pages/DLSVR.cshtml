@@ -6,6 +6,24 @@
     ViewData["Screenshot"] = "/img/dlsvr/screen1.jpeg";
 }
 
+@section Menu {
+    @{
+        foreach (var (text, title, href) in new[] {
+            ("home/", "Home", "/"),
+            ("etc/", "Extras", "/other")
+        })
+        {
+            <li>
+                <a href="@href"
+                    aria-label="@title"
+                    title="@title">
+                    @text
+                </a>
+            </li>
+        }
+    }
+}
+
 <section id="projects"
          aria-label="projects">
     <h2>Diplomatic Language Services Virtual Reality</h2>
