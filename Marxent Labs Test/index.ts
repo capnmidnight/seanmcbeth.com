@@ -1,8 +1,10 @@
 import {
+    DirectionalLight,
     Engine,
     HemisphericLight,
     MeshBuilder,
     Scene,
+    ShadowGenerator,
     UniversalCamera,
     Vector3
 } from "@babylonjs/core";
@@ -22,10 +24,17 @@ try {
     camera.setTarget(Vector3.Zero());
     camera.attachControl(canvas, true);
 
-    const light = new HemisphericLight("light",
+    const fillLight = new HemisphericLight("fillLight",
         new Vector3(0, 1, 0),
         scene);
-    light.intensity = 0.7;
+    fillLight.intensity = 0.7;
+
+    const keyLight = new DirectionalLight("keyLight",
+        new Vector3(-10, -10, 7).normalize(),
+        scene);
+    keyLight.position.set(10, 10, -7);
+    keyLight.intensity = 0.3;
+    keyLight.shadowEnabled = true;
 
     const sphere = MeshBuilder.CreateSphere("sphere", { diameter: 1, segments: 32 });
     sphere.position.set(-3, 0.5, -1.5);
@@ -34,6 +43,11 @@ try {
     box.position.set(0, 0.5, 0);
 
     const ground = MeshBuilder.CreateGround("ground", { width: 10, height: 10 });
+    ground.receiveShadows = true;
+
+    const shadows = new ShadowGenerator(1024, keyLight);
+    shadows.addShadowCaster(sphere);
+    shadows.addShadowCaster(box);
 
     engine.runRenderLoop(() => scene.render());
 
@@ -42,7 +56,8 @@ try {
         engine,
         scene,
         camera,
-        light,
+        fillLight,
+        keyLight,
         sphere,
         box,
         ground

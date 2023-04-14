@@ -54,6 +54,7 @@ Please submit as an self-contained zip file. You may either keep it as simple as
  - [ ] Create a simple event system
  - [ ] Make the sphere draggable in the X/Z axes
  - [x] Add a cube
+ - [x] Add shadows
  - [ ] Figure out gLTF loading in BabylonJS
  - [ ] Model an arrow and load it into the scene
  - [ ] Move the arrow after the sphere is moved
