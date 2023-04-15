@@ -56,6 +56,10 @@ figure {
         margin: 0 auto;
     }
 
+    figure > img {
+        max-height: 20em;
+    }
+
 body, #menu {
     background-color: var(--main-bg-color);
     color: var(--main-fg-color);
@@ -180,8 +184,9 @@ h2 {
 }
 
 section img, section iframe {
-    width: calc(100% - 2em);
-    margin: auto 1em;
+    max-width: calc(100% - 2em);
+    margin: 0 auto;
+    display: block;
 }
 
 section iframe {
@@ -218,7 +223,7 @@ section iframe {
             }
 
             figure > h3, figure > a[href]:last-child {
-                width: 80%;
+                max-width: 80%;
             }
 
             figure > h3 {
@@ -238,8 +243,8 @@ section iframe {
             }
 
         section img, section iframe {
-            width: calc(100% - 10em);
-            margin: auto 5em;
+            max-width: calc(100% - 10em);
+            margin: auto auto;
         }
 
         main {
