@@ -69,21 +69,21 @@ namespace SeanMcBeth.Pages
 
         private string BundlePathRoot => string.Join('/', "js", "app", Name);
 
-        private string? MapFile(string name)
-        {
-            return BundleRoot.Touch(name).Exists
+        private string? MapFile(string name) =>
+            BundleRoot.Touch(name).Exists
                 ? string.Join('/', "", BundlePathRoot, name)
                 : null;
-        }
 
         public string? ScreenshotPath => MapFile("screenshot.jpg");
         private string? LogoPath => MapFile("screenshot.jpg");
         private string? LogoSmallPath => MapFile("screenshot.jpg");
+
         public string? FullName => BundleRoot.Touch("name.txt").MaybeReadText();
         public string? Description => BundleRoot.Touch("description.txt").MaybeReadText();
         public bool IncludeThreeJS => BundleRoot.Touch("includeThreeJS.bool").Exists;
         public bool IncludeStylesheet => BundleRoot.Touch("index.css").Exists;
         public bool HideMenu => BundleRoot.Touch("hideMenu.bool").Exists;
+        public string? HTMLStub => BundleRoot.Touch("index.html").MaybeReadText();
 
         public string? ManifestPath =>
             ScreenshotPath is not null

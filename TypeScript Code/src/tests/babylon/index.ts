@@ -20,6 +20,8 @@ import {
 
 import "@babylonjs/loaders";
 
+import "./index.css";
+
 const objectSize = 0.1;
 const animationFrameRate = 30;
 const animationLength = 0.25;

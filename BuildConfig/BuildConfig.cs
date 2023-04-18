@@ -10,6 +10,7 @@ namespace SeanMcBeth
         private static readonly string[] FilePatterns =
         {
             "description.txt",
+            "index.html",
             "name.txt",
             "thumbnail.jpg",
             "screenshot.jpg",
@@ -42,12 +43,7 @@ namespace SeanMcBeth
             var modelOutput = wwwRoot.CD("models");
             var audioOutput = wwwRoot.CD("audio");
             var imgOutput = wwwRoot.CD("img");
-            var threeJsOut = jsOutput.CD("three");
             var uiImgOUtput = imgOutput.CD("ui");
-
-            var marxentInput = jsInput.CD("tests", "marxent-test");
-            var marxentBundle = jsOutput.CD("tests", "marxent-test");
-            var marxentOutput = here.CD("Marxent Labs Test");
 
             var pathHelper = new PathHelper(juniperDir, nodeModules);
             var keyFile = new DirectoryInfo(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile))
@@ -73,9 +69,6 @@ namespace SeanMcBeth
                 },
                 Dependencies = new()
                     {
-                        { "Three.js", (pathHelper.ThreeJsBundle, threeJsOut.Touch("index.js")) },
-                        { "Three.js min", (pathHelper.ThreeJsMinBundle, threeJsOut.Touch("index.min.js")) },
-
                         { "Cursor", (pathHelper.CursorModel, modelOutput.Touch("Cursors.glb")) },
                         { "Watch", (pathHelper.WatchModel, modelOutput.Touch("watch1.glb")) },
 

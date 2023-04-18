@@ -4,20 +4,23 @@ import { glsl } from "esbuild-plugin-glsl";
 const args = process.argv.slice(2);
 
 await Promise.all([
-    findBundles(false,
+    findBundles(false, false,
         "./src",
         "./src/apps",
         "./src/tests"
     ),
-    findBundles(true,
+    findBundles(false, true,
+        "./src/libs"
+    ),
+    findBundles(true, false,
         "./src/workers"
     )
 ]);
 
-function findBundles(isWorker, ...dirs) {
+function findBundles(isWorker, isThree, ...dirs) {
     return new Build(args, isWorker)
         .plugin((minify) => glsl({ minify }))
-        .addThreeJS()
+        .addThreeJS(!isThree)
         .outDir("../Personal Site/wwwroot/js/")
         .find(...dirs)
         .run();

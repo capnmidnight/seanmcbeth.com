@@ -46,9 +46,14 @@
     }
     @if (Model.IncludeThreeJS)
     {
-        <bundle-js name="three" versioned />
+        <bundle-js name="libs/three" versioned />
     }
     <bundle-js name="tests/@Model.Name" versioned />
 }
 
 @Html.AntiForgeryToken()
+
+@if (Model.HTMLStub is not null)
+{
+    Write(Html.Raw(Model.HTMLStub));
+}

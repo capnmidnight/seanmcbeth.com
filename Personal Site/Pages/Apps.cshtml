@@ -14,16 +14,16 @@
             ("home/", "Home", "/"),
             ("etc/", "Extras", "/other")
         })
-            {
-                <li>
-                    <a href="@href"
-                       aria-label="@title"
-                       title="@title">
-                        @text
-                    </a>
-                </li>
-            }
+        {
+            <li>
+                <a href="@href"
+                   aria-label="@title"
+                   title="@title">
+                    @text
+                </a>
+            </li>
         }
+    }
 }
 
 @section Head {
@@ -46,9 +46,14 @@
     }
     @if (Model.IncludeThreeJS)
     {
-        <bundle-js name="three" versioned />
+        <bundle-js name="libs/three" versioned />
     }
     <bundle-js name="apps/@Model.Name" versioned />
 }
 
 @Html.AntiForgeryToken()
+
+@if (Model.HTMLStub is not null)
+{
+    Write(Html.Raw(Model.HTMLStub));
+}

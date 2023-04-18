@@ -1,4 +1,4 @@
-# Marxent Labs Take-Home Test
+# BabylonJS Take-Home Test
 
 ## Problem Statement
 
