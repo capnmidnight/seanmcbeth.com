@@ -317,7 +317,7 @@ export class AIForm extends TypedEventBase<AIFormEvents> implements ErsatzElemen
                            which you can then do with as you wish.`)
                     )],
 
-                    ["output", "Output", new PropertyList(
+                    ["output", "Output", PropertyList.create(
                         ["Model", this.outModelSelector = Select(
                             Option("ChatGPT 3.5", value("chatgpt"), selected(true)),
                             Option("GPT-4", value("gpt4")),
@@ -339,7 +339,7 @@ export class AIForm extends TypedEventBase<AIFormEvents> implements ErsatzElemen
                         )]
                     )],
 
-                    ["input", "Input", new PropertyList(
+                    ["input", "Input", PropertyList.create(
                         ["Microphone", this.micSelector = Select(
                             onInput(async () => {
                                 const mic = this.mics.get(this.micSelector.value);
