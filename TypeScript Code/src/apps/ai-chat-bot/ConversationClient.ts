@@ -32,8 +32,11 @@ export const genderNames = [
 ];
 
 export type Models =
-    | "chatgpt"
+    | "ada"
+    | "babbage"
+    | "curie"
     | "davinci"
+    | "chatgpt"
     | "gpt4";
 
 export interface ConversationLine {

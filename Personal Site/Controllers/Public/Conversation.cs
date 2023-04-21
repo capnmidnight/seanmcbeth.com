@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Mvc;
 using OpenAI.GPT3.Interfaces;
 using OpenAI.GPT3.ObjectModels;
 using OpenAI.GPT3.ObjectModels.RequestModels;
+using OpenAI.GPT3.ObjectModels.ResponseModels;
+using OpenAI.GPT3.ObjectModels.SharedModels;
 
 using System.Text;
 
@@ -30,7 +32,7 @@ namespace SeanMcBeth.Controllers.Public
             this.logger = logger;
         }
 
-        private static string ConstructPrompt(string botName, IEnumerable<string> people, string botResponseStyle, string? languageName, string? detailPrompt)
+        private static IEnumerable<string> ConstructPrompt(string botName, IEnumerable<string> people, string botResponseStyle, string? languageName, string? detailPrompt)
         {
             var style = string.IsNullOrEmpty(botResponseStyle)
                 ? "neutral"
@@ -38,15 +40,15 @@ namespace SeanMcBeth.Controllers.Public
 
             var peopleString = FormatPeopleString(people.ToList(), botName);
 
-            var promptParts = new[]
-                {
-                    $"We are in a conversation between {peopleString}.",
-                    $@"Your name is {botName}. You should respond in a ""{style}"" style. Don't tell me your emotional state before giving me your statement.",
-                    $"If I change languages, you should change with me. I am currently speaking in {languageName}.",
-                    detailPrompt?.Trim()
-                };
+            yield return $"We are in a conversation between {peopleString}.";
+            yield return $@"Your name is {botName}. You should respond in a ""{style}"" style. Don't tell me your emotional state before giving me your statement.";
+            yield return $"If I change languages, you should change with me. I am currently speaking in {languageName}. Don't mention anything about switching languages.";
 
-            return string.Join("\n", promptParts.Where(s => !string.IsNullOrEmpty(s)));
+            detailPrompt = detailPrompt?.Trim() ?? "";
+            if (detailPrompt.Length > 0)
+            {
+                yield return detailPrompt;
+            }
         }
 
         private static string FormatPeopleString(List<string> people, string? botName)
@@ -175,40 +177,28 @@ namespace SeanMcBeth.Controllers.Public
             }
         }
 
-        public record ConverationLineInput(
+        public record ConversationLineInput(
             string? Name,
             string? Text);
 
         public record ConversationInput(
             string? Prompt,
-            IEnumerable<ConverationLineInput>? Messages,
+            IEnumerable<ConversationLineInput>? Messages,
             string? CharacterName,
             string? Style,
             string? LanguageName);
 
-        [HttpPost("davinci")]
-        public async Task<IActionResult> GetDavinciResponseAsync([FromBody] ConversationInput input)
+        private async Task<IActionResult> Do<RequestT, ResponseT, ChoiceT>([FromBody] ConversationInput input,
+            Func<string[], string?, RequestT> createRequest,
+            Func<RequestT, Task<ResponseT>> getResponse,
+            Func<ResponseT, List<ChoiceT>> getChoices,
+            Func<ChoiceT, string> getChoiceText)
+            where RequestT : class, IOpenAiModels.ITemperature, IOpenAiModels.IModel, IOpenAiModels.IUser
+            where ResponseT : BaseResponse
         {
             try
             {
                 if (input?.Messages is null) throw new ArgumentException(null, nameof(input));
-
-                var people = input.Messages
-                        .Select(m => m.Name ?? "BOT")
-                        .Distinct();
-
-                var context = string.Join("", input.Messages
-                        .Select(m => $"\n{m.Name?.ToUpperInvariant()}: {m.Text ?? ""}"));
-
-                var character = input.CharacterName ?? "BOT";
-                var style = input.Style ?? "";
-
-                var prompt = ConstructPrompt(character, people, character, input.LanguageName, input.Prompt);
-                prompt += context;
-
-                logger.LogInformation("\n============================\n{prompt}\n============================\n", prompt);
-
-                Response.Headers.Add("x-prompt-text", Uri.EscapeDataString(prompt));
 
                 string? userID = null;
                 if (users is not null)
@@ -217,216 +207,130 @@ namespace SeanMcBeth.Controllers.Public
                     userID = user?.Id;
                 }
 
-                var request = new CompletionCreateRequest
+                var people = input.Messages
+                        .Select(m => m.Name ?? "BOT")
+                        .Distinct();
+
+                var character = input.CharacterName ?? "BOT";
+                var style = input.Style ?? "";
+
+                var prompt = ConstructPrompt(character, people, character, input.LanguageName, input.Prompt).ToArray();
+
+                var context = string.Join("\n", input.Messages
+                        .Select(m => $"{m.Name?.ToUpperInvariant()}: {m.Text ?? ""}"));
+
+                var request = createRequest(prompt, userID);
+
+                var promptDebug = string.Join("\n", prompt) + "\n" + context;
+                logger.LogInformation("\n============================\n{prompt}\n============================\n", promptDebug);
+                Response.Headers.Add("x-prompt-text", Uri.EscapeDataString(promptDebug));
+
+                var result = await Retry.Times(
+                    3,
+                    () => getResponse(request),
+                    (r) => r?.Successful == true,
+                    (r) => $"[{r.Error?.Code}] <{r.Error?.Type}> ({r.Error?.Param}): {r.Error?.Message}");
+
+                var choices = getChoices(result);
+
+                var text = choices
+                    .Select(getChoiceText)
+                    .FirstOrDefault();
+
+                if (text is not null)
                 {
-                    Model = OpenAI.GPT3.ObjectModels.Models.TextDavinciV3,
+                    var prefix = $"{character.ToUpperInvariant()}:";
+                    if (text.StartsWith(prefix))
+                    {
+                        text = text[prefix.Length..].Trim();
+                    }
+                    Response.Headers.Add("X-Generated-Text", Uri.EscapeDataString(text));
+                    return new ObjectResult(text);
+                }
+            }
+            catch (Exception exp)
+            {
+                logger.LogError(exp, "In method {name}", nameof(GetChatGPTResponseAsync));
+            }
+
+            return new BadRequestResult();
+        }
+
+        private Task<IActionResult> DoGPT3(string model, ConversationInput input) =>
+            Do(
+                input,
+                (prompts, userID) => new CompletionCreateRequest
+                {
+                    Model = model,
                     User = userID,
                     Temperature = 0.75f,
                     MaxTokens = 250,
                     FrequencyPenalty = 0.5f,
                     PresencePenalty = 0.25f,
-                    Prompt = prompt
-                };
+                    Prompt = string.Join("\n", prompts)
+                },
+                request => openAI.Completions.CreateCompletion(request),
+                response => response.Choices,
+                choice => choice.Text.Trim());
 
-                var result = await Retry.Times(
-                    3,
-                    () => openAI.Completions.CreateCompletion(request),
-                    (r) => r?.Successful == true,
-                    (r) => $"[{r.Error?.Code}] <{r.Error?.Type}> ({r.Error?.Param}): {r.Error?.Message}");
-
-                var text = result.Choices
-                    .Select(c => c.Text.Trim())
-                    .FirstOrDefault();
-
-                if (text is not null)
+        private Task<IActionResult> DoGPT4(string model, [FromBody] ConversationInput input) =>
+            Do(
+                input,
+                (prompts, userID) =>
                 {
-                    var prefix = $"{character.ToUpperInvariant()}:";
-                    if (text.StartsWith(prefix))
-                    {
-                        text = text[prefix.Length..].Trim();
-                    }
-                    Response.Headers.Add("X-Generated-Text", Uri.EscapeDataString(text));
-                    return new ObjectResult(text);
-                }
-            }
-            catch (Exception exp)
-            {
-                logger.LogError(exp, "In method {name}", nameof(GetDavinciResponseAsync));
-            }
+                    var messages = prompts
+                        .Select(prompt => new ChatMessage(StaticValues.ChatMessageRoles.System, prompt))
+                        .ToList();
 
-            return BadRequest();
-        }
+                    if (input.Messages is not null)
+                    {
+                        foreach (var m in input.Messages)
+                        {
+                            messages.Add(new ChatMessage(
+                                m.Name?.ToUpperInvariant() == "ME"
+                                    ? StaticValues.ChatMessageRoles.User
+                                    : StaticValues.ChatMessageRoles.Assistant,
+                                $"\n{m.Name?.ToUpperInvariant()}: {m.Text ?? ""}"));
+                        }
+                    }
+
+                    return new ChatCompletionCreateRequest
+                    {
+                        Model = model,
+                        User = userID ?? "",
+                        Temperature = 0.75f,
+                        MaxTokens = 250,
+                        FrequencyPenalty = 0.5f,
+                        PresencePenalty = 0.25f,
+                        Messages = messages
+                    };
+                },
+                request => openAI.ChatCompletion.CreateCompletion(request),
+                response => response.Choices,
+                choice => choice.Message.Content);
+
+        [HttpPost("ada")]
+        public Task<IActionResult> GetAdaResponseAsync([FromBody] ConversationInput input) =>
+            DoGPT3(OpenAI.GPT3.ObjectModels.Models.TextAdaV1, input);
+
+        [HttpPost("babbage")]
+        public Task<IActionResult> GetBabbageResponseAsync([FromBody] ConversationInput input) =>
+            DoGPT3(OpenAI.GPT3.ObjectModels.Models.TextBabbageV1, input);
+
+        [HttpPost("curie")]
+        public Task<IActionResult> GetCurieResponseAsync([FromBody] ConversationInput input) =>
+            DoGPT3(OpenAI.GPT3.ObjectModels.Models.TextCurieV1, input);
+
+        [HttpPost("davinci")]
+        public Task<IActionResult> GetDavinciResponseAsync([FromBody] ConversationInput input) =>
+            DoGPT3(OpenAI.GPT3.ObjectModels.Models.TextDavinciV3, input);
 
         [HttpPost("chatgpt")]
-        public async Task<IActionResult> GetChatGPTResponseAsync([FromBody] ConversationInput input)
-        {
-            try
-            {
-                if (input?.Messages is null) throw new ArgumentException(null, nameof(input));
-
-                var people = input.Messages
-                        .Select(m => m.Name ?? "BOT")
-                        .Distinct();
-
-                var character = input.CharacterName ?? "BOT";
-                var style = input.Style ?? "";
-
-                var prompt = ConstructPrompt(character, people, character, input.LanguageName, input.Prompt);
-
-                var context = string.Join("", input.Messages
-                        .Select(m => $"\n{m.Name?.ToUpperInvariant()}: {m.Text ?? ""}"));
-
-                var messages = new List<ChatMessage>
-                {
-                    new ChatMessage(StaticValues.ChatMessageRoles.System, prompt)
-                };
-
-                foreach (var m in input.Messages)
-                {
-                    messages.Add(new ChatMessage(
-                        m.Name?.ToUpperInvariant() == "ME"
-                            ? StaticValues.ChatMessageRoles.User
-                            : StaticValues.ChatMessageRoles.Assistant,
-                        $"\n{m.Name?.ToUpperInvariant()}: {m.Text ?? ""}"));
-                }
-
-                prompt += context;
-
-                logger.LogInformation("\n============================\n{prompt}\n============================\n", prompt);
-
-                Response.Headers.Add("x-prompt-text", Uri.EscapeDataString(prompt));
-
-                string? userID = null;
-                if (users is not null)
-                {
-                    var user = await users.GetUserAsync(User);
-                    userID = user?.Id;
-                }
-
-                var request = new ChatCompletionCreateRequest
-                {
-                    Model = OpenAI.GPT3.ObjectModels.Models.ChatGpt3_5Turbo,
-                    User = userID ?? "",
-                    Temperature = 0.75f,
-                    MaxTokens = 250,
-                    FrequencyPenalty = 0.5f,
-                    PresencePenalty = 0.25f,
-                    Messages = messages
-                };
-
-                var result = await Retry.Times(
-                    3,
-                    () => openAI.ChatCompletion.CreateCompletion(request),
-                    (r) => r?.Successful == true,
-                    (r) => $"[{r.Error?.Code}] <{r.Error?.Type}> ({r.Error?.Param}): {r.Error?.Message}");
-
-                var text = result.Choices
-                    .Select(c => c.Message.Content)
-                    .FirstOrDefault();
-
-                if (text is not null)
-                {
-                    var prefix = $"{character.ToUpperInvariant()}:";
-                    if (text.StartsWith(prefix))
-                    {
-                        text = text[prefix.Length..].Trim();
-                    }
-                    Response.Headers.Add("X-Generated-Text", Uri.EscapeDataString(text));
-                    return new ObjectResult(text);
-                }
-            }
-            catch (Exception exp)
-            {
-                logger.LogError(exp, "In method {name}", nameof(GetChatGPTResponseAsync));
-            }
-
-            return new BadRequestResult();
-        }
+        public Task<IActionResult> GetChatGPTResponseAsync([FromBody] ConversationInput input) =>
+            DoGPT4(OpenAI.GPT3.ObjectModels.Models.ChatGpt3_5Turbo, input);
 
         [HttpPost("gpt4")]
-        public async Task<IActionResult> GetGPT4ResponseAsync([FromBody] ConversationInput input)
-        {
-            try
-            {
-                if (input?.Messages is null) throw new ArgumentException(null, nameof(input));
-
-                var people = input.Messages
-                        .Select(m => m.Name ?? "BOT")
-                        .Distinct();
-
-                var character = input.CharacterName ?? "BOT";
-                var style = input.Style ?? "";
-
-                var prompt = ConstructPrompt(character, people, character, input.LanguageName, input.Prompt);
-
-                var context = string.Join("", input.Messages
-                        .Select(m => $"\n{m.Name?.ToUpperInvariant()}: {m.Text ?? ""}"));
-
-                var messages = new List<ChatMessage>
-                {
-                    new ChatMessage(StaticValues.ChatMessageRoles.System, prompt)
-                };
-
-                foreach (var m in input.Messages)
-                {
-                    messages.Add(new ChatMessage(
-                        m.Name?.ToUpperInvariant() == "ME"
-                            ? StaticValues.ChatMessageRoles.User
-                            : StaticValues.ChatMessageRoles.Assistant,
-                        $"\n{m.Name?.ToUpperInvariant()}: {m.Text ?? ""}"));
-                }
-
-                prompt += context;
-
-                logger.LogInformation("\n============================\n{prompt}\n============================\n", prompt);
-
-                Response.Headers.Add("x-prompt-text", Uri.EscapeDataString(prompt));
-
-                string? userID = null;
-                if (users is not null)
-                {
-                    var user = await users.GetUserAsync(User);
-                    userID = user?.Id;
-                }
-
-                var request = new ChatCompletionCreateRequest
-                {
-                    Model = OpenAI.GPT3.ObjectModels.Models.Gpt_4,
-                    User = userID ?? "",
-                    Temperature = 0.75f,
-                    MaxTokens = 250,
-                    FrequencyPenalty = 0.5f,
-                    PresencePenalty = 0.25f,
-                    Messages = messages
-                };
-
-                var result = await Retry.Times(
-                    3,
-                    () => openAI.ChatCompletion.CreateCompletion(request),
-                    (r) => r?.Successful == true,
-                    (r) => $"[{r.Error?.Code}] <{r.Error?.Type}> ({r.Error?.Param}): {r.Error?.Message}");
-
-                var text = result.Choices
-                    .Select(c => c.Message.Content)
-                    .FirstOrDefault();
-
-                if (text is not null)
-                {
-                    var prefix = $"{character.ToUpperInvariant()}:";
-                    if (text.StartsWith(prefix))
-                    {
-                        text =text[prefix.Length..].Trim();
-                    }
-                    Response.Headers.Add("X-Generated-Text", Uri.EscapeDataString(text));
-                    return new ObjectResult(text);
-                }
-            }
-            catch (Exception exp)
-            {
-                logger.LogError(exp, "In method {name}", nameof(GetChatGPTResponseAsync));
-            }
-
-            return new BadRequestResult();
-        }
+        public Task<IActionResult> GetGPT4ResponseAsync([FromBody] ConversationInput input) =>
+            DoGPT4(OpenAI.GPT3.ObjectModels.Models.Gpt_4, input);
     }
 }

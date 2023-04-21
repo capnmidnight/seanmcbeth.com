@@ -316,8 +316,11 @@ export class AIForm extends TypedEventBase<AIFormEvents> implements ErsatzElemen
                     ["output", "Output", new PropertyList(
                         ["Model", this.outModelSelector = Select(
                             Option("ChatGPT 3.5", value("chatgpt"), selected(true)),
+                            Option("GPT-4", value("gpt4")),
                             Option("GPT-3 Davinci", value("davinci")),
-                            Option("GPT-4", value("gpt4"))
+                            Option("GPT-3 Curie", value("curie")),
+                            Option("GPT-3 Babbage", value("babbage")),
+                            Option("GPT-3 Ada", value("ada"))
                         )],
                         ["Language", this.outLanguageSelector = Select(onInput(() => this.onOutLanguageSelected(true)))],
                         ["Culture", this.outCultureSelector = Select(onInput(() => this.onOutCultureSelected(true)))],
