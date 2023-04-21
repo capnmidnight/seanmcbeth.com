@@ -1,5 +1,5 @@
 import { allow, disabled, frameBorder, href, htmlHeight, htmlWidth, max, min, placeHolder, scrolling, selected, src, step, target, title, value } from "@juniper-lib/dom/attrs";
-import { color, display, em, flexDirection, fontFamily, fontSize, fontWeight, height, justifyContent, lineBreak, overflow, perc, textAlign, textDecoration, textOverflow, whiteSpace, width, wordBreak } from "@juniper-lib/dom/css";
+import { alignSelf, color, display, em, flexDirection, fontFamily, fontSize, fontWeight, height, justifyContent, lineBreak, overflow, perc, textAlign, textDecoration, textOverflow, whiteSpace, width, wordBreak } from "@juniper-lib/dom/css";
 import { onClick, onInput } from "@juniper-lib/dom/evts";
 import { A, ButtonDanger, ButtonPrimary, Div, elementApply, elementClearChildren, elementSetText, Em, ErsatzElement, IFrame, Img, InputRange, Meter, Option, P, Pre, Select, TextArea } from "@juniper-lib/dom/tags";
 import { arrayReplace, arraySortByKey } from "@juniper-lib/tslib/collections/arrays";
@@ -123,6 +123,8 @@ export class AIForm extends TypedEventBase<AIFormEvents> implements ErsatzElemen
     get inputCulture() { return this.inCultureSelector.value as Culture; }
     set inputCulture(v: Culture) { this.inCultureSelector.value = v; }
 
+
+    get outputModel() { return this.outModelSelector.value as Models; }
     get outputLanguage() { return this.outLanguageSelector.value as Language; }
     get outputCulture() { return this.outCultureSelector.value as Culture; }
     get outputVoiceName() { return this.outNameSelector.value; }
@@ -273,7 +275,9 @@ export class AIForm extends TypedEventBase<AIFormEvents> implements ErsatzElemen
                     )
                 ),
 
-                this.recordingStatus = Pre("Not listening, click 'Start listening'"),
+                this.recordingStatus = Pre(
+                    alignSelf("center"),
+                    "Not listening, click 'Start listening'"),
 
                 new TabPanel<"input" | "output" | "about" | "usage" | "examples">(
                     ["about", "About", Div(
@@ -378,10 +382,6 @@ export class AIForm extends TypedEventBase<AIFormEvents> implements ErsatzElemen
             );
     }
 
-    get model() {
-        return this.outModelSelector.value as Models;
-    }
-
     private getPrefix(usePrefix: boolean, filterVoice: (voice: Voice) => boolean) {
         const hasStyles = this.voices
             .filter(v => filterVoice(v)
@@ -399,10 +399,14 @@ export class AIForm extends TypedEventBase<AIFormEvents> implements ErsatzElemen
         this.startStopButton.disabled
             = this.repromptButton.disabled
             = this.promptInput.disabled
+            = this.inLanguageSelector.disabled
+            = this.inCultureSelector.disabled
             = this.outStyleSelector.disabled
             = this.outNameSelector.disabled
             = this.outGenderSelector.disabled
             = this.outCultureSelector.disabled
+            = this.outLanguageSelector.disabled
+            = this.outModelSelector.disabled
             = this.volumeInput.disabled
             = this.disabled;
     }

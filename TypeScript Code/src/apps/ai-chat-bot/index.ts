@@ -35,6 +35,13 @@ import "./styles.css";
     const orderedLines = new Array<CharacterLine>();
     const characterLines = new Map<number, CharacterLine>();
 
+    elementApply("main",
+        padding(em(2)),
+        overflowY("auto"),
+        H1("AI conversations demo"),
+        form
+    );
+
     form.enabled = false;
     form.addEventListener("volumechanged", () => microphones.gain.value = form.volume);
     form.addEventListener("reset", () => {
@@ -47,7 +54,7 @@ import "./styles.css";
 
     form.addEventListener("reprompt", () => {
         const culture = CultureDescriptions.get(form.inputCulture);
-        prompt(form.model, culture.language.localName);
+        prompt(form.outputModel, culture.language.localName);
     });
 
     form.addEventListener("cultureschanged", () => {
@@ -89,12 +96,6 @@ import "./styles.css";
     );
 
     form.setVisemeImages(images);
-    elementApply("main",
-        padding(em(2)),
-        overflowY("auto"),
-        H1("AI conversations demo"),
-        form
-    );
 
     const devices = await devMgr.getDevices(true);
     form.setMicrophones(devices.filter(d => d.kind === "audioinput"));
@@ -242,7 +243,7 @@ import "./styles.css";
         }
         line1.text = text;
         if (isFinal) {
-            await prompt(form.model, culture && culture.language && culture.language.localName || "en-US");
+            await prompt(form.outputModel, culture && culture.language && culture.language.localName || "en-US");
         }
     }
 
