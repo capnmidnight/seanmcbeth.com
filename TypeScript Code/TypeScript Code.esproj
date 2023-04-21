@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/0.5.74-alpha">
   <PropertyGroup>
-    <BuildCommand>tsc --noEmit</BuildCommand>
+    <BuildCommand>npx tsc --noEmit</BuildCommand>
     <ProductionBuildCommand>node --experimental-modules esbuild.config.js</ProductionBuildCommand>
     <StartupCommand>node --experimental-modules esbuild.config.js --watch</StartupCommand>
   </PropertyGroup>

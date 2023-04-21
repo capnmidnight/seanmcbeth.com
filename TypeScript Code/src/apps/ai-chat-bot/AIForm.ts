@@ -9,7 +9,7 @@ import { CultureDescriptions, LanguageDescriptions } from "@juniper-lib/tslib/La
 import { PropertyList } from "@juniper-lib/widgets/PropertyList";
 import { TabPanel } from "@juniper-lib/widgets/TabPanel";
 import { CharacterLine } from "./CharacterLine";
-import { genderNames, Viseme, Voice } from "./ConversationClient";
+import { genderNames, Models, Viseme, Voice } from "./ConversationClient";
 
 export class MicrophoneSelectedEvent extends TypedEvent<"microphoneselected"> {
     constructor(public readonly device: MediaDeviceInfo) {
@@ -85,6 +85,7 @@ export class AIForm extends TypedEventBase<AIFormEvents> implements ErsatzElemen
     private readonly promptInput: HTMLTextAreaElement;
     private readonly inLanguageSelector: HTMLSelectElement;
     private readonly inCultureSelector: HTMLSelectElement;
+    private readonly outModelSelector: HTMLSelectElement;
     private readonly outLanguageSelector: HTMLSelectElement;
     private readonly outCultureSelector: HTMLSelectElement;
     private readonly outGenderSelector: HTMLSelectElement;
@@ -313,6 +314,11 @@ export class AIForm extends TypedEventBase<AIFormEvents> implements ErsatzElemen
                     )],
 
                     ["output", "Output", new PropertyList(
+                        ["Model", this.outModelSelector = Select(
+                            Option("ChatGPT 3.5", value("chatgpt"), selected(true)),
+                            Option("GPT-3 Davinci", value("davinci")),
+                            Option("GPT-4", value("gpt4"))
+                        )],
                         ["Language", this.outLanguageSelector = Select(onInput(() => this.onOutLanguageSelected(true)))],
                         ["Culture", this.outCultureSelector = Select(onInput(() => this.onOutCultureSelected(true)))],
                         ["Gender", this.outGenderSelector = Select(onInput(() => this.onOutGenderLookup(true)))],
@@ -367,6 +373,10 @@ export class AIForm extends TypedEventBase<AIFormEvents> implements ErsatzElemen
                     flexDirection("column")
                 )
             );
+    }
+
+    get model() {
+        return this.outModelSelector.value as Models;
     }
 
     private getPrefix(usePrefix: boolean, filterVoice: (voice: Voice) => boolean) {
@@ -468,6 +478,10 @@ export class AIForm extends TypedEventBase<AIFormEvents> implements ErsatzElemen
 
     setVisemeImages(images: HTMLImageElement[]) {
         arrayReplace(this.visemeImages, ...images);
+        for (const img of this.visemeImages) {
+            img.style.height = "5em";
+            img.style.alignSelf = "center";
+        }
     }
 
     visemeAnimate(visemes: Viseme[]) {
@@ -480,7 +494,6 @@ export class AIForm extends TypedEventBase<AIFormEvents> implements ErsatzElemen
 
     private setViseme(id: number) {
         const newImage = this.visemeImages[id];
-        newImage.style.height = "5em";
         this.visemeImage.replaceWith(newImage);
         this.visemeImage = newImage;
     }

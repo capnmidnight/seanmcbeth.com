@@ -15,7 +15,7 @@ import { CultureDescriptions } from "@juniper-lib/tslib/Languages";
 import { createFetcher } from "../../createFetcher";
 import { AIForm } from "./AIForm";
 import { CharacterLine } from "./CharacterLine";
-import { ConversationClient } from "./ConversationClient";
+import { ConversationClient, Models } from "./ConversationClient";
 
 import "./styles.css";
 
@@ -47,7 +47,7 @@ import "./styles.css";
 
     form.addEventListener("reprompt", () => {
         const culture = CultureDescriptions.get(form.inputCulture);
-        promptDavinci(culture.language.localName);
+        prompt(form.model, culture.language.localName);
     });
 
     form.addEventListener("cultureschanged", () => {
@@ -101,6 +101,8 @@ import "./styles.css";
     form.setCurrentMic(microphones.device);
     form.setVoices(conversation.voices);
     form.enabled = true;
+
+    Object.assign(window, { aiform: form });
 
     async function exportAudio() {
         form.enabled = false;
@@ -240,12 +242,12 @@ import "./styles.css";
         }
         line1.text = text;
         if (isFinal) {
-            await promptDavinci(culture && culture.language && culture.language.localName || "en-US");
+            await prompt(form.model, culture && culture.language && culture.language.localName || "en-US");
         }
     }
 
     let counter = 0;
-    async function promptDavinci(languageName: string) {
+    async function prompt(modelName: Models, languageName: string) {
         const ttsVoice = conversation.findVoice(form.outputVoiceName);
         const voice = ttsVoice.shortName;
         const characterName = ttsVoice.localName;
@@ -263,11 +265,11 @@ import "./styles.css";
         form.setStatus("Getting response");
 
         const lines = Array.from(orderedLines);
-        const context = lines.map(l => l.contextEntry).join('\n');
+        const messages = lines.map(l => l.contextLine);
         const style = form.outputVoiceStyle;
         const prompt = form.additionalPrompt;
 
-        const ai = await conversation.davinciResponse(context, characterName, style, languageName, prompt);
+        const ai = await conversation.getResponse(modelName, messages, characterName, style, languageName, prompt);
 
         const generatedText = ai.content;
 

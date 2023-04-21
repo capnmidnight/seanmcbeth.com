@@ -31,6 +31,24 @@ export const genderNames = [
     "male"
 ];
 
+export type Models =
+    | "chatgpt"
+    | "davinci"
+    | "gpt4";
+
+export interface ConversationLine {
+    name: string;
+    text: string;
+}
+
+export interface Conversation {
+    prompt: string;
+    messages: ConversationLine[];
+    characterName: string;
+    style: string;
+    languageName: string;
+}
+
 export class ConversationClient {
     private readonly _voices = new Array<Voice>();
     private readonly voicesByName = new Map<string, Voice>();
@@ -81,27 +99,18 @@ export class ConversationClient {
         })
     }
 
-    async davinciResponse(context: string, characterName: string, style: string, languageName: string, prompt: string): Promise<IResponse<string>> {
-        return await this.fetcher.post("/ai/conversation/davinci")
-            .body({
-                context,
-                characterName,
-                style,
-                languageName,
-                prompt
-            }, Application_JsonUTF8)
-            .text();
-    }
+    async getResponse(model: Models, messages: ConversationLine[], characterName: string, style: string, languageName: string, prompt: string): Promise<IResponse<string>> {
+        const input: Conversation = {
+            messages,
+            characterName,
+            style,
+            languageName,
+            prompt
+        };
 
-    async chatGPTResponse(context: string, characterName: string, style: string, languageName: string, prompt: string): Promise<IResponse<string>> {
-        return await this.fetcher.post("/ai/conversation/chatgpt")
-            .body({
-                context,
-                characterName,
-                style,
-                languageName,
-                prompt
-            }, Application_JsonUTF8)
+        return await this.fetcher
+            .post("/ai/conversation/" + model)
+            .body(input, Application_JsonUTF8)
             .text();
     }
 }

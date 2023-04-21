@@ -5,6 +5,7 @@ import { Audio, ButtonSmall, Div, elementSetText, ErsatzElement, Span, Style } f
 import { crossMark, pauseButton, playButton } from "@juniper-lib/emoji";
 import { blobToObjectURL } from "@juniper-lib/tslib/blobToObjectURL";
 import { TypedEvent, TypedEventBase } from "@juniper-lib/tslib/events/EventBase";
+import { ConversationLine } from "./ConversationClient";
 
 Style(
     rule(".character-line",
@@ -104,6 +105,13 @@ export class CharacterLine
     get text() { return this._text; }
     set text(v) { elementSetText(this.transcript, this._text = v); }
 
+    get contextLine(): ConversationLine {
+        return {
+            name: this.name,
+            text: this.text
+        };
+    }
+
     get audioBlob() { return this._audioBlob; }
     async setAudioBlob(ctx: AudioContext, v: Blob) {
         if (v !== this.audioBlob) {
@@ -118,8 +126,6 @@ export class CharacterLine
     get audioBuffer() { return this._audioBuffer; }
 
     get duration() { return this.audioBuffer.duration; }
-
-    get contextEntry() { return `${this.name}: ${this.text || ""}`; }
 
     getVttEntry(startTime: number, showHours: boolean) {
         const start = splitTime(startTime, showHours);

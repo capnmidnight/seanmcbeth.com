@@ -25,7 +25,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-        <PackageReference Include="Betalgo.OpenAI.GPT3" Version="6.8.3" />
+        <PackageReference Include="Betalgo.OpenAI" Version="6.8.5" />
 		<PackageReference Include="BuildBundlerMinifier" Version="3.2.449" />
 		<PackageReference Include="Microsoft.ASPNetCore.Hosting.Abstractions" Version="2.2.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="7.0.5" />
