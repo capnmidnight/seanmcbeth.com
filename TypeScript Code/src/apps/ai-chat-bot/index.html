@@ -17,6 +17,7 @@
             <button type="button" class="btn btn-sm" data-panelname="about" disabled>About</button>
             <button type="button" class="btn btn-sm" data-panelname="usage">Usage</button>
             <button type="button" class="btn btn-sm" data-panelname="input">Input</button>
+            <button type="button" class="btn btn-sm" data-panelname="model">Model</button>
             <button type="button" class="btn btn-sm" data-panelname="output">Output</button>
             <button type="button" class="btn btn-sm" data-panelname="examples">Examples</button>
         </div>
@@ -31,7 +32,7 @@
                 <p>
                     I've found it to be an entertaining distraction to start conversations
                     with the AI, change up characters, and build out fake "Podcasts" from
-                    the exported audio. Check the <em>"Examples tab"</em> for links to
+                    the exported audio. Check the <em>Examples</em> tab for links to
                     a few of them
                 </p>
             </div>
@@ -42,21 +43,24 @@
                     is no other way to interface with the AI.
                 </p>
                 <p>
-                    Check the <em>Input tab</em> to make sure your microphone and language settings
+                    Check the <em>Input</em> tab to make sure your microphone and language settings
                     are correct. The input language doesn't matter too much, but it's helpful
                     in the context I originally wrote this demo: building conversation
                     practice tools for learning foreign languages.
                 </p>
                 <p>
-                    Use the <em>Output tab</em> to change characters and output language. There is
-                    also an "Additional prompt" field in which you can provide extra
-                    background on the conversation, like character background notes,
-                    or situational details.
+                    Use the <em>Model</em> tab to select which of OpenAI's Large Language Models
+                    to use for text generation. There is also an <em>Additional prompt</em> field
+                    in which you can provide extra instructions on the conversation, like character
+                    background notes, or situational details.
                 </p>
                 <p>
-                    Click the <em>"Start"</em> button to begin recording speech. The app
+                    Use the <em>Output</em> tab to change characters and output language.
+                </p>
+                <p>
+                    Click the <em>Start</em> button to begin recording speech. The app
                     attempts to detect quiet spaces around your utterances, so you don't
-                    need to click <em>"Stop"</em> in between each of your prompts.
+                    need to click <em>Stop</em> in between each of your prompts.
                 </p>
                 <p>
                     However, if you're in a noisy environment, or your speakers are turned
@@ -66,55 +70,69 @@
                     prompt recordings
                 </p>
                 <p>
-                    The <em>"Reprompt"</em> button will force another reply from the AI without
+                    The <em>Reprompt</em> button will force another reply from the AI without
                     requiring your verbal input.
                 </p>
                 <p>
-                    The <em>"Export"</em> button will concatenate all of the audio clips, both
+                    The <em>Export</em> button will concatenate all of the audio clips, both
                     your own and the AI's generated clips, into a single audio file,
                     which you can then do with as you wish.
                 </p>
             </div>
 
-            <dl id="input" class="properties" style="display: none;">
-                <dt><label for="inMic">Microphone</label></dt>
-                <dd><select id="inMic"></select></dd>
+            <div id="input" style="display: none;">
+                <dl class="properties">
+                    <dt><label for="inMic">Microphone</label></dt>
+                    <dd><select id="inMic"></select></dd>
 
-                <dt><label for="micActivity">Audio detection</label></dt>
-                <dd><meter id="micActivity" min="0" max="1" value="0"></meter></dd>
+                    <dt><label for="micActivity">Audio detection</label></dt>
+                    <dd><meter id="micActivity" min="0" max="1" value="0"></meter></dd>
 
-                <dt><label for="inVolume">Volume</label></dt>
-                <dd><input id="inVolume" type="range" min="0" max="1" step="0.01"></dd>
+                    <dt><label for="inVolume">Volume</label></dt>
+                    <dd><input id="inVolume" type="range" min="0" max="1" step="0.01"></dd>
 
-                <dt><label for="inLanguage">Language</label></dt>
-                <dd><select id="inLanguage"></select></dd>
+                    <dt><label for="inLanguage">Language</label></dt>
+                    <dd><select id="inLanguage"></select></dd>
 
-                <dt><label for="inCulture">Culture</label></dt>
-                <dd><select id="inCulture"></select></dd>
-            </dl>
+                    <dt><label for="inCulture">Culture</label></dt>
+                    <dd><select id="inCulture"></select></dd>
+                </dl>
+            </div>
 
-            <dl id="output" class="properties" style="display: none;">
-                <dt><label for="outModel">Model</label></dt>
-                <dd><select id="outModel"></select></dd>
+            <div id="model" style="display: none">
+                <dl class="properties">
+                    <dt><label for="outModel">Model</label></dt>
+                    <dd><select id="outModel"></select></dd>
 
-                <dt><label for="outLanguage">Language</label></dt>
-                <dd><select id="outLanguage"></select></dd>
+                    <dt><label for="addlPrompt">Additional prompt</label></dt>
+                    <dd><textarea id="addlPrompt" placeholder="Add additional prompt text here, e.g. to change instructions mid-conversation..."></textarea></dd>
+                </dl>
+            </div>
 
-                <dt><label for="outCulture">Culture</label></dt>
-                <dd><select id="outCulture"></select></dd>
+            <div id="output" style="display: none;">
+                <dl class="properties">
+                    <dt><label for="outLanguage">Language</label></dt>
+                    <dd><select id="outLanguage"></select></dd>
 
-                <dt><label for="outGender">Gender</label></dt>
-                <dd><select id="outGender"></select></dd>
+                    <dt><label for="outCulture">Culture</label></dt>
+                    <dd><select id="outCulture"></select></dd>
 
-                <dt><label for="outVoice">Voice</label></dt>
-                <dd><select id="outVoice"></select></dd>
+                    <dt><label for="outGender">Gender</label></dt>
+                    <dd><select id="outGender"></select></dd>
 
-                <dt><label for="outStyle">Style</label></dt>
-                <dd><select id="outStyle"></select></dd>
+                    <dt><label for="outVoice">Voice</label></dt>
+                    <dd><select id="outVoice"></select></dd>
 
-                <dt><label for="addlPrompt">Additional prompt</label></dt>
-                <dd><textarea id="addlPrompt" placeholder="Add additional prompt text here, e.g. to change instructions mid-conversation..."></textarea></dd>
-            </dl>
+                    <dt><label for="outStyle">Style</label></dt>
+                    <dd><select id="outStyle"></select></dd>
+
+                    <dt><label for="visemes">Lip-sync</label></dt>
+                    <dd><img id="visemes" alt="Mouth lipsync" src="/img/visemes/0.png"></dd>
+
+                    <dt><label for="conversationLog">Log</label></dt>
+                    <dd id="conversationLog"></dd>
+                </dl>
+            </div>
 
             <div id="examples" style="display: none;">
                 <div>
@@ -132,6 +150,4 @@
             </div>
         </div>
     </div>
-    <img id="visemes">
-    <div id="conversationLog"></div>
 </div>

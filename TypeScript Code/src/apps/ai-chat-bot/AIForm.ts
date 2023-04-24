@@ -407,8 +407,7 @@ export class AIForm extends TypedEventBase<AIFormEvents> {
     setVisemeImages(images: HTMLImageElement[]) {
         arrayReplace(this.visemeImages, ...images);
         for (const img of this.visemeImages) {
-            img.style.height = "5em";
-            img.style.alignSelf = "center";
+            img.id = "visemes";
         }
     }
 

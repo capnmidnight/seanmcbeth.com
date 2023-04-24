@@ -56,8 +56,6 @@ export class ConversationClient {
     private readonly _voices = new Array<Voice>();
     private readonly voicesByName = new Map<string, Voice>();
 
-    get voices() { return this._voices; }
-
     constructor(private readonly fetcher: IFetcher) {
     }
 
@@ -78,6 +76,7 @@ export class ConversationClient {
         }
 
         arraySortByKeyInPlace(this._voices, v => v.name);
+        return this._voices;
     }
 
     findVoice(name: string) {

@@ -1,11 +1,13 @@
 ﻿main {
-    padding: 2em;
-    overflow-y: auto;
+    padding: 3em 1em;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    height: 100%;
 }
 
 #aiForm {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-rows: auto auto 1fr;
 }
 
     #aiForm > .controls {
@@ -15,17 +17,22 @@
     }
 
 #status {
-    align-self: center;
+    text-align: center;
 }
 
 #addlPrompt {
     font-family: monospace;
     text-align: left;
-    height: 5em;
+    height: 7em;
 }
 
 #micActivity {
     width: 100%;
+}
+
+#visemes {
+    height: 5em;
+    justify-self: center;
 }
 
 #conversationLog {
@@ -38,3 +45,10 @@ em {
     font-style: normal;
     font-weight: bold;
 }
+
+    em::before {
+        content: open-quote;
+    }
+    em::after {
+        content: close-quote;
+    }

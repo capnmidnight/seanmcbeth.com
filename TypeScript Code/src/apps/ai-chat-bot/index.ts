@@ -34,6 +34,11 @@ import "./index.css";
     const characterLines = new Map<number, CharacterLine>();
 
     form.enabled = false;
+
+    form.status = "Initializing audio system";
+
+    await devMgr.init();
+
     form.addEventListener("volumechanged", () => microphones.gain.value = form.volume);
     form.addEventListener("reset", () => {
         arrayClear(orderedLines);
@@ -80,20 +85,18 @@ import "./index.css";
     recognizer.addEventListener("result", (evt) => finishLine(evt.id, evt.results, evt.culture, evt.isFinal));
     recognizer.addEventListener("end", () => form.listening = false);
 
-    const [images] = await all(
+    form.status = "Loading...";
+
+    const [images, voices, devices] = await all(
         getImagesAsync(),
-        devMgr.init(),
-        conversation.fetchVoices()
+        conversation.fetchVoices(),
+        devMgr.getDevices(true)
     );
 
     form.setVisemeImages(images);
-
-    form.status = "Getting microphones...";
-
-    const devices = await devMgr.getDevices(true);
+    form.setVoices(voices);
     form.setMicrophones(devices.filter(d => d.kind === "audioinput"));
     form.setCurrentMic(microphones.device);
-    form.setVoices(conversation.voices);
     form.enabled = true;
 
     Object.assign(window, { aiform: form });
