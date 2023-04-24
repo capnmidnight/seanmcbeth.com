@@ -1,0 +1,54 @@
+<div class="tab-panel">
+    <div class="tabs">
+        <button class="btn btn-sm" type="button" disabled>About</button>
+        <button class="btn btn-sm" type="button">Usage</button>
+    </div>
+    <div class="panels">
+        <div>
+            <p>
+                This basic AI chat-bot experiment uses Speech-to-Text technology
+                and some clever prompting of an OpenAI LLM to generate characterized
+                responses, which are then piped out to a Text-to-Speech engine,
+                with a lip-sync visualization.
+            </p><p>
+                I've found it to be an entertaining distraction to start conversations
+                with the AI, change up characters, and build out fake "Podcasts" from
+                the exported audio. Check the <em>"Examples tab"</em> for links to
+                a few of them
+            </p>
+        </div>
+        <div style="display: none;">
+            <p>
+                Grant the <em>Microphone Permission</em> when the page loads. Without it, there
+                is no other way to interface with the AI.
+            </p><p>
+                Use the <em>Output tab</em> to change characters and output language. There is
+                also an "Additional prompt" field in which you can provide extra
+                background on the conversation, like character background notes,
+                or situational details.
+            </p><p>
+                Check the <em>Input tab</em> to make sure your microphone and language settings
+                are correct. The input language doesn't matter too much, but it's helpful
+                in the context I originally wrote this demo: building conversation
+                practice tools for learning foreign languages.
+            </p><p>
+                Click the <em>"Start listening"</em> button to begin recording speech. The app
+                attempts to detect quiet spaces around your utterances, so you don't
+                need to click <em>"Stop listening"</em> in between each of your prompts.
+            </p><p>
+                However, if you're in a noisy environment, or your speakers are turned
+                up too loud and your microphone ends up hearing the generated speech
+                and interprets it as your own speech, you can use the "Start/stop"
+                button to pause recording when you're done talking to avoid erroneous
+                prompt recordings
+            </p><p>
+                The <em>"Reprompt"</em> button will force another reply from the AI without
+                requiring your verbal input.
+            </p><p>
+                The <em>"Export"</em> button will concatenate all of the audio clips, both
+                your own and the AI's generated clips, into a single audio file,
+                which you can then do with as you wish.
+            </p>
+        </div>
+    </div>
+</div>

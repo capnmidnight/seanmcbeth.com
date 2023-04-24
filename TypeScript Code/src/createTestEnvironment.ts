@@ -43,7 +43,10 @@ export async function createTestEnvironment(addServiceWorker = false): Promise<E
         display("none"),
         canvas
     );
-    elementApply(document.body, appContainer);
+
+    if (!appContainer.parentElement) {
+        elementApply(document.body, appContainer);
+    }
 
     const env = new EnvironmentConstructor({
         canvas,

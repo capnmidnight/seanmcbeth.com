@@ -113,7 +113,7 @@ tilReady("main", audio).then(async () => {
         readOnly(true)
     );
 
-    const props = new PropertyList(
+    const props = PropertyList.create(
         ["Microphone", micSelector],
         ["File type (optional)", mediaTypeSelector],
         ["Audio detection", activityMeter],

@@ -1,0 +1,137 @@
+
+<h1>AI chat bots</h1>
+
+
+<div id="aiForm">
+    <div class="controls">
+        <button id="startStop" type="button" class="btn btn-primary">Start listening</button>
+        <button id="reprompt" type="button" class="btn btn-primary">Reprompt</button>
+        <button id="export" type="button" class="btn btn-primary" disabled>Export</button>
+        <button id="reset" type="button" class="btn btn-danger" disabled>Reset</button>
+    </div>
+
+    <pre id="status">Loading...</pre>
+
+    <div class="tab-panel">
+        <div class="tabs">
+            <button type="button" class="btn btn-sm" data-panelname="about" disabled>About</button>
+            <button type="button" class="btn btn-sm" data-panelname="usage">Usage</button>
+            <button type="button" class="btn btn-sm" data-panelname="input">Input</button>
+            <button type="button" class="btn btn-sm" data-panelname="output">Output</button>
+            <button type="button" class="btn btn-sm" data-panelname="examples">Examples</button>
+        </div>
+        <div class="panels">
+            <div id="about">
+                <p>
+                    This basic AI chat-bot experiment uses Speech-to-Text technology
+                    and some clever prompting of an OpenAI LLM to generate characterized
+                    responses, which are then piped out to a Text-to-Speech engine,
+                    with a lip-sync visualization.
+                </p>
+                <p>
+                    I've found it to be an entertaining distraction to start conversations
+                    with the AI, change up characters, and build out fake "Podcasts" from
+                    the exported audio. Check the <em>"Examples tab"</em> for links to
+                    a few of them
+                </p>
+            </div>
+
+            <div id="usage" style="display: none;">
+                <p>
+                    Grant the <em>Microphone Permission</em> when the page loads. Without it, there
+                    is no other way to interface with the AI.
+                </p>
+                <p>
+                    Check the <em>Input tab</em> to make sure your microphone and language settings
+                    are correct. The input language doesn't matter too much, but it's helpful
+                    in the context I originally wrote this demo: building conversation
+                    practice tools for learning foreign languages.
+                </p>
+                <p>
+                    Use the <em>Output tab</em> to change characters and output language. There is
+                    also an "Additional prompt" field in which you can provide extra
+                    background on the conversation, like character background notes,
+                    or situational details.
+                </p>
+                <p>
+                    Click the <em>"Start listening"</em> button to begin recording speech. The app
+                    attempts to detect quiet spaces around your utterances, so you don't
+                    need to click <em>"Stop listening"</em> in between each of your prompts.
+                </p>
+                <p>
+                    However, if you're in a noisy environment, or your speakers are turned
+                    up too loud and your microphone ends up hearing the generated speech
+                    and interprets it as your own speech, you can use the "Start/stop"
+                    button to pause recording when you're done talking to avoid erroneous
+                    prompt recordings
+                </p>
+                <p>
+                    The <em>"Reprompt"</em> button will force another reply from the AI without
+                    requiring your verbal input.
+                </p>
+                <p>
+                    The <em>"Export"</em> button will concatenate all of the audio clips, both
+                    your own and the AI's generated clips, into a single audio file,
+                    which you can then do with as you wish.
+                </p>
+            </div>
+
+            <dl id="input" class="properties" style="display: none;">
+                <dt><label for="inMic">Microphone</label></dt>
+                <dd><select id="inMic"></select></dd>
+
+                <dt><label for="micActivity">Audio detection</label></dt>
+                <dd><meter id="micActivity" min="0" max="1" value="0"></meter></dd>
+
+                <dt><label for="inVolume">Volume</label></dt>
+                <dd><input id="inVolume" type="range" min="0" max="1" step="0.01"></dd>
+
+                <dt><label for="inLanguage">Language</label></dt>
+                <dd><select id="inLanguage"></select></dd>
+
+                <dt><label for="inCulture">Culture</label></dt>
+                <dd><select id="inCulture"></select></dd>
+            </dl>
+
+            <dl id="output" class="properties" style="display: none;">
+                <dt><label for="outModel">Model</label></dt>
+                <dd><select id="outModel"></select></dd>
+
+                <dt><label for="outLanguage">Language</label></dt>
+                <dd><select id="outLanguage"></select></dd>
+
+                <dt><label for="outCulture">Culture</label></dt>
+                <dd><select id="outCulture"></select></dd>
+
+                <dt><label for="outGender">Gender</label></dt>
+                <dd><select id="outGender"></select></dd>
+
+                <dt><label for="outVoice">Voice</label></dt>
+                <dd><select id="outVoice"></select></dd>
+
+                <dt><label for="outStyle">Style</label></dt>
+                <dd><select id="outStyle"></select></dd>
+
+                <dt><label for="addlPrompt">Additional prompt</label></dt>
+                <dd><textarea id="addlPrompt" placeholder="Add additional prompt text here, e.g. to change instructions mid-conversation..."></textarea></dd>
+            </dl>
+
+            <div id="examples" style="display: none;">
+                <div>
+                    <iframe width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/1443401830&amp;color=%23ff5500&amp;auto_play=false&amp;hide_related=false&amp;show_comments=true&amp;show_user=true&amp;show_reposts=false&amp;show_teaser=true"></iframe>
+                    <div style="font-size: 10px; color: rgb(204, 204, 204); line-break: anywhere; word-break: normal; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-family: Interstate, &quot;Lucida Grande&quot;, &quot;Lucida Sans Unicode&quot;, &quot;Lucida Sans&quot;, Garuda, Verdana, Tahoma, sans-serif; font-weight: 100;"><a href="https://soundcloud.com/sean-t-mcbeth" title="Sean McBeth" target="_blank" style="color: rgb(204, 204, 204); text-decoration: none;">Sean McBeth</a> � <a href="https://soundcloud.com/sean-t-mcbeth/a-conversation-with-gpt-3" title="A conversation with GPT-3" target="_blank" style="color: rgb(204, 204, 204); text-decoration: none;">A conversation with GPT-3</a></div>
+                </div>
+                <div>
+                    <iframe width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/1443481762&amp;color=%23ff5500&amp;auto_play=false&amp;hide_related=false&amp;show_comments=true&amp;show_user=true&amp;show_reposts=false&amp;show_teaser=true"></iframe>
+                    <div style="font-size: 10px; color: rgb(204, 204, 204); line-break: anywhere; word-break: normal; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-family: Interstate, &quot;Lucida Grande&quot;, &quot;Lucida Sans Unicode&quot;, &quot;Lucida Sans&quot;, Garuda, Verdana, Tahoma, sans-serif; font-weight: 100;"><a href="https://soundcloud.com/sean-t-mcbeth" title="Sean McBeth" target="_blank" style="color: rgb(204, 204, 204); text-decoration: none;">Sean McBeth</a> � <a href="https://soundcloud.com/sean-t-mcbeth/ai-podcast" title="AI Podcast" target="_blank" style="color: rgb(204, 204, 204); text-decoration: none;">AI Podcast</a></div>
+                </div>
+                <div>
+                    <iframe width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/1445106046&amp;color=%23ff5500&amp;auto_play=false&amp;hide_related=false&amp;show_comments=true&amp;show_user=true&amp;show_reposts=false&amp;show_teaser=true"></iframe>
+                    <div style="font-size: 10px; color: rgb(204, 204, 204); line-break: anywhere; word-break: normal; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-family: Interstate, &quot;Lucida Grande&quot;, &quot;Lucida Sans Unicode&quot;, &quot;Lucida Sans&quot;, Garuda, Verdana, Tahoma, sans-serif; font-weight: 100;"><a href="https://soundcloud.com/sean-t-mcbeth" title="Sean McBeth" target="_blank" style="color: rgb(204, 204, 204); text-decoration: none;">Sean McBeth</a> � <a href="https://soundcloud.com/sean-t-mcbeth/conversations-with-ai" title="conversations with AI" target="_blank" style="color: rgb(204, 204, 204); text-decoration: none;">conversations with AI</a></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <img id="visemes">
+    <div id="conversationLog"></div>
+</div>

@@ -1,17 +1,15 @@
 import { ActivityDetector } from "@juniper-lib/audio/ActivityDetector";
-import { audioBufferToWav } from "@juniper-lib/audio/audioBufferToWav";
 import { AudioManager } from "@juniper-lib/audio/AudioManager";
 import { DeviceManager } from "@juniper-lib/audio/DeviceManager";
 import { LocalUserMicrophone } from "@juniper-lib/audio/LocalUserMicrophone";
-import { em, overflowY, padding } from "@juniper-lib/dom/css";
-import { elementApply, H1 } from "@juniper-lib/dom/tags";
+import { audioBufferToWav } from "@juniper-lib/audio/audioBufferToWav";
 import { unwrapResponse } from "@juniper-lib/fetcher/unwrapResponse";
 import { Application_JsonUTF8 } from "@juniper-lib/mediatypes";
 import { AzureSpeechRecognizer } from "@juniper-lib/speech/AzureSpeechRecognizer";
+import { CultureDescriptions } from "@juniper-lib/tslib/Languages";
 import { blobToObjectURL } from "@juniper-lib/tslib/blobToObjectURL";
 import { arrayClear, arrayRemove } from "@juniper-lib/tslib/collections/arrays";
 import { all } from "@juniper-lib/tslib/events/all";
-import { CultureDescriptions } from "@juniper-lib/tslib/Languages";
 import { createFetcher } from "../../createFetcher";
 import { AIForm } from "./AIForm";
 import { CharacterLine } from "./CharacterLine";
@@ -34,13 +32,6 @@ import "./styles.css";
     const conversation = new ConversationClient(fetcher);
     const orderedLines = new Array<CharacterLine>();
     const characterLines = new Map<number, CharacterLine>();
-
-    elementApply("main",
-        padding(em(2)),
-        overflowY("auto"),
-        H1("AI conversations demo"),
-        form
-    );
 
     form.enabled = false;
     form.addEventListener("volumechanged", () => microphones.gain.value = form.volume);
@@ -97,6 +88,8 @@ import "./styles.css";
 
     form.setVisemeImages(images);
 
+    form.status = "Getting microphones...";
+
     const devices = await devMgr.getDevices(true);
     form.setMicrophones(devices.filter(d => d.kind === "audioinput"));
     form.setCurrentMic(microphones.device);
@@ -104,6 +97,8 @@ import "./styles.css";
     form.enabled = true;
 
     Object.assign(window, { aiform: form });
+
+    form.status = "Ready. Click 'Start listening'";
 
     async function exportAudio() {
         form.enabled = false;

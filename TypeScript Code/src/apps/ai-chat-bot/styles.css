@@ -1,4 +1,40 @@
-﻿em {
+﻿main {
+    padding: 2em;
+    overflow-y: auto;
+}
+
+#aiForm {
+    display: flex;
+    flex-direction: column;
+}
+
+    #aiForm > .controls {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+    }
+
+#status {
+    align-self: center;
+}
+
+#addlPrompt {
+    font-family: monospace;
+    text-align: left;
+    height: 5em;
+}
+
+#micActivity {
+    width: 100%;
+}
+
+#conversationLog {
+    font-family: monospace;
+    display: inline-flex;
+    flex-direction: column;
+}
+
+em {
     font-style: normal;
     font-weight: bold;
 }

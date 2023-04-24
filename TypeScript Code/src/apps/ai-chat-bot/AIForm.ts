@@ -1,15 +1,14 @@
-import { allow, disabled, frameBorder, href, htmlHeight, htmlWidth, max, min, placeHolder, scrolling, selected, src, step, target, title, value } from "@juniper-lib/dom/attrs";
-import { alignSelf, color, display, em, flexDirection, fontFamily, fontSize, fontWeight, height, justifyContent, lineBreak, overflow, perc, textAlign, textDecoration, textOverflow, whiteSpace, width, wordBreak } from "@juniper-lib/dom/css";
+import { id, max, min, selected, step, value } from "@juniper-lib/dom/attrs";
 import { onClick, onInput } from "@juniper-lib/dom/evts";
-import { A, ButtonDanger, ButtonPrimary, Div, elementApply, elementClearChildren, elementSetText, Em, ErsatzElement, IFrame, Img, InputRange, Meter, Option, P, Pre, Select, TextArea } from "@juniper-lib/dom/tags";
-import { arrayReplace, arraySortByKey } from "@juniper-lib/tslib/collections/arrays";
-import { debounce } from "@juniper-lib/tslib/events/debounce";
-import { TypedEvent, TypedEventBase } from "@juniper-lib/tslib/events/EventBase";
+import { ButtonDanger, ButtonPrimary, Div, Img, InputRange, Meter, Option, Pre, Select, TextArea, elementApply, elementClearChildren, elementGetText, elementSetText } from "@juniper-lib/dom/tags";
 import { CultureDescriptions, LanguageDescriptions } from "@juniper-lib/tslib/Languages";
+import { arrayReplace, arraySortByKey } from "@juniper-lib/tslib/collections/arrays";
+import { TypedEvent, TypedEventBase } from "@juniper-lib/tslib/events/EventBase";
+import { debounce } from "@juniper-lib/tslib/events/debounce";
 import { PropertyList } from "@juniper-lib/widgets/PropertyList";
 import { TabPanel } from "@juniper-lib/widgets/TabPanel";
 import { CharacterLine } from "./CharacterLine";
-import { genderNames, Models, Viseme, Voice } from "./ConversationClient";
+import { Models, Viseme, Voice, genderNames } from "./ConversationClient";
 
 export class MicrophoneSelectedEvent extends TypedEvent<"microphoneselected"> {
     constructor(public readonly device: MediaDeviceInfo) {
@@ -29,49 +28,10 @@ export interface AIFormEvents {
     volumechanged: TypedEvent<"volumechanged">;
 }
 
-function embedSoundCloud(trackId: string, linkUrl: string, linkTitle: string) {
-    return Div(
-        IFrame(
-            htmlWidth("100%"),
-            htmlHeight("166"),
-            scrolling(false),
-            frameBorder(false),
-            allow("autoplay"),
-            src(`https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/${trackId}&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true`)
-        ),
-        Div(
-            fontSize("10px"),
-            color("#cccccc"),
-            lineBreak("anywhere"),
-            wordBreak("normal"),
-            overflow("hidden"),
-            whiteSpace("nowrap"),
-            textOverflow("ellipsis"),
-            fontFamily("Interstate,Lucida Grande,Lucida Sans Unicode,Lucida Sans,Garuda,Verdana,Tahoma,sans-serif"),
-            fontWeight("100"),
-            A(
-                color("#cccccc"),
-                textDecoration("none"),
-                href("https://soundcloud.com/sean-t-mcbeth"),
-                title("Sean McBeth"),
-                target("_blank"),
-                "Sean McBeth"
-            ),
-            " · ",
-            A(
-                color("#cccccc"),
-                textDecoration("none"),
-                href(linkUrl),
-                title(linkTitle),
-                target("_blank"),
-                linkTitle
-            )
-        )
-    );
-}
+TabPanel.find();
+PropertyList.find();
 
-export class AIForm extends TypedEventBase<AIFormEvents> implements ErsatzElement {
-    readonly element: HTMLElement;
+export class AIForm extends TypedEventBase<AIFormEvents> {
 
     private readonly startStopButton: HTMLButtonElement;
     private readonly repromptButton: HTMLButtonElement;
@@ -109,6 +69,9 @@ export class AIForm extends TypedEventBase<AIFormEvents> implements ErsatzElemen
 
     get disabled() { return !this.enabled; }
     set disabled(v) { this.enabled = !v; }
+
+    get status() { return elementGetText(this.recordingStatus); }
+    set status(v: string) { elementSetText(this.recordingStatus, v); }
 
     get volume() { return this.volumeInput.valueAsNumber; }
 
@@ -241,145 +204,103 @@ export class AIForm extends TypedEventBase<AIFormEvents> implements ErsatzElemen
                 )));
         };
 
-        this.element =
-            Div(
-                display("flex"),
-                flexDirection("column"),
-                Div(
-                    display("flex"),
-                    flexDirection("row"),
-                    justifyContent("center"),
-                    this.startStopButton = ButtonPrimary(
-                        onClick(() => {
-                            this.dispatchEvent(this.listening ? this.stopEvt : this.startEvt);
-                            this.listening = !this.listening;
-                        }),
-                        "Start listening"
-                    ),
+        this.startStopButton = ButtonPrimary(
+            id("startStop"),
+            onClick(() => {
+                this.dispatchEvent(this.listening ? this.stopEvt : this.startEvt);
+                this.listening = !this.listening;
+            })
+        );
 
-                    this.repromptButton = ButtonPrimary(
-                        "Reprompt",
-                        onClick(() => this.dispatchEvent(this.repromptEvt))
-                    ),
+        this.repromptButton = ButtonPrimary(
+            id("reprompt"),
+            onClick(() => this.dispatchEvent(this.repromptEvt))
+        );
 
-                    this.exportButton = ButtonPrimary(
-                        "Export",
-                        disabled(true),
-                        onClick(() => this.dispatchEvent(this.exportEvt))
-                    ),
+        this.exportButton = ButtonPrimary(
+            id("export"),
+            onClick(() => this.dispatchEvent(this.exportEvt))
+        );
 
-                    this.resetButton = ButtonDanger(
-                        "Reset",
-                        disabled(true),
-                        onClick(reset)
-                    )
-                ),
+        this.resetButton = ButtonDanger(
+            id("reset"),
+            onClick(reset)
+        );
 
-                this.recordingStatus = Pre(
-                    alignSelf("center"),
-                    "Not listening, click 'Start listening'"),
+        this.recordingStatus = Pre(id("status"));
 
-                new TabPanel<"input" | "output" | "about" | "usage" | "examples">(
-                    ["about", "About", Div(
-                        P(`This basic AI chat-bot experiment uses Speech-to-Text technology
-                           and some clever prompting of an OpenAI LLM to generate characterized 
-                           responses, which are then piped out to a Text-to-Speech engine,
-                           with a lip-sync visualization.`),
-                        P(`I've found it to be an entertaining distraction to start conversations 
-                           with the AI, change up characters, and build out fake "Podcasts" from
-                           the exported audio. Check the `, Em(`"Examples tab"`), ` for links to
-                           a few of them`)
-                    )],
+        this.outModelSelector = Select(
+            id("outModel"),
+            Option("ChatGPT 3.5", value("chatgpt"), selected(true)),
+            Option("GPT-4", value("gpt4")),
+            Option("GPT-3 Davinci", value("davinci")),
+            Option("GPT-3 Curie", value("curie")),
+            Option("GPT-3 Babbage", value("babbage")),
+            Option("GPT-3 Ada", value("ada"))
+        );
 
-                    ["usage", "Usage", Div(
-                        P(`Grant the `, Em(`Microphone Permission`), ` when the page loads. Without it, there
-                           is no other way to interface with the AI.`),
-                        P(`Use the `, Em(`Output tab`), ` to change characters and output language. There is
-                           also an "Additional prompt" field in which you can provide extra
-                           background on the conversation, like character background notes,
-                           or situational details.`),
-                        P(`Check the `, Em(`Input tab`), ` to make sure your microphone and language settings
-                           are correct. The input language doesn't matter too much, but it's helpful
-                           in the context I originally wrote this demo: building conversation
-                           practice tools for learning foreign languages.`),
-                        P(`Click the `, Em(`"Start listening"`), ` button to begin recording speech. The app
-                           attempts to detect quiet spaces around your utterances, so you don't
-                           need to click `, Em(`"Stop listening"`), ` in between each of your prompts.`),
-                        P(`However, if you're in a noisy environment, or your speakers are turned
-                           up too loud and your microphone ends up hearing the generated speech
-                           and interprets it as your own speech, you can use the "Start/stop"
-                           button to pause recording when you're done talking to avoid erroneous
-                           prompt recordings`),
-                        P(`The `, Em(`"Reprompt"`), ` button will force another reply from the AI without
-                           requiring your verbal input.`),
-                        P(`The `, Em(`"Export"`), ` button will concatenate all of the audio clips, both
-                           your own and the AI's generated clips, into a single audio file,
-                           which you can then do with as you wish.`)
-                    )],
+        this.outLanguageSelector = Select(
+            id("outLanguage"),
+            onInput(() => this.onOutLanguageSelected(true))
+        );
 
-                    ["output", "Output", PropertyList.create(
-                        ["Model", this.outModelSelector = Select(
-                            Option("ChatGPT 3.5", value("chatgpt"), selected(true)),
-                            Option("GPT-4", value("gpt4")),
-                            Option("GPT-3 Davinci", value("davinci")),
-                            Option("GPT-3 Curie", value("curie")),
-                            Option("GPT-3 Babbage", value("babbage")),
-                            Option("GPT-3 Ada", value("ada"))
-                        )],
-                        ["Language", this.outLanguageSelector = Select(onInput(() => this.onOutLanguageSelected(true)))],
-                        ["Culture", this.outCultureSelector = Select(onInput(() => this.onOutCultureSelected(true)))],
-                        ["Gender", this.outGenderSelector = Select(onInput(() => this.onOutGenderLookup(true)))],
-                        ["Voice", this.outNameSelector = Select(onInput(() => this.onOutNameLookup()))],
-                        ["Style", this.outStyleSelector = Select()],
-                        ["Additional prompt", this.promptInput = TextArea(
-                            fontFamily("monospace"),
-                            textAlign("left"),
-                            height(em(5)),
-                            placeHolder("Add additional prompt text here, e.g. to change instructions mid-conversation...")
-                        )]
-                    )],
+        this.outCultureSelector = Select(
+            id("outCulture"),
+            onInput(() => this.onOutCultureSelected(true))
+        );
 
-                    ["input", "Input", PropertyList.create(
-                        ["Microphone", this.micSelector = Select(
-                            onInput(async () => {
-                                const mic = this.mics.get(this.micSelector.value);
-                                this.setStatus(`Starting microphone "${mic.label}"."`);
-                                this.dispatchEvent(new MicrophoneSelectedEvent(mic));
-                                this.setStatus(`Microphone "${mic.label}"" started.`);
-                            }))],
-                        ["Audio detection", this.activityMeter = Meter(
-                            min(0),
-                            max(1),
-                            width(perc(100))
-                        )],
-                        ["Volume", this.volumeInput = InputRange(
-                            min(0),
-                            max(1),
-                            step(0.01),
-                            value(1),
-                            onInput(() => this.dispatchEvent(this.volumeChangedEvt))
-                        )],
-                        ["Language", this.inLanguageSelector = Select(onInput(() => this.onInLanguageSelected(false)))],
-                        ["Culture", this.inCultureSelector = Select(onInput(() => this.onInCultureSelected()))],
-                    )],
+        this.outGenderSelector = Select(
+            id("outGender"),
+            onInput(() => this.onOutGenderLookup(true))
+        );
 
-                    ["examples", "Examples", Div(
-                        embedSoundCloud("1443401830", "https://soundcloud.com/sean-t-mcbeth/a-conversation-with-gpt-3", "A conversation with GPT-3"),
+        this.outNameSelector = Select(
+            id("outVoice"),
+            onInput(() => this.onOutNameLookup())
+        );
 
-                        embedSoundCloud("1443481762", "https://soundcloud.com/sean-t-mcbeth/ai-podcast", "AI Podcast"),
+        this.outStyleSelector = Select(id("outStyle"));
 
-                        embedSoundCloud("1445106046", "https://soundcloud.com/sean-t-mcbeth/conversations-with-ai", "conversations with AI")
-                    )]
-                ),
+        this.promptInput = TextArea(id("addlPrompt"));
 
-                this.visemeImage = Img(),
+        this.micSelector = Select(
+            id("inMic"),
+            onInput(async () => {
+                const mic = this.mics.get(this.micSelector.value);
+                this.setStatus(`Starting microphone "${mic.label}"."`);
+                this.dispatchEvent(new MicrophoneSelectedEvent(mic));
+                this.setStatus(`Microphone "${mic.label}"" started.`);
+            })
+        );
 
-                this.output = Div(
-                    fontFamily("monospace"),
-                    display("inline-flex"),
-                    flexDirection("column")
-                )
-            );
+        this.activityMeter = Meter(
+            id("micActivity"),
+            min(0),
+            max(1)
+        );
+
+        this.volumeInput = InputRange(
+            id("inVolume"),
+            min(0),
+            max(1),
+            step(0.01),
+            value(1),
+            onInput(() => this.dispatchEvent(this.volumeChangedEvt))
+        );
+
+        this.inLanguageSelector = Select(
+            id("inLanguage"),
+            onInput(() => this.onInLanguageSelected(false))
+        );
+
+        this.inCultureSelector = Select(
+            id("inCulture"),
+            onInput(() => this.onInCultureSelected())
+        );
+
+        this.visemeImage = Img(id("visemes"));
+
+        this.output = Div(id("conversationLog"));
     }
 
     private getPrefix(usePrefix: boolean, filterVoice: (voice: Voice) => boolean) {
