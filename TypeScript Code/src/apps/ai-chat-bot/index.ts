@@ -15,7 +15,7 @@ import { AIForm } from "./AIForm";
 import { CharacterLine } from "./CharacterLine";
 import { ConversationClient, Models } from "./ConversationClient";
 
-import "./styles.css";
+import "./index.css";
 
 (async function () {
 
@@ -98,7 +98,7 @@ import "./styles.css";
 
     Object.assign(window, { aiform: form });
 
-    form.status = "Ready. Click 'Start listening'";
+    form.status = "Ready. Click 'Start'";
 
     async function exportAudio() {
         form.enabled = false;

@@ -58,8 +58,8 @@ export class AIForm extends TypedEventBase<AIFormEvents> {
     set listening(v) {
         if (v !== this.listening) {
             this._listening = v;
-            elementSetText(this.startStopButton, this.listening ? "Stop listening" : "Start listening");
-            this.setStatus(this.listening ? "Listening..." : "Not listening, click 'Start listening' button");
+            elementSetText(this.startStopButton, this.listening ? "Stop" : "Start");
+            this.setStatus(this.listening ? "Listening..." : "Not listening, click 'Start' button");
         }
     }
 
