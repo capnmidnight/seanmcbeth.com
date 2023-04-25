@@ -33,16 +33,26 @@ figure {
     margin: 0;
     background-color: var(--box-bg-color);
     box-shadow: var(--box-shadow-color) 5px 5px 10px;
+    z-index: 0;
 }
 
     figure > h3, figure > a[href]:last-child {
         display: block;
         position: relative;
-        z-index: -1;
+        z-index: 1;
     }
 
     figure > a[href]:last-child {
         text-align: right;
+    }
+
+    figure > a[href]:has(img), figure > figcaption {
+        position: relative;
+        z-index: 2;
+    }
+
+    figure > a[href]:has(img) {
+        max-height: 20em;
     }
 
     figure > h3 > a[href], figure > h3 > a[href]:visited {
@@ -58,8 +68,9 @@ figure {
         margin: 0 auto;
     }
 
-    figure > img {
+    figure > a > img {
         max-height: 20em;
+        z-index: 3;
     }
 
 body, #menu {
