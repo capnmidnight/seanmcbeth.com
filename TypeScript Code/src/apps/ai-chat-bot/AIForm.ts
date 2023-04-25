@@ -1,6 +1,6 @@
 import { id, max, min, selected, step, value } from "@juniper-lib/dom/attrs";
 import { onClick, onInput } from "@juniper-lib/dom/evts";
-import { ButtonDanger, ButtonPrimary, Div, Img, InputRange, Meter, Option, Pre, Select, TextArea, elementApply, elementClearChildren, elementGetText, elementSetText } from "@juniper-lib/dom/tags";
+import { ButtonDanger, ButtonPrimary, Div, Img, InputRange, Meter, Option, Pre, Select, TextArea, elementApply, elementClearChildren, elementGetText, elementSetText, getElement, getElements } from "@juniper-lib/dom/tags";
 import { CultureDescriptions, LanguageDescriptions } from "@juniper-lib/tslib/Languages";
 import { arrayReplace, arraySortByKey } from "@juniper-lib/tslib/collections/arrays";
 import { TypedEvent, TypedEventBase } from "@juniper-lib/tslib/events/EventBase";
@@ -301,6 +301,11 @@ export class AIForm extends TypedEventBase<AIFormEvents> {
         this.visemeImage = Img(id("visemes"));
 
         this.output = Div(id("conversationLog"));
+
+        const vibrate = () => navigator.vibrate(25);
+        for (const btn of getElements<HTMLButtonElement>(".btn")) {
+            btn.addEventListener("click", vibrate);
+        }
     }
 
     private getPrefix(usePrefix: boolean, filterVoice: (voice: Voice) => boolean) {
