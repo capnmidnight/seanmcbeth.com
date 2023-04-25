@@ -32,11 +32,13 @@ figure {
     padding: 0 0.5em;
     margin: 0;
     background-color: var(--box-bg-color);
-    box-shadow: var(--box-shadow-color) 5px 5px 5px;
+    box-shadow: var(--box-shadow-color) 5px 5px 10px;
 }
 
     figure > h3, figure > a[href]:last-child {
         display: block;
+        position: relative;
+        z-index: -1;
     }
 
     figure > a[href]:last-child {
@@ -187,6 +189,7 @@ section img, section iframe {
     max-width: calc(100% - 2em);
     margin: 0 auto;
     display: block;
+    margin-bottom: 1.5em;
 }
 
 section iframe {
@@ -244,7 +247,7 @@ section iframe {
 
         section img, section iframe {
             max-width: calc(100% - 10em);
-            margin: auto auto;
+            margin: auto auto 1.5em auto;
         }
 
         main {
@@ -294,11 +297,11 @@ section iframe {
 
 @media (prefers-color-scheme: dark) {
     :root {
-        --main-bg-color: #1c3235;
-        --main-fg-color: #d3dde4;
-        --box-bg-color: #294c55;
-        --box-shadow-color: #172225;
-        --text-shadow-color: #172225;
+        --main-bg-color: #0b0d0f;
+        --main-fg-color: #97d5f2;
+        --box-bg-color: #1c1f22;
+        --box-shadow-color: #949ca14d;
+        --text-shadow-color: #949ca1;
     }
 
     a[href] {
