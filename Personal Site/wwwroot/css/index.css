@@ -31,10 +31,19 @@ figure {
     counter-increment: figure;
     padding: 0 0.5em;
     margin: 0;
-    background-color: var(--box-bg-color);
-    box-shadow: var(--box-shadow-color) 5px 5px 10px;
     z-index: 0;
 }
+
+    figure img, figure iframe {
+        max-width: calc(100% - 2em);
+        margin: 0 auto;
+        display: block;
+        margin-bottom: 1.5em;
+    }
+
+    figure iframe {
+        aspect-ratio: 16 / 9;
+    }
 
     figure > h3, figure > a[href]:last-child {
         display: block;
@@ -46,13 +55,9 @@ figure {
         text-align: right;
     }
 
-    figure > a[href]:has(img), figure > figcaption {
+    figure > a[href]:has(img), figure > img, figure > iframe, figure > figcaption {
         position: relative;
         z-index: 2;
-    }
-
-    figure > a[href]:has(img) {
-        max-height: 20em;
     }
 
     figure > h3 > a[href], figure > h3 > a[href]:visited {
@@ -66,11 +71,6 @@ figure {
         text-align: center;
         padding: 0.25em;
         margin: 0 auto;
-    }
-
-    figure > a > img {
-        max-height: 20em;
-        z-index: 3;
     }
 
 body, #menu {
@@ -196,17 +196,6 @@ h2 {
     width: 100%;
 }
 
-section img, section iframe {
-    max-width: calc(100% - 2em);
-    margin: 0 auto;
-    display: block;
-    margin-bottom: 1.5em;
-}
-
-section iframe {
-    aspect-ratio: 16 / 9;
-}
-
 @media screen {
     .print-only {
         display: none;
@@ -231,13 +220,16 @@ section iframe {
             box-shadow: unset;
         }
 
-            figure > h3, figure > a[href]:last-child, figure > a > img, figure > iframe {
-                background-color: var(--box-bg-color);
+            figure > h3, figure > a[href]:last-child, figure img, figure iframe {
                 box-shadow: var(--box-shadow-color) 5px 5px 5px;
             }
 
             figure > h3, figure > a[href]:last-child {
-                max-width: 80%;
+                background-color: var(--box-bg-color);
+            }
+
+            figure > h3, figure > a[href]:last-child {
+                width: 80%;
             }
 
             figure > h3 {
@@ -253,13 +245,13 @@ section iframe {
             figure > figcaption {
                 font-size: 12pt;
                 width: 60%;
-                text-shadow: var(--text-shadow-color) 1.25px 1.25px 2.5px;
             }
 
-        section img, section iframe {
-            max-width: calc(100% - 10em);
-            margin: auto auto 1.5em auto;
-        }
+            figure img, figure iframe {
+                max-width: calc(100% - 10em);
+                max-height: 45vh;
+                margin: auto auto 1.5em auto;
+            }
 
         main {
             max-width: 1000px;

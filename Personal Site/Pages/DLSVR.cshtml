@@ -15,8 +15,8 @@
         {
             <li>
                 <a href="@href"
-                    aria-label="@title"
-                    title="@title">
+                   aria-label="@title"
+                   title="@title">
                     @text
                 </a>
             </li>
@@ -24,109 +24,115 @@
     }
 }
 
-<section id="projects"
-         aria-label="projects">
-    <h2>Diplomatic Language Services Virtual Reality</h2>
-    <p>
-        @ViewData["Description"] <a href="https://vr.dlsdc.com" target="_blank">View a live demo of DLS VR</a>.
-    </p>
+<h1>Diplomatic Language Services Virtual Reality</h1>
+<p>
+    @ViewData["Description"] <a href="https://vr.dlsdc.com" target="_blank">View a live demo of DLS VR</a>.
+</p>
 
+<figure>
     <img src="~/img/dlsvr/landing.jpeg" alt="Screenshot of DLS VR Landing Page" title="DLS VR Landing Page" />
+    <figcaption>DLS VR Landing Page</figcaption>
+</figure>
 
-    <p>
-        As the Head of Immersive Software, I developed and managed projects enhancing DLS'
-        foreign language instruction services. Created DLS VR, a web-based immersive
-        language and cultural learning application, including an online editor and
-        student activity reports.
-    </p>
+<p>
+    As the Head of Immersive Software, I developed and managed projects enhancing DLS'
+    foreign language instruction services. Created DLS VR, a web-based immersive
+    language and cultural learning application, including an online editor and
+    student activity reports.
+</p>
 
-    <p>
-        The project was developed in close collaboration with the Language Training
-        Department, incorporating expert instructors and curriculum designers. The
-        user-friendly online editor allowed non-technical subject matter experts to create
-        immersive scenarios, while performance reports tracked student engagement. Product
-        design process included attending a language course to gain first-hand knowledge of
-        the student experience, implementing regular meetings with stakeholders, and
-        surveying latest research in VR UI design.
-    </p>
+<p>
+    The project was developed in close collaboration with the Language Training
+    Department, incorporating expert instructors and curriculum designers. The
+    user-friendly online editor allowed non-technical subject matter experts to create
+    immersive scenarios, while performance reports tracked student engagement. Product
+    design process included attending a language course to gain first-hand knowledge of
+    the student experience, implementing regular meetings with stakeholders, and
+    surveying latest research in VR UI design.
+</p>
 
-    <p>
-        I built DLS VR from scratch, over the course of approximately 4 years, using the
-        <a href="https://threejs.org">Three.js</a> library and my own
-        <a href="https://github.com/capnmidnight/Juniper/">Juniper</a> library, to run on
-        desktop computers, mobile devices, and VR headsets. Users in the VR front-end see
-        each other as a synthetic avatar, with spatialized voice chat, shared pointers, and
-        full body language through shared head and hand tracking. I also created several
-        user comfort mitigations in the app, including aggressive performance optimization,
-        teleportation locomotion, near-field UI elements and a synthetic floor to avoid
-        vertigo in monoscopic 360° imagery, spatialized environmental audio to enhance
-        orientation senses, and an intent-preserving gesturing system to keep avatars visually
-        separated while still allowing them to point at imagery details.
-    </p>
+<p>
+    I built DLS VR from scratch, over the course of approximately 4 years, using the
+    <a href="https://threejs.org">Three.js</a> library and my own
+    <a href="https://github.com/capnmidnight/Juniper/">Juniper</a> library, to run on
+    desktop computers, mobile devices, and VR headsets. Users in the VR front-end see
+    each other as a synthetic avatar, with spatialized voice chat, shared pointers, and
+    full body language through shared head and hand tracking. I also created several
+    user comfort mitigations in the app, including aggressive performance optimization,
+    teleportation locomotion, near-field UI elements and a synthetic floor to avoid
+    vertigo in monoscopic 360° imagery, spatialized environmental audio to enhance
+    orientation senses, and an intent-preserving gesturing system to keep avatars visually
+    separated while still allowing them to point at imagery details.
+</p>
 
-    <p>
-        DLS VR was selected as a finalist for the
-        <a href="https://thelanguageflagship.tech/" target="_blank">Language Flagship Technology Innovation Center</a>'s
-        <a href="https://thelanguageflagship.tech/launchpad/" target="_blank">LaunchPad 2023 event</a>,
-        a <a href="https://dlnseo.org/" target="_blank">Defense Language and National Security Education Office</a> sponsored initiative.
-    </p>
+<p>
+    DLS VR was selected as a finalist for the
+    <a href="https://thelanguageflagship.tech/" target="_blank">Language Flagship Technology Innovation Center</a>'s
+    <a href="https://thelanguageflagship.tech/launchpad/" target="_blank">LaunchPad 2023 event</a>,
+    a <a href="https://dlnseo.org/" target="_blank">Defense Language and National Security Education Office</a> sponsored initiative.
+</p>
 
-    <figure>
-        <img src="~/img/dlsvr/screen1.jpeg" alt="Screenshot from DLS VR" title="Users meeting together in DLS VR" />
-        <figcaption>Users meeting together</figcaption>
-    </figure>
+<figure>
+    <img src="~/img/dlsvr/screen1.jpeg" alt="Screenshot from DLS VR" title="Users meeting together in DLS VR" />
+    <figcaption>Users meeting together</figcaption>
+</figure>
 
-    <figure>
-        <iframe src="https://www.youtube-nocookie.com/embed/lMGptY6vYfc"
-                title="YouTube video player"
-                frameborder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowfullscreen></iframe>
-        <figcaption>Social presence through avatar head and hand tracking</figcaption>
-    </figure>
+<figure>
+    <iframe src="https://www.youtube-nocookie.com/embed/lMGptY6vYfc"
+            title="YouTube video player"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowfullscreen></iframe>
+    <figcaption>Social presence through avatar head and hand tracking</figcaption>
+</figure>
 
-    <figure>
-        <iframe src="https://www.youtube-nocookie.com/embed/Kq1RccNuNYM"
-                title="YouTube video player"
-                frameborder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowfullscreen></iframe>
-        <figcaption>Webcam support for avatars</figcaption>
-    </figure>
+<figure>
+    <iframe src="https://www.youtube-nocookie.com/embed/Kq1RccNuNYM"
+            title="YouTube video player"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowfullscreen></iframe>
+    <figcaption>Webcam support for avatars</figcaption>
+</figure>
 
-    <p>
-        Following my belief that technology should be used to help great people do even better
-        work, I designed a "guided tour" metaphor for the application. Unlike competitor VR
-        language training applications that put students on their own inside in a fixed
-        environment, DLS VR serves as supplement to our existing, accredited, best-in-class,
-        instructor-led training, allowing students and instructors to interact in real-life
-        locations. Participants engage in open-ended discussion about the culture of their
-        target language through the visuals they see, listen to voice-overs, and watch videos
-        providing historical details, and practice role-play scenarios <em>in situ</em>.
-    </p>
+<p>
+    Following my belief that technology should be used to help great people do even better
+    work, I designed a "guided tour" metaphor for the application. Unlike competitor VR
+    language training applications that put students on their own inside in a fixed
+    environment, DLS VR serves as supplement to our existing, accredited, best-in-class,
+    instructor-led training, allowing students and instructors to interact in real-life
+    locations. Participants engage in open-ended discussion about the culture of their
+    target language through the visuals they see, listen to voice-overs, and watch videos
+    providing historical details, and practice role-play scenarios <em>in situ</em>.
+</p>
 
-    <img src="~/img/dlsvr/screen2.jpeg" alt="Screenshot from DLS VR" title="Users roleplaying together in DLS VR" />
+<figure>
+    <img src="~/img/dlsvr/screen2.jpeg" alt="Screenshot from DLS VR" title="Users role-playing together in DLS VR" />
+    <figcaption>Users role-playing together in DLS VR</figcaption>
+</figure>
 
-    <p>
-        The back-end editor is a Google Maps-based application that allows instructors and
-        curriculum developers to self-service their own creation of scenarios, without
-        bottlenecking on requiring input from developers or 3D modelers. Scenarios are
-        designed around a travel narrative using Google Street View imagery. Scenario
-        designers can add spatialized background audio to enhance the immersion of the
-        scenario, as well as a wide variety of pedagogical materials: call-out images,
-        vocabulary cards, videos, listening tasks, reading tasks, and role-play stations.
-        Instructors can also see reports on student activity, including how much and how
-        long they performed the material, as well as how long they directed their
-        attention to each, individual piece of media provided in the scenario.
-    </p>
+<p>
+    The back-end editor is a Google Maps-based application that allows instructors and
+    curriculum developers to self-service their own creation of scenarios, without
+    bottlenecking on requiring input from developers or 3D modelers. Scenarios are
+    designed around a travel narrative using Google Street View imagery. Scenario
+    designers can add spatialized background audio to enhance the immersion of the
+    scenario, as well as a wide variety of pedagogical materials: call-out images,
+    vocabulary cards, videos, listening tasks, reading tasks, and role-play stations.
+    Instructors can also see reports on student activity, including how much and how
+    long they performed the material, as well as how long they directed their
+    attention to each, individual piece of media provided in the scenario.
+</p>
 
+<figure>
     <img src="~/img/dlsvr/screen3.jpeg" alt="Screenshot from DLS VR" title="The DLS VR Editor" />
+    <figcaption>The DLS VR Editor</figcaption>
+</figure>
 
-    <p>
-        I also established VR training labs across all three DLS locations and managed a
-        fleet of 35 Meta Quest 2 headsets. My involvement extended to marketing, training,
-        conference presentations, software sales, and business partnership development.
-        Additionally, I supervised one full-time employee and mentored others within the
-        company.
-    </p>
-</section>
+<p>
+    I also established VR training labs across all three DLS locations and managed a
+    fleet of 35 Meta Quest 2 headsets. My involvement extended to marketing, training,
+    conference presentations, software sales, and business partnership development.
+    Additionally, I supervised one full-time employee and mentored others within the
+    company.
+</p>
