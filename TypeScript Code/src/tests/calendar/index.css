@@ -1,0 +1,34 @@
+main, table {
+    height: 100%;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+    table > tbody > tr > td {
+        vertical-align: top;
+        line-height: 1;
+        width: calc(100%/7);
+        padding: 0.25em;
+    }
+
+        table > tbody > tr > td:not(:empty) {
+            border: solid 1px var(--main-fg-color);
+        }
+
+        table > tbody > tr > td:first-child, table > tbody > tr > td:last-child {
+            opacity: .25;
+        }
+
+@media print {
+    main {
+        padding: 0;
+    }
+}
+
+@page {
+    size: A4 landscape;
+}
