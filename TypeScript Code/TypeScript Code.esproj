@@ -4,7 +4,4 @@
     <ProductionBuildCommand>node --experimental-modules esbuild.config.js</ProductionBuildCommand>
     <StartupCommand>node --experimental-modules esbuild.config.js --watch</StartupCommand>
   </PropertyGroup>
-  <ItemGroup>
-    <Folder Include="src\libs\three\" />
-  </ItemGroup>
 </Project>
