@@ -2,9 +2,11 @@
 
 namespace stm
 {
+    extern int why;
+
     class Calculator
     {
     public:
-        double Calculate(double x, char op, double y);
+        const double Calculate(const double x, const char op, const double y) const;
     };
 }

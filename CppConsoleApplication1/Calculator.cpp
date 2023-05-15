@@ -1,18 +1,23 @@
 #include "Calculator.h"
 
-double stm::Calculator::Calculate(double x, char op, double y)
+namespace stm
 {
-    switch (op)
+    int why = 5;
+
+    const double Calculator::Calculate(const double x, const char op, const double y) const
     {
-    case '+':
-        return x + y;
-    case '-':
-        return x - y;
-    case '*':
-        return x * y;
-    case '/':
-        return x / y;
-    default:
-        return 0.0;
+        switch (op)
+        {
+        case '+':
+            return x + y;
+        case '-':
+            return x - y;
+        case '*':
+            return x * y;
+        case '/':
+            return x / y;
+        default:
+            return 0.0;
+        }
     }
 }
