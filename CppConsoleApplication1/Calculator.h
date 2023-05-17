@@ -7,10 +7,11 @@ namespace stm
     class Calculator
     {
     public:
-        const double Calculate(const double x, const char op, const double y) const;
+        double Calculate(double x, char op, double y) const;
     };
 
-    extern constexpr double calc(const double x, const char op, const double y)
+    template<typename NumberT>
+    extern constexpr NumberT calc(const NumberT& x, const char& op, const NumberT& y)
     {
         switch (op)
         {
@@ -23,7 +24,9 @@ namespace stm
         case '/':
             return x / y;
         default:
-            return 0.0;
+            return 0;
         }
     }
+
+    double dublit(double x);
 }

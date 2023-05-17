@@ -1,3 +1,4 @@
+#include <vector>
 #include <iostream>
 #include "Calculator.h"
 
@@ -23,7 +24,7 @@ int main()
     auto op = '\0';
 
     cout << "Result: " << a << "+" << b << " = " << z << endl;
-
+    cout << "Double it: " << b << " = " << dublit(b) << endl;
     cout << "Calculator!!!" << why << endl;
     cin >> x >> op >> y;
     result = c.Calculate(x, op, y);

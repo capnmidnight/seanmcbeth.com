@@ -4,8 +4,13 @@ namespace stm
 {
     int why = 5;
 
-    const double Calculator::Calculate(const double x, const char op, const double y) const
+    double Calculator::Calculate(double x, char op, double y) const
     {
         return calc(x, op, y);
+    }
+
+    double dublit(double x)
+    {
+        return 2 * x;
     }
 }
