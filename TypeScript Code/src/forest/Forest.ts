@@ -1,7 +1,9 @@
-﻿import { AssetFile, AssetImage, BaseAsset } from "@juniper-lib/fetcher/Asset";
+﻿import { dispose } from "@juniper-lib/dom/canvas";
+import { AssetFile, AssetImage, BaseAsset } from "@juniper-lib/fetcher/Asset";
 import { Audio_Mpeg, Image_Jpeg, Model_Gltf_Binary } from "@juniper-lib/mediatypes";
 import { AssetGltfModel } from "@juniper-lib/threejs/AssetGltfModel";
 import { Cube } from "@juniper-lib/threejs/Cube";
+import { cleanup } from "@juniper-lib/threejs/cleanup";
 import { Environment } from "@juniper-lib/threejs/environment/Environment";
 import { RayTarget } from "@juniper-lib/threejs/eventSystem/RayTarget";
 import { materialStandardToBasic, solidRed } from "@juniper-lib/threejs/materials";
@@ -10,6 +12,7 @@ import { isMesh } from "@juniper-lib/threejs/typeChecks";
 import { arrayClear, arrayScan } from "@juniper-lib/tslib/collections/arrays";
 import { Tau } from "@juniper-lib/tslib/math";
 import { isDefined } from "@juniper-lib/tslib/typeChecks";
+import { IDisposable } from "@juniper-lib/tslib/using";
 import { BufferGeometry, InstancedMesh, Intersection, MathUtils, Matrix4, Mesh, MeshBasicMaterial, MeshStandardMaterial, Object3D, Quaternion, Raycaster, Vector3 } from "three";
 import { isDebug } from "../isDebug";
 import { defaultAvatarHeight } from "../settings";
@@ -18,7 +21,7 @@ function isMeshNamed(name: string) {
     return (obj: Object3D) => isMesh(obj) && obj.name === name;
 }
 
-export class Forest {
+export class Forest implements IDisposable {
     private readonly skybox: AssetImage;
     private readonly forest: AssetGltfModel;
     private readonly tree: AssetGltfModel;
@@ -30,6 +33,19 @@ export class Forest {
     private _water: Mesh<BufferGeometry, MeshBasicMaterial>;
     private _trees: InstancedMesh;
     private navMesh: RayTarget;
+
+    private disposed = false;
+    public dispose() {
+        if (!this.disposed) {
+            cleanup(this._trees);
+            cleanup(this._water);
+            cleanup(this._ground);
+            cleanup(this.forest.result);
+            cleanup(this.tree.result);
+            dispose(this.skybox.result);
+            this.disposed = true;
+        }
+    }
 
     get ground() {
         return this._ground;
@@ -69,7 +85,7 @@ export class Forest {
 
         const newMesh = oldMesh as any as Mesh<BufferGeometry, MeshBasicMaterial>;
         newMesh.material = newMat;
-        oldMat.dispose();
+        dispose(oldMat);
         return newMesh;
     }
 

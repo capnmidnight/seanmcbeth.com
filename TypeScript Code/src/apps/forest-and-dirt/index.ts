@@ -9,6 +9,7 @@ import { Forest } from "../../forest/Forest";
 import { isDebug, JS_EXT } from "../../isDebug";
 import { version } from "../../settings";
 import { DirtWorkerClient } from "../../workers/dirt/DirtWorkerClient";
+import { dispose } from "@juniper-lib/dom/canvas";
 
 const S = 5;
 const R = 200;
@@ -34,9 +35,7 @@ withTestEnvironment(async (env) => {
 
     const dirtBumpMap = new DirtWorkerClient(dirtWorkerAsset.result);
     dirtBumpMap.addEventListener("update", (evt) => {
-        if (dirtBumpMapTex.image instanceof ImageBitmap) {
-            dirtBumpMapTex.image.close();
-        }
+        dispose(dirtBumpMapTex.image);
         dirtBumpMapTex.image = evt.imgBmp;
         dirtBumpMapTex.needsUpdate = true;
     });
