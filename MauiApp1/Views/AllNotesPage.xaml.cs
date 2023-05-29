@@ -22,16 +22,16 @@ public partial class AllNotesPage : ContentPage
         await Shell.Current.GoToAsync(nameof(NotePage));
     }
 
-    private async void notesCollection_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    private async void NotesCollection_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if(e.CurrentSelection.Count > 0)
         {
             var obj = e.CurrentSelection[0];
             if(obj is Models.Note note)
             {
-                await Shell.Current.GoToAsync($"{nameof(NotePage)}?{nameof(NotePage.ItemId)}={note.Filename}");
+                await Shell.Current.GoToAsync(NotePage.MakeURL(note));
             }
-            notesCollection.SelectedItem = null;
+            NotesCollection.SelectedItem = null;
         }
     }
 }

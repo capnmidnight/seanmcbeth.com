@@ -10,11 +10,11 @@
                      IconImageSource="{FontImage Glyph='+', Color=White, Size=22}"/>
     </ContentPage.ToolbarItems>
 
-    <CollectionView x:Name="notesCollection"
+    <CollectionView x:Name="NotesCollection"
                     ItemsSource="{Binding Notes}"
                     Margin="20"
                     SelectionMode="Single"
-                    SelectionChanged="notesCollection_SelectionChanged">
+                    SelectionChanged="NotesCollection_SelectionChanged">
 
         <CollectionView.ItemsLayout>
             <LinearItemsLayout Orientation="Vertical" ItemSpacing="10"/>

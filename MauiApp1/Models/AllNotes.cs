@@ -4,7 +4,7 @@ namespace MauiApp1.Models
 {
     internal class AllNotes
     {
-        public ObservableCollection<Note> Notes { get; set; } = new ObservableCollection<Note>();
+        public ObservableCollection<Note> Notes { get; } = new ObservableCollection<Note>();
 
         public AllNotes()
         {
@@ -14,18 +14,13 @@ namespace MauiApp1.Models
         public void LoadNotes()
         {
             Notes.Clear();
-            string appDataPath = FileSystem.AppDataDirectory;
-            var notes = Directory
-                .EnumerateFiles(appDataPath, "*.notes.txt")
-                .Select(filename => new Note()
-                {
-                    Filename = filename,
-                    Text = File.ReadAllText(filename),
-                    Date = File.GetCreationTime(filename)
-                })
-                .OrderBy(note => note.Date);
+            var appDataPath = FileSystem.AppDataDirectory;
+            var notes = from filename in Directory.EnumerateFiles(appDataPath, "*.notes.txt")
+                        let note = new Note(filename)
+                        orderby note.Date
+                        select note;
 
-            foreach(var  note in notes)
+            foreach(var note in notes)
             {
                 Notes.Add(note);
             }
