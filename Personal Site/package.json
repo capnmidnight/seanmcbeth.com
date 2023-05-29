@@ -1,7 +1,0 @@
-{
-  "name": "seanmcbeth-com-actual",
-  "private": true,
-  "dependencies": {
-    "typescript": "4.8.2"
-  }
-}
