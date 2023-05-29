@@ -1,18 +1,24 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="MauiApp1.AboutPage"
+             xmlns:models="clr-namespace:MauiApp1.Models"
+             x:Class="MauiApp1.Views.AboutPage"
              Title="About Notes">
+    
+    <ContentPage.BindingContext>
+        <models:About/>
+    </ContentPage.BindingContext>
+    
     <VerticalStackLayout Spacing="10" Margin="10">
         <HorizontalStackLayout Spacing="10">
             <Image Source="dotnet_bot.svg"
                    SemanticProperties.Description="The dot net bot waving hello!"
                    HeightRequest="64" />
-            <Label FontSize="22" FontAttributes="Bold" Text="MauiApp1" VerticalOptions="End" />
-            <Label FontSize="22" Text="v1.0" VerticalOptions="End" />
+            <Label FontSize="22" FontAttributes="Bold" Text="{Binding Title}" VerticalOptions="End" />
+            <Label FontSize="22" Text="{Binding Version}" VerticalOptions="End" />
         </HorizontalStackLayout>
 
-        <Label Text="This app is written in XAML and C# with .NET MAUI." />
+        <Label Text="{Binding Message}" />
         <Button Text="Learn more..." Clicked="LearnMore_Clicked" />
     </VerticalStackLayout>
 </ContentPage>
