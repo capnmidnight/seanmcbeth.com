@@ -1,20 +1,27 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewModels="clr-namespace:MauiApp1.ViewModels"
              x:Class="MauiApp1.Views.AllNotesPage"
-             Title="Your Notes">
+             Title="Your Notes"
+             NavigatedTo="ContentPage_NavigatedTo">
+
+    <ContentPage.BindingContext>
+        <viewModels:NotesViewModel/>
+    </ContentPage.BindingContext>
 
     <ContentPage.ToolbarItems>
         <ToolbarItem Text="Add"
-                     Clicked="Add_Clicked"
+                     Command="{Binding NewCommand}"
                      IconImageSource="{FontImage Glyph='+', Color=White, Size=22}"/>
     </ContentPage.ToolbarItems>
 
     <CollectionView x:Name="NotesCollection"
-                    ItemsSource="{Binding Notes}"
+                    ItemsSource="{Binding AllNotes}"
                     Margin="20"
                     SelectionMode="Single"
-                    SelectionChanged="NotesCollection_SelectionChanged">
+                    SelectionChangedCommand="{Binding SelectNoteCommand}"
+                    SelectionChangedCommandParameter="{Binding Source={RelativeSource Self}, Path=SelectedItem}">
 
         <CollectionView.ItemsLayout>
             <LinearItemsLayout Orientation="Vertical" ItemSpacing="10"/>

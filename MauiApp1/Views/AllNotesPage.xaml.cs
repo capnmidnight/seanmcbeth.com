@@ -5,33 +5,10 @@ public partial class AllNotesPage : ContentPage
 	public AllNotesPage()
 	{
 		InitializeComponent();
-
-		BindingContext = new Models.AllNotes();
 	}
 
-    protected override void OnAppearing()
+    private void ContentPage_NavigatedTo(object sender, NavigatedToEventArgs e)
     {
-        if(BindingContext is Models.AllNotes allNotes)
-        {
-            allNotes.LoadNotes();
-        }
-    }
-
-    private async void Add_Clicked(object sender, EventArgs e)
-    {
-        await Shell.Current.GoToAsync(nameof(NotePage));
-    }
-
-    private async void NotesCollection_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        if(e.CurrentSelection.Count > 0)
-        {
-            var obj = e.CurrentSelection[0];
-            if(obj is Models.Note note)
-            {
-                await Shell.Current.GoToAsync(NotePage.MakeURL(note));
-            }
-            NotesCollection.SelectedItem = null;
-        }
+		NotesCollection.SelectedItem = null;
     }
 }
