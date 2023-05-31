@@ -13,7 +13,10 @@
     <ContentPage.ToolbarItems>
         <ToolbarItem Text="Add"
                      Command="{Binding NewCommand}"
-                     IconImageSource="{FontImage Glyph='+', Color=White, Size=22}"/>
+                     IconImageSource="{AppThemeBinding 
+                        Dark={FontImage Glyph='+', Color=White, Size=22},
+                        Light={FontImage Glyph='+', Color=Black, Size=22}
+                     }"/>
     </ContentPage.ToolbarItems>
 
     <CollectionView x:Name="NotesCollection"
@@ -30,7 +33,7 @@
         <CollectionView.ItemTemplate>
             <DataTemplate>
                 <StackLayout>
-                    <Label Text="{Binding Text}" FontSize="22"/>
+                    <Label Text="{Binding Text}" FontSize="22" />
                     <Label Text="{Binding Date}" FontSize="14" TextColor="Silver"/>
                 </StackLayout>
             </DataTemplate>

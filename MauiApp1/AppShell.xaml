@@ -3,20 +3,25 @@
     x:Class="MauiApp1.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:views="clr-namespace:MauiApp1.Views"
-    Shell.FlyoutBehavior="Disabled">
+    xmlns:views="clr-namespace:MauiApp1.Views">
 
-    <TabBar>
-
-        <ShellContent
+    <FlyoutItem
             Title="Home"
-            ContentTemplate="{DataTemplate views:AllNotesPage}"
-            Icon="{OnPlatform 'icon_notes.png', iOS='icon_notes_ios.png', MacCatalyst='icon_notes_ios.png'}" />
-
+            Icon="{AppThemeBinding 
+                Light='icon_notes.png',
+                Dark='icon_notes_light.png'
+            }">
         <ShellContent
-            Title="About"
-            ContentTemplate="{DataTemplate views:AboutPage}"
-            Icon="{OnPlatform 'icon_about.png', iOS='icon_about_ios.png', MacCatalyst='icon_about_ios.png'}" />
+            ContentTemplate="{DataTemplate views:AllNotesPage}" />
+    </FlyoutItem>
 
-    </TabBar>
+    <FlyoutItem
+            Title="About"
+            Icon="{AppThemeBinding 
+                Light='icon_about.png',
+                Dark='icon_about_light.png'
+            }">
+        <ShellContent
+            ContentTemplate="{DataTemplate views:AboutPage}" />
+    </FlyoutItem>
 </Shell>

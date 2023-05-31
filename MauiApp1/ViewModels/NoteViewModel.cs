@@ -1,11 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel;
 using System.Windows.Input;
 
 namespace MauiApp1.ViewModels
@@ -14,6 +10,7 @@ namespace MauiApp1.ViewModels
     {
         private Models.Note note;
 
+        private string lastText;
 
         public string Text
         {
@@ -24,34 +21,47 @@ namespace MauiApp1.ViewModels
                 {
                     note.Text = value;
                     OnPropertyChanged(nameof(Text));
+                    OnPropertyChanged(nameof(IsChanged));
                 }
             }
         }
 
         public DateTime Date => note.Date;
         public string Identifier => note.Filename;
-        public ICommand SaveCommand { get; }
+        public AsyncRelayCommand SaveCommand { get; }
         public ICommand DeleteCommand { get; }
-        public ICommand CancelCommand { get; }
 
         public NoteViewModel()
             : this(new())
              
         {
+            PropertyChanged += NoteViewModel_PropertyChanged;
+        }
+
+        private void NoteViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if(e.PropertyName == nameof(IsChanged))
+            {
+                SaveCommand.NotifyCanExecuteChanged();
+            }
         }
 
         public NoteViewModel(Models.Note note)
         {
             this.note = note;
-            SaveCommand = new AsyncRelayCommand(SaveAsync);
+            lastText = note.Text;
+            SaveCommand = new AsyncRelayCommand(SaveAsync, () => IsChanged);
             DeleteCommand = new AsyncRelayCommand(Delete);
-            CancelCommand = new AsyncRelayCommand(CancelAsync);
         }
+
+        public bool IsChanged => Text != lastText;
 
         private async Task SaveAsync()
         {
             note.Date = DateTime.Now;
             await note.SaveAsync();
+            lastText = Text;
+            OnPropertyChanged(nameof(IsChanged));
             await Shell.Current.GoToAsync($"..?saved={note.Filename}");
         }
 
@@ -59,11 +69,6 @@ namespace MauiApp1.ViewModels
         {
             note.Delete();
             await Shell.Current.GoToAsync($"..?deleted={note.Filename}");
-        }
-
-        private async Task CancelAsync()
-        {
-            await Shell.Current.GoToAsync($"..?canceled={note.Filename}");
         }
 
         void IQueryAttributable.ApplyQueryAttributes(IDictionary<string, object> query)

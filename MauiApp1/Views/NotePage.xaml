@@ -3,25 +3,28 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewModels="clr-namespace:MauiApp1.ViewModels"
              x:Class="MauiApp1.Views.NotePage"
-             Title="Notes">
+             Title="{Binding Path=Identifier, StringFormat='Notes - {0}'}">
+
     <ContentPage.BindingContext>
         <viewModels:NoteViewModel/>
     </ContentPage.BindingContext>
-    
-    <VerticalStackLayout>
-        <Editor x:Name="TextEditor"
-                Placeholder="Enter your note"
-                Text="{Binding Text}"
-                HeightRequest="100" />
-        <Grid ColumnDefinitions="*,*,*" ColumnSpacing="4">
-            <Button Text="Save"
-                    Command="{Binding SaveCommand}" />
-            <Button Grid.Column="1"
-                    Text="Delete"
-                    Command="{Binding DeleteCommand}" />
-            <Button Grid.Column="2"
-                    Text="Cancel"
-                    Command="{Binding CancelCommand}"/>
-        </Grid>
-    </VerticalStackLayout>
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem x:Name="SaveToolbarItem"
+                     Text="Save"
+                     Command="{Binding SaveCommand}"
+                     IconImageSource="{FontImage Glyph='💾', Color=Silver, Size=22}"/>
+        <ToolbarItem Text="Delete"
+                     Command="{Binding DeleteCommand}"
+                     IconImageSource="{AppThemeBinding 
+                        Dark={FontImage Glyph='🗑️', Color=White, Size=22},
+                        Light={FontImage Glyph='🗑️', Color=Black, Size=22}
+                     }"/>
+    </ContentPage.ToolbarItems>
+
+    <Editor x:Name="TextEditor"
+            Placeholder="Enter your note"
+            Text="{Binding Text}"
+            VerticalTextAlignment="Start"
+            Keyboard="Text"/>
 </ContentPage>
