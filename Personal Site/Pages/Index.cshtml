@@ -1,11 +1,14 @@
 ﻿@page
-@model SeanMcBeth.Pages.IndexModel
 @{
     ViewData["Title"] = "Sean T. McBeth: engineer, photographer, mad scientist";
     ViewData["Keywords"] = "software development, software engineering, programming, freelancing, Sean T. McBeth, embedded programming, virtual reality, augmented reality, VR, AR, 3D, graphics programming, game development, simulation, abstract data visualization, audio synthesis, signals processing, computer vision, peer-to-peer, networking, desktop software, Web applications, mobile apps, WebRTC, hardware, embedded systems, reporting, GIS, databases";
     ViewData["Description"] = "Sean T. McBeth is a software engineer and dad.";
     ViewData["Screenshot"] = "/img/2023-03.jpg";
 }
+
+@using Juniper.Configuration
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration config
 
 @section Menu {
     @{
@@ -154,7 +157,7 @@
 <section id="thanks">
     <h2>Thanks for reading</h2>
     <p>
-        Thank you for reading my website, v@(@Model.SiteVersion).
+        Thank you for reading my website, v@(config.GetVersion()).
         If you have any questions, please feel free to reach out to me.
         All of my contact information is available at the top of the site.
     </p>
