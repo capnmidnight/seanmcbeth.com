@@ -8,7 +8,7 @@ import { onClick, onInput } from "@juniper-lib/dom/evts";
 import { A, Audio, ButtonPrimary, Div, elementApply, elementSetText, InputNumber, Meter, Option, Pre, Select } from "@juniper-lib/dom/tags";
 import * as allAudioTypes from "@juniper-lib/mediatypes/audio";
 import { blobToObjectURL } from "@juniper-lib/tslib/blobToObjectURL";
-import { arrayClear } from "@juniper-lib/tslib/collections/arrays";
+import { arrayClear } from "@juniper-lib/collections/arrays";
 import { stringRandom } from "@juniper-lib/tslib/strings/stringRandom";
 import { PropertyList } from "@juniper-lib/widgets/PropertyList";
 import { createFetcher } from "../../createFetcher";

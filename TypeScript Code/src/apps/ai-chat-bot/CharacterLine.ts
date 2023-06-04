@@ -4,7 +4,7 @@ import { onClick, onPause, onPlaying } from "@juniper-lib/dom/evts";
 import { Audio, ButtonSmall, Div, elementSetText, ErsatzElement, Span, Style } from "@juniper-lib/dom/tags";
 import { crossMark, pauseButton, playButton } from "@juniper-lib/emoji";
 import { blobToObjectURL } from "@juniper-lib/tslib/blobToObjectURL";
-import { TypedEvent, TypedEventBase } from "@juniper-lib/tslib/events/EventBase";
+import { TypedEvent, TypedEventBase } from "@juniper-lib/events/EventBase";
 import { ConversationLine } from "./ConversationClient";
 
 Style(

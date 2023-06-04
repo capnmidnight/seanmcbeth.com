@@ -6,7 +6,7 @@ import { ButtonPrimary, Canvas, Div, elementApply, Elements } from "@juniper-lib
 import { unwrapResponse } from "@juniper-lib/fetcher/unwrapResponse";
 import { Image_Jpeg } from "@juniper-lib/mediatypes";
 import type { Environment, EnvironmentModule } from "@juniper-lib/threejs/environment/Environment";
-import { IReadyable } from "@juniper-lib/tslib/events/IReadyable";
+import { IReadyable } from "@juniper-lib/events/IReadyable";
 import { isNullOrUndefined } from "@juniper-lib/tslib/typeChecks";
 import { toBytes } from "@juniper-lib/tslib/units/fileSize";
 import { createFetcher } from "./createFetcher";

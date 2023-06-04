@@ -4,7 +4,7 @@ import { translateResponse } from "@juniper-lib/fetcher/translateResponse";
 import { unwrapResponse } from "@juniper-lib/fetcher/unwrapResponse";
 import { Application_JsonUTF8 } from "@juniper-lib/mediatypes";
 import * as allAudioTypes from "@juniper-lib/mediatypes/audio";
-import { arrayInsertAt, arrayReplace, arraySortByKeyInPlace } from "@juniper-lib/tslib/collections/arrays";
+import { arrayInsertAt, arrayReplace, arraySortByKeyInPlace } from "@juniper-lib/collections/arrays";
 
 export interface Voice {
     gender: 0 | 1 | 2;

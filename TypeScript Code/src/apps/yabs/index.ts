@@ -3,7 +3,7 @@ import { className, id } from "@juniper-lib/dom/attrs";
 import { backgroundColor, color, px, zIndex } from "@juniper-lib/dom/css";
 import { onClick, onMouseOut, onTouchStart } from "@juniper-lib/dom/evts";
 import { Button, Div, elementApply, ErsatzElement, getElement, P, Span } from "@juniper-lib/dom/tags";
-import { arrayRandom } from "@juniper-lib/tslib/collections/arrays";
+import { arrayRandom } from "@juniper-lib/collections/arrays";
 
 import "./styles.css";
 

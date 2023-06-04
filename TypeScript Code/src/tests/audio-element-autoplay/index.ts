@@ -2,7 +2,7 @@ import { controls, disabled, muted, src, srcObject } from "@juniper-lib/dom/attr
 import { onClick } from "@juniper-lib/dom/evts";
 import { onUserGesture } from "@juniper-lib/dom/onUserGesture";
 import { Audio, ButtonPrimary, Div, elementApply } from "@juniper-lib/dom/tags";
-import { once } from "@juniper-lib/tslib/events/once";
+import { once } from "@juniper-lib/events/once";
 
 (async function () {
     const context = new AudioContext();

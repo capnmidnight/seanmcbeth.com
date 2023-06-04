@@ -6,7 +6,7 @@ import { ButtonPrimary, Div, elementApply, InputRange, Progress } from "@juniper
 import { AssetFile } from "@juniper-lib/fetcher/Asset";
 import { AudioGraphDialog } from "@juniper-lib/graphics2d/AudioGraphDialog";
 import { Audio_Mpeg } from "@juniper-lib/mediatypes";
-import { all } from "@juniper-lib/tslib/events/all";
+import { all } from "@juniper-lib/events/all";
 import { progressHTML } from "@juniper-lib/widgets/progressHTML";
 import { createFetcher } from "../../createFetcher";
 import { tilReady } from "../../createTestEnvironment";

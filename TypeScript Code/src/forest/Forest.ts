@@ -9,7 +9,7 @@ import { RayTarget } from "@juniper-lib/threejs/eventSystem/RayTarget";
 import { materialStandardToBasic, solidRed } from "@juniper-lib/threejs/materials";
 import { objectScan } from "@juniper-lib/threejs/objectScan";
 import { isMesh } from "@juniper-lib/threejs/typeChecks";
-import { arrayClear, arrayScan } from "@juniper-lib/tslib/collections/arrays";
+import { arrayClear, arrayScan } from "@juniper-lib/collections/arrays";
 import { Tau } from "@juniper-lib/tslib/math";
 import { isDefined } from "@juniper-lib/tslib/typeChecks";
 import { IDisposable } from "@juniper-lib/tslib/using";
