@@ -20,8 +20,10 @@
     "@types/three": "0.150.2",
     "@types/web-bluetooth": "0.0.17",
     "@types/webxr": "0.5.2",
+    "@typescript-eslint/eslint-plugin": "5.59.8",
     "esbuild": "0.17.19",
-    "esbuild-plugin-glsl": "1.2.1"
+    "esbuild-plugin-glsl": "1.2.1",
+    "eslint": "8.42.0"
   },
   "dependencies": {
     "@babylonjs/core": "5.57.1",

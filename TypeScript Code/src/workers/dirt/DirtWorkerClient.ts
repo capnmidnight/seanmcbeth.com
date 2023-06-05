@@ -29,7 +29,7 @@ export class DirtWorkerClient
 
     init(width: number, height: number, fr: number, pr: number): Promise<void> {
         this.setParams(width, height, fr, pr);
-        return this.callMethod("init", this.checkPointerParams)
+        return this.callMethod("init", this.checkPointerParams);
     }
 
     checkPointer(id: string | number, x: number, y: number, type: string): void {

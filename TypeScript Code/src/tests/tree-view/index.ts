@@ -23,11 +23,11 @@ const tv = new TreeView<number, "even" | "odd">({
     getOrder: v => parseFloat(v.toString()),
     canHaveChildren: node => node.isRoot || parseFloat(node.value.toString()) === node.value
 },
-    height("100vh"),
-    width("100vw"),
-    position("absolute"),
-    top(0),
-    left(0)
+height("100vh"),
+width("100vw"),
+position("absolute"),
+top(0),
+left(0)
 );
 
 elementApply("main",

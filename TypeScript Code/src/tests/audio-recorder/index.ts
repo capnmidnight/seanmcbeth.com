@@ -34,7 +34,7 @@ tilReady("main", audio).then(async () => {
     );
 
     let listening = false;
-    const enableForm = (enable: boolean = true) => {
+    const enableForm = (enable = true) => {
         const disable = listening || !enable;
         mediaTypeSelector.disabled = supportedTypes.length < 2 || disable;
         micSelector.disabled = mics.size < 2 || disable;
@@ -47,18 +47,18 @@ tilReady("main", audio).then(async () => {
             selected(curMic && d.deviceId === curMic.deviceId),
             d.label || d.groupId
         )),
-        onInput(async () => {
-            const mic = mics.get(micSelector.value);
-            status(`Starting microphone "${mic.label}"."`);
-            enableForm(false);
-            await microphones.setDevice(mic);
-            enableForm(true);
-            status(`Microphone "${mic.label}"" started.`);
-        }));
+    onInput(async () => {
+        const mic = mics.get(micSelector.value);
+        status(`Starting microphone "${mic.label}"."`);
+        enableForm(false);
+        await microphones.setDevice(mic);
+        enableForm(true);
+        status(`Microphone "${mic.label}"" started.`);
+    }));
 
     const supportedTypes = Object
         .values(allAudioTypes)
-        .filter(v => MediaRecorder.isTypeSupported(v.value))
+        .filter(v => MediaRecorder.isTypeSupported(v.value));
     const mediaTypeSelector = Select(
         ...supportedTypes
             .map((v, i) =>
@@ -85,7 +85,7 @@ tilReady("main", audio).then(async () => {
     };
 
     const stopRecording = () => {
-        status("Recording complete")
+        status("Recording complete");
         recorder.stop();
     };
 
@@ -135,7 +135,7 @@ tilReady("main", audio).then(async () => {
         status("Recording complete");
         sendAudio(new Blob(chunks, {
             type: recorder.mimeType
-        }))
+        }));
     };
 
     let stopRecordingTimer: number = null;

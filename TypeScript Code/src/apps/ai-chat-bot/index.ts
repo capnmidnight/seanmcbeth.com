@@ -61,7 +61,7 @@ import "./index.css";
 
         const outCulture = CultureDescriptions.get(form.outputCulture);
         if (outCulture) {
-            recognizer.targetCulture = outCulture.tag
+            recognizer.targetCulture = outCulture.tag;
         }
     });
 
@@ -80,7 +80,7 @@ import "./index.css";
     recognizer.continuous = true;
     recognizer.addEventListener("speechstart", () => form.setStatus("Recording"));
     recognizer.addEventListener("blobavailable", (evt) => startLine(evt.id, evt.blob));
-    recognizer.addEventListener("error", (evt) => cancelLine(evt.id, `[${evt.error}] ${evt.message}`))
+    recognizer.addEventListener("error", (evt) => cancelLine(evt.id, `[${evt.error}] ${evt.message}`));
     recognizer.addEventListener("nomatch", (evt) => cancelLine(evt.id, "no result"));
     recognizer.addEventListener("result", (evt) => finishLine(evt.id, evt.results, evt.culture, evt.isFinal));
     recognizer.addEventListener("end", () => form.listening = false);
@@ -201,7 +201,7 @@ import "./index.css";
     function assureLine(id: number): CharacterLine {
         if (!characterLines.has(id)) {
             const line = new CharacterLine("Me", false);
-            characterLines.set(id, line)
+            characterLines.set(id, line);
             form.addLine(line);
             orderedLines.push(line);
         }

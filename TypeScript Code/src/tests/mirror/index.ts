@@ -27,6 +27,6 @@ const button = ButtonPrimary(
             video: true
         });
     })
-)
+);
 
 elementApply("main", camvid, button);

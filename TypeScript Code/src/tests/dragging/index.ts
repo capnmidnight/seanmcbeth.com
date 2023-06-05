@@ -44,5 +44,5 @@ withTestEnvironment(async (env) => {
         })
     );
 
-    elementApply(env.screenUISpace.bottomLeft, switchModeButton)
+    elementApply(env.screenUISpace.bottomLeft, switchModeButton);
 });

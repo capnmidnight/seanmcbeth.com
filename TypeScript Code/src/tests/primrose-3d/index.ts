@@ -89,7 +89,7 @@ withTestEnvironment(async (env) => {
         if (!evt.hit || getRayTarget(evt.hit.object) !== target) {
             editor.blur();
         }
-    })
+    });
 
     env.foreground.add(img);
 });

@@ -155,7 +155,7 @@ export class DirtService
                 let accum = 0;
                 for (let x = 0; x < d; ++x) {
                     const here = this.GET(x, 0);
-                    accum += here - level
+                    accum += here - level;
                     this.SET(x, 0, level);
                     for (let y = -this.fr; y <= this.fr; ++y) {
                         const dx = this.fr - Math.abs(y);

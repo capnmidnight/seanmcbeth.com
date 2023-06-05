@@ -139,7 +139,7 @@ export class AIForm extends TypedEventBase<AIFormEvents> {
                         this.getPrefix(usePrefix, voice => voice.locale === v) + (culture && culture.description || v)
                     );
                 }), o => o.innerText));
-        }
+        };
 
         this.onInLanguageSelected = (usePrefix: boolean, defaultCulture?: string) => {
             displayCulture(usePrefix, this.inLanguageSelector, this.inCultureSelector, defaultCulture);
@@ -343,7 +343,7 @@ export class AIForm extends TypedEventBase<AIFormEvents> {
 
         for (const voice of voices) {
             const { locale, gender, name } = voice;
-            const localeParts = locale.split('-');
+            const localeParts = locale.split("-");
             const language = localeParts[0] as Language;
             if (!this.languageLookup.has(language)) {
                 this.languageLookup.set(language, new Map());
@@ -374,9 +374,9 @@ export class AIForm extends TypedEventBase<AIFormEvents> {
                             value(v),
                             selected(v === "en"),
                             this.getPrefix(usePrefix, voice => voice.locale.startsWith(v + "-")) + (lang && lang.description || v)
-                        )
+                        );
                     }), o => o.innerText));
-        }
+        };
 
         displayLanguages(false, this.inLanguageSelector);
         this.onInLanguageSelected(false, "en-US");
@@ -420,7 +420,7 @@ export class AIForm extends TypedEventBase<AIFormEvents> {
         for (const viseme of visemes) {
             setTimeout(() =>
                 this.setViseme(viseme.ID),
-                viseme.Offset * 1000);
+            viseme.Offset * 1000);
         }
     }
 

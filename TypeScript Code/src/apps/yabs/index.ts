@@ -248,7 +248,7 @@ class Face implements GameObject {
         this.shadow.style.top = px(10 * this.z + window.innerHeight - 120);
 
 
-        const sy = Math.sqrt(Math.abs(this.dy)) * 10
+        const sy = Math.sqrt(Math.abs(this.dy)) * 10;
         this.element.style.paddingLeft =
             this.element.style.paddingRight = px(this.height + sy);
         this.element.style.paddingTop =

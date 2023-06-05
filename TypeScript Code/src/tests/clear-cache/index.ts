@@ -4,4 +4,4 @@ createFetcher(false)
     .clearCache()
     .then(() => {
         document.location = "forest-and-dirt";
-    })
+    });

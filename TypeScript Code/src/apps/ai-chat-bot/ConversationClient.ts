@@ -98,7 +98,7 @@ export class ConversationClient {
                 blob,
                 visemes
             } as SynthesisResult;
-        })
+        });
     }
 
     async getResponse(model: Models, messages: ConversationLine[], characterName: string, style: string, languageName: string, prompt: string): Promise<IResponse<string>> {

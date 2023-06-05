@@ -109,7 +109,7 @@ function pointInTriangle(triA: Vector3, triB: Vector3, triC: Vector3, point: Vec
 
     const arrowResult = await SceneLoader.ImportMeshAsync("", "/models/", "Arrow.glb");
     const arrow = arrowResult.meshes[0];
-    arrowResult.meshes[1].scaling.setAll(objectSize)
+    arrowResult.meshes[1].scaling.setAll(objectSize);
     arrow.position.set(0.5, 0.5 * objectSize, -0.5);
     arrow.lookAt(sphere.position);
 
@@ -162,7 +162,7 @@ function pointInTriangle(triA: Vector3, triB: Vector3, triC: Vector3, point: Vec
             .copyFrom(sphere.position)
             .subtractInPlace(lastSpherePosition);
 
-        const len = spherePositionDelta.length(); 1
+        const len = spherePositionDelta.length(); 1;
         if (len > 0) {
             spherePositionDelta.normalizeFromLength(len);
 
@@ -185,7 +185,7 @@ function pointInTriangle(triA: Vector3, triB: Vector3, triC: Vector3, point: Vec
 
             const mat = pointInTriangle(lastSpherePosition, arrowStartPosition, arrowEndPosition, box.position)
                 ? interiorMat
-                : exteriorMat
+                : exteriorMat;
 
             scene.beginAnimation(arrow, 0, animationFrames)
                 .waitAsync()

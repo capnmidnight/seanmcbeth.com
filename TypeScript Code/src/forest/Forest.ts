@@ -73,7 +73,7 @@ export class Forest implements IDisposable {
         this.hits = new Array<Intersection>();
 
         Promise.all(this.assets)
-            .then(() => this.finish())
+            .then(() => this.finish());
     }
 
     private convertMesh(oldMesh: Mesh<BufferGeometry, MeshStandardMaterial>): Mesh<BufferGeometry, MeshBasicMaterial> {
