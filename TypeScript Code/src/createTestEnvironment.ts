@@ -11,7 +11,7 @@ import { isNullOrUndefined } from "@juniper-lib/tslib/typeChecks";
 import { toBytes } from "@juniper-lib/tslib/units/fileSize";
 import { createFetcher } from "./createFetcher";
 import { CSS_EXT, isDebug, JS_EXT } from "./isDebug";
-import { defaultAvatarHeight, defaultFont, enableFullResolution, getUIImagePaths, loadFonts, version } from "./settings";
+import { defaultAvatarHeight, defaultFont, enableFullResolution, enableAnaglyph, getUIImagePaths, loadFonts, version } from "./settings";
 
 async function registerWorker() {
     const url = new URL(location.href);
@@ -59,6 +59,7 @@ export async function createTestEnvironment(addServiceWorker = false): Promise<E
         defaultFOV: 65,
         defaultAvatarHeight,
         enableFullResolution,
+        enableAnaglyph,
         DEBUG: isDebug,
         watchModelPath: "/models/watch1.glb",
         styleSheetPath: `/js/environment/index${CSS_EXT}?${version}`

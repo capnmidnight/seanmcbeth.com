@@ -17,6 +17,8 @@ export const defaultAvatarHeight = 1.75;
 
 export const enableFullResolution = false;
 
+export const enableAnaglyph = true;
+
 export const defaultFont: FontDescription = {
     fontFamily: "Segoe UI",
     fontSize: 20
@@ -67,6 +69,8 @@ export function getUIImagePaths() {
         ["ar", "ar-exit"],
         ["vr", "vr-enter"],
         ["vr", "vr-exit"],
+        ["anaglyph", "anaglyph-enter"],
+        ["anaglyph", "anaglyph-exit"],
         ["fullscreen", "fullscreen-enter"],
         ["fullscreen", "fullscreen-exit"]
     ]);
