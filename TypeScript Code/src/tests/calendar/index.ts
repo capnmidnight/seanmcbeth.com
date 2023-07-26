@@ -1,7 +1,7 @@
-﻿import { InputText, Span, TBody, TD, TH, THead, TR, Table, elementApply, elementClearChildren, elementGetText, elementSetDisplay } from "@juniper-lib/dom/tags";
-import { colSpan } from "@juniper-lib/dom/attrs";
+﻿import { ColSpan } from "@juniper-lib/dom/attrs";
 import { display } from "@juniper-lib/dom/css";
 import { onBlur, onEnterKeyPressed, onFocus, onMouseOut, onMouseOver } from "@juniper-lib/dom/evts";
+import { InputText, Span, TBody, TD, TH, THead, TR, Table, elementApply, elementClearChildren, elementGetText, elementSetDisplay } from "@juniper-lib/dom/tags";
 
 import "./index.css";
 
@@ -76,7 +76,7 @@ const entry = InputText(
 
 elementApply("main", Table(
     THead(
-        TR(TH(colSpan(7), title, entry)),
+        TR(TH(ColSpan(7), title, entry)),
         TR(
             ...gen(7, i => TH(days[i]))
         )

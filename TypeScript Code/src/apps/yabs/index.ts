@@ -1,9 +1,9 @@
 ﻿import { JuniperAudioContext } from "@juniper-lib/audio/context/JuniperAudioContext";
-import { className, id } from "@juniper-lib/dom/attrs";
+import { arrayRandom } from "@juniper-lib/collections/arrays";
+import { ClassList, ID } from "@juniper-lib/dom/attrs";
 import { backgroundColor, color, px, zIndex } from "@juniper-lib/dom/css";
 import { onClick, onMouseOut, onTouchStart } from "@juniper-lib/dom/evts";
-import { Button, Div, elementApply, ErsatzElement, getElement, P, Span } from "@juniper-lib/dom/tags";
-import { arrayRandom } from "@juniper-lib/collections/arrays";
+import { Button, Div, ErsatzElement, P, Span, elementApply, getElement } from "@juniper-lib/dom/tags";
 
 import "./styles.css";
 
@@ -16,39 +16,39 @@ interface GameObject extends ErsatzElement {
 }
 
 function PointDisplay() {
-    return Span(className("pointDisplay"), 0);
+    return Span(ClassList("pointDisplay"), 0);
 }
 
 elementApply("main",
     Button(
-        id("starter"),
+        ID("starter"),
         "Start",
         onClick(() => audio.resume())
     ),
-    Div(id("instructions"), "Go ahead, click and hold the mouse"),
-    Div(id("scoreBox"), "GET EM: ", PointDisplay()),
-    Div(id("message0"), className("endMessage"),
+    Div(ID("instructions"), "Go ahead, click and hold the mouse"),
+    Div(ID("scoreBox"), "GET EM: ", PointDisplay()),
+    Div(ID("message0"), ClassList("endMessage"),
         P("You have killed everyone. You did it. Just you. Noone else."),
         P("And why have you done this? Because you were ordered to? The pursuit of points?"),
         P("You got your points. All ", PointDisplay(), " of them. What will you do with them? There's noone left. And it's not like they took them as currency, anyway."),
         P("For no reason whatsoever, you have committed genocide against another race of people. Congratulations."),
         P("Hitler.")
     ),
-    Div(id("message1"), className("endMessage"),
+    Div(ID("message1"), ClassList("endMessage"),
         P("You have killed almost everyone. Their bodies are strewn about on the ground they once called their home."),
         P("There is but one person left. Did you spare them out of mercy? Or have you left them, devoid of personal contact, alone, surrounded by the burned and rotting bodies of their former loved ones, to serve as witness to your terrible deeds?"),
         P("And why have you done this? Because you were ordered to? The pursuit of points?"),
         P("You got your points. All ", PointDisplay(), "  of them. What will you do with them? There's noone left. And it's not like they took them as currency, anyway."),
         P("You are sick.")
     ),
-    Div(id("message2"), className("endMessage"),
+    Div(ID("message2"), ClassList("endMessage"),
         P("You have killed almost everyone. Their bodies are strewn about on the ground they once called their home."),
         P("There are only two people left. Did you spare them out of mercy? Or have you left them, surrounded by the burned and rotting bodies of their former loved ones, to repopulate their world together, to serve as witness to your terrible deeds to future generations?"),
         P("And why have you done this? Because you were ordered to? The pursuit of points?"),
         P("You got your points. All ", PointDisplay(), "  of them. What will you do with them? There's noone left. And it's not like they took them as currency, anyway."),
         P("I...I don't understand you."),
     ),
-    Div(id("messageN"), className("endMessage"), color("black"),
+    Div(ID("messageN"), ClassList("endMessage"), color("black"),
         P("\"Hi there!\""),
         P("You blink. Did someone speak?"),
         P("\"Down here!\""),
@@ -199,7 +199,7 @@ class Face implements GameObject {
         this.dy = 0;
         this.df = randomRange(0.05, 0.1);
         this.element = Div(
-            className("frowny"),
+            ClassList("frowny"),
             onMouseOut(this.jump.bind(this, "boop")),
             onTouchStart(this.jump.bind(this, "boop")),
             backgroundColor(arrayRandom(skins)),
@@ -209,14 +209,14 @@ class Face implements GameObject {
         this.width = 5;
         this.height = 5;
 
-        this.boop = Div(className("boop"), "boop");
+        this.boop = Div(ClassList("boop"), "boop");
         this.boopFor = 0;
         this.boopX = 0;
         this.boopY = 0;
         this.boopDX = 0;
         this.boopDY = 0;
 
-        this.shadow = Div(className("shadow"));
+        this.shadow = Div(ClassList("shadow"));
 
         document.body.append(this.boop, this.shadow);
 

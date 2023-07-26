@@ -1,4 +1,4 @@
-import { id } from "@juniper-lib/dom/attrs";
+import { ID } from "@juniper-lib/dom/attrs";
 import { isModifierless } from "@juniper-lib/dom/evts";
 import { Canvas, Div, elementApply } from "@juniper-lib/dom/tags";
 import { playOrPauseButton } from "@juniper-lib/emoji";
@@ -9,25 +9,25 @@ import { Avatar } from "@juniper-lib/webgl/Avatar";
 import { Camera } from "@juniper-lib/webgl/Camera";
 import { Context3D } from "@juniper-lib/webgl/Context3D";
 import { Geometry } from "@juniper-lib/webgl/Geometry";
+import { BaseMaterial } from "@juniper-lib/webgl/Material";
+import { Mesh } from "@juniper-lib/webgl/Mesh";
+import { RenderTargetManager } from "@juniper-lib/webgl/RenderTargetManager";
+import { XRSessionManager } from "@juniper-lib/webgl/XRSessionManager";
 import { invCube } from "@juniper-lib/webgl/geometry/cubes";
 import { invPlane } from "@juniper-lib/webgl/geometry/plane";
 import { TextureImage, TextureImageStereo } from "@juniper-lib/webgl/managed/resource/Texture";
-import { BaseMaterial } from "@juniper-lib/webgl/Material";
-import { Mesh } from "@juniper-lib/webgl/Mesh";
 import { MaterialEquirectangular } from "@juniper-lib/webgl/programs/MaterialEquirectangular";
 import { MaterialFlatTexture } from "@juniper-lib/webgl/programs/MaterialFlatTexture";
-import { RenderTargetManager } from "@juniper-lib/webgl/RenderTargetManager";
-import { XRSessionManager } from "@juniper-lib/webgl/XRSessionManager";
 import { mat4, vec3 } from "gl-matrix";
 import { createFetcher } from "../../createFetcher";
 
 const canvas = Canvas(
-    id("frontBuffer")
+    ID("frontBuffer")
 );
 
 elementApply("main",
     Div(
-        id("appContainer"),
+        ID("appContainer"),
         canvas
     )
 );

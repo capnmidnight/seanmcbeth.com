@@ -1,12 +1,12 @@
 import { AudioManager } from "@juniper-lib/audio/AudioManager";
-import { max, min, step, value } from "@juniper-lib/dom/attrs";
+import { Max, Min, Step, Value } from "@juniper-lib/dom/attrs";
 import { em, width } from "@juniper-lib/dom/css";
 import { isModifierless, onClick, onInput } from "@juniper-lib/dom/evts";
-import { ButtonPrimary, Div, elementApply, InputRange, Progress } from "@juniper-lib/dom/tags";
+import { ButtonPrimary, Div, InputRange, Progress, elementApply } from "@juniper-lib/dom/tags";
+import { all } from "@juniper-lib/events/all";
 import { AssetFile } from "@juniper-lib/fetcher/Asset";
 import { AudioGraphDialog } from "@juniper-lib/graphics2d/AudioGraphDialog";
 import { Audio_Mpeg } from "@juniper-lib/mediatypes";
-import { all } from "@juniper-lib/events/all";
 import { progressHTML } from "@juniper-lib/widgets/progressHTML";
 import { createFetcher } from "../../createFetcher";
 import { tilReady } from "../../createTestEnvironment";
@@ -14,7 +14,7 @@ import { isDebug } from "../../isDebug";
 
 
 (async function () {
-    const prog = Progress(value(0));
+    const prog = Progress(Value(0));
     elementApply("main", prog);
 
     const fetcher = createFetcher();
@@ -33,10 +33,10 @@ import { isDebug } from "../../isDebug";
     const clip2 = await audio.createBasicClip("test-clip", clip2Asset, 1);
     const diag = new AudioGraphDialog(audio.context);
     const slider = InputRange(
-        min(-10),
-        max(10),
-        step(0.01),
-        value(0),
+        Min(-10),
+        Max(10),
+        Step(0.01),
+        Value(0),
         width(em(20)),
         onInput(() => {
             audio.setClipPosition("forest", slider.valueAsNumber, 0, -2);

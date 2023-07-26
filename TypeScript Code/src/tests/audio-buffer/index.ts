@@ -1,6 +1,6 @@
 import { JuniperAudioBufferSourceNode } from "@juniper-lib/audio/context/JuniperAudioBufferSourceNode";
 import { JuniperAudioContext } from "@juniper-lib/audio/context/JuniperAudioContext";
-import { value } from "@juniper-lib/dom/attrs";
+import { Value } from "@juniper-lib/dom/attrs";
 import { isModifierless } from "@juniper-lib/dom/evts";
 import { Progress } from "@juniper-lib/dom/tags";
 import { unwrapResponse } from "@juniper-lib/fetcher/unwrapResponse";
@@ -11,7 +11,7 @@ import { createFetcher } from "../../createFetcher";
 import { tilReady } from "../../createTestEnvironment";
 
 (async function () {
-    const progress = Progress(value(0));
+    const progress = Progress(Value(0));
     document.body.append(progress);
     const context = new JuniperAudioContext({ latencyHint: "interactive" });
     const fetcher = createFetcher();

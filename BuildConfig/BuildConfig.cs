@@ -4,7 +4,7 @@ namespace SeanMcBeth
 {
     public static class BuildConfig
     {
-        private const string ServerProjectName = "Personal Site";
+        private const string ServerProjectName = "seanmcbeth.com";
         private const string ScriptProjectName = "TypeScript Code";
 
         private static readonly string[] FilePatterns =

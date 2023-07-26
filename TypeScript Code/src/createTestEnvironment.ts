@@ -1,17 +1,17 @@
-﻿import { id } from "@juniper-lib/dom/attrs";
+﻿import { ID } from "@juniper-lib/dom/attrs";
 import { canvasToBlob, Context2D, createUICanvas } from "@juniper-lib/dom/canvas";
 import { display, rgb } from "@juniper-lib/dom/css";
 import { onClick } from "@juniper-lib/dom/evts";
 import { ButtonPrimary, Canvas, Div, elementApply, Elements } from "@juniper-lib/dom/tags";
+import { IReadyable } from "@juniper-lib/events/IReadyable";
 import { unwrapResponse } from "@juniper-lib/fetcher/unwrapResponse";
 import { Image_Jpeg } from "@juniper-lib/mediatypes";
 import type { Environment, EnvironmentModule } from "@juniper-lib/threejs/environment/Environment";
-import { IReadyable } from "@juniper-lib/events/IReadyable";
 import { isNullOrUndefined } from "@juniper-lib/tslib/typeChecks";
 import { toBytes } from "@juniper-lib/tslib/units/fileSize";
 import { createFetcher } from "./createFetcher";
 import { CSS_EXT, isDebug, JS_EXT } from "./isDebug";
-import { defaultAvatarHeight, defaultFont, enableFullResolution, enableAnaglyph, getUIImagePaths, loadFonts, version } from "./settings";
+import { defaultAvatarHeight, defaultFont, enableAnaglyph, enableFullResolution, getUIImagePaths, loadFonts, version } from "./settings";
 
 async function registerWorker() {
     const url = new URL(location.href);
@@ -37,9 +37,9 @@ export async function createTestEnvironment(addServiceWorker = false): Promise<E
         .module<EnvironmentModule>()
         .then(unwrapResponse);
 
-    const canvas = Canvas(id("frontBuffer"));
+    const canvas = Canvas(ID("frontBuffer"));
     const appContainer = Div(
-        id("appContainer"),
+        ID("appContainer"),
         display("none"),
         canvas
     );

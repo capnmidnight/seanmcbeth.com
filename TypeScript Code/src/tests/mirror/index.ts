@@ -1,13 +1,13 @@
-import { autoPlay, controls, muted } from "@juniper-lib/dom/attrs";
+import { AutoPlay, Controls, Muted } from "@juniper-lib/dom/attrs";
 import { left, maxHeight, position, top, transform, width } from "@juniper-lib/dom/css";
 import { onClick } from "@juniper-lib/dom/evts";
-import { ButtonPrimary, elementApply, elementSetDisplay, Video } from "@juniper-lib/dom/tags";
+import { ButtonPrimary, Video, elementApply, elementSetDisplay } from "@juniper-lib/dom/tags";
 
 const camvid = Video(
     position("absolute"),
-    controls(false),
-    muted(true),
-    autoPlay(true),
+    Controls(false),
+    Muted(true),
+    AutoPlay(true),
     maxHeight("100%"),
     width("100%"),
     left("50%"),

@@ -1,4 +1,4 @@
-import { controls, disabled, muted, src, srcObject } from "@juniper-lib/dom/attrs";
+import { Controls, Disabled, Muted, Src, SrcObject } from "@juniper-lib/dom/attrs";
 import { onClick } from "@juniper-lib/dom/evts";
 import { onUserGesture } from "@juniper-lib/dom/onUserGesture";
 import { Audio, ButtonPrimary, Div, elementApply } from "@juniper-lib/dom/tags";
@@ -8,24 +8,24 @@ import { once } from "@juniper-lib/events/once";
     const context = new AudioContext();
     const streamNode = context.createMediaStreamDestination();
     const elem1 = Audio(
-        controls(false),
-        muted(true),
-        srcObject(streamNode.stream));
+        Controls(false),
+        Muted(true),
+        SrcObject(streamNode.stream));
 
     const startButton = ButtonPrimary(
         "Start",
         onClick(() => startButton.disabled = true, true));
     const playButton1 = ButtonPrimary(
         "Play 1",
-        disabled(true),
+        Disabled(true),
         onClick(() => play1 = true));
     const playButton2 = ButtonPrimary(
         "Play 2",
-        disabled(true),
+        Disabled(true),
         onClick(() => play2 = true));
     const playButton3 = ButtonPrimary(
         "Play 3",
-        disabled(true),
+        Disabled(true),
         onClick(() => play3 = true));
 
     let play1 = false;
@@ -53,9 +53,9 @@ import { once } from "@juniper-lib/events/once";
     playButton2.disabled = false;
 
     const elem2 = Audio(
-        controls(false),
-        muted(false),
-        src("/audio/door_close.mp3"));
+        Controls(false),
+        Muted(false),
+        Src("/audio/door_close.mp3"));
 
     let elem3: HTMLAudioElement;
     let firstTime = true;
@@ -72,9 +72,9 @@ import { once } from "@juniper-lib/events/once";
             if (firstTime) {
                 firstTime = false;
                 elem3 = Audio(
-                    controls(false),
-                    muted(false),
-                    src("/audio/basic_error.mp3"));
+                    Controls(false),
+                    Muted(false),
+                    Src("/audio/basic_error.mp3"));
                 playButton3.disabled = false;
             }
         }

@@ -1,5 +1,5 @@
 import { JuniperAudioContext } from "@juniper-lib/audio/context/JuniperAudioContext";
-import { disabled, max, min, step, title, value } from "@juniper-lib/dom/attrs";
+import { Disabled, Max, Min, Step, Title_attr, Value } from "@juniper-lib/dom/attrs";
 import { isModifierless, onClick, onInput } from "@juniper-lib/dom/evts";
 import { ButtonPrimary, InputRange } from "@juniper-lib/dom/tags";
 import { AudioGraphDialog } from "@juniper-lib/graphics2d/AudioGraphDialog";
@@ -9,12 +9,12 @@ import { AudioGraphDialog } from "@juniper-lib/graphics2d/AudioGraphDialog";
     const volume = context.createGain();
     const diag = new AudioGraphDialog(context);
     const slider = InputRange(
-        min(0),
-        max(10),
-        step(0.1),
-        value(1),
-        title("volume"),
-        disabled(true),
+        Min(0),
+        Max(10),
+        Step(0.1),
+        Value(1),
+        Title_attr("volume"),
+        Disabled(true),
         onInput(() => volume.gain.value = slider.valueAsNumber)
     );
 

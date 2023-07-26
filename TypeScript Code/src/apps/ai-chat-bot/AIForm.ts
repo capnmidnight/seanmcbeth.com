@@ -1,10 +1,10 @@
-import { id, max, min, selected, step, value } from "@juniper-lib/dom/attrs";
+import { arrayReplace, arraySortByKey } from "@juniper-lib/collections/arrays";
+import { ID, Max, Min, Selected, Step, Value } from "@juniper-lib/dom/attrs";
 import { onClick, onInput } from "@juniper-lib/dom/evts";
 import { ButtonDanger, ButtonPrimary, Div, Img, InputRange, Meter, Option, Pre, Select, TextArea, elementApply, elementClearChildren, elementGetText, elementSetText, getElements } from "@juniper-lib/dom/tags";
-import { CultureDescriptions, LanguageDescriptions } from "@juniper-lib/tslib/Languages";
-import { arrayReplace, arraySortByKey } from "@juniper-lib/collections/arrays";
 import { TypedEvent, TypedEventBase } from "@juniper-lib/events/EventBase";
 import { debounce } from "@juniper-lib/events/debounce";
+import { CultureDescriptions, LanguageDescriptions } from "@juniper-lib/tslib/Languages";
 import { PropertyList } from "@juniper-lib/widgets/PropertyList";
 import { TabPanel } from "@juniper-lib/widgets/TabPanel";
 import { CharacterLine } from "./CharacterLine";
@@ -133,9 +133,9 @@ export class AIForm extends TypedEventBase<AIFormEvents> {
                 .map((v, i) => {
                     const culture = CultureDescriptions.get(v as Culture);
                     return Option(
-                        selected(defaultCulture === null && i === 0
+                        Selected(defaultCulture === null && i === 0
                             || defaultCulture !== null && defaultCulture === v),
-                        value(v),
+                        Value(v),
                         this.getPrefix(usePrefix, voice => voice.locale === v) + (culture && culture.description || v)
                     );
                 }), o => o.innerText));
@@ -162,9 +162,9 @@ export class AIForm extends TypedEventBase<AIFormEvents> {
             elementApply(this.outGenderSelector, ...Array.from(genderLookup.keys())
                 .sort()
                 .map((v, i) => Option(
-                    selected(defaultGender === null && i === 0
+                    Selected(defaultGender === null && i === 0
                         || defaultGender !== null && defaultGender === v),
-                    value(v),
+                    Value(v),
                     this.getPrefix(usePrefix, voice => voice.locale === this.outCultureSelector.value
                         && v === genderNames[voice.gender]) + v
                 )));
@@ -180,9 +180,9 @@ export class AIForm extends TypedEventBase<AIFormEvents> {
             elementApply(this.outNameSelector, ...Array.from(nameLookup.values())
                 .sort((a, b) => a.localName.localeCompare(b.localName))
                 .map((v, i) => Option(
-                    selected(defaultName === null && i === 0
+                    Selected(defaultName === null && i === 0
                         || defaultName !== null && defaultName === v.localName),
-                    value(v.name),
+                    Value(v.name),
                     this.getPrefix(usePrefix, voice => v === voice) + v.localName
                 )));
             this.onOutNameLookup(defaultStyle);
@@ -197,15 +197,15 @@ export class AIForm extends TypedEventBase<AIFormEvents> {
             elementApply(this.outStyleSelector, ...voice.styleList
                 .sort()
                 .map((v, i) => Option(
-                    selected(defaultStyle === null && i === 0
+                    Selected(defaultStyle === null && i === 0
                         || defaultStyle !== null && defaultStyle === v),
-                    value(v),
+                    Value(v),
                     v
                 )));
         };
 
         this.startStopButton = ButtonPrimary(
-            id("startStop"),
+            ID("startStop"),
             onClick(() => {
                 this.dispatchEvent(this.listening ? this.stopEvt : this.startEvt);
                 this.listening = !this.listening;
@@ -213,58 +213,58 @@ export class AIForm extends TypedEventBase<AIFormEvents> {
         );
 
         this.repromptButton = ButtonPrimary(
-            id("reprompt"),
+            ID("reprompt"),
             onClick(() => this.dispatchEvent(this.repromptEvt))
         );
 
         this.exportButton = ButtonPrimary(
-            id("export"),
+            ID("export"),
             onClick(() => this.dispatchEvent(this.exportEvt))
         );
 
         this.resetButton = ButtonDanger(
-            id("reset"),
+            ID("reset"),
             onClick(reset)
         );
 
-        this.recordingStatus = Pre(id("status"));
+        this.recordingStatus = Pre(ID("status"));
 
         this.outModelSelector = Select(
-            id("outModel"),
-            Option("ChatGPT 3.5", value("chatgpt"), selected(true)),
-            Option("GPT-4", value("gpt4")),
-            Option("GPT-3 Davinci", value("davinci")),
-            Option("GPT-3 Curie", value("curie")),
-            Option("GPT-3 Babbage", value("babbage")),
-            Option("GPT-3 Ada", value("ada"))
+            ID("outModel"),
+            Option("ChatGPT 3.5", Value("chatgpt"), Selected(true)),
+            Option("GPT-4", Value("gpt4")),
+            Option("GPT-3 Davinci", Value("davinci")),
+            Option("GPT-3 Curie", Value("curie")),
+            Option("GPT-3 Babbage", Value("babbage")),
+            Option("GPT-3 Ada", Value("ada"))
         );
 
         this.outLanguageSelector = Select(
-            id("outLanguage"),
+            ID("outLanguage"),
             onInput(() => this.onOutLanguageSelected(true))
         );
 
         this.outCultureSelector = Select(
-            id("outCulture"),
+            ID("outCulture"),
             onInput(() => this.onOutCultureSelected(true))
         );
 
         this.outGenderSelector = Select(
-            id("outGender"),
+            ID("outGender"),
             onInput(() => this.onOutGenderLookup(true))
         );
 
         this.outNameSelector = Select(
-            id("outVoice"),
+            ID("outVoice"),
             onInput(() => this.onOutNameLookup())
         );
 
-        this.outStyleSelector = Select(id("outStyle"));
+        this.outStyleSelector = Select(ID("outStyle"));
 
-        this.promptInput = TextArea(id("addlPrompt"));
+        this.promptInput = TextArea(ID("addlPrompt"));
 
         this.micSelector = Select(
-            id("inMic"),
+            ID("inMic"),
             onInput(async () => {
                 const mic = this.mics.get(this.micSelector.value);
                 this.setStatus(`Starting microphone "${mic.label}"."`);
@@ -274,33 +274,33 @@ export class AIForm extends TypedEventBase<AIFormEvents> {
         );
 
         this.activityMeter = Meter(
-            id("micActivity"),
-            min(0),
-            max(1)
+            ID("micActivity"),
+            Min(0),
+            Max(1)
         );
 
         this.volumeInput = InputRange(
-            id("inVolume"),
-            min(0),
-            max(1),
-            step(0.01),
-            value(1),
+            ID("inVolume"),
+            Min(0),
+            Max(1),
+            Step(0.01),
+            Value(1),
             onInput(() => this.dispatchEvent(this.volumeChangedEvt))
         );
 
         this.inLanguageSelector = Select(
-            id("inLanguage"),
+            ID("inLanguage"),
             onInput(() => this.onInLanguageSelected(false))
         );
 
         this.inCultureSelector = Select(
-            id("inCulture"),
+            ID("inCulture"),
             onInput(() => this.onInCultureSelected())
         );
 
-        this.visemeImage = Img(id("visemes"));
+        this.visemeImage = Img(ID("visemes"));
 
-        this.output = Div(id("conversationLog"));
+        this.output = Div(ID("conversationLog"));
 
         const vibrate = () => navigator.vibrate(25);
         for (const btn of getElements<HTMLButtonElement>(".btn")) {
@@ -371,8 +371,8 @@ export class AIForm extends TypedEventBase<AIFormEvents> {
                     .map(v => {
                         const lang = LanguageDescriptions.get(v as Language);
                         return Option(
-                            value(v),
-                            selected(v === "en"),
+                            Value(v),
+                            Selected(v === "en"),
                             this.getPrefix(usePrefix, voice => voice.locale.startsWith(v + "-")) + (lang && lang.description || v)
                         );
                     }), o => o.innerText));
@@ -394,7 +394,7 @@ export class AIForm extends TypedEventBase<AIFormEvents> {
         elementClearChildren(this.micSelector);
         elementApply(this.micSelector, ...Array.from(this.mics.values())
             .map(d => Option(
-                value(d.deviceId),
+                Value(d.deviceId),
                 d.label || d.groupId
             )));
     }

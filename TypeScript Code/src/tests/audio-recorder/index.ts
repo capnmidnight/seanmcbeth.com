@@ -2,13 +2,13 @@ import { ActivityDetector } from "@juniper-lib/audio/ActivityDetector";
 import { AudioManager } from "@juniper-lib/audio/AudioManager";
 import { DeviceManager } from "@juniper-lib/audio/DeviceManager";
 import { LocalUserMicrophone } from "@juniper-lib/audio/LocalUserMicrophone";
-import { controls, download, href, max, min, readOnly, selected, src, value } from "@juniper-lib/dom/attrs";
+import { arrayClear } from "@juniper-lib/collections/arrays";
+import { Controls, Download, Href, Max, Min, ReadOnly, Selected, Src, Value } from "@juniper-lib/dom/attrs";
 import { perc, width } from "@juniper-lib/dom/css";
 import { onClick, onInput } from "@juniper-lib/dom/evts";
-import { A, Audio, ButtonPrimary, Div, elementApply, elementSetText, InputNumber, Meter, Option, Pre, Select } from "@juniper-lib/dom/tags";
+import { A, Audio, ButtonPrimary, Div, InputNumber, Meter, Option, Pre, Select, elementApply, elementSetText } from "@juniper-lib/dom/tags";
 import * as allAudioTypes from "@juniper-lib/mediatypes/audio";
 import { blobToObjectURL } from "@juniper-lib/tslib/blobToObjectURL";
-import { arrayClear } from "@juniper-lib/collections/arrays";
 import { stringRandom } from "@juniper-lib/tslib/strings/stringRandom";
 import { PropertyList } from "@juniper-lib/widgets/PropertyList";
 import { createFetcher } from "../../createFetcher";
@@ -43,8 +43,8 @@ tilReady("main", audio).then(async () => {
     const curMic = microphones.device;
     const micSelector = Select(...Array.from(mics.values())
         .map(d => Option(
-            value(d.deviceId),
-            selected(curMic && d.deviceId === curMic.deviceId),
+            Value(d.deviceId),
+            Selected(curMic && d.deviceId === curMic.deviceId),
             d.label || d.groupId
         )),
     onInput(async () => {
@@ -63,8 +63,8 @@ tilReady("main", audio).then(async () => {
         ...supportedTypes
             .map((v, i) =>
                 Option(
-                    value(v.value),
-                    selected(i === 0),
+                    Value(v.value),
+                    Selected(i === 0),
                     v.extensions.length === 0
                         ? v.value
                         : `${v.value} (${v.extensions
@@ -102,15 +102,15 @@ tilReady("main", audio).then(async () => {
     const recordingStatus = Pre("Not listening, click 'Start listening'");
 
     const activityMeter = Meter(
-        min(0),
-        max(1),
+        Min(0),
+        Max(1),
         width(perc(100))
     );
 
     const activityNumber = InputNumber(
-        min(0),
-        max(1),
-        readOnly(true)
+        Min(0),
+        Max(1),
+        ReadOnly(true)
     );
 
     const props = PropertyList.create(
@@ -166,11 +166,11 @@ tilReady("main", audio).then(async () => {
 
     const sendAudio = async (blob: Blob) => {
         const url = blobToObjectURL(blob);
-        const aud = Audio(src(url), controls(true));
+        const aud = Audio(Src(url), Controls(true));
         const output = Pre();
         const link = A(
-            href(url),
-            download(`audio${stringRandom(5)}`),
+            Href(url),
+            Download(`audio${stringRandom(5)}`),
             "download"
         );
         const container = Div(aud, link, output);

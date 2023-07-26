@@ -1,10 +1,10 @@
-import { autoPlay, className, disabled, src } from "@juniper-lib/dom/attrs";
+import { AutoPlay, ClassList, Disabled, Src } from "@juniper-lib/dom/attrs";
 import { border, borderColor, borderRadius, borderStyle, borderWidth, display, marginTop, position, px, right, rule, top, verticalAlign } from "@juniper-lib/dom/css";
 import { onClick, onPause, onPlaying } from "@juniper-lib/dom/evts";
-import { Audio, ButtonSmall, Div, elementSetText, ErsatzElement, Span, Style } from "@juniper-lib/dom/tags";
+import { Audio, ButtonSmall, Div, ErsatzElement, Span, Style, elementSetText } from "@juniper-lib/dom/tags";
 import { crossMark, pauseButton, playButton } from "@juniper-lib/emoji";
-import { blobToObjectURL } from "@juniper-lib/tslib/blobToObjectURL";
 import { TypedEvent, TypedEventBase } from "@juniper-lib/events/EventBase";
+import { blobToObjectURL } from "@juniper-lib/tslib/blobToObjectURL";
 import { ConversationLine } from "./ConversationClient";
 
 Style(
@@ -51,11 +51,11 @@ export class CharacterLine
         let playing = false;
 
         this.element = Div(
-            className("character-line"),
+            ClassList("character-line"),
             this.playbackButton = ButtonSmall(
-                className("btn"),
+                ClassList("btn"),
                 playButton.value,
-                disabled(true),
+                Disabled(true),
                 onClick(() => {
                     if (playing) {
                         this.audio.pause();
@@ -67,7 +67,7 @@ export class CharacterLine
             ),
 
             this.audio = Audio(
-                autoPlay(autoplay),
+                AutoPlay(autoplay),
                 display("none"),
                 onPlaying(() => {
                     playing = true;
@@ -84,7 +84,7 @@ export class CharacterLine
             this.transcript = Span(),
 
             ButtonSmall(
-                className("closer"),
+                ClassList("closer"),
                 crossMark.value,
                 onClick(() => this.remove())
             )
@@ -118,7 +118,7 @@ export class CharacterLine
             this._audioBlob = v;
             const array = await v.arrayBuffer();
             this._audioBuffer = await ctx.decodeAudioData(array);
-            src(blobToObjectURL(this.audioBlob)).applyToElement(this.audio);
+            Src(blobToObjectURL(this.audioBlob)).applyToElement(this.audio);
             this.playbackButton.disabled = false;
         }
     }
