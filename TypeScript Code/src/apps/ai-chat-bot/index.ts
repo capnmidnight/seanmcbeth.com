@@ -12,7 +12,7 @@ import { arrayClear, arrayRemove } from "@juniper-lib/collections/arrays";
 import { all } from "@juniper-lib/events/all";
 import { createFetcher } from "../../createFetcher";
 import { AIForm } from "./AIForm";
-import { CharacterLine } from "./CharacterLine";
+import { CharacterLine, CharacterLineElement } from "./CharacterLine";
 import { ConversationClient, Models } from "./ConversationClient";
 
 import "./index.css";
@@ -30,8 +30,8 @@ import "./index.css";
         .then(unwrapResponse);
     const recognizer = new AzureSpeechRecognizer(subKey, region, microphones, activity);
     const conversation = new ConversationClient(fetcher);
-    const orderedLines = new Array<CharacterLine>();
-    const characterLines = new Map<number, CharacterLine>();
+    const orderedLines = new Array<CharacterLineElement>();
+    const characterLines = new Map<number, CharacterLineElement>();
 
     form.enabled = false;
 
@@ -198,9 +198,9 @@ import "./index.css";
                 .then(unwrapResponse)));
     }
 
-    function assureLine(id: number): CharacterLine {
+    function assureLine(id: number): CharacterLineElement {
         if (!characterLines.has(id)) {
-            const line = new CharacterLine("Me", false);
+            const line = CharacterLine("Me", false);
             characterLines.set(id, line);
             form.addLine(line);
             orderedLines.push(line);
@@ -250,7 +250,7 @@ import "./index.css";
         const ttsVoice = conversation.findVoice(form.outputVoiceName);
         const voice = ttsVoice.shortName;
         const characterName = ttsVoice.localName;
-        const line2 = new CharacterLine(characterName, true);
+        const line2 = CharacterLine(characterName, true);
         const id = --counter;
         orderedLines.push(line2);
         characterLines.set(id, line2);

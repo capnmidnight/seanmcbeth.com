@@ -1,9 +1,9 @@
-import { AutoPlay, ClassList, Disabled, Src } from "@juniper-lib/dom/attrs";
+import { AutoPlay, ClassList, Disabled, HtmlAttr, Src } from "@juniper-lib/dom/attrs";
 import { border, borderColor, borderRadius, borderStyle, borderWidth, display, marginTop, position, px, right, rule, top, verticalAlign } from "@juniper-lib/dom/css";
 import { onClick, onPause, onPlaying } from "@juniper-lib/dom/evts";
-import { Audio, ButtonSmall, Div, ErsatzElement, Span, Style, elementSetText } from "@juniper-lib/dom/tags";
+import { Audio, ButtonSmall, HtmlTag, Span, Style, elementApply, elementSetText } from "@juniper-lib/dom/tags";
 import { crossMark, pauseButton, playButton } from "@juniper-lib/emoji";
-import { TypedEvent, TypedEventBase } from "@juniper-lib/events/EventBase";
+import { TypedEvent, TypedHTMLElement } from "@juniper-lib/events/TypedEventBase";
 import { blobToObjectURL } from "@juniper-lib/tslib/blobToObjectURL";
 import { ConversationLine } from "./ConversationClient";
 
@@ -29,12 +29,26 @@ Style(
     )
 );
 
-export class CharacterLine
-    extends TypedEventBase<{
-        deleted: TypedEvent<"deleted">;
-    }>
-    implements ErsatzElement {
-    readonly element: HTMLElement;
+export function CharacterLine(name: string, autoplay: boolean) {
+    return HtmlTag<"character-line", { "character-line": CharacterLineElement }>(
+        "character-line",
+        CharacterName(name),
+        CharacterAutoPlay(autoplay)
+    );
+}
+
+function CharacterName(value: string) { return new HtmlAttr("name", value, false, "character-line"); }
+function CharacterAutoPlay(value: boolean) { return new HtmlAttr("autoplay", value, false, "character-line"); }
+
+export class CharacterLineDeletedEvent extends TypedEvent<"deleted"> {
+    constructor() {
+        super("deleted");
+    }
+}
+
+export class CharacterLineElement extends TypedHTMLElement<{
+    deleted: CharacterLineDeletedEvent;
+}> {
 
     private _error: string;
     private _text: string;
@@ -46,11 +60,11 @@ export class CharacterLine
     private readonly transcript: HTMLElement;
     private readonly langOutput: HTMLElement;
 
-    constructor(public readonly name: string, autoplay: boolean) {
+    constructor() {
         super();
         let playing = false;
 
-        this.element = Div(
+        elementApply(this, 
             ClassList("character-line"),
             this.playbackButton = ButtonSmall(
                 ClassList("btn"),
@@ -67,7 +81,7 @@ export class CharacterLine
             ),
 
             this.audio = Audio(
-                AutoPlay(autoplay),
+                AutoPlay(this.autoplay),
                 display("none"),
                 onPlaying(() => {
                     playing = true;
@@ -79,7 +93,7 @@ export class CharacterLine
                 })
             ),
 
-            this.langOutput = Span(name),
+            this.langOutput = Span(this.name),
             Span(": "),
             this.transcript = Span(),
 
@@ -91,10 +105,25 @@ export class CharacterLine
         );
     }
 
-    remove() {
+    override remove() {
         this.dispatchEvent(new TypedEvent("deleted"));
-        this.element.remove();
+        super.remove();
     }
+
+    get autoplay() { return this.hasAttribute("autoplay"); }
+    set autoplay(v) {
+        if (v !== this.autoplay) {
+            if (v) {
+                this.setAttribute("autoplay", "");
+            }
+            else {
+                this.removeAttribute("autoplay");
+            }
+        }
+    }
+
+    get name() { return this.getAttribute("name"); }
+    set name(v: string) { this.setAttribute("name", v); }
 
     get error() { return this._error; }
     set error(v) { elementSetText(this.transcript, this._error = v); }
@@ -133,6 +162,8 @@ export class CharacterLine
         return `${start} --> ${end}\n<v ${this.name}>${this.text}\n`;
     }
 }
+
+customElements.define("character-line", CharacterLineElement);
 
 function splitTime(time: number, showHours: boolean) {
     const hours = Math.floor(time / 3600);

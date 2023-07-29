@@ -2,13 +2,13 @@ import { arrayReplace, arraySortByKey } from "@juniper-lib/collections/arrays";
 import { ID, Max, Min, Selected, Step, Value } from "@juniper-lib/dom/attrs";
 import { onClick, onInput } from "@juniper-lib/dom/evts";
 import { ButtonDanger, ButtonPrimary, Div, Img, InputRange, Meter, Option, Pre, Select, TextArea, elementApply, elementClearChildren, elementGetText, elementSetText, getElements } from "@juniper-lib/dom/tags";
-import { TypedEvent, TypedEventBase } from "@juniper-lib/events/EventBase";
+import { TypedEvent, TypedEventBase } from "@juniper-lib/events/TypedEventBase";
 import { debounce } from "@juniper-lib/events/debounce";
 import { CultureDescriptions, LanguageDescriptions } from "@juniper-lib/tslib/Languages";
 import { PropertyList } from "@juniper-lib/widgets/PropertyList";
 import { TabPanel } from "@juniper-lib/widgets/TabPanel";
-import { CharacterLine } from "./CharacterLine";
 import { Models, Viseme, Voice, genderNames } from "./ConversationClient";
+import { CharacterLineElement } from "./CharacterLine";
 
 export class MicrophoneSelectedEvent extends TypedEvent<"microphoneselected"> {
     constructor(public readonly device: MediaDeviceInfo) {
@@ -17,7 +17,7 @@ export class MicrophoneSelectedEvent extends TypedEvent<"microphoneselected"> {
 }
 
 
-export interface AIFormEvents {
+export type AIFormEvents =  {
     cultureschanged: TypedEvent<"cultureschanged">
     start: TypedEvent<"start">;
     stop: TypedEvent<"stop">;
@@ -430,7 +430,7 @@ export class AIForm extends TypedEventBase<AIFormEvents> {
         this.visemeImage = newImage;
     }
 
-    addLine(line: CharacterLine) {
+    addLine(line: CharacterLineElement) {
         elementApply(this.output, line);
         this.refresh();
     }

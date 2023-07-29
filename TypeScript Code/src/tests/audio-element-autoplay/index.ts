@@ -39,7 +39,7 @@ import { once } from "@juniper-lib/events/once";
         Div(playButton3)
     );
 
-    const elem1ready = once<HTMLMediaElementEventMap>(elem1, "play", "error");
+    const elem1ready = once(elem1, "play", "error");
     onUserGesture(() => elem1.play());
 
     await elem1ready;
