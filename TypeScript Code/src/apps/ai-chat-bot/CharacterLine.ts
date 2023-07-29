@@ -1,33 +1,11 @@
 import { AutoPlay, ClassList, Disabled, HtmlAttr, Src } from "@juniper-lib/dom/attrs";
 import { border, borderColor, borderRadius, borderStyle, borderWidth, display, marginTop, position, px, right, rule, top, verticalAlign } from "@juniper-lib/dom/css";
 import { onClick, onPause, onPlaying } from "@juniper-lib/dom/evts";
-import { Audio, ButtonSmall, HtmlTag, Span, Style, HtmlRender, elementSetText } from "@juniper-lib/dom/tags";
+import { Audio, ButtonSmall, HtmlTag, Span, StyleBlob, elementSetText } from "@juniper-lib/dom/tags";
 import { crossMark, pauseButton, playButton } from "@juniper-lib/emoji";
 import { TypedEvent, TypedHTMLElement } from "@juniper-lib/events/TypedEventBase";
 import { blobToObjectURL } from "@juniper-lib/tslib/blobToObjectURL";
 import { ConversationLine } from "./ConversationClient";
-
-Style(
-    rule(".character-line",
-        position("relative"),
-        borderStyle("dotted"),
-        borderWidth(px(2)),
-        borderColor("#ccc"),
-        border("dotted 2px #ccc"),
-        borderRadius(px(5)),
-        marginTop(px(5))
-    ),
-
-    rule(".character-line > *",
-        verticalAlign("middle")
-    ),
-
-    rule(".character-line > .closer",
-        position("absolute"),
-        right(0),
-        top(0)
-    )
-);
 
 export function CharacterLine(name: string, autoplay: boolean) {
     return HtmlTag<"character-line", { "character-line": CharacterLineElement }>(
@@ -46,6 +24,28 @@ export class CharacterLineDeletedEvent extends TypedEvent<"deleted"> {
     }
 }
 
+const sharedStyle = StyleBlob(
+    rule(":host",
+        position("relative"),
+        borderStyle("dotted"),
+        borderWidth(px(2)),
+        borderColor("#ccc"),
+        border("dotted 2px #ccc"),
+        borderRadius(px(5)),
+        marginTop(px(5))
+    ),
+
+    rule(":host > *",
+        verticalAlign("middle")
+    ),
+
+    rule(":host > .closer",
+        position("absolute"),
+        right(0),
+        top(0)
+    )
+);
+
 export class CharacterLineElement extends TypedHTMLElement<{
     deleted: CharacterLineDeletedEvent;
 }> {
@@ -55,23 +55,30 @@ export class CharacterLineElement extends TypedHTMLElement<{
     private _language: string;
     private _audioBlob: Blob;
     private _audioBuffer: AudioBuffer;
-    private readonly audio: HTMLMediaElement;
-    private readonly playbackButton: HTMLButtonElement;
-    private readonly transcript: HTMLElement;
-    private readonly langOutput: HTMLElement;
+    private audio: HTMLMediaElement;
+    private playbackButton: HTMLButtonElement;
+    private transcript: HTMLElement;
+    private langOutput: HTMLElement;
+    private playing = false;
 
     constructor() {
         super();
-        let playing = false;
 
-        HtmlRender(this,
-            ClassList("character-line"),
+        this.attachShadow({ mode: "open" });
+    }
+
+    connectedCallback() {
+
+        this.shadowRoot.appendChild(sharedStyle.cloneNode(true));
+
+
+        this.shadowRoot.append(
             this.playbackButton = ButtonSmall(
                 ClassList("btn"),
                 playButton.value,
                 Disabled(true),
                 onClick(() => {
-                    if (playing) {
+                    if (this.playing) {
                         this.audio.pause();
                     }
                     else {
@@ -84,11 +91,11 @@ export class CharacterLineElement extends TypedHTMLElement<{
                 AutoPlay(this.autoplay),
                 display("none"),
                 onPlaying(() => {
-                    playing = true;
+                    this.playing = true;
                     elementSetText(this.playbackButton, pauseButton.value);
                 }),
                 onPause(() => {
-                    playing = false;
+                    this.playing = false;
                     elementSetText(this.playbackButton, playButton.value);
                 })
             ),
