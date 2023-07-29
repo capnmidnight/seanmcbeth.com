@@ -1,5 +1,5 @@
 import { AutoPlay, ClassList, Disabled, HtmlAttr, Src } from "@juniper-lib/dom/attrs";
-import { border, borderColor, borderRadius, borderStyle, borderWidth, display, marginTop, position, px, right, rule, top, verticalAlign } from "@juniper-lib/dom/css";
+import { backgroundColor, border, borderColor, borderRadius, borderStyle, borderWidth, cursor, display, marginTop, position, px, right, rule, top, verticalAlign } from "@juniper-lib/dom/css";
 import { onClick, onPause, onPlaying } from "@juniper-lib/dom/evts";
 import { Audio, ButtonSmall, HtmlTag, Span, StyleBlob, elementSetText } from "@juniper-lib/dom/tags";
 import { crossMark, pauseButton, playButton } from "@juniper-lib/emoji";
@@ -35,6 +35,16 @@ const sharedStyle = StyleBlob(
         marginTop(px(5))
     ),
 
+    rule(":host button",
+        border("none"),
+        backgroundColor("transparent"),
+        cursor("pointer")
+    ),
+
+    rule(":host button[disabled]",
+        cursor("not-allowed")
+    ),
+
     rule(":host > *",
         verticalAlign("middle")
     ),
@@ -50,60 +60,63 @@ export class CharacterLineElement extends TypedHTMLElement<{
     deleted: CharacterLineDeletedEvent;
 }> {
 
-    private _error: string;
-    private _text: string;
-    private _language: string;
-    private _audioBlob: Blob;
-    private _audioBuffer: AudioBuffer;
-    private audio: HTMLMediaElement;
-    private playbackButton: HTMLButtonElement;
-    private transcript: HTMLElement;
-    private langOutput: HTMLElement;
+    private _error: string = null;
+    private _text: string = null;
+    private _language: string = null;
+    private _audioBlob: Blob = null;
+    private _audioBuffer: AudioBuffer = null;
     private playing = false;
+
+    private readonly audio: HTMLMediaElement;
+    private readonly playbackButton: HTMLButtonElement;
+    private readonly transcript: HTMLElement;
+    private readonly langOutput: HTMLElement;
 
     constructor() {
         super();
 
-        this.attachShadow({ mode: "open" });
+        this.playbackButton = ButtonSmall(
+            ClassList("btn"),
+            playButton.value,
+            Disabled(true),
+            onClick(() => {
+                if (this.playing) {
+                    this.audio.pause();
+                }
+                else {
+                    this.audio.play();
+                }
+            })
+        );
+
+        this.audio = Audio(
+            display("none"),
+            onPlaying(() => {
+                this.playing = true;
+                elementSetText(this.playbackButton, pauseButton.value);
+            }),
+            onPause(() => {
+                this.playing = false;
+                elementSetText(this.playbackButton, playButton.value);
+            })
+        );
+
+        this.langOutput = Span();
+
+        this.transcript = Span();
+
+        Object.seal(this);
     }
 
     connectedCallback() {
-
-        this.shadowRoot.appendChild(sharedStyle.cloneNode(true));
-
-
-        this.shadowRoot.append(
-            this.playbackButton = ButtonSmall(
-                ClassList("btn"),
-                playButton.value,
-                Disabled(true),
-                onClick(() => {
-                    if (this.playing) {
-                        this.audio.pause();
-                    }
-                    else {
-                        this.audio.play();
-                    }
-                })
-            ),
-
-            this.audio = Audio(
-                AutoPlay(this.autoplay),
-                display("none"),
-                onPlaying(() => {
-                    this.playing = true;
-                    elementSetText(this.playbackButton, pauseButton.value);
-                }),
-                onPause(() => {
-                    this.playing = false;
-                    elementSetText(this.playbackButton, playButton.value);
-                })
-            ),
-
-            this.langOutput = Span(this.name),
+        const shadowRoot = this.attachShadow({ mode: "closed" });
+        shadowRoot.append(
+            sharedStyle.cloneNode(true),
+            this.playbackButton,
+            this.audio,
+            this.langOutput,
             Span(": "),
-            this.transcript = Span(),
-
+            this.transcript,
             ButtonSmall(
                 ClassList("closer"),
                 crossMark.value,
@@ -122,15 +135,20 @@ export class CharacterLineElement extends TypedHTMLElement<{
         if (v !== this.autoplay) {
             if (v) {
                 this.setAttribute("autoplay", "");
+                this.audio.setAttribute("autoplay", "");
             }
             else {
                 this.removeAttribute("autoplay");
+                this.audio.removeAttribute("autoplay");
             }
         }
     }
 
     get name() { return this.getAttribute("name"); }
-    set name(v: string) { this.setAttribute("name", v); }
+    set name(v: string) {
+        this.setAttribute("name", v);
+        this.langOutput.textContent = v;
+    }
 
     get error() { return this._error; }
     set error(v) { elementSetText(this.transcript, this._error = v); }

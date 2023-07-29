@@ -18,7 +18,6 @@ import { ConversationClient, Models } from "./ConversationClient";
 import "./index.css";
 
 (async function () {
-
     const form = new AIForm();
     const fetcher = createFetcher();
     const audio = new AudioManager(fetcher, "localuser");

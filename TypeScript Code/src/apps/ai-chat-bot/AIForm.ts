@@ -1,14 +1,14 @@
 import { arrayReplace, arraySortByKey } from "@juniper-lib/collections/arrays";
 import { ID, Max, Min, Selected, Step, Value } from "@juniper-lib/dom/attrs";
 import { onClick, onInput } from "@juniper-lib/dom/evts";
-import { ButtonDanger, ButtonPrimary, Div, Img, InputRange, Meter, Option, Pre, Select, TextArea, HtmlRender, elementClearChildren, elementGetText, elementSetText, getElements } from "@juniper-lib/dom/tags";
+import { ButtonDanger, ButtonPrimary, DD, HtmlRender, Img, InputRange, Meter, Option, Pre, Select, TextArea, elementClearChildren, elementGetText, elementSetText, getElements } from "@juniper-lib/dom/tags";
 import { TypedEvent, TypedEventBase } from "@juniper-lib/events/TypedEventBase";
 import { debounce } from "@juniper-lib/events/debounce";
 import { CultureDescriptions, LanguageDescriptions } from "@juniper-lib/tslib/Languages";
 import { PropertyList } from "@juniper-lib/widgets/PropertyList";
 import { TabPanel } from "@juniper-lib/widgets/TabPanel";
-import { Models, Viseme, Voice, genderNames } from "./ConversationClient";
 import { CharacterLineElement } from "./CharacterLine";
+import { Models, Viseme, Voice, genderNames } from "./ConversationClient";
 
 export class MicrophoneSelectedEvent extends TypedEvent<"microphoneselected"> {
     constructor(public readonly device: MediaDeviceInfo) {
@@ -35,7 +35,7 @@ export class AIForm extends TypedEventBase<AIFormEvents> {
 
     private readonly startStopButton: HTMLButtonElement;
     private readonly repromptButton: HTMLButtonElement;
-    private readonly output: HTMLDivElement;
+    private readonly output: HTMLElement;
     private readonly resetButton: HTMLButtonElement;
     private readonly exportButton: HTMLButtonElement;
     private readonly recordingStatus: HTMLPreElement;
@@ -300,7 +300,7 @@ export class AIForm extends TypedEventBase<AIFormEvents> {
 
         this.visemeImage = Img(ID("visemes"));
 
-        this.output = Div(ID("conversationLog"));
+        this.output = DD(ID("conversationLog"));
 
         const vibrate = () => navigator.vibrate(25);
         for (const btn of getElements<HTMLButtonElement>(".btn")) {
