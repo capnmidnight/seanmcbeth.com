@@ -1,7 +1,7 @@
 import { Controls, Disabled, Muted, Src, SrcObject } from "@juniper-lib/dom/attrs";
 import { onClick } from "@juniper-lib/dom/evts";
 import { onUserGesture } from "@juniper-lib/dom/onUserGesture";
-import { Audio, ButtonPrimary, Div, elementApply } from "@juniper-lib/dom/tags";
+import { Audio, ButtonPrimary, Div, HtmlRender } from "@juniper-lib/dom/tags";
 import { once } from "@juniper-lib/events/once";
 
 (async function () {
@@ -32,7 +32,7 @@ import { once } from "@juniper-lib/events/once";
     let play2 = false;
     let play3 = false;
 
-    elementApply("main",
+    HtmlRender("main",
         startButton,
         Div(playButton1),
         Div(playButton2),

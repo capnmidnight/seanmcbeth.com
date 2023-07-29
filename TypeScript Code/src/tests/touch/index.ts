@@ -1,8 +1,8 @@
 import { touchAction } from "@juniper-lib/dom/css";
 import { onTouchCancel, onTouchEnd, onTouchMove, onTouchStart } from "@juniper-lib/dom/evts";
-import { Div, elementApply, elementSetText } from "@juniper-lib/dom/tags";
+import { Div, HtmlRender, elementSetText } from "@juniper-lib/dom/tags";
 
-elementApply(document.body,
+HtmlRender(document.body,
     touchAction("none"),
     onTouchStart(handle),
     onTouchMove(handle),
@@ -19,7 +19,7 @@ function handle(evt: TouchEvent) {
         if (!touchStates.has(touch.identifier)) {
             const tag = Div();
             touchStates.set(touch.identifier, tag);
-            elementApply("main", tag);
+            HtmlRender("main", tag);
         }
 
         const tag = touchStates.get(touch.identifier);

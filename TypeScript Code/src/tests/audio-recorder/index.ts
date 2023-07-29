@@ -6,7 +6,7 @@ import { arrayClear } from "@juniper-lib/collections/arrays";
 import { Controls, Download, Href, Max, Min, ReadOnly, Selected, Src, Value } from "@juniper-lib/dom/attrs";
 import { perc, width } from "@juniper-lib/dom/css";
 import { onClick, onInput } from "@juniper-lib/dom/evts";
-import { A, Audio, ButtonPrimary, Div, InputNumber, Meter, Option, Pre, Select, elementApply, elementSetText } from "@juniper-lib/dom/tags";
+import { A, Audio, ButtonPrimary, Div, InputNumber, Meter, Option, Pre, Select, HtmlRender, elementSetText } from "@juniper-lib/dom/tags";
 import * as allAudioTypes from "@juniper-lib/mediatypes/audio";
 import { blobToObjectURL } from "@juniper-lib/tslib/blobToObjectURL";
 import { stringRandom } from "@juniper-lib/tslib/strings/stringRandom";
@@ -120,7 +120,7 @@ tilReady("main", audio).then(async () => {
         ["Status", Div(startStopButton, recordingStatus)]
     );
 
-    elementApply("main", props);
+    HtmlRender("main", props);
 
     const chunks = new Array<Blob>();
     const onStartRecording = () => {
@@ -174,7 +174,7 @@ tilReady("main", audio).then(async () => {
             "download"
         );
         const container = Div(aud, link, output);
-        elementApply(document.body, container);
+        HtmlRender(document.body, container);
         status("Complete");
     };
 

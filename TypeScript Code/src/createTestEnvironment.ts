@@ -2,7 +2,7 @@
 import { canvasToBlob, Context2D, createUICanvas } from "@juniper-lib/dom/canvas";
 import { display, rgb } from "@juniper-lib/dom/css";
 import { onClick } from "@juniper-lib/dom/evts";
-import { ButtonPrimary, Canvas, Div, elementApply, Elements } from "@juniper-lib/dom/tags";
+import { ButtonPrimary, Canvas, Div, HtmlRender, Elements } from "@juniper-lib/dom/tags";
 import { IReadyable } from "@juniper-lib/events/IReadyable";
 import { unwrapResponse } from "@juniper-lib/fetcher/unwrapResponse";
 import { Image_Jpeg } from "@juniper-lib/mediatypes";
@@ -45,7 +45,7 @@ export async function createTestEnvironment(addServiceWorker = false): Promise<E
     );
 
     if (!appContainer.parentElement) {
-        elementApply(document.body, appContainer);
+        HtmlRender(document.body, appContainer);
     }
 
     const env = new EnvironmentConstructor({
@@ -120,7 +120,7 @@ export async function tilReady(root: string | Elements, obj: IReadyable) {
         const button = ButtonPrimary(
             "Start",
             onClick(() => button.disabled = true, true));
-        elementApply(root, button);
+        HtmlRender(root, button);
         await obj.ready;
         button.remove();
     }

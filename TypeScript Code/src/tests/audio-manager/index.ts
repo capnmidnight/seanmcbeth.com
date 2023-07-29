@@ -2,7 +2,7 @@ import { AudioManager } from "@juniper-lib/audio/AudioManager";
 import { Max, Min, Step, Value } from "@juniper-lib/dom/attrs";
 import { em, width } from "@juniper-lib/dom/css";
 import { isModifierless, onClick, onInput } from "@juniper-lib/dom/evts";
-import { ButtonPrimary, Div, InputRange, Progress, elementApply } from "@juniper-lib/dom/tags";
+import { ButtonPrimary, Div, InputRange, Progress, HtmlRender } from "@juniper-lib/dom/tags";
 import { all } from "@juniper-lib/events/all";
 import { AssetFile } from "@juniper-lib/fetcher/Asset";
 import { AudioGraphDialog } from "@juniper-lib/graphics2d/AudioGraphDialog";
@@ -15,7 +15,7 @@ import { isDebug } from "../../isDebug";
 
 (async function () {
     const prog = Progress(Value(0));
-    elementApply("main", prog);
+    HtmlRender("main", prog);
 
     const fetcher = createFetcher();
     const audio = new AudioManager(fetcher, "local");
@@ -43,7 +43,7 @@ import { isDebug } from "../../isDebug";
         })
     );
 
-    elementApply("main",
+    HtmlRender("main",
         Div(ButtonPrimary("A", onClick(() => clip1.tog()))),
         Div(ButtonPrimary("B", onClick(() => clip2.play()))),
         Div(ButtonPrimary("Graph", onClick(() => diag.toggle()))),

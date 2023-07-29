@@ -3,7 +3,7 @@ import { arrayRandom } from "@juniper-lib/collections/arrays";
 import { ClassList, ID } from "@juniper-lib/dom/attrs";
 import { backgroundColor, color, px, zIndex } from "@juniper-lib/dom/css";
 import { onClick, onMouseOut, onTouchStart } from "@juniper-lib/dom/evts";
-import { Button, Div, ErsatzElement, P, Span, elementApply, getElement } from "@juniper-lib/dom/tags";
+import { Button, Div, ErsatzElement, P, Span, HtmlRender, getElement } from "@juniper-lib/dom/tags";
 
 import "./styles.css";
 
@@ -19,7 +19,7 @@ function PointDisplay() {
     return Span(ClassList("pointDisplay"), 0);
 }
 
-elementApply("main",
+HtmlRender("main",
     Button(
         ID("starter"),
         "Start",
@@ -506,7 +506,7 @@ class Beam implements GameObject {
 
 function add<T extends GameObject>(obj: T): T {
     fs.push(obj);
-    elementApply(document.body, obj);
+    HtmlRender(document.body, obj);
     return obj;
 }
 

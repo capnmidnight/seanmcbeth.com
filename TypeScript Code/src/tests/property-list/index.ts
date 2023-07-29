@@ -1,9 +1,9 @@
 import { onClick } from "@juniper-lib/dom/evts";
-import { ButtonPrimary, elementApply } from "@juniper-lib/dom/tags";
+import { ButtonPrimary, HtmlRender } from "@juniper-lib/dom/tags";
 import { PropertyList } from "@juniper-lib/widgets/PropertyList";
 const [propList1] = PropertyList.find();
 
-elementApply("main",
+HtmlRender("main",
     ButtonPrimary(
         "Toggle Group",
         onClick(() => {

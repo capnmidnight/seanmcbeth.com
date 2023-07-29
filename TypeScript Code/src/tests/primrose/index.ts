@@ -1,5 +1,5 @@
 import { height, left, position, top, width } from "@juniper-lib/dom/css";
-import { Canvas, elementApply } from "@juniper-lib/dom/tags";
+import { Canvas, HtmlRender } from "@juniper-lib/dom/tags";
 import { JavaScript, Primrose } from "primrose/src";
 
 
@@ -11,7 +11,7 @@ const canv = Canvas(
     left(0)
 );
 
-elementApply("main", canv);
+HtmlRender("main", canv);
 
 const editor = new Primrose({
     element: canv,

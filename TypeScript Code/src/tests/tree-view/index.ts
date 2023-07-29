@@ -1,5 +1,5 @@
 import { height, left, position, top, width } from "@juniper-lib/dom/css";
-import { elementApply } from "@juniper-lib/dom/tags";
+import { HtmlRender } from "@juniper-lib/dom/tags";
 import { identity } from "@juniper-lib/tslib/identity";
 import { TreeView } from "@juniper-lib/widgets/TreeView";
 
@@ -30,7 +30,7 @@ top(0),
 left(0)
 );
 
-elementApply("main",
+HtmlRender("main",
     tv
 );
 

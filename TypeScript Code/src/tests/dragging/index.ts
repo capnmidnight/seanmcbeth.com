@@ -1,5 +1,5 @@
 ﻿import { onClick } from "@juniper-lib/dom/evts";
-import { ButtonPrimary, elementApply, elementSetText } from "@juniper-lib/dom/tags";
+import { ButtonPrimary, HtmlRender, elementSetText } from "@juniper-lib/dom/tags";
 import { AssetImage } from "@juniper-lib/fetcher/Asset";
 import { Image_Jpeg } from "@juniper-lib/mediatypes";
 import { cube } from "@juniper-lib/threejs/Cube";
@@ -44,5 +44,5 @@ withTestEnvironment(async (env) => {
         })
     );
 
-    elementApply(env.screenUISpace.bottomLeft, switchModeButton);
+    HtmlRender(env.screenUISpace.bottomLeft, switchModeButton);
 });

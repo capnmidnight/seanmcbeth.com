@@ -1,7 +1,7 @@
 import { AutoPlay, ClassList, Disabled, HtmlAttr, Src } from "@juniper-lib/dom/attrs";
 import { border, borderColor, borderRadius, borderStyle, borderWidth, display, marginTop, position, px, right, rule, top, verticalAlign } from "@juniper-lib/dom/css";
 import { onClick, onPause, onPlaying } from "@juniper-lib/dom/evts";
-import { Audio, ButtonSmall, HtmlTag, Span, Style, elementApply, elementSetText } from "@juniper-lib/dom/tags";
+import { Audio, ButtonSmall, HtmlTag, Span, Style, HtmlRender, elementSetText } from "@juniper-lib/dom/tags";
 import { crossMark, pauseButton, playButton } from "@juniper-lib/emoji";
 import { TypedEvent, TypedHTMLElement } from "@juniper-lib/events/TypedEventBase";
 import { blobToObjectURL } from "@juniper-lib/tslib/blobToObjectURL";
@@ -64,7 +64,7 @@ export class CharacterLineElement extends TypedHTMLElement<{
         super();
         let playing = false;
 
-        elementApply(this, 
+        HtmlRender(this,
             ClassList("character-line"),
             this.playbackButton = ButtonSmall(
                 ClassList("btn"),

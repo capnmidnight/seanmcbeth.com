@@ -1,10 +1,10 @@
-import { elementApply, H3 } from "@juniper-lib/dom/tags";
+import { HtmlRender, H3 } from "@juniper-lib/dom/tags";
 import { DockCell, DockGroupColumn, DockGroupRow, DockPanel, rearrangeable, resizable } from "@juniper-lib/widgets/DockPanel";
 
 import "./styles.css";
 
 
-elementApply("main",
+HtmlRender("main",
     DockPanel(
         "Test",
         resizable(true),

@@ -1,7 +1,7 @@
 import { arrayReplace, arraySortByKey } from "@juniper-lib/collections/arrays";
 import { ID, Max, Min, Selected, Step, Value } from "@juniper-lib/dom/attrs";
 import { onClick, onInput } from "@juniper-lib/dom/evts";
-import { ButtonDanger, ButtonPrimary, Div, Img, InputRange, Meter, Option, Pre, Select, TextArea, elementApply, elementClearChildren, elementGetText, elementSetText, getElements } from "@juniper-lib/dom/tags";
+import { ButtonDanger, ButtonPrimary, Div, Img, InputRange, Meter, Option, Pre, Select, TextArea, HtmlRender, elementClearChildren, elementGetText, elementSetText, getElements } from "@juniper-lib/dom/tags";
 import { TypedEvent, TypedEventBase } from "@juniper-lib/events/TypedEventBase";
 import { debounce } from "@juniper-lib/events/debounce";
 import { CultureDescriptions, LanguageDescriptions } from "@juniper-lib/tslib/Languages";
@@ -128,7 +128,7 @@ export class AIForm extends TypedEventBase<AIFormEvents> {
         const displayCulture = (usePrefix: boolean, langSel: HTMLSelectElement, cultSel: HTMLSelectElement, defaultCulture?: string) => {
             const cultureLookup = this.languageLookup.get(langSel.value as Language);
             elementClearChildren(cultSel);
-            elementApply(cultSel, ...arraySortByKey(Array.from(cultureLookup.keys())
+            HtmlRender(cultSel, ...arraySortByKey(Array.from(cultureLookup.keys())
                 .sort()
                 .map((v, i) => {
                     const culture = CultureDescriptions.get(v as Culture);
@@ -159,7 +159,7 @@ export class AIForm extends TypedEventBase<AIFormEvents> {
             const cultureLookup = this.languageLookup.get(this.outLanguageSelector.value as Language);
             const genderLookup = cultureLookup.get(this.outCultureSelector.value);
             elementClearChildren(this.outGenderSelector);
-            elementApply(this.outGenderSelector, ...Array.from(genderLookup.keys())
+            HtmlRender(this.outGenderSelector, ...Array.from(genderLookup.keys())
                 .sort()
                 .map((v, i) => Option(
                     Selected(defaultGender === null && i === 0
@@ -177,7 +177,7 @@ export class AIForm extends TypedEventBase<AIFormEvents> {
             const genderLookup = cultureLookup.get(this.outCultureSelector.value);
             const nameLookup = genderLookup.get(this.outGenderSelector.value);
             elementClearChildren(this.outNameSelector);
-            elementApply(this.outNameSelector, ...Array.from(nameLookup.values())
+            HtmlRender(this.outNameSelector, ...Array.from(nameLookup.values())
                 .sort((a, b) => a.localName.localeCompare(b.localName))
                 .map((v, i) => Option(
                     Selected(defaultName === null && i === 0
@@ -194,7 +194,7 @@ export class AIForm extends TypedEventBase<AIFormEvents> {
             const nameLookup = genderLookup.get(this.outGenderSelector.value);
             const voice = nameLookup.get(this.outNameSelector.value);
             elementClearChildren(this.outStyleSelector);
-            elementApply(this.outStyleSelector, ...voice.styleList
+            HtmlRender(this.outStyleSelector, ...voice.styleList
                 .sort()
                 .map((v, i) => Option(
                     Selected(defaultStyle === null && i === 0
@@ -365,7 +365,7 @@ export class AIForm extends TypedEventBase<AIFormEvents> {
 
         const displayLanguages = (usePrefix: boolean, sel: HTMLSelectElement) => {
             elementClearChildren(sel);
-            elementApply(sel,
+            HtmlRender(sel,
                 ...arraySortByKey(Array.from(this.languageLookup.keys())
                     .sort()
                     .map(v => {
@@ -392,7 +392,7 @@ export class AIForm extends TypedEventBase<AIFormEvents> {
         }
 
         elementClearChildren(this.micSelector);
-        elementApply(this.micSelector, ...Array.from(this.mics.values())
+        HtmlRender(this.micSelector, ...Array.from(this.mics.values())
             .map(d => Option(
                 Value(d.deviceId),
                 d.label || d.groupId
@@ -431,7 +431,7 @@ export class AIForm extends TypedEventBase<AIFormEvents> {
     }
 
     addLine(line: CharacterLineElement) {
-        elementApply(this.output, line);
+        HtmlRender(this.output, line);
         this.refresh();
     }
 }

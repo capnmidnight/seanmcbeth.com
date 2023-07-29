@@ -1,8 +1,8 @@
 import { touchAction } from "@juniper-lib/dom/css";
 import { onPointerCancel, onPointerDown, onPointerEnter, onPointerLeave, onPointerMove, onPointerOut } from "@juniper-lib/dom/evts";
-import { Div, elementApply, elementSetText } from "@juniper-lib/dom/tags";
+import { Div, HtmlRender, elementSetText } from "@juniper-lib/dom/tags";
 
-elementApply(document.body,
+HtmlRender(document.body,
     touchAction("none"),
     onPointerCancel(handle),
     onPointerDown(handle),
@@ -20,7 +20,7 @@ function handle(evt: PointerEvent) {
     if (!touchStates.has(evt.pointerId)) {
         const tag = Div();
         touchStates.set(evt.pointerId, tag);
-        elementApply("main", tag);
+        HtmlRender("main", tag);
     }
 
     const tag = touchStates.get(evt.pointerId);

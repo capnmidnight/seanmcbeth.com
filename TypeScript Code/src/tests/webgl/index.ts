@@ -1,6 +1,6 @@
 import { ID } from "@juniper-lib/dom/attrs";
 import { isModifierless } from "@juniper-lib/dom/evts";
-import { Canvas, Div, elementApply } from "@juniper-lib/dom/tags";
+import { Canvas, Div, HtmlRender } from "@juniper-lib/dom/tags";
 import { playOrPauseButton } from "@juniper-lib/emoji";
 import { TextImage, TextImageOptions } from "@juniper-lib/graphics2d/TextImage";
 import { isMobileVR } from "@juniper-lib/tslib/flags";
@@ -25,7 +25,7 @@ const canvas = Canvas(
     ID("frontBuffer")
 );
 
-elementApply("main",
+HtmlRender("main",
     Div(
         ID("appContainer"),
         canvas

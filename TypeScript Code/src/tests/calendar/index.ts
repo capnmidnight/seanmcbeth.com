@@ -1,7 +1,7 @@
 ﻿import { ColSpan } from "@juniper-lib/dom/attrs";
 import { display } from "@juniper-lib/dom/css";
 import { onBlur, onEnterKeyPressed, onFocus, onMouseOut, onMouseOver } from "@juniper-lib/dom/evts";
-import { InputText, Span, TBody, TD, TH, THead, TR, Table, elementApply, elementClearChildren, elementGetText, elementSetDisplay } from "@juniper-lib/dom/tags";
+import { InputText, Span, TBody, TD, TH, THead, TR, Table, HtmlRender, elementClearChildren, elementGetText, elementSetDisplay } from "@juniper-lib/dom/tags";
 
 import "./index.css";
 
@@ -62,7 +62,7 @@ const entry = InputText(
     }),
     onBlur(() => {
         elementClearChildren(title);
-        elementApply(title, entry.value);
+        HtmlRender(title, entry.value);
         elementSetDisplay(entry, false);
         elementSetDisplay(title, true);
     }),
@@ -74,7 +74,7 @@ const entry = InputText(
     })
 );
 
-elementApply("main", Table(
+HtmlRender("main", Table(
     THead(
         TR(TH(ColSpan(7), title, entry)),
         TR(

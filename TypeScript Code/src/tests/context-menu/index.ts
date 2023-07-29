@@ -1,6 +1,6 @@
 import { backgroundColor, border, color, margin, padding, width } from "@juniper-lib/dom/css";
 import { onContextMenu } from "@juniper-lib/dom/evts";
-import { Div, elementApply, HR, Span } from "@juniper-lib/dom/tags";
+import { Div, HtmlRender, HR, Span } from "@juniper-lib/dom/tags";
 import { isDefined } from "@juniper-lib/tslib/typeChecks";
 import { ContextMenu } from "@juniper-lib/widgets/ContextMenu";
 
@@ -56,4 +56,4 @@ const target = Div(
     })
 );
 
-elementApply("main", menu, target);
+HtmlRender("main", menu, target);
