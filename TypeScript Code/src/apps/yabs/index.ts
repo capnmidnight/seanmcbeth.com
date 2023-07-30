@@ -1,18 +1,26 @@
 ﻿import { JuniperAudioContext } from "@juniper-lib/audio/context/JuniperAudioContext";
 import { arrayRandom } from "@juniper-lib/collections/arrays";
 import { ClassList, ID } from "@juniper-lib/dom/attrs";
-import { backgroundColor, color, px, zIndex } from "@juniper-lib/dom/css";
+import {
+    backgroundColor,
+    backgroundImage,
+    borderBottomLeftRadius, borderBottomRightRadius, borderColor, borderRadius, borderStyle, borderTopLeftRadius, borderTopRightRadius,
+    borderWidth,
+    boxShadow, color, deg, display, fontFamily, fontSize, fontWeight, getMonospaceFamily, height, left, overflow, padding, perc, position,
+    px, rotate, rule, scale, textTransform, top, transform, width, zIndex
+} from "@juniper-lib/dom/css";
 import { onClick, onMouseOut, onTouchStart } from "@juniper-lib/dom/evts";
-import { Button, Div, ErsatzElement, P, Span, HtmlRender, getElement } from "@juniper-lib/dom/tags";
+import { Button, Div, HtmlRender, HtmlTag, P, Span, StyleBlob, getElement } from "@juniper-lib/dom/tags";
+import { TypedEventMap, TypedHTMLElement } from "@juniper-lib/events/TypedEventBase";
 
 import "./styles.css";
 
 document.title = "No More Jabber Yabs: The Game";
 
-interface GameObject extends ErsatzElement {
-    update(dt: number): void;
-    render(): void;
-    x: number;
+abstract class GameObject extends TypedHTMLElement<TypedEventMap<string>> {
+    abstract update(dt: number): void;
+    abstract render(): void;
+    abstract get x(): number;
 }
 
 function PointDisplay() {
@@ -28,9 +36,9 @@ HtmlRender("main",
     Div(ID("instructions"), "Go ahead, click and hold the mouse"),
     Div(ID("scoreBox"), "GET EM: ", PointDisplay()),
     Div(ID("message0"), ClassList("endMessage"),
-        P("You have killed everyone. You did it. Just you. Noone else."),
+        P("You have killed everyone. You did it. Just you. No one else."),
         P("And why have you done this? Because you were ordered to? The pursuit of points?"),
-        P("You got your points. All ", PointDisplay(), " of them. What will you do with them? There's noone left. And it's not like they took them as currency, anyway."),
+        P("You got your points. All ", PointDisplay(), " of them. What will you do with them? There's no one left. And it's not like they took them as currency, anyway."),
         P("For no reason whatsoever, you have committed genocide against another race of people. Congratulations."),
         P("Hitler.")
     ),
@@ -38,14 +46,14 @@ HtmlRender("main",
         P("You have killed almost everyone. Their bodies are strewn about on the ground they once called their home."),
         P("There is but one person left. Did you spare them out of mercy? Or have you left them, devoid of personal contact, alone, surrounded by the burned and rotting bodies of their former loved ones, to serve as witness to your terrible deeds?"),
         P("And why have you done this? Because you were ordered to? The pursuit of points?"),
-        P("You got your points. All ", PointDisplay(), "  of them. What will you do with them? There's noone left. And it's not like they took them as currency, anyway."),
+        P("You got your points. All ", PointDisplay(), "  of them. What will you do with them? There's no one left. And it's not like they took them as currency, anyway."),
         P("You are sick.")
     ),
     Div(ID("message2"), ClassList("endMessage"),
         P("You have killed almost everyone. Their bodies are strewn about on the ground they once called their home."),
         P("There are only two people left. Did you spare them out of mercy? Or have you left them, surrounded by the burned and rotting bodies of their former loved ones, to repopulate their world together, to serve as witness to your terrible deeds to future generations?"),
         P("And why have you done this? Because you were ordered to? The pursuit of points?"),
-        P("You got your points. All ", PointDisplay(), "  of them. What will you do with them? There's noone left. And it's not like they took them as currency, anyway."),
+        P("You got your points. All ", PointDisplay(), "  of them. What will you do with them? There's no one left. And it's not like they took them as currency, anyway."),
         P("I...I don't understand you."),
     ),
     Div(ID("messageN"), ClassList("endMessage"), color("black"),
@@ -86,7 +94,7 @@ const NUM_YABS = Math.round(window.innerWidth / 30),
     base = Math.pow(2, 1 / 12);
 
 let fading = false,
-    scale = 1,
+    scaling = 1,
     lt: number = null,
     dt = 0,
     step = 1,
@@ -161,33 +169,72 @@ function shake(elem?: HTMLElement) {
     elem.style.transform = `translate(${px(dx)}, ${px(dy)})`;
 }
 
-function isFace(obj: GameObject): obj is Face {
-    return obj instanceof Face;
+function isFace(obj: GameObject): obj is FaceElement {
+    return obj instanceof FaceElement;
 }
 
-class Face implements GameObject {
-    element: HTMLElement;
-    boop: HTMLElement;
-    shadow: HTMLElement;
+const faceStyle = StyleBlob(
+    rule(".frowny, .shadow, .boop",
+        position("absolute")
+    ),
+
+    rule(".frowny",
+        fontSize(px(32)),
+        getMonospaceFamily(),
+        color("black"),
+        padding(px(5)),
+        borderStyle("solid"),
+        borderWidth(px(2)),
+        borderColor("black"),
+        borderRadius(px(10)),
+        transform(rotate(deg(90))),
+        width(px(50)),
+        height(px(50)),
+        overflow("hidden")
+    ),
+
+    rule(".shadow",
+        width(px(45)),
+        height(px(10)),
+        borderRadius(px(5)),
+        backgroundImage("radial-gradient(rgba(0,0,0,0.5), transparent)")
+    ),
+
+    rule(".boop",
+        display("none"),
+        color("white"),
+        textTransform("uppercase"),
+        fontFamily("sans-serif"),
+        fontWeight("bold"),
+        fontSize(px(13)),
+        zIndex(9001)
+    )
+);
+
+class FaceElement extends GameObject {
+    private element: HTMLElement;
+    private boop: HTMLElement;
+    private shadow: HTMLElement;
     alive: boolean;
     hits: number;
     onground: boolean;
     x: number;
-    y: number;
-    z: number;
-    f: number;
-    dx: number;
-    dy: number;
-    df: number;
-    width: number;
-    height: number;
-    boopFor: number;
-    boopX: number;
-    boopY: number;
-    boopDX: number;
-    boopDY: number;
+    private y: number;
+    private z: number;
+    private f: number;
+    private dx: number;
+    private dy: number;
+    private df: number;
+    private width: number;
+    private height: number;
+    private boopFor: number;
+    private boopX: number;
+    private boopY: number;
+    private boopDX: number;
+    private boopDY: number;
 
     constructor() {
+        super();
         this.alive = true;
         this.hits = 0;
         this.onground = false;
@@ -216,9 +263,16 @@ class Face implements GameObject {
         this.boopDX = 0;
         this.boopDY = 0;
 
-        this.shadow = Div(ClassList("shadow"));
+        this.shadow = Div(
+            ClassList("shadow"),
+            zIndex(this.z - 1)
+        );
+    }
 
-        document.body.append(this.boop, this.shadow);
+    connectedCallback() {
+        const shadowRoot = this.attachShadow({ mode: "closed" });
+
+        shadowRoot.append(faceStyle.cloneNode(), this.element, this.boop, this.shadow);
 
         this.render();
     }
@@ -300,15 +354,33 @@ class Face implements GameObject {
     }
 }
 
-class Cloud implements GameObject {
-    element: HTMLElement;
+customElements.define("yab-face", FaceElement);
+
+const cloudStyle = StyleBlob(
+    rule(":host, .cloud-bit",
+        position("absolute")
+    ),
+
+    rule(".cloud-bit",
+        backgroundColor("white"),
+        width(px(100)),
+        height(px(50)),
+        borderBottomRightRadius(px(25)),
+        borderBottomLeftRadius(px(50)),
+        borderTopRightRadius(px(12.5)),
+        borderTopLeftRadius(px(6.25))
+    )
+);
+
+class CloudElement extends GameObject {
     x: number;
-    y: number;
-    dx: number;
+    private y: number;
+    private dx: number;
+
+    private readonly bits = new Array<HTMLDivElement>();
 
     constructor() {
-        this.element = document.createElement("div");
-        this.element.className = "cloud";
+        super();
 
         const n = randomInt(4, 7);
         for (let i = 0; i < n; ++i) {
@@ -316,59 +388,92 @@ class Cloud implements GameObject {
             b.className = "cloud-bit";
             b.style.top = px(randomRange(-25, 25));
             b.style.left = px(randomRange(-50, 50));
-            this.element.appendChild(b);
+            this.bits.push(b);
         }
 
         this.x = randomRange(0, window.innerWidth);
         this.y = randomRange(0, window.innerHeight / 4) + 50;
         this.dx = randomRange(-0.25, 0.25);
-        this.element.style.zIndex = (-this.y).toFixed(0);
+    }
+
+    connectedCallback() {
+        const shadowRoot = this.attachShadow({ mode: "closed" });
+        shadowRoot.append(cloudStyle.cloneNode(), ...this.bits);
+        this.style.zIndex = (-this.y).toFixed(0);
         this.render();
     }
 
     render() {
-        this.element.style.left = px(this.x);
-        this.element.style.top = px(this.y);
+        this.style.left = px(this.x);
+        this.style.top = px(this.y);
     }
 
     update(dt: number) {
         this.x += this.dx * dt;
         if (this.x <= 0 && this.dx < 0 || (this.x +
-            this.element.clientWidth) >= window.innerWidth && this.dx >
+            this.clientWidth) >= window.innerWidth && this.dx >
             0) {
             this.dx *= -1;
         }
     }
 }
 
-class Beam implements GameObject {
-    element: HTMLElement;
-    subBeam: HTMLElement;
-    x: number;
-    y: number;
-    t: number;
-    charging: boolean;
-    firing: boolean;
-    enabled: boolean;
+customElements.define("yab-cloud", CloudElement);
+
+const beamStyle = StyleBlob(
+    rule(":host, .subBeam",
+        position("absolute"),
+        display("none"),
+        backgroundColor("red"),
+        boxShadow("0 0 25px red"),
+        left(0)
+    ),
+
+    rule(":host",
+        top(0),
+        width(px(50)),
+        height(px(50)),
+        borderRadius(perc(50))
+    ),
+
+    rule(".subBeam",
+        top(perc(50)),
+        height(px(2000))
+    )
+);
+
+class BeamElement extends GameObject {
+    private subBeam: HTMLElement;
+    x = 0;
+
+    private y = 0;
+    private t = 0;
+    private charging = false;
+    private firing = false;
 
     constructor() {
-        this.x = 0;
-        this.y = 0;
-        this.t = 0;
-        this.charging = false;
-        this.firing = false;
-        this.enabled = true;
+        super();
 
-        this.element = document.createElement("div");
-        this.element.className = "beam";
+        this.subBeam = Div(ClassList("subBeam"));
+    }
 
-        this.subBeam = document.createElement("div");
-        this.subBeam.className = "subBeam";
-        this.element.appendChild(this.subBeam);
+    connectedCallback() {
+        const shadowRoot = this.attachShadow({ mode: "closed" });
+        shadowRoot.append(beamStyle.cloneNode(), this.subBeam);
+    }
+
+    get disabled() { return this.hasAttribute("disabled"); }
+    set disabled(v) {
+        if (v) {
+            this.setAttribute("disabled", "");
+        }
+        else {
+            this.removeAttribute("disabled");
+        }
     }
 
     disable() {
-        this.enabled = false;
+        this.disabled = true;
     }
 
     update(dt: number) {
@@ -388,7 +493,7 @@ class Beam implements GameObject {
         }
 
         if (this.firing) {
-            shake(this.element);
+            shake(this);
             for (let i = 0, l = this.t / 10; i < l; ++i) {
                 play(87 - i, 0.02, dt / 100);
             }
@@ -398,12 +503,11 @@ class Beam implements GameObject {
                 if (isFace(yab) && yab.alive && yab.onground) {
                     if (this.x <= yab.x + 50 && this.x + 50 >= yab.x) {
                         if (score === 0) {
-                            scoreBox.style.display =
-                                "block";
+                            scoreBox.style.display = "block";
                             document.body.style.backgroundImage =
                                 "linear-gradient(hsl(0, 50%, 0%), hsl(0, 50%, 50%) 75%, hsl(0, 50%, 15%) 75%, hsl(0, 50%, 33%))";
                             for (let j = 0; j < NUM_CLD; ++j) {
-                                const cld = fs[NUM_YABS + j].element;
+                                const cld = fs[NUM_YABS + j];
                                 for (let k = 0; k < cld.children.length; ++k) {
                                     const bit = (cld.children[k] as HTMLElement).style;
                                     bit.backgroundColor = "black";
@@ -414,7 +518,7 @@ class Beam implements GameObject {
                         for (let j = 0; j < scoreBoxes.length; ++j) {
                             scoreBoxes[j].innerHTML = score.toFixed(0);
                         }
-                        shake(yab.element);
+                        shake(yab);
                         ++yab.hits;
                         if (yab.hits >= HIT_POINTS) {
                             yab.alive = false;
@@ -442,13 +546,13 @@ class Beam implements GameObject {
                                 this.disable();
                             }
                         } else {
-                            yab.element.style.transform += " rotate(90deg)";
+                            yab.style.transform += " rotate(90deg)";
                         }
                         yab.jump(arrayRandom(curses));
                         play(10 + randomInt(-1, 2), 0.1, 0.05);
                     } else if (this.x <= yab.x + 200 && this.x + 200 >= yab.x) {
-                        shake(yab.element);
-                        yab.element.style.transform += " rotate(90deg)";
+                        shake(yab);
+                        yab.style.transform += " rotate(90deg)";
                     }
                 }
             }
@@ -461,18 +565,20 @@ class Beam implements GameObject {
     }
 
     render() {
+        this.style.display = (this.charging || this.firing)
+            ? "block"
+            : "none";
+        this.subBeam.style.display = this.firing
+            ? "block"
+            : "none";
 
-        this.element.style.display = (this.charging || this.firing) ?
-            "block" : "none";
-        this.subBeam.style.display = this.firing ? "block" : "none";
-
-        this.element.style.left = px(this.x);
-        this.element.style.top = px(this.y);
+        this.style.left = px(this.x);
+        this.style.top = px(this.y);
 
         const c = "hsl(0, 100%, " + this.t + "%)";
-        this.element.style.backgroundColor =
+        this.style.backgroundColor =
             this.subBeam.style.backgroundColor = c;
-        this.element.style.boxShadow = this.subBeam.style.boxShadow =
+        this.style.boxShadow = this.subBeam.style.boxShadow =
             `0 0 ${px(25)} ${c}`;
 
         this.subBeam.style.width = this.t + "%";
@@ -485,13 +591,13 @@ class Beam implements GameObject {
         fading = true;
         this.x = evt.clientX - 10;
         this.y = evt.clientY - 10;
-        if (this.enabled) {
+        if (!this.disabled) {
             this.charging = true;
         }
     }
 
     end() {
-        this.element.style.display = "none";
+        this.style.display = "none";
         this.charging = false;
         if (!this.firing) {
             this.t = 0;
@@ -504,11 +610,8 @@ class Beam implements GameObject {
     }
 }
 
-function add<T extends GameObject>(obj: T): T {
-    fs.push(obj);
-    HtmlRender(document.body, obj);
-    return obj;
-}
+customElements.define("yab-beam", BeamElement);
+
 
 for (let i = 0; i < 88; ++i) {
     const gn = audio.createGain();
@@ -522,15 +625,31 @@ for (let i = 0; i < 88; ++i) {
     osc.push(gn);
 }
 
+type YabTags = {
+    "yab-face": FaceElement;
+    "yab-cloud": CloudElement;
+    "yab-beam": BeamElement;
+}
+
+function YabTag<T extends keyof YabTags>(name: T) { return HtmlTag<T, YabTags>(name); }
+
+function Face() { return YabTag("yab-face"); }
+function Cloud() { return YabTag("yab-cloud"); }
+function Beam() { return YabTag("yab-beam"); }
+
 for (let i = 0; i < NUM_YABS; ++i) {
-    add(new Face());
+    fs.push(Face());
 }
 
 for (let i = 0; i < NUM_CLD; ++i) {
-    add(new Cloud());
+    fs.push(Cloud());
 }
 
-const beam = add(new Beam());
+const beam = Beam();
+fs.push(beam);
+
+document.body.append(...fs);
+
 
 document.addEventListener("mousedown", beam.start.bind(beam), false);
 document.addEventListener("mousemove", (evt) => {
@@ -556,8 +675,6 @@ document.addEventListener("touchend", function (evt) {
 }, false);
 
 function animate(t: number) {
-    requestAnimationFrame(animate);
-
     music(t);
 
     if (lt != null) {
@@ -573,11 +690,14 @@ function animate(t: number) {
         }
     }
     lt = t;
-    if (fading && scale > 0) {
+    if (fading && scaling > 0) {
         inst.style.opacity = (parseFloat(inst.style.opacity) - 0.05).toFixed(3);
-        scale -= 0.05;
-        inst.style.transform = "scale(" + Math.pow(scale, 0.25) + ")";
+        scaling -= 0.05;
+        const v = Math.pow(scaling, 0.25);
+        inst.style.transform = scale(v, v);
     }
+
+    requestAnimationFrame(animate);
 }
 
 
