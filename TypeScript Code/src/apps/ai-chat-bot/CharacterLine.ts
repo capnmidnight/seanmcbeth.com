@@ -1,4 +1,4 @@
-import { AutoPlay, ClassList, Disabled, HtmlAttr, Src } from "@juniper-lib/dom/attrs";
+import { ClassList, Disabled, HtmlAttr, Src } from "@juniper-lib/dom/attrs";
 import { backgroundColor, border, borderColor, borderRadius, borderStyle, borderWidth, cursor, display, marginTop, position, px, right, rule, top, verticalAlign } from "@juniper-lib/dom/css";
 import { onClick, onPause, onPlaying } from "@juniper-lib/dom/evts";
 import { Audio, ButtonSmall, HtmlTag, Span, StyleBlob, elementSetText } from "@juniper-lib/dom/tags";
