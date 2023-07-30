@@ -3,19 +3,11 @@ import { backgroundColor, border, borderColor, borderRadius, borderStyle, border
 import { onClick, onPause, onPlaying } from "@juniper-lib/dom/evts";
 import { Audio, ButtonSmall, HtmlRender, Span, StyleBlob, elementSetText } from "@juniper-lib/dom/tags";
 import { crossMark, pauseButton, playButton } from "@juniper-lib/emoji";
-import { TypedEvent } from "@juniper-lib/events/TypedEventBase";
+import { ITypedEventTarget, TypedEvent, TypedEventListenerOrEventListenerObject } from "@juniper-lib/events/TypedEventTarget";
 import { blobToObjectURL } from "@juniper-lib/tslib/blobToObjectURL";
 import { ConversationLine } from "./ConversationClient";
-import { CustomElement, TypedHTMLElement } from "@juniper-lib/dom/TypedHTMLElement";
-
-export function CharacterLine(name: string, autoplay: boolean) {
-    return HtmlRender(
-        CharacterLineElement.create(),
-        "character-line",
-        CharacterName(name),
-        CharacterAutoPlay(autoplay)
-    ) as CharacterLineElement;
-}
+import { CustomElement } from "@juniper-lib/dom/CustomElement";
+import { EventTargetMixin } from "@juniper-lib/events/EventTarget";
 
 function CharacterName(value: string) { return new HtmlAttr("name", value, false, "character-line"); }
 function CharacterAutoPlay(value: boolean) { return new HtmlAttr("autoplay", value, false, "character-line"); }
@@ -58,10 +50,21 @@ const sharedStyle = StyleBlob(
     )
 );
 
-@CustomElement
-export class CharacterLineElement extends TypedHTMLElement(["character-line"], HTMLElement)<{
+type CharacterLineElementEvents = {
     deleted: CharacterLineDeletedEvent;
-}> {
+};
+
+export function CharacterLine(name: string, autoplay: boolean) {
+    return HtmlRender(
+        document.createElement("character-line"),
+        "character-line",
+        CharacterName(name),
+        CharacterAutoPlay(autoplay)
+    ) as CharacterLineElement;
+}
+
+@CustomElement("character-line")
+export class CharacterLineElement extends HTMLElement implements ITypedEventTarget<CharacterLineElementEvents> {
     private _error: string = null;
     private _text: string = null;
     private _language: string = null;
@@ -73,9 +76,16 @@ export class CharacterLineElement extends TypedHTMLElement(["character-line"], H
     private readonly playbackButton: HTMLButtonElement;
     private readonly transcript: HTMLElement;
     private readonly langOutput: HTMLElement;
+    private readonly eventTarget: EventTargetMixin;
 
     constructor() {
         super();
+
+        this.eventTarget = new EventTargetMixin(
+            super.addEventListener.bind(this),
+            super.removeEventListener.bind(this),
+            super.dispatchEvent.bind(this)
+        );
 
         this.playbackButton = ButtonSmall(
             ClassList("btn"),
@@ -108,6 +118,38 @@ export class CharacterLineElement extends TypedHTMLElement(["character-line"], H
         this.transcript = Span();
 
         Object.seal(this);
+    }
+
+    override addEventListener<EventTypeT extends keyof CharacterLineElementEvents>(type: EventTypeT, callback: TypedEventListenerOrEventListenerObject<CharacterLineElementEvents, EventTypeT>, options?: boolean | AddEventListenerOptions): void {
+        this.eventTarget.addEventListener(type as string, callback as EventListenerOrEventListenerObject, options);
+    }
+
+    override removeEventListener<EventTypeT extends keyof CharacterLineElementEvents>(type: EventTypeT, callback: TypedEventListenerOrEventListenerObject<CharacterLineElementEvents, EventTypeT>): void {
+        this.eventTarget.removeEventListener(type as string, callback as EventListenerOrEventListenerObject);
+    }
+
+    override dispatchEvent(evt: Event): boolean {
+        return this.eventTarget.dispatchEvent(evt);
+    }
+
+    addBubbler(bubbler: ITypedEventTarget<CharacterLineElementEvents>): void {
+        this.eventTarget.addBubbler(bubbler);
+    }
+
+    removeBubbler(bubbler: ITypedEventTarget<CharacterLineElementEvents>): void {
+        this.eventTarget.removeBubbler(bubbler);
+    }
+
+    addScopedEventListener<EventTypeT extends keyof CharacterLineElementEvents>(scope: object, type: EventTypeT, callback: TypedEventListenerOrEventListenerObject<CharacterLineElementEvents, EventTypeT>, options?: boolean | AddEventListenerOptions): void {
+        this.eventTarget.addScopedEventListener(scope, type as string, callback as EventListenerOrEventListenerObject, options);
+    }
+
+    removeScope(scope: object) {
+        this.eventTarget.removeScope(scope);
+    }
+
+    clearEventListeners<EventTypeT extends keyof CharacterLineElementEvents>(type?: EventTypeT): void {
+        this.eventTarget.clearEventListeners(type as string);
     }
 
     connectedCallback() {

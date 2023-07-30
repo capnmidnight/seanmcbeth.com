@@ -1,6 +1,6 @@
 ﻿import { JuniperAudioContext } from "@juniper-lib/audio/context/JuniperAudioContext";
 import { arrayRandom } from "@juniper-lib/collections/arrays";
-import { CustomElement, ITypedHTMLElement, TypedHTMLElement } from "@juniper-lib/dom/TypedHTMLElement";
+import { CustomElement } from "@juniper-lib/dom/CustomElement";
 import { ClassList, ID } from "@juniper-lib/dom/attrs";
 import {
     backgroundColor,
@@ -12,13 +12,13 @@ import {
 } from "@juniper-lib/dom/css";
 import { onClick, onMouseOut, onTouchStart } from "@juniper-lib/dom/evts";
 import { Button, Div, HtmlRender, P, Span, StyleBlob, getElement } from "@juniper-lib/dom/tags";
-import { TypedEventMap } from "@juniper-lib/events/TypedEventBase";
+import { EventTargetMixin } from "@juniper-lib/events/EventTarget";
 
 import "./styles.css";
 
 document.title = "No More Jabber Yabs: The Game";
 
-interface GameObject extends ITypedHTMLElement {
+interface GameObject extends HTMLElement {
     update(dt: number): void;
     render(): void;
     get x(): number;
@@ -212,8 +212,10 @@ const faceStyle = StyleBlob(
     )
 );
 
-@CustomElement
-class FaceElement extends TypedHTMLElement(["yabs-face"], HTMLElement)<TypedEventMap<string>> implements GameObject {
+function Face() { return document.createElement("yabs-face") as FaceElement; }
+
+@CustomElement("yabs-face")
+class FaceElement extends HTMLElement implements GameObject {
     private element: HTMLElement;
     private boop: HTMLElement;
     private shadow: HTMLElement;
@@ -235,8 +237,17 @@ class FaceElement extends TypedHTMLElement(["yabs-face"], HTMLElement)<TypedEven
     private boopDX: number;
     private boopDY: number;
 
+    private readonly eventTarget: EventTargetMixin;
+
     constructor() {
         super();
+
+        this.eventTarget = new EventTargetMixin(
+            super.addEventListener.bind(this),
+            super.removeEventListener.bind(this),
+            super.dispatchEvent.bind(this)
+        );
+
         this.alive = true;
         this.hits = 0;
         this.onground = false;
@@ -269,6 +280,38 @@ class FaceElement extends TypedHTMLElement(["yabs-face"], HTMLElement)<TypedEven
             ClassList("shadow"),
             zIndex(this.z - 1)
         );
+    }
+
+    override addEventListener(type: string, callback: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void {
+        this.eventTarget.addEventListener(type, callback, options);
+    }
+
+    override removeEventListener(type: string, callback: EventListenerOrEventListenerObject) {
+        this.eventTarget.removeEventListener(type, callback);
+    }
+
+    override dispatchEvent(evt: Event): boolean {
+        return this.eventTarget.dispatchEvent(evt);
+    }
+
+    addBubbler(bubbler: EventTarget) {
+        this.eventTarget.addBubbler(bubbler);
+    }
+
+    removeBubbler(bubbler: EventTarget) {
+        this.eventTarget.removeBubbler(bubbler);
+    }
+
+    addScopedEventListener(scope: object, type: string, callback: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void {
+        this.eventTarget.addScopedEventListener(scope, type, callback, options);
+    }
+
+    removeScope(scope: object) {
+        this.eventTarget.removeScope(scope);
+    }
+
+    clearEventListeners(type?: string): void {
+        this.eventTarget.clearEventListeners(type);
     }
 
     connectedCallback() {
@@ -372,16 +415,24 @@ const cloudStyle = StyleBlob(
     )
 );
 
-@CustomElement
-class CloudElement extends TypedHTMLElement(["yabs-cloud"], HTMLElement)<TypedEventMap<string>> implements GameObject {
+function Cloud() { return document.createElement("yabs-cloud") as CloudElement; }
+
+@CustomElement("yabs-cloud")
+class CloudElement extends HTMLElement implements GameObject {
     x: number;
     private y: number;
     private dx: number;
 
     private readonly bits = new Array<HTMLDivElement>();
-
+    private readonly eventTarget: EventTargetMixin;
     constructor() {
         super();
+
+        this.eventTarget = new EventTargetMixin(
+            super.addEventListener.bind(this),
+            super.removeEventListener.bind(this),
+            super.dispatchEvent.bind(this)
+        );
 
         const n = randomInt(4, 7);
         for (let i = 0; i < n; ++i) {
@@ -395,6 +446,38 @@ class CloudElement extends TypedHTMLElement(["yabs-cloud"], HTMLElement)<TypedEv
         this.x = randomRange(0, window.innerWidth);
         this.y = randomRange(0, window.innerHeight / 4) + 50;
         this.dx = randomRange(-0.25, 0.25);
+    }
+
+    override addEventListener(type: string, callback: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void {
+        this.eventTarget.addEventListener(type, callback, options);
+    }
+
+    override removeEventListener(type: string, callback: EventListenerOrEventListenerObject) {
+        this.eventTarget.removeEventListener(type, callback);
+    }
+
+    override dispatchEvent(evt: Event): boolean {
+        return this.eventTarget.dispatchEvent(evt);
+    }
+
+    addBubbler(bubbler: EventTarget) {
+        this.eventTarget.addBubbler(bubbler);
+    }
+
+    removeBubbler(bubbler: EventTarget) {
+        this.eventTarget.removeBubbler(bubbler);
+    }
+
+    addScopedEventListener(scope: object, type: string, callback: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void {
+        this.eventTarget.addScopedEventListener(scope, type, callback, options);
+    }
+
+    removeScope(scope: object) {
+        this.eventTarget.removeScope(scope);
+    }
+
+    clearEventListeners(type?: string): void {
+        this.eventTarget.clearEventListeners(type);
     }
 
     connectedCallback() {
@@ -441,8 +524,10 @@ const beamStyle = StyleBlob(
     )
 );
 
-@CustomElement
-class BeamElement extends TypedHTMLElement(["yabs-beam"], HTMLElement)<TypedEventMap<string>> implements GameObject {
+function Beam() { return document.createElement("yabs-beam") as BeamElement; }
+
+@CustomElement("yabs-beam")
+class BeamElement extends HTMLElement implements GameObject {
     private subBeam: HTMLElement;
     x = 0;
 
@@ -451,10 +536,50 @@ class BeamElement extends TypedHTMLElement(["yabs-beam"], HTMLElement)<TypedEven
     private charging = false;
     private firing = false;
 
+    private readonly eventTarget: EventTargetMixin;
+
     constructor() {
         super();
 
+        this.eventTarget = new EventTargetMixin(
+            super.addEventListener.bind(this),
+            super.removeEventListener.bind(this),
+            super.dispatchEvent.bind(this)
+        );
+
         this.subBeam = Div(ClassList("subBeam"));
+    }
+
+    override addEventListener(type: string, callback: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void {
+        this.eventTarget.addEventListener(type, callback, options);
+    }
+
+    override removeEventListener(type: string, callback: EventListenerOrEventListenerObject) {
+        this.eventTarget.removeEventListener(type, callback);
+    }
+
+    override dispatchEvent(evt: Event): boolean {
+        return this.eventTarget.dispatchEvent(evt);
+    }
+
+    addBubbler(bubbler: EventTarget) {
+        this.eventTarget.addBubbler(bubbler);
+    }
+
+    removeBubbler(bubbler: EventTarget) {
+        this.eventTarget.removeBubbler(bubbler);
+    }
+
+    addScopedEventListener(scope: object, type: string, callback: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void {
+        this.eventTarget.addScopedEventListener(scope, type, callback, options);
+    }
+
+    removeScope(scope: object) {
+        this.eventTarget.removeScope(scope);
+    }
+
+    clearEventListeners(type?: string): void {
+        this.eventTarget.clearEventListeners(type);
     }
 
     connectedCallback() {
@@ -622,10 +747,6 @@ for (let i = 0; i < 88; ++i) {
     gn.connect(out);
     osc.push(gn);
 }
-
-function Face() { return FaceElement.create() as FaceElement; }
-function Cloud() { return CloudElement.create() as CloudElement; }
-function Beam() { return BeamElement.create() as BeamElement; }
 
 for (let i = 0; i < NUM_YABS; ++i) {
     fs.push(Face());

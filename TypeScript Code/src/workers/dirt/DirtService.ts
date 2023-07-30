@@ -1,5 +1,5 @@
 ﻿import { setContextSize } from "@juniper-lib/dom/canvas";
-import { TypedEvent, TypedEventTarget } from "@juniper-lib/events/TypedEventBase";
+import { TypedEvent, TypedEventTarget } from "@juniper-lib/events/TypedEventTarget";
 import { xy2i } from "@juniper-lib/tslib/math";
 import { singleton } from "@juniper-lib/tslib/singleton";
 

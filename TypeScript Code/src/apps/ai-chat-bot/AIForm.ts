@@ -2,7 +2,7 @@ import { arrayReplace, arraySortByKey } from "@juniper-lib/collections/arrays";
 import { ID, Max, Min, Selected, Step, Value } from "@juniper-lib/dom/attrs";
 import { onClick, onInput } from "@juniper-lib/dom/evts";
 import { ButtonDanger, ButtonPrimary, DD, HtmlRender, Img, InputRange, Meter, Option, Pre, Select, TextArea, elementClearChildren, elementGetText, elementSetText, getElements } from "@juniper-lib/dom/tags";
-import { TypedEvent, TypedEventTarget } from "@juniper-lib/events/TypedEventBase";
+import { TypedEvent, TypedEventTarget } from "@juniper-lib/events/TypedEventTarget";
 import { debounce } from "@juniper-lib/events/debounce";
 import { CultureDescriptions, LanguageDescriptions } from "@juniper-lib/tslib/Languages";
 import { PropertyList } from "@juniper-lib/widgets/PropertyList";
