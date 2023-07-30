@@ -1,18 +1,20 @@
 import { ClassList, Disabled, HtmlAttr, Src } from "@juniper-lib/dom/attrs";
 import { backgroundColor, border, borderColor, borderRadius, borderStyle, borderWidth, cursor, display, marginTop, position, px, right, rule, top, verticalAlign } from "@juniper-lib/dom/css";
 import { onClick, onPause, onPlaying } from "@juniper-lib/dom/evts";
-import { Audio, ButtonSmall, HtmlTag, Span, StyleBlob, elementSetText } from "@juniper-lib/dom/tags";
+import { Audio, ButtonSmall, HtmlRender, Span, StyleBlob, elementSetText } from "@juniper-lib/dom/tags";
 import { crossMark, pauseButton, playButton } from "@juniper-lib/emoji";
-import { TypedEvent, TypedHTMLElement } from "@juniper-lib/events/TypedEventBase";
+import { TypedEvent } from "@juniper-lib/events/TypedEventBase";
 import { blobToObjectURL } from "@juniper-lib/tslib/blobToObjectURL";
 import { ConversationLine } from "./ConversationClient";
+import { CustomElement, TypedHTMLElement } from "@juniper-lib/dom/TypedHTMLElement";
 
 export function CharacterLine(name: string, autoplay: boolean) {
-    return HtmlTag<"character-line", { "character-line": CharacterLineElement }>(
+    return HtmlRender(
+        CharacterLineElement.create(),
         "character-line",
         CharacterName(name),
         CharacterAutoPlay(autoplay)
-    );
+    ) as CharacterLineElement;
 }
 
 function CharacterName(value: string) { return new HtmlAttr("name", value, false, "character-line"); }
@@ -56,10 +58,10 @@ const sharedStyle = StyleBlob(
     )
 );
 
-export class CharacterLineElement extends TypedHTMLElement<{
+@CustomElement
+export class CharacterLineElement extends TypedHTMLElement(["character-line"], HTMLElement)<{
     deleted: CharacterLineDeletedEvent;
 }> {
-
     private _error: string = null;
     private _text: string = null;
     private _language: string = null;
@@ -187,8 +189,6 @@ export class CharacterLineElement extends TypedHTMLElement<{
         return `${start} --> ${end}\n<v ${this.name}>${this.text}\n`;
     }
 }
-
-customElements.define("character-line", CharacterLineElement);
 
 function splitTime(time: number, showHours: boolean) {
     const hours = Math.floor(time / 3600);

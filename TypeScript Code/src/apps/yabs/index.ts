@@ -1,5 +1,6 @@
 ﻿import { JuniperAudioContext } from "@juniper-lib/audio/context/JuniperAudioContext";
 import { arrayRandom } from "@juniper-lib/collections/arrays";
+import { CustomElement, ITypedHTMLElement, TypedHTMLElement } from "@juniper-lib/dom/TypedHTMLElement";
 import { ClassList, ID } from "@juniper-lib/dom/attrs";
 import {
     backgroundColor,
@@ -10,17 +11,17 @@ import {
     px, rotate, rule, scale, textTransform, top, transform, width, zIndex
 } from "@juniper-lib/dom/css";
 import { onClick, onMouseOut, onTouchStart } from "@juniper-lib/dom/evts";
-import { Button, Div, HtmlRender, HtmlTag, P, Span, StyleBlob, getElement } from "@juniper-lib/dom/tags";
-import { TypedEventMap, TypedHTMLElement } from "@juniper-lib/events/TypedEventBase";
+import { Button, Div, HtmlRender, P, Span, StyleBlob, getElement } from "@juniper-lib/dom/tags";
+import { TypedEventMap } from "@juniper-lib/events/TypedEventBase";
 
 import "./styles.css";
 
 document.title = "No More Jabber Yabs: The Game";
 
-abstract class GameObject extends TypedHTMLElement<TypedEventMap<string>> {
-    abstract update(dt: number): void;
-    abstract render(): void;
-    abstract get x(): number;
+interface GameObject extends ITypedHTMLElement {
+    update(dt: number): void;
+    render(): void;
+    get x(): number;
 }
 
 function PointDisplay() {
@@ -211,7 +212,8 @@ const faceStyle = StyleBlob(
     )
 );
 
-class FaceElement extends GameObject {
+@CustomElement
+class FaceElement extends TypedHTMLElement(["yabs-face"], HTMLElement)<TypedEventMap<string>> implements GameObject {
     private element: HTMLElement;
     private boop: HTMLElement;
     private shadow: HTMLElement;
@@ -354,8 +356,6 @@ class FaceElement extends GameObject {
     }
 }
 
-customElements.define("yab-face", FaceElement);
-
 const cloudStyle = StyleBlob(
     rule(":host, .cloud-bit",
         position("absolute")
@@ -372,7 +372,8 @@ const cloudStyle = StyleBlob(
     )
 );
 
-class CloudElement extends GameObject {
+@CustomElement
+class CloudElement extends TypedHTMLElement(["yabs-cloud"], HTMLElement)<TypedEventMap<string>> implements GameObject {
     x: number;
     private y: number;
     private dx: number;
@@ -418,8 +419,6 @@ class CloudElement extends GameObject {
     }
 }
 
-customElements.define("yab-cloud", CloudElement);
-
 const beamStyle = StyleBlob(
     rule(":host, .subBeam",
         position("absolute"),
@@ -442,7 +441,8 @@ const beamStyle = StyleBlob(
     )
 );
 
-class BeamElement extends GameObject {
+@CustomElement
+class BeamElement extends TypedHTMLElement(["yabs-beam"], HTMLElement)<TypedEventMap<string>> implements GameObject {
     private subBeam: HTMLElement;
     x = 0;
 
@@ -610,8 +610,6 @@ class BeamElement extends GameObject {
     }
 }
 
-customElements.define("yab-beam", BeamElement);
-
 
 for (let i = 0; i < 88; ++i) {
     const gn = audio.createGain();
@@ -625,17 +623,9 @@ for (let i = 0; i < 88; ++i) {
     osc.push(gn);
 }
 
-type YabTags = {
-    "yab-face": FaceElement;
-    "yab-cloud": CloudElement;
-    "yab-beam": BeamElement;
-}
-
-function YabTag<T extends keyof YabTags>(name: T) { return HtmlTag<T, YabTags>(name); }
-
-function Face() { return YabTag("yab-face"); }
-function Cloud() { return YabTag("yab-cloud"); }
-function Beam() { return YabTag("yab-beam"); }
+function Face() { return FaceElement.create() as FaceElement; }
+function Cloud() { return CloudElement.create() as CloudElement; }
+function Beam() { return BeamElement.create() as BeamElement; }
 
 for (let i = 0; i < NUM_YABS; ++i) {
     fs.push(Face());
@@ -651,12 +641,12 @@ fs.push(beam);
 document.body.append(...fs);
 
 
-document.addEventListener("mousedown", beam.start.bind(beam), false);
+document.addEventListener("mousedown", (evt) => beam.start(evt), false);
 document.addEventListener("mousemove", (evt) => {
     beam.move(evt);
     evt.preventDefault();
 }, false);
-document.addEventListener("mouseup", beam.end.bind(beam), false);
+document.addEventListener("mouseup", () => beam.end(), false);
 document.addEventListener("touchstart", function (evt) {
     if (evt.touches.length === 1) {
         beam.start(evt.touches[0]);

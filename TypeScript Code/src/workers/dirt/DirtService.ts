@@ -1,5 +1,5 @@
 ﻿import { setContextSize } from "@juniper-lib/dom/canvas";
-import { TypedEvent, TypedEventBase } from "@juniper-lib/events/TypedEventBase";
+import { TypedEvent, TypedEventTarget } from "@juniper-lib/events/TypedEventBase";
 import { xy2i } from "@juniper-lib/tslib/math";
 import { singleton } from "@juniper-lib/tslib/singleton";
 
@@ -40,13 +40,13 @@ export type DirtEventMap = {
     "update": DirtServiceUpdateEvent;
 };
 
-export interface IDirtService extends TypedEventBase<DirtEventMap> {
+export interface IDirtService extends TypedEventTarget<DirtEventMap> {
     checkPointer(id: number | string, x: number, y: number, type: string): void;
     checkPointerUV(id: number | string, x: number, y: number, type: string): void;
 }
 
 export class DirtService
-    extends TypedEventBase<DirtEventMap>
+    extends TypedEventTarget<DirtEventMap>
     implements IDirtService {
     private readonly sub: OffscreenCanvas;
     private readonly subg: OffscreenCanvasRenderingContext2D;

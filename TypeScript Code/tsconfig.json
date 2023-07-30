@@ -25,7 +25,7 @@
     "downlevelIteration": true,
     "importHelpers": true,
     "incremental": true,
-    "experimentalDecorators": false,
+    "experimentalDecorators": true,
     "removeComments": false,
     "resolveJsonModule": true,
     "skipDefaultLibCheck": true,
@@ -39,7 +39,7 @@
     "allowUnusedLabels": false,
 
     "noEmit": true,
-    "noEmitHelpers": true,
+    "noEmitHelpers": false,
     "noEmitOnError": false,
     "noErrorTruncation": true,
     "noFallthroughCasesInSwitch": true,
