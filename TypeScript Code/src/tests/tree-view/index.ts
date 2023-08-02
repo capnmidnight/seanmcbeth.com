@@ -1,5 +1,6 @@
-import { height, left, position, top, width } from "@juniper-lib/dom/css";
-import { HtmlRender } from "@juniper-lib/dom/tags";
+import { ID, Query } from "@juniper-lib/dom/attrs";
+import { height, left, position, right, top, width } from "@juniper-lib/dom/css";
+import { Main, Nav } from "@juniper-lib/dom/tags";
 import { identity } from "@juniper-lib/tslib/identity";
 import { TreeView } from "@juniper-lib/widgets/TreeView";
 
@@ -23,21 +24,15 @@ const tv = new TreeView<number, "even" | "odd">({
     getOrder: v => parseFloat(v.toString()),
     canHaveChildren: node => node.isRoot || parseFloat(node.value.toString()) === node.value
 },
-height("100vh"),
-width("100vw"),
-position("absolute"),
-top(0),
-left(0)
+    height("100vh"),
+    width("100vw"),
+    position("absolute"),
+    top(0),
+    left(0)
 );
 
-HtmlRender("main",
-    tv
-);
+Nav(ID("menu"), right(0));
+
+Main(Query("main"), tv);
 
 tv.values = values;
-
-let counter = 0;
-setInterval(() => {
-    counter = (counter + 0x7e) % 0xff;
-    tv.selectedValue = counter;
-}, 1000);
