@@ -1,4 +1,4 @@
-import { arrayReplace, arraySortByKey } from "@juniper-lib/collections/arrays";
+import { arrayReplace, compareBy } from "@juniper-lib/collections/arrays";
 import { ID, Max, Min, Selected, Step, Value } from "@juniper-lib/dom/attrs";
 import { onClick, onInput } from "@juniper-lib/dom/evts";
 import { ButtonDanger, ButtonPrimary, DD, HtmlRender, Img, InputRange, Meter, Option, Pre, Select, TextArea, elementClearChildren, elementGetText, elementSetText, getElements } from "@juniper-lib/dom/tags";
@@ -30,6 +30,8 @@ export type AIFormEvents =  {
 
 TabPanel.find();
 PropertyList.find();
+
+const elementComparer = compareBy<HTMLElement>("ascending", o => o.innerText);
 
 export class AIForm extends TypedEventTarget<AIFormEvents> {
 
@@ -128,8 +130,7 @@ export class AIForm extends TypedEventTarget<AIFormEvents> {
         const displayCulture = (usePrefix: boolean, langSel: HTMLSelectElement, cultSel: HTMLSelectElement, defaultCulture?: string) => {
             const cultureLookup = this.languageLookup.get(langSel.value as Language);
             elementClearChildren(cultSel);
-            HtmlRender(cultSel, ...arraySortByKey(Array.from(cultureLookup.keys())
-                .sort()
+            HtmlRender(cultSel, ...Array.from(cultureLookup.keys())
                 .map((v, i) => {
                     const culture = CultureDescriptions.get(v as Culture);
                     return Option(
@@ -138,7 +139,7 @@ export class AIForm extends TypedEventTarget<AIFormEvents> {
                         Value(v),
                         this.getPrefix(usePrefix, voice => voice.locale === v) + (culture && culture.description || v)
                     );
-                }), o => o.innerText));
+                }).sort(elementComparer));
         };
 
         this.onInLanguageSelected = (usePrefix: boolean, defaultCulture?: string) => {
@@ -366,8 +367,7 @@ export class AIForm extends TypedEventTarget<AIFormEvents> {
         const displayLanguages = (usePrefix: boolean, sel: HTMLSelectElement) => {
             elementClearChildren(sel);
             HtmlRender(sel,
-                ...arraySortByKey(Array.from(this.languageLookup.keys())
-                    .sort()
+                ...Array.from(this.languageLookup.keys())
                     .map(v => {
                         const lang = LanguageDescriptions.get(v as Language);
                         return Option(
@@ -375,7 +375,7 @@ export class AIForm extends TypedEventTarget<AIFormEvents> {
                             Selected(v === "en"),
                             this.getPrefix(usePrefix, voice => voice.locale.startsWith(v + "-")) + (lang && lang.description || v)
                         );
-                    }), o => o.innerText));
+                    }).sort(elementComparer));
         };
 
         displayLanguages(false, this.inLanguageSelector);

@@ -1,10 +1,10 @@
+import { arrayInsertAt, arrayReplace, compareBy } from "@juniper-lib/collections/arrays";
 import { IFetcher } from "@juniper-lib/fetcher/IFetcher";
 import { IResponse } from "@juniper-lib/fetcher/IResponse";
 import { translateResponse } from "@juniper-lib/fetcher/translateResponse";
 import { unwrapResponse } from "@juniper-lib/fetcher/unwrapResponse";
 import { Application_JsonUTF8 } from "@juniper-lib/mediatypes";
 import * as allAudioTypes from "@juniper-lib/mediatypes/audio";
-import { arrayInsertAt, arrayReplace, arraySortByKeyInPlace } from "@juniper-lib/collections/arrays";
 
 export interface Voice {
     gender: 0 | 1 | 2;
@@ -52,6 +52,8 @@ export interface Conversation {
     languageName: string;
 }
 
+const voiceSorter = compareBy<Voice>(v => v.name);
+
 export class ConversationClient {
     private readonly _voices = new Array<Voice>();
     private readonly voicesByName = new Map<string, Voice>();
@@ -75,7 +77,7 @@ export class ConversationClient {
             this.voicesByName.set(voice.name, voice);
         }
 
-        arraySortByKeyInPlace(this._voices, v => v.name);
+        this._voices.sort(voiceSorter);
         return this._voices;
     }
 

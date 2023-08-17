@@ -10,7 +10,6 @@
     --box-bg-color: #a8b2b8;
     --box-shadow-color: #949ca1;
     --text-shadow-color: #949ca1;
-    font-size: clamp(1em, 1.3vw, 1.3em);
 }
 
 
