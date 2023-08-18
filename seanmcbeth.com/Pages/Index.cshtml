@@ -72,14 +72,14 @@
 
     <p>
         I'm a cross-disciplinary Project Manager/Product Developer/Technical Lead, with 20 years of professional experience. I've successfully
-        bootstrapped and deployed multiple <abbr>VR</abbr> and <abbr>AR</abbr> projects in WebXR and Unity3D over 
-        the last 8 years. 
+        bootstrapped and deployed multiple <abbr>VR</abbr> and <abbr>AR</abbr> projects in WebXR and Unity3D over
+        the last 8 years.
     </p>
 
     <p>
-        I'm interested in projects in VR, AR, audio, and/or AI, especially in the productivity, training, and education markets. 
-        I live in Alexandria, Virginia, with my wife and 2 kids. 
-        I'm open to 100% remote projects anywhere, or hybrid work in the Arlington/Alexandria area. 
+        I'm interested in projects in VR, AR, audio, and/or AI, especially in the productivity, training, and education markets.
+        I live in Alexandria, Virginia, with my wife and 2 kids.
+        I'm open to 100% remote projects anywhere, or hybrid work in the Arlington/Alexandria area.
     </p>
 
     <p>
@@ -97,32 +97,32 @@
 
     <p>Here are some of my most recent projects.</p>
 
-    @foreach(var (name, title, shortTitle, href, screenshot, description) in new[]
+    @foreach (var (name, title, shortTitle, href, screenshot, description) in new[]
     {
-        ("DLS VR", "Diplomatic Language Services Virtual Reality", "DLS VR Landing Page", "/dlsvr", "/img/dlsvr/screen1.jpeg",
-            @"DLS VR is a multiuser, multimodal, Web-based VR application that includes a full, online editor, designed for
-            subject matter experts to be able to rapidly create new immersion scenarios."),
-        ("AI Chat Bot", "AI Chat Bot", "A speech-based conversation with AI", "/apps/ai-chat-bot", "/img/ai-chat-bot.jpeg",
-            @"The AI Chat Bot uses Speech-to-Text technology and some clever prompting of an OpenAI LLM to generate characterized responses,
-            which are then piped out to a Text-to-Speech engine, with lip-sync."),
-        ("Juniper", "Juniper", "A forest demo built with Juniper", "/juniper", "/img/juniper.jpeg",
-            @"Juniper is an .NET 7 and TypeScript framework for building WebXR applications. It is an evolution of my previous project, Primrose."),
-        ("Calla", "Calla", "Spatialized audio chat", "https://github.com/capnmidnight/Calla", "https://raw.githubusercontent.com/capnmidnight/Calla/master/repo-preview.jpg",
-            @"Calla was a fun experiment in audio-only teleconferencing. The 2D game world provided a space for ""Spatialized Audio Chat"" to give users a 
-            natural way to have sidebar conversations and congregate in the space. Much of the audio graph manipulation code ended up in Juniper."),
-        ("Primrose", "Primrose", "Primrose text editor", "/primrose", "/img/primrose.jpeg",
-            @"Primrose was the world's first JavaScript framework for developing WebXR applications, back when WebXR was still called ""WebVR"".
-            My first release of Primrose was sometime in 2014, almost a full year before Mozilla's A-Frame."),
-        ("Woodturning", "Woodturning", "Wood working on a lathe", "/turning", "/turning/cover.jpg", 
-            @"Some pictures of wooden cups and bowls I've made with my woodturning lathe.")
-     })
+    ("DLS VR", "Diplomatic Language Services Virtual Reality", "DLS VR Landing Page", "/dlsvr", "/img/dlsvr/screen1.jpeg",
+    @"DLS VR is a multiuser, multimodal, Web-based VR application that includes a full, online editor, designed for
+    subject matter experts to be able to rapidly create new immersion scenarios."),
+    ("AI Chat Bot", "AI Chat Bot", "A speech-based conversation with AI", "/apps/ai-chat-bot", "/img/ai-chat-bot.jpeg",
+    @"The AI Chat Bot uses Speech-to-Text technology and some clever prompting of an OpenAI LLM to generate characterized responses,
+    which are then piped out to a Text-to-Speech engine, with lip-sync."),
+    ("Juniper", "Juniper", "A forest demo built with Juniper", "/juniper", "/img/juniper.jpeg",
+    @"Juniper is an .NET 7 and TypeScript framework for building WebXR applications. It is an evolution of my previous project, Primrose."),
+    ("Calla", "Calla", "Spatialized audio chat", "https://github.com/capnmidnight/Calla", "https://raw.githubusercontent.com/capnmidnight/Calla/master/repo-preview.jpg",
+    @"Calla was a fun experiment in audio-only teleconferencing. The 2D game world provided a space for ""Spatialized Audio Chat"" to give users a
+    natural way to have sidebar conversations and congregate in the space. Much of the audio graph manipulation code ended up in Juniper."),
+    ("Primrose", "Primrose", "Primrose text editor", "/primrose", "/img/primrose.jpeg",
+    @"Primrose was the world's first JavaScript framework for developing WebXR applications, back when WebXR was still called ""WebVR"".
+    My first release of Primrose was sometime in 2014, almost a full year before Mozilla's A-Frame."),
+    ("Woodturning", "Woodturning", "Wood working on a lathe", "/turning", "/turning/cover.jpg",
+    @"Some pictures of wooden cups and bowls I've made with my woodturning lathe.")
+    })
     {
         <figure>
             <h3><a href="@href">@title</a></h3>
             <a href="@href"><img src="@screenshot" alt="Screenshot of @name" title="@shortTitle" /></a>
             <figcaption>@description</figcaption>
             <a href="@href">Read more&hellip;</a>
-        </figure>        
+        </figure>
     }
 </section>
 

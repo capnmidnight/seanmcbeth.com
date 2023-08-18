@@ -1,7 +1,7 @@
 @page "{name}"
 @model TestModel
 @{
-    ViewData["Title"] = Model.FullName;
+    ViewData["Title"] = Model.FullName ?? "Tests";
     ViewData["SubURL"] = "app/" + Model.Name;
     ViewData["Description"] = Model.Description;
     ViewData["Screenshot"] = Model.ScreenshotPath;

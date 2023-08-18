@@ -8,30 +8,40 @@
     --main-link-color: #0a54a6;
     --main-link-visited-color: #4e6680;
     --box-bg-color: #a8b2b8;
-    --box-shadow-color: #949ca1;
+    --box-shadow-color: #7c8489;
     --text-shadow-color: #949ca1;
+    --bg-opacity: .5;
 }
 
+.background-text {
+    filter: invert();
+}
 
 @media (prefers-color-scheme: dark) {
     :root {
         --main-bg-color: #0b0d0f;
-        --main-fg-color: #97d5f2;
-        --main-link-color: #de9356;
-        --main-link-visited-color: #ae8e75;
+        --main-fg-color: #88baf0;
+        --main-link-color: #1a55bd;
+        --main-link-visited-color: #0e2a77;
         --box-bg-color: #1c1f22;
-        --box-shadow-color: #949ca14d;
+        --box-shadow-color: #424f582e;
         --text-shadow-color: #949ca1;
+        --bg-opacity: .15;
     }
 
     .icon {
         filter: invert();
     }
+
+
+    .background-text {
+        filter: unset;
+    }
 }
 
 html,
-body {
-    position: absolute;
+body,
+.scroll-body {
     margin: 0;
     padding: 0;
     border: 0;
@@ -39,9 +49,39 @@ body {
     height: 100%;
 }
 
+html,
+body {
+    overflow: hidden;
+}
+
 body {
     font-family: 'Noto Sans', -apple-system, '.SFNSText-Regular', 'San Francisco', 'Roboto', 'Segoe UI', 'Helvetica Neue', 'Lucida Grande', sans-serif;
-    line-height: 2;
+    line-height: 1.5;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    grid-template-columns: auto;
+}
+
+header, .scroll-body, footer {
+    grid-column: 1 / -1;
+}
+
+header {
+    grid-row: 1 / 2;
+}
+
+.scroll-body {
+    grid-row: 2 / 3;
+    overflow-y: auto;
+}
+
+footer { 
+    grid-row: -2 / -1;
+}
+
+main {
+    text-shadow: 0 0 2px var(--main-bg-color);
+    min-height: 100%;
 }
 
 figure {
@@ -109,10 +149,6 @@ a[href]:hover {
 a:visited,
 a:focus {
     color: var(--main-link-visited-color);
-}
-
-main, footer {
-    padding: 3em;
 }
 
 h1 {
@@ -185,13 +221,8 @@ h2 {
 }
 
 #menu {
-    text-align: center;
-    position: fixed;
-    display: block;
-    width: 100%;
     font-family: monospace;
     border-bottom: solid 2px var(--main-fg-color);
-    z-index: 3;
 }
 
     #menu ul {
@@ -214,6 +245,18 @@ h2 {
         }
 
 #portrait {
+    width: 100%;
+}
+
+.background-text {
+    line-height: 1em;
+    position: absolute;
+    z-index: -7;
+    opacity: var(--bg-opacity);
+    font-size: 1.25vw;
+    left: 0;
+    top: 0;
+    overflow: hidden;
     width: 100%;
 }
 
@@ -280,18 +323,17 @@ h2 {
 
         main {
             max-width: 1000px;
-            margin: auto;
-        }
-
-        #menu {
-            display: inline-block;
-            width: initial;
+            margin: 0 auto;
         }
 
         #portrait {
             max-width: 320px;
             float: right;
             margin-left: 2.5em;
+        }
+
+        #menu {
+            display: inline-block;
         }
 
         #menu ul li a {
