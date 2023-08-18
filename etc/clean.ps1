@@ -4,6 +4,6 @@ if(Test-Path ..\deploy\ -PathType Container) {
     rm -Force -Recurse ..\deploy\
 }
 
-if(Test-Path "..\Personal Site\wwwroot\js" -PathType Container) {
-    rm -Force -Recurse "..\Personal Site\wwwroot\js"
+if(Test-Path "..\seanmcbeth.com\wwwroot\js" -PathType Container) {
+    rm -Force -Recurse "..\seanmcbeth.com\wwwroot\js"
 }

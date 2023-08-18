@@ -43,8 +43,16 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{549D12B3-54F6-4AF5-AC2D-98F7F5B4D04B}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
+		etc\build.ps1 = etc\build.ps1
+		etc\clean.ps1 = etc\clean.ps1
+		etc\deploy.md = etc\deploy.md
+		etc\deploy.ps1 = etc\deploy.ps1
+		etc\deploy.sh = etc\deploy.sh
 		LICENSE.md = LICENSE.md
+		etc\publish.ps1 = etc\publish.ps1
+		etc\server.ps1 = etc\server.ps1
 		tool.ps1 = tool.ps1
+		etc\Web.config = etc\Web.config
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Primrose", "Primrose", "{9B97CCB2-8C6A-4307-B208-A9A863B6329C}"
