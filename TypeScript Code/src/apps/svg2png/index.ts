@@ -1,13 +1,14 @@
-import { ID, Query, Src } from "@juniper-lib/dom/attrs";
+import { Accept, ID, Query, Src, Target } from "@juniper-lib/dom/attrs";
 import { canvasToBlob, setContextSize } from "@juniper-lib/dom/canvas";
 import { onClick, onDragOver, onDrop, onInput } from "@juniper-lib/dom/evts";
-import { Button, Canvas, Form, Img, InputNumber, InputText, Span, TextArea, buttonSetEnabled } from "@juniper-lib/dom/tags";
+import { A, Button, Canvas, Form, Img, InputFile, InputNumber, InputText, Span, TextArea, buttonSetEnabled } from "@juniper-lib/dom/tags";
 import { once } from "@juniper-lib/events/once";
 import { Image_Png, Image_SvgXml, MediaType } from "@juniper-lib/mediatypes";
 import { centimeters2Inches, inches2Centimeters } from "@juniper-lib/tslib/units/length";
 import { PropertyList } from "@juniper-lib/widgets/PropertyList";
 import { LabelField, SelectList, SelectedValue, Values } from "@juniper-lib/widgets/SelectList";
 import "./index.css";
+import { identity } from "@juniper-lib/tslib/identity";
 
 type UnitsSystem = "metric" | "us-customary";
 const unitsLabels = new Map<UnitsSystem, string>([
@@ -105,6 +106,72 @@ const units = SelectList<UnitsSystem>(
 
 let image: HTMLImageElement = null;
 
+if (!("showOpenFilePicker" in globalThis)) {
+    const fileInput = InputFile(
+        Accept(Image_SvgXml.value)
+    );
+
+    const anchor = A(Target("_blank"));
+
+    Object.assign(globalThis, {
+        async showOpenFilePicker(options?: OpenFilePickerOptions) {
+            fileInput.multiple = options && options.multiple;
+            if (options && options.types) {
+                fileInput.accept = options
+                    .types
+                    .filter(v => v.accept)
+                    .flatMap(v => Object.keys(v.accept))
+                    .join(",");
+            }
+            const task = once(fileInput, "input", "cancel")
+                .catch(() => {
+                    throw new DOMException("The user aborted a request.");
+                });
+            fileInput.click();
+
+            await task;
+
+            return Array.from(fileInput.files)
+                .map(file => {
+                    return {
+                        getFile() {
+                            return Promise.resolve(file);
+                        }
+                    };
+                })
+        },
+
+        async showSaveFilePicker(options?: SaveFilePickerOptions) {
+            anchor.download = options && options.suggestedName || null;
+            let blobParts = new Array<BlobPart>();
+            return {
+                async createWritable() {
+                    return {
+                        async write(blob: Blob) {
+                            blobParts.push(blob);
+                            return Promise.resolve();
+                        },
+                        async close() {
+                            const types = options
+                                && options.types
+                                && options.types.filter(v => v.accept)
+                                    .flatMap(v => Object.keys(v.accept))
+                                    .filter(identity);
+                            const type = types && types.length > 0 && types[0] || null;
+                            const blob = new Blob(blobParts, { type });
+                            const url = URL.createObjectURL(blob);
+                            anchor.href = url;
+                            const task = once(anchor, "click");
+                            anchor.click();
+                            await task;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
 Button(
     ID("openButton"),
     onClick(async () => {
@@ -198,7 +265,7 @@ async function setImage(fileOrString: File | string) {
         heightInput.valueAsNumber = sigfig(svg.height.baseVal.valueInSpecifiedUnits);
     }
 
-    if(!image) {
+    if (!image) {
         nameInput.value = null;
         resolutionInput.value = null;
         widthInput.value = null;
