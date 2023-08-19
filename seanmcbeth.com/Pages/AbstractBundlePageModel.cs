@@ -67,7 +67,7 @@ namespace SeanMcBeth.Pages
 
         private DirectoryInfo BundleRoot => BundlesRoot.CD(Name);
 
-        private string BundlePathRoot => string.Join('/', "js", "app", Name);
+        private string BundlePathRoot => string.Join('/', "js", BundleTypeName, Name);
 
         private string? MapFile(string name) =>
             BundleRoot.Touch(name).Exists
@@ -75,14 +75,15 @@ namespace SeanMcBeth.Pages
                 : null;
 
         public string? ScreenshotPath => MapFile("screenshot.jpg");
-        private string? LogoPath => MapFile("screenshot.jpg");
-        private string? LogoSmallPath => MapFile("screenshot.jpg");
+        private string? LogoPath => MapFile("logo.png");
+        public string? LogoSmallPath => MapFile("logo_small.png");
 
         public string? FullName => BundleRoot.Touch("name.txt").MaybeReadText();
         public string? Description => BundleRoot.Touch("description.txt").MaybeReadText();
         public bool IncludeThreeJS => BundleRoot.Touch("includeThreeJS.bool").Exists;
         public bool IncludeStylesheet => BundleRoot.Touch("index.css").Exists;
         public bool HideMenu => BundleRoot.Touch("hideMenu.bool").Exists;
+        public bool UseBackdrop => BundleRoot.Touch("useBackdrop.bool").Exists;
         public string? HTMLStub => BundleRoot.Touch("index.html").MaybeReadText();
 
         public string? ManifestPath =>
@@ -125,7 +126,7 @@ namespace SeanMcBeth.Pages
                     Description = Description,
                     Display = "standalone",
                     Orientation = "any",
-                    OVRPackageName = $"com.seanmcbeth.app.{Name}",
+                    OVRPackageName = $"com.seanmcbeth.{BundleTypeName[..^1]}.{Name}",
                     Language = "en_US"
                 };
 

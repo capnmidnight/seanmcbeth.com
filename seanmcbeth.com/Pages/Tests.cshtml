@@ -2,10 +2,12 @@
 @model TestModel
 @{
     ViewData["Title"] = Model.FullName ?? "Tests";
-    ViewData["SubURL"] = "app/" + Model.Name;
+    ViewData["SubURL"] = "tests/" + Model.Name;
     ViewData["Description"] = Model.Description;
     ViewData["Screenshot"] = Model.ScreenshotPath;
+    ViewData["UseBackdrop"] = Model.UseBackdrop;
     ViewData["HideMenu"] = Model.HideMenu;
+    ViewData["FavIcon"] = Model.LogoSmallPath;
 }
 
 @section Menu {
@@ -27,14 +29,6 @@
 }
 
 @section Head {
-    @if (@Model.ScreenshotPath is not null)
-    {
-        <style>
-            body {
-                background: fixed center/cover url(@Model.ScreenshotPath);
-            }
-        </style>
-    }
     @if (Model.ManifestPath is not null)
     {
         <link rel="manifest" href="@Model.ManifestPath">

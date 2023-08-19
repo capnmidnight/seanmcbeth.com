@@ -6,9 +6,11 @@
     var description = ViewData["Description"] as string;
     var screenshot = ViewData["Screenshot"] as string;
     var showMenu = (ViewData["HideMenu"] as bool?) != true;
+    var useBackdrop = (ViewData["UseBackdrop"] as bool?) == true;
     var keywords = ViewData["Keywords"] as string;
     var version = config.GetValue<string>("Version");
     var twitterCardType = screenshot is null ? "summary" : "summary_large_image";
+    var favicon = (ViewData["FavIcon"] as string) ?? "/favicon.png";
 
     if (screenshot is not null)
     {
@@ -55,9 +57,18 @@
             <meta name="twitter:image:alt" content="@description">
             <meta property="og:image:alt" content="@description">
         }
+
+        @if (useBackdrop)
+        {
+            <style>
+                body {
+                    background: fixed center/cover url(@screenshot);
+                }
+            </style>
+        }
     }
 
-    <link rel="icon" type="image/png" href="~/favicon.png" />
+    <link rel="icon" type="image/png" href="@favicon" />
     <link rel="stylesheet" type="text/css" href="~/css/index.css">
 
     @RenderSection("Head", required: false)
@@ -137,6 +148,10 @@ ooo:::::::::::::::::::::::::::...:OOOO8OOoO88OOOOOOOooooo::::::ooooooooooooooooo
                 </ul>
             </nav>
         </header>
+    }
+    else
+    {
+        IgnoreSection("Menu");
     }
 
     <div class="scroll-body">
