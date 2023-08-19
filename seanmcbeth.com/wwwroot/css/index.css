@@ -37,6 +37,10 @@
     .background-text {
         filter: unset;
     }
+
+    input, select, textarea {
+        color-scheme: dark;
+    }
 }
 
 html,
@@ -75,7 +79,7 @@ header {
     overflow-y: auto;
 }
 
-footer { 
+footer {
     grid-row: -2 / -1;
 }
 
@@ -142,9 +146,9 @@ a[href] {
     text-decoration: none;
 }
 
-a[href]:hover {
-    text-decoration: underline;
-}
+    a[href]:hover {
+        text-decoration: underline;
+    }
 
 a:visited,
 a:focus {
@@ -336,10 +340,10 @@ h2 {
             display: inline-block;
         }
 
-        #menu ul li a {
-            display: inline-block;
-            text-decoration: none;
-        }
+            #menu ul li a {
+                display: inline-block;
+                text-decoration: none;
+            }
     }
 }
 

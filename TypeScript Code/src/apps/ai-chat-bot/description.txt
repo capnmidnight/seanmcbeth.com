@@ -1,0 +1,1 @@
+﻿A basic AI chat-bot experiment using Speech-to-Text technology and some clever prompting of an OpenAI LLM to generate characterized responses, which are then piped out to a Text-to-Speech engine, with a lip-sync visualization.

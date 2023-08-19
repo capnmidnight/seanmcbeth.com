@@ -1,0 +1,91 @@
+<form>
+    <dl class="properties">
+        <dt>File</dt>
+        <dd class="controls">
+            <button type="button"
+                    id="openButton"
+                    title="Open file"
+                    class="btn btn-sm btn-primary">
+                Open
+            </button>
+
+            <button type="button"
+                    id="exportPNGButton"
+                    title="Export SVG image to PNG"
+                    class="btn btn-sm btn-outline-primary"
+                    disabled>
+                Export PNG
+            </button>
+
+            <button type="reset"
+                    id="resetButton"
+                    title="Clear image to defaults"
+                    class="btn btn-sm btn-outline-danger"
+                    disabled>
+                Reset
+            </button>
+        </dd>
+
+        <dt><label for="nameInput">Name</label></dt>
+        <dd>
+            <input type="text"
+                   id="nameInput"
+                   title="Edit file name"
+                   placeholder="File name"
+                   disabled />
+        </dd>
+
+        <dt><label for="unitsSelect">Units</label></dt>
+        <dd>
+            <select is="select-list"
+                    id="unitsSelect"
+                    title="Select system of units"
+                    disabled>
+            </select>
+        </dd>
+
+        <dt><label for="resolutionInput">Resolution (<span class="unit-specifier">PPI</span>)</label></dt>
+        <dd>
+            <input type="number"
+                   id="resolutionInput"
+                   min="1"
+                   max="1000"
+                   title="Image resolution in pixels per inch"
+                   placeholder="PPI"
+                   disabled />
+        </dd>
+
+        <dt><label for="widthInput">Width (<span class="unit-specifier">in</span>)</label></dt>
+        <dd>
+            <input type="number"
+                   id="widthInput"
+                   min="0"
+                   max="120"
+                   title="Image width in inches"
+                   placeholder="in"
+                   disabled />
+        </dd>
+
+        <dt>
+            <label for="heightInput">Height (<span class="unit-specifier">in</span>)</label>
+        </dt>
+        <dd>
+            <input type="number"
+                   id="heightInput"
+                   min="0"
+                   max="120"
+                   title="Image height in inches"
+                   placeholder="in"
+                   disabled />
+        </dd>
+    </dl>
+
+    <div id="source">
+        <label for="sourceEditor">Source editor</label>
+        <textarea id="sourceEditor"
+                  title="Edit SVG source"
+                  placeholder="Open an SVG file or copy/paste SVG source..."></textarea>
+    </div>
+</form>
+
+<canvas></canvas>

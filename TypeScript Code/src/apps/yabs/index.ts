@@ -14,7 +14,7 @@ import { onClick, onMouseOut, onTouchStart } from "@juniper-lib/dom/evts";
 import { Button, Div, HtmlRender, P, Span, StyleBlob, getElement } from "@juniper-lib/dom/tags";
 import { EventTargetMixin } from "@juniper-lib/events/EventTarget";
 
-import "./styles.css";
+import "./index.css";
 
 document.title = "No More Jabber Yabs: The Game";
 
