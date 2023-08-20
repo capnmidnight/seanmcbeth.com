@@ -11,17 +11,8 @@
 
     <pre id="status">Loading...</pre>
 
-    <div class="tabs">
-        <button type="button" class="btn btn-sm" data-panelname="about" disabled>About</button>
-        <button type="button" class="btn btn-sm" data-panelname="usage">Usage</button>
-        <button type="button" class="btn btn-sm" data-panelname="input">Input</button>
-        <button type="button" class="btn btn-sm" data-panelname="model">Model</button>
-        <button type="button" class="btn btn-sm" data-panelname="output">Output</button>
-        <button type="button" class="btn btn-sm" data-panelname="examples">Examples</button>
-    </div>
-
-    <div class="panels">
-        <div id="about">
+    <tab-panel>
+        <div data-tab-name="About">
             <p>
                 This basic AI chat-bot experiment uses Speech-to-Text technology
                 and some clever prompting of an OpenAI LLM to generate characterized
@@ -36,7 +27,7 @@
             </p>
         </div>
 
-        <div id="usage" style="display: none;">
+        <div data-tab-name="Usage">
             <p>
                 Grant the <em>Microphone Permission</em> when the page loads. Without it, there
                 is no other way to interface with the AI.
@@ -79,7 +70,7 @@
             </p>
         </div>
 
-        <div id="input" style="display: none;">
+        <div data-tab-name="Input">
             <dl class="properties">
                 <dt><label for="inMic">Microphone</label></dt>
                 <dd><select id="inMic"></select></dd>
@@ -98,7 +89,7 @@
             </dl>
         </div>
 
-        <div id="model" style="display: none">
+        <div data-tab-name="Model">
             <dl class="properties">
                 <dt><label for="outModel">Model</label></dt>
                 <dd><select id="outModel"></select></dd>
@@ -108,7 +99,7 @@
             </dl>
         </div>
 
-        <div id="output" style="display: none;">
+        <div data-tab-name="Output">
             <dl class="properties">
                 <dt><label for="outLanguage">Language</label></dt>
                 <dd><select id="outLanguage"></select></dd>
@@ -133,7 +124,7 @@
             </dl>
         </div>
 
-        <div id="examples" style="display: none;">
+        <div data-tab-name="Examples">
             <div>
                 <iframe scrolling="no"
                         frameborder="0"
@@ -187,5 +178,5 @@
                 </div>
             </div>
         </div>
-    </div>
+    </tab-panel>
 </div>

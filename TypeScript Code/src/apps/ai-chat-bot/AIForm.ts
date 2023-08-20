@@ -6,7 +6,7 @@ import { TypedEvent, TypedEventTarget } from "@juniper-lib/events/TypedEventTarg
 import { debounce } from "@juniper-lib/events/debounce";
 import { CultureDescriptions, LanguageDescriptions } from "@juniper-lib/tslib/Languages";
 import { PropertyList } from "@juniper-lib/widgets/PropertyList";
-import { TabPanel } from "@juniper-lib/widgets/TabPanel";
+import "@juniper-lib/widgets/TabPanel";
 import { CharacterLineElement } from "./CharacterLine";
 import { Models, Viseme, Voice, genderNames } from "./ConversationClient";
 
@@ -28,7 +28,6 @@ export type AIFormEvents =  {
     volumechanged: TypedEvent<"volumechanged">;
 }
 
-TabPanel.find();
 PropertyList.find();
 
 const elementComparer = compareBy<HTMLElement>("ascending", o => o.innerText);
