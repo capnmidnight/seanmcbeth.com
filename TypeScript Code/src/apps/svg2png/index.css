@@ -19,8 +19,8 @@ form {
 }
 
 #sourceEditor {
-    min-width: min(40em, 83vw);
-    min-height: 30em;
+    width: min(40em, 83vw);
+    height: 30em;
 }
 
 dl.properties {

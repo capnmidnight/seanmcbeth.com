@@ -14,6 +14,16 @@
 }
 
 .background-text {
+    line-height: 1em;
+    position: absolute;
+    z-index: -7;
+    opacity: var(--bg-opacity);
+    font-size: 1.25vw;
+    font-weight: 100;
+    left: 0;
+    top: 0;
+    overflow: hidden;
+    width: 100%;
     filter: invert();
 }
 
@@ -21,8 +31,8 @@
     :root {
         --main-bg-color: #0b0d0f;
         --main-fg-color: #88baf0;
-        --main-link-color: #1a55bd;
-        --main-link-visited-color: #0e2a77;
+        --main-link-color: #1b70cb;
+        --main-link-visited-color: #215fa1;
         --box-bg-color: #1c1f22;
         --box-shadow-color: #424f582e;
         --text-shadow-color: #949ca1;
@@ -60,6 +70,7 @@ body {
 
 body {
     font-family: 'Noto Sans', -apple-system, '.SFNSText-Regular', 'San Francisco', 'Roboto', 'Segoe UI', 'Helvetica Neue', 'Lucida Grande', sans-serif;
+    font-weight: 300;
     line-height: 1.5;
     display: grid;
     grid-template-rows: auto 1fr auto;
@@ -153,6 +164,7 @@ a[href] {
 a:visited,
 a:focus {
     color: var(--main-link-visited-color);
+    text-decoration-style: dashed;
 }
 
 h1 {
@@ -227,6 +239,7 @@ h2 {
 #menu {
     font-family: monospace;
     border-bottom: solid 2px var(--main-fg-color);
+    text-align: center;
 }
 
     #menu ul {
@@ -249,18 +262,6 @@ h2 {
         }
 
 #portrait {
-    width: 100%;
-}
-
-.background-text {
-    line-height: 1em;
-    position: absolute;
-    z-index: -7;
-    opacity: var(--bg-opacity);
-    font-size: 1.25vw;
-    left: 0;
-    top: 0;
-    overflow: hidden;
     width: 100%;
 }
 

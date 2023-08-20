@@ -12,9 +12,17 @@
             <button type="button"
                     id="exportPNGButton"
                     title="Export SVG image to PNG"
-                    class="btn btn-sm btn-outline-primary"
+                    class="btn btn-sm btn-outline-secondary"
                     disabled>
                 Export PNG
+            </button>
+
+            <button type="button"
+                    id="exportJPEGButton"
+                    title="Export SVG image to JPEG"
+                    class="btn btn-sm btn-outline-secondary"
+                    disabled>
+                Export JPEG
             </button>
 
             <button type="reset"
@@ -32,6 +40,55 @@
                    id="nameInput"
                    title="Edit file name"
                    placeholder="File name"
+                   disabled />
+        </dd>
+
+        <dt>
+            <label for="previewJpegCheck">Preview JPEG</label>
+        </dt>
+        <dd>
+            <input type="checkbox"
+                   id="previewJpegCheck"
+                   title="Preview the quality of the JPEG export"
+                   disabled />
+        </dd>
+
+        <dt>
+            <label for="jpegQualityInput">JPEG Quality</label>
+        </dt>
+        <dd>
+            <input type="range"
+                   id="jpegQualityInput"
+                   title="Set the quality level of the JPEG export option"
+                   min="0"
+                   max="1"
+                   step="0.01"
+                   value="0.8"
+                   disabled />
+        </dd>
+
+        <dt>
+            <label for="clearColorSelect">Clear color</label>
+        </dt>
+        <dd>
+            <input type="color"
+                   id="clearColorSelect"
+                   title="Set the background color of the image"
+                   value="#000000"
+                   disabled />
+        </dd>
+
+        <dt>
+            <label for="clearOpacityRange">Clear color opacity</label>
+        </dt>
+        <dd>
+            <input type="range"
+                   id="clearOpacityRange"
+                   title="Set the background color of the image"
+                   min="0"
+                   max="1"
+                   step="0.01"
+                   value="0"
                    disabled />
         </dd>
 
@@ -78,7 +135,20 @@
                    placeholder="in"
                    disabled />
         </dd>
+
+        <dt>
+            <label for="maintainAspectRatioCheck">Maintain aspect ratio</label>
+        </dt>
+        <dd>
+            <input type="checkbox"
+                   id="maintainAspectRatioCheck"
+                   title="Maintain the ratio between the width and the height of the image when changing one of the dimensions"
+                   checked
+                   disabled />
+        </dd>
     </dl>
+
+    <canvas></canvas>
 
     <div id="source">
         <label for="sourceEditor">Source editor</label>
@@ -87,5 +157,3 @@
                   placeholder="Open an SVG file or copy/paste SVG source..."></textarea>
     </div>
 </form>
-
-<canvas></canvas>

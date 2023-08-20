@@ -1,14 +1,14 @@
-import { Accept, ID, Query, Src, Target } from "@juniper-lib/dom/attrs";
+import { ID, Query, Src } from "@juniper-lib/dom/attrs";
 import { canvasToBlob, setContextSize } from "@juniper-lib/dom/canvas";
 import { onClick, onDragOver, onDrop, onInput } from "@juniper-lib/dom/evts";
-import { A, Button, Canvas, Form, Img, InputFile, InputNumber, InputText, Span, TextArea, buttonSetEnabled } from "@juniper-lib/dom/tags";
+import "@juniper-lib/dom/fileSystemAPIPolyfill";
+import { Button, Canvas, Form, Img, Input, Span, TextArea, buttonSetEnabled } from "@juniper-lib/dom/tags";
 import { once } from "@juniper-lib/events/once";
-import { Image_Png, Image_SvgXml, MediaType } from "@juniper-lib/mediatypes";
+import { Image_Jpeg, Image_Png, Image_SvgXml, MediaType } from "@juniper-lib/mediatypes";
 import { centimeters2Inches, inches2Centimeters } from "@juniper-lib/tslib/units/length";
 import { PropertyList } from "@juniper-lib/widgets/PropertyList";
 import { LabelField, SelectList, SelectedValue, Values } from "@juniper-lib/widgets/SelectList";
 import "./index.css";
-import { identity } from "@juniper-lib/tslib/identity";
 
 type UnitsSystem = "metric" | "us-customary";
 const unitsLabels = new Map<UnitsSystem, string>([
@@ -19,60 +19,75 @@ const unitsNames = Array.from(unitsLabels.keys());
 
 PropertyList.find();
 
+let image: HTMLImageElement = null;
+const parser = new DOMParser();
 const canvas = Canvas(Query("canvas"));
 const g = canvas.getContext("2d");
 
-const onSetSize = onInput(() =>
-    render(
-        widthInput.valueAsNumber,
-        heightInput.valueAsNumber,
-        resolutionInput.valueAsNumber
+const exportPNGButton = Button(
+    ID("exportPNGButton"),
+    onClick(async () =>
+        await exportAs(Image_Png)
     )
 );
 
-const nameInput = InputText(ID("nameInput"));
+const exportJPEGButton = Button(
+    ID("exportJPEGButton"),
+    onClick(async () =>
+        await exportAs(Image_Jpeg, jpegQualityInput.valueAsNumber)
+    )
+);
+
+const resetButton = Button(
+    ID("resetButton"),
+    onClick(() => setImage(null))
+);
+
+const nameInput = Input(ID("nameInput"));
 const sourceEditor = TextArea(
     ID("sourceEditor"),
     onInput(() => setImage(sourceEditor.value))
 );
 
 const resolutionLabel = Span(Query("label[for=resolutionInput]>.unit-specifier"));
-const resolutionInput = InputNumber(
+const resolutionInput = Input(
     ID("resolutionInput"),
-    onSetSize
+    onInput(render)
 );
 
+const clearColorSelect = Input(
+    ID("clearColorSelect"),
+    onInput(render)
+);
+
+const clearOpacityRange = Input(
+    ID("clearOpacityRange"),
+    onInput(render)
+);
+
+const maintainAspectRatioCheck = Input(ID("maintainAspectRatioCheck"));
+
 const widthLabel = Span(Query("label[for=widthInput]>.unit-specifier"));
-const widthInput = InputNumber(
+const widthInput = Input(
     ID("widthInput"),
-    onSetSize
+    onInput(render)
 );
 
 const heightLabel = Span(Query("label[for=heightInput]>.unit-specifier"));
-const heightInput = InputNumber(
+const heightInput = Input(
     ID("heightInput"),
-    onSetSize
+    onInput(render)
 );
 
-Form(Query("form"),
-    onDragOver(evt => evt.preventDefault()),
-    onDrop(evt => {
-        evt.preventDefault();
-        const [item] = evt.dataTransfer.items;
-        const file = item && item.getAsFile();
-        if (file && file.type === Image_SvgXml.value) {
-            setImage(file);
-        }
-        else {
-            alert("This file doesn't look like an SVG file.")
-        }
-    })
+const jpegQualityInput = Input(
+    ID("jpegQualityInput"),
+    onInput(render)
 );
 
-function sigfig(value: number) {
-    return 0.001 * Math.round(1000 * value);
-}
-
+const previewJpegCheck = Input(
+    ID("previewJpegCheck"),
+    onInput(render)
+);
 
 const units = SelectList<UnitsSystem>(
     ID("unitsSelect"),
@@ -100,77 +115,26 @@ const units = SelectList<UnitsSystem>(
         widthInput.valueAsNumber = convert(widthInput.valueAsNumber);
         heightInput.valueAsNumber = convert(heightInput.valueAsNumber);
         resolutionInput.valueAsNumber = Math.round(sigfig(1 / converter(1 / resolutionInput.valueAsNumber)));
-    }),
-    onSetSize
+        render();
+    })
 );
 
-let image: HTMLImageElement = null;
-
-if (!("showOpenFilePicker" in globalThis)) {
-    const fileInput = InputFile(
-        Accept(Image_SvgXml.value)
-    );
-
-    const anchor = A(Target("_blank"));
-
-    Object.assign(globalThis, {
-        async showOpenFilePicker(options?: OpenFilePickerOptions) {
-            fileInput.multiple = options && options.multiple;
-            if (options && options.types) {
-                fileInput.accept = options
-                    .types
-                    .filter(v => v.accept)
-                    .flatMap(v => Object.keys(v.accept))
-                    .join(",");
-            }
-            const task = once(fileInput, "input", "cancel")
-                .catch(() => {
-                    throw new DOMException("The user aborted a request.");
-                });
-            fileInput.click();
-
-            await task;
-
-            return Array.from(fileInput.files)
-                .map(file => {
-                    return {
-                        getFile() {
-                            return Promise.resolve(file);
-                        }
-                    };
-                })
-        },
-
-        async showSaveFilePicker(options?: SaveFilePickerOptions) {
-            anchor.download = options && options.suggestedName || null;
-            let blobParts = new Array<BlobPart>();
-            return {
-                async createWritable() {
-                    return {
-                        async write(blob: Blob) {
-                            blobParts.push(blob);
-                            return Promise.resolve();
-                        },
-                        async close() {
-                            const types = options
-                                && options.types
-                                && options.types.filter(v => v.accept)
-                                    .flatMap(v => Object.keys(v.accept))
-                                    .filter(identity);
-                            const type = types && types.length > 0 && types[0] || null;
-                            const blob = new Blob(blobParts, { type });
-                            const url = URL.createObjectURL(blob);
-                            anchor.href = url;
-                            const task = once(anchor, "click");
-                            anchor.click();
-                            await task;
-                        }
-                    }
-                }
-            }
+Form(Query("form"),
+    onDragOver(evt =>
+        evt.preventDefault()
+    ),
+    onDrop(evt => {
+        evt.preventDefault();
+        const [item] = evt.dataTransfer.items;
+        const file = item && item.getAsFile();
+        if (file && file.type === Image_SvgXml.value) {
+            setImage(file);
         }
-    });
-}
+        else {
+            alert("This file doesn't look like an SVG file.")
+        }
+    })
+);
 
 Button(
     ID("openButton"),
@@ -195,37 +159,8 @@ Button(
     })
 );
 
-const exportPNGButton = Button(
-    ID("exportPNGButton"),
-    onClick(async () => {
-        try {
-            const fileHandle = await showSaveFilePicker({
-                suggestedName: nameInput.value,
-                types: [{
-                    description: "Portable Network Graphics",
-                    accept: Image_Png.toFileSystemAPIAccepts()
-                }]
-            });
-            const blob = await canvasToBlob(canvas, Image_Png);
-            const writable = await fileHandle.createWritable();
-            await writable.write(blob);
-            await writable.close();
-        }
-        catch (exp) {
-            if (!(exp instanceof DOMException)
-                || exp.message !== "The user aborted a request.") {
-                throw exp;
-            }
-        }
-    })
-);
+render();
 
-const resetButton = Button(
-    ID("resetButton"),
-    onClick(() => setImage(null))
-);
-
-const parser = new DOMParser();
 function parseSource() {
     const doc = parser.parseFromString(sourceEditor.value, "image/svg+xml");
     return doc.querySelector("svg");
@@ -274,33 +209,91 @@ async function setImage(fileOrString: File | string) {
     }
 
     const src = sourceEditor.value.trim();
-    buttonSetEnabled(exportPNGButton, "primary", !!image);
+    buttonSetEnabled(exportPNGButton, "secondary", !!image);
+    buttonSetEnabled(exportJPEGButton, "secondary", !!image);
     buttonSetEnabled(resetButton, "danger", !!image);
     nameInput.disabled
         = units.disabled
+        = clearColorSelect.disabled
+        = clearOpacityRange.disabled
         = resolutionInput.disabled
+        = maintainAspectRatioCheck.disabled
         = widthInput.disabled
         = heightInput.disabled
+        = jpegQualityInput.disabled
+        = previewJpegCheck.disabled
         = src.length === 0;
 
-    onSetSize.callback(null);
+    render();
 }
 
-function render(width: number, height: number, resolution: number) {
+async function render(evt?: Event) {
+    if (evt && maintainAspectRatioCheck.checked) {
+        const aspectRatio = image.naturalWidth / image.naturalHeight;
+        if (evt.target === widthInput) {
+            heightInput.valueAsNumber = sigfig(widthInput.valueAsNumber / aspectRatio);
+        }
+        else if (evt.target === heightInput) {
+            widthInput.valueAsNumber = sigfig(heightInput.valueAsNumber * aspectRatio);
+        }
+    }
+
+    const width = widthInput.valueAsNumber || 1;
+    const height = heightInput.valueAsNumber || 1;
+    const resolution = resolutionInput.valueAsNumber || 100;
     const isMetric = units.selectedValue === "metric";
     const w = width + (isMetric ? "cm" : "in");
     const h = height + (isMetric ? "cm" : "in");
+    let opacity = (255 * clearOpacityRange.valueAsNumber).toString(16);
+    if (opacity.length === 1) {
+        opacity = "0" + opacity;
+    }
 
-    setContextSize(g, width || 1, height || 1, resolution || 1);
+    setContextSize(g, width, height, resolution);
     canvas.style.width = w;
     canvas.style.height = h;
 
     g.clearRect(0, 0, canvas.width, canvas.height);
+    g.fillStyle = clearColorSelect.value + opacity;
+    g.fillRect(0, 0, canvas.width, canvas.height);
     if (image) {
-        g.drawImage(image, 0, 0, canvas.width, canvas.height);
         image.style.width = w;
         image.style.height = h;
+        g.drawImage(image, 0, 0, canvas.width, canvas.height);
+        if (previewJpegCheck.checked) {
+            const blob = await canvasToBlob(canvas, Image_Jpeg, jpegQualityInput.valueAsNumber);
+            const url = URL.createObjectURL(blob);
+            const img = Img(Src(url));
+            await once(img, "load");
+            g.clearRect(0, 0, canvas.width, canvas.height);
+            g.drawImage(img, 0, 0, canvas.width, canvas.height);
+            URL.revokeObjectURL(url);
+        }
     }
 }
 
-onSetSize.callback(null);
+async function exportAs(mediaType: MediaType, quality?: number) {
+    try {
+        const fileHandle = await showSaveFilePicker({
+            suggestedName: nameInput.value,
+            types: [{
+                description: "Joint Photographic Expert Group",
+                accept: mediaType.toFileSystemAPIAccepts()
+            }]
+        });
+        const blob = await canvasToBlob(canvas, mediaType, quality);
+        const writable = await fileHandle.createWritable();
+        await writable.write(blob);
+        await writable.close();
+    }
+    catch (exp) {
+        if (!(exp instanceof DOMException)
+            || exp.message !== "The user aborted a request.") {
+            throw exp;
+        }
+    }
+}
+
+function sigfig(value: number) {
+    return 0.001 * Math.round(1000 * value);
+}
