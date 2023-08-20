@@ -48,8 +48,7 @@ namespace SeanMcBeth.Pages
         }
 
         protected static string[] GetBundleNames(DirectoryInfo dir) =>
-            dir
-                .EnumerateDirectories()
+            dir.EnumerateDirectories()
                 .Where(d => d.Touch("index.js").Exists)
                 .Select(d => d.Name)
                 .OrderBy(d => d)
