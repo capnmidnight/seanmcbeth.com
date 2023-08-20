@@ -1,4 +1,5 @@
 <form>
+
     <dl class="properties">
         <dt>File</dt>
         <dd class="controls">
@@ -10,19 +11,11 @@
             </button>
 
             <button type="button"
-                    id="exportPNGButton"
+                    id="exportButton"
                     title="Export SVG image to PNG"
                     class="btn btn-sm btn-outline-secondary"
                     disabled>
-                Export PNG
-            </button>
-
-            <button type="button"
-                    id="exportJPEGButton"
-                    title="Export SVG image to JPEG"
-                    class="btn btn-sm btn-outline-secondary"
-                    disabled>
-                Export JPEG
+                Export
             </button>
 
             <button type="reset"
@@ -34,29 +27,16 @@
             </button>
         </dd>
 
-        <dt><label for="nameInput">Name</label></dt>
+        <dt>Export type</dt>
         <dd>
-            <input type="text"
-                   id="nameInput"
-                   title="Edit file name"
-                   placeholder="File name"
-                   disabled />
+            <tab-panel id="typeSelector" disabled>
+                <div data-tab-name="PNG"></div>
+                <div data-tab-name="JPEG"></div>
+            </tab-panel>
         </dd>
 
-        <dt>
-            <label for="previewJpegCheck">Preview JPEG</label>
-        </dt>
-        <dd>
-            <input type="checkbox"
-                   id="previewJpegCheck"
-                   title="Preview the quality of the JPEG export"
-                   disabled />
-        </dd>
-
-        <dt>
-            <label for="jpegQualityInput">JPEG Quality</label>
-        </dt>
-        <dd>
+        <dt data-groupname="JPEG"><label for="jpegQualityInput">JPEG Quality</label></dt>
+        <dd data-groupname="JPEG">
             <input type="range"
                    id="jpegQualityInput"
                    title="Set the quality level of the JPEG export option"
@@ -67,9 +47,16 @@
                    disabled />
         </dd>
 
-        <dt>
-            <label for="clearColorSelect">Clear color</label>
-        </dt>
+        <dt><label for="nameInput">Name</label></dt>
+        <dd>
+            <input type="text"
+                   id="nameInput"
+                   title="Edit file name"
+                   placeholder="File name"
+                   disabled />
+        </dd>
+
+        <dt><label for="clearColorSelect">Clear color</label></dt>
         <dd>
             <input type="color"
                    id="clearColorSelect"
@@ -78,9 +65,7 @@
                    disabled />
         </dd>
 
-        <dt>
-            <label for="clearOpacityRange">Clear color opacity</label>
-        </dt>
+        <dt><label for="clearOpacityRange">Clear color opacity</label></dt>
         <dd>
             <input type="range"
                    id="clearOpacityRange"
@@ -123,9 +108,7 @@
                    disabled />
         </dd>
 
-        <dt>
-            <label for="heightInput">Height (<span class="unit-specifier">in</span>)</label>
-        </dt>
+        <dt><label for="heightInput">Height (<span class="unit-specifier">in</span>)</label></dt>
         <dd>
             <input type="number"
                    id="heightInput"
@@ -136,9 +119,7 @@
                    disabled />
         </dd>
 
-        <dt>
-            <label for="maintainAspectRatioCheck">Maintain aspect ratio</label>
-        </dt>
+        <dt><label for="maintainAspectRatioCheck">Maintain aspect ratio</label></dt>
         <dd>
             <input type="checkbox"
                    id="maintainAspectRatioCheck"

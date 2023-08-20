@@ -8,7 +8,9 @@ import { Image_Jpeg, Image_Png, Image_SvgXml, MediaType } from "@juniper-lib/med
 import { centimeters2Inches, inches2Centimeters } from "@juniper-lib/tslib/units/length";
 import { PropertyList } from "@juniper-lib/widgets/PropertyList";
 import { LabelField, SelectList, SelectedValue, Values } from "@juniper-lib/widgets/SelectList";
+import "@juniper-lib/widgets/TabPanel";
 import "./index.css";
+import { TabPanel, onTabSelected } from "@juniper-lib/widgets/TabPanel";
 
 type UnitsSystem = "metric" | "us-customary";
 const unitsLabels = new Map<UnitsSystem, string>([
@@ -17,25 +19,27 @@ const unitsLabels = new Map<UnitsSystem, string>([
 ]);
 const unitsNames = Array.from(unitsLabels.keys());
 
-PropertyList.find();
+const props = PropertyList.find()[0];
+props.setGroupVisible("JPEG", false);
 
 let image: HTMLImageElement = null;
 const parser = new DOMParser();
 const canvas = Canvas(Query("canvas"));
 const g = canvas.getContext("2d");
 
-const exportPNGButton = Button(
-    ID("exportPNGButton"),
-    onClick(async () =>
-        await exportAs(Image_Png)
-    )
+type ImageType = "PNG" | "JPEG"
+
+const typeSelector = TabPanel<ImageType>(
+    ID("typeSelector"),
+    onTabSelected<ImageType>(evt => {
+        props.setGroupVisible("JPEG", evt.tabname === "JPEG");
+        render();
+    })
 );
 
-const exportJPEGButton = Button(
-    ID("exportJPEGButton"),
-    onClick(async () =>
-        await exportAs(Image_Jpeg, jpegQualityInput.valueAsNumber)
-    )
+const exportButton = Button(
+    ID("exportButton"),
+    onClick(exportImage)
 );
 
 const resetButton = Button(
@@ -81,11 +85,6 @@ const heightInput = Input(
 
 const jpegQualityInput = Input(
     ID("jpegQualityInput"),
-    onInput(render)
-);
-
-const previewJpegCheck = Input(
-    ID("previewJpegCheck"),
     onInput(render)
 );
 
@@ -209,8 +208,7 @@ async function setImage(fileOrString: File | string) {
     }
 
     const src = sourceEditor.value.trim();
-    buttonSetEnabled(exportPNGButton, "secondary", !!image);
-    buttonSetEnabled(exportJPEGButton, "secondary", !!image);
+    buttonSetEnabled(exportButton, "secondary", !!image);
     buttonSetEnabled(resetButton, "danger", !!image);
     nameInput.disabled
         = units.disabled
@@ -220,8 +218,8 @@ async function setImage(fileOrString: File | string) {
         = maintainAspectRatioCheck.disabled
         = widthInput.disabled
         = heightInput.disabled
+        = typeSelector.disabled
         = jpegQualityInput.disabled
-        = previewJpegCheck.disabled
         = src.length === 0;
 
     render();
@@ -260,7 +258,7 @@ async function render(evt?: Event) {
         image.style.width = w;
         image.style.height = h;
         g.drawImage(image, 0, 0, canvas.width, canvas.height);
-        if (previewJpegCheck.checked) {
+        if (typeSelector.isSelected("JPEG")) {
             const blob = await canvasToBlob(canvas, Image_Jpeg, jpegQualityInput.valueAsNumber);
             const url = URL.createObjectURL(blob);
             const img = Img(Src(url));
@@ -272,8 +270,14 @@ async function render(evt?: Event) {
     }
 }
 
-async function exportAs(mediaType: MediaType, quality?: number) {
+async function exportImage() {
     try {
+        const mediaType = typeSelector.isSelected("PNG") ? Image_Png : Image_Jpeg;
+        let quality: number = null;
+        if (mediaType === Image_Jpeg) {
+            quality = jpegQualityInput.valueAsNumber;
+        }
+
         const fileHandle = await showSaveFilePicker({
             suggestedName: nameInput.value,
             types: [{
