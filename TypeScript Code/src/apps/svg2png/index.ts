@@ -7,7 +7,7 @@ import { once } from "@juniper-lib/events/once";
 import { Image_Jpeg, Image_Png, Image_SvgXml, MediaType } from "@juniper-lib/mediatypes";
 import { centimeters2Inches, inches2Centimeters } from "@juniper-lib/tslib/units/length";
 import { PropertyList } from "@juniper-lib/widgets/PropertyList";
-import { LabelField, SelectList, SelectedValue, Values } from "@juniper-lib/widgets/SelectList";
+import { LabelField, SelectList, SelectedItem, DataAttr } from "@juniper-lib/widgets/SelectList";
 import "@juniper-lib/widgets/TabPanel";
 import "./index.css";
 import { TabPanel, onTabSelected } from "@juniper-lib/widgets/TabPanel";
@@ -91,10 +91,10 @@ const jpegQualityInput = Input(
 const units = SelectList<UnitsSystem>(
     ID("unitsSelect"),
     LabelField<UnitsSystem>(v => unitsLabels.get(v)),
-    Values(unitsNames),
-    SelectedValue<UnitsSystem>("us-customary"),
+    DataAttr(unitsNames),
+    SelectedItem<UnitsSystem>("us-customary"),
     onInput(() => {
-        const isMetric = units.selectedValue === "metric";
+        const isMetric = units.selectedItem === "metric";
         resolutionInput.placeholder
             = resolutionLabel.innerText
             = isMetric ? "pixels/cm" : "PPI";
@@ -188,7 +188,7 @@ async function setImage(fileOrString: File | string) {
         await once(image, "load");
 
         const svg = parseSource();
-        const isMetric = units.selectedValue === "metric";
+        const isMetric = units.selectedItem === "metric";
         const svgUnits = isMetric ? SVGLength.SVG_LENGTHTYPE_CM : SVGLength.SVG_LENGTHTYPE_IN;
 
         svg.width.baseVal.convertToSpecifiedUnits(svgUnits)
@@ -239,7 +239,7 @@ async function render(evt?: Event) {
     const width = widthInput.valueAsNumber || 1;
     const height = heightInput.valueAsNumber || 1;
     const resolution = resolutionInput.valueAsNumber || 100;
-    const isMetric = units.selectedValue === "metric";
+    const isMetric = units.selectedItem === "metric";
     const w = width + (isMetric ? "cm" : "in");
     const h = height + (isMetric ? "cm" : "in");
     let opacity = (255 * clearOpacityRange.valueAsNumber).toString(16);

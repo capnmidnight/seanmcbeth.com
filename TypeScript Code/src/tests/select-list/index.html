@@ -1,1 +1,21 @@
-<select is="select-list" id="list" getvalue="id" getlabel="name" title="Select a person" placeholder="Select a person"></select>
+<window-logger></window-logger>
+<button type="button"
+        class="btn btn-primary"
+        onclick="document.querySelector('window-logger').toggle()">
+    Show Debug View
+</button>
+<br />
+<select is="select-list"
+        id="list1"
+        valuefield="id"
+        labelfield="name"
+        title="Select a person"
+        placeholder="Select a person"></select>
+<br />
+<select is="select-list"
+        id="list2"
+        multiple
+        valuefield="id"
+        labelfield="name"
+        title="Select a person"
+        placeholder="Select a person"></select>
