@@ -1,5 +1,5 @@
 if($args.Length -ne 1 -or $args[0] -notmatch "^(patch|minor|major)$") {
-    echo "Expected usage: bundle [patch|minor|major]"
+    Write-Output "Expected usage: bundle [patch|minor|major]"
 }
 else {
     $level = $args[0]
@@ -11,5 +11,5 @@ else {
     git commit -m $v
     git push --recurse-submodules=on-demand --progress
 
-    .\deploy.ps1
+    .\deploy.ps1 ..\deploy\seanmcbeth.com.linux.zip ~/seanmcbeth.com.linux.zip
 }

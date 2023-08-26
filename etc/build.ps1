@@ -1,7 +1,7 @@
-cd ..\
+Set-Location ..\
     # Bundle the TypeScript code
     dotnet run --project ".\Build\"
-cd -
+Set-Location -
 
 if(-not (Test-Path ..\deploy\linux -PathType Container)) {
     mkdir ..\deploy\
