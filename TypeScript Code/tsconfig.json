@@ -19,7 +19,7 @@
         "lib": [ "ES2021", "DOM", "WebWorker", "DOM.Iterable" ],
         "target": "ES2021",
         "module": "ES2020",
-        "moduleResolution": "node",
+        "moduleResolution": "Node",
 
         "declaration": true,
         "disableSizeLimit": true,

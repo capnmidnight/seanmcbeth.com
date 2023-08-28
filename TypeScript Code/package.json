@@ -19,11 +19,11 @@
     "@types/offscreencanvas": "2019.7.0",
     "@types/three": "0.150.2",
     "@types/web-bluetooth": "0.0.17",
-    "@types/webxr": "0.5.2",
+    "@types/webxr": "0.5.4",
     "@types/wicg-file-system-access": "2020.9.6",
-    "esbuild": "0.18.17",
+    "esbuild": "0.19.2",
     "esbuild-plugin-glsl": "1.2.1",
-    "tslib": "2.6.1"
+    "tslib": "2.6.2"
   },
   "dependencies": {
     "@babylonjs/core": "5.57.1",
@@ -49,6 +49,6 @@
     "pdfjs-dist": "2.16.105",
     "primrose": "file:../Primrose/Primrose.TypeScript",
     "three": "0.150.1",
-    "typescript": "5.1.6"
+    "typescript": "5.2.2"
   }
 }
