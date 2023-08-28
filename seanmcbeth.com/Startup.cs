@@ -99,7 +99,7 @@ namespace SeanMcBeth
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, ILogger<Startup> logger) => 
-            app.ConfigureRequestPipeline(env, config, logger, Program.ports)
+            app.ConfigureRequestPipeline(env, config, logger)
                 .UseHttpLogging();
     }
 }
