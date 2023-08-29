@@ -2,7 +2,7 @@
 
 namespace SeanMcBeth
 {
-    public static class BuildConfig
+    public class BuildConfig : IBuildConfig
     {
         private const string ServerProjectName = "seanmcbeth.com";
         private const string ScriptProjectName = "TypeScript Code";
@@ -19,7 +19,7 @@ namespace SeanMcBeth
             "*.bool"
         };
 
-        public static BuildSystemOptions GetBuildConfig()
+        public BuildConfig()
         {
             var workingDir = new DirectoryInfo(".");
             var here = workingDir;
@@ -50,17 +50,17 @@ namespace SeanMcBeth
                 .CD(".ssh")
                 .Touch("sean-mcbeth.pem");
 
-            var options = new BuildSystemOptions()
+            Options = new BuildSystemOptions
             {
-                CleanDirs = new[] 
+                CleanDirs = new[]
                 {
                     jsOutput
                 },
                 InProjectName = ScriptProjectName,
                 OutProjectName = ServerProjectName,
                 Deployment = new DeploymentOptions(
-                    "seanmcbeth.com", 
-                    "smcbeth", 
+                    "seanmcbeth.com",
+                    "smcbeth",
                     keyFile,
                     "SeanMcBeth.Site"),
                 BannedDependencies = new[]
@@ -68,35 +68,33 @@ namespace SeanMcBeth
                     ("pdfjs-dist", "2.15.349", "Internal KeyboardManager does not work on old Oculus for Business Quest 2s. Use 2.14.305 instead.")
                 },
                 Dependencies = new()
-                    {
-                        { "Cursor", (pathHelper.CursorModel, modelOutput.Touch("Cursors.glb")) },
-                        { "Watch", (pathHelper.WatchModel, modelOutput.Touch("watch1.glb")) },
+                {
+                    { "Cursor", (pathHelper.CursorModel, modelOutput.Touch("Cursors.glb")) },
+                    { "Watch", (pathHelper.WatchModel, modelOutput.Touch("watch1.glb")) },
 
-                        { "Forest Ground", (pathHelper.ForestGroundModel, modelOutput.Touch("Forest-Ground.glb")) },
-                        { "Forest Tree", (pathHelper.ForestTreeModel, modelOutput.Touch("Forest-Tree.glb")) },
+                    { "Forest Ground", (pathHelper.ForestGroundModel, modelOutput.Touch("Forest-Ground.glb")) },
+                    { "Forest Tree", (pathHelper.ForestTreeModel, modelOutput.Touch("Forest-Tree.glb")) },
 
-                        { "Forest Audio", (pathHelper.ForestAudio,  audioOutput.Touch("forest.mp3")) },
-                        { "Test Audio", (pathHelper.StarTrekComputerBeep55Audio,  audioOutput.Touch("test-clip.mp3")) },
-                        { "Footsteps", (pathHelper.FootStepsAudio,  audioOutput.Touch("footsteps.mp3")) },
-                        { "Button Press", (pathHelper.ButtonPressAudio,  audioOutput.Touch("vintage_radio_button_pressed.mp3")) },
-                        { "Door Open", (pathHelper.DoorOpenAudio,  audioOutput.Touch("door_open.mp3")) },
-                        { "Door Close", (pathHelper.DoorCloseAudio,  audioOutput.Touch("door_close.mp3")) },
-                        { "UI Dragged", (pathHelper.UIDraggedAudio,  audioOutput.Touch("basic_dragged.mp3")) },
-                        { "UI Enter", (pathHelper.UIEnterAudio,  audioOutput.Touch("basic_enter.mp3")) },
-                        { "UI Error", (pathHelper.UIErrorAudio,  audioOutput.Touch("basic_error.mp3")) },
-                        { "UI Exit", (pathHelper.UIExitAudio,  audioOutput.Touch("basic_exit.mp3")) }
-                    }
+                    { "Forest Audio", (pathHelper.ForestAudio,  audioOutput.Touch("forest.mp3")) },
+                    { "Test Audio", (pathHelper.StarTrekComputerBeep55Audio,  audioOutput.Touch("test-clip.mp3")) },
+                    { "Footsteps", (pathHelper.FootStepsAudio,  audioOutput.Touch("footsteps.mp3")) },
+                    { "Button Press", (pathHelper.ButtonPressAudio,  audioOutput.Touch("vintage_radio_button_pressed.mp3")) },
+                    { "Door Open", (pathHelper.DoorOpenAudio,  audioOutput.Touch("door_open.mp3")) },
+                    { "Door Close", (pathHelper.DoorCloseAudio,  audioOutput.Touch("door_close.mp3")) },
+                    { "UI Dragged", (pathHelper.UIDraggedAudio,  audioOutput.Touch("basic_dragged.mp3")) },
+                    { "UI Enter", (pathHelper.UIEnterAudio,  audioOutput.Touch("basic_enter.mp3")) },
+                    { "UI Error", (pathHelper.UIErrorAudio,  audioOutput.Touch("basic_error.mp3")) },
+                    { "UI Exit", (pathHelper.UIExitAudio,  audioOutput.Touch("basic_exit.mp3")) }
+                }
             };
 
-            pathHelper.AddUITextures(options, uiImgOUtput);
+            pathHelper.AddUITextures(Options, uiImgOUtput);
 
-            options.OptionalDependencies = new();
-
-            CopyMetaFiles("apps", jsInput, jsOutput, options);
-            CopyMetaFiles("tests", jsInput, jsOutput, options);
-
-            return options;
+            CopyMetaFiles("apps", jsInput, jsOutput, Options);
+            CopyMetaFiles("tests", jsInput, jsOutput, Options);
         }
+
+        public BuildSystemOptions Options { get; }
 
         private static void CopyMetaFiles(string subName, DirectoryInfo jsInput, DirectoryInfo jsOutput, BuildSystemOptions options)
         {

@@ -20,7 +20,7 @@ namespace SeanMcBeth
         private readonly IWebHostEnvironment env;
         private readonly IConfiguration config;
 #if DEBUG
-        private BuildSystem? build;
+        private BuildSystem<BuildConfig>? build;
 #endif
 
         public Startup(IConfiguration configuration, IWebHostEnvironment environment)
@@ -32,20 +32,13 @@ namespace SeanMcBeth
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var options = new DefaultConfiguration.Options
-            {
-                UseEmail = false,
-                UseIdentity = false,
-                UseSignalR = false
-            };
-
             var http = new HttpClient(new HttpClientHandler
             {
                 AllowAutoRedirect = false,
                 UseCookies = false
             });
 
-            services.ConfigureDefaultServices(env, options)
+            services.ConfigureDefaultJuniperServices(env, config)
                 .AddSingleton(http);
 
             var azureSubscriptionKey = config.GetValue<string>("Azure:Speech:SubscriptionKey");
@@ -79,7 +72,7 @@ namespace SeanMcBeth
 #if DEBUG
                 try
                 {
-                    build = new BuildSystem(BuildConfig.GetBuildConfig());
+                    build = new BuildSystem<BuildConfig>();
                     build.Watch();
                 }
                 catch (BuildSystemProjectRootNotFoundException exp)
@@ -99,7 +92,7 @@ namespace SeanMcBeth
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, ILogger<Startup> logger) => 
-            app.ConfigureRequestPipeline(env, config, logger)
+            app.ConfigureJuniperRequestPipeline(env, config, logger)
                 .UseHttpLogging();
     }
 }

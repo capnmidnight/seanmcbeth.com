@@ -1,2 +1,1 @@
-﻿await Juniper.TSBuild.BuildSystem.Run(
-    SeanMcBeth.BuildConfig.GetBuildConfig(), args);
+﻿await Juniper.TSBuild.BuildSystem<SeanMcBeth.BuildConfig>.Run(args);

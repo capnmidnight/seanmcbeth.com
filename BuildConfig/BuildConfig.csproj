@@ -22,7 +22,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\Juniper\src\Juniper.TSBuild\Juniper.TSBuild.csproj" />
+	  <ProjectReference Include="..\Juniper\src\Juniper.Root\Juniper.Root.csproj" />
 	</ItemGroup>
 
 </Project>
