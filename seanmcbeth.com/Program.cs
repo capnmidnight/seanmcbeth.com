@@ -1,9 +1,7 @@
 using Juniper.Azure;
-using Juniper.IO;
 using Juniper.Services;
-using Juniper.World.GIS.Google;
 
-using OpenAI.GPT3.Extensions;
+using OpenAI.Extensions;
 
 var builder = WebApplication
     .CreateBuilder(args)
@@ -32,16 +30,6 @@ if (openAIKey is not null)
 {
     builder.Services.AddOpenAIService(settings =>
         settings.ApiKey = openAIKey);
-}
-
-
-var googleMapsAPIKey = builder.Configuration.GetValue<string>("Google:APIKey");
-var googleMapsSigningKey = builder.Configuration.GetValue<string>("Google:SigningKey");
-if (googleMapsAPIKey is not null
-    && googleMapsSigningKey is not null)
-{
-    builder.Services.AddTransient<IGoogleMapsStreamingClient>(provider =>
-        new GoogleMapsStreamingClient(http, googleMapsAPIKey, googleMapsSigningKey, CachingStrategy.GetNoCache()));
 }
 
 var app = builder

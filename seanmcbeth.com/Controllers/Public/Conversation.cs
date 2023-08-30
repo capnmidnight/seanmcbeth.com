@@ -1,3 +1,5 @@
+// Ignore Spelling: Davinci
+
 using Juniper;
 using Juniper.Azure;
 using Juniper.HTTP;
@@ -6,11 +8,11 @@ using Juniper.Sound;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
-using OpenAI.GPT3.Interfaces;
-using OpenAI.GPT3.ObjectModels;
-using OpenAI.GPT3.ObjectModels.RequestModels;
-using OpenAI.GPT3.ObjectModels.ResponseModels;
-using OpenAI.GPT3.ObjectModels.SharedModels;
+using OpenAI.Interfaces;
+using OpenAI.ObjectModels;
+using OpenAI.ObjectModels.RequestModels;
+using OpenAI.ObjectModels.ResponseModels;
+using OpenAI.ObjectModels.SharedModels;
 
 using System.Text;
 
@@ -311,26 +313,26 @@ namespace SeanMcBeth.Controllers.Public
 
         [HttpPost("ada")]
         public Task<IActionResult> GetAdaResponseAsync([FromBody] ConversationInput input) =>
-            DoGPT3(OpenAI.GPT3.ObjectModels.Models.TextAdaV1, input);
+            DoGPT3(OpenAI.ObjectModels.Models.TextAdaV1, input);
 
         [HttpPost("babbage")]
         public Task<IActionResult> GetBabbageResponseAsync([FromBody] ConversationInput input) =>
-            DoGPT3(OpenAI.GPT3.ObjectModels.Models.TextBabbageV1, input);
+            DoGPT3(OpenAI.ObjectModels.Models.TextBabbageV1, input);
 
         [HttpPost("curie")]
         public Task<IActionResult> GetCurieResponseAsync([FromBody] ConversationInput input) =>
-            DoGPT3(OpenAI.GPT3.ObjectModels.Models.TextCurieV1, input);
+            DoGPT3(OpenAI.ObjectModels.Models.TextCurieV1, input);
 
         [HttpPost("davinci")]
         public Task<IActionResult> GetDavinciResponseAsync([FromBody] ConversationInput input) =>
-            DoGPT3(OpenAI.GPT3.ObjectModels.Models.TextDavinciV3, input);
+            DoGPT3(OpenAI.ObjectModels.Models.TextDavinciV3, input);
 
         [HttpPost("chatgpt")]
         public Task<IActionResult> GetChatGPTResponseAsync([FromBody] ConversationInput input) =>
-            DoGPT4(OpenAI.GPT3.ObjectModels.Models.ChatGpt3_5Turbo, input);
+            DoGPT4(OpenAI.ObjectModels.Models.Gpt_3_5_Turbo, input);
 
         [HttpPost("gpt4")]
         public Task<IActionResult> GetGPT4ResponseAsync([FromBody] ConversationInput input) =>
-            DoGPT4(OpenAI.GPT3.ObjectModels.Models.Gpt_4, input);
+            DoGPT4(OpenAI.ObjectModels.Models.Gpt_4, input);
     }
 }
