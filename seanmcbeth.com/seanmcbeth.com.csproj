@@ -29,23 +29,13 @@
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="7.0.5" />
 		<PackageReference Include="Microsoft.Extensions.Hosting.Systemd" Version="7.0.0" />
 		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="7.0.6" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<ProjectReference Include="..\Juniper\src\Juniper.Azure\Juniper.Azure.csproj" />
 		<ProjectReference Include="..\Juniper\src\Juniper.GoogleMaps\Juniper.GoogleMaps.csproj" />
 		<ProjectReference Include="..\Juniper\src\Juniper.Root\Juniper.Root.csproj" />
 		<ProjectReference Include="..\Juniper\src\Juniper.Server\Juniper.Server.csproj" />
 		<ProjectReference Include="..\Juniper\src\Juniper.Sound\Juniper.Sound.csproj" />
-	</ItemGroup>
-
-	<ItemGroup Condition="'$(Configuration)'=='Debug'">
-		<ProjectReference Include="..\BuildConfig\BuildConfig.csproj" />
-		<ProjectReference Include="..\Juniper\src\Juniper.TSBuild\Juniper.TSBuild.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="wwwroot\turning\" />
-	</ItemGroup>
+        <ProjectReference Include="..\BuildConfig\BuildConfig.csproj" />
+        <ProjectReference Include="..\Juniper\src\Juniper.TSBuild\Juniper.TSBuild.csproj" />
+    </ItemGroup>
 
 </Project>
