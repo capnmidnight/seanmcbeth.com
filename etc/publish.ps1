@@ -12,4 +12,6 @@ else {
     git push --recurse-submodules=on-demand --progress
 
     .\deploy.ps1 ..\deploy\seanmcbeth.com.linux.zip ~/seanmcbeth.com.linux.zip
+
+    explorer https://seanmcbeth.com
 }
