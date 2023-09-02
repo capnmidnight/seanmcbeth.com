@@ -31,6 +31,7 @@
 		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="7.0.9" />
 		<ProjectReference Include="..\Juniper\src\Juniper.Azure\Juniper.Azure.csproj" />
 		<ProjectReference Include="..\Juniper\src\Juniper.GoogleMaps\Juniper.GoogleMaps.csproj" />
+		<ProjectReference Include="..\Juniper\src\Juniper.OpenAI\Juniper.OpenAI.csproj" />
 		<ProjectReference Include="..\Juniper\src\Juniper.Root\Juniper.Root.csproj" />
 		<ProjectReference Include="..\Juniper\src\Juniper.Server\Juniper.Server.csproj" />
 		<ProjectReference Include="..\Juniper\src\Juniper.Sound\Juniper.Sound.csproj" />
