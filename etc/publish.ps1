@@ -3,7 +3,7 @@ if($args.Length -ne 1 -or $args[0] -notmatch "^(patch|minor|major)$") {
 }
 else {
     $level = $args[0]
-    $v=npm --prefix "..\TypeScript Code" version $level
+    $v=npm --prefix "..\seanmcbeth.com" version $level
 
     .\build.ps1
 

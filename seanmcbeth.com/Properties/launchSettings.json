@@ -1,13 +1,13 @@
 {
-  "profiles": {
-    "Personal_Site": {
-      "commandName": "Project",
-      "launchBrowser": true,
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      },
-      "applicationUrl": "https://localhost:443;http://localhost:80",
-      "dotnetRunMessages": true
+    "profiles": {
+        "Personal_Site": {
+            "commandName": "Project",
+            "launchBrowser": true,
+            "environmentVariables": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "applicationUrl": "https://localhost:443;http://localhost:80",
+            "dotnetRunMessages": true
+        }
     }
-  }
 }

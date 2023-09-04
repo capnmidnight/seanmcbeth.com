@@ -1,1 +1,1 @@
-dotnet run --project .\Build\ -- --interactive
+dotnet run --project .\seanmcbeth.com\ -- --interactive

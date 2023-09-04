@@ -4,8 +4,7 @@ namespace SeanMcBeth
 {
     public class BuildConfig : IBuildConfig
     {
-        private const string ServerProjectName = "seanmcbeth.com";
-        private const string ScriptProjectName = "TypeScript Code";
+        private const string ProjectName = "seanmcbeth.com";
 
         private static readonly string[] FilePatterns =
         {
@@ -23,7 +22,7 @@ namespace SeanMcBeth
         {
             var workingDir = new DirectoryInfo(".");
             var here = workingDir;
-            while (here is not null && !here.CD(ScriptProjectName, "src").Exists)
+            while (here is not null && !here.CD(ProjectName, "src").Exists)
             {
                 here = here.Parent;
             }
@@ -34,11 +33,10 @@ namespace SeanMcBeth
             }
 
             var juniperDir = here.CD("Juniper");
-            var projectInDir = here.CD(ScriptProjectName);
-            var projectOutDir = here.CD(ServerProjectName);
-            var nodeModules = projectInDir.CD("node_modules");
-            var jsInput = projectInDir.CD("src");
-            var wwwRoot = projectOutDir.CD("wwwroot");
+            var projectDir = here.CD(ProjectName);
+            var nodeModules = projectDir.CD("node_modules");
+            var tsInput = projectDir.CD("src");
+            var wwwRoot = projectDir.CD("wwwroot");
             var jsOutput = wwwRoot.CD("js");
             var modelOutput = wwwRoot.CD("models");
             var audioOutput = wwwRoot.CD("audio");
@@ -56,8 +54,8 @@ namespace SeanMcBeth
                 {
                     jsOutput
                 },
-                InProjectName = ScriptProjectName,
-                OutProjectName = ServerProjectName,
+                InProjectName = ProjectName,
+                OutProjectName = ProjectName,
                 Deployment = new DeploymentOptions(
                     "seanmcbeth.com",
                     "smcbeth",
@@ -90,8 +88,8 @@ namespace SeanMcBeth
 
             pathHelper.AddUITextures(Options, uiImgOUtput);
 
-            CopyMetaFiles("apps", jsInput, jsOutput, Options);
-            CopyMetaFiles("tests", jsInput, jsOutput, Options);
+            CopyMetaFiles("apps", tsInput, jsOutput, Options);
+            CopyMetaFiles("tests", tsInput, jsOutput, Options);
         }
 
         public BuildSystemOptions Options { get; }

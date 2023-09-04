@@ -35,7 +35,6 @@
 		<ProjectReference Include="..\Juniper\src\Juniper.Root\Juniper.Root.csproj" />
 		<ProjectReference Include="..\Juniper\src\Juniper.Server\Juniper.Server.csproj" />
 		<ProjectReference Include="..\Juniper\src\Juniper.Sound\Juniper.Sound.csproj" />
-        <ProjectReference Include="..\BuildConfig\BuildConfig.csproj" />
         <ProjectReference Include="..\Juniper\src\Juniper.TSBuild\Juniper.TSBuild.csproj" />
     </ItemGroup>
 
