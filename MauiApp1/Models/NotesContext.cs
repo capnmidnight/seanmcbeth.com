@@ -2,6 +2,7 @@
 using Juniper.Data.SqlLite;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace MauiApp1.Models;
 
@@ -9,11 +10,15 @@ internal class NotesContext : DbContext
 {
     public DbSet<Note> Notes { get; set; }
 
-    public NotesContext()
+    static NotesContext()
     {
         SQLitePCL.Batteries_V2.Init();
+    }
 
-        Database.EnsureCreated();
+    public NotesContext()
+    {
+
+        //Database.EnsureCreated();
     }
 
     public NotesContext(DbContextOptions<NotesContext> options)
@@ -21,12 +26,21 @@ internal class NotesContext : DbContext
     {
     }
 
+    public static string DefaultConnectionString
+    {
+        get
+        {
+            //var dbFile = Path.Combine(FileSystem.AppDataDirectory, "Notes.db");
+            //return $"Data Source={PathExt.Abs2Rel(dbFile)}";
+            return $"Data Source=Notes.db";
+        }
+    }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         if (!optionsBuilder.IsConfigured)
         {
-            var dbFile = Path.Combine(FileSystem.AppDataDirectory, "Notes.db");
-            optionsBuilder.AddJuniperDatabase<Sqlite>($"Data Source={dbFile}", true);
+            optionsBuilder.AddJuniperDatabase<Sqlite>(DefaultConnectionString, true);
         }
     }
 

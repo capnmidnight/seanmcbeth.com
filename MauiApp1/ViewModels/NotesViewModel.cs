@@ -3,6 +3,7 @@
 using MauiApp1.Models;
 
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows.Input;
 
 namespace MauiApp1.ViewModels
@@ -37,9 +38,15 @@ namespace MauiApp1.ViewModels
         }
         void IQueryAttributable.ApplyQueryAttributes(IDictionary<string, object> query)
         {
-            if (query.ContainsKey("deleted"))
+            var idStr = query.ContainsKey("deleted")
+                    ? query["deleted"]
+                    : query.ContainsKey("saved")
+                        ? query["saved"]
+                        : throw new Exception("No ID");
+
+            if (int.TryParse(idStr.ToString(), out var noteId))
             {
-                if (int.TryParse(query["deleted"].ToString(), out var noteId))
+                if (query.ContainsKey("deleted"))
                 {
                     var matchedNote = AllNotes
                         .Where((n) => n.Identifier == noteId)
@@ -47,12 +54,11 @@ namespace MauiApp1.ViewModels
 
                     // If note exists, delete it
                     if (matchedNote != null)
+                    {
                         AllNotes.Remove(matchedNote);
+                    }
                 }
-            }
-            else if (query.ContainsKey("saved"))
-            {
-                if (int.TryParse(query["saved"].ToString(), out var noteId))
+                else if (query.ContainsKey("saved"))
                 {
                     var matchedNote = AllNotes
                         .Where((n) => n.Identifier == noteId)
@@ -68,10 +74,9 @@ namespace MauiApp1.ViewModels
                     // If note isn't found, it's new; add it.
                     else
                     {
-                        var note = new Note();
-                        db.Notes.Add(note);
+                        var note = db.Notes.SingleOrDefault(n => n.Id == noteId);
                         AllNotes.Insert(0, new NoteViewModel(note));
-                    }
+                    };
                 }
             }
         }

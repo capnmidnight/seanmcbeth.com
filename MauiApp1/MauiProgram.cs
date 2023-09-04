@@ -13,8 +13,7 @@ public static partial class MauiProgram
     public static MauiApp CreateMauiApp()
     {
         var builder = MauiApp.CreateBuilder();
-        var dbFile = Path.Combine(FileSystem.AppDataDirectory, "Notes.db");
-        builder.Services.AddJuniperDatabase<Sqlite, NotesContext>($"Data Source={dbFile}", builder.Configuration.GetValue<bool>("DetailedErrors"));
+        builder.Services.AddJuniperDatabase<Sqlite, NotesContext>(NotesContext.DefaultConnectionString, builder.Configuration.GetValue<bool>("DetailedErrors"));
         builder
             .UseMauiApp<App>()
             .ConfigureFonts(fonts =>

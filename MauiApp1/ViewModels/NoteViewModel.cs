@@ -10,27 +10,31 @@ namespace MauiApp1.ViewModels
 {
     internal class NoteViewModel : ObservableObject, IQueryAttributable
     {
-        private Note note;
+        public Note Note
+        {
+            get;
+            private set;
+        }
 
         private string lastText;
         private readonly NotesContext db;
 
         public string Text
         {
-            get => note.Text;
+            get => Note.Text;
             set
             {
-                if (note.Text != value)
+                if (Note.Text != value)
                 {
-                    note.Text = value;
+                    Note.Text = value;
                     OnPropertyChanged(nameof(Text));
                     OnPropertyChanged(nameof(IsChanged));
                 }
             }
         }
 
-        public DateTime Date => note.Date ?? DateTime.Now;
-        public int Identifier => note.Id;
+        public DateTime Date => Note.Date ?? DateTime.Now;
+        public int Identifier => Note.Id;
         public AsyncRelayCommand SaveCommand { get; }
         public ICommand DeleteCommand { get; }
 
@@ -52,7 +56,7 @@ namespace MauiApp1.ViewModels
         public NoteViewModel(Note note)
         {
             db = new NotesContext();
-            this.note = note;
+            Note = note;
             lastText = note.Text;
             SaveCommand = new AsyncRelayCommand(SaveAsync, () => IsChanged);
             DeleteCommand = new AsyncRelayCommand(Delete);
@@ -62,17 +66,28 @@ namespace MauiApp1.ViewModels
 
         private async Task SaveAsync()
         {
-            note.Date = DateTime.Now;
-            await db.SaveChangesAsync();
+            Note.Date = DateTime.Now;
             lastText = Text;
+            
+            if(Note.Id == 0)
+            {
+                await db.Notes.AddAsync(Note);
+            }
+            await db.SaveChangesAsync();
+
             OnPropertyChanged(nameof(IsChanged));
-            await Shell.Current.GoToAsync($"..?saved={note.Id}");
+            await Shell.Current.GoToAsync($"..?saved={Note.Id}");
         }
 
         private async Task Delete()
         {
-            db.Remove(note);
-            await Shell.Current.GoToAsync($"..?deleted={note.Id}");
+            if(Note.Id > 0)
+            {
+                db.Notes.Remove(Note);
+                await db.SaveChangesAsync();
+            }
+
+            await Shell.Current.GoToAsync($"..?deleted={Note.Id}");
         }
 
         void IQueryAttributable.ApplyQueryAttributes(IDictionary<string, object> query)
@@ -80,14 +95,18 @@ namespace MauiApp1.ViewModels
             if (query.ContainsKey("load")
                 && int.TryParse(query["load"].ToString(), out var noteId))
             {
-                note = db.Notes.SingleOrDefault(v => v.Id == noteId);
-                RefreshProperties();
+                Load(noteId);
             }
         }
 
         public void Reload()
         {
-            note = db.Notes.SingleOrDefault(v => v.Id == note.Id);
+            Load(Note.Id);
+        }
+
+        private void Load(int noteId)
+        {
+            Note = db.Notes.SingleOrDefault(v => v.Id == noteId);
             RefreshProperties();
         }
 
