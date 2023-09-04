@@ -2,15 +2,13 @@ using Juniper.Azure;
 using Juniper.OpenAI;
 using Juniper.Services;
 
-var builder = WebApplication.CreateBuilder(args);
-
-await builder
+await WebApplication.CreateBuilder(args)
     .UseSystemd()
-    .ConfigureJuniperBuildSystem<SeanMcBeth.BuildConfig>()
     .ConfigureJuniperWebApplication()
-    .ConfigureJuniperHTTPClient()
-    .ConfigureJuniperSpeechService(builder.Configuration.GetSection("Azure:Speech"))
-    .ConfigureJuniperOpenAI(builder.Configuration.GetSection("OpenAI"))
+    .AddJuniperBuildSystem<SeanMcBeth.BuildConfig>()
+    .AddJuniperHTTPClient()
+    .AddJuniperSpeechService("Azure:Speech")
+    .AddJuniperOpenAI("OpenAI")
     .Build()
     .ConfigureJuniperRequestPipeline()
-    .RunAfterBuildAsync();
+    .BuildAndRunAsync();
