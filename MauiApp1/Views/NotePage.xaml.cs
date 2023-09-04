@@ -1,5 +1,4 @@
-﻿using MauiApp1.Models;
-using MauiApp1.ViewModels;
+﻿using MauiApp1.ViewModels;
 
 namespace MauiApp1.Views
 {
@@ -12,18 +11,21 @@ namespace MauiApp1.Views
         public NotePage()
         {
             InitializeComponent();
+
             disabled = new FontImageSource()
             {
                 Glyph = "💾",
                 Size = 22,
                 Color = Colors.Silver
             };
+
             enabledDark = new FontImageSource()
             {
                 Glyph = "💾",
                 Size = 22,
                 Color = Colors.White
             };
+
             enabledLight = new FontImageSource()
             {
                 Glyph = "💾",
@@ -35,6 +37,7 @@ namespace MauiApp1.Views
         protected override void OnAppearing()
         {
             base.OnAppearing();
+            
             if (BindingContext is NoteViewModel note 
                 && note != lastNote)
             {

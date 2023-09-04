@@ -54,6 +54,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\Juniper\src\Juniper.Data.Sqlite\Juniper.Data.Sqlite.csproj" />
+	  <ProjectReference Include="..\Juniper\src\Juniper.Data\Juniper.Data.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <MauiXaml Update="Views\AboutPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
