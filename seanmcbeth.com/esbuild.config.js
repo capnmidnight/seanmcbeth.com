@@ -21,7 +21,7 @@ function findBundles(isWorker, isThree, ...dirs) {
     return new Build(args, isWorker)
         .plugin((minify) => glsl({ minify }))
         .addThreeJS(!isThree)
-        .outDir("../seanmcbeth.com/wwwroot/js/")
+        .outDir("./wwwroot/js/")
         .find(...dirs)
         .run();
 }

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/home/index.ts"],
+  "sourcesContent": ["\uFEFFconsole.log(\"Hello, world\");"],
+  "mappings": ";AAAC,QAAQ,IAAI,cAAc;",
+  "names": []
+}

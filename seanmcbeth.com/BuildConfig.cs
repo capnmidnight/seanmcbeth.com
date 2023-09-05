@@ -21,16 +21,8 @@ namespace SeanMcBeth
         public BuildConfig()
         {
             var workingDir = new DirectoryInfo(".");
-            var here = workingDir;
-            while (here is not null && !here.CD(ProjectName, "src").Exists)
-            {
-                here = here.Parent;
-            }
-
-            if (here is null)
-            {
-                throw new DirectoryNotFoundException("Could not find project root from " + workingDir.FullName);
-            }
+            var here = workingDir.GoUpUntil(here => here.CD(ProjectName, "src").Exists)
+                ?? throw new DirectoryNotFoundException("Could not find project root from " + workingDir.FullName);
 
             var juniperDir = here.CD("Juniper");
             var projectDir = here.CD(ProjectName);
