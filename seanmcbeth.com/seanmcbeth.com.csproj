@@ -11,11 +11,11 @@
 		<UserSecretsId>a3da341e-81da-4b01-b99e-ac92445d82fd</UserSecretsId>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+	<PropertyGroup Condition="'$(Configuration)'=='Debug'">
 	  <DebugType>portable</DebugType>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+	<PropertyGroup Condition="'$(Configuration)'=='Release'">
 	  <DebugType>none</DebugType>
 	</PropertyGroup>
 
