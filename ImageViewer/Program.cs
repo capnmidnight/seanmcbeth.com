@@ -2,7 +2,7 @@ using Juniper.Services;
 using Juniper.TSBuild;
 using Juniper.AppShell;
 
-if (args.Any(arg => arg.StartsWith("--")))
+if (BuildOptions.IsBuildCommand(args))
 {
     await BuildSystem<ImageViewer.BuildConfig>.Run(args);
 }
@@ -10,7 +10,7 @@ else
 {
     var app = WebApplication.CreateBuilder(args)
         .ConfigureJuniperWebApplication()
-        .ConfigureJuniperAppShell<WpfAppShellFactory>()
+        .ConfigureJuniperAppShell<WpfAppShellFactory<WpfAppShell>>()
         .AddJuniperBuildSystem<ImageViewer.BuildConfig>()
         .AddJuniperHTTPClient()
         .Build()

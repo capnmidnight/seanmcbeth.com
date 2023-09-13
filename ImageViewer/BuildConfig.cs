@@ -21,8 +21,7 @@ public class BuildConfig : IBuildConfig
                 here.CD(ProjectName, "wwwroot", "js")
             },
             InProjectName = ProjectName,
-            OutProjectName = ProjectName,
-            Dependencies = new()
+            OutProjectName = ProjectName
         };
     }
 

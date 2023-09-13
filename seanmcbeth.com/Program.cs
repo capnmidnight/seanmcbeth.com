@@ -3,7 +3,7 @@ using Juniper.OpenAI;
 using Juniper.Services;
 using Juniper.TSBuild;
 
-if (args.Any(arg => arg.StartsWith("--")))
+if (BuildOptions.IsBuildCommand(args))
 {
     await BuildSystem<SeanMcBeth.BuildConfig>.Run(args);
 }
