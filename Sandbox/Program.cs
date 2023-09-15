@@ -8,12 +8,11 @@ var cmd = new SSHCommand(
     keyFile, 
     "smcbeth", 
     "seanmcbeth.com", 
-    "echo \"why does hello not work\"")
-    .InSubShell();
+    "echo \"why does hello not work\"");
 
 cmd.Info += (sender, e) => Console.WriteLine("Info: {0}", e.Value);
 cmd.Warning += (sender, e) => Console.WriteLine("Wrn: {0}", e.Value);
 cmd.Err += (sender, e) => Console.WriteLine("Err: {0}", e.Value);
 
 
-await cmd.RunSafeAsync();
+await cmd.RunSafeAsync(CancellationToken.None);

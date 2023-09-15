@@ -46,8 +46,8 @@ namespace SeanMcBeth
                 {
                     jsOutput
                 },
-                InProjectName = ProjectName,
-                OutProjectName = ProjectName,
+                InProject= projectDir,
+                OutProject = projectDir,
                 Deployment = new DeploymentOptions(
                     "seanmcbeth.com",
                     "smcbeth",
@@ -57,36 +57,35 @@ namespace SeanMcBeth
                 {
                     ("pdfjs-dist", "2.15.349", "Internal KeyboardManager does not work on old Oculus for Business Quest 2s. Use 2.14.305 instead.")
                 },
-                Dependencies = new()
+                Dependencies = new List<BuildSystemDependency>()
                 {
-                    { "Cursor", (pathHelper.CursorModel, modelOutput.Touch("Cursors.glb")) },
-                    { "Watch", (pathHelper.WatchModel, modelOutput.Touch("watch1.glb")) },
+                    pathHelper.CursorModel.MakeDependency(modelOutput),
+                    pathHelper.WatchModel.MakeDependency(modelOutput),
 
-                    { "Forest Ground", (pathHelper.ForestGroundModel, modelOutput.Touch("Forest-Ground.glb")) },
-                    { "Forest Tree", (pathHelper.ForestTreeModel, modelOutput.Touch("Forest-Tree.glb")) },
+                    pathHelper.ForestGroundModel.MakeDependency(modelOutput),
+                    pathHelper.ForestTreeModel.MakeDependency(modelOutput),
 
-                    { "Forest Audio", (pathHelper.ForestAudio,  audioOutput.Touch("forest.mp3")) },
-                    { "Test Audio", (pathHelper.StarTrekComputerBeep55Audio,  audioOutput.Touch("test-clip.mp3")) },
-                    { "Footsteps", (pathHelper.FootStepsAudio,  audioOutput.Touch("footsteps.mp3")) },
-                    { "Button Press", (pathHelper.ButtonPressAudio,  audioOutput.Touch("vintage_radio_button_pressed.mp3")) },
-                    { "Door Open", (pathHelper.DoorOpenAudio,  audioOutput.Touch("door_open.mp3")) },
-                    { "Door Close", (pathHelper.DoorCloseAudio,  audioOutput.Touch("door_close.mp3")) },
-                    { "UI Dragged", (pathHelper.UIDraggedAudio,  audioOutput.Touch("basic_dragged.mp3")) },
-                    { "UI Enter", (pathHelper.UIEnterAudio,  audioOutput.Touch("basic_enter.mp3")) },
-                    { "UI Error", (pathHelper.UIErrorAudio,  audioOutput.Touch("basic_error.mp3")) },
-                    { "UI Exit", (pathHelper.UIExitAudio,  audioOutput.Touch("basic_exit.mp3")) }
-                }
+                    pathHelper.ForestAudio.MakeDependency(audioOutput),
+                    pathHelper.StarTrekComputerBeep55Audio.MakeDependency(audioOutput),
+                    pathHelper.FootStepsAudio.MakeDependency(audioOutput),
+                    pathHelper.ButtonPressAudio.MakeDependency(audioOutput),
+                    pathHelper.DoorOpenAudio.MakeDependency(audioOutput),
+                    pathHelper.DoorCloseAudio.MakeDependency(audioOutput),
+                    pathHelper.UIDraggedAudio.MakeDependency(audioOutput),
+                    pathHelper.UIEnterAudio.MakeDependency(audioOutput),
+                    pathHelper.UIErrorAudio.MakeDependency(audioOutput),
+                    pathHelper.UIExitAudio.MakeDependency(audioOutput)
+                },
+                OptionalDependencies = CopyMetaFiles("apps", tsInput, jsOutput)
+                    .Union(CopyMetaFiles("tests", tsInput, jsOutput))
             };
 
             pathHelper.AddUITextures(Options, uiImgOUtput);
-
-            CopyMetaFiles("apps", tsInput, jsOutput, Options);
-            CopyMetaFiles("tests", tsInput, jsOutput, Options);
         }
 
         public BuildSystemOptions Options { get; }
 
-        private static void CopyMetaFiles(string subName, DirectoryInfo jsInput, DirectoryInfo jsOutput, BuildSystemOptions options)
+        private static IEnumerable<BuildSystemDependency> CopyMetaFiles(string subName, DirectoryInfo jsInput, DirectoryInfo jsOutput)
         {
             foreach (var appInDir in jsInput.CD(subName).EnumerateDirectories())
             {
@@ -98,9 +97,7 @@ namespace SeanMcBeth
                         var files = appInDir.GetFiles(pattern);
                         foreach (var file in files)
                         {
-                            options.OptionalDependencies.Add(
-                                    $"{appInDir.Name} {Path.GetFileNameWithoutExtension(file.Name)}",
-                                    (file, appOutDir.Touch(file.Name)));
+                            yield return file.MakeDependency(appOutDir);
                         }
                     }
                 }

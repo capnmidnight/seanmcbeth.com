@@ -7,12 +7,17 @@
         <UseWPF>true</UseWPF>
         <OutputType>Exe</OutputType>
         <DebugType>portable</DebugType>
+        <ApplicationIcon>foxglove.ico</ApplicationIcon>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)'=='Release'">
         <OutputType>WinExe</OutputType>
         <DebugType>none</DebugType>
     </PropertyGroup>
+
+    <ItemGroup>
+      <Content Include="foxglove.ico" />
+    </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\Juniper\src\Juniper.AppShell.WPF\Juniper.AppShell.WPF.csproj" />

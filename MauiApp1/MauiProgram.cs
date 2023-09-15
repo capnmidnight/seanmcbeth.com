@@ -1,10 +1,9 @@
 ﻿using Juniper.Data;
-using Juniper.Data.SqlLite;
+
+using MauiApp1.Models;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-
-using MauiApp1.Models;
 
 namespace MauiApp1;
 

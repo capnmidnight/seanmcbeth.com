@@ -13,15 +13,16 @@ public class BuildConfig : IBuildConfig
         var workingDir = new DirectoryInfo(".");
         var here = workingDir.GoUpUntil(here => here.CD(ProjectName, "src").Exists)
             ?? throw new DirectoryNotFoundException("Could not find project root from " + workingDir.FullName);
+        here = here.CD(ProjectName);
 
         Options = new BuildSystemOptions
         {
             CleanDirs = new[]
             {
-                here.CD(ProjectName, "wwwroot", "js")
+                here.CD("wwwroot", "js")
             },
-            InProjectName = ProjectName,
-            OutProjectName = ProjectName
+            InProject = here,
+            OutProject = here
         };
     }
 

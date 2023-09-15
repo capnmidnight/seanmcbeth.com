@@ -1,6 +1,9 @@
 using Juniper.Services;
 using Juniper.TSBuild;
 using Juniper.AppShell;
+using System.IO;
+
+var here = new DirectoryInfo(Directory.GetCurrentDirectory());
 
 if (BuildOptions.IsBuildCommand(args))
 {
@@ -17,7 +20,7 @@ else
         .ConfigureJuniperRequestPipeline();
 
     await Task.WhenAll(
-        app.StartAppShellAsync("Image Viewer", "splash.html"),
+        app.StartAppShellAsync("Image Viewer", "splash.html", here.CD("wwwroot", "images").Touch("marigold_small_transparent.png").FullName),
         app.BuildAsync()
     );
 

@@ -1,8 +1,6 @@
 ﻿using Juniper.Data;
-using Juniper.Data.SqlLite;
 
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 
 namespace MauiApp1.Models;
 
