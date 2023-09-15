@@ -20,7 +20,7 @@ else
         .ConfigureJuniperRequestPipeline();
 
     await Task.WhenAll(
-        app.StartAppShellAsync("Image Viewer", "splash.html", here.CD("wwwroot", "images").Touch("marigold_small_transparent.png").FullName),
+        app.StartAppShellAsync("Image Viewer", "splash.html"),
         app.BuildAsync()
     );
 
