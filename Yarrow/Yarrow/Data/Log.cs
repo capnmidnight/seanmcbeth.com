@@ -10,7 +10,7 @@ namespace Yarrow.Data
         public virtual DbSet<Log> Logs { get; set; }
     }
 
-    public partial class Log : IDisposable
+    public partial class Log
     {
         internal static void Configure(ModelBuilder modelBuilder)
         {
@@ -52,30 +52,9 @@ namespace Yarrow.Data
         public DateTime Timestamp { get; set; }
         public IPAddress FromAddress { get; set; }
         public string Key { get; set; }
-        public JsonDocument Value { get; set; }
+        public string Value { get; set; }
 
         public virtual UserProfile User { get; set; }
         public virtual Report Report { get; set; }
-
-        private bool disposedValue;
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposedValue)
-            {
-                if (disposing)
-                {
-                    Value?.Dispose();
-                }
-
-                disposedValue = true;
-            }
-        }
-
-        public void Dispose()
-        {
-            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
-        }
     }
 }

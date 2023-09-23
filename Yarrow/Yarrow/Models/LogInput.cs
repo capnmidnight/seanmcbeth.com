@@ -6,6 +6,6 @@ namespace Yarrow.Models
     {
         public int? ReportID { get; set; }
         public string Key { get; set; }
-        public JsonDocument Value { get; set; }
+        public string Value { get; set; }
     }
 }

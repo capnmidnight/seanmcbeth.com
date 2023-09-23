@@ -1,3 +1,4 @@
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 
 namespace Yarrow.Data
@@ -21,7 +22,7 @@ namespace Yarrow.Data
 
                 entity.Property(e => e.Matrix)
                     .IsRequired()
-                    .HasDefaultValueSql("'{1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1}'::real[]");
+                    .HasDefaultValueSql("'1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1'");
 
                 entity.Property(e => e.Name).IsRequired();
 
@@ -40,6 +41,8 @@ namespace Yarrow.Data
                     .HasForeignKey(d => d.ScenarioId)
                     .OnDelete(DeleteBehavior.Restrict)
                     .HasConstraintName("FK_Transform_Scenario");
+
+                entity.Ignore(e => e.Matrix);
             });
         }
 
@@ -56,7 +59,13 @@ namespace Yarrow.Data
 
         public int Id { get; set; }
         public string Name { get; set; }
-        public float[] Matrix { get; set; }
+        public string MatrixString { get; set; }
+        private float[] matrix;
+        public float[] Matrix
+        {
+            get => matrix ??= MatrixString.Split(',').Select(float.Parse).ToArray();
+            set => MatrixString = (matrix = value).Select(v => v.ToString()).ToArray().Join(",");
+        }
         public int? ParentTransformId { get; set; }
         public int ScenarioId { get; set; }
 

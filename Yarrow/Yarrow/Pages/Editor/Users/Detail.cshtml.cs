@@ -68,7 +68,6 @@ namespace Yarrow.Pages.Editor.Users
             }
 
             Reports = await Database.GetReportSummariesAsync(CurrentUser.VisibleOrganizationID, userID);
-            Response.RegisterForDispose(Reports.SelectMany(r => r.Logs));
 
             GetLogs(userID);
 
@@ -115,7 +114,6 @@ namespace Yarrow.Pages.Editor.Users
                     && l.ReportId == null)
                 .OrderBy(l => l.Id)
                 .ToArray();
-            Response.RegisterForDispose(Logs);
         }
 
         private Task<IActionResult> WithIdentityUserAsync(string opName, string userID, Func<IdentityUser, Task<(string, IdentityResult)>> act) =>

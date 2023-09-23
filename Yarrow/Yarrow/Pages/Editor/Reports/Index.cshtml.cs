@@ -32,7 +32,6 @@ namespace Yarrow.Pages.Editor.Reports
             }
 
             Reports = await Database.GetReportSummariesAsync(CurrentUser.VisibleOrganizationID);
-            Response.RegisterForDispose(Reports.SelectMany(r => r.Logs));
 
             Names = Reports
                 .Select(r => r.DisplayName)

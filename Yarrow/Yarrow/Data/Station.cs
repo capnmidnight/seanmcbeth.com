@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace Yarrow.Data
 {
     public partial class YarrowContext
@@ -43,6 +45,8 @@ namespace Yarrow.Data
                     .HasForeignKey<Station>(d => d.TransformId)
                     .OnDelete(DeleteBehavior.Restrict)
                     .HasConstraintName("FK_Stations_Transforms");
+
+                entity.Ignore(e => e.Rotation);
             });
         }
 
@@ -55,7 +59,16 @@ namespace Yarrow.Data
 
         public int TransformId { get; set; }
         public int FileId { get; set; }
-        public float[] Rotation { get; set; }
+        public string RotationString { get; set; }
+
+        private float[] rotation;
+        [NotMapped]
+        public float[] Rotation
+        {
+            get => rotation ??= RotationString.Split(',').Select(float.Parse).ToArray();
+            set => RotationString = (rotation = value).Select(v => v.ToString()).ToArray().Join(",");
+        }
+
         public float Latitude { get; set; }
         public float Longitude { get; set; }
         public float Altitude { get; set; }

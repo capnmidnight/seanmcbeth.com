@@ -16,8 +16,7 @@ namespace Yarrow.Data
                 entity.HasKey(e => e.Id);
 
                 entity.Property(e => e.Id)
-                    .HasColumnName("ID")
-                    .HasDefaultValueSql("nextval('\"Activities_ID_seq\"'::regclass)");
+                    .HasColumnName("ID");
 
                 entity.Property(e => e.Version).HasDefaultValue(1);
                 entity.Property(e => e.Published).HasDefaultValue(false);

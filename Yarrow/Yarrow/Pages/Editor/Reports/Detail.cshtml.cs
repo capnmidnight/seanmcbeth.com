@@ -38,8 +38,6 @@ namespace Yarrow.Pages.Editor.Reports
                 throw new UnauthorizedAccessException();
             }
 
-            Response.RegisterForDispose(Report.Logs);
-
             return await act();
         }
 
@@ -128,7 +126,6 @@ namespace Yarrow.Pages.Editor.Reports
                 var report = await Database.Reports
                     .Include(r => r.Logs)
                     .SingleOrDefaultAsync(r => r.Id == reportID);
-                Response.RegisterForDispose(report.Logs);
 
                 report.UserId = input.UserID;
                 foreach(var log in report.Logs)

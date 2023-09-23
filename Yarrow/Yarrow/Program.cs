@@ -18,7 +18,7 @@ else
     var app = WebApplication.CreateBuilder(args)
         .UseSystemd()
         .ConfigureJuniperWebApplication()
-        .ConfigureJuniperDatabase<NpgSql, YarrowContext>("Yarrow")
+        .ConfigureJuniperDatabase<Sqlite, YarrowContext>("Yarrow")
         .AddJuniperBuildSystem<BuildConfig>()
         .AddJuniperHTTPClient()
         .ConfigureJuniperSpeechService()

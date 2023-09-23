@@ -37,8 +37,6 @@ namespace Yarrow.Pages.Editor
                 .OrderBy(l => l.FromAddress)
                     .ThenBy(l => l.Id)
                 .ToArray();
-
-            Response.RegisterForDispose(Logs);
         }
 
         private Task<IActionResult> WithSelectedLogsAsync(string opName, Func<IQueryable<Log>, Task<string>> act) =>

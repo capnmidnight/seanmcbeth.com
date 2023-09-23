@@ -41,6 +41,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Juniper\src\Juniper.Azure\Juniper.Azure.csproj" />
     <ProjectReference Include="..\..\Juniper\src\Juniper.Data.NpgSql\Juniper.Data.NpgSql.csproj" />
+    <ProjectReference Include="..\..\Juniper\src\Juniper.Data.Sqlite\Juniper.Data.Sqlite.csproj" />
     <ProjectReference Include="..\..\Juniper\src\Juniper.Emoji\Juniper.Emoji.csproj" />
     <ProjectReference Include="..\..\Juniper\src\Juniper.GoogleMaps\Juniper.GoogleMaps.csproj" />
     <ProjectReference Include="..\..\Juniper\src\Juniper.Imaging\Juniper.Imaging.csproj" />

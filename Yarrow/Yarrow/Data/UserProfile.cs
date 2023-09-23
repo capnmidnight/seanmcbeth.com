@@ -8,7 +8,7 @@ namespace Yarrow.Data
         public virtual DbSet<UserProfile> UserProfiles { get; set; }
     }
 
-    public partial class UserProfile : IDisposable
+    public partial class UserProfile
     {
         private bool disposedValue;
 
@@ -90,32 +90,5 @@ namespace Yarrow.Data
         public virtual IEnumerable<Log> Logs { get; set; }
         public virtual IEnumerable<Report> Reports { get; set; }
 
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposedValue)
-            {
-                if (disposing)
-                {
-                    if (Logs is not null)
-                    {
-                        foreach (var log in Logs)
-                        {
-                            log.Dispose();
-                        }
-                    }
-                }
-
-                // TODO: free unmanaged resources (unmanaged objects) and override finalizer
-                // TODO: set large fields to null
-                disposedValue = true;
-            }
-        }
-
-        public void Dispose()
-        {
-            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
-        }
     }
 }

@@ -14,7 +14,7 @@ namespace Yarrow.Data
                     UserId = userID
                 };
             var address = request.HttpContext.Connection.RemoteIpAddress;
-            using var entity = new Log
+            var entity = new Log
             {
                 FromAddress = address,
                 UserId = userID,
@@ -47,8 +47,6 @@ namespace Yarrow.Data
             {
                 throw new FileNotFoundException("No logs found");
             }
-
-            response.RegisterForDispose(logs);
 
             return await act(logs);
         }

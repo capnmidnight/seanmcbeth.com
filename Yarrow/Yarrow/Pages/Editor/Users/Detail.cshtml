@@ -576,7 +576,7 @@
                             @log.Key
                         </td>
                         <td>
-                            @(log.Value?.ToJsonString() ?? "none")
+                            @(log.Value ?? "none")
                         </td>
                         <td>
                             <input type="checkbox"

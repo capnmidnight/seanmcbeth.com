@@ -18,7 +18,8 @@ namespace Yarrow.Data
                 return default;
             }
 
-            var fields = Value
+            using var doc = JsonDocument.Parse(Value);
+            var fields = doc
                 .RootElement
                 .EnumerateObject()
                 .Where(r => r.Name is not null)
@@ -37,7 +38,8 @@ namespace Yarrow.Data
                 return default;
             }
 
-            var fields = Value.RootElement.EnumerateObject().ToDictionary(r => r.Name);
+            using var doc = JsonDocument.Parse(Value);
+            var fields = doc.RootElement.EnumerateObject().ToDictionary(r => r.Name);
 
             return fields.PopKey("id", GetValueInt32);
         }
@@ -49,7 +51,8 @@ namespace Yarrow.Data
                 return default;
             }
 
-            var fields = Value.RootElement.EnumerateObject().ToDictionary(r => r.Name);
+            using var doc = JsonDocument.Parse(Value);
+            var fields = doc.RootElement.EnumerateObject().ToDictionary(r => r.Name);
             var id = fields.PopKey("id", GetValueInt32);
             var page = fields.PopKey("page", GetValueInt32);
             return (id, page);
@@ -62,7 +65,8 @@ namespace Yarrow.Data
                 return default;
             }
 
-            var fields = Value.RootElement.EnumerateObject().ToDictionary(r => r.Name);
+            using var doc = JsonDocument.Parse(Value);
+            var fields = doc.RootElement.EnumerateObject().ToDictionary(r => r.Name);
             var id = fields.PopKey("id", GetValueInt32);
             var duration = fields.PopKey("time", GetValueDouble);
             return (id, duration);
