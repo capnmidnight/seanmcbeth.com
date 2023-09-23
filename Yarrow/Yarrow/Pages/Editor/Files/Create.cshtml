@@ -1,0 +1,97 @@
+@page
+@model Yarrow.Pages.Editor.Files.CreateModel
+@{
+    Layout = "_EditorLayout";
+    ViewData["Title"] = "File Manager - Create";
+}
+
+@section Breadcrumb {
+    <li class="crumb"><a href="~/Editor/Files">File Manager</a></li>
+    <li class="crumb">Create</li>
+}
+
+@section Scripts {
+    <bundle-css dir="js/dom-apps" name="resource-detail/index" versioned />
+    <bundle-css dir="js/dom-apps" name="file-create/index" versioned />
+    <bundle-js dir="js/dom-apps" name="file-create" versioned />
+}
+
+<h1>Upload File</h1>
+
+@if (!string.IsNullOrEmpty(Model.StatusMessage))
+{
+    <div class="alert alert-@Model.StatusType">@Model.StatusMessage</div>
+}
+
+<form method="post" enctype="multipart/form-data">
+    <datalist id="existingTags">
+        @foreach (var tag in Model.Tags)
+        {
+            <option value="@tag">@tag</option>
+        }
+    </datalist>
+
+    <div class="detailSection">
+        <dl>
+            <dt>File</dt>
+            <dd>
+                <input type="file"
+                       id="formFile"
+                       name="FormFile"
+                       class="form-control" />
+            </dd>
+
+
+            <dt>Copyright</dt>
+            <dd>
+                <input type="text"
+                       id="copyright"
+                       name="Copyright"
+                       class="form-control"
+                       required
+                       placeholder="Copyright"
+                       title="Copyright" />
+            </dd>
+
+            <dt>Copyright Date</dt>
+            <dd>
+                <input type="date"
+                       id="copyrightDate"
+                       class="form-control"
+                       required
+                       name="CopyrightDate" />
+            </dd>
+
+            <dt>Tags</dt>
+            <dd style="
+                display:grid;
+                grid-auto-flow: row;
+                width:10em">
+                <input type="text"
+                       id="newTagName"
+                       class="form-control"
+                       list="existingTags"
+                       style="width:100%" />
+                <button type="button" id="addTagButton" class="btn btn-primary" style="width:100%">Add</button>
+                <select id="tagsList"
+                        class="custom-select"
+                        multiple
+                        style="width:100%">
+                </select>
+                <button type="button" id="removeTagButton" class="btn btn-danger" style="width:100%">Remove</button>
+                <input type="hidden" id="tagString" name="tagString" />
+            </dd>
+
+            <dt>Preview</dt>
+            <dd>
+                <div id="preview"></div>
+            </dd>
+
+            <dt></dt>
+            <dd>
+                <button type="submit" class="btn btn-primary">Submit</button>
+                <a class="btn btn-secondary" href="~/Editor/Files/">Cancel</a>
+            </dd>
+        </dl>
+    </div>
+</form>

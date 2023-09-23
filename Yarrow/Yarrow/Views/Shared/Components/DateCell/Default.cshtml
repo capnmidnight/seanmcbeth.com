@@ -1,0 +1,5 @@
+@model Yarrow.Views.Shared.Components.DateCell.DateCellViewComponent.Model
+<td>
+    <input type="datetime-local" value="@Model.Value?.ToString("s")" readonly style="display:none">
+    @(Model.Value?.ToString("g") ?? "--")
+</td>

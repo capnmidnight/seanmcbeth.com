@@ -1,0 +1,115 @@
+@{
+    var title = ViewData["Title"] as string;
+    var setViewport = (ViewData["SkipViewport"] as bool?) != true;
+    var hideBanner = (ViewData["HideBanner"] as bool?) == true;
+    var giantHero = (ViewData["GiantHero"] as bool?) != false;
+    var logoTarget = (ViewData["LogoTarget"] as string) ?? "https://dlsdc.com/";
+}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    @if (setViewport)
+    {
+        <meta name="viewport" content="width=device-width">
+    }
+    <title>@title</title>
+    <bundle-css name="lato" />
+    <bundle-css name="segoeuiemoji" />
+    <bundle-css name="fontawesome" />
+    <bundle-css name="bootstrap" versioned />
+    <bundle-css name="site" versioned />
+    <bundle-js type="text/javascript" name="jquery" />
+    @RenderSection("Scripts", false)
+</head>
+
+<body>
+    @if(hideBanner)
+    {
+        IgnoreSection("Header");
+        IgnoreSection("Menu");
+        IgnoreSection("PreMain");
+    }
+    else {
+        <header>
+            <a id="logo" href="@logoTarget" title="DLS logo"><img src="/images/logos/logo-240x81.png?v2" title="DLS logo"></a>
+            @RenderSection("Header", false)
+
+            @if (IsSectionDefined("Menu"))
+            {
+                <nav id="mainMenu" class="menu closed">
+                    <button type="button" title="Open menu"></button>
+                    <ul>
+                        <partial name="_LoginPartial"/>
+                        <li><hr /></li>
+                        @RenderSection("Menu")
+                    </ul>
+                </nav>
+                <script type="text/javascript">
+                    (function () {
+                        const menu = document.querySelector("nav.menu");
+                        const menuButton = menu.querySelector("button");
+                        const menuItems = menu.querySelector("ul");
+                        menuButton.addEventListener("click", function () {
+                            if (menu.className === "menu closed") {
+                                menu.className = "menu opened";
+                            }
+                            else {
+                                menu.className = "menu closed";
+                            }
+                        });
+                    })();
+                </script>
+            }
+            @if (IsSectionDefined("PreMain"))
+            {
+                RenderSection("PreMain");
+            }
+        </header>
+    }
+    <main>
+        @if (!hideBanner && giantHero)
+        {
+            <div id="heroImage">
+                <div class="hero-text">
+                    @RenderBody()
+                </div>
+            </div>
+        }
+        else
+        {
+            @RenderBody()
+        }
+
+        @if (IsSectionDefined("PostHero"))
+        {
+            @RenderSection("PostHero")
+        }
+    </main>
+    @if (IsSectionDefined("PostMain"))
+    {
+        @RenderSection("PostMain")
+    }
+    @if (hideBanner)
+    {
+        IgnoreSection("FooterAddendum");
+    }
+    else
+    {
+        <footer class="border-top footer text-muted">
+            <a href="https://www.dlsdc.com">Diplomatic Language Services</a>
+            - &copy; 2019 - @DateTime.Now.Year
+            - <a href="/">Home</a>
+            - <a href="/Privacy">Privacy</a>
+            - <a href="/ToS">Terms of Service</a>
+            - <a href="/Notices">Notices</a>
+            @if (IsSectionDefined("FooterAddendum"))
+            {
+                @RenderSection("FooterAddendum")
+            }
+        </footer>
+    }
+</body>
+
+</html>

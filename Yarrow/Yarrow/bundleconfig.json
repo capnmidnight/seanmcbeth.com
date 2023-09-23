@@ -1,0 +1,26 @@
+[
+  {
+    "outputFileName": "wwwroot/css/bootstrap.min.css",
+    "inputFiles": [
+      "wwwroot/css/bootstrap.css"
+    ]
+  },
+  {
+    "outputFileName": "wwwroot/css/home.min.css",
+    "inputFiles": [
+      "wwwroot/css/home.css"
+    ]
+  },
+  {
+    "outputFileName": "wwwroot/css/site.min.css",
+    "inputFiles": [
+      "wwwroot/css/site.css"
+    ]
+  },
+  {
+    "outputFileName": "wwwroot/css/yarrow.min.css",
+    "inputFiles": [
+      "wwwroot/css/yarrow.css"
+    ]
+  }
+]

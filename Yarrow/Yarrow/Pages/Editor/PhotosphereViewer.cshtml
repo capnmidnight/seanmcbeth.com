@@ -1,0 +1,19 @@
+@page
+@{
+    Layout = "_PWA";
+    ViewData["Title"] = "Photosphere Viewer";
+}
+
+@section Scripts {
+    <bundle-css name="yarrow" versioned />
+    <bundle-js name="three" versioned />
+    <bundle-css dir="js/dom-apps" name="photosphere-viewer/index" versioned />
+    <bundle-js dir="js/dom-apps" name="photosphere-viewer" versioned />
+}
+
+<canvas id="frontBuffer"></canvas>
+<div id="controls">
+    <button type="button" id="vrButton" title="Enter VR">
+        <img src="~/images/enter-vr-icon.png" />
+    </button>
+</div>

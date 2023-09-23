@@ -1,0 +1,128 @@
+@page
+@model Yarrow.Pages.Editor.Files.IndexModel
+@{
+    Layout = "_EditorLayout";
+    ViewData["Title"] = "Files Summary";
+}
+
+@section Scripts {
+    <bundle-css dir="js/dom-apps" name="resource-summary/index" versioned />
+    <bundle-js dir="js/dom-apps" name="resource-summary" versioned />
+    <bundle-css dir="js/dom-apps" name="thumbnail-viewer/index" versioned />
+    <bundle-js dir="js/dom-apps" name="thumbnail-viewer" versioned />
+}
+
+@section Breadcrumb {
+    <li class="crumb">File Manager</li>
+}
+
+<h1>Files</h1>
+
+@if (!string.IsNullOrEmpty(Model.StatusMessage))
+{
+    <div class="alert alert-@Model.StatusType">@Model.StatusMessage</div>
+}
+
+<a class="btn btn-danger"
+   href="~/Editor/Files/Create/">
+    Upload
+</a>
+
+<table class="table table-responsive table-hover table-striped summary" data-resourcename="Files">
+    <thead>
+        <tr>
+            <th><label>ID</label></th>
+            <th><label for="filterName">Name</label></th>
+            <th><label for="filterType">Type</label></th>
+            <th><label>Created on</label></th>
+            <th><label>Size</label></th>
+            <th><label for="filterTags">Tags</label></th>
+            <th><label for="filterUsage">Usage</label></th>
+            <th><label for="filterCopyright">Copyright</label></th>
+            <th colspan="2"><label>Actions</label></th>
+        </tr>
+        <tr>
+            <th>
+            </th>
+            <th>
+                <input type="text"
+                       id="filterName"
+                       placeholder="Filter by Name"
+                       title="Filter by Name" />
+            </th>
+            <th>
+                <select id="filterType" title="Filter by media type">
+                    <option value="">--</option>
+                    @foreach (var type in Model.MimeTypes)
+                    {
+                        <option value="@type">@type</option>
+                    }
+                </select>
+            </th>
+            @await Component.InvokeAsync("DateRange", new { idStub = "CreateOn"})
+            <th></th>
+            <th>
+                <select id="filterTag" title="Filter by tag">
+                    <option value="" selected>--</option>
+                    <option value="XXX_NONE_XXX">NONE</option>
+                    @foreach (var tag in Model.Tags)
+                    {
+                        <option value="@tag">@tag</option>
+                    }
+                </select>
+            </th>
+            <th>
+                <select id="filterUsage" title="Filter by usage">
+                    <option value="" selected>--</option>
+                    <option value="on">In use</option>
+                    <option value="off">Unused</option>
+                </select>
+            </th>
+            <th>
+                <input type="text"
+                       id="filterCopyright"
+                       placeholder="Filter by Copyright"
+                       title="Filter by Copyright" />
+            </th>
+            <th></th>
+            <th><button type="reset" class="btn btn-secondary">Reset</button></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var file in Model.Files)
+        {
+            <tr>
+                <td>@file.ID</td>
+                <td>@file.Name</td>
+                <td>@file.MediaType</td>
+                @await Component.InvokeAsync("DateCell", new { value=file.CreatedOn })
+                <td>@file.SizeString</td>
+                <td>@file.TagsString</td>
+                <td>
+                    <input type="checkbox"
+                           value="@(file.Count > 0 ? "on" : "off")"
+                           style="display:none" />
+                    @file.Count
+                </td>
+                @if (file.Copyright is null)
+                {
+                    <td>Missing copyright information</td>
+                }
+                else
+                {
+                    <td>&copy; @file.Copyright - @file.CopyrightDate?.ToShortDateString()</td>
+                }
+                <td>
+                    <a class="btn btn-secondary" href="~/Editor/Files/Download/@file.ID">Download</a>
+                </td>
+                <td>
+                    <a class="btn btn-primary" href="~/Editor/Files/Detail/@file.ID">Detail</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div>
+    @Model.FileCount total files, filling @Model.FilesSize.
+</div>

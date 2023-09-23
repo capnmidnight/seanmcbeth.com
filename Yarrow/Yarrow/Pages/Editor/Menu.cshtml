@@ -1,0 +1,29 @@
+@page "{id:int?}"
+@model Yarrow.Pages.Editor.MenuModel
+@{
+    Layout = "_EditorLayout";
+    ViewData["Title"] = "Menu Editor";
+}
+
+@section Breadcrumb {
+    <li class="crumb">Menu</li>
+}
+
+@section Scripts {
+    <bundle-css dir="js/dom-apps" name="menu-editor/index" versioned />
+    <bundle-js dir="js/dom-apps" name="menu-editor" />
+}
+
+<form id="menuForm" method="post" enctype="multipart/form-data" asp-page-handler="Update" style="height:100%">
+    <input type="hidden" id="selectedMenuItemID" value="@Model.SelectedMenuItemID" />
+    <input type="hidden" id="orgId" value="@Model.CurrentOrgId" />
+    @if (Model.IsAdmin)
+    {
+        <select id="organizations" class="custom-select custom-select-sm">
+            @foreach (var org in Model.Organizations)
+            {
+                <option value="@org.Id" selected="@(org.Id == Model.CurrentOrgId)">@org.Name</option>
+            }
+        </select>
+    }
+</form>

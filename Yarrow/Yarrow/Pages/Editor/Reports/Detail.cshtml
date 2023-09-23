@@ -1,0 +1,409 @@
+@page "{reportID:int}"
+@model Yarrow.Pages.Editor.Reports.DetailModel
+@using System.Text.Json;
+@{
+    Layout = "_EditorLayout";
+    ViewData["Title"] = "User Session Report";
+}
+
+@section Scripts {
+    <bundle-js dir="js/dom-apps" name="confirm-button" versioned />
+    <bundle-js dir="js/dom-apps" name="range-selector" versioned />
+
+    <style>
+        dl {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            grid-column-gap: 0.5em;
+        }
+
+        dt {
+            text-align: right;
+        }
+    </style>
+}
+
+@section Breadcrumb {
+    @if (Model.Report.User is not null)
+    {
+        <li class="crumb"><a href="~/Editor/Users/">Users</a></li>
+        <li class="crumb"><a href="~/Editor/Reports/">Reports</a></li>
+        <li class="crumb"><a href="~/Editor/Users/Detail/@Model.Report.UserId">@Model.Report.User.User.UserName</a></li>
+    }
+    else
+    {
+        <li class="crumb"><a href="~/Editor/Reports/">Reports</a></li>
+    }
+    <li class="crumb">User Session Report</li>
+}
+
+<h1>
+    Report - Activity for
+    @if (Model.ReportDetail.UserName is null)
+    {
+        @Model.ReportDetail.DisplayName
+    }
+    else
+    {
+        <a href="~/Editor/Users/Detail/@Model.ReportDetail.UserID">@Model.ReportDetail.DisplayName</a>
+    }
+</h1>
+
+@if (!string.IsNullOrEmpty(Model.StatusMessage))
+{
+    <div class="alert alert-@Model.StatusType" style="white-space:pre-line">@Model.StatusMessage</div>
+}
+
+<form method="post">
+    <button type="button"
+            class="btn btn-danger confirm-button deleteButton"
+            data-updatemessage="confirmDelete">
+        Delete Report
+    </button>
+    <span class="confirmDelete"
+          style="display:none">
+        <button type="button"
+                class="btn btn-outline-primary">
+            Cancel
+        </button>
+        <button type="submit"
+                asp-page-handler="DeleteReport"
+                class="btn btn-outline-danger">
+            Ok
+        </button>
+    </span>
+</form>
+
+@if (Model.ReportDetail.UserName is null)
+{
+    <h3>Assign report to user</h3>
+    <form method="post">
+        <label for="userID">User</label>
+        <select name="userID"
+            id="userID">
+            <option value="" selected="@(Model.Report.UserId is null)">none</option>
+            @foreach (var user in Model.UserProfiles.Values)
+            {
+                <option value="@user.UserID" selected="@(Model.Report.UserId == user.UserID)">
+                    @(Model.UsersMatchingIP.Contains(user.UserID) ? "*" : "")
+                    @user.UserName
+                </option>
+            }
+        </select>
+        <br>
+        <em>'*' before user name indicates user has previously used the reported IP address</em>
+        <br>
+        <button type="button"
+            class="btn btn-danger confirm-button assignUserButton"
+            data-updatemessage="assignUserButton">
+            Assign User
+        </button>
+        <span class="assignUserButton"
+          style="display:none">
+            <button type="button"
+                class="btn btn-outline-primary">
+                Cancel
+            </button>
+            <button type="submit"
+                asp-page-handler="AssignUser"
+                class="btn btn-outline-danger">
+                Ok
+            </button>
+        </span>
+    </form>
+}
+
+<h2>Session</h2>
+@if (!Model.ReportDetail.IsValid)
+{
+    <p>No data available!</p>
+}
+else
+{
+    <dl>
+        <dt>Date</dt>
+        <dd>@Model.ReportDetail.Start.ToLocalTime().ToLongDateString()</dd>
+
+        <dt>Time</dt>
+        <dd>@Model.ReportDetail.Start.ToLocalTime().ToLongTimeString()</dd>
+
+        <dt>Duration</dt>
+        <dd>@Model.ReportDetail.Duration.ToSillyString()</dd>
+
+        <dt>IP Address</dt>
+        <dd>@Model.ReportDetail.FromAddress</dd>
+
+        <dt>Used quit button</dt>
+        <dd>@Model.ReportDetail.QuitGracefully</dd>
+
+        <dt>Session type</dt>
+        <dd>
+            @(Model.ReportDetail.IsAlone ? "Explore alone" : Model.ReportDetail.UserType ?? "Unknown")
+        </dd>
+
+
+        <dt>Scenarios viewed</dt>
+        <dd>@Model.ReportDetail.Scenarios.Count()</dd>
+    </dl>
+    <hr />
+
+    @if (Model.ReportDetail.Scenarios.Any())
+    {
+        <h3>Scenarios</h3>
+        @foreach (var scenario in Model.ReportDetail.Scenarios)
+        {
+
+            <dl>
+                <dt>Name</dt>
+                <dd><a href="~/Editor/Scenarios/Detail/@scenario.ScenarioID" target="_blank">@scenario.Name (@scenario.Language)</a></dd>
+
+                <dt>Times visited</dt>
+                <dd>@(scenario.Visits.Count == 0 ? "None!" : scenario.Visits.Count.ToString())</dd>
+
+                <dt>Total time spent in scenario</dt>
+                <dd>@scenario.Duration.ToSillyString()</dd>
+            </dl>
+
+            @if (scenario.Visits.Count > 0)
+            {
+
+                <h4>Visited stations</h4>
+
+                @if (scenario.VisitedStations.Empty())
+                {
+                    <p>No stations visited!</p>
+                }
+                else
+                {
+                    @foreach (var station in scenario.VisitedStations)
+                    {
+                        <dl>
+                            <dt>Name</dt>
+                            <dd>@station.Name</dd>
+
+                            <dt>Times visited</dt>
+                            <dd>@(station.Visits.Count == 0 ? "None!" : station.Visits.Count.ToString())</dd>
+
+                            <dt>Total time spent in station</dt>
+                            <dd>@station.TotalVisitDuration.ToSillyString()</dd>
+
+                            @if (station.Signs.Any())
+                            {
+                                <dt>Signs</dt>
+                                <dd>
+                                    <table class="table table-responsive table-hover table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Name</th>
+                                                <th>Times viewed</th>
+                                                <th>Total view duration</th>
+                                                <th>Times expanded</th>
+                                                <th>Pages loaded</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var sign in station.Signs)
+                                            {
+                                                <tr>
+                                                    <td>@sign.ID</td>
+                                                    <td>@sign.Name</td>
+                                                    <td>@sign.Views.Count</td>
+                                                    <td>@sign.TotalViewDuration.ToSillyString()</td>
+                                                    <td>@(sign.IsCallout ? @sign.ExpandCount.ToString() : "-")</td>
+                                                    <td>@(sign.IsPDF ? @sign.PagesLoaded.Count.ToString() : "-")</td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </dd>
+                            }
+
+                            @if (station.Audios.Any())
+                            {
+                                <dt>Audio tracks</dt>
+                                <dd>
+                                    <table class="table table-responsive table-hover table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Name</th>
+                                                <th>Times listened</th>
+                                                <th>Total listen duration</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var audio in station.Audios)
+                                            {
+                                                <tr>
+                                                    <td>@audio.ID</td>
+                                                    <td>@audio.Name</td>
+                                                    <td>@audio.Listens.Count</td>
+                                                    <td>@audio.TotalListenDuration.ToSillyString()</td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </dd>
+                            }
+
+                            @if (station.Videos.Any())
+                            {
+                                <dt>Videos</dt>
+                                <dd>
+                                    <table class="table table-responsive table-hover table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Name</th>
+                                                <th>Times played</th>
+                                                <th>Total play duration</th>
+                                                <th>Times viewed</th>
+                                                <th>Total view duration</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var video in station.Videos)
+                                            {
+                                                <tr>
+                                                    <td>@video.ID</td>
+                                                    <td>@video.Name</td>
+                                                    <td>@video.Plays.Count</td>
+                                                    <td>@video.TotalPlayDuration.ToSillyString()</td>
+                                                    <td>@video.Views.Count</td>
+                                                    <td>@video.TotalViewDuration.ToSillyString()</td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </dd>
+                            }
+
+                            @if (station.Models.Any())
+                            {
+                                <dt>Models</dt>
+                                <dd>
+                                    <table class="table table-responsive table-hover table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <td>Name</td>
+                                                <td>Times viewed</td>
+                                                <td>Total view duration</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var mod in station.Models)
+                                            {
+                                                <tr>
+                                                    <td>@mod.ID</td>
+                                                    <td>@mod.Name</td>
+                                                    <td>@mod.Views.Count</td>
+                                                    <td>@mod.TotalViewDuration.ToSillyString()</td>
+                                                </tr>
+                                            }
+
+                                        </tbody>
+                                    </table>
+                                </dd>
+                            }
+                        </dl>
+                    }
+                }
+
+                if (scenario.UnvisitedStations.Any())
+                {
+                    <h4>Unvisited stations</h4>
+                    <ul>
+                        @foreach (var station in scenario.UnvisitedStations)
+                        {
+                            <li>@station.Name</li>
+                        }
+                    </ul>
+                }
+            }
+            <hr>
+        }
+    }
+
+    @if (Model.ReportDetail.AdditionalLogs.Count > 0)
+    {
+        <h3>Additional Logs</h3>
+        <form method="post">
+            <button type="button"
+            class="btn btn-danger confirm-button deleteLogsButton"
+            data-updatemessage="confirmDeleteLogs">
+                Delete selected logs
+            </button>
+            <span class="confirmDeleteLogs"
+          style="display:none">
+                <button type="button"
+                class="btn btn-outline-primary">
+                    Cancel
+                </button>
+                <button type="submit"
+                asp-page-handler="DeleteLogs"
+                class="btn btn-outline-danger">
+                    Ok
+                </button>
+            </span>
+
+
+            <button type="reset"
+            class="btn btn-danger">
+                Reset selection
+            </button>
+            <table class="table table-responsive table-hover table-striped">
+                <thead>
+                    <tr>
+                        <th>Start</th>
+                        <th>End</th>
+                        <th>ID</th>
+                        <th>Time</th>
+                        <th>Address</th>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int i = 0; i < Model.ReportDetail.AdditionalLogs.Count; ++i)
+                    {
+                        var log = Model.ReportDetail.AdditionalLogs[i];
+
+                        <tr>
+                            <input type="checkbox"
+                                   class="range-selector range-selector-include"
+                                   asp-for="SelectedLog[i]"
+                                   data-rangename="addlLogs"
+                                   style="display:none" />
+                            <td>
+                                <input type="radio"
+                                       class="range-selector range-selector-start"
+                                       data-rangename="addlLogs">
+                            </td>
+                            <td>
+                                <input type="radio"
+                                       class="range-selector range-selector-end"
+                                       data-rangename="addlLogs">
+                            </td>
+                            <td>@log.Id</td>
+                            <td>
+                                @log.Timestamp.ToLocalTime()
+                            </td>
+                            <td>
+                                @log.FromAddress
+                            </td>
+                            <td>
+                                @log.Key
+                            </td>
+                            <td>
+                                @(log.Value?.ToJsonString() ?? "none")
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </form>
+        <hr>
+    }
+}

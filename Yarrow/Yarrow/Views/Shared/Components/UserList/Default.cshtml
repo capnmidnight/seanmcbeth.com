@@ -1,0 +1,228 @@
+@model Yarrow.Views.Shared.Components.UserList.UserListViewComponent.Model
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@addTagHelper *, Juniper.Server
+@addTagHelper *, Yarrow.Server
+<table class="table table-responsive table-hover table-striped summary" data-resourcename="@(Model.ResourceName)Users">
+    <thead>
+        <tr>
+            <th><label for="filterUserName">User</label></th>
+            <th><label for="filterFullName">Full name</label></th>
+            <th><label for="filterDisplayName">Display name</label></th>
+            <th><label>Created</label></th>
+
+            @if (Model.Organizations is not null)
+            {
+                <th><label for="filterOrganization">Organization</label></th>
+            }
+            else if (Model.AdminView)
+            {
+                <th><label for="filterOrganization">Current Organization</label></th>
+                <th><label for="filterIncludedInOrg">Organization Assignment</label></th>
+            }
+
+            @if (Model.AdminView)
+            {
+                <th><label for="filterRoles">Roles</label></th>
+                if (Model.Role is not null)
+                {
+                    <th><label for="filterIncludedInRole">Included</label></th>
+                }
+            }
+
+            <th><label>Actions</label></th>
+        </tr>
+        <tr>
+            <th>
+                <input type="text"
+                       id="filterUserName"
+                       placeholder="Filter by User Name"
+                       title="Filter by User Name" />
+            </th>
+            <th>
+                <input type="text"
+                       id="filterFullName"
+                       placeholder="Filter by Full Name"
+                       title="Filter by Full Name" />
+            </th>
+            <th>
+                <input type="text"
+                       id="filterDisplayName"
+                       placeholder="Filter by Display Name"
+                       title="Filter by Display Name" />
+            </th>
+
+            @await Component.InvokeAsync("DateRange", new { idStub = "CreatedOn"})
+
+            @if (Model.Organizations is not null)
+            {
+                <th>
+                    <select id="filterOrganization">
+                        <option value="" selected>--</option>
+                        @foreach (var item in Model.Organizations)
+                        {
+                            <option value="@item.Name.ToLowerInvariant()">@item.Name</option>
+                        }
+                    </select>
+                </th>
+            }
+            else if (Model.AdminView)
+            {
+                <th>
+                    <input type="text" id="filterOrganization" placeholder="Filter by Organization" title="Filter by Organization" />
+                </th>
+                <th>
+                    <select id="filterIncludedInOrg">
+                        <option value="">--</option>
+                        <option value="on">Included</option>
+                        <option value="off">Not included</option>
+                    </select>
+                </th>
+            }
+
+            @if (Model.AdminView)
+            {
+                <th>
+                    <select id="filterRoles">
+                        <option value="" selected>--</option>
+                        @foreach (var item in Model.Roles)
+                        {
+                            <option value="@item.Name.ToLowerInvariant()">@item.Name</option>
+                        }
+                    </select>
+                </th>
+                if (Model.Role is not null)
+                {
+                    <th>
+                        <select id="filterIncludedInRole">
+                            <option value="">--</option>
+                            <option value="on">Included</option>
+                            <option value="off">Not included</option>
+                        </select>
+                    </th>
+                }
+            }
+
+            <th><button type="reset" class="btn btn-secondary">Reset</button></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model.Users)
+        {
+            <tr>
+                <td>@user.UserName</td>
+                <td>@user.FullName</td>
+                <td>@user.DisplayName</td>
+                @await Component.InvokeAsync("DateCell", new { value=user.CreatedOn })
+
+                @if (Model.Organizations is not null)
+                {
+                    <td>
+                        <a class="btn btn-secondary"
+                           href="/Editor/Organizations/Detail/@user.OrganizationID">
+                            @user.OrganizationName
+                        </a>
+                    </td>
+                }
+                else if (Model.AdminView)
+                {
+                    var inOrg = user.OrganizationID == Model.Organization.Id;
+                    <td>@(user.OrganizationName ?? "--")</td>
+                    <td>
+                        <input type="checkbox"
+                               value="@(inOrg ? "on" : "off")"
+                               style="display:none">
+                        <form method="post" action="~/Editor/Organizations/Detail/@Model.Organization.Id?handler=SetUser">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="userID" value="@user.UserID" />
+                            <button type="submit"
+                                    class="btn @(inOrg ? "btn-danger" : "btn-outline-danger")">
+                                @(inOrg ? "Remove" : "Add")
+                            </button>
+                        </form>
+                    </td>
+                }
+
+                @if (Model.AdminView)
+                {
+                    <td class="multi">
+                        @foreach (var role in user.Roles)
+                        {
+                            <a class="btn btn-secondary"
+                               href="/Editor/Roles/Detail/@role">
+                                @role
+                            </a>
+                        }
+                    </td>
+
+                    if (Model.Role is not null)
+                    {
+                        var inRole = user.IsInRole(Model.Role);
+                        <td>
+                            <input type="checkbox"
+                                   value="@(inRole ? "on" : "off")"
+                                   style="display:none">
+                            <form method="post" action="~/Editor/Roles/Detail/@Model.Role?handler=SetUser">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="userID" value="@user.UserID" />
+                                <button type="submit"
+                                        class="btn @(inRole ? "btn-danger" : "btn-outline-danger")">
+                                    @(inRole ? "Remove" : "Add")
+                                </button>
+                            </form>
+                        </td>
+                    }
+                }
+
+                <td>
+                    <a class="btn btn-primary" href="~/Editor/Users/Detail/@user.UserID">
+                        Detail
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+    @if (Model.ShowCreateUser)
+    {
+        <tfoot>
+            <tr>
+                <td><input type="email" id="newName" name="Email" form="createUser" value="@Model.CreateUserEmail" required /></td>
+                <td><input type="text" name="FullName" form="createUser" value="@Model.CreateUserName" /></td>
+                <td><input type="text" name="DisplayName" form="createUser" value="@Model.CreateUserName" /></td>
+                <td></td>
+                <td>
+                    <select name="OrganizationID" form="createUser">
+                        @foreach (var org in Model.Organizations)
+                        {
+                            <option value="@org.Id">@org.Name</option>
+                        }
+                    </select>
+                </td>
+                <td>
+                    <select name="RoleName" form="createUser">
+                        @foreach (var role in Model.Roles)
+                        {
+                            <option value="@role.Name" selected="@(role.Name == "Student")">@role.Name</option>
+                        }
+                    </select>
+                </td>
+                <td>
+                    <button type="submit"
+                            id="submitNewNameButton"
+                            class="btn btn-outline-danger"
+                            disabled
+                            form="createUser">
+                        Create
+                    </button>
+                </td>
+            </tr>
+        </tfoot>
+    }
+</table>
+@if (Model.ShowCreateUser)
+{
+    <form id="createUser"
+          method="post"
+          action="~/Editor/Users/?handler=Create">
+        @Html.AntiForgeryToken()
+    </form>
+}

@@ -1,0 +1,71 @@
+@page
+@model RequestAccountModel
+
+@{
+    ViewData["Title"] = Model.Success is null
+        ? "Request New User Account"
+        : "Account Request Received";
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <bundle-css name="home" versioned />
+    <bundle-css dir="js/dom-apps" name="login/index" versioned />
+}
+
+<h1>@ViewData["Title"]</h1>
+@if (Model.Success is null)
+{
+    <form id="account" method="post">
+        <section id="loginForm">
+            <div id="userNameGroup" class="form-group span-width">
+                <label asp-for="Name"></label>
+                <span asp-validation-for="Name" class="text-danger"></span>
+                <input asp-for="Name" class="form-control" required />
+            </div>
+
+            <div id="emailGroup" class="form-group span-width">
+                <label asp-for="Email"></label>
+                <span asp-validation-for="Email" class="text-danger"></span>
+                <input asp-for="Email" type="email" class="form-control" required />
+            </div>
+
+            <div id="loginControls">
+                <div asp-validation-summary="All" class="text-danger"></div>
+                <div class="form-group">
+                    <button type="submit"
+                            class="btn btn-primary"
+                            onclick="this.innerText = 'Submitting...';setTimeout(() => { this.disabled = true;}, 10)">
+                        Request account
+                    </button>
+                </div>
+            </div>
+        </section>
+    </form>
+}
+else if (Model.Success.Value)
+{
+    if (Model.CreateLink is not null)
+    {
+        <p class="alert alert-danger" style="display:block">
+            DEVELOPMENT-ONLY: <a href="@Model.CreateLink">Go to create the new user account</a>.
+        </p>
+    }
+    else
+    {
+        <p class="alert alert-warning" style="display:block">
+            A request for a new user account has been sent to the site administrators. You should
+            receive an email at the provided email address confirming account creation within the
+            next business day.
+        </p>
+    }
+}
+else
+{
+    <p class="alert alert-warning" style="display:block">
+        Please contact the system adminstrator at
+        <a href="mailto:vr@dlsdc.com?Subject=Account Creation Error">vr@dlsdc.com</a>
+    </p>
+}
+
+<p><a href="/" class="btn btn-primary">Return home</a></p>

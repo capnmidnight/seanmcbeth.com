@@ -1,0 +1,10 @@
+.file-picker tbody > tr > td {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.file-picker tfoot > tr > td {
+    padding: 1em 0;
+    text-align: right;
+}

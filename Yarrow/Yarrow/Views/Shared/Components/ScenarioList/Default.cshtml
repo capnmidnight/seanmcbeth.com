@@ -1,0 +1,316 @@
+@model Yarrow.Views.Shared.Components.ScenarioList.ScenarioListViewComponent.Model
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@addTagHelper *, Juniper.Server
+@addTagHelper *, Yarrow.Server
+<table class="table table-responsive table-hover table-striped summary" data-resourcename="@(Model.ResourceName)ScenarioGroups" data-pagesizes="@Model.PageSizes">
+    <thead>
+        <tr>
+            @if (Model.AdminView)
+            {
+                <th><label>ID</label></th>
+            }
+            <th><label for="filterName">Scenario</label></th>
+            @if (Model.Languages is not null)
+            {
+                <th><label for="filterLanguage">Language</label></th>
+            }
+            <th><label>Created on</label></th>
+            @if (Model.ShowCreatedBy)
+            {
+                <th><label for="filterCreatedBy">Created by</label></th>
+            }
+            <th><label for="filterVersion">Current Version</label></th>
+            <th><label for="filterPublished">Current Published</label></th>
+            @if (Model.Organizations is not null)
+            {
+                <th><label for="filterOrganization">Organizations</label></th>
+            }
+            else
+            {
+                <th><label>Menu items</label></th>
+                @if (Model.AdminView)
+                {
+                    <th><label>Organization Assignment</label></th>
+                }
+            }
+            <th colspan="2"><label>Actions</label></th>
+        </tr>
+        <tr>
+            @if (Model.AdminView)
+            {
+                <th></th>
+            }
+            <th>
+                <input type="text"
+                       id="filterName"
+                       placeholder="Filter by Name"
+                       title="Filter by Name" />
+            </th>
+            @if (Model.Languages is not null)
+            {
+                <th>
+                    <select id="filterLanguage">
+                        <option value="" selected>--</option>
+                        @foreach (var item in Model.Languages)
+                        {
+                            <option value="@item.Name.ToLowerInvariant()">@item.Name</option>
+                        }
+                    </select>
+                </th>
+            }
+
+            @await Component.InvokeAsync("DateRange", new { idStub = "CreatedOn"})
+
+            @if (Model.ShowCreatedBy)
+            {
+                <th>
+                    <input type="text"
+                           id="filterCreatedBy"
+                           placeholder="Filter by Creator"
+                           title="Filter by Creator">
+                </th>
+            }
+            <th>
+                <input type="number"
+                       id="filterVersion"
+                       placeholder="Filter by Version"
+                       title="Filter by Version" />
+            </th>
+            <th>
+                <select id="filterPublished" title="Filter by publish state">
+                    <option value="" selected>--</option>
+                    <option value="on">Published</option>
+                    <option value="off">Pending</option>
+                </select>
+            </th>
+            @if (Model.Organizations is not null)
+            {
+                <th>
+                    <select id="filterOrganization">
+                        <option value="" selected>--</option>
+                        @foreach (var item in Model.Organizations)
+                        {
+                            <option value="@item.Name.ToLowerInvariant()">@item.Name</option>
+                        }
+                    </select>
+                </th>
+            }
+            else
+            {
+                <th></th>
+                @if (Model.AdminView)
+                {
+                    <th>
+                        <select id="filterIncluded" title="Filter by Included">
+                            <option value="">--</option>
+                            <option value="on">Included</option>
+                            <option value="off">Not included</option>
+                        </select>
+                    </th>
+                }
+            }
+            <th colspan="2"><button type="reset" class="btn btn-secondary">Reset</button></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var scenarioGroup in Model.ScenarioGroups)
+        {
+            var scn = scenarioGroup.Scenarios.FirstOrDefault();
+            <tr>
+                @if (Model.AdminView)
+                {
+                    <td>@scenarioGroup.Id</td>
+                }
+                <td>@scenarioGroup.Name</td>
+                @if (Model.Languages is not null)
+                {
+                    <td>
+                        <a class="btn btn-secondary"
+                           href="~/Editor/Languages/Detail/@scenarioGroup.LanguageId">
+                            @scenarioGroup.Language.Name
+                        </a>
+                    </td>
+                }
+                @await Component.InvokeAsync("DateCell", new { value=scenarioGroup.Timestamp })
+                @if (Model.ShowCreatedBy)
+                {
+                    <td>
+                        @if (scenarioGroup.CreatedById is not null)
+                        {
+                            <a class="btn btn-secondary"
+                               href="~/Editor/Users/Detail/@scenarioGroup.CreatedById">
+                                @(scenarioGroup.CreatedBy?.User?.UserName ?? "--")
+                            </a>
+                        }
+                        else
+                        {
+                            @:--
+                        }
+                    </td>
+                }
+                @{
+                    <td>
+                        @(scn?.Version.ToString() ?? "--")
+                    </td>
+                    <td>
+                        <input type="checkbox"
+                               value="@(scn?.Published == true ? "on" : "off")"
+                               style="display:none">
+                        @(scn?.Published == true ? "☑️" : "")
+                    </td>
+                }
+                @if (Model.Organizations is not null)
+                {
+                    <td class="multi">
+                        @foreach (var org in scenarioGroup.Organizations)
+                        {
+                            <a class="btn btn-secondary" href="/Editor/Organizations/Detail/@org.Id">@org.Name</a>
+                        }
+                    </td>
+                }
+                else
+                {
+                    var isInOrg = scenarioGroup.Organizations.Any(org => org.Id == Model.Organization.Id);
+
+                    <td>
+                        @if (scenarioGroup.MenuItems.Any())
+                        {
+                            foreach (var m in scenarioGroup.MenuItems)
+                            {
+                                <div><a href="/Editor/Menu/@m.Id">/Editor/Menu/@m.Id</a></div>
+                            }
+                        }
+                        else if (scenarioGroup.Scenarios.Any(s => s.Published == true))
+                        {
+                            <form method="post" action="~/Editor/Menu?handler=Create">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="ScenarioGroupID" value="@scenarioGroup.Id" />
+                                @if (Model.Organization is not null)
+                                {
+                                    <input type="hidden" name="OrganizationID" value="@Model.Organization.Id" />
+                                }
+                                <button type="submit"
+                                        disabled="@(!isInOrg)"
+                                        class="btn @(isInOrg ? "btn-primary" : "btn-outline-primary")"
+                                        title="@(isInOrg ? "Create a menu item for this scenario in this organization's menu." : "Cannot create a menu item for a scenario that is not included in the organization.")">
+                                    Create
+                                </button>
+                            </form>
+                        }
+                        else
+                        {
+                            @("No published versions")
+                        }
+                    </td>
+                    @if (Model.AdminView)
+                    {
+                        <td>
+                            <input type="checkbox"
+                                   value="@(isInOrg ? "on" : "off")"
+                                   checked="@isInOrg"
+                                   style="display:none">
+                            <form method="post" action="~/Editor/Organizations/Detail/@Model.Organization.Id?handler=SetScenario">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="scenarioGroupId" value="@scenarioGroup.Id" />
+                                <button type="submit"
+                                        class="btn @(isInOrg ? "btn-danger" : "btn-outline-danger")">
+                                    @(isInOrg ? "Remove" : "Add")
+                                </button>
+                            </form>
+                        </td>
+                    }
+                }
+                <td>
+                    @if (scn is not null)
+                    {
+                        <a class="btn btn-secondary" href="~/Editor/Scenarios/Layout/@scn.Id">
+                            @(scn.Published == true ? "View in editor" : "Edit")
+                        </a>
+                    }
+                </td>
+                <td>
+                    <a class="btn btn-primary" href="~/Editor/Scenarios/Detail/@scenarioGroup.Id">
+                        Detail
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+    @if (Model.ShowCreateScenario)
+    {
+        <tfoot>
+            <tr>
+                @if (Model.AdminView)
+                {
+                    <td></td>
+                }
+                @if (Model.Languages is not null)
+                {
+                    <td>
+                        <select name="languageId"
+                                form="createScenario">
+                            @foreach (var item in Model.Languages)
+                            {
+                                <option value="@item.Id">@item.Name</option>
+                            }
+                        </select>
+                    </td>
+                }
+                <td colspan="@(Model.ShowCreatedBy ? 5 : 4)">
+                    <input type="text"
+                           name="name"
+                           id="newName"
+                           form="createScenario"
+                           placeholder="Enter scenario name"
+                           required
+                           title="Enter scenario name" />
+                    @if (Model.Language is not null)
+                    {
+                        <input type="hidden"
+                               name="languageId"
+                               form="createScenario"
+                               readonly
+                               value="@Model.Language.Id" />
+                    }
+                    @if (Model.Organization is not null)
+                    {
+                        <input type="hidden"
+                               name="organizationId"
+                               form="createScenario"
+                               readonly
+                               value="@Model.Organization.Id" />
+                    }
+                </td>
+                @if (Model.Organizations is not null)
+                {
+                    <td>
+                        <select name="organizationId"
+                                form="createScenario">
+                            @foreach (var item in Model.Organizations)
+                            {
+                                <option value="@item.Id">@item.Name</option>
+                            }
+                        </select>
+                    </td>
+                }
+                <td>
+                    <button type="submit"
+                            class="btn btn-outline-danger"
+                            id="submitNewNameButton"
+                            disabled
+                            form="createScenario">
+                        Create
+                    </button>
+                </td>
+            </tr>
+        </tfoot>
+    }
+</table>
+@if (Model.ShowCreateScenario)
+{
+    <form id="createScenario"
+          method="post"
+          action="/Editor/Scenarios/?handler=Create">
+        @Html.AntiForgeryToken()
+    </form>
+}

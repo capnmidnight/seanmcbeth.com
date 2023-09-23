@@ -1,0 +1,251 @@
+@page "{fileID:int}"
+@model Yarrow.Pages.Editor.Files.DetailModel
+@{
+    Layout = "_EditorLayout";
+    ViewData["HideBanner"] = Model.HideBanner;
+    ViewData["Title"] = "File Manager - Detail";
+}
+
+@section Breadcrumb {
+    <li class="crumb"><a href="~/Editor/Files">File Manager</a></li>
+    <li class="crumb">Detail</li>
+}
+
+@section Scripts {
+    <bundle-css dir="js/dom-apps" name="resource-detail/index" versioned />
+    <bundle-css dir="js/dom-apps" name="file-detail/index" versioned />
+    <bundle-js dir="js/dom-apps" name="file-detail" versioned />
+}
+
+<h1>File - @Model.FileInfo.Name</h1>
+
+@if (!string.IsNullOrEmpty(Model.StatusMessage))
+{
+    <div class="alert alert-@Model.StatusType">@Model.StatusMessage</div>
+}
+
+<form method="post" enctype="multipart/form-data" asp-page-handler="Upload">
+    <input type="hidden" name="id" value="@Model.FileInfo.ID" />
+
+    <datalist id="existingTags">
+        @foreach (var tag in Model.Tags)
+        {
+            <option value="@tag">@tag</option>
+        }
+    </datalist>
+
+    <div class="detailSection">
+        <dl>
+            <dt>ID</dt>
+            <dd>@Model.FileInfo.ID</dd>
+
+            <dt>Name</dt>
+            <dd>@Model.FileInfo.Name</dd>
+
+            <dt>Type</dt>
+            <dd>
+                @Model.FileInfo.MediaType
+                @if (!Model.FileInfo.IsLink)
+                {
+                    if (Juniper.MediaType.Image_Png.Matches(Model.FileInfo.MediaType))
+                    {
+                        <button type="submit"
+                        asp-page-handler="Translate"
+                        class="btn btn-outline-danger">
+                            Convert to JPEG
+                        </button>
+                    }
+                    else if (Juniper.MediaType.Image_Jpeg.Matches(Model.FileInfo.MediaType))
+                    {
+                        <button type="submit"
+                        asp-page-handler="Translate"
+                        class="btn btn-outline-danger">
+                            Convert to PNG
+                        </button>
+                    }
+                }
+            </dd>
+
+            <dt>Created on</dt>
+            <dd>@Model.FileInfo.CreatedOn.ToString("g")</dd>
+
+            <dt>Size</dt>
+            <dd>@Model.FileInfo.SizeString</dd>
+
+            <dt>Copyright</dt>
+            <dd>
+                <input type="text"
+                       id="copyright"
+                       name="Copyright"
+                       class="form-control"
+                       placeholder="Copyright"
+                       title="Copyright"
+                       value="@Model.FileInfo.Copyright" />
+            </dd>
+
+            <dt>Copyright Date</dt>
+            <dd>
+                <input type="date"
+                       id="copyrightDate"
+                       name="CopyrightDate"
+                       class="form-control"
+                       value="@Model.FileInfo.CopyrightDate?.ToString("yyyy-MM-dd")" />
+            </dd>
+
+            <dt></dt>
+            <dd>
+                <button type="button"
+                        id="saveDetailButton"
+                        class="btn btn-danger"
+                        onclick="document.querySelector('#saveDetailMessage').style.display = 'block'">
+                    Save
+                </button>
+                @if (!Model.HideBanner)
+                {
+                    <a href="../" class="btn btn-secondary">
+                        Cancel
+                    </a>
+                }
+            </dd>
+
+            <dt></dt>
+            <dd>
+                <div id="saveDetailMessage" class="alert alert-info" style="display:none">
+                    <h3>Save</h3>
+                    <p>
+                        Are you sure you want to save copyright information?
+                    </p>
+                    <button type="submit"
+                            class="btn btn-danger confirm">
+                        Yes
+                    </button>
+                    <button type="button"
+                            id="cancelDetailButton"
+                            class="btn btn-primary cancel"
+                            onclick="document.querySelector('#saveDetailMessage').style.display = 'none'">
+                        No
+                    </button>
+                </div>
+            </dd>
+
+            <dt>Current tags</dt>
+            <dd>
+                <select id="tagsList"
+                        class="custom-select"
+                        multiple
+                        style="width:100%">
+                    @foreach (var tag in Model.FileInfo.Tags)
+                    {
+                        <option value="@tag">@tag</option>
+                    }
+                </select>
+                <br />
+                <button type="button"
+                        id="removeTagButton"
+                        class="btn btn-danger">
+                    Remove
+                </button>
+            </dd>
+
+            <dt>New tag</dt>
+            <dd>
+                <div class="input-group" style="width: 100%;display: grid;grid-template-columns: 1fr,auto;">
+                    <input type="text"
+                           id="newTagName"
+                           class="form-control"
+                           list="existingTags"
+                           placeholder="tag"
+                           title="tag" />
+                    <button type="button"
+                            id="addTagButton"
+                            class="btn btn-primary">
+                        Add
+                    </button>
+                </div>
+            </dd>
+
+            @if (Model.OriginURL is not null)
+            {
+                <dt>Origin</dt>
+                <dd><a href="@Model.OriginURL" target="_blank" rel="nofollow noreferrer">@Model.OriginURL</a></dd>
+            }
+
+            <dt>Preview</dt>
+            <dd>
+                <div id="filePreview"
+                     data-json="@Model.FileInfoJSON"></div>
+            </dd>
+
+            <dt></dt>
+            <dd>
+                <a class="btn btn-primary"
+                   href="~/Editor/Files/Download/@Model.FileInfo.ID">
+                    Download
+                </a>
+                <input type="file"
+                       id="formFile"
+                       name="FormFile" />
+                @if (!Model.HideBanner)
+                {
+                    <button type="button"
+                        class="btn btn-danger"
+                        onclick="document.querySelector('#confirmDelete').style.display='inline-block'">
+                        Delete
+                    </button>
+                    <a class="btn btn-secondary"
+                   href="~/Editor/Files/">
+                        Cancel
+                    </a>
+                }
+            </dd>
+
+            <dt></dt>
+            <dd>
+                <span id="confirmUpdate"
+                      style="display:none">
+                    <button type="button"
+                            class="btn btn-outline-primary"
+                            onclick="document.querySelector('#confirmUpdate').style.display='none'">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                            class="btn btn-outline-danger">
+                        Ok
+                    </button>
+                </span>
+                <span id="confirmDelete"
+                      style="display:none">
+                    <button type="button"
+                            class="btn btn-outline-primary"
+                            onclick="document.querySelector('#confirmDelete').style.display='none'">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                            asp-page-handler="Delete"
+                            class="btn btn-outline-danger">
+                        Ok
+                    </button>
+                </span>
+            </dd>
+
+            <dt>Usage Locations</dt>
+            <dd>
+                <ul>
+                    @foreach (var path in Model.FileInfo.Paths)
+                    {
+                        <li>
+                            @if (Model.HideBanner)
+                            {
+                                <a href="@path" target="_blank">@path</a>
+                            }
+                            else
+                            {
+                                <a href="@path">@path</a>
+                            }
+                        </li>
+                    }
+                </ul>
+            </dd>
+        </dl>
+    </div>
+</form>

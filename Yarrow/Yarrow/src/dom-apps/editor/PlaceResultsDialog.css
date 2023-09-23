@@ -1,0 +1,38 @@
+.places-results .dialog-content {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto 1fr auto;
+}
+
+.places-results h2 {
+    grid-area: 2/1;
+}
+
+.places-results .thumbnail {
+    height: 1em;
+}
+
+.places-results .table {
+    grid-area: 3/1/-2/-1;
+    display: grid;
+    grid-template-columns: auto;
+    grid-template-rows: auto 1fr;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+
+.places-results .table-row {
+    display: grid;
+    grid-template-columns: 1fr 3fr 5fr 1fr;
+}
+
+.places-results .table-head {
+    grid-area: 1/1/2/-1;
+}
+
+.places-results .table-body {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}

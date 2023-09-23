@@ -1,0 +1,80 @@
+@page
+@model Yarrow.Pages.Editor.Languages.IndexModel
+@{
+    Layout = "_EditorLayout";
+    ViewData["Title"] = "Languages Summary";
+}
+
+@section Scripts {
+    <bundle-css dir="js/dom-apps" name="resource-summary/index" versioned />
+    <bundle-js dir="js/dom-apps" name="resource-summary" versioned />
+    <bundle-css dir="js/dom-apps" name="thumbnail-viewer/index" versioned />
+    <bundle-js dir="js/dom-apps" name="thumbnail-viewer" versioned />
+    <bundle-js dir="js/dom-apps" name="named-object-creator" versioned />
+}
+
+@section Breadcrumb {
+    <li class="crumb">Languages</li>
+}
+
+<h1>Languages</h1>
+
+@if (!string.IsNullOrEmpty(Model.StatusMessage))
+{
+    <div class="alert alert-@Model.StatusType">@Model.StatusMessage</div>
+}
+
+<form method="post">
+    @Html.AntiForgeryToken()
+    <table class="table table-responsive table-hover table-striped summary" data-resourcename="Languages">
+        <thead>
+            <tr>
+                <th><label for="filterName">Name</label></th>
+                <th><label>Actions</label></th>
+            </tr>
+            <tr>
+                <th>
+                    <input type="text" id="filterName" class="text" placeholder="Filter by Name" title="Filter by Name" />
+                </th>
+                <th><button type="reset" class="btn btn-secondary">Reset</button></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Languages)
+            {
+                <tr>
+                    <td>
+                        @item.Name
+                    </td>
+                    <td>
+                        <input type="hidden" value="@item.Id" />
+                        <a class="btn btn-primary"
+                           href="~/Editor/Languages/Detail/@item.Id">
+                            Detail
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <td>
+                    <input type="text"
+                           id="newName"
+                           name="name"
+                           required
+                           placeholder="New language name" title="New language name" />
+                </td>
+                <td>
+                    <button type="submit"
+                            id="submitNewNameButton"
+                            class="btn btn-outline-danger"
+                            disabled
+                            asp-page-handler="Create">
+                        Create
+                    </button>
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+</form>

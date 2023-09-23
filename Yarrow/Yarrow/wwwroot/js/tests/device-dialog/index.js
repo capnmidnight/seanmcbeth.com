@@ -1,0 +1,7357 @@
+var __defProp = Object.defineProperty;
+var __export = (target, all2) => {
+  for (var name in all2)
+    __defProp(target, name, { get: all2[name], enumerable: true });
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/typeChecks.ts
+function t(o, s, c) {
+  return typeof o === s || o instanceof c;
+}
+function isFunction(obj) {
+  return t(obj, "function", Function);
+}
+function isString(obj) {
+  return t(obj, "string", String);
+}
+function isBoolean(obj) {
+  return t(obj, "boolean", Boolean);
+}
+function isNumber(obj) {
+  return t(obj, "number", Number);
+}
+function isBadNumber(num) {
+  return isNullOrUndefined(num) || !Number.isFinite(num) || Number.isNaN(num);
+}
+function isGoodNumber(obj) {
+  return isNumber(obj) && !isBadNumber(obj);
+}
+function isObject(obj) {
+  return isDefined(obj) && t(obj, "object", Object);
+}
+function isDate(obj) {
+  return obj instanceof Date;
+}
+function isArray(obj) {
+  return obj instanceof Array;
+}
+function assertNever(x, msg) {
+  throw new Error((msg || "Unexpected object: ") + x);
+}
+function isNullOrUndefined(obj) {
+  return obj === null || obj === void 0;
+}
+function isDefined(obj) {
+  return !isNullOrUndefined(obj);
+}
+function isArrayBufferView(obj) {
+  return obj instanceof Uint8Array || obj instanceof Uint8ClampedArray || obj instanceof Int8Array || obj instanceof Uint16Array || obj instanceof Int16Array || obj instanceof Uint32Array || obj instanceof Int32Array || obj instanceof Float32Array || obj instanceof Float64Array || "BigUint64Array" in globalThis && obj instanceof globalThis["BigUint64Array"] || "BigInt64Array" in globalThis && obj instanceof globalThis["BigInt64Array"];
+}
+function isArrayBuffer(val) {
+  return val && typeof ArrayBuffer !== "undefined" && (val instanceof ArrayBuffer || // Sometimes we get an ArrayBuffer that doesn't satisfy instanceof
+  val.constructor && val.constructor.name === "ArrayBuffer");
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/collections/arrays.ts
+function defaultKeySelector(obj) {
+  return obj;
+}
+function arrayBinarySearchByKey(arr, itemKey, keySelector) {
+  let left = 0;
+  let right = arr.length;
+  let idx = Math.floor((left + right) / 2);
+  let found = false;
+  while (left < right && idx < arr.length) {
+    const compareTo = arr[idx];
+    const compareToKey = isNullOrUndefined(compareTo) ? null : keySelector(compareTo);
+    if (isDefined(compareToKey) && itemKey < compareToKey) {
+      right = idx;
+    } else {
+      if (itemKey === compareToKey) {
+        found = true;
+      }
+      left = idx + 1;
+    }
+    idx = Math.floor((left + right) / 2);
+  }
+  if (!found) {
+    idx += 0.5;
+  }
+  return idx;
+}
+function arrayBinarySearch(arr, item, keySelector) {
+  keySelector = keySelector || defaultKeySelector;
+  const itemKey = keySelector(item);
+  return arrayBinarySearchByKey(arr, itemKey, keySelector);
+}
+function arrayClear(arr) {
+  return arr.splice(0);
+}
+function arrayCompare(arr1, arr2) {
+  for (let i = 0; i < arr1.length; ++i) {
+    if (arr1[i] !== arr2[i]) {
+      return i;
+    }
+  }
+  return -1;
+}
+function arrayInsertAt(arr, item, idx) {
+  arr.splice(idx, 0, item);
+}
+function arrayRemove(arr, value2) {
+  const idx = arr.indexOf(value2);
+  if (idx > -1) {
+    arrayRemoveAt(arr, idx);
+    return true;
+  }
+  return false;
+}
+function arrayRemoveAt(arr, idx) {
+  return arr.splice(idx, 1)[0];
+}
+function _arrayScan(forward, arr, tests) {
+  const start = forward ? 0 : arr.length - 1;
+  const end = forward ? arr.length : -1;
+  const inc = forward ? 1 : -1;
+  for (const test of tests) {
+    for (let i = start; i != end; i += inc) {
+      const item = arr[i];
+      if (test(item)) {
+        return item;
+      }
+    }
+  }
+  return null;
+}
+function arrayScan(arr, ...tests) {
+  return _arrayScan(true, arr, tests);
+}
+function arraySortedInsert(arr, item, keySelector, allowDuplicates) {
+  let ks;
+  if (isFunction(keySelector)) {
+    ks = keySelector;
+  } else if (isBoolean(keySelector)) {
+    allowDuplicates = keySelector;
+  }
+  if (isNullOrUndefined(allowDuplicates)) {
+    allowDuplicates = true;
+  }
+  return arraySortedInsertInternal(arr, item, ks, allowDuplicates);
+}
+function arraySortedInsertInternal(arr, item, ks, allowDuplicates) {
+  let idx = arrayBinarySearch(arr, item, ks);
+  const found = idx % 1 === 0;
+  idx = idx | 0;
+  if (!found || allowDuplicates) {
+    arrayInsertAt(arr, item, idx);
+  }
+  return idx;
+}
+function arraySortByKey(arr, keySelector) {
+  const newArr = Array.from(arr);
+  arraySortByKeyInPlace(newArr, keySelector);
+  return newArr;
+}
+function arraySortByKeyInPlace(newArr, keySelector) {
+  newArr.sort((a, b) => {
+    const keyA = keySelector(a);
+    const keyB = keySelector(b);
+    if (keyA < keyB) {
+      return -1;
+    } else if (keyA > keyB) {
+      return 1;
+    } else {
+      return 0;
+    }
+  });
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/identity.ts
+function identity(item) {
+  return item;
+}
+function alwaysTrue() {
+  return true;
+}
+function alwaysFalse() {
+  return false;
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/attrs.ts
+var Attr = class {
+  /**
+   * Creates a new setter functor for HTML Attributes
+   * @param key - the attribute name.
+   * @param value - the value to set for the attribute.
+   * @param tags - the HTML tags that support this attribute.
+   */
+  constructor(key, value2, bySetAttribute, ...tags) {
+    this.key = key;
+    this.value = value2;
+    this.bySetAttribute = bySetAttribute;
+    this.tags = tags.map((t2) => t2.toLocaleUpperCase());
+    Object.freeze(this);
+  }
+  /**
+   * Set the attribute value on an HTMLElement
+   * @param elem - the element on which to set the attribute.
+   */
+  applyToElement(elem) {
+    const isDataSet = this.key.startsWith("data-");
+    const isValid = this.tags.length === 0 || this.tags.indexOf(elem.tagName) > -1 || isDataSet;
+    if (!isValid) {
+      console.warn(`Element ${elem.tagName} does not support Attribute ${this.key}`);
+    } else if (isDataSet) {
+      const subkey = this.key.substring(5);
+      elem.dataset[subkey] = this.value;
+    } else if (this.key === "style") {
+      Object.assign(elem.style, this.value);
+    } else if (this.key === "classList") {
+      const arr = this.value.filter(identity);
+      if (arr.length > 0) {
+        arr.forEach((v) => elem.classList.add(v));
+      }
+    } else if (this.bySetAttribute) {
+      elem.setAttribute(this.key, this.value);
+    } else if (this.key in elem) {
+      elem[this.key] = this.value;
+    } else if (this.value === false) {
+      elem.removeAttribute(this.key);
+    } else if (this.value === true) {
+      elem.setAttribute(this.key, "");
+    } else {
+      elem.setAttribute(this.key, this.value);
+    }
+  }
+};
+function isAttr(obj) {
+  return obj instanceof Attr;
+}
+function coallesceClassLists(attrs, ...rest) {
+  const classes = [...rest];
+  const classListAttr = arrayScan(attrs, (attr) => attr instanceof Attr && attr.key === "classList");
+  if (isDefined(classListAttr)) {
+    arrayRemove(attrs, classListAttr);
+    classes.push(...classListAttr.value);
+  }
+  const classNameAttr = arrayScan(attrs, (attr) => attr instanceof Attr && attr.key === "className");
+  if (isDefined(classNameAttr)) {
+    arrayRemove(attrs, classNameAttr);
+    classes.push(...classNameAttr.value.split(" "));
+  }
+  return classes;
+}
+function autoPlay(value2) {
+  return new Attr("autoplay", value2, false, "audio", "video");
+}
+function checked(value2) {
+  return new Attr("checked", value2, false, "command", "input");
+}
+function className(value2) {
+  return new Attr("className", value2, false);
+}
+function classList(...values) {
+  return new Attr("classList", values, false);
+}
+function controls(value2) {
+  return new Attr("controls", value2, false, "audio", "video");
+}
+function customData(name, value2) {
+  return new Attr("data-" + name.toLowerCase(), value2, false);
+}
+function htmlHeight(value2) {
+  return new Attr("height", value2, false, "canvas", "embed", "iframe", "img", "input", "object", "video");
+}
+function id(value2) {
+  return new Attr("id", value2, false);
+}
+function loop(value2) {
+  return new Attr("loop", value2, false, "audio", "bgsound", "marquee", "video");
+}
+function max(value2) {
+  return new Attr("max", value2, false, "input", "meter", "progress");
+}
+function min(value2) {
+  return new Attr("min", value2, false, "input", "meter");
+}
+function muted(value2) {
+  return new Attr("muted", value2, false, "audio", "video");
+}
+function rel(value2) {
+  return new Attr("rel", value2, false, "a", "area", "link");
+}
+function selected(value2) {
+  return new Attr("selected", value2, false, "option");
+}
+function unpackURL(value2) {
+  if (value2 instanceof URL) {
+    value2 = value2.href;
+  }
+  return value2;
+}
+function src(value2) {
+  return new Attr("src", unpackURL(value2), false, "audio", "embed", "iframe", "img", "input", "script", "source", "track", "video");
+}
+function srcObject(value2) {
+  return new Attr("srcObject", value2, false, "audio", "video");
+}
+function step(value2) {
+  return new Attr("step", value2, false, "input");
+}
+function title(value2) {
+  return new Attr("title", value2, false);
+}
+function type(value2) {
+  if (!isString(value2)) {
+    value2 = value2.value;
+  }
+  return new Attr("type", value2, false, "button", "input", "command", "embed", "link", "object", "script", "source", "style", "menu");
+}
+function value(value2) {
+  return new Attr("value", value2, false, "button", "data", "input", "li", "meter", "option", "progress", "param");
+}
+function htmlWidth(value2) {
+  return new Attr("width", value2, false, "canvas", "embed", "iframe", "img", "input", "object", "video");
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/events/EventBase.ts
+var EventBase = class {
+  constructor() {
+    this.listeners = /* @__PURE__ */ new Map();
+    this.listenerOptions = /* @__PURE__ */ new Map();
+  }
+  addEventListener(type2, callback, options) {
+    if (isFunction(callback)) {
+      let listeners = this.listeners.get(type2);
+      if (!listeners) {
+        listeners = new Array();
+        this.listeners.set(type2, listeners);
+      }
+      if (!listeners.find((c) => c === callback)) {
+        listeners.push(callback);
+        if (options) {
+          this.listenerOptions.set(callback, options);
+        }
+      }
+    }
+  }
+  removeEventListener(type2, callback) {
+    if (isFunction(callback)) {
+      const listeners = this.listeners.get(type2);
+      if (listeners) {
+        this.removeListener(listeners, callback);
+      }
+    }
+  }
+  clearEventListeners(type2) {
+    for (const [evtName, handlers] of this.listeners) {
+      if (isNullOrUndefined(type2) || type2 === evtName) {
+        for (const handler of handlers) {
+          this.removeEventListener(type2, handler);
+        }
+        arrayClear(handlers);
+        this.listeners.delete(evtName);
+      }
+    }
+  }
+  removeListener(listeners, callback) {
+    const idx = listeners.findIndex((c) => c === callback);
+    if (idx >= 0) {
+      arrayRemoveAt(listeners, idx);
+      if (this.listenerOptions.has(callback)) {
+        this.listenerOptions.delete(callback);
+      }
+    }
+  }
+  dispatchEvent(evt) {
+    const listeners = this.listeners.get(evt.type);
+    if (listeners) {
+      for (const callback of listeners) {
+        const options = this.listenerOptions.get(callback);
+        if (isDefined(options) && !isBoolean(options) && options.once) {
+          this.removeListener(listeners, callback);
+        }
+        callback.call(this, evt);
+      }
+    }
+    return !evt.defaultPrevented;
+  }
+};
+var TypedEvent = class extends Event {
+  get type() {
+    return super.type;
+  }
+  constructor(type2, eventInitDict) {
+    super(type2, eventInitDict);
+  }
+};
+var TypedEventBase = class extends EventBase {
+  constructor() {
+    super(...arguments);
+    this.bubblers = /* @__PURE__ */ new Set();
+    this.scopes = /* @__PURE__ */ new WeakMap();
+  }
+  addBubbler(bubbler) {
+    this.bubblers.add(bubbler);
+  }
+  removeBubbler(bubbler) {
+    this.bubblers.delete(bubbler);
+  }
+  addEventListener(type2, callback, options) {
+    super.addEventListener(type2, callback, options);
+  }
+  removeEventListener(type2, callback) {
+    super.removeEventListener(type2, callback);
+  }
+  clearEventListeners(type2) {
+    return super.clearEventListeners(type2);
+  }
+  addScopedEventListener(scope, type2, callback, options) {
+    if (!this.scopes.has(scope)) {
+      this.scopes.set(scope, []);
+    }
+    this.scopes.get(scope).push([type2, callback]);
+    this.addEventListener(type2, callback, options);
+  }
+  removeScope(scope) {
+    const listeners = this.scopes.get(scope);
+    if (listeners) {
+      this.scopes.delete(scope);
+      for (const [type2, listener] of listeners) {
+        this.removeEventListener(type2, listener);
+      }
+    }
+  }
+  dispatchEvent(evt) {
+    if (!super.dispatchEvent(evt)) {
+      return false;
+    }
+    if (!evt.cancelBubble) {
+      for (const bubbler of this.bubblers) {
+        if (!bubbler.dispatchEvent(evt)) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/progress/BaseProgress.ts
+var BaseProgress = class extends TypedEventBase {
+  constructor() {
+    super(...arguments);
+    this.attached = new Array();
+    this.soFar = null;
+    this.total = null;
+    this.msg = null;
+    this.est = null;
+  }
+  get p() {
+    return this.total > 0 ? this.soFar / this.total : 0;
+  }
+  report(soFar, total, msg, est) {
+    this.soFar = soFar;
+    this.total = total;
+    this.msg = msg;
+    this.est = est;
+    for (const attach of this.attached) {
+      attach.report(soFar, total, msg, est);
+    }
+  }
+  attach(prog) {
+    this.attached.push(prog);
+    prog.report(this.soFar, this.total, this.msg, this.est);
+  }
+  clear() {
+    this.report(0, 0);
+    this._clear();
+  }
+  start(msg) {
+    this.report(0, 1, msg || "starting");
+  }
+  end(msg) {
+    this.report(1, 1, msg || "done");
+    this._clear();
+  }
+  _clear() {
+    this.soFar = null;
+    this.total = null;
+    this.msg = null;
+    this.est = null;
+    arrayClear(this.attached);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/Exception.ts
+var Exception = class extends Error {
+  constructor(message, innerError = null) {
+    super(message);
+    this.innerError = innerError;
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/events/Task.ts
+var Task = class {
+  /**
+   * Create a new Task
+   *
+   * @param autoStart - set to false to require manually starting the Task. Useful
+   * for reusable tasks that run on timers.
+   */
+  constructor(autoStart = true) {
+    this.autoStart = autoStart;
+    this.onThens = new Array();
+    this.onCatches = new Array();
+    this._result = void 0;
+    this._error = void 0;
+    this._executionState = "waiting";
+    this._resultState = "none";
+    this.resolve = (value2) => {
+      if (this.running) {
+        this._result = value2;
+        this._resultState = "resolved";
+        for (const thenner of this.onThens) {
+          thenner(value2);
+        }
+        this.clear();
+        this._executionState = "finished";
+      }
+    };
+    this.reject = (reason) => {
+      if (this.running) {
+        this._error = reason;
+        this._resultState = "errored";
+        for (const catcher of this.onCatches) {
+          catcher(reason);
+        }
+        this.clear();
+        this._executionState = "finished";
+      }
+    };
+    if (this.autoStart) {
+      this.start();
+    }
+  }
+  clear() {
+    arrayClear(this.onThens);
+    arrayClear(this.onCatches);
+  }
+  /**
+   * If the task was not auto-started, signal that the task is now ready to recieve
+   * resolutions or rejections.
+   **/
+  start() {
+    this._executionState = "running";
+  }
+  /**
+   * Creates a resolving callback for a static value.
+   * @param value
+   */
+  resolver(value2) {
+    return () => this.resolve(value2);
+  }
+  resolveOn(target, resolveEvt, value2) {
+    const resolver = this.resolver(value2);
+    target.addEventListener(resolveEvt, resolver);
+    this.finally(() => target.removeEventListener(resolveEvt, resolver));
+  }
+  /**
+   * Get the last result that the task had resolved to, if any is available.
+   *
+   * If the Task had been rejected, attempting to get the result will rethrow
+   * the error that had rejected the task.
+   **/
+  get result() {
+    if (isDefined(this.error)) {
+      throw this.error;
+    }
+    return this._result;
+  }
+  /**
+   * Get the last error that the task had been rejected by, if any.
+   **/
+  get error() {
+    return this._error;
+  }
+  /**
+   * Get the current state of the task.
+   **/
+  get executionState() {
+    return this._executionState;
+  }
+  /**
+   * Returns true when the Task is hasn't started yet.
+   **/
+  get waiting() {
+    return this.executionState === "waiting";
+  }
+  /**
+   * Returns true when the Task is waiting to be resolved or rejected.
+   **/
+  get started() {
+    return this.executionState !== "waiting";
+  }
+  /**
+   * Returns true after the Task has started, but before it has finished.
+   **/
+  get running() {
+    return this.executionState === "running";
+  }
+  /**
+   * Returns true when the Task has been resolved or rejected.
+   **/
+  get finished() {
+    return this.executionState === "finished";
+  }
+  get resultState() {
+    return this._resultState;
+  }
+  /**
+   * Returns true if the Task had been resolved successfully.
+   **/
+  get resolved() {
+    return this.resultState === "resolved";
+  }
+  /**
+   * Returns true if the Task had been rejected, regardless of any
+   * reason being given.
+   **/
+  get errored() {
+    return this.resultState === "errored";
+  }
+  get [Symbol.toStringTag]() {
+    return this.toString();
+  }
+  /**
+   * Calling Task.then(), Task.catch(), or Task.finally() creates a new Promise.
+   * This method creates that promise and links it with the task.
+   **/
+  project() {
+    return new Promise((resolve, reject) => {
+      if (!this.finished) {
+        this.onThens.push(resolve);
+        this.onCatches.push(reject);
+      } else if (this.errored) {
+        reject(this.error);
+      } else {
+        resolve(this.result);
+      }
+    });
+  }
+  /**
+   * Attach a handler to the task that fires when the task is resolved.
+   * 
+   * @param onfulfilled
+   * @param onrejected
+   */
+  then(onfulfilled, onrejected) {
+    return this.project().then(onfulfilled, onrejected);
+  }
+  /**
+   * Attach a handler that fires when the Task is rejected.
+   * 
+   * @param onrejected
+   */
+  catch(onrejected) {
+    return this.project().catch(onrejected);
+  }
+  /**
+   * Attach a handler that fires regardless of whether the Task is resolved
+   * or rejected.
+   * 
+   * @param onfinally
+   */
+  finally(onfinally) {
+    return this.project().finally(onfinally);
+  }
+  /**
+   * Resets the Task to an unsignalled state, which is useful for
+   * reducing GC pressure when working with lots of tasks.
+   **/
+  reset() {
+    this._reset(this.autoStart);
+  }
+  restart() {
+    this._reset(true);
+  }
+  _reset(start) {
+    if (this.running) {
+      this.reject("Resetting previous invocation");
+    }
+    this.clear();
+    this._result = void 0;
+    this._error = void 0;
+    this._executionState = "waiting";
+    this._resultState = "none";
+    if (start) {
+      this.start();
+    }
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/events/once.ts
+function targetValidateEvent(target, type2) {
+  return "on" + type2 in target;
+}
+function once(target, resolveEvt, rejectEvtOrTimeout, ...rejectEvts) {
+  if (isNullOrUndefined(rejectEvts)) {
+    rejectEvts = [];
+  }
+  let timeout = void 0;
+  if (isString(rejectEvtOrTimeout)) {
+    rejectEvts.unshift(rejectEvtOrTimeout);
+  } else if (isNumber(rejectEvtOrTimeout)) {
+    timeout = rejectEvtOrTimeout;
+  }
+  if (!(target instanceof EventBase)) {
+    if (!targetValidateEvent(target, resolveEvt)) {
+      throw new Exception(`Target does not have a ${resolveEvt} rejection event`);
+    }
+    for (const evt of rejectEvts) {
+      if (!targetValidateEvent(target, evt)) {
+        throw new Exception(`Target does not have a ${evt} rejection event`);
+      }
+    }
+  }
+  const task = new Task();
+  if (isNumber(timeout)) {
+    const timeoutHandle = setTimeout(task.reject, timeout, `'${resolveEvt}' has timed out.`);
+    task.finally(clearTimeout.bind(globalThis, timeoutHandle));
+  }
+  const register = (evt, callback) => {
+    target.addEventListener(evt, callback);
+    task.finally(() => target.removeEventListener(evt, callback));
+  };
+  register(resolveEvt, (evt) => task.resolve(evt));
+  const onReject = (evt) => task.reject(evt);
+  for (const rejectEvt of rejectEvts) {
+    register(rejectEvt, onReject);
+  }
+  return task;
+}
+function success(task) {
+  return task.then(alwaysTrue).catch(alwaysFalse);
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/css.ts
+function em(value2) {
+  return `${value2}em`;
+}
+function rgb(...v) {
+  return `rgb(${v.join(", ")})`;
+}
+var Prop = class {
+  constructor(_value) {
+    this._value = _value;
+  }
+  get value() {
+    return this._value;
+  }
+  toString() {
+    return this.value;
+  }
+};
+var KeyValueProp = class extends Prop {
+  constructor(_name, sep, value2) {
+    super(value2);
+    this._name = _name;
+    this.sep = sep;
+  }
+  get name() {
+    return this._name;
+  }
+  toString() {
+    return this.name + this.sep + this.value + ";";
+  }
+};
+var CssDeclareProp = class extends KeyValueProp {
+  constructor(key, value2) {
+    super(key, ": ", value2);
+  }
+};
+var CssElementStyleProp = class extends CssDeclareProp {
+  constructor(key, value2) {
+    super(key.replace(/[A-Z]/g, (m) => `-${m.toLocaleLowerCase()}`), value2.toString());
+    this.key = key;
+    this.priority = "";
+  }
+  /**
+   * Set the attribute value on an HTMLElement
+   * @param elem - the element on which to set the attribute.
+   */
+  applyToElement(elem) {
+    elem.style[this.key] = this.value + this.priority;
+  }
+  important() {
+    this.priority = " !important";
+    return this;
+  }
+  get value() {
+    return super.value + this.priority;
+  }
+};
+function isCssElementStyleProp(obj) {
+  return obj instanceof CssElementStyleProp;
+}
+function display(v) {
+  return new CssElementStyleProp("display", v);
+}
+function margin(...v) {
+  return new CssElementStyleProp("margin", v.join(" "));
+}
+function paddingRight(v) {
+  return new CssElementStyleProp("paddingRight", v);
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/tags.ts
+function isErsatzElement(obj) {
+  if (!isObject(obj)) {
+    return false;
+  }
+  const elem = obj;
+  return elem.element instanceof Element;
+}
+function resolveElement(elem) {
+  if (isErsatzElement(elem)) {
+    return elem.element;
+  } else if (isString(elem)) {
+    return getElement(elem);
+  }
+  return elem;
+}
+function isIElementAppliable(obj) {
+  return isObject(obj) && "applyToElement" in obj && isFunction(obj.applyToElement);
+}
+function elementSetDisplay(elem, visible, visibleDisplayType = "") {
+  elem = resolveElement(elem);
+  elem.style.display = visible ? visibleDisplayType : "none";
+}
+function elementIsDisplayed(elem) {
+  elem = resolveElement(elem);
+  return elem.style.display !== "none";
+}
+function elementApply(elem, ...children) {
+  elem = resolveElement(elem);
+  for (const child of children) {
+    if (isDefined(child)) {
+      if (child instanceof Node) {
+        elem.append(child);
+      } else if (isErsatzElement(child)) {
+        elem.append(resolveElement(child));
+      } else if (isIElementAppliable(child)) {
+        child.applyToElement(elem);
+      } else {
+        elem.append(document.createTextNode(child.toLocaleString()));
+      }
+    }
+  }
+  return elem;
+}
+function getElement(selector) {
+  return document.querySelector(selector);
+}
+function getElements(selector) {
+  return Array.from(document.querySelectorAll(selector));
+}
+function getInput(selector) {
+  return getElement(selector);
+}
+function tag(name, ...rest) {
+  let elem = null;
+  for (const attr of rest) {
+    if (attr instanceof Attr && attr.key === "id") {
+      elem = document.getElementById(attr.value);
+      break;
+    }
+  }
+  if (elem == null) {
+    elem = document.createElement(name);
+  }
+  elementApply(elem, ...rest);
+  return elem;
+}
+function isDisableable(obj) {
+  return isObject(obj) && "disabled" in obj && isBoolean(obj.disabled);
+}
+function elementClearChildren(elem) {
+  elem = resolveElement(elem);
+  while (elem.lastChild) {
+    elem.lastChild.remove();
+  }
+}
+function elementSetText(elem, text2) {
+  elem = resolveElement(elem);
+  elementClearChildren(elem);
+  elem.append(TextNode(text2));
+}
+function elementSetClass(elem, enabled, className2) {
+  elem = resolveElement(elem);
+  const canEnable = isDefined(className2);
+  const hasEnabled = canEnable && elem.classList.contains(className2);
+  if (canEnable && hasEnabled !== enabled) {
+    elem.classList.toggle(className2);
+  }
+}
+async function mediaElementCan(type2, elem, prog) {
+  if (isDefined(prog)) {
+    prog.start();
+  }
+  const expectedState = type2 === "canplay" ? elem.HAVE_CURRENT_DATA : elem.HAVE_ENOUGH_DATA;
+  if (elem.readyState >= expectedState) {
+    return true;
+  }
+  try {
+    await once(elem, type2, "error");
+    return true;
+  } catch (err) {
+    console.warn(elem.error, err);
+    return false;
+  } finally {
+    if (isDefined(prog)) {
+      prog.end();
+    }
+  }
+}
+function mediaElementCanPlay(elem, prog) {
+  return mediaElementCan("canplay", elem, prog);
+}
+function Audio2(...rest) {
+  return tag("audio", ...rest);
+}
+function ButtonRaw(...rest) {
+  return tag("button", ...rest);
+}
+function Button(...rest) {
+  return ButtonRaw(...rest, type("button"));
+}
+function ButtonPrimary(...rest) {
+  return Button(...rest, classList("btn", "btn-primary"));
+}
+function ButtonSecondary(...rest) {
+  return Button(...rest, classList("btn", "btn-secondary"));
+}
+function Canvas(...rest) {
+  return tag("canvas", ...rest);
+}
+function DD(...rest) {
+  return tag("dd", ...rest);
+}
+function Div(...rest) {
+  return tag("div", ...rest);
+}
+function DL(...rest) {
+  return tag("dl", ...rest);
+}
+function DT(...rest) {
+  return tag("dt", ...rest);
+}
+function H1(...rest) {
+  return tag("h1", ...rest);
+}
+function H2(...rest) {
+  return tag("h2", ...rest);
+}
+function Img(...rest) {
+  return tag("img", ...rest);
+}
+function Input(...rest) {
+  return tag("input", ...rest);
+}
+function Label(...rest) {
+  return tag("label", ...rest);
+}
+function Link(...rest) {
+  return tag("link", ...rest);
+}
+function Meter(...rest) {
+  return tag("meter", ...rest);
+}
+function Option(...rest) {
+  return tag("option", ...rest);
+}
+function Script(...rest) {
+  return tag("script", ...rest);
+}
+function Select(...rest) {
+  return tag("select", ...rest);
+}
+function Video(...rest) {
+  return tag("video", ...rest);
+}
+function InputCheckbox(...rest) {
+  return Input(type("checkbox"), ...rest);
+}
+function InputNumber(...rest) {
+  return Input(type("number"), ...rest);
+}
+function InputRange(...rest) {
+  return Input(type("range"), ...rest);
+}
+function TextNode(txt) {
+  return document.createTextNode(txt);
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/evts.ts
+var HtmlEvt = class {
+  constructor(name, callback, opts) {
+    this.name = name;
+    this.callback = callback;
+    if (!isFunction(callback)) {
+      throw new Error("A function instance is required for this parameter");
+    }
+    this.opts = opts;
+    Object.freeze(this);
+  }
+  applyToElement(elem) {
+    this.add(elem);
+  }
+  /**
+   * Add the encapsulate callback as an event listener to the give HTMLElement
+   */
+  add(elem) {
+    elem.addEventListener(this.name, this.callback, this.opts);
+  }
+  /**
+   * Remove the encapsulate callback as an event listener from the give HTMLElement
+   */
+  remove(elem) {
+    elem.removeEventListener(this.name, this.callback);
+  }
+};
+function onEvent(eventName, callback, opts) {
+  return new HtmlEvt(eventName, callback, opts);
+}
+function onClick(callback, opts) {
+  return onEvent("click", callback, opts);
+}
+function onInput(callback, opts) {
+  return onEvent("input", callback, opts);
+}
+function onPlay(callback, opts) {
+  return onEvent("play", callback, opts);
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/onUserGesture.ts
+var USER_GESTURE_EVENTS = [
+  "change",
+  "click",
+  "contextmenu",
+  "dblclick",
+  "mouseup",
+  "pointerup",
+  "reset",
+  "submit",
+  "touchend"
+];
+function onUserGesture(callback, perpetual = false) {
+  const check = async (evt) => {
+    if (evt.isTrusted) {
+      if (!perpetual) {
+        for (const gesture of USER_GESTURE_EVENTS) {
+          window.removeEventListener(gesture, check);
+        }
+      }
+      callback();
+    }
+  };
+  for (const gesture of USER_GESTURE_EVENTS) {
+    window.addEventListener(gesture, check);
+  }
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/assertSuccess.ts
+function assertSuccess(response) {
+  if (response.status >= 400) {
+    throw new Error("Resource could not be retrieved: " + response.requestPath);
+  }
+  return response;
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/unwrapResponse.ts
+function unwrapResponse(response) {
+  const { content } = assertSuccess(response);
+  return content;
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/events/all.ts
+function all(...tasks) {
+  return Promise.all(tasks);
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/flags.ts
+function isMacOS() {
+  return /^mac/i.test(navigator.platform);
+}
+function isIOS() {
+  return /iP(ad|hone|od)/.test(navigator.platform) || /Macintosh(.*?) FxiOS(.*?)\//.test(navigator.platform) || isMacOS() && "maxTouchPoints" in navigator && navigator.maxTouchPoints > 2;
+}
+function isMobileVR() {
+  return /Mobile VR/.test(navigator.userAgent) || /Pico Neo 3 Link/.test(navigator.userAgent) || isOculusBrowser;
+}
+var oculusBrowserPattern = /OculusBrowser\/(\d+)\.(\d+)\.(\d+)/i;
+var oculusMatch = /* @__PURE__ */ navigator.userAgent.match(oculusBrowserPattern);
+var isOculusBrowser = !!oculusMatch;
+var oculusBrowserVersion = isOculusBrowser && {
+  major: parseFloat(oculusMatch[1]),
+  minor: parseFloat(oculusMatch[2]),
+  patch: parseFloat(oculusMatch[3])
+};
+var isOculusGo = isOculusBrowser && /pacific/i.test(navigator.userAgent);
+var isOculusQuest = isOculusBrowser && /quest/i.test(navigator.userAgent);
+var isOculusQuest2 = isOculusBrowser && /quest 2/i.test(navigator.userAgent);
+var isWorkerSupported = "Worker" in globalThis;
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/strings/stringToName.ts
+function stringToName(...parts) {
+  const goodParts = [];
+  for (const part of parts) {
+    if (isDefined(part) && part.length > 0 && goodParts.indexOf(part) === -1) {
+      goodParts.push(part);
+    }
+  }
+  return goodParts.join("-");
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/using.ts
+function interfaceSigCheck(obj, ...funcNames) {
+  if (!isObject(obj)) {
+    return false;
+  }
+  obj = obj;
+  for (const funcName of funcNames) {
+    if (!(funcName in obj)) {
+      return false;
+    }
+    const func = obj[funcName];
+    if (!isFunction(func)) {
+      return false;
+    }
+  }
+  return true;
+}
+function isDisposable(obj) {
+  return interfaceSigCheck(obj, "dispose");
+}
+function isDestroyable(obj) {
+  return interfaceSigCheck(obj, "destroy");
+}
+function isClosable(obj) {
+  return interfaceSigCheck(obj, "close");
+}
+function dispose(val) {
+  if (isDisposable(val)) {
+    val.dispose();
+  }
+  if (isClosable(val)) {
+    val.close();
+  }
+  if (isDestroyable(val)) {
+    val.destroy();
+  }
+}
+function using(val, thunk) {
+  try {
+    return thunk(val);
+  } finally {
+    dispose(val);
+  }
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/IAudioNode.ts
+function isEndpoint(obj) {
+  return isDefined(obj) && "_resolveInput" in obj;
+}
+function isIAudioNode(obj) {
+  return isEndpoint(obj) && "_resolveOutput" in obj;
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/BaseNode.ts
+var BaseNode = class extends TypedEventBase {
+  constructor(nodeType, context) {
+    super();
+    this.nodeType = nodeType;
+    this.context = context;
+    this._name = null;
+    this.disposed = false;
+  }
+  get name() {
+    return this._name;
+  }
+  set name(v) {
+    this._name = v;
+    this.context._name(this, v);
+  }
+  dispose() {
+    if (!this.disposed) {
+      this.disposed = true;
+      this.onDisposing();
+    }
+  }
+  onDisposing() {
+  }
+  isConnected(dest, output, input) {
+    return this.context._isConnected(this, dest, output, input);
+  }
+  resolveOutput(output) {
+    let resolution = {
+      source: this,
+      output
+    };
+    while (isIAudioNode(resolution.source)) {
+      resolution = resolution.source._resolveOutput(resolution.output);
+    }
+    return resolution;
+  }
+  resolveInput(input) {
+    let resolution = {
+      destination: this,
+      input
+    };
+    while (isEndpoint(resolution.destination)) {
+      resolution = resolution.destination._resolveInput(resolution.input);
+    }
+    return resolution;
+  }
+  toggle(dest, outp, inp) {
+    this._toggle(dest, outp, inp);
+  }
+  _toggle(dest, outp, inp) {
+    if (this.isConnected(dest, outp, inp)) {
+      this._disconnect(dest, outp, inp);
+    } else {
+      return this._connect(dest, outp, inp);
+    }
+  }
+  connect(dest, outp, inp) {
+    return this._connect(dest, outp, inp);
+  }
+  _connect(dest, outp, inp) {
+    return this.context._connect(this, dest, outp, inp);
+  }
+  disconnect(destinationOrOutput, outp, inp) {
+    this._disconnect(destinationOrOutput, outp, inp);
+  }
+  _disconnect(destinationOrOutput, outp, inp) {
+    this.context._disconnect(this, destinationOrOutput, outp, inp);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/BaseNodeCluster.ts
+var BaseNodeCluster = class extends BaseNode {
+  constructor(type2, context, inputs, endpoints, extras) {
+    super(type2, context);
+    inputs = inputs || [];
+    extras = extras || [];
+    const exits = endpoints || inputs;
+    this.inputs = inputs;
+    const entries = inputs.filter(isIAudioNode).map((o) => o);
+    this.outputs = exits.filter(isIAudioNode).map((o) => o);
+    this.allNodes = Array.from(/* @__PURE__ */ new Set([
+      ...entries,
+      ...this.outputs,
+      ...extras
+    ]));
+  }
+  get exemplar() {
+    return this.allNodes[0];
+  }
+  add(node) {
+    this.allNodes.push(node);
+    this.context._parent(this, node);
+  }
+  remove(node) {
+    arrayRemove(this.allNodes, node);
+    this.context._unparent(this, node);
+  }
+  onDisposing() {
+    this.allNodes.forEach(dispose);
+    super.onDisposing();
+  }
+  get channelCount() {
+    return this.exemplar.channelCount;
+  }
+  set channelCount(v) {
+    this.allNodes.forEach((n) => n.channelCount = v);
+  }
+  get channelCountMode() {
+    return this.exemplar.channelCountMode;
+  }
+  set channelCountMode(v) {
+    this.allNodes.forEach((n) => n.channelCountMode = v);
+    ;
+  }
+  get channelInterpretation() {
+    return this.exemplar.channelInterpretation;
+  }
+  set channelInterpretation(v) {
+    this.allNodes.forEach((n) => n.channelInterpretation = v);
+  }
+  get numberOfInputs() {
+    return this.inputs.length;
+  }
+  get numberOfOutputs() {
+    return this.outputs.length;
+  }
+  static resolve(source, index) {
+    index = index || 0;
+    if (index < 0 || source.length <= index) {
+      return null;
+    }
+    return source[index];
+  }
+  _resolveInput(input) {
+    return {
+      destination: BaseNodeCluster.resolve(this.inputs, input)
+    };
+  }
+  _resolveOutput(output) {
+    return {
+      source: BaseNodeCluster.resolve(this.outputs, output)
+    };
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/collections/BaseGraphNode.ts
+function breadthFirstPeek(arr) {
+  return arr[0];
+}
+function breadthFirstRemove(arr) {
+  return arr.shift();
+}
+function depthFirstPeek(arr) {
+  return arr[arr.length - 1];
+}
+function depthFirstRemove(arr) {
+  return arr.pop();
+}
+var BaseGraphNode = class {
+  constructor(value2) {
+    this.value = value2;
+    this._forward = new Array();
+    this._reverse = new Array();
+  }
+  connectSorted(child, keySelector) {
+    if (isDefined(keySelector)) {
+      arraySortedInsert(this._forward, child, (n) => keySelector(n.value));
+      arraySortedInsert(child._reverse, this, (n) => keySelector(n.value));
+    } else {
+      this.connectTo(child);
+    }
+  }
+  connectTo(child) {
+    this.connectAt(child, this._forward.length);
+  }
+  connectAt(child, index) {
+    arrayInsertAt(this._forward, child, index);
+    child._reverse.push(this);
+  }
+  disconnectFrom(child) {
+    arrayRemove(this._forward, child);
+    arrayRemove(child._reverse, this);
+  }
+  isConnectedTo(node) {
+    return this._forward.indexOf(node) >= 0 || this._reverse.indexOf(node) >= 0;
+  }
+  flatten() {
+    const visited = /* @__PURE__ */ new Set();
+    const queue = [this];
+    while (queue.length > 0) {
+      const here = queue.shift();
+      if (isDefined(here) && !visited.has(here)) {
+        visited.add(here);
+        queue.push(...here._forward);
+      }
+    }
+    return Array.from(visited);
+  }
+  *traverse(breadthFirst) {
+    const visited = /* @__PURE__ */ new Set();
+    const queue = [this];
+    const peek = breadthFirst ? breadthFirstPeek : depthFirstPeek;
+    const remove = breadthFirst ? breadthFirstRemove : depthFirstRemove;
+    while (queue.length > 0) {
+      const here = peek(queue);
+      if (!visited.has(here)) {
+        visited.add(here);
+        if (breadthFirst) {
+          remove(queue);
+          yield here;
+        }
+        if (here._forward.length > 0) {
+          queue.push(...here._forward);
+        }
+      } else if (!breadthFirst) {
+        remove(queue);
+        yield here;
+      }
+    }
+  }
+  breadthFirst() {
+    return this.traverse(true);
+  }
+  depthFirst() {
+    return this.traverse(false);
+  }
+  search(predicate, breadthFirst = true) {
+    for (const node of this.traverse(breadthFirst)) {
+      if (predicate(node)) {
+        return node;
+      }
+    }
+    return null;
+  }
+  *searchAll(predicate, breadthFirst = true) {
+    for (const node of this.traverse(breadthFirst)) {
+      if (predicate(node)) {
+        yield node;
+      }
+    }
+  }
+  find(v, breadthFirst = true) {
+    return this.search((n) => n.value === v, breadthFirst);
+  }
+  findAll(v, breadthFirst = true) {
+    return this.searchAll((n) => n.value === v, breadthFirst);
+  }
+  contains(node, breadthFirst = true) {
+    for (const child of this.traverse(breadthFirst)) {
+      if (child === node) {
+        return true;
+      }
+    }
+    return false;
+  }
+  containsValue(v, breadthFirst = true) {
+    for (const child of this.traverse(breadthFirst)) {
+      if (child.value === v) {
+        return true;
+      }
+    }
+    return false;
+  }
+  get _isEntryPoint() {
+    return this._reverse.length === 0;
+  }
+  get _isExitPoint() {
+    return this._forward.length === 0;
+  }
+  get isDisconnected() {
+    return this._isEntryPoint && this._isExitPoint;
+  }
+  get isConnected() {
+    return !this._isExitPoint || !this._isEntryPoint;
+  }
+  get isTerminus() {
+    return this._isEntryPoint || this._isExitPoint;
+  }
+  get isInternal() {
+    return !this._isEntryPoint && !this._isExitPoint;
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/collections/GraphNode.ts
+var GraphNode = class extends BaseGraphNode {
+  get connections() {
+    return this._forward;
+  }
+  get isEntryPoint() {
+    return this._isEntryPoint;
+  }
+  get isExitPoint() {
+    return this._isExitPoint;
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/context/JuniperAudioNode.ts
+var JuniperAudioNode = class extends BaseNode {
+  constructor(type2, context, _node) {
+    super(type2, context);
+    this._node = _node;
+    this.context._init(this._node, this.nodeType);
+  }
+  onDisposing() {
+    this.disconnect();
+    this.context._dispose(this._node);
+    super.onDisposing();
+  }
+  parent(param) {
+    this.context._parent(this, param);
+  }
+  get channelCount() {
+    return this._node.channelCount;
+  }
+  set channelCount(v) {
+    this._node.channelCount = v;
+  }
+  get channelCountMode() {
+    return this._node.channelCountMode;
+  }
+  set channelCountMode(v) {
+    this._node.channelCountMode = v;
+  }
+  get channelInterpretation() {
+    return this._node.channelInterpretation;
+  }
+  set channelInterpretation(v) {
+    this._node.channelInterpretation = v;
+  }
+  get numberOfInputs() {
+    return this._node.numberOfInputs;
+  }
+  get numberOfOutputs() {
+    return this._node.numberOfOutputs;
+  }
+  _resolveInput(input) {
+    return {
+      destination: this._node,
+      input
+    };
+  }
+  _resolveOutput(output) {
+    return {
+      source: this._node,
+      output
+    };
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/context/JuniperAnalyserNode.ts
+var JuniperAnalyserNode = class extends JuniperAudioNode {
+  constructor(context, options) {
+    super("analyser", context, new AnalyserNode(context, options));
+  }
+  get fftSize() {
+    return this._node.fftSize;
+  }
+  set fftSize(v) {
+    this._node.fftSize = v;
+  }
+  get frequencyBinCount() {
+    return this._node.frequencyBinCount;
+  }
+  get maxDecibels() {
+    return this._node.maxDecibels;
+  }
+  set maxDecibels(v) {
+    this._node.maxDecibels = v;
+  }
+  get minDecibels() {
+    return this._node.minDecibels;
+  }
+  set minDecibels(v) {
+    this._node.minDecibels = v;
+  }
+  get smoothingTimeConstant() {
+    return this._node.smoothingTimeConstant;
+  }
+  set smoothingTimeConstant(v) {
+    this._node.smoothingTimeConstant = v;
+  }
+  getByteFrequencyData(array) {
+    this._node.getByteFrequencyData(array);
+  }
+  getByteTimeDomainData(array) {
+    this._node.getByteTimeDomainData(array);
+  }
+  getFloatFrequencyData(array) {
+    this._node.getFloatFrequencyData(array);
+  }
+  getFloatTimeDomainData(array) {
+    this._node.getFloatTimeDomainData(array);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/context/JuniperAudioParam.ts
+var JuniperAudioParam = class {
+  constructor(nodeType, context, param) {
+    this.nodeType = nodeType;
+    this.context = context;
+    this.param = param;
+    this._name = null;
+    this.disposed = false;
+    this.context._init(this.param, this.nodeType);
+  }
+  get name() {
+    return this._name;
+  }
+  set name(v) {
+    this._name = v;
+    this.context._name(this, v);
+  }
+  dispose() {
+    if (!this.disposed) {
+      this.disposed = true;
+      this.onDisposing();
+    }
+  }
+  onDisposing() {
+    this.context._dispose(this.param);
+  }
+  get automationRate() {
+    return this.param.automationRate;
+  }
+  set automationRate(v) {
+    this.param.automationRate = v;
+  }
+  get defaultValue() {
+    return this.param.defaultValue;
+  }
+  get maxValue() {
+    return this.param.maxValue;
+  }
+  get minValue() {
+    return this.param.minValue;
+  }
+  get value() {
+    return this.param.value;
+  }
+  set value(v) {
+    this.param.value = v;
+  }
+  cancelAndHoldAtTime(cancelTime) {
+    this.param.cancelAndHoldAtTime(cancelTime);
+    return this;
+  }
+  cancelScheduledValues(cancelTime) {
+    this.param.cancelScheduledValues(cancelTime);
+    return this;
+  }
+  exponentialRampToValueAtTime(value2, endTime) {
+    this.param.exponentialRampToValueAtTime(value2, endTime);
+    return this;
+  }
+  linearRampToValueAtTime(value2, endTime) {
+    this.param.linearRampToValueAtTime(value2, endTime);
+    return this;
+  }
+  setTargetAtTime(target, startTime, timeConstant) {
+    this.param.setTargetAtTime(target, startTime, timeConstant);
+    return this;
+  }
+  setValueAtTime(value2, startTime) {
+    this.param.setValueAtTime(value2, startTime);
+    return this;
+  }
+  setValueCurveAtTime(values, startTime, duration) {
+    this.param.setValueCurveAtTime(values, startTime, duration);
+    return this;
+  }
+  _resolveInput() {
+    return {
+      destination: this.param
+    };
+  }
+  resolveInput() {
+    return this._resolveInput();
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/context/JuniperAudioBufferSourceNode.ts
+var JuniperAudioBufferSourceNode = class extends JuniperAudioNode {
+  constructor(context, options) {
+    super("audio-buffer-source", context, new AudioBufferSourceNode(context, options));
+    this._node.addEventListener("ended", () => this.dispatchEvent(new TypedEvent("ended")));
+    this.parent(this.playbackRate = new JuniperAudioParam("playbackRate", context, this._node.playbackRate));
+    this.parent(this.detune = new JuniperAudioParam("detune", context, this._node.detune));
+  }
+  get buffer() {
+    return this._node.buffer;
+  }
+  set buffer(v) {
+    this._node.buffer = v;
+  }
+  get loop() {
+    return this._node.loop;
+  }
+  set loop(v) {
+    this._node.loop = v;
+  }
+  get loopEnd() {
+    return this._node.loopEnd;
+  }
+  set loopEnd(v) {
+    this._node.loopEnd = v;
+  }
+  get loopStart() {
+    return this._node.loopStart;
+  }
+  set loopStart(v) {
+    this._node.loopStart = v;
+  }
+  get onended() {
+    return this._node.onended;
+  }
+  set onended(v) {
+    this._node.onended = v;
+  }
+  start(when, offset, duration) {
+    this._node.start(when, offset, duration);
+  }
+  stop(when) {
+    this._node.stop(when);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/context/JuniperAudioDestinationNode.ts
+var JuniperAudioDestinationNode = class extends JuniperAudioNode {
+  constructor(context, destination) {
+    super("destination", context, destination);
+  }
+  get maxChannelCount() {
+    return this._node.maxChannelCount;
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/context/JuniperBiquadFilterNode.ts
+var JuniperBiquadFilterNode = class extends JuniperAudioNode {
+  constructor(context, options) {
+    super("biquad-filter", context, new BiquadFilterNode(context, options));
+    this.parent(this.Q = new JuniperAudioParam("Q", this.context, this._node.Q));
+    this.parent(this.detune = new JuniperAudioParam("detune", this.context, this._node.detune));
+    this.parent(this.frequency = new JuniperAudioParam("frequency", this.context, this._node.frequency));
+    this.parent(this.gain = new JuniperAudioParam("gain", this.context, this._node.gain));
+  }
+  get type() {
+    return this._node.type;
+  }
+  set type(v) {
+    this._node.type = v;
+  }
+  getFrequencyResponse(frequencyHz, magResponse, phaseResponse) {
+    this._node.getFrequencyResponse(frequencyHz, magResponse, phaseResponse);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/context/JuniperChannelMergerNode.ts
+var JuniperChannelMergerNode = class extends JuniperAudioNode {
+  constructor(context, options) {
+    super("channel-merger", context, new ChannelMergerNode(context, options));
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/context/JuniperChannelSplitterNode.ts
+var JuniperChannelSplitterNode = class extends JuniperAudioNode {
+  constructor(context, options) {
+    super("channel-splitter", context, new ChannelSplitterNode(context, options));
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/context/JuniperConstantSourceNode.ts
+var JuniperConstantSourceNode = class extends JuniperAudioNode {
+  constructor(context, options) {
+    super("constant-source", context, new ConstantSourceNode(context, options));
+    this._node.addEventListener("ended", () => this.dispatchEvent(new TypedEvent("ended")));
+    this.parent(this.offset = new JuniperAudioParam("offset", this.context, this._node.offset));
+  }
+  get onended() {
+    return this._node.onended;
+  }
+  set onended(v) {
+    this._node.onended = v;
+  }
+  start(when) {
+    this._node.start(when);
+  }
+  stop(when) {
+    this._node.stop(when);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/context/JuniperConvolverNode.ts
+var JuniperConvolverNode = class extends JuniperAudioNode {
+  constructor(context, options) {
+    super("convolver", context, new ConvolverNode(context, options));
+  }
+  get buffer() {
+    return this._node.buffer;
+  }
+  set buffer(v) {
+    this._node.buffer = v;
+  }
+  get normalize() {
+    return this._node.normalize;
+  }
+  set normalize(v) {
+    this._node.normalize = v;
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/context/JuniperDelayNode.ts
+var JuniperDelayNode = class extends JuniperAudioNode {
+  constructor(context, options) {
+    super("delay", context, new DelayNode(context, options));
+    this.parent(this.delayTime = new JuniperAudioParam("delay", this.context, this._node.delayTime));
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/context/JuniperDynamicsCompressorNode.ts
+var JuniperDynamicsCompressorNode = class extends JuniperAudioNode {
+  constructor(context, options) {
+    super("dynamics-compressor", context, new DynamicsCompressorNode(context, options));
+    this.parent(this.attack = new JuniperAudioParam("attack", this.context, this._node.attack));
+    this.parent(this.knee = new JuniperAudioParam("knee", this.context, this._node.knee));
+    this.parent(this.ratio = new JuniperAudioParam("ratio", this.context, this._node.ratio));
+    this.parent(this.release = new JuniperAudioParam("release", this.context, this._node.release));
+    this.parent(this.threshold = new JuniperAudioParam("threshold", this.context, this._node.threshold));
+  }
+  get reduction() {
+    return this._node.reduction;
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/context/JuniperGainNode.ts
+var JuniperGainNode = class extends JuniperAudioNode {
+  constructor(context, options) {
+    super("gain", context, new GainNode(context, options));
+    this.parent(this.gain = new JuniperAudioParam("gain", this.context, this._node.gain));
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/context/JuniperIIRFilterNode.ts
+var JuniperIIRFilterNode = class extends JuniperAudioNode {
+  constructor(context, options) {
+    super("iir-filter", context, new IIRFilterNode(context, options));
+  }
+  getFrequencyResponse(frequencyHz, magResponse, phaseResponse) {
+    this._node.getFrequencyResponse(frequencyHz, magResponse, phaseResponse);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/context/JuniperMediaElementAudioSourceNode.ts
+var JuniperMediaElementAudioSourceNode = class extends JuniperAudioNode {
+  constructor(context, options) {
+    super("media-element-audio-source", context, new MediaElementAudioSourceNode(context, options));
+  }
+  get mediaElement() {
+    return this._node.mediaElement;
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/context/JuniperMediaStreamAudioDestinationNode.ts
+var JuniperMediaStreamAudioDestinationNode = class extends JuniperAudioNode {
+  constructor(context, options) {
+    super("media-stream-audio-destination", context, new MediaStreamAudioDestinationNode(context, options));
+  }
+  get stream() {
+    return this._node.stream;
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/util.ts
+var hasAudioContext = "AudioContext" in globalThis;
+var hasAudioListener = hasAudioContext && "AudioListener" in globalThis;
+var hasOldAudioListener = hasAudioListener && "setPosition" in AudioListener.prototype;
+var hasNewAudioListener = hasAudioListener && "positionX" in AudioListener.prototype;
+var hasStreamSources = "createMediaStreamSource" in AudioContext.prototype;
+var canCaptureStream = /* @__PURE__ */ isFunction(HTMLMediaElement.prototype.captureStream) || isFunction(HTMLMediaElement.prototype.mozCaptureStream);
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/context/JuniperMediaStreamAudioSourceNode.ts
+var JuniperMediaStreamAudioSourceNode = class extends JuniperAudioNode {
+  constructor(context, options) {
+    const element = Audio2(
+      controls(false),
+      muted(hasStreamSources),
+      autoPlay(true),
+      loop(false),
+      display("none"),
+      srcObject(options.mediaStream)
+    );
+    let node;
+    if (hasStreamSources) {
+      node = new MediaStreamAudioSourceNode(context, options);
+    } else {
+      node = new MediaElementAudioSourceNode(context, {
+        mediaElement: element
+      });
+    }
+    super("media-stream-audio-source", context, node);
+    this._stream = options.mediaStream;
+    this._element = element;
+  }
+  onDisposing() {
+    this._element.pause();
+    super.onDisposing();
+  }
+  get mediaStream() {
+    return this._stream;
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/context/JuniperOscillatorNode.ts
+var JuniperOscillatorNode = class extends JuniperAudioNode {
+  constructor(context, options) {
+    super("oscillator", context, new OscillatorNode(context, options));
+    this._node.addEventListener("ended", () => this.dispatchEvent(new TypedEvent("ended")));
+    this.parent(this.detune = new JuniperAudioParam("detune", this.context, this._node.detune));
+    this.parent(this.frequency = new JuniperAudioParam("frequency", this.context, this._node.frequency));
+  }
+  get type() {
+    return this._node.type;
+  }
+  set type(v) {
+    this._node.type = v;
+  }
+  get onended() {
+    return this._node.onended;
+  }
+  set onended(v) {
+    this._node.onended = v;
+  }
+  setPeriodicWave(periodicWave) {
+    this._node.setPeriodicWave(periodicWave);
+  }
+  start(when) {
+    this._node.start(when);
+  }
+  stop(when) {
+    this._node.stop(when);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/context/JuniperPannerNode.ts
+var JuniperPannerNode = class extends JuniperAudioNode {
+  constructor(context, options) {
+    super("panner", context, new PannerNode(context, options));
+    this.parent(this.positionX = new JuniperAudioParam("positionX", this.context, this._node.positionX));
+    this.parent(this.positionY = new JuniperAudioParam("positionY", this.context, this._node.positionY));
+    this.parent(this.positionZ = new JuniperAudioParam("positionZ", this.context, this._node.positionZ));
+    this.parent(this.orientationX = new JuniperAudioParam("orientationX", this.context, this._node.orientationX));
+    this.parent(this.orientationY = new JuniperAudioParam("orientationY", this.context, this._node.orientationY));
+    this.parent(this.orientationZ = new JuniperAudioParam("orientationZ", this.context, this._node.orientationZ));
+  }
+  get coneInnerAngle() {
+    return this._node.coneInnerAngle;
+  }
+  set coneInnerAngle(v) {
+    this._node.coneInnerAngle = v;
+  }
+  get coneOuterAngle() {
+    return this._node.coneOuterAngle;
+  }
+  set coneOuterAngle(v) {
+    this._node.coneOuterAngle = v;
+  }
+  get coneOuterGain() {
+    return this._node.coneOuterGain;
+  }
+  set coneOuterGain(v) {
+    this._node.coneOuterGain = v;
+  }
+  get distanceModel() {
+    return this._node.distanceModel;
+  }
+  set distanceModel(v) {
+    this._node.distanceModel = v;
+  }
+  get maxDistance() {
+    return this._node.maxDistance;
+  }
+  set maxDistance(v) {
+    this._node.maxDistance = v;
+  }
+  get panningModel() {
+    return this._node.panningModel;
+  }
+  set panningModel(v) {
+    this._node.panningModel = v;
+  }
+  get refDistance() {
+    return this._node.refDistance;
+  }
+  set refDistance(v) {
+    this._node.refDistance = v;
+  }
+  get rolloffFactor() {
+    return this._node.rolloffFactor;
+  }
+  set rolloffFactor(v) {
+    this._node.rolloffFactor = v;
+  }
+  setOrientation(x, y, z) {
+    this._node.setOrientation(x, y, z);
+  }
+  setPosition(x, y, z) {
+    this._node.setPosition(x, y, z);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/context/JuniperStereoPannerNode.ts
+var JuniperStereoPannerNode = class extends JuniperAudioNode {
+  constructor(context, options) {
+    super("stereo-panner", context, new StereoPannerNode(context, options));
+    this.parent(this.pan = new JuniperAudioParam("pan", this.context, this._node.pan));
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/context/JuniperWaveShaperNode.ts
+var JuniperWaveShaperNode = class extends JuniperAudioNode {
+  constructor(context, options) {
+    super("wave-shaper", context, new WaveShaperNode(context, options));
+  }
+  get curve() {
+    return this._node.curve;
+  }
+  set curve(v) {
+    this._node.curve = v;
+  }
+  get oversample() {
+    return this._node.oversample;
+  }
+  set oversample(v) {
+    this._node.oversample = v;
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/context/JuniperAudioContext.ts
+if (!("AudioContext" in globalThis) && "webkitAudioContext" in globalThis) {
+  globalThis.AudioContext = globalThis.webkitAudioContext;
+}
+if (!("OfflineAudioContext" in globalThis) && "webkitOfflineAudioContext" in globalThis) {
+  globalThis.OfflineAudioContext = globalThis.webkitOfflineAudioContext;
+}
+var NodeInfo = class {
+  constructor(type2, name) {
+    this.type = type2;
+    this.name = name;
+    this.connections = /* @__PURE__ */ new Set();
+  }
+};
+function isMatchingConnection(conn, type2, destination, output, input) {
+  return conn.type === type2 && (isNullOrUndefined(destination) || destination === conn.destination) && (isNullOrUndefined(output) || output === conn.output) && (isNullOrUndefined(input) || input === conn.input);
+}
+function resolveInput(dest, inp) {
+  let destination = null;
+  let input = null;
+  if (isDefined(dest)) {
+    ({ destination, input } = dest.resolveInput(inp));
+  }
+  return { destination, input };
+}
+var JuniperAudioContext = class extends AudioContext {
+  constructor(contextOptions) {
+    super(contextOptions);
+    this.counters = /* @__PURE__ */ new Map();
+    this.nodes = /* @__PURE__ */ new Map();
+    this._ready = new Task();
+    this._destination = new JuniperAudioDestinationNode(this, super.destination);
+    if (this.state === "running") {
+      this._ready.resolve();
+    } else if (this.state === "closed") {
+      this.resume().then(() => this._ready.resolve());
+    } else {
+      onUserGesture(() => this.resume().then(() => this._ready.resolve()));
+    }
+    this.ready.then(() => console.log("Audio is now ready"));
+  }
+  get ready() {
+    return this._ready;
+  }
+  get isReady() {
+    return this._ready.finished && this._ready.resolved;
+  }
+  _init(node, type2) {
+    if (!this.nodes.has(node)) {
+      if (!this.counters.has(type2)) {
+        this.counters.set(type2, 0);
+      }
+      const count = this.counters.get(type2);
+      const name = `${type2}-${count}`;
+      this.nodes.set(node, new NodeInfo(type2, name));
+      if (isEndpoint(node)) {
+        node.name = name;
+      }
+      this.counters.set(type2, count + 1);
+    }
+  }
+  _name(dest, name) {
+    const { destination } = resolveInput(dest);
+    if (this.nodes.has(destination)) {
+      const info = this.nodes.get(destination);
+      info.name = `${name}-${info.type}`;
+    }
+  }
+  _dispose(node) {
+    this.nodes.delete(node);
+  }
+  _isConnected(src2, dest, outp, inp) {
+    const { source, output } = src2.resolveOutput(outp);
+    const { destination, input } = resolveInput(dest, inp);
+    if (isNullOrUndefined(source) || !this.nodes.has(source)) {
+      return null;
+    } else {
+      const info = this.nodes.get(source);
+      for (const conn of info.connections) {
+        if (isMatchingConnection(conn, "conn", destination, output, input)) {
+          return true;
+        }
+      }
+      return false;
+    }
+  }
+  _parent(src2, dest) {
+    const { source } = src2.resolveOutput();
+    const { destination } = resolveInput(dest);
+    if (this.nodes.has(source)) {
+      const conns = this.nodes.get(source).connections;
+      conns.add({
+        type: "parent",
+        src: src2,
+        dest,
+        destination,
+        source
+      });
+    }
+  }
+  _unparent(src2, dest) {
+    const { source } = src2.resolveOutput();
+    const { destination } = resolveInput(dest);
+    if (this.nodes.has(source)) {
+      const conns = this.nodes.get(source).connections;
+      const toDelete = /* @__PURE__ */ new Set();
+      for (const conn of conns) {
+        if (isMatchingConnection(conn, "parent", destination)) {
+          toDelete.add(conn);
+        }
+      }
+      for (const conn of toDelete) {
+        conns.delete(conn);
+      }
+    }
+  }
+  _getConnections(node) {
+    if (!this.nodes.has(node)) {
+      return null;
+    }
+    return this.nodes.get(node).connections;
+  }
+  _connect(src2, dest, outp, inp) {
+    const { source, output } = src2.resolveOutput(outp);
+    const { destination, input } = resolveInput(dest, inp);
+    if (this.nodes.has(source)) {
+      const conns = this.nodes.get(source).connections;
+      let matchFound = false;
+      for (const conn of conns) {
+        if (isMatchingConnection(conn, "conn", destination, output, input)) {
+          matchFound = true;
+        }
+      }
+      if (!matchFound) {
+        conns.add({
+          type: "conn",
+          src: src2,
+          dest,
+          outp,
+          inp,
+          source,
+          destination,
+          output,
+          input
+        });
+      }
+    }
+    if (destination instanceof AudioNode) {
+      dest = dest;
+      if (isDefined(input)) {
+        source.connect(destination, output, input);
+        return dest;
+      } else if (isDefined(output)) {
+        source.connect(destination, output);
+        return dest;
+      } else {
+        source.connect(destination);
+        return dest;
+      }
+    } else if (destination instanceof AudioParam) {
+      if (isDefined(output)) {
+        source.connect(destination, output);
+      } else if (isDefined(destination)) {
+        source.connect(destination);
+      } else {
+        assertNever(destination);
+      }
+    } else {
+      assertNever(destination);
+    }
+  }
+  _disconnect(src2, destinationOrOutput, outp, inp) {
+    let dest;
+    if (isNumber(destinationOrOutput)) {
+      dest = void 0;
+      outp = destinationOrOutput;
+    } else {
+      dest = destinationOrOutput;
+    }
+    const { source, output } = src2.resolveOutput(outp);
+    const { destination, input } = resolveInput(dest, inp);
+    if (this.nodes.has(source)) {
+      const conns = this.nodes.get(source).connections;
+      const toDelete = /* @__PURE__ */ new Set();
+      for (const conn of conns) {
+        if (isMatchingConnection(conn, "conn", destination, output, input)) {
+          toDelete.add(conn);
+        }
+      }
+      for (const conn of toDelete) {
+        conns.delete(conn);
+      }
+    }
+    if (destination instanceof AudioNode) {
+      if (isDefined(inp)) {
+        source.disconnect(destination, outp, inp);
+      } else if (isDefined(outp)) {
+        source.disconnect(destination, outp);
+      } else if (isDefined(destination)) {
+        source.disconnect(destination);
+      } else {
+        source.disconnect();
+      }
+    } else if (isDefined(outp)) {
+      source.disconnect(destination, outp);
+    } else if (isDefined(destination)) {
+      source.disconnect(destination);
+    } else {
+      source.disconnect();
+    }
+  }
+  getAudioGraph(includeParams) {
+    const nodes = /* @__PURE__ */ new Map();
+    for (const [node, info] of this.nodes) {
+      const nodeClass = node instanceof AudioNode ? "node" : node instanceof AudioParam ? "param" : "unknown";
+      if (includeParams || nodeClass !== "param") {
+        nodes.set(node, new GraphNode({
+          name: info.name,
+          type: info.type,
+          nodeClass
+        }));
+      }
+    }
+    for (const [source, info] of this.nodes) {
+      const branch = nodes.get(source);
+      for (const child of info.connections) {
+        const destination = child.destination;
+        if (nodes.has(destination)) {
+          const cnode = nodes.get(destination);
+          branch.connectTo(cnode);
+          cnode.connectTo(branch);
+        }
+      }
+    }
+    return Array.from(nodes.values());
+  }
+  get destination() {
+    return this._destination;
+  }
+  createAnalyser() {
+    return new JuniperAnalyserNode(this);
+  }
+  createBiquadFilter() {
+    return new JuniperBiquadFilterNode(this);
+  }
+  createBufferSource() {
+    return new JuniperAudioBufferSourceNode(this);
+  }
+  createChannelMerger(numberOfInputs) {
+    return new JuniperChannelMergerNode(this, {
+      numberOfInputs
+    });
+  }
+  createChannelSplitter(numberOfOutputs) {
+    return new JuniperChannelSplitterNode(this, {
+      numberOfOutputs
+    });
+  }
+  createConstantSource() {
+    return new JuniperConstantSourceNode(this);
+  }
+  createConvolver() {
+    return new JuniperConvolverNode(this);
+  }
+  createDelay(maxDelayTime) {
+    return new JuniperDelayNode(this, {
+      maxDelayTime
+    });
+  }
+  createDynamicsCompressor() {
+    return new JuniperDynamicsCompressorNode(this);
+  }
+  createGain() {
+    return new JuniperGainNode(this);
+  }
+  createIIRFilter(feedforward, feedback) {
+    return new JuniperIIRFilterNode(this, {
+      feedforward,
+      feedback
+    });
+  }
+  createMediaElementSource(mediaElement) {
+    return new JuniperMediaElementAudioSourceNode(this, {
+      mediaElement
+    });
+  }
+  createMediaStreamDestination() {
+    return new JuniperMediaStreamAudioDestinationNode(this);
+  }
+  createMediaStreamSource(mediaStream) {
+    return new JuniperMediaStreamAudioSourceNode(this, {
+      mediaStream
+    });
+  }
+  createOscillator() {
+    return new JuniperOscillatorNode(this);
+  }
+  createPanner() {
+    return new JuniperPannerNode(this);
+  }
+  createStereoPanner() {
+    return new JuniperStereoPannerNode(this);
+  }
+  createWaveShaper() {
+    return new JuniperWaveShaperNode(this);
+  }
+  createScriptProcessor() {
+    throw new Error("Script processor nodes are deprecated");
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/node_modules/gl-matrix/esm/common.js
+var EPSILON = 1e-6;
+var ARRAY_TYPE = typeof Float32Array !== "undefined" ? Float32Array : Array;
+var RANDOM = Math.random;
+var degree = Math.PI / 180;
+if (!Math.hypot)
+  Math.hypot = function() {
+    var y = 0, i = arguments.length;
+    while (i--) {
+      y += arguments[i] * arguments[i];
+    }
+    return Math.sqrt(y);
+  };
+
+// ../Juniper/src/Juniper.TypeScript/node_modules/gl-matrix/esm/mat3.js
+function create() {
+  var out = new ARRAY_TYPE(9);
+  if (ARRAY_TYPE != Float32Array) {
+    out[1] = 0;
+    out[2] = 0;
+    out[3] = 0;
+    out[5] = 0;
+    out[6] = 0;
+    out[7] = 0;
+  }
+  out[0] = 1;
+  out[4] = 1;
+  out[8] = 1;
+  return out;
+}
+
+// ../Juniper/src/Juniper.TypeScript/node_modules/gl-matrix/esm/quat.js
+var quat_exports = {};
+__export(quat_exports, {
+  add: () => add3,
+  calculateW: () => calculateW,
+  clone: () => clone3,
+  conjugate: () => conjugate,
+  copy: () => copy3,
+  create: () => create4,
+  dot: () => dot3,
+  equals: () => equals3,
+  exactEquals: () => exactEquals3,
+  exp: () => exp,
+  fromEuler: () => fromEuler,
+  fromMat3: () => fromMat3,
+  fromValues: () => fromValues3,
+  getAngle: () => getAngle,
+  getAxisAngle: () => getAxisAngle,
+  identity: () => identity2,
+  invert: () => invert,
+  len: () => len2,
+  length: () => length3,
+  lerp: () => lerp3,
+  ln: () => ln,
+  mul: () => mul2,
+  multiply: () => multiply2,
+  normalize: () => normalize3,
+  pow: () => pow,
+  random: () => random2,
+  rotateX: () => rotateX2,
+  rotateY: () => rotateY2,
+  rotateZ: () => rotateZ2,
+  rotationTo: () => rotationTo,
+  scale: () => scale3,
+  set: () => set3,
+  setAxes: () => setAxes,
+  setAxisAngle: () => setAxisAngle,
+  slerp: () => slerp,
+  sqlerp: () => sqlerp,
+  sqrLen: () => sqrLen2,
+  squaredLength: () => squaredLength3,
+  str: () => str2
+});
+
+// ../Juniper/src/Juniper.TypeScript/node_modules/gl-matrix/esm/vec3.js
+var vec3_exports = {};
+__export(vec3_exports, {
+  add: () => add,
+  angle: () => angle,
+  bezier: () => bezier,
+  ceil: () => ceil,
+  clone: () => clone,
+  copy: () => copy,
+  create: () => create2,
+  cross: () => cross,
+  dist: () => dist,
+  distance: () => distance,
+  div: () => div,
+  divide: () => divide,
+  dot: () => dot,
+  equals: () => equals,
+  exactEquals: () => exactEquals,
+  floor: () => floor,
+  forEach: () => forEach,
+  fromValues: () => fromValues,
+  hermite: () => hermite,
+  inverse: () => inverse,
+  len: () => len,
+  length: () => length,
+  lerp: () => lerp,
+  max: () => max2,
+  min: () => min2,
+  mul: () => mul,
+  multiply: () => multiply,
+  negate: () => negate,
+  normalize: () => normalize,
+  random: () => random,
+  rotateX: () => rotateX,
+  rotateY: () => rotateY,
+  rotateZ: () => rotateZ,
+  round: () => round,
+  scale: () => scale,
+  scaleAndAdd: () => scaleAndAdd,
+  set: () => set,
+  sqrDist: () => sqrDist,
+  sqrLen: () => sqrLen,
+  squaredDistance: () => squaredDistance,
+  squaredLength: () => squaredLength,
+  str: () => str,
+  sub: () => sub,
+  subtract: () => subtract,
+  transformMat3: () => transformMat3,
+  transformMat4: () => transformMat4,
+  transformQuat: () => transformQuat,
+  zero: () => zero
+});
+function create2() {
+  var out = new ARRAY_TYPE(3);
+  if (ARRAY_TYPE != Float32Array) {
+    out[0] = 0;
+    out[1] = 0;
+    out[2] = 0;
+  }
+  return out;
+}
+function clone(a) {
+  var out = new ARRAY_TYPE(3);
+  out[0] = a[0];
+  out[1] = a[1];
+  out[2] = a[2];
+  return out;
+}
+function length(a) {
+  var x = a[0];
+  var y = a[1];
+  var z = a[2];
+  return Math.hypot(x, y, z);
+}
+function fromValues(x, y, z) {
+  var out = new ARRAY_TYPE(3);
+  out[0] = x;
+  out[1] = y;
+  out[2] = z;
+  return out;
+}
+function copy(out, a) {
+  out[0] = a[0];
+  out[1] = a[1];
+  out[2] = a[2];
+  return out;
+}
+function set(out, x, y, z) {
+  out[0] = x;
+  out[1] = y;
+  out[2] = z;
+  return out;
+}
+function add(out, a, b) {
+  out[0] = a[0] + b[0];
+  out[1] = a[1] + b[1];
+  out[2] = a[2] + b[2];
+  return out;
+}
+function subtract(out, a, b) {
+  out[0] = a[0] - b[0];
+  out[1] = a[1] - b[1];
+  out[2] = a[2] - b[2];
+  return out;
+}
+function multiply(out, a, b) {
+  out[0] = a[0] * b[0];
+  out[1] = a[1] * b[1];
+  out[2] = a[2] * b[2];
+  return out;
+}
+function divide(out, a, b) {
+  out[0] = a[0] / b[0];
+  out[1] = a[1] / b[1];
+  out[2] = a[2] / b[2];
+  return out;
+}
+function ceil(out, a) {
+  out[0] = Math.ceil(a[0]);
+  out[1] = Math.ceil(a[1]);
+  out[2] = Math.ceil(a[2]);
+  return out;
+}
+function floor(out, a) {
+  out[0] = Math.floor(a[0]);
+  out[1] = Math.floor(a[1]);
+  out[2] = Math.floor(a[2]);
+  return out;
+}
+function min2(out, a, b) {
+  out[0] = Math.min(a[0], b[0]);
+  out[1] = Math.min(a[1], b[1]);
+  out[2] = Math.min(a[2], b[2]);
+  return out;
+}
+function max2(out, a, b) {
+  out[0] = Math.max(a[0], b[0]);
+  out[1] = Math.max(a[1], b[1]);
+  out[2] = Math.max(a[2], b[2]);
+  return out;
+}
+function round(out, a) {
+  out[0] = Math.round(a[0]);
+  out[1] = Math.round(a[1]);
+  out[2] = Math.round(a[2]);
+  return out;
+}
+function scale(out, a, b) {
+  out[0] = a[0] * b;
+  out[1] = a[1] * b;
+  out[2] = a[2] * b;
+  return out;
+}
+function scaleAndAdd(out, a, b, scale4) {
+  out[0] = a[0] + b[0] * scale4;
+  out[1] = a[1] + b[1] * scale4;
+  out[2] = a[2] + b[2] * scale4;
+  return out;
+}
+function distance(a, b) {
+  var x = b[0] - a[0];
+  var y = b[1] - a[1];
+  var z = b[2] - a[2];
+  return Math.hypot(x, y, z);
+}
+function squaredDistance(a, b) {
+  var x = b[0] - a[0];
+  var y = b[1] - a[1];
+  var z = b[2] - a[2];
+  return x * x + y * y + z * z;
+}
+function squaredLength(a) {
+  var x = a[0];
+  var y = a[1];
+  var z = a[2];
+  return x * x + y * y + z * z;
+}
+function negate(out, a) {
+  out[0] = -a[0];
+  out[1] = -a[1];
+  out[2] = -a[2];
+  return out;
+}
+function inverse(out, a) {
+  out[0] = 1 / a[0];
+  out[1] = 1 / a[1];
+  out[2] = 1 / a[2];
+  return out;
+}
+function normalize(out, a) {
+  var x = a[0];
+  var y = a[1];
+  var z = a[2];
+  var len3 = x * x + y * y + z * z;
+  if (len3 > 0) {
+    len3 = 1 / Math.sqrt(len3);
+  }
+  out[0] = a[0] * len3;
+  out[1] = a[1] * len3;
+  out[2] = a[2] * len3;
+  return out;
+}
+function dot(a, b) {
+  return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+}
+function cross(out, a, b) {
+  var ax = a[0], ay = a[1], az = a[2];
+  var bx = b[0], by = b[1], bz = b[2];
+  out[0] = ay * bz - az * by;
+  out[1] = az * bx - ax * bz;
+  out[2] = ax * by - ay * bx;
+  return out;
+}
+function lerp(out, a, b, t2) {
+  var ax = a[0];
+  var ay = a[1];
+  var az = a[2];
+  out[0] = ax + t2 * (b[0] - ax);
+  out[1] = ay + t2 * (b[1] - ay);
+  out[2] = az + t2 * (b[2] - az);
+  return out;
+}
+function hermite(out, a, b, c, d, t2) {
+  var factorTimes2 = t2 * t2;
+  var factor1 = factorTimes2 * (2 * t2 - 3) + 1;
+  var factor2 = factorTimes2 * (t2 - 2) + t2;
+  var factor3 = factorTimes2 * (t2 - 1);
+  var factor4 = factorTimes2 * (3 - 2 * t2);
+  out[0] = a[0] * factor1 + b[0] * factor2 + c[0] * factor3 + d[0] * factor4;
+  out[1] = a[1] * factor1 + b[1] * factor2 + c[1] * factor3 + d[1] * factor4;
+  out[2] = a[2] * factor1 + b[2] * factor2 + c[2] * factor3 + d[2] * factor4;
+  return out;
+}
+function bezier(out, a, b, c, d, t2) {
+  var inverseFactor = 1 - t2;
+  var inverseFactorTimesTwo = inverseFactor * inverseFactor;
+  var factorTimes2 = t2 * t2;
+  var factor1 = inverseFactorTimesTwo * inverseFactor;
+  var factor2 = 3 * t2 * inverseFactorTimesTwo;
+  var factor3 = 3 * factorTimes2 * inverseFactor;
+  var factor4 = factorTimes2 * t2;
+  out[0] = a[0] * factor1 + b[0] * factor2 + c[0] * factor3 + d[0] * factor4;
+  out[1] = a[1] * factor1 + b[1] * factor2 + c[1] * factor3 + d[1] * factor4;
+  out[2] = a[2] * factor1 + b[2] * factor2 + c[2] * factor3 + d[2] * factor4;
+  return out;
+}
+function random(out, scale4) {
+  scale4 = scale4 || 1;
+  var r = RANDOM() * 2 * Math.PI;
+  var z = RANDOM() * 2 - 1;
+  var zScale = Math.sqrt(1 - z * z) * scale4;
+  out[0] = Math.cos(r) * zScale;
+  out[1] = Math.sin(r) * zScale;
+  out[2] = z * scale4;
+  return out;
+}
+function transformMat4(out, a, m) {
+  var x = a[0], y = a[1], z = a[2];
+  var w = m[3] * x + m[7] * y + m[11] * z + m[15];
+  w = w || 1;
+  out[0] = (m[0] * x + m[4] * y + m[8] * z + m[12]) / w;
+  out[1] = (m[1] * x + m[5] * y + m[9] * z + m[13]) / w;
+  out[2] = (m[2] * x + m[6] * y + m[10] * z + m[14]) / w;
+  return out;
+}
+function transformMat3(out, a, m) {
+  var x = a[0], y = a[1], z = a[2];
+  out[0] = x * m[0] + y * m[3] + z * m[6];
+  out[1] = x * m[1] + y * m[4] + z * m[7];
+  out[2] = x * m[2] + y * m[5] + z * m[8];
+  return out;
+}
+function transformQuat(out, a, q) {
+  var qx = q[0], qy = q[1], qz = q[2], qw = q[3];
+  var x = a[0], y = a[1], z = a[2];
+  var uvx = qy * z - qz * y, uvy = qz * x - qx * z, uvz = qx * y - qy * x;
+  var uuvx = qy * uvz - qz * uvy, uuvy = qz * uvx - qx * uvz, uuvz = qx * uvy - qy * uvx;
+  var w2 = qw * 2;
+  uvx *= w2;
+  uvy *= w2;
+  uvz *= w2;
+  uuvx *= 2;
+  uuvy *= 2;
+  uuvz *= 2;
+  out[0] = x + uvx + uuvx;
+  out[1] = y + uvy + uuvy;
+  out[2] = z + uvz + uuvz;
+  return out;
+}
+function rotateX(out, a, b, rad) {
+  var p = [], r = [];
+  p[0] = a[0] - b[0];
+  p[1] = a[1] - b[1];
+  p[2] = a[2] - b[2];
+  r[0] = p[0];
+  r[1] = p[1] * Math.cos(rad) - p[2] * Math.sin(rad);
+  r[2] = p[1] * Math.sin(rad) + p[2] * Math.cos(rad);
+  out[0] = r[0] + b[0];
+  out[1] = r[1] + b[1];
+  out[2] = r[2] + b[2];
+  return out;
+}
+function rotateY(out, a, b, rad) {
+  var p = [], r = [];
+  p[0] = a[0] - b[0];
+  p[1] = a[1] - b[1];
+  p[2] = a[2] - b[2];
+  r[0] = p[2] * Math.sin(rad) + p[0] * Math.cos(rad);
+  r[1] = p[1];
+  r[2] = p[2] * Math.cos(rad) - p[0] * Math.sin(rad);
+  out[0] = r[0] + b[0];
+  out[1] = r[1] + b[1];
+  out[2] = r[2] + b[2];
+  return out;
+}
+function rotateZ(out, a, b, rad) {
+  var p = [], r = [];
+  p[0] = a[0] - b[0];
+  p[1] = a[1] - b[1];
+  p[2] = a[2] - b[2];
+  r[0] = p[0] * Math.cos(rad) - p[1] * Math.sin(rad);
+  r[1] = p[0] * Math.sin(rad) + p[1] * Math.cos(rad);
+  r[2] = p[2];
+  out[0] = r[0] + b[0];
+  out[1] = r[1] + b[1];
+  out[2] = r[2] + b[2];
+  return out;
+}
+function angle(a, b) {
+  var ax = a[0], ay = a[1], az = a[2], bx = b[0], by = b[1], bz = b[2], mag1 = Math.sqrt(ax * ax + ay * ay + az * az), mag2 = Math.sqrt(bx * bx + by * by + bz * bz), mag = mag1 * mag2, cosine = mag && dot(a, b) / mag;
+  return Math.acos(Math.min(Math.max(cosine, -1), 1));
+}
+function zero(out) {
+  out[0] = 0;
+  out[1] = 0;
+  out[2] = 0;
+  return out;
+}
+function str(a) {
+  return "vec3(" + a[0] + ", " + a[1] + ", " + a[2] + ")";
+}
+function exactEquals(a, b) {
+  return a[0] === b[0] && a[1] === b[1] && a[2] === b[2];
+}
+function equals(a, b) {
+  var a0 = a[0], a1 = a[1], a2 = a[2];
+  var b0 = b[0], b1 = b[1], b2 = b[2];
+  return Math.abs(a0 - b0) <= EPSILON * Math.max(1, Math.abs(a0), Math.abs(b0)) && Math.abs(a1 - b1) <= EPSILON * Math.max(1, Math.abs(a1), Math.abs(b1)) && Math.abs(a2 - b2) <= EPSILON * Math.max(1, Math.abs(a2), Math.abs(b2));
+}
+var sub = subtract;
+var mul = multiply;
+var div = divide;
+var dist = distance;
+var sqrDist = squaredDistance;
+var len = length;
+var sqrLen = squaredLength;
+var forEach = function() {
+  var vec = create2();
+  return function(a, stride, offset, count, fn, arg) {
+    var i, l;
+    if (!stride) {
+      stride = 3;
+    }
+    if (!offset) {
+      offset = 0;
+    }
+    if (count) {
+      l = Math.min(count * stride + offset, a.length);
+    } else {
+      l = a.length;
+    }
+    for (i = offset; i < l; i += stride) {
+      vec[0] = a[i];
+      vec[1] = a[i + 1];
+      vec[2] = a[i + 2];
+      fn(vec, vec, arg);
+      a[i] = vec[0];
+      a[i + 1] = vec[1];
+      a[i + 2] = vec[2];
+    }
+    return a;
+  };
+}();
+
+// ../Juniper/src/Juniper.TypeScript/node_modules/gl-matrix/esm/vec4.js
+function create3() {
+  var out = new ARRAY_TYPE(4);
+  if (ARRAY_TYPE != Float32Array) {
+    out[0] = 0;
+    out[1] = 0;
+    out[2] = 0;
+    out[3] = 0;
+  }
+  return out;
+}
+function clone2(a) {
+  var out = new ARRAY_TYPE(4);
+  out[0] = a[0];
+  out[1] = a[1];
+  out[2] = a[2];
+  out[3] = a[3];
+  return out;
+}
+function fromValues2(x, y, z, w) {
+  var out = new ARRAY_TYPE(4);
+  out[0] = x;
+  out[1] = y;
+  out[2] = z;
+  out[3] = w;
+  return out;
+}
+function copy2(out, a) {
+  out[0] = a[0];
+  out[1] = a[1];
+  out[2] = a[2];
+  out[3] = a[3];
+  return out;
+}
+function set2(out, x, y, z, w) {
+  out[0] = x;
+  out[1] = y;
+  out[2] = z;
+  out[3] = w;
+  return out;
+}
+function add2(out, a, b) {
+  out[0] = a[0] + b[0];
+  out[1] = a[1] + b[1];
+  out[2] = a[2] + b[2];
+  out[3] = a[3] + b[3];
+  return out;
+}
+function scale2(out, a, b) {
+  out[0] = a[0] * b;
+  out[1] = a[1] * b;
+  out[2] = a[2] * b;
+  out[3] = a[3] * b;
+  return out;
+}
+function length2(a) {
+  var x = a[0];
+  var y = a[1];
+  var z = a[2];
+  var w = a[3];
+  return Math.hypot(x, y, z, w);
+}
+function squaredLength2(a) {
+  var x = a[0];
+  var y = a[1];
+  var z = a[2];
+  var w = a[3];
+  return x * x + y * y + z * z + w * w;
+}
+function normalize2(out, a) {
+  var x = a[0];
+  var y = a[1];
+  var z = a[2];
+  var w = a[3];
+  var len3 = x * x + y * y + z * z + w * w;
+  if (len3 > 0) {
+    len3 = 1 / Math.sqrt(len3);
+  }
+  out[0] = x * len3;
+  out[1] = y * len3;
+  out[2] = z * len3;
+  out[3] = w * len3;
+  return out;
+}
+function dot2(a, b) {
+  return a[0] * b[0] + a[1] * b[1] + a[2] * b[2] + a[3] * b[3];
+}
+function lerp2(out, a, b, t2) {
+  var ax = a[0];
+  var ay = a[1];
+  var az = a[2];
+  var aw = a[3];
+  out[0] = ax + t2 * (b[0] - ax);
+  out[1] = ay + t2 * (b[1] - ay);
+  out[2] = az + t2 * (b[2] - az);
+  out[3] = aw + t2 * (b[3] - aw);
+  return out;
+}
+function exactEquals2(a, b) {
+  return a[0] === b[0] && a[1] === b[1] && a[2] === b[2] && a[3] === b[3];
+}
+function equals2(a, b) {
+  var a0 = a[0], a1 = a[1], a2 = a[2], a3 = a[3];
+  var b0 = b[0], b1 = b[1], b2 = b[2], b3 = b[3];
+  return Math.abs(a0 - b0) <= EPSILON * Math.max(1, Math.abs(a0), Math.abs(b0)) && Math.abs(a1 - b1) <= EPSILON * Math.max(1, Math.abs(a1), Math.abs(b1)) && Math.abs(a2 - b2) <= EPSILON * Math.max(1, Math.abs(a2), Math.abs(b2)) && Math.abs(a3 - b3) <= EPSILON * Math.max(1, Math.abs(a3), Math.abs(b3));
+}
+var forEach2 = function() {
+  var vec = create3();
+  return function(a, stride, offset, count, fn, arg) {
+    var i, l;
+    if (!stride) {
+      stride = 4;
+    }
+    if (!offset) {
+      offset = 0;
+    }
+    if (count) {
+      l = Math.min(count * stride + offset, a.length);
+    } else {
+      l = a.length;
+    }
+    for (i = offset; i < l; i += stride) {
+      vec[0] = a[i];
+      vec[1] = a[i + 1];
+      vec[2] = a[i + 2];
+      vec[3] = a[i + 3];
+      fn(vec, vec, arg);
+      a[i] = vec[0];
+      a[i + 1] = vec[1];
+      a[i + 2] = vec[2];
+      a[i + 3] = vec[3];
+    }
+    return a;
+  };
+}();
+
+// ../Juniper/src/Juniper.TypeScript/node_modules/gl-matrix/esm/quat.js
+function create4() {
+  var out = new ARRAY_TYPE(4);
+  if (ARRAY_TYPE != Float32Array) {
+    out[0] = 0;
+    out[1] = 0;
+    out[2] = 0;
+  }
+  out[3] = 1;
+  return out;
+}
+function identity2(out) {
+  out[0] = 0;
+  out[1] = 0;
+  out[2] = 0;
+  out[3] = 1;
+  return out;
+}
+function setAxisAngle(out, axis, rad) {
+  rad = rad * 0.5;
+  var s = Math.sin(rad);
+  out[0] = s * axis[0];
+  out[1] = s * axis[1];
+  out[2] = s * axis[2];
+  out[3] = Math.cos(rad);
+  return out;
+}
+function getAxisAngle(out_axis, q) {
+  var rad = Math.acos(q[3]) * 2;
+  var s = Math.sin(rad / 2);
+  if (s > EPSILON) {
+    out_axis[0] = q[0] / s;
+    out_axis[1] = q[1] / s;
+    out_axis[2] = q[2] / s;
+  } else {
+    out_axis[0] = 1;
+    out_axis[1] = 0;
+    out_axis[2] = 0;
+  }
+  return rad;
+}
+function getAngle(a, b) {
+  var dotproduct = dot3(a, b);
+  return Math.acos(2 * dotproduct * dotproduct - 1);
+}
+function multiply2(out, a, b) {
+  var ax = a[0], ay = a[1], az = a[2], aw = a[3];
+  var bx = b[0], by = b[1], bz = b[2], bw = b[3];
+  out[0] = ax * bw + aw * bx + ay * bz - az * by;
+  out[1] = ay * bw + aw * by + az * bx - ax * bz;
+  out[2] = az * bw + aw * bz + ax * by - ay * bx;
+  out[3] = aw * bw - ax * bx - ay * by - az * bz;
+  return out;
+}
+function rotateX2(out, a, rad) {
+  rad *= 0.5;
+  var ax = a[0], ay = a[1], az = a[2], aw = a[3];
+  var bx = Math.sin(rad), bw = Math.cos(rad);
+  out[0] = ax * bw + aw * bx;
+  out[1] = ay * bw + az * bx;
+  out[2] = az * bw - ay * bx;
+  out[3] = aw * bw - ax * bx;
+  return out;
+}
+function rotateY2(out, a, rad) {
+  rad *= 0.5;
+  var ax = a[0], ay = a[1], az = a[2], aw = a[3];
+  var by = Math.sin(rad), bw = Math.cos(rad);
+  out[0] = ax * bw - az * by;
+  out[1] = ay * bw + aw * by;
+  out[2] = az * bw + ax * by;
+  out[3] = aw * bw - ay * by;
+  return out;
+}
+function rotateZ2(out, a, rad) {
+  rad *= 0.5;
+  var ax = a[0], ay = a[1], az = a[2], aw = a[3];
+  var bz = Math.sin(rad), bw = Math.cos(rad);
+  out[0] = ax * bw + ay * bz;
+  out[1] = ay * bw - ax * bz;
+  out[2] = az * bw + aw * bz;
+  out[3] = aw * bw - az * bz;
+  return out;
+}
+function calculateW(out, a) {
+  var x = a[0], y = a[1], z = a[2];
+  out[0] = x;
+  out[1] = y;
+  out[2] = z;
+  out[3] = Math.sqrt(Math.abs(1 - x * x - y * y - z * z));
+  return out;
+}
+function exp(out, a) {
+  var x = a[0], y = a[1], z = a[2], w = a[3];
+  var r = Math.sqrt(x * x + y * y + z * z);
+  var et = Math.exp(w);
+  var s = r > 0 ? et * Math.sin(r) / r : 0;
+  out[0] = x * s;
+  out[1] = y * s;
+  out[2] = z * s;
+  out[3] = et * Math.cos(r);
+  return out;
+}
+function ln(out, a) {
+  var x = a[0], y = a[1], z = a[2], w = a[3];
+  var r = Math.sqrt(x * x + y * y + z * z);
+  var t2 = r > 0 ? Math.atan2(r, w) / r : 0;
+  out[0] = x * t2;
+  out[1] = y * t2;
+  out[2] = z * t2;
+  out[3] = 0.5 * Math.log(x * x + y * y + z * z + w * w);
+  return out;
+}
+function pow(out, a, b) {
+  ln(out, a);
+  scale3(out, out, b);
+  exp(out, out);
+  return out;
+}
+function slerp(out, a, b, t2) {
+  var ax = a[0], ay = a[1], az = a[2], aw = a[3];
+  var bx = b[0], by = b[1], bz = b[2], bw = b[3];
+  var omega, cosom, sinom, scale0, scale1;
+  cosom = ax * bx + ay * by + az * bz + aw * bw;
+  if (cosom < 0) {
+    cosom = -cosom;
+    bx = -bx;
+    by = -by;
+    bz = -bz;
+    bw = -bw;
+  }
+  if (1 - cosom > EPSILON) {
+    omega = Math.acos(cosom);
+    sinom = Math.sin(omega);
+    scale0 = Math.sin((1 - t2) * omega) / sinom;
+    scale1 = Math.sin(t2 * omega) / sinom;
+  } else {
+    scale0 = 1 - t2;
+    scale1 = t2;
+  }
+  out[0] = scale0 * ax + scale1 * bx;
+  out[1] = scale0 * ay + scale1 * by;
+  out[2] = scale0 * az + scale1 * bz;
+  out[3] = scale0 * aw + scale1 * bw;
+  return out;
+}
+function random2(out) {
+  var u1 = RANDOM();
+  var u2 = RANDOM();
+  var u3 = RANDOM();
+  var sqrt1MinusU1 = Math.sqrt(1 - u1);
+  var sqrtU1 = Math.sqrt(u1);
+  out[0] = sqrt1MinusU1 * Math.sin(2 * Math.PI * u2);
+  out[1] = sqrt1MinusU1 * Math.cos(2 * Math.PI * u2);
+  out[2] = sqrtU1 * Math.sin(2 * Math.PI * u3);
+  out[3] = sqrtU1 * Math.cos(2 * Math.PI * u3);
+  return out;
+}
+function invert(out, a) {
+  var a0 = a[0], a1 = a[1], a2 = a[2], a3 = a[3];
+  var dot4 = a0 * a0 + a1 * a1 + a2 * a2 + a3 * a3;
+  var invDot = dot4 ? 1 / dot4 : 0;
+  out[0] = -a0 * invDot;
+  out[1] = -a1 * invDot;
+  out[2] = -a2 * invDot;
+  out[3] = a3 * invDot;
+  return out;
+}
+function conjugate(out, a) {
+  out[0] = -a[0];
+  out[1] = -a[1];
+  out[2] = -a[2];
+  out[3] = a[3];
+  return out;
+}
+function fromMat3(out, m) {
+  var fTrace = m[0] + m[4] + m[8];
+  var fRoot;
+  if (fTrace > 0) {
+    fRoot = Math.sqrt(fTrace + 1);
+    out[3] = 0.5 * fRoot;
+    fRoot = 0.5 / fRoot;
+    out[0] = (m[5] - m[7]) * fRoot;
+    out[1] = (m[6] - m[2]) * fRoot;
+    out[2] = (m[1] - m[3]) * fRoot;
+  } else {
+    var i = 0;
+    if (m[4] > m[0])
+      i = 1;
+    if (m[8] > m[i * 3 + i])
+      i = 2;
+    var j = (i + 1) % 3;
+    var k = (i + 2) % 3;
+    fRoot = Math.sqrt(m[i * 3 + i] - m[j * 3 + j] - m[k * 3 + k] + 1);
+    out[i] = 0.5 * fRoot;
+    fRoot = 0.5 / fRoot;
+    out[3] = (m[j * 3 + k] - m[k * 3 + j]) * fRoot;
+    out[j] = (m[j * 3 + i] + m[i * 3 + j]) * fRoot;
+    out[k] = (m[k * 3 + i] + m[i * 3 + k]) * fRoot;
+  }
+  return out;
+}
+function fromEuler(out, x, y, z) {
+  var halfToRad = 0.5 * Math.PI / 180;
+  x *= halfToRad;
+  y *= halfToRad;
+  z *= halfToRad;
+  var sx = Math.sin(x);
+  var cx = Math.cos(x);
+  var sy = Math.sin(y);
+  var cy = Math.cos(y);
+  var sz = Math.sin(z);
+  var cz = Math.cos(z);
+  out[0] = sx * cy * cz - cx * sy * sz;
+  out[1] = cx * sy * cz + sx * cy * sz;
+  out[2] = cx * cy * sz - sx * sy * cz;
+  out[3] = cx * cy * cz + sx * sy * sz;
+  return out;
+}
+function str2(a) {
+  return "quat(" + a[0] + ", " + a[1] + ", " + a[2] + ", " + a[3] + ")";
+}
+var clone3 = clone2;
+var fromValues3 = fromValues2;
+var copy3 = copy2;
+var set3 = set2;
+var add3 = add2;
+var mul2 = multiply2;
+var scale3 = scale2;
+var dot3 = dot2;
+var lerp3 = lerp2;
+var length3 = length2;
+var len2 = length3;
+var squaredLength3 = squaredLength2;
+var sqrLen2 = squaredLength3;
+var normalize3 = normalize2;
+var exactEquals3 = exactEquals2;
+var equals3 = equals2;
+var rotationTo = function() {
+  var tmpvec3 = create2();
+  var xUnitVec3 = fromValues(1, 0, 0);
+  var yUnitVec3 = fromValues(0, 1, 0);
+  return function(out, a, b) {
+    var dot4 = dot(a, b);
+    if (dot4 < -0.999999) {
+      cross(tmpvec3, xUnitVec3, a);
+      if (len(tmpvec3) < 1e-6)
+        cross(tmpvec3, yUnitVec3, a);
+      normalize(tmpvec3, tmpvec3);
+      setAxisAngle(out, tmpvec3, Math.PI);
+      return out;
+    } else if (dot4 > 0.999999) {
+      out[0] = 0;
+      out[1] = 0;
+      out[2] = 0;
+      out[3] = 1;
+      return out;
+    } else {
+      cross(tmpvec3, a, b);
+      out[0] = tmpvec3[0];
+      out[1] = tmpvec3[1];
+      out[2] = tmpvec3[2];
+      out[3] = 1 + dot4;
+      return normalize3(out, out);
+    }
+  };
+}();
+var sqlerp = function() {
+  var temp1 = create4();
+  var temp2 = create4();
+  return function(out, a, b, c, d, t2) {
+    slerp(temp1, a, d, t2);
+    slerp(temp2, b, c, t2);
+    slerp(out, temp1, temp2, 2 * t2 * (1 - t2));
+    return out;
+  };
+}();
+var setAxes = function() {
+  var matr = create();
+  return function(out, view, right, up) {
+    matr[0] = right[0];
+    matr[3] = right[1];
+    matr[6] = right[2];
+    matr[1] = up[0];
+    matr[4] = up[1];
+    matr[7] = up[2];
+    matr[2] = -view[0];
+    matr[5] = -view[1];
+    matr[8] = -view[2];
+    return normalize3(out, fromMat3(out, matr));
+  };
+}();
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/listeners/BaseListener.ts
+var BaseListener = class {
+  constructor(type2, context) {
+    this.type = type2;
+    this.context = context;
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/listeners/BaseWebAudioListener.ts
+var f = vec3_exports.create();
+var u = vec3_exports.create();
+var BaseWebAudioListener = class extends BaseListener {
+  get listener() {
+    return this.context.listener;
+  }
+  /**
+   * Performs the spatialization operation for the audio source's latest location.
+   */
+  readPose(loc) {
+    const { p, q } = loc;
+    vec3_exports.set(f, 0, 0, -1);
+    vec3_exports.transformQuat(f, f, q);
+    vec3_exports.set(u, 0, 1, 0);
+    vec3_exports.transformQuat(u, u, q);
+    this.setPosition(p[0], p[1], p[2]);
+    this.setOrientation(f[0], f[1], f[2], u[0], u[1], u[2]);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/listeners/WebAudioListenerNew.ts
+var WebAudioListenerNew = class extends BaseWebAudioListener {
+  /**
+   * Creates a new positioner that uses WebAudio's playback dependent time progression.
+   */
+  constructor(context) {
+    if (!hasNewAudioListener) {
+      throw new Error("Latest WebAudio Listener API is not supported");
+    }
+    super("web-audio-listener-new", context);
+    Object.seal(this);
+  }
+  setPosition(x, y, z) {
+    const t2 = this.context.currentTime;
+    this.listener.positionX.setValueAtTime(x, t2);
+    this.listener.positionY.setValueAtTime(y, t2);
+    this.listener.positionZ.setValueAtTime(z, t2);
+  }
+  setOrientation(fx, fy, fz, ux, uy, uz) {
+    const t2 = this.context.currentTime;
+    this.listener.forwardX.setValueAtTime(fx, t2);
+    this.listener.forwardY.setValueAtTime(fy, t2);
+    this.listener.forwardZ.setValueAtTime(fz, t2);
+    this.listener.upX.setValueAtTime(ux, t2);
+    this.listener.upY.setValueAtTime(uy, t2);
+    this.listener.upZ.setValueAtTime(uz, t2);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/listeners/WebAudioListenerOld.ts
+var WebAudioListenerOld = class extends BaseWebAudioListener {
+  /**
+   * Creates a new positioner that uses WebAudio's playback dependent time progression.
+   */
+  constructor(context) {
+    if (!hasOldAudioListener) {
+      throw new Error("WebAudio Listener API is not supported");
+    }
+    super("web-audio-listener-old", context);
+    Object.seal(this);
+  }
+  setPosition(x, y, z) {
+    this.listener.setPosition(x, y, z);
+  }
+  setOrientation(fx, fy, fz, ux, uy, uz) {
+    this.listener.setOrientation(
+      fx,
+      fy,
+      fz,
+      ux,
+      uy,
+      uz
+    );
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/Pose.ts
+var Pose = class {
+  /**
+   * Creates a new position and orientation, at a given time.
+   **/
+  constructor() {
+    this.p = vec3_exports.create();
+    this.q = quat_exports.create();
+    Object.seal(this);
+  }
+  /**
+   * Sets the components of the pose.
+   */
+  set(px2, py, pz, qx, qy, qz, qw) {
+    this.setPosition(px2, py, pz);
+    this.setOrientation(qx, qy, qz, qw);
+  }
+  setPosition(px2, py, pz) {
+    vec3_exports.set(this.p, px2, py, pz);
+  }
+  setOrientation(qx, qy, qz, qw) {
+    quat_exports.set(this.q, qx, qy, qz, qw);
+  }
+  /**
+   * Copies the components of another pose into this pose.
+   */
+  copy(other) {
+    vec3_exports.copy(this.p, other.p);
+    quat_exports.copy(this.q, other.q);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/spatializers/BaseSpatializer.ts
+var BaseSpatializer = class extends BaseNodeCluster {
+  constructor(type2, context, spatialized, input, output, nodes) {
+    super(type2, context, input, output, nodes);
+    this.spatialized = spatialized;
+    this._minDistance = 1;
+    this._maxDistance = 10;
+    this._algorithm = "inverse";
+  }
+  get minDistance() {
+    return this._minDistance;
+  }
+  get maxDistance() {
+    return this._maxDistance;
+  }
+  get algorithm() {
+    return this._algorithm;
+  }
+  /**
+   * Sets parameters that alter spatialization.
+   **/
+  setAudioProperties(minDistance, maxDistance, algorithm) {
+    this._minDistance = minDistance;
+    this._maxDistance = maxDistance;
+    this._algorithm = algorithm;
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/spatializers/BaseWebAudioPanner.ts
+var fwd = vec3_exports.create();
+var BaseWebAudioPanner = class extends BaseSpatializer {
+  /**
+   * Creates a new spatializer that uses WebAudio's PannerNode.
+   */
+  constructor(type2, context) {
+    const panner = new JuniperPannerNode(context, {
+      panningModel: "HRTF",
+      distanceModel: "inverse",
+      coneInnerAngle: 360,
+      coneOuterAngle: 0,
+      coneOuterGain: 0
+    });
+    super(type2, context, true, [panner]);
+    this.lpx = 0;
+    this.lpy = 0;
+    this.lpz = 0;
+    this.lqx = 0;
+    this.lqy = 0;
+    this.lqz = 0;
+    this.lqw = 0;
+    this.panner = panner;
+  }
+  /**
+   * Sets parameters that alter spatialization.
+   **/
+  setAudioProperties(minDistance, maxDistance, algorithm) {
+    super.setAudioProperties(minDistance, maxDistance, algorithm);
+    this.panner.refDistance = this.minDistance;
+    this.panner.distanceModel = algorithm;
+    if (algorithm === "linear") {
+      this.panner.rolloffFactor = 1;
+    } else {
+      if (this.maxDistance <= 0) {
+        this.panner.rolloffFactor = Infinity;
+      } else if (algorithm === "inverse") {
+        this.panner.rolloffFactor = 1 / this.maxDistance;
+      } else {
+        this.panner.rolloffFactor = Math.pow(this.maxDistance, -0.2);
+      }
+    }
+  }
+  /**
+   * Performs the spatialization operation for the audio source's latest location.
+   */
+  readPose(loc) {
+    const { p, q } = loc;
+    const [px2, py, pz] = p;
+    const [qx, qy, qz, qw] = q;
+    if (px2 !== this.lpx || py !== this.lpy || pz !== this.lpz) {
+      this.lpx = px2;
+      this.lpy = py;
+      this.lpz = pz;
+      this.setPosition(px2, py, pz, this.context.currentTime);
+    }
+    if (qx !== this.lqx || qy !== this.lqy || qz !== this.lqz || qw !== this.lqw) {
+      this.lqx = qx;
+      this.lqy = qy;
+      this.lqz = qz;
+      this.lqw = qw;
+      vec3_exports.transformQuat(fwd, vec3_exports.set(fwd, 0, 0, -1), q);
+      this.setOrientation(fwd[0], fwd[1], fwd[2], this.context.currentTime);
+    }
+  }
+  /**
+   * Computes an expected level of gain at a given distance based on the
+   * algorithms expressed in the WebAudio API standard.
+   * @param distance the distance to check
+   * @returns the multiplicative gain that the panner node will end up applying to the audio signal
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/PannerNode/distanceModel
+   **/
+  getGainAtDistance(distance2) {
+    const { rolloffFactor, refDistance, maxDistance, distanceModel } = this.panner;
+    if (distance2 <= refDistance) {
+      return 1;
+    } else {
+      const dDist = distance2 - refDistance;
+      const dRef = maxDistance - refDistance;
+      if (distanceModel === "linear") {
+        return 1 - rolloffFactor * dDist / dRef;
+      } else if (distanceModel === "inverse") {
+        return refDistance / (refDistance + rolloffFactor * dDist);
+      } else if (distanceModel === "exponential") {
+        return Math.pow(distance2 / refDistance, -rolloffFactor);
+      } else {
+        assertNever(distanceModel);
+      }
+    }
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/spatializers/WebAudioPannerNew.ts
+var WebAudioPannerNew = class extends BaseWebAudioPanner {
+  /**
+   * Creates a new positioner that uses WebAudio's playback dependent time progression.
+   */
+  constructor(context) {
+    super("web-audio-panner-new", context);
+    Object.seal(this);
+  }
+  setPosition(x, y, z, t2) {
+    if (isGoodNumber(x) && isGoodNumber(y) && isGoodNumber(z)) {
+      if (isBadNumber(t2)) {
+        t2 = 0;
+      }
+      this.panner.positionX.setValueAtTime(x, t2);
+      this.panner.positionY.setValueAtTime(y, t2);
+      this.panner.positionZ.setValueAtTime(z, t2);
+    }
+  }
+  setOrientation(x, y, z, t2) {
+    if (isGoodNumber(x) && isGoodNumber(y) && isGoodNumber(z)) {
+      if (isBadNumber(t2)) {
+        t2 = 0;
+      }
+      this.panner.orientationX.setValueAtTime(-x, t2);
+      this.panner.orientationY.setValueAtTime(-y, t2);
+      this.panner.orientationZ.setValueAtTime(-z, t2);
+    }
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/spatializers/WebAudioPannerOld.ts
+var WebAudioPannerOld = class extends BaseWebAudioPanner {
+  /**
+   * Creates a new positioner that uses the WebAudio API's old setPosition method.
+   */
+  constructor(context) {
+    super("web-audio-panner-old", context);
+    Object.seal(this);
+  }
+  setPosition(x, y, z) {
+    this.panner.setPosition(x, y, z);
+  }
+  setOrientation(x, y, z) {
+    this.panner.setOrientation(x, y, z);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/destinations/WebAudioDestination.ts
+var WebAudioDestination = class extends BaseNodeCluster {
+  constructor(context) {
+    const listener = hasNewAudioListener ? new WebAudioListenerNew(context) : new WebAudioListenerOld(context);
+    const remoteUserInput = new JuniperGainNode(context);
+    remoteUserInput.name = "remote-user-input";
+    const spatializedInput = new JuniperGainNode(context);
+    spatializedInput.name = "spatialized-input";
+    const nonSpatializedInput = new JuniperGainNode(context);
+    nonSpatializedInput.name = "non-spatialized-input";
+    const destination = new JuniperMediaStreamAudioDestinationNode(context);
+    const ready = new Task();
+    const element = Audio2(
+      id("Audio-Device-Manager"),
+      display("none"),
+      autoPlay(true),
+      controls(true),
+      srcObject(destination.stream),
+      onPlay(() => ready.resolve())
+    );
+    onUserGesture(() => element.play());
+    super(
+      "web-audio-destination",
+      context,
+      [nonSpatializedInput, spatializedInput, remoteUserInput],
+      [],
+      [destination]
+    );
+    this.pose = new Pose();
+    this._ready = ready;
+    this.listener = listener;
+    this.remoteUserInput = remoteUserInput;
+    this.spatializedInput = spatializedInput;
+    this.nonSpatializedInput = nonSpatializedInput;
+    this.volumeControl = nonSpatializedInput;
+    this.destination = destination;
+    this.element = element;
+    remoteUserInput.connect(spatializedInput).connect(this.volumeControl).connect(destination);
+  }
+  get ready() {
+    return this._ready;
+  }
+  get isReady() {
+    return this._ready.finished && this._ready.resolved;
+  }
+  createSpatializer(isRemoteStream) {
+    const destination = isRemoteStream ? this.remoteUserInput : this.spatializedInput;
+    const spatializer = hasNewAudioListener ? new WebAudioPannerNew(this.context) : new WebAudioPannerOld(this.context);
+    spatializer.connect(destination);
+    return spatializer;
+  }
+  setPosition(px2, py, pz) {
+    this.pose.setPosition(px2, py, pz);
+    this.listener.readPose(this.pose);
+  }
+  setOrientation(qx, qy, qz, qw) {
+    this.pose.setOrientation(qx, qy, qz, qw);
+    this.listener.readPose(this.pose);
+  }
+  set(px2, py, pz, qx, qy, qz, qw) {
+    this.pose.set(px2, py, pz, qx, qy, qz, qw);
+    this.listener.readPose(this.pose);
+  }
+  get stream() {
+    return this.destination.stream;
+  }
+  get volume() {
+    return this.volumeControl.gain.value;
+  }
+  set volume(v) {
+    this.volumeControl.gain.value = v;
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/effects/RadioEffect.ts
+var RadioEffectNode = class extends BaseNodeCluster {
+  constructor(context) {
+    const filter = new JuniperBiquadFilterNode(context, {
+      type: "bandpass",
+      frequency: 2500,
+      Q: 4.5
+    });
+    const gain = new JuniperGainNode(context, {
+      gain: 10
+    });
+    filter.connect(gain);
+    super("radio-effect", context, [filter], [gain]);
+  }
+};
+function RadioEffect(name, context) {
+  const node = new RadioEffectNode(context);
+  node.name = `${name}-radio-effect`;
+  return node;
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/effects/WallEffect.ts
+function WallEffect(name, context) {
+  const node = new JuniperBiquadFilterNode(context, {
+    type: "bandpass",
+    frequency: 400,
+    Q: 4.5
+  });
+  node.name = `${name}-wall-effect`;
+  return node;
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/effects/index.ts
+var effectStore = /* @__PURE__ */ new Map([
+  ["Radio", RadioEffect],
+  ["Wall", WallEffect]
+]);
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/sources/BaseAudioSource.ts
+var BaseAudioSource = class extends BaseNodeCluster {
+  constructor(type2, context, spatializer, effectNames, extras) {
+    const volumeControl = new JuniperGainNode(context);
+    volumeControl.name = "volume-control";
+    extras = extras || [];
+    super(type2, context, [], [spatializer], extras);
+    this.spatializer = spatializer;
+    this.effects = new Array();
+    this.pose = new Pose();
+    this.volumeControl = volumeControl;
+    this.setEffects(...effectNames);
+  }
+  onDisposing() {
+    arrayClear(this.effects);
+    super.onDisposing();
+  }
+  setEffects(...effectNames) {
+    this.disable();
+    for (const effect of this.effects) {
+      this.remove(effect);
+      dispose(effect);
+    }
+    arrayClear(this.effects);
+    let last = this.volumeControl;
+    for (const effectName of effectNames) {
+      if (isDefined(effectName)) {
+        const createEffect = effectStore.get(effectName);
+        if (isDefined(createEffect)) {
+          const effect = createEffect(effectName, this.context);
+          this.add(effect);
+          this.effects.push(effect);
+          last = last.connect(effect);
+        }
+      }
+    }
+    this.enable();
+  }
+  get spatialized() {
+    return this.spatializer.spatialized;
+  }
+  get lastInternal() {
+    return this.effects[this.effects.length - 1] || this.volumeControl;
+  }
+  enable() {
+    if (!this.lastInternal.isConnected()) {
+      this.lastInternal.connect(this.spatializer);
+    }
+  }
+  disable() {
+    if (this.lastInternal.isConnected()) {
+      this.lastInternal.disconnect();
+    }
+  }
+  tog() {
+    if (this.lastInternal.isConnected()) {
+      this.disable();
+    } else {
+      this.enable();
+    }
+  }
+  get volume() {
+    return this.volumeControl.gain.value;
+  }
+  set volume(v) {
+    this.volumeControl.gain.value = v;
+  }
+  get minDistance() {
+    if (isDefined(this.spatializer)) {
+      return this.spatializer.minDistance;
+    }
+    return null;
+  }
+  get maxDistance() {
+    if (isDefined(this.spatializer)) {
+      return this.spatializer.maxDistance;
+    }
+    return null;
+  }
+  get algorithm() {
+    if (isDefined(this.spatializer)) {
+      return this.spatializer.algorithm;
+    }
+    return null;
+  }
+  setPosition(px2, py, pz) {
+    if (isDefined(this.spatializer)) {
+      this.pose.setPosition(px2, py, pz);
+      this.spatializer.readPose(this.pose);
+    }
+  }
+  setOrientation(qx, qy, qz, qw) {
+    if (isDefined(this.spatializer)) {
+      this.pose.setOrientation(qx, qy, qz, qw);
+      this.spatializer.readPose(this.pose);
+    }
+  }
+  set(px2, py, pz, qx, qy, qz, qw) {
+    if (isDefined(this.spatializer)) {
+      this.pose.set(px2, py, pz, qx, qy, qz, qw);
+      this.spatializer.readPose(this.pose);
+    }
+  }
+  setAudioProperties(minDistance, maxDistance, algorithm) {
+    if (isDefined(this.spatializer)) {
+      this.spatializer.setAudioProperties(minDistance, maxDistance, algorithm);
+    }
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/sources/IPlayable.ts
+var MediaElementSourceEvent = class extends TypedEvent {
+  constructor(type2, source) {
+    super(type2);
+    this.source = source;
+  }
+};
+var MediaElementSourceLoadedEvent = class extends MediaElementSourceEvent {
+  constructor(source) {
+    super("loaded", source);
+  }
+};
+var MediaElementSourceErroredEvent = class extends MediaElementSourceEvent {
+  constructor(source, error) {
+    super("errored", source);
+    this.error = error;
+  }
+};
+var MediaElementSourcePlayedEvent = class extends MediaElementSourceEvent {
+  constructor(source) {
+    super("played", source);
+  }
+};
+var MediaElementSourcePausedEvent = class extends MediaElementSourceEvent {
+  constructor(source) {
+    super("paused", source);
+  }
+};
+var MediaElementSourceStoppedEvent = class extends MediaElementSourceEvent {
+  constructor(source) {
+    super("stopped", source);
+  }
+};
+var MediaElementSourceProgressEvent = class extends MediaElementSourceEvent {
+  constructor(source) {
+    super("progress", source);
+    this.value = 0;
+    this.total = 0;
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/sources/AudioElementSource.ts
+var DISPOSING_EVT = new TypedEvent("disposing");
+var AudioElementSource = class extends BaseAudioSource {
+  constructor(context, source, randomizeStart, randomizePitch, spatializer, ...effectNames) {
+    super("audio-element-source", context, spatializer, effectNames);
+    source.connect(this.volumeControl);
+    this.audio = source.mediaElement;
+    this.disable();
+    this.loadEvt = new MediaElementSourceLoadedEvent(this);
+    this.playEvt = new MediaElementSourcePlayedEvent(this);
+    this.pauseEvt = new MediaElementSourcePausedEvent(this);
+    this.stopEvt = new MediaElementSourceStoppedEvent(this);
+    this.progEvt = new MediaElementSourceProgressEvent(this);
+    const halt = (evt) => {
+      if (this.audio.currentTime === 0 || evt.type === "ended") {
+        this.dispatchEvent(this.stopEvt);
+      } else {
+        this.dispatchEvent(this.pauseEvt);
+      }
+    };
+    this.audio.addEventListener("ended", halt);
+    this.audio.addEventListener("pause", halt);
+    if (randomizeStart) {
+      this.audio.addEventListener("play", () => {
+        if (this.audio.loop && this.audio.duration > 1) {
+          const startTime = this.audio.duration * Math.random();
+          this.audio.currentTime = startTime;
+        }
+      });
+    }
+    if (randomizePitch) {
+      source.mediaElement.preservesPitch = false;
+      this.audio.addEventListener("play", () => {
+        source.mediaElement.playbackRate = 1 + 0.1 * (2 * Math.random() - 1);
+      });
+    }
+    this.audio.addEventListener("play", () => {
+      this.dispatchEvent(this.playEvt);
+    });
+    this.audio.addEventListener("timeupdate", () => {
+      this.progEvt.value = this.audio.currentTime;
+      this.progEvt.total = this.audio.duration;
+      this.dispatchEvent(this.progEvt);
+    });
+    if (this.audio.autoplay) {
+      this.play().catch(() => onUserGesture(() => this.play()));
+    }
+    mediaElementCanPlay(this.audio).then((success2) => this.dispatchEvent(success2 ? this.loadEvt : new MediaElementSourceErroredEvent(this, this.audio.error)));
+  }
+  onDisposing() {
+    this.dispatchEvent(DISPOSING_EVT);
+    super.onDisposing();
+  }
+  get playbackState() {
+    if (this.audio.error) {
+      return "errored";
+    }
+    if (this.audio.ended || this.audio.paused && this.audio.currentTime === 0) {
+      return "stopped";
+    }
+    if (this.audio.paused) {
+      return "paused";
+    }
+    return "playing";
+  }
+  async play() {
+    this.enable();
+    await this.context.ready;
+    await this.audio.play();
+  }
+  async playThrough() {
+    const endTask = once(this, "stopped");
+    await this.play();
+    await endTask;
+  }
+  pause() {
+    this.disable();
+    this.audio.pause();
+  }
+  stop() {
+    this.audio.currentTime = 0;
+    this.pause();
+  }
+  restart() {
+    this.stop();
+    return this.play();
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/sources/AudioStreamSource.ts
+var AudioSourceAddedEvent = class extends TypedEvent {
+  constructor(source) {
+    super("sourceadded");
+    this.source = source;
+  }
+};
+var AudioStreamSource = class extends BaseAudioSource {
+  constructor(context, spatializer, ...effectNames) {
+    super("audio-stream-source", context, spatializer, effectNames);
+    this._stream = null;
+    this._node = null;
+  }
+  get stream() {
+    return this._stream;
+  }
+  set stream(mediaStream) {
+    if (mediaStream !== this.stream) {
+      if (isDefined(this.stream)) {
+        this.remove(this._node);
+        dispose(this._node);
+        this._node = null;
+      }
+      if (isDefined(mediaStream)) {
+        this._node = new JuniperMediaStreamAudioSourceNode(
+          this.context,
+          {
+            mediaStream
+          }
+        );
+        this._node.name = stringToName("media-stream-source", mediaStream.id);
+        this._node.connect(this.volumeControl);
+        this.add(this._node);
+        this.dispatchEvent(new AudioSourceAddedEvent(this));
+      }
+    }
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/spatializers/NoSpatializer.ts
+var NoSpatializer = class extends BaseSpatializer {
+  constructor(node) {
+    super("no-spatializer", node.context, false, [node], [node]);
+  }
+  readPose(_loc) {
+  }
+  getGainAtDistance(_) {
+    return 1;
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/filterDeviceDuplicates.ts
+function filterDeviceDuplicates(devices2) {
+  const filtered = [];
+  for (let i = 0; i < devices2.length; ++i) {
+    const a = devices2[i];
+    let found = false;
+    for (let j = 0; j < filtered.length && !found; ++j) {
+      const b = filtered[j];
+      found = a.kind === b.kind && b.label.indexOf(a.label) > 0;
+    }
+    if (!found) {
+      filtered.push(a);
+    }
+  }
+  return filtered;
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/SpeakerManager.ts
+var canChangeAudioOutput = /* @__PURE__ */ isFunction(HTMLAudioElement.prototype.setSinkId);
+var AudioOutputChangedEvent = class extends TypedEvent {
+  constructor(device) {
+    super("audiooutputchanged");
+    this.device = device;
+  }
+};
+var PREFERRED_AUDIO_OUTPUT_ID_KEY = "calla:preferredAudioOutputID";
+var SpeakerManager = class extends TypedEventBase {
+  constructor(element) {
+    super();
+    this.element = element;
+    this._hasAudioPermission = false;
+    this._ready = new Task();
+    this.start();
+    Object.seal(this);
+  }
+  get hasAudioPermission() {
+    return this._hasAudioPermission;
+  }
+  get ready() {
+    return this._ready;
+  }
+  get isReady() {
+    return this._ready.finished && this._ready.resolved;
+  }
+  async start() {
+    if (canChangeAudioOutput) {
+      const devices2 = await navigator.mediaDevices.enumerateDevices();
+      const anyDevice = arrayScan(devices2, (dev) => dev.kind === "audiooutput" && dev.label.length > 0);
+      if (isDefined(anyDevice)) {
+        this._hasAudioPermission = true;
+        const device = await this.getPreferredAudioOutput();
+        if (device) {
+          await this.setAudioOutputDevice(device);
+        }
+      }
+    }
+    this._ready.resolve();
+  }
+  get preferredAudioOutputID() {
+    if (!canChangeAudioOutput) {
+      return null;
+    }
+    return localStorage.getItem(PREFERRED_AUDIO_OUTPUT_ID_KEY);
+  }
+  async getAudioOutputDevices(filterDuplicates = false) {
+    if (!canChangeAudioOutput) {
+      return [];
+    }
+    const devices2 = await this.getAvailableDevices(filterDuplicates);
+    return devices2 || [];
+  }
+  async getAudioOutputDevice() {
+    if (!canChangeAudioOutput) {
+      return null;
+    }
+    const curId = this.element && this.element.sinkId;
+    if (isNullOrUndefined(curId)) {
+      return null;
+    }
+    const devices2 = await this.getAudioOutputDevices(), device = arrayScan(
+      devices2,
+      (d) => d.deviceId === curId
+    );
+    return device;
+  }
+  async getPreferredAudioOutput() {
+    if (!canChangeAudioOutput) {
+      return null;
+    }
+    const devices2 = await this.getAudioOutputDevices();
+    const device = arrayScan(
+      devices2,
+      (d) => d.deviceId === this.preferredAudioOutputID,
+      (d) => d.deviceId === "default",
+      (d) => d.deviceId.length > 0
+    );
+    return device;
+  }
+  async setAudioOutputDevice(device) {
+    if (canChangeAudioOutput) {
+      if (isDefined(device) && device.kind !== "audiooutput") {
+        throw new Error(`Device is not an audio output device. Was: ${device.kind}. Label: ${device.label}`);
+      }
+      localStorage.setItem(PREFERRED_AUDIO_OUTPUT_ID_KEY, device && device.deviceId || null);
+      const curDevice = this.element;
+      const curDeviceID = curDevice && curDevice.sinkId;
+      if (this.preferredAudioOutputID !== curDeviceID) {
+        if (isDefined(this.preferredAudioOutputID)) {
+          await this.element.setSinkId(this.preferredAudioOutputID);
+        }
+        this.dispatchEvent(new AudioOutputChangedEvent(device));
+      }
+    }
+  }
+  async getAvailableDevices(filterDuplicates = false) {
+    let devices2 = null;
+    let testStream = null;
+    for (let i = 0; i < 3; ++i) {
+      devices2 = await navigator.mediaDevices.enumerateDevices();
+      for (const device of devices2) {
+        if (device.deviceId.length > 0) {
+          if (!this.hasAudioPermission) {
+            this._hasAudioPermission = device.kind === "audioinput" && device.label.length > 0;
+          }
+        }
+      }
+      if (this.hasAudioPermission) {
+        break;
+      }
+      try {
+        testStream = await this.startStream();
+      } catch (exp2) {
+        console.warn(exp2);
+      }
+    }
+    if (testStream) {
+      for (const track of testStream.getTracks()) {
+        track.stop();
+      }
+    }
+    devices2 = arraySortByKey(devices2 || [], (d) => d.label);
+    if (filterDuplicates) {
+      devices2 = filterDeviceDuplicates(devices2);
+    }
+    return canChangeAudioOutput ? devices2.filter((d) => d.kind === "audiooutput") : [];
+  }
+  startStream() {
+    return navigator.mediaDevices.getUserMedia({
+      audio: true
+    });
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/AudioManager.ts
+var USE_HEADPHONES_KEY = "juniper::useHeadphones";
+var useHeadphonesToggledEvt = new TypedEvent("useheadphonestoggled");
+var POOL_SIZE = 10;
+var RELEASE_EVT = new TypedEvent("released");
+var HAX_SRC = "data:audio/mpeg;base64,SUQzBAAAAAABEVRYWFgAAAAtAAADY29tbWVudABCaWdTb3VuZEJhbmsuY29tIC8gTGFTb25vdGhlcXVlLm9yZwBURU5DAAAAHQAAA1N3aXRjaCBQbHVzIMKpIE5DSCBTb2Z0d2FyZQBUSVQyAAAABgAAAzIyMzUAVFNTRQAAAA8AAANMYXZmNTcuODMuMTAwAAAAAAAAAAAAAAD/80DEAAAAA0gAAAAATEFNRTMuMTAwVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/zQsRbAAADSAAAAABVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/zQMSkAAADSAAAAABVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV";
+var AudioManager = class extends BaseNodeCluster {
+  /**
+   * Creates a new manager of audio sources, destinations, and their spatialization.
+   **/
+  constructor(fetcher2, defaultLocalUserID) {
+    const context = new JuniperAudioContext();
+    if ("THREE" in globalThis) {
+      globalThis.THREE.AudioContext.setContext(context);
+    }
+    const destination = new WebAudioDestination(context);
+    const noSpatializer = new NoSpatializer(destination.nonSpatializedInput);
+    const speakers = new SpeakerManager(destination.element);
+    super("audio-manager", context, null, null, [noSpatializer, destination]);
+    this.fetcher = fetcher2;
+    this.users = /* @__PURE__ */ new Map();
+    this.clips = /* @__PURE__ */ new Map();
+    this.pendingAudio = new Array();
+    this.audioPool = new Array();
+    this.elements = /* @__PURE__ */ new Map();
+    this.elementCounts = /* @__PURE__ */ new Map();
+    this._minDistance = 0.25;
+    this._maxDistance = 100;
+    this._algorithm = "inverse";
+    this._useHeadphones = false;
+    this.destination = null;
+    this._ready = new Task();
+    this.localUserID = null;
+    this.destination = destination;
+    this.noSpatializer = noSpatializer;
+    this.speakers = speakers;
+    all(
+      this.context.ready,
+      this.destination.ready,
+      this.speakers.ready
+    ).then(() => this._ready.resolve());
+    this.setLocalUserID(defaultLocalUserID);
+    const useHeadphones = localStorage.getItem(USE_HEADPHONES_KEY);
+    if (isDefined(useHeadphones)) {
+      this._useHeadphones = useHeadphones === "true";
+    } else {
+      this._useHeadphones = isMobileVR();
+    }
+    this.enpool();
+    if (isIOS()) {
+      onUserGesture(() => {
+        const depooling = [...this.pendingAudio];
+        arrayClear(this.pendingAudio);
+        for (const p of depooling) {
+          p();
+        }
+      }, true);
+    }
+    Object.seal(this);
+  }
+  get algorithm() {
+    return this._algorithm;
+  }
+  get element() {
+    return this.destination.element;
+  }
+  get ready() {
+    return this._ready;
+  }
+  get isReady() {
+    return this._ready.finished && this._ready.resolved;
+  }
+  enpool() {
+    for (let i = 0; i < POOL_SIZE; ++i) {
+      const task = new Task();
+      const audio3 = Audio2(
+        src(HAX_SRC),
+        controls(false),
+        onEvent("released", () => {
+          audio3.pause();
+          audio3.src = HAX_SRC;
+        })
+      );
+      this.audioPool.push(task);
+      if (isIOS()) {
+        this.pendingAudio.push(() => {
+          audio3.play();
+          task.resolve(audio3);
+        });
+      } else {
+        task.resolve(audio3);
+      }
+    }
+  }
+  preparePool(size) {
+    while (this.audioPool.length < size) {
+      this.enpool();
+    }
+  }
+  async getPooledAudio(...rest) {
+    if (this.audioPool.length === 0) {
+      throw new Exception("Audio pool exhausted!");
+    }
+    const audioTask = this.audioPool.shift();
+    if (this.audioPool.length <= POOL_SIZE / 2) {
+      this.enpool();
+    }
+    const audio3 = await audioTask;
+    audio3.pause();
+    elementApply(audio3, ...rest);
+    return audio3;
+  }
+  async getPooledSource(key, path, looping) {
+    if (!this.elements.has(key)) {
+      const mediaElement = await this.getPooledAudio(
+        src(path),
+        loop(looping && !isIOS())
+      );
+      if (isIOS() && looping) {
+        mediaElement.addEventListener("ended", () => mediaElement.play());
+      }
+      const node = new JuniperMediaElementAudioSourceNode(
+        this.context,
+        { mediaElement }
+      );
+      node.name = stringToName("media-element-source", key);
+      this.elements.set(key, node);
+      this.elementCounts.set(key, 0);
+    }
+    const source = this.elements.get(key);
+    this.elementCounts.set(key, this.elementCounts.get(key) + 1);
+    return source;
+  }
+  releasePooledSource(key) {
+    const source = this.elements.get(key);
+    this.elementCounts.set(key, this.elementCounts.get(key) - 1);
+    if (this.elementCounts.get(key) === 0) {
+      source.mediaElement.dispatchEvent(RELEASE_EVT);
+      this.elementCounts.delete(key);
+      this.elements.delete(key);
+    }
+  }
+  get useHeadphones() {
+    return this._useHeadphones;
+  }
+  set useHeadphones(v) {
+    if (v !== this.useHeadphones) {
+      this._useHeadphones = v;
+      localStorage.setItem(USE_HEADPHONES_KEY, this.useHeadphones.toString());
+      this.dispatchEvent(useHeadphonesToggledEvt);
+    }
+  }
+  onDisposing() {
+    this.context.suspend();
+    for (const userID of this.users.keys()) {
+      this.removeUser(userID);
+    }
+    for (const clipID of this.clips.keys()) {
+      this.removeClip(clipID);
+    }
+    super.onDisposing();
+  }
+  /**
+   * Gets the current playback time.
+   */
+  get currentTime() {
+    return this.context.currentTime;
+  }
+  /**
+   * Creates a spatialzer for an audio source.
+   * @param spatialize - whether the audio stream should be spatialized. Stereo audio streams that are spatialized will get down-mixed to a single channel.
+   * @param isRemoteStream - whether the audio stream is coming from a remote user.
+   */
+  createSpatializer(spatialize, isRemoteStream) {
+    if (!spatialize) {
+      return this.noSpatializer;
+    } else {
+      const spatializer = this.destination.createSpatializer(isRemoteStream);
+      spatializer.setAudioProperties(this._minDistance, this._maxDistance, this._algorithm);
+      return spatializer;
+    }
+  }
+  /**
+   * Create a new user for audio processing.
+   */
+  createUser(userID, userName) {
+    if (!this.users.has(userID)) {
+      const user = new AudioStreamSource(this.context, this.createSpatializer(true, true));
+      user.name = stringToName(userName, userID);
+      this.users.set(userID, user);
+    }
+    return this.users.get(userID);
+  }
+  /**
+   * Create a new user for the audio listener.
+   */
+  setLocalUserID(id2) {
+    if (this.destination) {
+      this.localUserID = id2;
+    }
+    return this.destination;
+  }
+  createBasicClip(id2, asset, vol) {
+    return this.createClip(id2, asset, false, false, false, true, vol, []);
+  }
+  hasClip(id2) {
+    return this.clips.has(id2);
+  }
+  /**
+   * Creates a new sound effect from a series of fallback paths
+   * for media files.
+   * @param id - the name of the sound effect, to reference when executing playback.
+   * @param asset - the element to register as a clip
+   * @param looping - whether the sound effect should be played on loop.
+   * @param spatialize - whether the sound effect should be spatialized.
+   * @param randomizeStart - whether the looping sound effect should be started somewhere in the middle.
+   * @param randomizePitch - whether the sound effect should be pitch-bent whenever it is played.
+   * @param vol - the volume at which to set the clip.
+   * @param effectNames - names of pre-canned effects to load on the control.
+   * @param path - a path for loading the media of the sound effect, or the sound effect that has already been loaded.
+   * @param prog - an optional callback function to use for tracking progress of loading the clip.
+   */
+  async createClip(id2, asset, looping, spatialize, randomizeStart, randomizePitch, vol, effectNames, prog) {
+    await this.ready;
+    let key;
+    let path;
+    if (isString(asset)) {
+      key = asset;
+      path = await this.fetcher.get(asset).progress(prog).file().then(unwrapResponse);
+    } else {
+      key = asset.path;
+      path = asset.result;
+    }
+    const source = await this.getPooledSource(key, path, looping);
+    const clip = new AudioElementSource(
+      this.context,
+      source,
+      randomizeStart,
+      randomizePitch,
+      this.createSpatializer(spatialize, false),
+      ...effectNames
+    );
+    clip.addEventListener("disposing", () => this.releasePooledSource(key));
+    clip.name = stringToName("audio-clip-element", id2);
+    clip.volume = vol;
+    this.clips.set(id2, clip);
+    return clip;
+  }
+  /**
+   * Plays a named sound effect, with the returned promise resolving when the clip has started playing.
+   * @param id - the name of the effect to play.
+   */
+  async playClip(id2) {
+    if (this.hasClip(id2)) {
+      const clip = this.clips.get(id2);
+      await clip.play();
+    }
+  }
+  /**
+   * Plays a named sound effect, with the returned promise resolving when the clip has finished playing.
+   * @param id - the name of the effect to play.
+   */
+  async playClipThrough(id2) {
+    if (this.hasClip(id2)) {
+      const clip = this.clips.get(id2);
+      await clip.playThrough();
+    }
+  }
+  stopClip(id2) {
+    if (this.hasClip(id2)) {
+      const clip = this.clips.get(id2);
+      clip.stop();
+    }
+  }
+  /**
+   * Get an existing user.
+   */
+  getUser(userID) {
+    return this.users.get(userID);
+  }
+  /**
+   * Get an existing audio clip.
+   */
+  getClip(id2) {
+    return this.clips.get(id2);
+  }
+  /**
+   * Remove an audio source from audio processing.
+   * @param sources - the collection of audio sources from which to remove.
+   * @param id - the id of the audio source to remove
+   **/
+  removeSource(sources, id2) {
+    const source = sources.get(id2);
+    if (isDefined(source)) {
+      sources.delete(id2);
+      dispose(source);
+    }
+    return source;
+  }
+  /**
+   * Remove a user from audio processing.
+   **/
+  removeUser(userID) {
+    const user = this.removeSource(this.users, userID);
+    if (isDefined(user.stream)) {
+      user.stream = null;
+    }
+  }
+  /**
+   * Remove an audio clip from audio processing.
+   **/
+  removeClip(id2) {
+    const clip = this.removeSource(this.clips, id2);
+    dispose(clip);
+    return clip;
+  }
+  setUserStream(userID, stream) {
+    if (this.users.has(userID)) {
+      const user = this.users.get(userID);
+      user.stream = stream;
+    }
+  }
+  /**
+   * Sets parameters that alter spatialization.
+   **/
+  setAudioProperties(minDistance, maxDistance, algorithm) {
+    this._minDistance = minDistance;
+    this._maxDistance = maxDistance;
+    this._algorithm = algorithm;
+    for (const user of this.users.values()) {
+      user.setAudioProperties(this._minDistance, this._maxDistance, this.algorithm);
+    }
+    for (const clip of this.clips.values()) {
+      clip.setAudioProperties(clip.minDistance, clip.maxDistance, this.algorithm);
+    }
+  }
+  /**
+   * Get a pose, normalize the transition time, and perform on operation on it, if it exists.
+   * @param sources - the collection of poses from which to retrieve the pose.
+   * @param id - the id of the pose for which to perform the operation.
+   * @param poseCallback
+   */
+  withPoser(sources, id2, poseCallback) {
+    const source = sources.get(id2);
+    const poser = source || this.destination;
+    return poseCallback(poser);
+  }
+  /**
+   * Get a user pose, normalize the transition time, and perform on operation on it, if it exists.
+   * @param id - the id of the user for which to perform the operation.
+   * @param poseCallback
+   */
+  withUser(id2, poseCallback) {
+    return this.withPoser(this.users, id2, poseCallback);
+  }
+  /**
+   * Get an audio clip pose, normalize the transition time, and perform on operation on it, if it exists.
+   * @param id - the id of the audio clip for which to perform the operation.
+   * @param dt - the amount of time to take to make the transition. Defaults to this AudioManager's `transitionTime`.
+   * @param poseCallback
+   */
+  withClip(id2, poseCallback) {
+    return this.withPoser(this.clips, id2, poseCallback);
+  }
+  /**
+   * Set the position and orientation of a user.
+   * @param id - the id of the user for which to set the position.
+   * @param px - the horizontal component of the position.
+   * @param py - the vertical component of the position.
+   * @param pz - the lateral component of the position.
+   * @param qx - the rotation quaternion x component.
+   * @param qy - the rotation quaternion y component.
+   * @param qz - the rotation quaternion z component.
+   * @param qw - the rotation quaternion w component.
+   **/
+  setUserPose(id2, px2, py, pz, qx, qy, qz, qw) {
+    this.withUser(id2, (poser) => {
+      poser.set(px2, py, pz, qx, qy, qz, qw);
+    });
+  }
+  /**
+   * Set the position and orientation of a user.
+   * @param id - the id of the user for which to set the position.
+   * @param px - the horizontal component of the position.
+   * @param py - the vertical component of the position.
+   * @param pz - the lateral component of the position.
+   **/
+  setUserPosition(id2, px2, py, pz) {
+    this.withUser(id2, (poser) => {
+      poser.setPosition(px2, py, pz);
+    });
+  }
+  /**
+   * Set the position and orientation of a user.
+   * @param id - the id of the user for which to set the position.
+   * @param qx - the rotation quaternion x component.
+   * @param qy - the rotation quaternion y component.
+   * @param qz - the rotation quaternion z component.
+   * @param qw - the rotation quaternion w component.
+   **/
+  setUserOrientation(id2, qx, qy, qz, qw) {
+    this.withUser(id2, (poser) => {
+      poser.setOrientation(qx, qy, qz, qw);
+    });
+  }
+  /**
+   * Set the position and orientation of an audio clip.
+   * @param id - the id of the audio clip for which to set the position.
+   * @param px - the horizontal component of the position.
+   * @param py - the vertical component of the position.
+   * @param pz - the lateral component of the position.
+   * @param qx - the rotation quaternion x component.
+   * @param qy - the rotation quaternion y component.
+   * @param qz - the rotation quaternion z component.
+   * @param qw - the rotation quaternion w component.
+   **/
+  setClipPose(id2, px2, py, pz, qx, qy, qz, qw) {
+    this.withClip(id2, (poser) => {
+      poser.set(px2, py, pz, qx, qy, qz, qw);
+    });
+  }
+  /**
+   * Set the position and orientation of a clip.
+   * @param id - the id of the user for which to set the position.
+   * @param px - the horizontal component of the position.
+   * @param py - the vertical component of the position.
+   * @param pz - the lateral component of the position.
+   **/
+  setClipPosition(id2, px2, py, pz) {
+    this.withClip(id2, (poser) => {
+      poser.setPosition(px2, py, pz);
+    });
+  }
+  /**
+   * Set the position and orientation of a clip.
+   * @param id - the id of the user for which to set the position.
+   * @param qx - the rotation quaternion x component.
+   * @param qy - the rotation quaternion y component.
+   * @param qz - the rotation quaternion z component.
+   * @param qw - the rotation quaternion w component.
+   **/
+  setClipOrientation(id2, qx, qy, qz, qw) {
+    this.withClip(id2, (poser) => {
+      poser.setOrientation(qx, qy, qz, qw);
+    });
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/DeviceManager.ts
+var DeviceSettingsChangedEvent = class extends TypedEvent {
+  constructor() {
+    super("devicesettingschanged");
+  }
+};
+var DeviceManager = class {
+  constructor(...managers) {
+    this.permissed = /* @__PURE__ */ new Set();
+    this.managers = managers;
+  }
+  get hasPermissions() {
+    for (const manager of this.managers) {
+      if (!this.permissed.has(manager)) {
+        return false;
+      }
+    }
+    return true;
+  }
+  async init() {
+    if (!this.hasPermissions) {
+      const devices2 = await this.getDevices();
+      await Promise.all(this.managers.map((m) => m.setDevice(
+        arrayScan(
+          devices2,
+          (d) => d.kind === m.deviceKind && d.deviceId === m.preferredDeviceID,
+          (d) => d.kind === m.deviceKind && d.deviceId === "default",
+          (d) => d.kind === m.deviceKind && d.deviceId.length > 0
+        )
+      )));
+    }
+  }
+  async getDevices(filterDuplicates = false) {
+    let devices2 = null;
+    let testStream = null;
+    for (let i = 0; i < 3; ++i) {
+      devices2 = await navigator.mediaDevices.enumerateDevices();
+      if (!this.hasPermissions) {
+        const constraints = {};
+        for (const manager of this.managers) {
+          if (!this.permissed.has(manager)) {
+            for (const device of devices2) {
+              if (device.kind === manager.deviceKind && device.deviceId.length > 0 && device.label.length > 0) {
+                this.permissed.add(manager);
+                break;
+              }
+            }
+            if (!this.permissed.has(manager)) {
+              constraints[manager.mediaType] = true;
+            }
+          }
+        }
+        if (!this.hasPermissions) {
+          try {
+            testStream = await navigator.mediaDevices.getUserMedia(constraints);
+          } catch (exp2) {
+            console.warn(exp2);
+          }
+        }
+      }
+    }
+    if (testStream) {
+      for (const track of testStream.getTracks()) {
+        track.stop();
+      }
+    }
+    devices2 = arraySortByKey(devices2 || [], (d) => d.label);
+    if (filterDuplicates) {
+      devices2 = filterDeviceDuplicates(devices2);
+    }
+    return devices2;
+  }
+  get outStreams() {
+    return this.managers.map((m) => m.outStream);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/StreamChangedEvent.ts
+var StreamChangedEvent = class extends TypedEvent {
+  constructor(oldStream, newStream) {
+    super("streamchanged");
+    this.oldStream = oldStream;
+    this.newStream = newStream;
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/LocalUserMicrophone.ts
+var PREFERRED_AUDIO_INPUT_ID_KEY = "calla:preferredAudioInputID";
+var LocalUserMicrophone = class extends BaseNodeCluster {
+  constructor(context) {
+    const volume = context.createGain();
+    volume.name = "local-mic-user-gain";
+    const autoGainNode = context.createGain();
+    autoGainNode.name = "local-mic-auto-gain";
+    const filter = new JuniperBiquadFilterNode(context, {
+      type: "bandpass",
+      frequency: 1500,
+      Q: 0.25
+    });
+    filter.name = "local-mic-filter";
+    const compressor = new JuniperDynamicsCompressorNode(context, {
+      threshold: -15,
+      knee: 40,
+      ratio: 17
+    });
+    compressor.name = "local-mic-compressor";
+    const localOutput = new JuniperMediaStreamAudioDestinationNode(context);
+    localOutput.name = "local-mic-destination";
+    super("local-user-microphone", context, [], [compressor], [
+      volume,
+      filter,
+      localOutput
+    ]);
+    this.localStreamNode = null;
+    this._hasPermission = false;
+    this._usingHeadphones = false;
+    this._device = null;
+    this._enabled = false;
+    this.volume = volume;
+    this.autoGainNode = autoGainNode;
+    this.compressor = compressor;
+    this.output = localOutput;
+    volume.connect(autoGainNode).connect(filter).connect(compressor).connect(localOutput);
+    Object.seal(this);
+  }
+  get mediaType() {
+    return "audio";
+  }
+  get deviceKind() {
+    return `${this.mediaType}input`;
+  }
+  get enabled() {
+    return this._enabled;
+  }
+  set enabled(v) {
+    if (v !== this.enabled) {
+      this._enabled = v;
+      this.onChange();
+    }
+  }
+  get hasPermission() {
+    return this._hasPermission;
+  }
+  get preferredDeviceID() {
+    return localStorage.getItem(PREFERRED_AUDIO_INPUT_ID_KEY);
+  }
+  get device() {
+    return this._device;
+  }
+  async setDevice(device) {
+    if (isDefined(device) && device.kind !== this.deviceKind) {
+      throw new Error(`Device is not an audio input device. Was: ${device.kind}. Label: ${device.label}`);
+    }
+    const curAudioID = this.device && this.device.deviceId || null;
+    const nextAudioID = device && device.deviceId || null;
+    if (nextAudioID !== curAudioID) {
+      this._device = device;
+      localStorage.setItem(PREFERRED_AUDIO_INPUT_ID_KEY, nextAudioID);
+      this.onChange();
+    }
+  }
+  get inStream() {
+    return this.localStreamNode && this.localStreamNode.mediaStream || null;
+  }
+  set inStream(mediaStream) {
+    if (mediaStream !== this.inStream) {
+      if (this.localStreamNode) {
+        this.remove(this.localStreamNode);
+        dispose(this.localStreamNode);
+        this.localStreamNode = null;
+      }
+      if (mediaStream) {
+        this.localStreamNode = new JuniperMediaStreamAudioSourceNode(this.context, {
+          mediaStream
+        });
+        this.add(this.localStreamNode);
+        this.localStreamNode.connect(this.volume);
+      }
+    }
+  }
+  get outStream() {
+    return this.output.stream;
+  }
+  get gain() {
+    return this.volume.gain;
+  }
+  get muted() {
+    return this.compressor.isConnected(this.output);
+  }
+  set muted(v) {
+    if (v !== this.muted) {
+      if (v) {
+        this.compressor.connect(this.output);
+      } else {
+        this.compressor.disconnect(this.output);
+      }
+    }
+  }
+  get usingHeadphones() {
+    return this._usingHeadphones;
+  }
+  set usingHeadphones(v) {
+    if (v !== this.usingHeadphones) {
+      this._usingHeadphones = v;
+      this.onChange();
+    }
+  }
+  async onChange() {
+    this.dispatchEvent(new DeviceSettingsChangedEvent());
+    const oldStream = this.inStream;
+    if (this.device && this.enabled) {
+      this.inStream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          deviceId: this.device.deviceId,
+          echoCancellation: !this.usingHeadphones,
+          autoGainControl: true,
+          noiseSuppression: true
+        }
+      });
+    } else {
+      this.inStream = null;
+    }
+    if (this.inStream !== oldStream) {
+      this.dispatchEvent(new StreamChangedEvent(oldStream, this.outStream));
+    }
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/tilReady.ts
+async function tilReady(root, obj) {
+  if (!obj.isReady) {
+    const button = ButtonPrimary(
+      "Start",
+      onClick(() => button.disabled = true, true)
+    );
+    elementApply(root, button);
+    await obj.ready;
+    button.remove();
+  }
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/math.ts
+var Pi = Math.PI;
+var HalfPi = 0.5 * Pi;
+var Tau = 2 * Pi;
+var TIME_MAX = 864e13;
+var TIME_MIN = -TIME_MAX;
+function lerp4(a, b, p) {
+  return (1 - p) * a + p * b;
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/timers/ITimer.ts
+var BaseTimerTickEvent = class extends TypedEvent {
+  constructor() {
+    super("update");
+    this.t = 0;
+    this.dt = 0;
+    this.sdt = 0;
+    this.fps = 0;
+  }
+  set(t2, dt) {
+    this.t = t2;
+    this.dt = dt;
+    this.sdt = lerp4(this.sdt, dt, 0.01);
+    if (dt > 0) {
+      this.fps = 1e3 / dt;
+    }
+  }
+};
+var TimerTickEvent = class extends BaseTimerTickEvent {
+  constructor() {
+    super();
+    Object.seal(this);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/timers/BaseTimer.ts
+var BaseTimer = class {
+  constructor(targetFrameRate) {
+    this.timer = null;
+    this.lt = -1;
+    this.tickHandlers = new Array();
+    this._targetFPS = null;
+    this.targetFPS = targetFrameRate;
+    const tickEvt = new TimerTickEvent();
+    let dt = 0;
+    this.onTick = (t2) => {
+      if (this.lt >= 0) {
+        dt = t2 - this.lt;
+        tickEvt.set(t2, dt);
+        this.tick(tickEvt);
+      }
+      this.lt = t2;
+    };
+  }
+  get targetFPS() {
+    return this._targetFPS;
+  }
+  set targetFPS(v) {
+    this._targetFPS = v;
+  }
+  addTickHandler(onTick) {
+    this.tickHandlers.push(onTick);
+  }
+  removeTickHandler(onTick) {
+    arrayRemove(this.tickHandlers, onTick);
+  }
+  tick(evt) {
+    for (const handler of this.tickHandlers) {
+      handler(evt);
+    }
+  }
+  restart() {
+    this.stop();
+    this.start();
+  }
+  get isRunning() {
+    return this.timer != null;
+  }
+  stop() {
+    this.timer = null;
+    this.lt = -1;
+  }
+  get targetFrameTime() {
+    return 1e3 / this.targetFPS;
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/timers/SetIntervalTimer.ts
+var SetIntervalTimer = class extends BaseTimer {
+  constructor(targetFrameRate) {
+    super(targetFrameRate);
+  }
+  start() {
+    this.timer = setInterval(
+      () => this.onTick(performance.now()),
+      this.targetFrameTime
+    );
+  }
+  stop() {
+    if (this.timer) {
+      clearInterval(this.timer);
+      super.stop();
+    }
+  }
+  get targetFPS() {
+    return super.targetFPS;
+  }
+  set targetFPS(fps) {
+    super.targetFPS = fps;
+    if (this.isRunning) {
+      this.restart();
+    }
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/audio/ActivityDetector.ts
+var ActivityEvent = class extends TypedEvent {
+  constructor() {
+    super("activity");
+    this.level = 0;
+  }
+};
+var ActivityDetector = class extends JuniperAnalyserNode {
+  constructor(context) {
+    super(context, {
+      fftSize: 32,
+      minDecibels: -70
+    });
+    this._level = 0;
+    this.maxLevel = 0;
+    this.activityEvt = new ActivityEvent();
+    this.timer = new SetIntervalTimer(30);
+    const buffer = new Uint8Array(this.frequencyBinCount);
+    this.timer.addTickHandler(() => {
+      this.getByteFrequencyData(buffer);
+      this._level = Math.max(...buffer);
+      if (isFinite(this._level)) {
+        this.maxLevel = Math.max(this.maxLevel, this._level);
+        if (this.maxLevel > 0) {
+          this._level /= this.maxLevel;
+        }
+      }
+      this.activityEvt.level = this.level;
+      this.dispatchEvent(this.activityEvt);
+    });
+  }
+  get level() {
+    return this._level;
+  }
+  start() {
+    this.timer.start();
+  }
+  stop() {
+    this.timer.stop();
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/util.ts
+var typePattern = /([^\/]+)\/(.+)/;
+var subTypePattern = /(?:([^\.]+)\.)?([^\+;]+)(?:\+([^;]+))?((?:; *([^=]+)=([^;]+))*)/;
+var MediaType = class {
+  constructor(_type, _fullSubType, extensions) {
+    this._type = _type;
+    this._fullSubType = _fullSubType;
+    this._primaryExtension = null;
+    this.depMessage = null;
+    const parameters = /* @__PURE__ */ new Map();
+    this._parameters = parameters;
+    const subTypeParts = this._fullSubType.match(subTypePattern);
+    this._tree = subTypeParts[1];
+    this._subType = subTypeParts[2];
+    this._suffix = subTypeParts[3];
+    const paramStr = subTypeParts[4];
+    this._value = this._fullValue = this._type + "/";
+    if (isDefined(this._tree)) {
+      this._value = this._fullValue += this._tree + ".";
+    }
+    this._value = this._fullValue += this._subType;
+    if (isDefined(this._suffix)) {
+      this._value = this._fullValue += "+" + this._suffix;
+    }
+    if (isDefined(paramStr)) {
+      const pairs = paramStr.split(";").map((p) => p.trim()).filter((p) => p.length > 0).map((p) => p.split("="));
+      for (const [key, ...values] of pairs) {
+        const value2 = values.join("=");
+        parameters.set(key, value2);
+        const slug = `; ${key}=${value2}`;
+        this._fullValue += slug;
+        if (key !== "q") {
+          this._value += slug;
+        }
+      }
+    }
+    this._extensions = extensions || [];
+    this._primaryExtension = this._extensions[0] || null;
+  }
+  static parse(value2) {
+    if (!value2) {
+      return null;
+    }
+    const match = value2.match(typePattern);
+    if (!match) {
+      return null;
+    }
+    const type2 = match[1];
+    const subType = match[2];
+    return new MediaType(type2, subType);
+  }
+  deprecate(message) {
+    this.depMessage = message;
+    return this;
+  }
+  check() {
+    if (isDefined(this.depMessage)) {
+      console.warn(`${this._value} is deprecated ${this.depMessage}`);
+    }
+  }
+  matches(value2) {
+    if (isNullOrUndefined(value2)) {
+      return false;
+    }
+    if (this.typeName === "*" && this.subTypeName === "*") {
+      return true;
+    }
+    let typeName = null;
+    let subTypeName = null;
+    if (isString(value2)) {
+      const match = value2.match(typePattern);
+      if (!match) {
+        return false;
+      }
+      typeName = match[1];
+      subTypeName = match[2];
+    } else {
+      typeName = value2.typeName;
+      subTypeName = value2._fullSubType;
+    }
+    return this.typeName === typeName && (this._fullSubType === "*" || this._fullSubType === subTypeName);
+  }
+  withParameter(key, value2) {
+    const newSubType = `${this._fullSubType}; ${key}=${value2}`;
+    return new MediaType(this.typeName, newSubType, this.extensions);
+  }
+  get typeName() {
+    this.check();
+    return this._type;
+  }
+  get tree() {
+    this.check();
+    return this._tree;
+  }
+  get suffix() {
+    return this._suffix;
+  }
+  get subTypeName() {
+    this.check();
+    return this._subType;
+  }
+  get value() {
+    this.check();
+    return this._value;
+  }
+  __getValueUnsafe() {
+    return this._value;
+  }
+  get fullValue() {
+    this.check();
+    return this._fullValue;
+  }
+  get parameters() {
+    this.check();
+    return this._parameters;
+  }
+  get extensions() {
+    this.check();
+    return this._extensions;
+  }
+  __getExtensionsUnsafe() {
+    return this._extensions;
+  }
+  get primaryExtension() {
+    this.check();
+    return this._primaryExtension;
+  }
+  toString() {
+    if (this.parameters.get("q") === "1") {
+      return this.value;
+    } else {
+      return this.fullValue;
+    }
+  }
+  addExtension(fileName) {
+    if (!fileName) {
+      throw new Error("File name is not defined");
+    }
+    if (this.primaryExtension) {
+      const idx = fileName.lastIndexOf(".");
+      if (idx > -1) {
+        const currentExtension = fileName.substring(idx + 1);
+        ;
+        if (this.extensions.indexOf(currentExtension) > -1) {
+          fileName = fileName.substring(0, idx);
+        }
+      }
+      fileName = `${fileName}.${this.primaryExtension}`;
+    }
+    return fileName;
+  }
+};
+function create5(group2, value2, ...extensions) {
+  return new MediaType(group2, value2, extensions);
+}
+function specialize(group2) {
+  return create5.bind(null, group2);
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/application.ts
+var application = /* @__PURE__ */ specialize("application");
+var Application_Javascript = /* @__PURE__ */ application("javascript", "js");
+var Application_Json = /* @__PURE__ */ application("json", "json");
+var Application_Wasm = /* @__PURE__ */ application("wasm", "wasm");
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/audio.ts
+var audio = /* @__PURE__ */ specialize("audio");
+var Audio_Mpeg = /* @__PURE__ */ audio("mpeg", "mp3", "mp2", "mp2a", "mpga", "m2a", "m3a");
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes/text.ts
+var text = /* @__PURE__ */ specialize("text");
+var Text_Css = /* @__PURE__ */ text("css", "css");
+var Text_Plain = /* @__PURE__ */ text("plain", "txt", "text", "conf", "def", "list", "log", "in");
+var Text_Xml = /* @__PURE__ */ text("xml");
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/Asset.ts
+function isAsset(obj) {
+  return isDefined(obj) && isFunction(obj.then) && isFunction(obj.catch) && isFunction(obj.finally) && isFunction(obj.fetch) && isFunction(obj.getSize);
+}
+var BaseAsset = class {
+  constructor(path, type2) {
+    this.path = path;
+    this.type = type2;
+    this._result = null;
+    this._error = null;
+    this._started = false;
+    this._finished = false;
+    this.resolve = null;
+    this.reject = null;
+    this.promise = new Promise((resolve, reject) => {
+      this.resolve = (value2) => {
+        this._result = value2;
+        this._finished = true;
+        resolve(value2);
+      };
+      this.reject = (reason) => {
+        this._error = reason;
+        this._finished = true;
+        reject(reason);
+      };
+    });
+  }
+  get result() {
+    if (isDefined(this.error)) {
+      throw this.error;
+    }
+    return this._result;
+  }
+  get error() {
+    return this._error;
+  }
+  get started() {
+    return this._started;
+  }
+  get finished() {
+    return this._finished;
+  }
+  async getSize(fetcher2) {
+    try {
+      const { contentLength } = await fetcher2.head(this.path).accept(this.type).exec();
+      return [this, contentLength || 1];
+    } catch (exp2) {
+      console.warn(exp2);
+      return [this, 1];
+    }
+    ;
+  }
+  async fetch(fetcher2, prog) {
+    try {
+      const result = await this.getResult(fetcher2, prog);
+      this.resolve(result);
+    } catch (err) {
+      this.reject(err);
+    }
+  }
+  get [Symbol.toStringTag]() {
+    return this.promise.toString();
+  }
+  then(onfulfilled, onrejected) {
+    return this.promise.then(onfulfilled, onrejected);
+  }
+  catch(onrejected) {
+    return this.promise.catch(onrejected);
+  }
+  finally(onfinally) {
+    return this.promise.finally(onfinally);
+  }
+};
+var BaseFetchedAsset = class extends BaseAsset {
+  constructor(path, typeOrUseCache, useCache) {
+    let type2;
+    if (isBoolean(typeOrUseCache)) {
+      useCache = typeOrUseCache;
+    } else {
+      type2 = typeOrUseCache;
+    }
+    super(path, type2);
+    this.useCache = !!useCache;
+  }
+  getResult(fetcher2, prog) {
+    return this.getRequest(fetcher2, prog).then(unwrapResponse);
+  }
+  getRequest(fetcher2, prog) {
+    const request = fetcher2.get(this.path).useCache(this.useCache).progress(prog);
+    return this.getResponse(request);
+  }
+};
+var AssetFile = class extends BaseFetchedAsset {
+  getResponse(request) {
+    return request.file(this.type);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/collections/mapMap.ts
+function mapMap(items, makeID, makeValue) {
+  return new Map(items.map((item) => [makeID(item), makeValue(item)]));
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/collections/makeLookup.ts
+function makeLookup(items, makeID) {
+  return mapMap(items, makeID, identity);
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/strings/stringRandom.ts
+var DEFAULT_CHAR_SET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZ";
+function stringRandom(length4, charSet) {
+  if (length4 < 0) {
+    throw new Error("Length must be greater than 0");
+  }
+  if (isNullOrUndefined(charSet)) {
+    charSet = DEFAULT_CHAR_SET;
+  }
+  let str3 = "";
+  for (let i = 0; i < length4; ++i) {
+    const idx = Math.floor(Math.random() * charSet.length);
+    str3 += charSet[idx];
+  }
+  return str3;
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/widgets/DialogBox/index.ts
+var DialogBox = class {
+  constructor(title2) {
+    this.task = new Task(false);
+    this.element = Div(
+      className("dialog"),
+      display("none"),
+      customData("dialogname", title2),
+      this.container = Div(
+        className("dialog-container"),
+        this.titleElement = H1(className("title-bar"), title2),
+        this.contentArea = Div(className("dialog-content")),
+        Div(
+          className("dialog-controls"),
+          this.confirmButton = ButtonPrimary("Confirm", classList("confirm-button")),
+          this.cancelButton = ButtonSecondary("Cancel", classList("cancel-button"))
+        )
+      )
+    );
+    this.confirmButton.addEventListener("click", this.task.resolver(true));
+    this.cancelButton.addEventListener("click", this.task.resolver(false));
+    elementApply(document.body, this);
+  }
+  get title() {
+    return this._title;
+  }
+  set title(v) {
+    elementSetText(this.titleElement, this._title = v);
+  }
+  async onShowing() {
+  }
+  onShown() {
+  }
+  async onConfirm() {
+  }
+  onCancel() {
+  }
+  async onClosing() {
+  }
+  onClosed() {
+  }
+  show(v) {
+    elementSetDisplay(this, v);
+  }
+  get isOpen() {
+    return elementIsDisplayed(this);
+  }
+  hide() {
+    this.show(false);
+  }
+  async toggle() {
+    if (this.isOpen) {
+      this.hide();
+    } else {
+      this.showDialog();
+    }
+  }
+  async showDialog() {
+    await this.onShowing();
+    this.show(true);
+    this.onShown();
+    this.task.restart();
+    if (await this.task) {
+      await this.onConfirm();
+    } else {
+      this.onCancel();
+    }
+    await this.onClosing();
+    this.show(false);
+    this.onClosed();
+    return this.task.result;
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/widgets/InputRangeWithNumber/index.ts
+var InputRangeWithNumber = class extends TypedEventBase {
+  constructor(...rest) {
+    super();
+    this.element = Div(
+      className("input-range-with-number"),
+      this.rangeInput = InputRange(
+        onInput(() => {
+          this.numberInput.valueAsNumber = this.rangeInput.valueAsNumber;
+          this.dispatchEvent(new TypedEvent("input"));
+        }),
+        ...rest
+      ),
+      this.numberInput = InputNumber(
+        onInput(() => {
+          this.rangeInput.valueAsNumber = this.numberInput.valueAsNumber;
+          this.rangeInput.dispatchEvent(new Event("input"));
+        })
+      )
+    );
+    this.numberInput.min = this.rangeInput.min;
+    this.numberInput.max = this.rangeInput.max;
+    this.numberInput.step = this.rangeInput.step;
+    this.numberInput.valueAsNumber = this.rangeInput.valueAsNumber;
+    this.numberInput.disabled = this.rangeInput.disabled;
+    this.numberInput.placeholder = this.rangeInput.placeholder;
+  }
+  get value() {
+    return this.rangeInput.value;
+  }
+  set value(v) {
+    this.rangeInput.value = this.numberInput.value = v;
+  }
+  get valueAsNumber() {
+    return this.rangeInput.valueAsNumber;
+  }
+  set valueAsNumber(v) {
+    this.rangeInput.valueAsNumber = this.numberInput.valueAsNumber = v;
+  }
+  get disabled() {
+    return this.rangeInput.disabled;
+  }
+  set disabled(v) {
+    this.rangeInput.disabled = this.numberInput.disabled = v;
+  }
+  get enabled() {
+    return !this.disabled;
+  }
+  set enabled(v) {
+    this.disabled = !v;
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/collections/PriorityList.ts
+var PriorityList = class {
+  constructor(init) {
+    this.items = /* @__PURE__ */ new Map();
+    this.defaultItems = new Array();
+    if (isDefined(init)) {
+      for (const [key, value2] of init) {
+        this.add(key, value2);
+      }
+    }
+  }
+  add(key, ...values) {
+    for (const value2 of values) {
+      if (isNullOrUndefined(key)) {
+        this.defaultItems.push(value2);
+      } else {
+        let list = this.items.get(key);
+        if (isNullOrUndefined(list)) {
+          this.items.set(key, list = []);
+        }
+        list.push(value2);
+      }
+    }
+    return this;
+  }
+  entries() {
+    return this.items.entries();
+  }
+  [Symbol.iterator]() {
+    return this.entries();
+  }
+  keys() {
+    return this.items.keys();
+  }
+  *values() {
+    for (const item of this.defaultItems) {
+      yield item;
+    }
+    for (const list of this.items.values()) {
+      for (const item of list) {
+        yield item;
+      }
+    }
+  }
+  has(key) {
+    if (isDefined(key)) {
+      return this.items.has(key);
+    } else {
+      return this.defaultItems.length > 0;
+    }
+  }
+  get(key) {
+    if (isNullOrUndefined(key)) {
+      return this.defaultItems;
+    }
+    return this.items.get(key) || [];
+  }
+  count(key) {
+    if (isNullOrUndefined(key)) {
+      return this.defaultItems.length;
+    }
+    const list = this.get(key);
+    if (isDefined(list)) {
+      return list.length;
+    }
+    return 0;
+  }
+  get size() {
+    let size = this.defaultItems.length;
+    for (const list of this.items.values()) {
+      size += list.length;
+    }
+    return size;
+  }
+  delete(key) {
+    if (isNullOrUndefined(key)) {
+      return arrayClear(this.defaultItems).length > 0;
+    } else {
+      return this.items.delete(key);
+    }
+  }
+  remove(key, value2) {
+    if (isNullOrUndefined(key)) {
+      arrayRemove(this.defaultItems, value2);
+    } else {
+      const list = this.items.get(key);
+      if (isDefined(list)) {
+        arrayRemove(list, value2);
+        if (list.length === 0) {
+          this.items.delete(key);
+        }
+      }
+    }
+  }
+  clear() {
+    this.items.clear();
+    arrayClear(this.defaultItems);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/widgets/PropertyList/index.ts
+var PropertyGroup = class {
+  constructor(name, ...properties) {
+    this.name = name;
+    this.properties = properties;
+  }
+};
+function group(name, ...properties) {
+  return new PropertyGroup(name, ...properties);
+}
+var DEFAULT_PROPERTY_GROUP = "DefaultPropertyGroup" + stringRandom(16);
+var singleItem = className("single-item");
+function createElements(rest) {
+  return rest.flatMap((entry) => createRows(entry).flatMap(identity));
+}
+function createRows(entry) {
+  let groupName = DEFAULT_PROPERTY_GROUP;
+  const rows = new Array();
+  if (entry instanceof PropertyGroup) {
+    groupName = entry.name;
+    rows.push(...entry.properties.map((e) => createRow(groupName, e)));
+  } else {
+    rows.push(createRow(groupName, entry));
+  }
+  return rows;
+}
+function createRow(groupName, entry) {
+  const group2 = groupName === DEFAULT_PROPERTY_GROUP ? null : customData("groupname", groupName);
+  if (isArray(entry)) {
+    const [labelText, ...fields] = entry;
+    const label = Label(labelText);
+    for (const field of fields) {
+      if (field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement || field instanceof HTMLSelectElement) {
+        if (field.id.length === 0) {
+          field.id = stringRandom(10);
+        }
+        label.htmlFor = field.id;
+        break;
+      }
+    }
+    return [
+      DT(group2, label),
+      DD(group2, ...fields)
+    ];
+  } else {
+    if (isString(entry) || isNumber(entry) || isBoolean(entry) || isDate(entry)) {
+      entry = H2(entry);
+    }
+    return [
+      DD(group2, entry)
+    ];
+  }
+}
+function isPropertyDef(obj) {
+  return isDefined(obj) && !isCssElementStyleProp(obj) && !isAttr(obj);
+}
+var PropertyList = class {
+  constructor(element) {
+    this.element = element;
+    this.groups = new PriorityList();
+    this.controls = new Array();
+    this._disabled = false;
+    const queue = [...element.children];
+    while (queue.length > 0) {
+      const child = queue.shift();
+      if (isDisableable(child)) {
+        this.controls.push(child);
+      }
+      if (child instanceof HTMLElement) {
+        this.checkGroup(child);
+        queue.push(...child.children);
+      }
+    }
+  }
+  static find() {
+    return Array.from(PropertyList._find());
+  }
+  static *_find() {
+    for (const elem of getElements(".properties")) {
+      yield new PropertyList(elem);
+    }
+  }
+  static create(...rest) {
+    const props = rest.filter(isPropertyDef);
+    const styles = rest.filter(isCssElementStyleProp);
+    const attrs = rest.filter(isAttr);
+    const classes = coallesceClassLists(attrs, "properties");
+    const rows = createElements(props);
+    return new PropertyList(DL(
+      classList(...classes),
+      ...styles,
+      ...attrs,
+      ...rows
+    ));
+  }
+  append(...props) {
+    const rows = createElements(props);
+    elementApply(this.element, ...rows);
+    for (const propDef of props) {
+      const props2 = propDef instanceof PropertyGroup ? propDef.properties : [propDef];
+      for (const prop of props2) {
+        if (!isString(prop)) {
+          const [_, ...elems] = isArray(prop) ? prop : [null, prop];
+          for (const elem of elems) {
+            if (isDisableable(elem)) {
+              this.controls.push(elem);
+            }
+          }
+        }
+      }
+    }
+    for (const row of rows) {
+      this.checkGroup(row);
+    }
+  }
+  checkGroup(row) {
+    const elem = resolveElement(row);
+    const groupName = elem.dataset["groupname"];
+    if (groupName !== DEFAULT_PROPERTY_GROUP) {
+      this.groups.add(groupName, row);
+    }
+    if (elem.parentElement === this.element && elem.tagName === "DD" && (!elem.previousElementSibling || elem.previousElementSibling.tagName !== "DT")) {
+      singleItem.applyToElement(elem);
+    }
+  }
+  get disabled() {
+    return this._disabled;
+  }
+  set disabled(v) {
+    if (v !== this.disabled) {
+      this._disabled = v;
+      elementSetClass(this, v, "disabled");
+      for (const control of this.controls) {
+        control.disabled = v;
+      }
+    }
+  }
+  get enabled() {
+    return !this.disabled;
+  }
+  set enabled(v) {
+    this.disabled = !v;
+  }
+  setGroupVisible(id2, v) {
+    const elems = this.groups.get(id2);
+    if (elems) {
+      for (const elem of elems) {
+        elementSetDisplay(elem, v);
+      }
+    }
+  }
+  getGroupVisible(id2) {
+    const elems = this.groups.get(id2);
+    if (elems) {
+      for (const elem of elems) {
+        return elementIsDisplayed(elem);
+      }
+    }
+    return false;
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/environment/DeviceDialog.ts
+var MIC_GROUP = "micFields" + stringRandom(8);
+var CAM_GROUP = "camFields" + stringRandom(8);
+function makeDeviceSelector(selector, devices2, curDevice) {
+  elementClearChildren(selector);
+  elementApply(
+    selector,
+    Option(value(""), "NONE"),
+    ...devices2.map(
+      (device) => Option(
+        selected(curDevice && device.deviceId === curDevice.deviceId),
+        value(device.deviceId),
+        device.label
+      )
+    )
+  );
+}
+var DeviceDialog = class extends DialogBox {
+  constructor(fetcher2, devices2, audio3, microphones, webcams, DEBUG2 = false) {
+    super("Configure devices");
+    this.devices = devices2;
+    this.audio = audio3;
+    this.microphones = microphones;
+    this.webcams = webcams;
+    this.micLookup = null;
+    this.camLookup = null;
+    this.spkrLookup = null;
+    this.spkrVolumeControl = null;
+    this.speakers = null;
+    this.cancelButton.style.display = "none";
+    const clipAsset = new AssetFile("/audio/test-clip.mp3", Audio_Mpeg, !DEBUG2);
+    const clipLoaded = fetcher2.assets(clipAsset).then(() => this.audio.createBasicClip("test-audio", clipAsset, 0.5));
+    elementApply(
+      this.contentArea,
+      paddingRight("2em"),
+      this.properties = PropertyList.create(
+        group(
+          CAM_GROUP,
+          [
+            "Webcams",
+            this.webcamSelector = Select(
+              onInput(async () => {
+                const deviceId = this.webcamSelector.value;
+                const device = this.camLookup.get(deviceId);
+                await this.webcams.setDevice(device);
+              })
+            )
+          ]
+        ),
+        group(
+          MIC_GROUP,
+          [
+            "Microphones",
+            this.microphoneSelector = Select(
+              display("inline-block"),
+              onInput(async () => {
+                const deviceId = this.microphoneSelector.value;
+                const device = this.micLookup.get(deviceId);
+                await this.microphones.setDevice(device);
+              })
+            )
+          ],
+          [
+            "Volume",
+            this.micVolumeControl = new InputRangeWithNumber(
+              min(0),
+              max(100),
+              step(1),
+              value(0),
+              onInput(() => {
+                this.microphones.gain.setValueAtTime(this.micVolumeControl.valueAsNumber / 100, 0);
+              })
+            )
+          ],
+          [
+            "Levels",
+            this.micLevels = Meter(
+              display("inline-block")
+            )
+          ]
+        )
+      )
+    );
+    if (canChangeAudioOutput) {
+      this.properties.append(
+        [
+          "Speakers",
+          this.speakers = Select(
+            onInput(async () => {
+              const deviceId = this.speakers.value;
+              const device = this.spkrLookup.get(deviceId);
+              await this.audio.speakers.setAudioOutputDevice(device);
+            })
+          )
+        ]
+      );
+      this.audio.speakers.addEventListener("audiooutputchanged", (evt) => {
+        this.speakers.value = evt.device && evt.device.deviceId || "";
+      });
+    }
+    this.properties.append(
+      [
+        "Volume",
+        this.spkrVolumeControl = new InputRangeWithNumber(
+          min(0),
+          max(100),
+          step(1),
+          value(0),
+          onInput(() => this.audio.destination.volume = this.spkrVolumeControl.valueAsNumber / 100)
+        )
+      ],
+      [
+        "",
+        this.testSpkrButton = ButtonSecondary(
+          "Test",
+          title("Test audio"),
+          margin(em(0.5)),
+          onClick(async () => {
+            this.testSpkrButton.disabled = true;
+            await clipLoaded;
+            await this.audio.playClipThrough("test-audio");
+            this.testSpkrButton.disabled = false;
+          })
+        )
+      ],
+      [
+        "Using headphones",
+        this.useHeadphones = InputCheckbox(
+          checked(this.audio.useHeadphones),
+          onInput(() => {
+            this.audio.useHeadphones = this.useHeadphones.checked;
+            elementSetDisplay(this.headphoneWarning, !this.audio.useHeadphones, "inline-block");
+          })
+        )
+      ],
+      this.headphoneWarning = Div(
+        className("alert alert-warning"),
+        "\u{1F3A7}\u{1F399}\uFE0F This site has a voice chat feature. Voice chat is best experienced using headphones."
+      )
+    );
+    this.activity = new ActivityDetector(this.audio.context);
+    this.activity.name = "device-settings-dialog-activity";
+    this.activity.addEventListener("activity", (evt) => {
+      if (this.isOpen) {
+        this.micLevels.value = evt.level;
+      }
+    });
+    this.microphones.connect(this.activity);
+    this.activity.start();
+    this.properties.setGroupVisible(MIC_GROUP, false);
+    Object.seal(this);
+  }
+  get showWebcams() {
+    return this.properties.getGroupVisible(CAM_GROUP);
+  }
+  set showWebcams(v) {
+    this.properties.setGroupVisible(CAM_GROUP, v);
+  }
+  get showMicrophones() {
+    return this.properties.getGroupVisible(MIC_GROUP);
+  }
+  set showMicrophones(v) {
+    this.properties.setGroupVisible(MIC_GROUP, v);
+  }
+  async onShowing() {
+    if (this.showWebcams || this.showMicrophones) {
+      await this.devices.init();
+      const devices2 = await this.devices.getDevices();
+      if (this.showWebcams) {
+        const cams2 = devices2.filter((d) => d.kind === "videoinput");
+        this.camLookup = makeLookup(cams2, (m) => m.deviceId);
+        makeDeviceSelector(this.webcamSelector, cams2, this.webcams.device);
+      }
+      if (this.showMicrophones) {
+        const mics2 = devices2.filter((d) => d.kind === "audioinput");
+        this.micLookup = makeLookup(mics2, (m) => m.deviceId);
+        makeDeviceSelector(this.microphoneSelector, mics2, this.microphones.device);
+        this.microphones.usingHeadphones = this.useHeadphones.checked;
+        this.microphones.enabled = true;
+        this.micVolumeControl.valueAsNumber = this.microphones.gain.value * 100;
+      }
+    }
+    if (canChangeAudioOutput) {
+      await this.audio.speakers.ready;
+      const spkrs = await this.audio.speakers.getAudioOutputDevices();
+      this.spkrLookup = makeLookup(spkrs, (device) => device.deviceId);
+      elementClearChildren(this.speakers);
+      elementApply(
+        this.speakers,
+        ...spkrs.map(
+          (device) => Option(
+            value(device.deviceId),
+            device.label
+          )
+        )
+      );
+      let curSpker = await this.audio.speakers.getAudioOutputDevice();
+      if (!curSpker) {
+        curSpker = await this.audio.speakers.getPreferredAudioOutput();
+        await this.audio.speakers.setAudioOutputDevice(curSpker);
+      }
+      this.speakers.value = curSpker && curSpker.deviceId || "";
+    }
+    this.spkrVolumeControl.valueAsNumber = this.audio.destination.volume * 100;
+    this.useHeadphones.checked = this.audio.useHeadphones;
+    elementSetDisplay(this.headphoneWarning, !this.audio.useHeadphones, "inline-block");
+    await super.onShowing();
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/video/LocalUserWebcam.ts
+var PREFERRED_VIDEO_INPUT_ID_KEY = "calla:preferredVideoInputID";
+var LocalUserWebcam = class extends TypedEventBase {
+  constructor() {
+    super();
+    this.element = Video(muted(true));
+    this._hasPermission = false;
+    this._device = null;
+    this._enabled = false;
+    Object.seal(this);
+  }
+  get mediaType() {
+    return "video";
+  }
+  get deviceKind() {
+    return `${this.mediaType}input`;
+  }
+  get enabled() {
+    return this._enabled;
+  }
+  set enabled(v) {
+    if (v !== this.enabled) {
+      this._enabled = v;
+      this.onChange();
+    }
+  }
+  get hasPermission() {
+    return this._hasPermission;
+  }
+  get preferredDeviceID() {
+    return localStorage.getItem(PREFERRED_VIDEO_INPUT_ID_KEY);
+  }
+  get device() {
+    return this._device;
+  }
+  checkDevices(devices2) {
+    if (!this.hasPermission) {
+      for (const device of devices2) {
+        if (device.kind === this.deviceKind && device.deviceId.length > 0 && device.label.length > 0) {
+          this._hasPermission = true;
+          break;
+        }
+      }
+    }
+  }
+  async setDevice(device) {
+    if (isDefined(device) && device.kind !== this.deviceKind) {
+      throw new Error(`Device is not an vide input device. Was: ${device.kind}. Label: ${device.label}`);
+    }
+    const curVideoID = this.device && this.device.deviceId || null;
+    const nextVideoID = device && device.deviceId || null;
+    if (nextVideoID !== curVideoID) {
+      this._device = device;
+      localStorage.setItem(PREFERRED_VIDEO_INPUT_ID_KEY, nextVideoID);
+      await this.onChange();
+    }
+  }
+  async onChange() {
+    this.dispatchEvent(new DeviceSettingsChangedEvent());
+    const oldStream = this.inStream;
+    if (this.device && this.enabled) {
+      this.inStream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          deviceId: this.device.deviceId,
+          autoGainControl: true,
+          height: 640,
+          noiseSuppression: true
+        }
+      });
+    } else {
+      this.inStream = null;
+    }
+    if (this.inStream !== oldStream) {
+      this.dispatchEvent(new StreamChangedEvent(oldStream, this.outStream));
+    }
+  }
+  get inStream() {
+    return this.element.srcObject;
+  }
+  set inStream(v) {
+    if (v !== this.inStream) {
+      if (this.inStream) {
+        this.element.pause();
+      }
+      this.element.srcObject = v;
+      if (this.inStream) {
+        this.element.play();
+      }
+    }
+  }
+  get outStream() {
+    return this.inStream;
+  }
+  stop() {
+    this.inStream = null;
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/progress/ChildProgressCallback.ts
+var ChildProgressCallback = class extends BaseProgress {
+  constructor(i, prog) {
+    super();
+    this.i = i;
+    this.prog = prog;
+  }
+  report(soFar, total, msg, est) {
+    super.report(soFar, total, msg, est);
+    this.prog.update(this.i, soFar, total, msg);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/progress/BaseParentProgressCallback.ts
+var BaseParentProgressCallback = class {
+  constructor(prog) {
+    this.prog = prog;
+    this.weightTotal = 0;
+    this.subProgressCallbacks = new Array();
+    this.subProgressWeights = new Array();
+    this.subProgressValues = new Array();
+    this.start = performance.now();
+    for (let i = 0; i < this.subProgressWeights.length; ++i) {
+      this.subProgressValues[i] = 0;
+      this.subProgressCallbacks[i] = new ChildProgressCallback(i, this);
+    }
+  }
+  addSubProgress(weight) {
+    weight = weight || 1;
+    this.weightTotal += weight;
+    this.subProgressWeights.push(weight);
+    this.subProgressValues.push(0);
+    const child = new ChildProgressCallback(this.subProgressCallbacks.length, this);
+    this.subProgressCallbacks.push(child);
+    return child;
+  }
+  update(i, subSoFar, subTotal, msg) {
+    if (this.prog) {
+      this.subProgressValues[i] = subSoFar / subTotal;
+      let soFar = 0;
+      for (let j = 0; j < this.subProgressWeights.length; ++j) {
+        soFar += this.subProgressValues[j] * this.subProgressWeights[j];
+      }
+      const end = performance.now();
+      const delta = end - this.start;
+      const est = this.start - end + delta * this.weightTotal / soFar;
+      this.prog.report(soFar, this.weightTotal, msg, est);
+    }
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/progress/progressSplit.ts
+function progressSplitWeighted(prog, subProgressWeights) {
+  const subProg = new WeightedParentProgressCallback(subProgressWeights, prog);
+  return subProg.subProgressCallbacks;
+}
+function progressSplit(prog, taskCount) {
+  const subProgressWeights = new Array(taskCount);
+  for (let i = 0; i < taskCount; ++i) {
+    subProgressWeights[i] = 1;
+  }
+  return progressSplitWeighted(prog, subProgressWeights);
+}
+var WeightedParentProgressCallback = class extends BaseParentProgressCallback {
+  constructor(subProgressWeights, prog) {
+    super(prog);
+    for (const weight of subProgressWeights) {
+      this.addSubProgress(weight);
+    }
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/progress/progressTasks.ts
+async function progressTasksWeighted(prog, taskDefs) {
+  const weights = new Array(taskDefs.length);
+  const callbacks = new Array(taskDefs.length);
+  for (let i = 0; i < taskDefs.length; ++i) {
+    const taskDef = taskDefs[i];
+    weights[i] = taskDef[0];
+    callbacks[i] = taskDef[1];
+  }
+  const progs = progressSplitWeighted(prog, weights);
+  const tasks = new Array(taskDefs.length);
+  for (let i = 0; i < taskDefs.length; ++i) {
+    tasks[i] = callbacks[i](progs[i]);
+  }
+  return await Promise.all(tasks);
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/canvas.ts
+var hasHTMLCanvas = "HTMLCanvasElement" in globalThis;
+var hasHTMLImage = "HTMLImageElement" in globalThis;
+var disableAdvancedSettings = false;
+var hasOffscreenCanvas = !disableAdvancedSettings && "OffscreenCanvas" in globalThis;
+var hasImageBitmap = !disableAdvancedSettings && "createImageBitmap" in globalThis;
+function testOffscreen2D() {
+  try {
+    const canv = new OffscreenCanvas(1, 1);
+    const g = canv.getContext("2d");
+    return g != null;
+  } catch (exp2) {
+    return false;
+  }
+}
+var hasOffscreenCanvasRenderingContext2D = hasOffscreenCanvas && testOffscreen2D();
+function testOffscreen3D() {
+  try {
+    const canv = new OffscreenCanvas(1, 1);
+    const g = canv.getContext("webgl2");
+    return g != null;
+  } catch (exp2) {
+    return false;
+  }
+}
+var hasOffscreenCanvasRenderingContext3D = hasOffscreenCanvas && testOffscreen3D();
+function createOffscreenCanvas(width, height) {
+  return new OffscreenCanvas(width, height);
+}
+function createCanvas(w, h) {
+  if (false) {
+    throw new Error("HTML Canvas is not supported in workers");
+  }
+  return Canvas(htmlWidth(w), htmlHeight(h));
+}
+function drawImageToCanvas(canv, img) {
+  const g = canv.getContext("2d");
+  if (isNullOrUndefined(g)) {
+    throw new Error("Could not create 2d context for canvas");
+  }
+  g.drawImage(img, 0, 0);
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/events/waitFor.ts
+function waitFor(test) {
+  const task = new Task();
+  const handle = setInterval(() => {
+    if (test()) {
+      clearInterval(handle);
+      task.resolve();
+    }
+  }, 100);
+  return task;
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/translateResponse.ts
+async function translateResponse(response, translate) {
+  const {
+    status,
+    requestPath,
+    responsePath,
+    content,
+    contentType,
+    contentLength,
+    fileName,
+    headers,
+    date
+  } = response;
+  return {
+    status,
+    requestPath,
+    responsePath,
+    content: isDefined(translate) ? await translate(content) : void 0,
+    contentType,
+    contentLength,
+    fileName,
+    headers,
+    date
+  };
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/RequestBuilder.ts
+var testAudio = null;
+function canPlay(type2) {
+  if (testAudio === null) {
+    testAudio = new Audio();
+  }
+  return testAudio.canPlayType(type2) !== "";
+}
+var RequestBuilder = class {
+  constructor(fetcher2, method, path, useBLOBs = false) {
+    this.fetcher = fetcher2;
+    this.method = method;
+    this.path = path;
+    this.useBLOBs = useBLOBs;
+    this.prog = null;
+    this.request = {
+      method,
+      path: this.path.href,
+      body: null,
+      headers: null,
+      timeout: null,
+      withCredentials: false,
+      useCache: false,
+      retryCount: 3
+    };
+  }
+  retries(count) {
+    this.request.retryCount = count;
+    return this;
+  }
+  query(name, value2) {
+    this.path.searchParams.set(name, value2);
+    this.request.path = this.path.href;
+    return this;
+  }
+  header(name, value2) {
+    if (this.request.headers === null) {
+      this.request.headers = /* @__PURE__ */ new Map();
+    }
+    this.request.headers.set(name.toLowerCase(), value2);
+    return this;
+  }
+  headers(headers) {
+    for (const [name, value2] of headers.entries()) {
+      this.header(name, value2);
+    }
+    return this;
+  }
+  timeout(value2) {
+    this.request.timeout = value2;
+    return this;
+  }
+  progress(prog) {
+    this.prog = prog;
+    return this;
+  }
+  body(body, contentType) {
+    if (isDefined(body)) {
+      const seen = /* @__PURE__ */ new Set();
+      const queue = new Array();
+      queue.push(body);
+      let isForm = false;
+      while (!isForm && queue.length > 0) {
+        const here = queue.shift();
+        if (here && !seen.has(here)) {
+          seen.add(here);
+          if (here instanceof Blob) {
+            isForm = true;
+            break;
+          } else if (!isString(here)) {
+            queue.push(...Object.values(here));
+          }
+        }
+      }
+      if (isForm) {
+        const form = new FormData();
+        const fileNames = /* @__PURE__ */ new Map();
+        const toSkip = /* @__PURE__ */ new Set();
+        for (const [key, value2] of Object.entries(body)) {
+          if (value2 instanceof Blob) {
+            const fileNameKey = key + ".name";
+            const fileName = body[fileNameKey];
+            if (isString(fileName)) {
+              fileNames.set(value2, fileName);
+              toSkip.add(fileNameKey);
+            }
+          }
+        }
+        for (let [key, value2] of Object.entries(body)) {
+          if (toSkip.has(key)) {
+            continue;
+          }
+          if (value2 instanceof Blob) {
+            form.append(key, value2, fileNames.get(value2));
+          } else if (isString(value2)) {
+            form.append(key, value2);
+          } else if (isDefined(value2) && isFunction(value2.toString)) {
+            form.append(key, value2.toString());
+          } else {
+            console.warn("Can't serialize value to formdata", key, value2);
+          }
+        }
+        body = form;
+        contentType = void 0;
+      }
+      this.request.body = body;
+      this.content(contentType);
+    }
+    return this;
+  }
+  withCredentials() {
+    this.request.withCredentials = true;
+    return this;
+  }
+  useCache(enabled = true) {
+    this.request.useCache = enabled;
+    return this;
+  }
+  media(key, mediaType) {
+    if (isDefined(mediaType)) {
+      if (!isString(mediaType)) {
+        mediaType = mediaType.value;
+      }
+      this.header(key, mediaType);
+    }
+  }
+  content(contentType) {
+    this.media("content-type", contentType);
+  }
+  accept(acceptType) {
+    this.media("accept", acceptType);
+    return this;
+  }
+  blob(acceptType) {
+    this.accept(acceptType);
+    if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE") {
+      return this.fetcher.sendObjectGetBlob(this.request, this.prog);
+    } else if (this.method === "GET") {
+      return this.fetcher.sendNothingGetBlob(this.request, this.prog);
+    } else if (this.method === "HEAD" || this.method === "OPTIONS") {
+      throw new Error(`${this.method} responses do not contain bodies`);
+    } else {
+      assertNever(this.method);
+    }
+  }
+  buffer(acceptType) {
+    this.accept(acceptType);
+    if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE") {
+      return this.fetcher.sendObjectGetBuffer(this.request, this.prog);
+    } else if (this.method === "GET") {
+      return this.fetcher.sendNothingGetBuffer(this.request, this.prog);
+    } else if (this.method === "HEAD" || this.method === "OPTIONS") {
+      throw new Error(`${this.method} responses do not contain bodies`);
+    } else {
+      assertNever(this.method);
+    }
+  }
+  async file(acceptType) {
+    this.accept(acceptType);
+    if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE") {
+      return await this.fetcher.sendObjectGetFile(this.request, this.prog);
+    } else if (this.method === "GET") {
+      if (this.useBLOBs) {
+        return await this.fetcher.sendNothingGetFile(this.request, this.prog);
+      } else {
+        const response = await this.fetcher.sendNothingGetNothing(this.request);
+        return translateResponse(response, () => this.request.path);
+      }
+    } else if (this.method === "HEAD" || this.method === "OPTIONS") {
+      throw new Error(`${this.method} responses do not contain bodies`);
+    } else {
+      assertNever(this.method);
+    }
+  }
+  text(acceptType) {
+    this.accept(acceptType || Text_Plain);
+    if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE") {
+      return this.fetcher.sendObjectGetText(this.request, this.prog);
+    } else if (this.method === "GET") {
+      return this.fetcher.sendNothingGetText(this.request, this.prog);
+    } else if (this.method === "HEAD" || this.method === "OPTIONS") {
+      throw new Error(`${this.method} responses do not contain bodies`);
+    } else {
+      assertNever(this.method);
+    }
+  }
+  object(acceptType) {
+    this.accept(acceptType || Application_Json);
+    if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE") {
+      return this.fetcher.sendObjectGetObject(this.request, this.prog);
+    } else if (this.method === "GET") {
+      return this.fetcher.sendNothingGetObject(this.request, this.prog);
+    } else if (this.method === "HEAD" || this.method === "OPTIONS") {
+      throw new Error(`${this.method} responses do not contain bodies`);
+    } else {
+      assertNever(this.method);
+    }
+  }
+  xml(acceptType) {
+    this.accept(acceptType || Text_Xml);
+    if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE") {
+      return this.fetcher.sendObjectGetXml(this.request, this.prog);
+    } else if (this.method === "GET") {
+      return this.fetcher.sendNothingGetXml(this.request, this.prog);
+    } else if (this.method === "HEAD" || this.method === "OPTIONS") {
+      throw new Error(`${this.method} responses do not contain bodies`);
+    } else {
+      assertNever(this.method);
+    }
+  }
+  imageBitmap(acceptType) {
+    this.accept(acceptType);
+    if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE") {
+      return this.fetcher.sendObjectGetImageBitmap(this.request, this.prog);
+    } else if (this.method === "GET") {
+      return this.fetcher.sendNothingGetImageBitmap(this.request, this.prog);
+    } else if (this.method === "HEAD" || this.method === "OPTIONS") {
+      throw new Error(`${this.method} responses do not contain bodies`);
+    } else {
+      assertNever(this.method);
+    }
+  }
+  exec() {
+    if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE") {
+      return this.fetcher.sendObjectGetNothing(this.request, this.prog);
+    } else if (this.method === "GET") {
+      throw new Exception("GET requests should expect a response type");
+    } else if (this.method === "HEAD" || this.method === "OPTIONS") {
+      return this.fetcher.sendNothingGetNothing(this.request);
+    } else {
+      assertNever(this.method);
+    }
+  }
+  async audioBlob(acceptType) {
+    if (isDefined(acceptType)) {
+      if (!isString(acceptType)) {
+        acceptType = acceptType.value;
+      }
+      if (!canPlay(acceptType)) {
+        throw new Error(`Probably can't play file of type "${acceptType}" at path: ${this.request.path}`);
+      }
+    }
+    const response = await this.blob(acceptType);
+    if (canPlay(response.contentType)) {
+      return response;
+    }
+    throw new Error(`Cannot play file of type "${response.contentType}" at path: ${this.request.path}`);
+  }
+  async audioBuffer(context, acceptType) {
+    return translateResponse(
+      await this.audioBlob(acceptType),
+      async (blob) => await context.decodeAudioData(await blob.arrayBuffer())
+    );
+  }
+  async htmlElement(element, resolveEvt, acceptType) {
+    const response = await this.file(acceptType);
+    const task = once(element, resolveEvt, "error");
+    if (element instanceof HTMLLinkElement) {
+      element.href = response.content;
+    } else {
+      element.src = response.content;
+    }
+    await task;
+    return await translateResponse(response, () => element);
+  }
+  image(acceptType) {
+    return this.htmlElement(
+      Img(),
+      "load",
+      acceptType
+    );
+  }
+  async htmlCanvas(acceptType) {
+    if (false) {
+      throw new Error("HTMLCanvasElement not supported in Workers.");
+    }
+    const canvas = createCanvas(1, 1);
+    if (this.method === "GET") {
+      if (hasOffscreenCanvas) {
+        this.accept(acceptType);
+        const response = await this.fetcher.drawImageToCanvas(this.request, canvas.transferControlToOffscreen(), this.prog);
+        return await translateResponse(response, () => canvas);
+      } else {
+        const response = await (false ? this.imageBitmap(acceptType) : this.image(acceptType));
+        return await translateResponse(response, (img) => {
+          canvas.width = img.width;
+          canvas.height = img.height;
+          drawImageToCanvas(canvas, img);
+          dispose(img);
+          return canvas;
+        });
+      }
+    } else if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE" || this.method === "HEAD" || this.method === "OPTIONS") {
+      throw new Error(`${this.method} responses do not contain bodies`);
+    } else {
+      assertNever(this.method);
+    }
+  }
+  canvas(acceptType) {
+    if (hasOffscreenCanvas) {
+      return this.offscreenCanvas(acceptType);
+    } else {
+      return this.htmlCanvas(acceptType);
+    }
+  }
+  async offscreenCanvas(acceptType) {
+    if (!hasOffscreenCanvas) {
+      throw new Error("This system does not support OffscreenCanvas");
+    }
+    if (this.method === "GET") {
+      const response = await (false ? this.imageBitmap(acceptType) : this.image(acceptType));
+      return await translateResponse(response, (img) => {
+        const canvas = createOffscreenCanvas(img.width, img.height);
+        drawImageToCanvas(canvas, img);
+        dispose(img);
+        return canvas;
+      });
+    } else if (this.method === "POST" || this.method === "PUT" || this.method === "PATCH" || this.method === "DELETE" || this.method === "HEAD" || this.method === "OPTIONS") {
+      throw new Error(`${this.method} responses do not contain bodies`);
+    } else {
+      assertNever(this.method);
+    }
+  }
+  async style() {
+    const tag2 = Link(
+      type(Text_Css),
+      rel("stylesheet")
+    );
+    document.head.append(tag2);
+    const response = await this.htmlElement(
+      tag2,
+      "load",
+      Text_Css
+    );
+    return translateResponse(response);
+  }
+  async getScript() {
+    const tag2 = Script(type(Application_Javascript));
+    document.head.append(tag2);
+    const response = await this.htmlElement(
+      tag2,
+      "load",
+      Application_Javascript
+    );
+    return translateResponse(response);
+  }
+  async script(test) {
+    let response = null;
+    const scriptPath = this.request.path;
+    if (!test) {
+      response = await this.getScript();
+    } else if (!test()) {
+      const scriptLoadTask = waitFor(test);
+      response = await this.getScript();
+      await scriptLoadTask;
+    }
+    if (this.prog) {
+      this.prog.end(scriptPath);
+    }
+    return response;
+  }
+  async module() {
+    const scriptPath = this.request.path;
+    const response = await this.file(Application_Javascript);
+    const value2 = await import(response.content);
+    if (this.prog) {
+      this.prog.end(scriptPath);
+    }
+    return translateResponse(response, () => value2);
+  }
+  async wasm(imports) {
+    const response = await this.buffer(Application_Wasm);
+    if (!Application_Wasm.matches(response.contentType)) {
+      throw new Error(`Server did not respond with WASM file. Was: ${response.contentType}`);
+    }
+    const module = await WebAssembly.compile(response.content);
+    const instance = await WebAssembly.instantiate(module, imports);
+    return translateResponse(response, () => instance.exports);
+  }
+  async worker(type2 = "module") {
+    const scriptPath = this.request.path;
+    const response = await this.file(Application_Javascript);
+    this.prog = null;
+    this.request.timeout = null;
+    const worker = new Worker(response.content, { type: type2 });
+    if (this.prog) {
+      this.prog.end(scriptPath);
+    }
+    return translateResponse(response, () => worker);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/Fetcher.ts
+var Fetcher = class {
+  constructor(service, useBLOBs = false) {
+    this.service = service;
+    this.useBLOBs = useBLOBs;
+    if (true) {
+      const antiforgeryToken = getInput("input[name=__RequestVerificationToken]");
+      if (antiforgeryToken) {
+        this.service.setRequestVerificationToken(antiforgeryToken.value);
+      }
+    }
+  }
+  clearCache() {
+    return this.service.clearCache();
+  }
+  evict(path, base) {
+    return this.service.evict(new URL(path, base || location.href).href);
+  }
+  request(method, path, base) {
+    return new RequestBuilder(
+      this.service,
+      method,
+      new URL(path, base || location.href),
+      this.useBLOBs
+    );
+  }
+  head(path, base) {
+    return this.request("HEAD", path, base);
+  }
+  options(path, base) {
+    return this.request("OPTIONS", path, base);
+  }
+  get(path, base) {
+    return this.request("GET", path, base);
+  }
+  post(path, base) {
+    return this.request("POST", path, base);
+  }
+  put(path, base) {
+    return this.request("PUT", path, base);
+  }
+  patch(path, base) {
+    return this.request("PATCH", path, base);
+  }
+  delete(path, base) {
+    return this.request("DELETE", path, base);
+  }
+  async assets(progressOrAsset, firstAsset, ...assets) {
+    if (isNullOrUndefined(assets)) {
+      assets = [];
+    }
+    assets.unshift(firstAsset);
+    let progress;
+    if (isAsset(progressOrAsset)) {
+      assets.unshift(progressOrAsset);
+    } else if (isDefined(progressOrAsset)) {
+      progress = progressOrAsset;
+    }
+    assets = assets.filter(isDefined);
+    const sizes = await Promise.all(assets.map((asset) => asset.getSize(this)));
+    const assetSizes = new Map(sizes);
+    await progressTasksWeighted(
+      progress,
+      assets.map((asset) => [assetSizes.get(asset), (prog) => asset.fetch(this, prog)])
+    );
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/FetchingService.ts
+var FetchingService = class {
+  constructor(impl) {
+    this.impl = impl;
+    this.defaultPostHeaders = /* @__PURE__ */ new Map();
+  }
+  setRequestVerificationToken(value2) {
+    this.defaultPostHeaders.set("RequestVerificationToken", value2);
+  }
+  clearCache() {
+    return this.impl.clearCache();
+  }
+  evict(path) {
+    return this.impl.evict(path);
+  }
+  sendNothingGetNothing(request) {
+    return this.impl.sendNothingGetNothing(request);
+  }
+  sendNothingGetBlob(request, progress) {
+    return this.impl.sendNothingGetSomething("blob", request, progress);
+  }
+  sendObjectGetBlob(request, progress) {
+    return this.impl.sendSomethingGetSomething("blob", request, this.defaultPostHeaders, progress);
+  }
+  sendNothingGetBuffer(request, progress) {
+    return this.impl.sendNothingGetSomething("arraybuffer", request, progress);
+  }
+  sendObjectGetBuffer(request, progress) {
+    return this.impl.sendSomethingGetSomething("arraybuffer", request, this.defaultPostHeaders, progress);
+  }
+  sendNothingGetText(request, progress) {
+    return this.impl.sendNothingGetSomething("text", request, progress);
+  }
+  sendObjectGetText(request, progress) {
+    return this.impl.sendSomethingGetSomething("text", request, this.defaultPostHeaders, progress);
+  }
+  sendNothingGetObject(request, progress) {
+    return this.impl.sendNothingGetSomething("json", request, progress);
+  }
+  sendObjectGetObject(request, progress) {
+    return this.impl.sendSomethingGetSomething("json", request, this.defaultPostHeaders, progress);
+  }
+  sendObjectGetNothing(request, progress) {
+    return this.impl.sendSomethingGetSomething("", request, this.defaultPostHeaders, progress);
+  }
+  drawImageToCanvas(request, canvas, progress) {
+    return this.impl.drawImageToCanvas(request, canvas, progress);
+  }
+  async sendNothingGetFile(request, progress) {
+    return translateResponse(
+      await this.sendNothingGetBlob(request, progress),
+      URL.createObjectURL
+    );
+  }
+  async sendObjectGetFile(request, progress) {
+    return translateResponse(
+      await this.sendObjectGetBlob(request, progress),
+      URL.createObjectURL
+    );
+  }
+  async sendNothingGetXml(request, progress) {
+    return translateResponse(
+      await this.impl.sendNothingGetSomething("document", request, progress),
+      (doc) => doc.documentElement
+    );
+  }
+  async sendObjectGetXml(request, progress) {
+    return translateResponse(
+      await this.impl.sendSomethingGetSomething("document", request, this.defaultPostHeaders, progress),
+      (doc) => doc.documentElement
+    );
+  }
+  async sendNothingGetImageBitmap(request, progress) {
+    return translateResponse(
+      await this.sendNothingGetBlob(request, progress),
+      createImageBitmap
+    );
+  }
+  async sendObjectGetImageBitmap(request, progress) {
+    return translateResponse(
+      await this.sendObjectGetBlob(request, progress),
+      createImageBitmap
+    );
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/collections/PriorityMap.ts
+var PriorityMap = class {
+  constructor(init) {
+    this.items = /* @__PURE__ */ new Map();
+    if (isDefined(init)) {
+      for (const [key1, key2, value2] of init) {
+        this.add(key1, key2, value2);
+      }
+    }
+  }
+  add(key1, key2, value2) {
+    let level1 = this.items.get(key1);
+    if (isNullOrUndefined(level1)) {
+      this.items.set(key1, level1 = /* @__PURE__ */ new Map());
+    }
+    level1.set(key2, value2);
+    return this;
+  }
+  *entries() {
+    for (const [key1, level1] of this.items) {
+      for (const [key2, value2] of level1) {
+        yield [key1, key2, value2];
+      }
+    }
+  }
+  keys(key1) {
+    if (isNullOrUndefined(key1)) {
+      return this.items.keys();
+    } else {
+      return this.items.get(key1).keys();
+    }
+  }
+  *values() {
+    for (const level1 of this.items.values()) {
+      for (const value2 of level1.values()) {
+        yield value2;
+      }
+    }
+  }
+  has(key1, key2) {
+    return this.items.has(key1) && (isNullOrUndefined(key2) || this.items.get(key1).has(key2));
+  }
+  get(key1, key2) {
+    if (isNullOrUndefined(key2)) {
+      return this.items.get(key1);
+    } else if (this.items.has(key1)) {
+      return this.items.get(key1).get(key2);
+    } else {
+      return null;
+    }
+  }
+  count(key1) {
+    if (this.items.has(key1)) {
+      return this.items.get(key1).size;
+    }
+    return null;
+  }
+  get size() {
+    let size = 0;
+    for (const list of this.items.values()) {
+      size += list.size;
+    }
+    return size;
+  }
+  delete(key1, key2) {
+    if (isNullOrUndefined(key2)) {
+      return this.items.delete(key1);
+    } else if (this.items.has(key1)) {
+      const items = this.items.get(key1);
+      const deleted = items.delete(key2);
+      if (items.size === 0) {
+        this.items.delete(key1);
+      }
+      return deleted;
+    } else {
+      return false;
+    }
+  }
+  clear() {
+    this.items.clear();
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/indexdb/index.ts
+var IDexDB = class {
+  constructor(db) {
+    this.db = db;
+  }
+  static delete(dbName) {
+    const deleteRequest = indexedDB.deleteDatabase(dbName);
+    const task = once(deleteRequest, "success", "error", "blocked");
+    return success(task);
+  }
+  static async open(name, ...storeDefs) {
+    const storesByName = makeLookup(storeDefs, (v) => v.name);
+    const indexesByName = new PriorityMap(
+      storeDefs.filter((storeDef) => isDefined(storeDef.indexes)).flatMap((storeDef) => storeDef.indexes.map((indexDef) => [storeDef.name, indexDef.name, indexDef]))
+    );
+    const storesToAdd = new Array();
+    const storesToRemove = new Array();
+    const storesToChange = new Array();
+    const indexesToAdd = new PriorityList();
+    const indexesToRemove = new PriorityList();
+    let version3 = null;
+    const D = indexedDB.open(name);
+    if (await success(once(D, "success", "error", "blocked"))) {
+      const db = D.result;
+      version3 = db.version;
+      const storesToScrutinize = new Array();
+      for (const storeName of db.objectStoreNames) {
+        if (!storesByName.has(storeName)) {
+          storesToRemove.push(storeName);
+        }
+      }
+      for (const storeName of storesByName.keys()) {
+        if (!db.objectStoreNames.contains(storeName)) {
+          storesToAdd.push(storeName);
+        } else {
+          storesToScrutinize.push(storeName);
+        }
+      }
+      if (storesToScrutinize.length > 0) {
+        const transaction = db.transaction(storesToScrutinize);
+        const transacting = once(transaction, "complete", "error", "abort");
+        const transacted = success(transacting);
+        for (const storeName of storesToScrutinize) {
+          const store = transaction.objectStore(storeName);
+          const storeDef = storesByName.get(storeName);
+          if (isDefined(storeDef.options) && store.keyPath !== storeDef.options.keyPath) {
+            storesToRemove.push(storeName);
+            storesToAdd.push(storeName);
+          }
+          for (const indexName of store.indexNames) {
+            if (!indexesByName.has(storeName, indexName)) {
+              if (storesToChange.indexOf(storeName) === -1) {
+                storesToChange.push(storeName);
+              }
+              indexesToRemove.add(storeName, indexName);
+            }
+          }
+          if (indexesByName.has(storeName)) {
+            for (const indexName of indexesByName.get(storeName).keys()) {
+              if (!store.indexNames.contains(indexName)) {
+                if (storesToChange.indexOf(storeName) === -1) {
+                  storesToChange.push(storeName);
+                }
+                indexesToAdd.add(storeName, indexName);
+              } else {
+                const indexDef = indexesByName.get(storeName, indexName);
+                const index = store.index(indexName);
+                if (isString(indexDef.keyPath) !== isString(index.keyPath) || isString(indexDef.keyPath) && isString(index.keyPath) && indexDef.keyPath !== index.keyPath || isArray(indexDef.keyPath) && isArray(index.keyPath) && arrayCompare(indexDef.keyPath, index.keyPath)) {
+                  if (storesToChange.indexOf(storeName) === -1) {
+                    storesToChange.push(storeName);
+                  }
+                  indexesToRemove.add(storeName, indexName);
+                  indexesToAdd.add(storeName, indexName);
+                }
+              }
+            }
+          }
+        }
+        transaction.commit();
+        await transacted;
+      }
+      dispose(db);
+    } else {
+      version3 = 0;
+      storesToAdd.push(...storesByName.keys());
+      for (const storeDef of storeDefs) {
+        if (isDefined(storeDef.indexes)) {
+          for (const indexDef of storeDef.indexes) {
+            indexesToAdd.add(storeDef.name, indexDef.name);
+          }
+        }
+      }
+    }
+    if (storesToAdd.length > 0 || storesToRemove.length > 0 || indexesToAdd.size > 0 || indexesToRemove.size > 0) {
+      ++version3;
+    }
+    const upgrading = new Task();
+    const openRequest = isDefined(version3) ? indexedDB.open(name, version3) : indexedDB.open(name);
+    const opening = once(openRequest, "success", "error", "blocked");
+    const upgraded = success(upgrading);
+    const opened = success(opening);
+    const noUpgrade = upgrading.resolver(false);
+    openRequest.addEventListener("success", noUpgrade);
+    openRequest.addEventListener("upgradeneeded", () => {
+      const transacting = once(openRequest.transaction, "complete", "error", "abort");
+      const db = openRequest.result;
+      for (const storeName of storesToRemove) {
+        db.deleteObjectStore(storeName);
+      }
+      const stores = /* @__PURE__ */ new Map();
+      for (const storeName of storesToAdd) {
+        const storeDef = storesByName.get(storeName);
+        const store = db.createObjectStore(storeName, storeDef.options);
+        stores.set(storeName, store);
+      }
+      for (const storeName of storesToChange) {
+        const store = openRequest.transaction.objectStore(storeName);
+        stores.set(storeName, store);
+      }
+      for (const [storeName, store] of stores) {
+        for (const indexName of indexesToRemove.get(storeName)) {
+          store.deleteIndex(indexName);
+        }
+        for (const indexName of indexesToAdd.get(storeName)) {
+          const indexDef = indexesByName.get(storeName, indexName);
+          store.createIndex(indexName, indexDef.keyPath, indexDef.options);
+        }
+      }
+      success(transacting).then(upgrading.resolve).catch(upgrading.reject).finally(() => openRequest.removeEventListener("success", noUpgrade));
+    });
+    if (!await upgraded) {
+      throw upgrading.error;
+    }
+    if (!await opened) {
+      throw opening.error;
+    }
+    return new IDexDB(openRequest.result);
+  }
+  dispose() {
+    dispose(this.db);
+  }
+  get name() {
+    return this.db.name;
+  }
+  get version() {
+    return this.db.version;
+  }
+  get storeNames() {
+    return Array.from(this.db.objectStoreNames);
+  }
+  getStore(storeName) {
+    return new IDexStore(this.db, storeName);
+  }
+};
+var IDexStore = class {
+  constructor(db, storeName) {
+    this.db = db;
+    this.storeName = storeName;
+  }
+  async request(makeRequest, mode) {
+    const transaction = this.db.transaction(this.storeName, mode);
+    const transacting = once(transaction, "complete", "error");
+    const store = transaction.objectStore(this.storeName);
+    const request = makeRequest(store);
+    const requesting = once(request, "success", "error");
+    if (!await success(requesting)) {
+      transaction.abort();
+      throw requesting.error;
+    }
+    transaction.commit();
+    if (!await success(transacting)) {
+      throw transacting.error;
+    }
+    return request.result;
+  }
+  add(value2, key) {
+    return this.request((store) => store.add(value2, key), "readwrite");
+  }
+  clear() {
+    return this.request((store) => store.clear(), "readwrite");
+  }
+  getCount(query) {
+    return this.request((store) => store.count(query), "readonly");
+  }
+  async has(query) {
+    return await this.getCount(query) > 0;
+  }
+  delete(query) {
+    return this.request((store) => store.delete(query), "readwrite");
+  }
+  get(key) {
+    return this.request((store) => store.get(key), "readonly");
+  }
+  getAll() {
+    return this.request((store) => store.getAll(), "readonly");
+  }
+  getAllKeys() {
+    return this.request((store) => store.getAllKeys(), "readonly");
+  }
+  getKey(query) {
+    return this.request((store) => store.getKey(query), "readonly");
+  }
+  openCursor(query, direction) {
+    return this.request((store) => store.openCursor(query, direction), "readonly");
+  }
+  openKeyCursor(query, direction) {
+    return this.request((store) => store.openKeyCursor(query, direction), "readonly");
+  }
+  put(value2, key) {
+    return this.request((store) => store.put(value2, key), "readwrite");
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/collections/mapJoin.ts
+function mapJoin(dest, ...sources) {
+  for (const source of sources) {
+    if (isDefined(source)) {
+      for (const [key, value2] of source) {
+        dest.set(key, value2);
+      }
+    }
+  }
+  return dest;
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/events/sleep.ts
+var SleepTask = class extends Task {
+  constructor(milliseconds) {
+    super(false);
+    this.milliseconds = milliseconds;
+    this._timer = null;
+  }
+  start() {
+    super.start();
+    this._timer = setTimeout(() => {
+      this._timer = null;
+      this.resolve();
+    }, this.milliseconds);
+  }
+  reset() {
+    super.reset();
+    if (isDefined(this._timer)) {
+      clearTimeout(this._timer);
+      this._timer = null;
+    }
+  }
+};
+function sleep(milliseconds) {
+  const task = new SleepTask(milliseconds);
+  task.start();
+  return task;
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/events/withRetry.ts
+function withRetry(retryCount, action) {
+  return async () => {
+    let lastError = null;
+    let retryTime = 500;
+    for (let retry = 0; retry <= retryCount; ++retry) {
+      try {
+        if (retry > 0) {
+          await sleep(retryTime);
+          retryTime *= 2;
+        }
+        return await action();
+      } catch (error) {
+        lastError = error;
+      }
+    }
+    throw lastError;
+  };
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/FetchingServiceImplXHR.ts
+function isXHRBodyInit(obj) {
+  return isString(obj) || isArrayBufferView(obj) || obj instanceof Blob || obj instanceof FormData || isArrayBuffer(obj) || "Document" in globalThis && obj instanceof Document;
+}
+function trackProgress(name, xhr, target, prog, skipLoading, prevTask) {
+  let prevDone = !prevTask;
+  if (prevTask) {
+    prevTask.then(() => prevDone = true);
+  }
+  let done = false;
+  let loaded = skipLoading;
+  const requestComplete = new Task();
+  target.addEventListener("loadstart", () => {
+    if (prevDone && !done && prog) {
+      prog.start(name);
+    }
+  });
+  target.addEventListener("progress", (ev) => {
+    if (prevDone && !done) {
+      const evt = ev;
+      if (prog) {
+        prog.report(evt.loaded, Math.max(evt.loaded, evt.total), name);
+      }
+      if (evt.loaded === evt.total) {
+        loaded = true;
+        if (done) {
+          requestComplete.resolve();
+        }
+      }
+    }
+  });
+  target.addEventListener("load", () => {
+    if (prevDone && !done) {
+      if (prog) {
+        prog.end(name);
+      }
+      done = true;
+      if (loaded) {
+        requestComplete.resolve();
+      }
+    }
+  });
+  const onError = (msg) => () => {
+    if (prevDone) {
+      requestComplete.reject(`${msg} (${xhr.status})`);
+    }
+  };
+  target.addEventListener("error", onError("error"));
+  target.addEventListener("abort", onError("abort"));
+  target.addEventListener("timeout", onError("timeout"));
+  return requestComplete;
+}
+function sendRequest(xhr, method, path, timeout, headers, body) {
+  xhr.open(method, path);
+  xhr.responseType = "blob";
+  xhr.timeout = timeout;
+  if (headers) {
+    for (const [key, value2] of headers) {
+      xhr.setRequestHeader(key, value2);
+    }
+  }
+  if (isDefined(body)) {
+    xhr.send(body);
+  } else {
+    xhr.send();
+  }
+}
+function readResponseHeader(headers, key, translate) {
+  if (!headers.has(key)) {
+    return null;
+  }
+  const value2 = headers.get(key);
+  try {
+    const translated = translate(value2);
+    headers.delete(key);
+    return translated;
+  } catch (exp2) {
+    console.warn(key, exp2);
+  }
+  return null;
+}
+var FILE_NAME_PATTERN = /filename=\"(.+)\"(;|$)/;
+var DB_NAME = "Juniper:Fetcher:Cache";
+var FetchingServiceImplXHR = class {
+  constructor() {
+    this.cache = null;
+    this.store = null;
+    this.tasks = new PriorityMap();
+    this.cacheReady = this.openCache();
+  }
+  async drawImageToCanvas(request, canvas, progress) {
+    const response = await this.sendNothingGetSomething("blob", request, progress);
+    const blob = response.content;
+    return using(await createImageBitmap(blob, {
+      imageOrientation: "from-image"
+    }), (img) => {
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const g = canvas.getContext("2d");
+      g.drawImage(img, 0, 0);
+      return translateResponse(response);
+    });
+  }
+  async openCache() {
+    const options = {
+      keyPath: "requestPath"
+    };
+    this.cache = await IDexDB.open(DB_NAME, {
+      name: "files",
+      options
+    });
+    this.store = await this.cache.getStore("files");
+  }
+  async clearCache() {
+    await this.cacheReady;
+    await this.store.clear();
+  }
+  async evict(path) {
+    await this.cacheReady;
+    if (this.store.has(path)) {
+      await this.store.delete(path);
+    }
+  }
+  async readResponseHeaders(requestPath, xhr) {
+    const headerParts = xhr.getAllResponseHeaders().split(/[\r\n]+/).map((v) => v.trim()).filter((v) => v.length > 0).map((line) => {
+      const parts = line.split(": ");
+      const key = parts.shift().toLowerCase();
+      const value2 = parts.join(": ");
+      return [key, value2];
+    });
+    const pList = new PriorityList(headerParts);
+    const normalizedHeaderParts = Array.from(pList.keys()).map((key) => [
+      key,
+      pList.get(key).join(", ")
+    ]);
+    const headers = new Map(normalizedHeaderParts);
+    const contentType = readResponseHeader(headers, "content-type", identity);
+    const contentLength = readResponseHeader(headers, "content-length", parseFloat);
+    const date = readResponseHeader(headers, "date", (v) => new Date(v));
+    const fileName = readResponseHeader(headers, "content-disposition", (v) => {
+      if (isDefined(v)) {
+        const match = v.match(FILE_NAME_PATTERN);
+        if (isDefined(match)) {
+          return match[1];
+        }
+      }
+      return null;
+    });
+    const response = {
+      status: xhr.status,
+      requestPath,
+      responsePath: xhr.responseURL,
+      content: void 0,
+      contentType,
+      contentLength,
+      fileName,
+      date,
+      headers
+    };
+    return response;
+  }
+  async readResponse(requestPath, xhr) {
+    const {
+      responsePath,
+      status,
+      contentType,
+      contentLength,
+      fileName,
+      date,
+      headers
+    } = await this.readResponseHeaders(requestPath, xhr);
+    const response = {
+      requestPath,
+      responsePath,
+      status,
+      contentType,
+      contentLength,
+      fileName,
+      date,
+      headers,
+      content: xhr.response
+    };
+    if (isDefined(response.content)) {
+      response.contentType = response.contentType || response.content.type;
+      response.contentLength = response.contentLength || response.content.size;
+    }
+    return response;
+  }
+  async decodeContent(xhrType, response) {
+    return translateResponse(response, async (contentBlob) => {
+      if (xhrType === "") {
+        return null;
+      } else if (isNullOrUndefined(response.contentType)) {
+        const headerBlock = Array.from(response.headers.entries()).map((kv) => kv.join(": ")).join("\n  ");
+        throw new Error("No content type found in headers: \n  " + headerBlock);
+      } else if (xhrType === "blob") {
+        return contentBlob;
+      } else if (xhrType === "arraybuffer") {
+        return await contentBlob.arrayBuffer();
+      } else if (xhrType === "json") {
+        const text2 = await contentBlob.text();
+        if (text2.length > 0) {
+          return JSON.parse(text2);
+        } else {
+          return null;
+        }
+      } else if (xhrType === "document") {
+        const parser = new DOMParser();
+        if (response.contentType === "application/xhtml+xml" || response.contentType === "text/html" || response.contentType === "application/xml" || response.contentType === "image/svg+xml" || response.contentType === "text/xml") {
+          return parser.parseFromString(await contentBlob.text(), response.contentType);
+        } else {
+          throw new Error("Couldn't parse document");
+        }
+      } else if (xhrType === "text") {
+        return await contentBlob.text();
+      } else {
+        assertNever(xhrType);
+      }
+    });
+  }
+  async withCachedTask(request, action) {
+    if (request.method !== "GET" && request.method !== "HEAD" && request.method !== "OPTIONS") {
+      return await action();
+    }
+    if (!this.tasks.has(request.method, request.path)) {
+      this.tasks.add(
+        request.method,
+        request.path,
+        action().finally(() => this.tasks.delete(request.method, request.path))
+      );
+    }
+    return this.tasks.get(request.method, request.path);
+  }
+  sendNothingGetNothing(request) {
+    return this.withCachedTask(
+      request,
+      withRetry(request.retryCount, async () => {
+        const xhr = new XMLHttpRequest();
+        const download = trackProgress(`requesting: ${request.path}`, xhr, xhr, null, true);
+        sendRequest(xhr, request.method, request.path, request.timeout, request.headers);
+        await download;
+        return await this.readResponseHeaders(request.path, xhr);
+      })
+    );
+  }
+  sendNothingGetSomething(xhrType, request, progress) {
+    return this.withCachedTask(
+      request,
+      withRetry(request.retryCount, async () => {
+        let response = null;
+        const useCache = request.useCache && request.method === "GET";
+        if (useCache) {
+          if (isDefined(progress)) {
+            progress.start();
+          }
+          await this.cacheReady;
+          response = await this.store.get(request.path);
+        }
+        const noCachedResponse = isNullOrUndefined(response);
+        if (noCachedResponse) {
+          const xhr = new XMLHttpRequest();
+          const download = trackProgress(`requesting: ${request.path}`, xhr, xhr, progress, true);
+          sendRequest(xhr, request.method, request.path, request.timeout, request.headers);
+          await download;
+          response = await this.readResponse(request.path, xhr);
+          if (useCache) {
+            await this.store.add(response);
+          }
+        }
+        const value2 = await this.decodeContent(xhrType, response);
+        if (noCachedResponse && isDefined(progress)) {
+          progress.end();
+        }
+        return value2;
+      })
+    );
+  }
+  sendSomethingGetSomething(xhrType, request, defaultPostHeaders, progress) {
+    let body = null;
+    const headers = mapJoin(/* @__PURE__ */ new Map(), defaultPostHeaders, request.headers);
+    if (request.body instanceof FormData && isDefined(headers)) {
+      const toDelete = new Array();
+      for (const key of headers.keys()) {
+        if (key.toLowerCase() === "content-type") {
+          toDelete.push(key);
+        }
+      }
+      for (const key of toDelete) {
+        headers.delete(key);
+      }
+    }
+    if (isXHRBodyInit(request.body) && !isString(request.body)) {
+      body = request.body;
+    } else if (isDefined(request.body)) {
+      body = JSON.stringify(request.body);
+    }
+    const hasBody = isDefined(body);
+    const progs = progressSplit(progress, hasBody ? 2 : 1);
+    const [progUpload, progDownload] = progs;
+    const query = async () => {
+      const xhr = new XMLHttpRequest();
+      const upload = hasBody ? trackProgress("uploading", xhr, xhr.upload, progUpload, false) : Promise.resolve();
+      const download = trackProgress("saving", xhr, xhr, progDownload, true, upload);
+      sendRequest(xhr, request.method, request.path, request.timeout, headers, body);
+      await upload;
+      await download;
+      const response = await this.readResponse(request.path, xhr);
+      return await this.decodeContent(xhrType, response);
+    };
+    return withRetry(request.retryCount, query)();
+  }
+};
+
+// src/isDebug.ts
+var url = /* @__PURE__ */ new URL(globalThis.location.href);
+var isDebug = !url.searchParams.has("RELEASE");
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/singleton.ts
+function singleton(name, create6) {
+  const box = globalThis;
+  let value2 = box[name];
+  if (isNullOrUndefined(value2)) {
+    if (isNullOrUndefined(create6)) {
+      throw new Error(`No value ${name} found`);
+    }
+    value2 = create6();
+    box[name] = value2;
+  }
+  return value2;
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/fonts.ts
+var loadedFonts = singleton("juniper::loadedFonts", () => []);
+
+// package.json
+var version = "3.7.24";
+
+// src/settings.ts
+var version2 = isDebug ? stringRandom(10) : version;
+var DEMO_PPI = 50;
+var DEMO_DIM = 12;
+var DEMO_PX = DEMO_PPI * DEMO_DIM;
+var defaultFont = {
+  fontFamily: "Lato",
+  fontSize: 20
+};
+var DLSBlue = rgb(30, 67, 136);
+var BasicLabelColor = rgb(78, 77, 77);
+var baseTextStyle = {
+  fontFamily: defaultFont.fontFamily,
+  fontSize: defaultFont.fontSize,
+  textFillColor: "white"
+};
+var textButtonStyle = Object.assign({}, baseTextStyle, {
+  bgFillColor: rgb(0, 120, 215),
+  bgStrokeColor: "black",
+  bgStrokeSize: 0.02,
+  padding: {
+    top: 0.025,
+    left: 0.05,
+    bottom: 0.025,
+    right: 0.05
+  },
+  minHeight: 0.2,
+  maxHeight: 0.2,
+  scale: 300
+});
+var textLabelStyle = Object.assign({}, baseTextStyle, {
+  textStrokeColor: "black",
+  textStrokeSize: 0.01,
+  minHeight: 0.25,
+  maxHeight: 0.25
+});
+
+// src/createFetcher.ts
+function createFetcher(enableWorkers = true) {
+  let fallback = new FetchingService(new FetchingServiceImplXHR());
+  if (false) {
+    fallback = new FetchingServicePool({
+      scriptPath: getWorkerUrl("fetcher")
+    }, fallback);
+  }
+  return new Fetcher(fallback, !isDebug);
+}
+
+// src/tests/device-dialog/index.ts
+var fetcher = createFetcher(true);
+var audio2 = new AudioManager(fetcher, "none");
+var mics = new LocalUserMicrophone(audio2.context);
+var cams = new LocalUserWebcam();
+var devices = new DeviceManager(mics, cams);
+var dialog = new DeviceDialog(fetcher, devices, audio2, mics, cams, isDebug);
+dialog.showMicrophones = mics.enabled = dialog.showWebcams = cams.enabled = true;
+tilReady("main", audio2).then(async () => {
+  elementApply("main", ButtonPrimary("Show dialog", onClick(() => dialog.showDialog())));
+});
+//# sourceMappingURL=index.js.map

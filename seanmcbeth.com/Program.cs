@@ -14,8 +14,8 @@ else
         .ConfigureJuniperWebApplication()
         .AddJuniperBuildSystem<SeanMcBeth.BuildConfig>()
         .AddJuniperHTTPClient()
-        .AddJuniperSpeechService("Azure:Speech")
-        .AddJuniperOpenAI("OpenAI")
+        .ConfigureJuniperSpeechService()
+        .ConfigureJuniperOpenAI()
         .Build()
         .ConfigureJuniperRequestPipeline()
         .BuildAndRunAsync();

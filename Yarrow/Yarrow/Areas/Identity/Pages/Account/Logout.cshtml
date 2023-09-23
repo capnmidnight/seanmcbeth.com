@@ -1,0 +1,18 @@
+@page
+@model LogoutModel
+@{
+    ViewData["Title"] = "Log out";
+}
+
+@section Scripts {
+    <bundle-css name="home" versioned />
+    <bundle-css dir="js/dom-apps" name="login/index" versioned />
+}
+
+
+<h1>@ViewData["Title"]</h1>
+<form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/", new { area = "" })" method="post">
+    <p>
+        <button type="submit" class="btn btn-danger">Click here to Logout</button>
+    </p>
+</form>

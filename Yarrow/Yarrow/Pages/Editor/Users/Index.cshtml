@@ -1,0 +1,31 @@
+@page
+@model Yarrow.Pages.Editor.Users.IndexModel
+@{
+    Layout = "_EditorLayout";
+    ViewData["Title"] = "Users";
+}
+
+@section Scripts {
+    <bundle-css dir="js/dom-apps" name="resource-summary/index" versioned />
+    <bundle-js dir="js/dom-apps" name="resource-summary" versioned />
+    <bundle-js dir="js/dom-apps" name="named-object-creator" versioned />
+}
+
+@section Breadcrumb {
+    <li class="crumb">Users</li>
+}
+
+<h1>Users</h1>
+
+@if (!string.IsNullOrEmpty(Model.StatusMessage))
+{
+    <div class="alert alert-@Model.StatusType">@Model.StatusMessage</div>
+}
+
+@await Component.InvokeAsync("UserList", new {
+    currentUser = Model.CurrentUser,
+    showCreateUser = true,
+    createUserName = Model.Name,
+    createUserEmail = Model.Email,
+    resourceName = "Users"
+})

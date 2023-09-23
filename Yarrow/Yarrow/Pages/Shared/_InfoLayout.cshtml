@@ -1,0 +1,35 @@
+@{
+    Layout = "_Layout";
+    var title = ViewData["Title"] as string;
+}
+
+@section Scripts {
+    @RenderSection("Scripts", false)
+    <style>
+        header {
+            background-color: #1a428a;
+        }
+
+            header > h1 {
+                font-size: 56px;
+                text-align: center;
+                text-transform: uppercase;
+                color: white;
+            }
+
+        section#content {
+            max-width: 1140px;
+            padding: 48px 15px;
+            margin: 0 auto;
+        }
+    </style>
+}
+
+@section Header {
+    <h1>@title</h1>
+}
+
+<section id="content">
+    <h5>@title</h5>
+    @RenderBody()
+</section>

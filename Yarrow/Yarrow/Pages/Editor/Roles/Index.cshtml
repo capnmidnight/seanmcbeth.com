@@ -1,0 +1,91 @@
+@page
+@model Yarrow.Pages.Editor.Roles.IndexModel
+@{
+    Layout = "_EditorLayout";
+    ViewData["Title"] = "Roles";
+}
+
+@section Scripts {
+    <bundle-css dir="js/dom-apps" name="resource-summary/index" versioned />
+    <bundle-js dir="js/dom-apps" name="resource-summary" versioned />
+    <bundle-js dir="js/dom-apps" name="named-object-creator" versioned />
+    <bundle-js dir="js/dom-apps" name="confirm-button" versioned />
+}
+
+@section Breadcrumb {
+    <li class="crumb">Roles</li>
+}
+
+<h1>Roles</h1>
+
+@if (!string.IsNullOrEmpty(Model.StatusMessage))
+{
+        <div class="alert alert-@Model.StatusType" style="white-space:pre-line">@Model.StatusMessage</div>
+}
+
+<form method="post" asp-page-handler="Create">
+
+    @Html.AntiForgeryToken()
+
+    @if (!string.IsNullOrEmpty(Model.StatusMessage))
+    {
+        <div class="alert alert-@Model.StatusType">@Model.StatusMessage</div>
+    }
+
+
+    <table class="table table-responsive table-hover table-striped summary" data-resourcename="Roles">
+        <thead>
+            <tr>
+                <th><label for="filterName">Name</label></th>
+                <th><label>User count</label></th>
+                <th><label>Actions</label></th>
+            </tr>
+            <tr>
+                <th><input type="text" id="filterName" placeholder="Filter by Name" title="Filter by Name" /></th>
+                <th></th>
+                <th><button type="reset" class="btn btn-secondary">Reset</button></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var role in Model.Roles)
+            {
+                <tr>
+                    <td>
+                        @role.Name
+                    </td>
+                    <td>@Model.RoleUserCounts[role.Name]</td>
+
+                    <td>
+                        <a class="btn btn-primary"
+                           href="~/Editor/Roles/Detail/@role.Name">Detail</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <td>
+                    <input type="text"
+                           id="newName"
+                           name="Name"
+                           form="createRole"
+                           placeholder="Enter name for new role" title="Enter name for new role"
+                           required
+                           style="width:100%" />
+                </td>
+                <td></td>
+                <td>
+                    <button type="submit"
+                            id="submitNewNameButton"
+                            form="createRole"
+                            disabled
+                            class="btn btn-outline-danger">
+                        Create
+                    </button>
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+</form>
+
+<form id="createRole" method="post" action="~/Editor/Roles?handler=Create"></form>

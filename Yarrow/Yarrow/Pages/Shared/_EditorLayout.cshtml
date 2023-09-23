@@ -1,0 +1,59 @@
+@{
+    Layout = "_Layout";
+    var hideBanner = (ViewData["HideBanner"] as bool?) == true;
+    ViewData["GiantHero"] = false;
+    ViewData["LogoTarget"] = "/Editor";
+}
+
+@section Scripts {
+    <style>
+        header {
+            background-color: #1b6ec2;
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            position: initial;
+        }
+
+            header > #logo {
+                position: initial;
+            }
+    </style>
+    @RenderSection("Scripts", false)
+}
+
+@if (hideBanner) {
+    @RenderBody()
+    IgnoreSection("Breadcrumb");
+    IgnoreSection("FooterAddendum");
+}
+else {
+    @section Header {
+        <nav class="crumbs">
+            <ol>
+                @if (IsSectionDefined("Breadcrumb")) {
+                    <li class="crumb"><a href="~/Editor/">Editor</a></li>
+                    @RenderSection("Breadcrumb")
+                }
+                else {
+                    <li class="crumb">Editor</li>
+                }
+            </ol>
+        </nav>
+    }
+
+    @section Menu {
+        <li><a href="~/Editor/">Dashboard</a></li>
+        <li><hr /></li>
+        <partial name="_EditorMenuPartial" />
+        <li><hr /></li>
+        <li><a href="~/">Home</a></li>
+    }
+
+    @RenderBody()
+
+    @section FooterAddendum {
+        @if (IsSectionDefined("FooterAddendum")) {
+            @RenderSection("FooterAddendum")
+        }
+    }
+}

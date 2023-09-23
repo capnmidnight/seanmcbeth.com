@@ -1,0 +1,83 @@
+@page
+@model Yarrow.Pages.Editor.Organizations.IndexModel
+@{
+    Layout = "_EditorLayout";
+    ViewData["Title"] = "Organizations";
+}
+
+@section Scripts {
+    <bundle-css dir="js/dom-apps" name="resource-summary/index" versioned />
+        <bundle-js dir="js/dom-apps" name="resource-summary" versioned />
+        <bundle-js dir="js/dom-apps" name="named-object-creator" versioned />
+    <bundle-js dir="js/dom-apps" name="confirm-button" versioned />
+}
+
+@section Breadcrumb {
+    <li class="crumb">Organizations</li>
+}
+
+<h1>Organizations</h1>
+
+@if (!string.IsNullOrEmpty(Model.StatusMessage))
+{
+    <div class="alert alert-@Model.StatusType">@Model.StatusMessage</div>
+}
+
+<table class="table table-responsive table-hover table-striped summary" data-resourcename="Organizations">
+    <thead>
+        <tr>
+            <th><label>ID</label></th>
+            <th><label for"filterName">Name</label></th>
+            <th><label>User count</label></th>
+            <th><label>Actions</label></th>
+        </tr>
+        <tr>
+            <th></th>
+            <th><input type="text" id="filterName" placeholder="Filter by Name" title="Filter by Name" /></th>
+            <th></th>
+            <th><button type="reset" class="btn btn-secondary">Reset</button></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var org in Model.Organizations)
+        {
+            <tr>
+                <td>@org.Id</td>
+                <td>@org.Name</td>
+                <td>@org.Users.Count</td>
+
+                <td>
+                    <a class="btn btn-primary" href="~/Editor/Organizations/Detail/@org.Id">Detail</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+    <tfoot>
+        <tr>
+            <td></td>
+            <td>
+                <input type="text"
+                       asp-for="Name"
+                       form="createOrganization"
+                       id="newName"
+                       placeholder="Enter name for new organization" title="Enter name for new organization"
+                       required />
+                <span asp-validation-for="Name"></span>
+            </td>
+            <td></td>
+            <td>
+                <button type="submit"
+                        id="submitNewNameButton"
+                        form="createOrganization"
+                        disabled
+                        asp-page-handler="Create"
+                        class="btn btn-outline-danger">
+                    Create
+                </button>
+            </td>
+        </tr>
+    </tfoot>
+</table>
+
+<form id="createOrganization" method="post" asp-page-handler="Create">
+</form>

@@ -1,0 +1,46 @@
+@page
+@model SplitModel
+@{
+    Layout = "_PWA";
+    ViewData["Title"] = "VR";
+}
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    html,
+    body,
+    iframe {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+</style>
+<div style="
+    position:absolute;
+    width:100%;
+    height:100%;
+    display:grid;
+    grid-template-columns:repeat(@Model.Width, 1fr);
+    grid-template-rows:repeat(@Model.Height, auto 1fr)">
+
+    @for (var y = 0; y < Model.Height; ++y)
+    {
+        var rowStart = 2 * y + 1;
+        var rowMid = 2 * y + 2;
+        var rowEnd = 2 * y + 3;
+        for (var x = 0; x < Model.Width; ++x)
+        {
+            var colStart = x + 1;
+            var colEnd = x + 2;
+            var i = y * Model.Width + x + 1;
+            if (i <= Model.Count)
+            {
+                <input type="text" readonly value="@Model.GetPath(i)" style="grid-area:@rowStart/@colStart/@rowMid/@colEnd" />
+                <iframe src="@Model.GetPath(i)" style="grid-area:@rowMid/@colStart/@rowEnd/@colEnd"></iframe>
+            }
+        }
+    }
+</div>

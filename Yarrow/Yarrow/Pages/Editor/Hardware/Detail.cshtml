@@ -1,0 +1,193 @@
+@page "{headsetID:int}"
+@model Yarrow.Pages.Editor.Hardware.DetailModel
+@{
+    Layout = "_EditorLayout";
+    ViewData["Title"] = "Hardware Detail";
+}
+
+@section Scripts {
+    <bundle-css dir="js/dom-apps" name="thumbnail-viewer/index" versioned />
+    <bundle-js dir="js/dom-apps" name="thumbnail-viewer" versioned />
+    <bundle-css dir="js/dom-apps" name="resource-detail/index" versioned />
+    <bundle-js dir="js/dom-apps" name="resource-detail" versioned />
+    <bundle-css dir="js/dom-apps" name="resource-summary/index" versioned />
+    <bundle-js dir="js/dom-apps" name="resource-summary" versioned />
+}
+
+@section Breadcrumb {
+    <li class="crumb"><a href="~/Editor/Hardware">Hardware Manager</a></li>
+    <li class="crumb">@Model.Headset.Name</li>
+}
+
+<h1>Hardware - @Model.Headset.Name</h1>
+
+@if (!string.IsNullOrEmpty(Model.StatusMessage))
+{
+    <div class="alert alert-@Model.StatusType">@Model.StatusMessage</div>
+}
+
+<form method="post" enctype="multipart/form-data" asp-page-handler="Update">
+    <div class="detailSection">
+        <dl>
+            <dt>
+                ID
+            </dt>
+            <dd>
+                @Model.Headset.HeadsetID
+            </dd>
+
+            <dt>
+                <label for="headsetName">Name</label>
+            </dt>
+            <dd>
+                <input type="text"
+                       id="headsetName"
+                       name="headsetName"
+                       class="form-control"
+                       value="@Model.Headset.Name"
+                       required />
+            </dd>
+
+            <dt>
+                <label for="headsetSN">Serial #</label>
+            </dt>
+            <dd>
+                <input type="text"
+                       id="headsetSN"
+                       name="headsetSN"
+                       class="form-control"
+                       value="@Model.Headset.SerialNumber" />
+            </dd>
+
+            <dt>
+                <label for="headsetModel">Model</label>
+            </dt>
+            <dd>
+                <input type="text"
+                       id="headsetModel"
+                       name="headsetModel"
+                       class="form-control"
+                       value="@Model.Headset.Model"
+                       required />
+            </dd>
+
+            <dt>
+                <label for="purchasePrice">Purchase Price</label>
+            </dt>
+            <dd>
+                <input type="number"
+                       id="purchasePrice"
+                       name="purchasePrice"
+                       class="form-control"
+                       step="0.01"
+                       value="@(Model.Headset.PurchasePrice / 100f)" />
+            </dd>
+
+            <dt>
+                <label for="purchaseDate">Purchase Date</label>
+            </dt>
+            <dd>
+                <input type="date"
+                       name="purchaseDate"
+                       value="@Model.Headset.PurchaseDate?.ToString("yyyy-MM-dd")" />
+            </dd>
+
+            <dt>
+                <label for="headsetLocation">Location</label>
+            </dt>
+            <dd>
+                <textarea id="headsetLocation"
+                          name="headsetLocation"
+                          class="form-control"
+                          required>@Model.Headset.CurrentLocation</textarea>
+            </dd>
+
+            @if (Model.Headset.HasTrackingNumber)
+            {
+                <dt>Tracking</dt>
+                <dd>
+                    <a href="@Model.Headset.TrackingLink"
+                       target="_blank"
+                       rel="nofollow noreferrer">
+                        @Model.Headset.CurrentLocation
+                    </a>
+                </dd>
+            }
+
+            <dt>
+                <label for="notes">Notes</label>
+            </dt>
+            <dd>
+                <textarea id="notes"
+                          name="notes">@Model.Headset.Notes</textarea>
+            </dd>
+
+            <dt></dt>
+            <dd>
+                <button type="button"
+                        id="saveDetailButton"
+                        class="btn btn-danger">
+                    Save
+                </button>
+
+                <button type="button"
+                        id="deleteDetailButton"
+                        class="btn btn-danger">
+                    Delete
+                </button>
+
+                <a href="../" class="btn btn-secondary">
+                    Cancel
+                </a>
+            </dd>
+
+            <dt></dt>
+            <dd>
+                <div id="saveDetailMessage" class="alert alert-info" style="display:none">
+                    <h3>Save</h3>
+                    <p>
+                        Are you sure you want to save Hardware - @Model.Headset.Name?
+                    </p>
+                    <button type="button" class="btn btn-danger confirm">Yes</button>
+                    <button type="button" class="btn btn-primary cancel">No</button>
+                </div>
+                <div id="deleteDetailMessage" class="alert alert-danger" style="display:none">
+                    <h3>Delete</h3>
+                    <p>
+                        Are you sure you want to delete Hardware - @Model.Headset.Name?
+                    </p>
+                    <button type="button" class="btn btn-danger confirm">Yes</button>
+                    <button type="button" class="btn btn-primary cancel">No</button>
+                </div>
+            </dd>
+        </dl>
+    </div>
+</form>
+
+<h2>Locations</h2>
+
+<table class="table table-responsive table-hover table-striped summary" data-resourcename="HardwareLocations">
+    <thead>
+        <tr>
+            <th>Location</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Headset.Locations)
+        {
+            <tr>
+                <td>
+                    @item.Description
+                </td>
+                <td>
+                    @item.StartDate.ToShortDateString()
+                </td>
+                <td>
+                    @(item.EndDate?.ToShortDateString() ?? "N/A")
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

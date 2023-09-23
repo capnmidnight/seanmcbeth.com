@@ -1,0 +1,141 @@
+@page
+@using System.Text.Json;
+@model Yarrow.Pages.Editor.LogsModel
+@{
+    Layout = "_EditorLayout";
+    ViewData["Title"] = "Logs";
+}
+
+@section Scripts {
+    <bundle-js dir="js/dom-apps" name="confirm-button" versioned />
+    <bundle-js dir="js/dom-apps" name="range-selector" versioned />
+    <bundle-css dir="js/dom-apps" name="resource-summary/index" versioned />
+    <bundle-js dir="js/dom-apps" name="resource-summary" versioned />
+}
+
+@section Breadcrumb {
+    <li class="crumb">Logs</li>
+}
+
+@if (!string.IsNullOrEmpty(Model.StatusMessage))
+{
+    <div class="alert alert-@Model.StatusType" style="white-space:pre-line">@Model.StatusMessage</div>
+}
+
+<form method="post">
+    <button type="submit"
+            class="btn btn-danger"
+            asp-page-handler="CreateReport">
+        Create report
+    </button>
+    <button type="button"
+            class="btn btn-danger confirm-button deleteButton"
+            data-updatemessage="confirmDelete">
+        Delete selected logs
+    </button>
+    <span class="confirmDelete"
+          style="display:none">
+        <button type="button"
+                class="btn btn-outline-primary">
+            Cancel
+        </button>
+        <button type="submit"
+                asp-page-handler="DeleteLogs"
+                class="btn btn-outline-danger">
+            Ok
+        </button>
+    </span>
+    <table class="table table-responsive table-hover table-striped summary" data-resourcename="Logs">
+        <thead>
+            <tr>
+                <th><label>ID</label></th>
+                <th><label>Timestamp</label></th>
+                <th><label for="filterUser">User</label></th>
+                <th><label for="filterAddress">Address</label></th>
+                <th><label for="filterKey">Key</label></th>
+                <th><label for="filterValue">Value</label></th>
+                <th><label>Start</label></th>
+                <th><label>End</label></th>
+            </tr>
+            <tr>
+                <th></th>
+                @await Component.InvokeAsync("DateRange", new { idStub = "Logs"})
+                <th>
+                    <input type="text"
+                           id="filterUser"
+                           placeholder="Filter by User"
+                           title="Filter by User" />
+                </th>
+                <th>
+                    <input type="text"
+                           id="filterAddress"
+                           placeholder="Filter by Address"
+                           title="Filter by Address" />
+                </th>
+                <th>
+                    <input type="text"
+                           id="filterKey"
+                           placeholder="Filter by Key"
+                           title="Filter by Key" />
+                </th>
+                <th>
+                    <input type="text"
+                           id="filterValue"
+                           placeholder="Filter by Value"
+                           title="Filter by Value" />
+                </th>
+                <th colspan="2">
+                    <button type="reset"
+                            class="btn btn-secondary">
+                        Reset
+                    </button>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.Logs.Length; ++i)
+            {
+                var log = Model.Logs[i];
+
+                <tr>
+                    <td>@log.Id</td>
+                    @await Component.InvokeAsync("DateCell", new { value=log.Timestamp })
+                    <td>
+                        @if (log.User is not null)
+                        {
+                            <a href="~/Editor/Users/Detail/@log.UserId" class="btn btn-primary">@log.User.User.UserName</a>
+                        }
+                        else
+                        {
+                            @:anon
+                        }
+                    </td>
+                    <td>
+                        @log.FromAddress
+                    </td>
+                    <td>
+                        @log.Key
+                    </td>
+                    <td>
+                        @(log.Value?.ToJsonString() ?? "none")
+                        </td>
+                        <td>
+                            <input type="checkbox"
+                                   class="range-selector range-selector-include"
+                           asp-for="SelectedLog[i]"
+                                   data-rangename="logs"
+                                   style="display:none" />
+                            <input type="radio"
+                                   class="range-selector range-selector-start"
+                                   data-rangename="logs">
+                        </td>
+                        <td>
+                            <input type="radio"
+                                   class="range-selector range-selector-end"
+                                   data-rangename="logs">
+                        </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</form>

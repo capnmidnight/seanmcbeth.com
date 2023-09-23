@@ -1,0 +1,20 @@
+.preview {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto 1fr;
+    text-align: center;
+}
+
+    .preview h2 {
+        text-align: center;
+        word-break: break-all;
+    }
+
+.file-picker .thumbnail {
+    max-width: 20em;
+    max-height: 50em;
+}
+
+.preview > div, .preview > div > video, .preview > div > img {
+    max-width: 100%;
+}

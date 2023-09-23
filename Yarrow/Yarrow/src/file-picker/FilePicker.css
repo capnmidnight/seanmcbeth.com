@@ -1,0 +1,18 @@
+.file-picker .dialog-content {
+    display: grid;
+    grid-gap: 0.5em;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto 1fr;
+}
+
+.file-picker .tabs {
+    grid-area: 1 / 1;
+}
+
+.file-picker .tab-container {
+    grid-area: 2 / 1 / -1 / 2;
+}
+
+.file-picker .preview {
+    grid-area: 1 / 2 / -1 / -1;
+}

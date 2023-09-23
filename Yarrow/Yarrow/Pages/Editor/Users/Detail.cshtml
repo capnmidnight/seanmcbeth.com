@@ -1,0 +1,601 @@
+@page "{userID}"
+@using System.Text.Json;
+@model Yarrow.Pages.Editor.Users.DetailModel
+@{
+    Layout = "_EditorLayout";
+    ViewData["Title"] = "Role";
+}
+
+@section Scripts {
+    <bundle-js dir="js/dom-apps" name="confirm-button" versioned />
+    <bundle-js dir="js/dom-apps" name="range-selector" versioned />
+    <bundle-css dir="js/dom-apps" name="resource-summary/index" versioned />
+    <bundle-js dir="js/dom-apps" name="resource-summary" versioned />
+
+    <style>
+        dl {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            grid-column-gap: 0.5em;
+        }
+
+        dt {
+            text-align: right;
+        }
+    </style>
+}
+
+@section Breadcrumb {
+    <li class="crumb"><a href="~/Editor/Users/">Users</a></li>
+    <li class="crumb">@Model.UserProfile.UserName</li>
+}
+
+<h1>User - @Model.UserProfile.UserName</h1>
+
+@if (!string.IsNullOrEmpty(Model.StatusMessage))
+{
+    <div class="alert alert-@Model.StatusType" style="white-space:pre-line">@Model.StatusMessage</div>
+}
+
+<form method="post">
+    <dl>
+        <dt><label for="CreatedOn">Created on</label></dt>
+        <dd>
+            @if (Model.CurrentUser.IsAdmin)
+            {
+                <input type="datetime-local"
+                       id="CreatedOn"
+                       name="CreatedOn"
+                       class="form-control"
+                       value="@Model.UserProfile.CreatedOn?.ToString("s")" />
+            }
+            else
+            {
+                @(Model.UserProfile.CreatedOn?.ToLongDateString())
+            }
+        </dd>
+
+        <dt>Email</dt>
+        <dd>@Model.UserProfile.Email</dd>
+
+        <dt><label for="orgName">Organization</label></dt>
+        <dd>
+            @if (Model.CurrentUser.IsAdmin)
+            {
+                <select name="orgName"
+                        id="orgName"
+                        class="custom-select">
+                    <option value=""
+                            selected="@(Model.UserProfile.OrganizationName is null)">none</option>
+                    @foreach (var org in Model.Organizations)
+                    {
+                        <option value="@org.Name"
+                                selected="@(org.Name == Model.UserProfile.OrganizationName)">
+                            @org.Name
+                        </option>
+                    }
+                </select>
+            }
+            else
+            {
+                <input type="text"
+                       id="orgName"
+                       name="orgName"
+                       class="form-control"
+                       readonly
+                       value="@Model.UserProfile.OrganizationName">
+            }
+            @if (Model.UserProfile.OrganizationID is not null)
+            {
+                <a href="~/Editor/Organizations/Detail/@Model.UserProfile.OrganizationID">View Organization...</a>
+            }
+        </dd>
+
+        @if (Model.CurrentUser.IsAdmin)
+        {
+            <dt><label for="roomName">Current classroom</label></dt>
+            <dd>
+                <select name="roomName"
+                        id="roomName"
+                        class="custom-select">
+                    <option value=""
+                            selected="@(Model.UserProfile.RoomName is null)">none</option>
+                    @foreach (var room in Model.Rooms)
+                    {
+                        <option value="@room.Name"
+                                selected="@(room.Name == Model.UserProfile.RoomName)">
+                            @room.Name
+                        </option>
+                    }
+                </select>
+                @if (Model.UserProfile.RoomID is not null)
+                {
+                    <a href="~/Editor/Rooms/Detail/@Model.UserProfile.RoomID">View Room...</a>
+                }
+            </dd>
+
+            @if (!Model.UserProfile.IsHeadset)
+            {
+                <dt><label for="headsetID">Current headset</label></dt>
+                <dd>
+                    <select name="headsetID"
+                            id="headsetID"
+                            class="custom-select">
+                        <option value="" selected="@(Model.UserProfile.HeadsetID is null)">none</option>
+                        @foreach (var headset in Model.Headsets)
+                        {
+                            <option value="@headset.Id"
+                                    selected="@(headset.Id == Model.UserProfile.HeadsetID)">
+                                @headset.UserName
+                            </option>
+                        }
+                    </select>
+                </dd>
+            }
+        }
+        else
+        {
+            <input type="hidden"
+                   id="roomName"
+                   name="roomName"
+                   value="@Model.UserProfile.RoomName" />
+        }
+
+        <dt><label for="fullName">Full name</label></dt>
+        <dd>
+            <input type="text"
+                   id="fullName"
+                   name="fullName"
+                   class="form-control"
+                   placeholder="Enter full name"
+                   title="Full name should be entered as user would like to be addressed."
+                   spellcheck="false"
+                   minlength="2"
+                   autocomplete="on"
+                   required
+                   pattern='^[^<>{}"]*$'
+                   value="@Model.UserProfile.FullName" />
+        </dd>
+        <dt><label for="displayName">Display name</label></dt>
+        <dd>
+            <input type="text"
+                   id="displayName"
+                   name="displayName"
+                   class="form-control"
+                   placeholder="Enter display name"
+                   title="Display name appears next to users avatar in the VR view."
+                   spellcheck="false"
+                   minlength="2"
+                   autocomplete="on"
+                   required
+                   pattern='^[^<>{}"]*$'
+                   value="@Model.UserProfile.DisplayName" />
+        </dd>
+
+        @if (Model.IsDev && Model.CurrentUser.IsDeveloper)
+        {
+            <dt><label for="password">Password</label></dt>
+            <dd>
+                <input type="text"
+                       id="password"
+                       name="password"
+                       class="form-control"
+                       placeholder="Enter new password"
+                       title="Enter new password"
+                       spellcheck="false"
+                       minlength="(@Model.IsDev ? 0 : 8)" />
+            </dd>
+        }
+
+        @if (Model.CurrentUser.IsManager)
+        {
+            <dt><label>Roles</label></dt>
+            <dd>
+                @foreach (var role in Model.UserProfile.Roles)
+                {
+                    <a class="btn btn-secondary"
+                       href="~/Editor/Roles/Detail/@role">@role</a>
+                }
+            </dd>
+        }
+    </dl>
+    <button type="submit"
+            class="btn btn-danger"
+            asp-page-handler="SaveProfile">
+        Save changes
+    </button>
+
+    @if (Model.UserProfile.UserName != User.Identity.Name)
+    {
+        @if (Model.UserProfile.HasPassword)
+        {
+            <button type="submit"
+                    class="btn btn-danger"
+            asp-page-handler="ResetPassword">
+                Send "reset password" request to user
+            </button>
+        }
+        else
+        {
+            <button type="submit"
+                    class="btn btn-outline-danger"
+            asp-page-handler="ResetPassword">
+                Resend "set password" request to user
+            </button>
+        }
+
+        @if (Model.CurrentUser.IsAdmin)
+        {
+            if (Model.UserProfile.LockoutEnd is not null)
+            {
+                <button type="submit"
+                        class="btn btn-danger"
+            asp-page-handler="RemoveLockout">
+                    Reset
+                </button>
+                @Model.UserProfile.LockoutEnd.Value.ToLocalTime().ToString("D")
+            }
+            else
+            {
+                <button type="submit"
+                        class="btn btn-outline-danger"
+            asp-page-handler="AddLockout">
+                    Lockout
+                </button>
+            }
+
+            <button type="button"
+                    class="btn btn-danger confirm-button deleteButton"
+                    data-updatemessage="confirmDelete">
+                Delete
+            </button>
+            <span class="confirmDelete"
+                  style="display:none">
+                <button type="button"
+                        class="btn btn-outline-primary">
+                    Cancel
+                </button>
+                <button type="submit"
+                        class="btn btn-outline-danger"
+                asp-page-handler="Delete">
+                    Ok
+                </button>
+            </span>
+        }
+    }
+</form>
+
+<hr />
+<h2>Scenarios Created</h2>
+@await Component.InvokeAsync("ScenarioList", new {
+    currentUser=Model.CurrentUser,
+    orgId = Model.CurrentUser.VisibleOrganizationID,
+    createdById = Model.UserProfile.UserID,
+    showCreateScenario = false,
+    pageSizes = "5,10,25",
+    resourceName = "Users"
+})
+
+<hr />
+<h2>Scenario Versions Created</h2>
+<table class="table table-responsive table-hover table-striped summary" data-resourcename="UserScenarioVersions" data-pagesizes="5,10,20">
+    <thead>
+        <tr>
+            <th><label for="filterScenario">Scenario</label></th>
+            <th><label for="filterLanguage">Language</label></th>
+            <th><label for="filterVersion">Version</label></th>
+            <th><label>Created on</label></th>
+            <th><label for="filterCreatedBy">Created by</label></th>
+            <th><label for="filterPublished">Published</label></th>
+            <th><label>Published on</label></th>
+            <th><label for="filterPublishedBy">Published by</label></th>
+            <th colspan="2"><label>Actions</label></th>
+        </tr>
+        <tr>
+            <th><input type="text" id="filterScenario" placeholder="Filter by Scenario" title="Filter by Scenario" /></th>
+            <th>
+                <select id="filterLanguage">
+                    <option value="">--</option>
+                    @foreach (var lang in Model.Languages)
+                    {
+                        <option value="@lang.Name.ToLowerInvariant()">@lang.Name</option>
+                    }
+                </select>
+            </th>
+            <th><input type="number" id="filterScenario" placeholder="Filter by Version" title="Filter by Version" /></th>
+            @await Component.InvokeAsync("DateRange", new { idStub = "UserScenarioVersionCreatedOn"})
+            <th><input type="text" id="filterCreatedBy" placeholder="Filter by Creator" title="Filter by Creator" /></th>
+            <th>
+                <select id="filterPublished">
+                    <option value="">--</option>
+                    <option value="on">Published</option>
+                    <option value="off">Pending</option>
+                </select>
+            </th>
+            @await Component.InvokeAsync("DateRange", new { idStub = "UserScenarioVersionPublishedOn"})
+            <th><input type="text" id="filterPublishedBy" placeholder="Filter by Publisher" title="Filter by Publisher" /></th>
+            <th>
+                <button type="reset" class="btn btn-secondary">Reset</button>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var scenario in Model.Scenarios)
+        {
+            <tr>
+                <td>@scenario.ScenarioGroup.Name</td>
+                <td>@scenario.ScenarioGroup.Language.Name</td>
+                <td>
+                    @scenario.Version
+                </td>
+                @await Component.InvokeAsync("DateCell", new { value=scenario.Timestamp })
+                <td>
+                    @if (scenario.CreatedById is not null)
+                    {
+                        <a class="btn btn-secondary"
+                           href="~/Editor/Users/Detail/@scenario.CreatedById">
+                            @(scenario.CreatedBy?.User?.UserName ?? "--")
+                        </a>
+                    }
+                    else
+                    {
+                        @:--
+                    }
+                </td>
+                <td>
+                    <input type="checkbox"
+                           value="@(scenario.Published ? "on" : "off")"
+                           style="display:none">
+                    @(scenario.Published == true ? "☑️" : "")
+                </td>
+                @await Component.InvokeAsync("DateCell", new { value=scenario.PublishedOn })
+                <td>
+                    @if (scenario.PublishedById is not null)
+                    {
+                        <a class="btn btn-secondary"
+                           href="~/Editor/Users/Detail/@scenario.PublishedById">
+                            @(scenario.PublishedBy?.User?.UserName ?? "--")
+                        </a>
+                    }
+                    else
+                    {
+                        @:--
+                    }
+                </td>
+                <td>
+                    <a class="btn btn-primary"
+                       href="~/Editor/Scenarios/Layout/@scenario.Id">
+                        @(scenario.Published == true ? "View in editor" : "Edit")
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (Model.CurrentUser.IsAdmin)
+{
+    <hr />
+    <h2>Roles</h2>
+    <table class="table table-responsive table-hover table-striped summary" data-resourcename="UserRoles">
+        <thead>
+            <tr>
+                <th><label id="filterName">Name</label></th>
+                <th><label id="filterIncluded">Included</label></th>
+                <th><label>Action</label></th>
+            </tr>
+            <tr>
+                <th>
+                    <input type="text"
+                           id="filterName"
+                           placeholder="Filter by Name"
+                           title="Filter by Name" />
+                </th>
+                <th>
+                    <select id="filterIncluded" title="Filter by Included">
+                        <option value="">--</option>
+                        <option value="on">Included</option>
+                        <option value="off">Not included</option>
+                    </select>
+                </th>
+                <th>
+                    <button type="reset" class="btn btn-secondary">Reset</button>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var role in Model.Roles)
+            {
+                var included = Model.UserProfile.IsInRole(role);
+                <tr>
+                    <td>
+                        <a class="btn btn-secondary" href="~/Editor/Roles/Detail/@role.Name">
+                            @role.Name
+                        </a>
+                    </td>
+                    <td colspan="2">
+                        <input type="checkbox"
+                               value="@(included ? "on" : "off")"
+                               style="display:none">
+                        <form method="post" asp-page-handler="SetRole">
+                            <input type="hidden"
+                                   name="name"
+                                   value="@role.Name">
+                            <button type="submit"
+                                    class="btn @(included ? "btn-danger" : "btn-outline-danger")"
+                                    style="width:100%">
+                                @(included ? "Remove" : "Add")
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<hr />
+<h2>Reports</h2>
+<table class="table table-responsive table-hover table-striped summary" data-resourcename="UserReports">
+    <thead>
+        <tr>
+            <th>Timestamp</th>
+            <th>Duration</th>
+            <th>Language</th>
+            <th>Scenarios</th>
+            <th></th>
+        </tr>
+        <tr>
+            @await Component.InvokeAsync("DateRange", new { idStub = "UserReports"})
+            <th></th>
+            <th>
+                <select id="filterLanguage">
+                    <option value="">--</option>
+                    @foreach (var lang in Model.Languages)
+                    {
+                        <option value="@lang.Name.ToLowerInvariant()">@lang.Name</option>
+                    }
+                </select>
+            </th>
+            <th>
+                <input type="text"
+                       id="filterScenario"
+                       placeholder="Filter by Scenario"
+                       title="Filter by Scenario">
+            </th>
+            <th><button type="reset" class="btn btn-secondary">Reset</button></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var report in Model.Reports)
+        {
+            <tr>
+                @await Component.InvokeAsync("DateCell", new { value=report.Timestamp })
+                <td>
+                    @report.Duration.ToSillyString()
+                </td>
+                <td class="multi">
+                    @foreach (var lang in report.Languages)
+                    {
+                        <a href="~/Editor/Languages/Detail/@lang.Id" class="btn btn-sm btn-secondary">@lang.Name</a>
+                    }
+                </td>
+                <td class="multi">
+                    @foreach (var scene in report.Scenarios)
+                    {
+                        <a href="~/Editor/Scenarios/Detail/@scene.Id" class="btn btn-sm btn-secondary">@scene.Name</a>
+                    }
+                </td>
+                <td>
+                    <a href="~/Editor/Reports/Detail/@report.ReportID" class="btn btn-sm btn-primary">Detail</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (Model.CurrentUser.IsAdmin)
+{
+    <hr />
+    <h2>Unreported Logs</h2>
+    <form method="post">
+        <button type="submit"
+                class="btn btn-danger"
+            asp-page-handler="CreateReport">
+            Create report
+        </button>
+        <button type="button"
+                class="btn btn-danger confirm-button deleteButton"
+                data-updatemessage="confirmDelete">
+            Delete selected logs
+        </button>
+        <span class="confirmDelete"
+              style="display:none">
+            <button type="button"
+                    class="btn btn-outline-primary">
+                Cancel
+            </button>
+            <button type="submit"
+                asp-page-handler="DeleteLogs"
+                    class="btn btn-outline-danger">
+                Ok
+            </button>
+        </span>
+        <table class="table table-responsive table-hover table-striped summary" data-resourcename="UserLogs">
+            <thead>
+                <tr>
+                    <th><label>ID</label></th>
+                    <th><label>Timestamp</label></th>
+                    <th><label for="filterAddress">Address</label></th>
+                    <th><label for="filterKey">Key</label></th>
+                    <th><label for="filterValue">Value</label></th>
+                    <th><label>Start</label></th>
+                    <th><label>End</label></th>
+                </tr>
+                <tr>
+                    <th></th>
+                    @await Component.InvokeAsync("DateRange", new { idStub = "Logs"})
+                    <th>
+                        <input type="text"
+                               id="filterAddress"
+                               placeholder="Filter by Address"
+                               title="Filter by Address" />
+                    </th>
+                    <th>
+                        <input type="text"
+                               id="filterKey"
+                               placeholder="Filter by Key"
+                               title="Filter by Key" />
+                    </th>
+                    <th>
+                        <input type="text"
+                               id="filterValue"
+                               placeholder="Filter by Value"
+                               title="Filter by Value" />
+                    </th>
+                    <th colspan="2">
+                        <button type="reset"
+                                class="btn btn-secondary">
+                            Reset
+                        </button>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < Model.Logs.Length; ++i)
+                {
+                    var log = Model.Logs[i];
+
+                    <tr>
+                        <td>@log.Id</td>
+                        @await Component.InvokeAsync("DateCell", new { value=log.Timestamp })
+                        <td>
+                            @log.FromAddress
+                        </td>
+                        <td>
+                            @log.Key
+                        </td>
+                        <td>
+                            @(log.Value?.ToJsonString() ?? "none")
+                        </td>
+                        <td>
+                            <input type="checkbox"
+                                   class="range-selector range-selector-include"
+                           asp-for="SelectedLog[i]"
+                                   data-rangename="logs"
+                                   style="display:none" />
+                            <input type="radio"
+                                   class="range-selector range-selector-start"
+                                   data-rangename="logs">
+                        </td>
+                        <td>
+                            <input type="radio"
+                                   class="range-selector range-selector-end"
+                                   data-rangename="logs">
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </form>
+}

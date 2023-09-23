@@ -1,0 +1,341 @@
+@page "{scenarioGroupID:int}"
+@model Yarrow.Pages.Editor.Scenarios.DetailModel
+@{
+    Layout = "_EditorLayout";
+    ViewData["Title"] = "Scenario Detail";
+}
+
+@section Scripts {
+    <bundle-css dir="js/dom-apps" name="thumbnail-viewer/index" versioned />
+    <bundle-js dir="js/dom-apps" name="thumbnail-viewer" versioned />
+    <bundle-css dir="js/dom-apps" name="resource-detail/index" versioned />
+    <bundle-js dir="js/dom-apps" name="resource-detail" versioned />
+    <bundle-css dir="js/dom-apps" name="resource-summary/index" versioned />
+    <bundle-js dir="js/dom-apps" name="resource-summary" versioned />
+}
+
+@section Breadcrumb {
+    <li class="crumb"><a href="~/Editor/Scenarios/">Scenarios</a></li>
+    <li class="crumb"><a href="~/Editor/Languages/Detail/@Model.ScenarioGroup.LanguageId">@Model.ScenarioGroup.Language.Name</a></li>
+    <li class="crumb">@Model.ScenarioGroup.Name</li>
+}
+
+<h1>Scenario - @Model.ScenarioGroup.Name</h1>
+
+@if (!string.IsNullOrEmpty(Model.StatusMessage))
+{
+    <div class="alert alert-@Model.StatusType">@Model.StatusMessage</div>
+}
+
+<form method="post">
+    @Html.AntiForgeryToken()
+    <div class="detailSection">
+        <dl>
+            <dt>ID</dt>
+            <dd>
+                <input type="text"
+                       name="scenarioGroupId"
+                       class="form-control"
+                       readonly
+                       disabled
+                       value="@Model.ScenarioGroup.Id" />
+            </dd>
+
+            <dt><label for="nameInput">Name</label></dt>
+            <dd>
+                <input type="text"
+                       id="nameInput"
+                       name="name"
+                       class="form-control"
+                       required
+                       placeholder="Scenario name"
+                       title="Scenario name"
+                       value="@Model.ScenarioGroup.Name" />
+            </dd>
+
+            <dt><label for="languageInput">Language</label></dt>
+            <dd>
+                <select id="languageInput"
+                        name="languageId"
+                        class="custom-select">
+                    @foreach (var language in Model.Languages)
+                    {
+                        <option value="@language.Id"
+                                selected="@(language.Id == @Model.ScenarioGroup.LanguageId)">
+                            @language.Name
+                        </option>
+                    }
+                </select>
+            </dd>
+
+            <dt>Created on</dt>
+            <dd>
+                @Model.ScenarioGroup.Timestamp.ToLongDateString()
+            </dd>
+
+            <dt>Created by</dt>
+            <dd>
+                @if (Model.ScenarioGroup.CreatedById is not null)
+                {
+                    <a class="btn btn-secondary"
+                       href="~/Editor/Users/Detail/@Model.ScenarioGroup.CreatedById">
+                        @(Model.ScenarioGroup.CreatedBy?.User?.UserName ?? "--")
+                    </a>
+                }
+                else
+                {
+                    @:--
+                }
+            </dd>
+
+            <dt></dt>
+            <dd>
+                <button type="button"
+                        id="saveDetailButton"
+                        class="btn btn-danger">
+                    Save
+                </button>
+                @{
+                    var disableDuplicate = !Model.ScenarioGroup.Scenarios.Any(s => s.Published == true);
+                    <button type="submit"
+                        class="btn @(disableDuplicate ? "btn-outline-danger" : "btn-danger")"
+                        title="@(disableDuplicate ? "Scenarios with no published versions cannot be duplicated" : "Duplicate latest published version of scenario")"
+                        disabled="@disableDuplicate"
+                        asp-page-handler="Duplicate">
+                        Duplicate
+                    </button>
+                }
+                @{
+                    var disableDelete = false;
+                    <button type="button"
+                            id="deleteDetailButton"
+                            class="btn @(disableDelete ? "btn-outline-danger" : "btn-danger")"
+                            title="@(disableDelete ? "Scenarios with user reports cannot be deleted" : "Delete entire scenario")"
+                            disabled="@disableDelete">
+                        Delete
+                    </button>
+                }
+                <a href="../" class="btn btn-secondary">
+                    Cancel
+                </a>
+            </dd>
+
+            <dt></dt>
+            <dd>
+                <div id="saveDetailMessage" class="alert alert-info" style="display:none">
+                    <h3>Save</h3>
+                    <p>
+                        Are you sure you want to save Scenario - @Model.ScenarioGroup.Name?
+                    </p>
+                    <button type="submit"
+                            class="btn btn-danger confirm"
+                            asp-page-handler="Update">
+                        Yes
+                    </button>
+                    <button type="button" class="btn btn-primary cancel">No</button>
+                </div>
+                <div id="deleteDetailMessage" class="alert alert-danger" style="display:none">
+                    <h3>Delete</h3>
+                    <p>
+                        Are you sure you want to delete Scenario - @Model.ScenarioGroup.Name?
+                    </p>
+                    <button type="submit"
+                            class="btn btn-danger confirm"
+                            asp-page-handler="Delete">
+                        Yes
+                    </button>
+                    <button type="button" class="btn btn-primary cancel">No</button>
+                </div>
+            </dd>
+        </dl>
+    </div>
+</form>
+
+<hr />
+<h2>Scenario Versions</h2>
+<table class="table table-responsive table-hover table-striped summary" data-resourcename="ScenarioVersions">
+    <thead>
+        <tr>
+            <th><label for="filterVersion">Version</label></th>
+            <th><label>Created on</label></th>
+            <th><label for="filterCreatedBy">Created by</label></th>
+            <th><label for="filterPublished">Published</label></th>
+            <th><label>Published on</label></th>
+            <th><label for="filterPublishedBy">Published by</label></th>
+            <th colspan="2"><label>Actions</label></th>
+        </tr>
+        <tr>
+            <th>
+                <input type="number"
+                       id="filterVersion"
+                       placeholder="Filter by Version"
+                       title="Filter by Version" />
+            </th>
+            @await Component.InvokeAsync("DateRange", new { idStub = "UserScenarioVersionCreatedOn"})
+            <th>
+                <input type="text"
+                       id="filterCreatedBy"
+                       placeholder="Filter by Creator"
+                       title="Filter by Creator" />
+            </th>
+            <th>
+                <select id="filterPublished" title="Filter by Published">
+                    <option value="" selected>--</option>
+                    <option value="on">Published</option>
+                    <option value="off">Pending</option>
+                </select>
+            </th>
+            @await Component.InvokeAsync("DateRange", new { idStub = "ScenarioVersionsPublishedOn"})
+            <th><input type="text"
+                       id="filterPublishedBy"
+                       placeholder="Filter by Publisher"
+                       title="Filter by Publisher" /></th>
+            <th>
+            </th>
+            <th>
+                <button type="reset" class="btn btn-secondary">Reset</button>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var scenario in Model.ScenarioGroup.Scenarios.OrderByDescending(s => s.Version))
+        {
+            <tr>
+                <td>
+                    @scenario.Version
+                </td>
+                <td>
+                    @scenario.Timestamp.ToLongDateString()
+                </td>
+                <td>
+                    @if (scenario.CreatedById is not null)
+                    {
+                        <a class="btn btn-secondary"
+                           href="~/Editor/Users/Detail/@scenario.CreatedById">
+                            @(scenario.CreatedBy?.User?.UserName ?? "--")
+                        </a>
+                    }
+                    else
+                    {
+                        @:--
+                    }
+                </td>
+                <td>
+                    <input type="checkbox"
+                           value="@(scenario.Published ? "on": "off")"
+                           style="display:none" />
+                    @(scenario.Published ? "☑️" : "")
+                </td>
+                <td>
+                    @(scenario.PublishedOn?.ToLongDateString() ?? "--")
+                </td>
+                <td>
+                    @if (scenario.PublishedById is not null)
+                    {
+                        <a class="btn btn-secondary"
+                           href="~/Editor/Users/Detail/@scenario.PublishedById">
+                            @(scenario.PublishedBy?.User?.UserName ?? "--")
+                        </a>
+                    }
+                    else
+                    {
+                        @:--
+                    }
+                </td>
+                <td>
+                    <a class="btn btn-secondary"
+                       href="~/Editor/Scenarios/Layout/@scenario.Id?handler=Export">
+                        Export
+                    </a>
+                </td>
+                <td>
+                    <a class="btn btn-primary"
+                       href="~/Editor/Scenarios/Layout/@scenario.Id">
+                        @(scenario.Published == true ? "View in editor" : "Edit")
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (Model.CurrentUser.IsAdmin)
+{
+    <hr />
+    <h2>Organizations</h2>
+    <table class="table table-responsive table-hover table-striped summary" data-resourcename="ScenarioOrganizations">
+        <thead>
+            <tr>
+                <th><label id="filterName">Name</label></th>
+                <th><label id="filterIncluded">Included</label></th>
+                <th><label>Action</label></th>
+            </tr>
+            <tr>
+                <th>
+                    <input type="text"
+                           id="filterName"
+                           placeholder="Filter by Name"
+                           title="Filter by Name" />
+                </th>
+                <th>
+                    <select id="filterIncluded" title="Filter included organizations">
+                        <option value="" selected>--</option>
+                        <option value="on">Included</option>
+                        <option value="off">Not included</option>
+                    </select>
+                </th>
+                <th>
+                    <button type="reset" class="btn btn-secondary">Reset</button>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var org in Model.Organizations)
+            {
+                var isInOrg = Model.ScenarioGroup.Organizations.Any(o => o.Id == org.Id);
+
+                <tr>
+                    <td>@org.Name</td>
+                    <td colspan="2">
+                        <input type="checkbox"
+                               value="@(isInOrg ? "on" : "off")"
+                               checked="@isInOrg"
+                               style="display:none">
+                        <form method="post" asp-page-handler="SetOrganization">
+                            <input type="hidden"
+                                   name="OrganizationID"
+                                   value="@org.Id">
+                            <button type="submit"
+                                    class="btn @(isInOrg ? "btn-danger" : "btn-outline-danger")"
+                                    style="width:100%">
+                                @(isInOrg ? "Remove" : "Add")
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<hr />
+<h2>Menu Links</h2>
+@if (Model.ScenarioGroup.MenuItems.Any())
+{
+    <ul>
+        @foreach (var m in Model.ScenarioGroup.MenuItems)
+        {
+            <li><a href="/Editor/Menu/@m.Id">/Editor/Menu/@m.Id</a></li>
+        }
+    </ul>
+}
+else
+{
+    <form method="post" action="~/Editor/Menu?handler=Create">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="ScenarioGroupID" value="@Model.ScenarioGroup.Id" />
+        <button type="submit" class="btn btn-primary">
+            Create
+        </button>
+    </form>
+}

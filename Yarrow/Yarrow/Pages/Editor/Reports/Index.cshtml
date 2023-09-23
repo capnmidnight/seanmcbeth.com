@@ -1,0 +1,103 @@
+@page
+@model Yarrow.Pages.Editor.Reports.IndexModel
+@{
+    Layout = "_EditorLayout";
+    ViewData["Title"] = "User Session Reports";
+}
+
+@section Scripts {
+    <bundle-css dir="js/dom-apps" name="resource-summary/index" versioned />
+    <bundle-js dir="js/dom-apps" name="resource-summary" versioned />
+}
+
+@section Breadcrumb {
+    <li class="crumb">Reports</li>
+}
+
+<h1>Reports</h1>
+
+@if (!string.IsNullOrEmpty(Model.StatusMessage))
+{
+        <div class="alert alert-@Model.StatusType" style="white-space:pre-line">@Model.StatusMessage</div>
+}
+
+<form method="get">
+    <table class="table table-responsive table-hover table-striped summary" data-resourcename="Reports">
+        <thead>
+            <tr>
+                <th><label>Date</label></th>
+                <th><label>Duration</label></th>
+                <th><label for="filterName">User</label></th>
+                <th><label for="filterLanguage">Languages</label></th>
+                <th><label for="filterScenario">Scenarios</label></th>
+                <th></th>
+            </tr>
+            <tr>
+                @await Component.InvokeAsync("DateRange", new { idStub = "Reports"})
+                <th></th>
+                <th>
+                    <select id="filterName" class="exact">
+                        <option value="">--</option>
+                        @foreach (var name in Model.Names)
+                        {
+                            <option value="@name.ToLowerInvariant()">@name</option>
+                        }
+                    </select>
+                </th>
+                <th>
+                    <select id="filterLanguage">
+                        <option value="">--</option>
+                        @foreach (var lang in Model.Languages)
+                        {
+                            <option value="@lang.Name.ToLowerInvariant()">@lang.Name</option>
+                        }
+                    </select>
+                </th>
+                <th>
+                    <input type="text"
+                           id="filterScenario"
+                           placeholder="Filter by Scenario"
+                           title="Filter by Scenario">
+                </th>
+                <th><button type="reset" class="btn btn-secondary">Reset</button></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var report in Model.Reports)
+            {
+                <tr>
+                    @await Component.InvokeAsync("DateCell", new { value=report.Timestamp })
+                    <td>
+                        @report.Duration.ToSillyString()
+                    </td>
+                    <td>
+                        @if (report.UserId is not null)
+                        {
+                            <a href="~/Editor/Users/Detail/@report.UserId" class="btn btn-secondary">@report.UserName</a>
+                        }
+                        else
+                        {
+                            @(report.DisplayName ?? "Unknown")
+                        }
+                    </td>
+                    <td class="multi">
+                        @foreach (var lang in report.Languages)
+                        {
+                            <a href="~/Editor/Languages/Detail/@lang.Id" class="btn btn-secondary">@lang.Name</a>
+                        }
+                    </td>
+                    <td class="multi">
+                        @foreach (var scene in report.Scenarios)
+                        {
+                            <input type="hidden" value="@scene.Id" />
+                            <a href="~/Editor/Scenarios/Detail/@scene.Id" class="btn btn-secondary">@scene.Name</a>
+                        }
+                    </td>
+                    <td>
+                        <a href="~/Editor/Reports/Detail/@report.ReportID" class="btn btn-primary">Detail</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</form>

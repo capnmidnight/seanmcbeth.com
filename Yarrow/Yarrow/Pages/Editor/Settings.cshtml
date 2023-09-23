@@ -1,0 +1,257 @@
+@page
+@model Yarrow.Pages.Editor.SettingsModel
+@{
+    Layout = "_EditorLayout";
+    ViewData["Title"] = "Settings";
+}
+
+@section Scripts {
+    <bundle-css dir="js/dom-apps" name="resource-summary/index" versioned />
+    <bundle-js dir="js/dom-apps" name="resource-summary" versioned />
+    <bundle-js dir="js/dom-apps" name="settings-editor" versioned />
+}
+
+
+@section Breadcrumb {
+    <li class="crumb">Settings Manager</li>
+}
+
+<h1>Settings</h1>
+
+@if (!string.IsNullOrEmpty(Model.StatusMessage))
+{
+    <div class="alert alert-@Model.StatusType">@Model.StatusMessage</div>
+}
+
+<form method="post">
+    @Html.AntiForgeryToken()
+    <table class="table table-responsive table-hover table-striped summary" data-resourcename="Settings">
+        <thead>
+            <tr>
+                <th><label for="filterName">Name</label></th>
+                <th><label for="filterValue">Value</label></th>
+                <th></th>
+                <th></th>
+            </tr>
+            <tr>
+                <th><input type="text" id="filterName" placeholder="Filter by Name" title="Filter by Name" /></th>
+                <th><input type="text" id="filterValue" placeholder="Filter by Value" title="Filter by Value" /></th>
+                <th><button type="reset" class="btn btn-secondary">Reset</button></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var file in Model.Settings)
+            {
+                <tr>
+                    <td>
+                        <input type="text"
+                               value="@file.Name"
+                               disabled
+                               readonly
+                               required />
+                    </td>
+                    <td>
+                        <input type="text"
+                               placeholder="Value" title="Value"
+                               value="@file.Value"
+                               required />
+                    </td>
+                    <td>
+                        <button type="button"
+                                class="btn btn-primary confirm-button updateButton"
+                                data-updatemessage="confirmUpdate">
+                            Save
+                        </button>
+                        <span class="confirmUpdate"
+                              style="display:none">
+                            <button type="button"
+                                    class="btn btn-outline-primary">
+                                Cancel
+                            </button>
+                            <button type="submit"
+                                    class="btn btn-outline-danger"
+                                asp-page-handler="UpdateSetting">
+                                Ok
+                            </button>
+                        </span>
+                    </td>
+                    <td>
+                        <button type="button"
+                                class="btn btn-danger confirm-button deleteButton"
+                                data-updatemessage="confirmDelete">
+                            Delete
+                        </button>
+                        <span class="confirmDelete"
+                              style="display:none">
+                            <button type="button"
+                                    class="btn btn-outline-primary">
+                                Cancel
+                            </button>
+                            <button type="submit"
+                                asp-page-handler="DeleteSetting"
+                                    class="btn btn-outline-danger">
+                                Ok
+                            </button>
+                        </span>
+                    </td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <td>
+                    <input type="text"
+                           name="Name"
+                           placeholder="Name" title="Name"
+                           required />
+                </td>
+                <td>
+                    <input type="text"
+                           name="Value"
+                           placeholder="Value" title="Value"
+                           required />
+                </td>
+                <td>
+                    <button type="submit"
+                            asp-page-handler="CreateSetting"
+                            class="btn btn-primary">
+                        Create
+                    </button>
+                </td>
+                <td></td>
+            </tr>
+        </tfoot>
+    </table>
+</form>
+
+<h1>WebRTC</h1>
+<form method="post">
+    @Html.AntiForgeryToken()
+    <table class="table table-responsive table-hover table-striped summary" data-resourcename="SettingsWebRTC">
+        <thead>
+            <tr>
+                <th><label for="filterProtocol">Protocol</label></th>
+                <th><label for="filterHost">Host</label></th>
+                <th><label for="filterPort">Port</label></th>
+                <th></th>
+                <th></th>
+                <th></th>
+            </tr>
+            <tr>
+                <th><input type="text" id="filterProtocol" placeholder="Filter by Protocol" title="Filter by Protocol" /></th>
+                <th><input type="text" id="filterHost" placeholder="Filter by Host" title="Filter by Host" /></th>
+                <th><input type="number" id="filterPort" placeholder="Filter by Port" title="Filter by Port" /></th>
+                <th><button type="reset" class="btn btn-secondary">Reset</button></th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var file in Model.Servers)
+            {
+                <tr>
+                    <td>
+                        <input type="hidden"
+                               value="@file.Id" />
+                        <input type="text"
+                               placeholder="Protocol" title="Protocol"
+                               value="@file.Protocol"
+                               disabled
+                               required />
+                    </td>
+                    <td>
+                        <input type="text"
+                               placeholder="Host" title="Host"
+                               value="@file.Host"
+                               required />
+                    </td>
+                    <td>
+                        <input type="number"
+                               placeholder="Port" title="Port"
+                               value="@file.Port"
+                               required />
+                    </td>
+                    <td>
+                        <button type="button"
+                                class="btn btn-primary"
+                                data-updatemessage="confirmUpdate">
+                            Save
+                        </button>
+                        <span class="confirmUpdate"
+                              style="display:none">
+                            <button type="button"
+                                    class="btn btn-outline-primary">
+                                Cancel
+                            </button>
+                            <button type="submit"
+                                    class="btn btn-outline-danger"
+                                asp-page-handler="UpdateWebRTC">
+                                Ok
+                            </button>
+                        </span>
+                    </td>
+                    <td>
+                        <button type="submit"
+                                class="btn btn-secondary"
+                            asp-page-handler="ToggleWebRTCEnabled">
+                            @(file.Enabled == true ? "Disable" : "Enable")
+                        </button>
+                    </td>
+                    <td>
+                        <button type="button"
+                                class="btn btn-danger"
+                                data-updatemessage="confirmDelete">
+                            Delete
+                        </button>
+                        <span class="confirmDelete"
+                              style="display:none">
+                            <button type="button"
+                                    class="btn btn-outline-primary">
+                                Cancel
+                            </button>
+                            <button type="submit"
+                                asp-page-handler="DeleteWebRTC"
+                                    class="btn btn-outline-danger">
+                                Ok
+                            </button>
+                        </span>
+                    </td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <td>
+                    <input type="hidden"
+                           name="Id" />
+                    <input type="text"
+                           name="Protocol"
+                           placeholder="Protocol" title="Protocol"
+                           required />
+                </td>
+                <td>
+                    <input type="text"
+                           name="Host"
+                           placeholder="Host" title="Host"
+                           required />
+                </td>
+                <td>
+                    <input type="number"
+                           name="Port"
+                           placeholder="Port" title="Port"
+                           required />
+                </td>
+                <td>
+                    <button type="submit"
+                            asp-page-handler="CreateWebRTC"
+                            class="btn btn-primary">
+                        Create
+                    </button>
+                </td>
+                <td></td>
+                <td></td>
+            </tr>
+        </tfoot>
+    </table>
+</form>

@@ -1,0 +1,27 @@
+dl {
+    display: grid;
+    grid-template-columns: auto auto 1fr;
+}
+
+dt {
+    grid-column: 1/2;
+    padding: 0 1em 0 2em;
+}
+
+dd {
+    grid-column: 2/3;
+}
+
+.fileList > tfoot td {
+    text-align: right;
+}
+
+    .fileList > tfoot td * {
+        margin: 0 0.5em;
+    }
+
+
+.thumbnail {
+    max-width: 20em;
+    max-height: 15em;
+}

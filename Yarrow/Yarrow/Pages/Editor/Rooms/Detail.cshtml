@@ -1,0 +1,125 @@
+@page "{id:int}"
+@model Yarrow.Pages.Editor.Rooms.DetailModel
+@{
+    Layout = "_EditorLayout";
+    ViewData["Title"] = "Room";
+}
+
+@section Scripts {
+    <bundle-css dir="js/dom-apps" name="resource-summary/index" versioned />
+    <bundle-js dir="js/dom-apps" name="resource-summary" versioned />
+}
+
+@section Breadcrumb {
+    <li class="crumb"><a href="~/Editor/Rooms/">Classrooms</a></li>
+    <li class="crumb">@Model.Room.Name</li>
+}
+
+<h1>Classroom - @Model.Room.Name</h1>
+
+@if (!string.IsNullOrEmpty(Model.StatusMessage))
+{
+    <div class="alert alert-@Model.StatusType">@Model.StatusMessage</div>
+}
+
+@if (Model.CurrentUser.IsAdmin)
+{
+    <dl>
+        <dt></dt>
+        <dd>
+            <form method="post" asp-page-handler="Delete">
+                @Html.AntiForgeryToken()
+                <button type="button"
+                        class="btn @(Model.CanDelete ? "btn-danger" : "btn-outline-danger")"
+                        disabled="@(!Model.CanDelete)"
+                        title="@(Model.CanDelete ? "Delete role" : "Role cannot be deleted")"
+                        onclick="document.querySelector('#confirmDelete').style.display='inline-block'">
+                    Delete
+                </button>
+                <span id="confirmDelete"
+                      style="display:none">
+                    <button type="button"
+                            class="btn btn-outline-primary"
+                            onclick="document.querySelector('#confirmDelete').style.display='none'">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                            class="btn btn-outline-danger">
+                        Ok
+                    </button>
+                </span>
+            </form>
+        </dd>
+    </dl>
+}
+
+<table class="table table-responsive table-hover table-striped summary" data-resourcename="RoomUsers">
+    <thead>
+        <tr>
+            <th><label for="filterName">Name</label></th>
+            <th><label for="filterOrganization">Organization</label></th>
+            <th><label for="filterIncluded">Included</label></th>
+            <th><label>Action</label></th>
+        </tr>
+        <tr>
+            <th>
+                <input type="text"
+                       id="filterName"
+                       placeholder="Filter by Name"
+                       title="Filter by Name" />
+            </th>
+            <th>
+                <select id="filterOrganization"
+                        title="Filter by Organization">
+                    <option value="">--</option>
+                    @foreach (var item in Model.Organizations)
+                    {
+                        <option value="@item.Name.ToLowerInvariant()">@item.Name</option>
+                    }
+                </select>
+            </th>
+            <th>
+                <select id="filterIncluded" title="Filter by Included">
+                    <option value="">--</option>
+                    <option value="on">Included</option>
+                    <option value="off">Not included</option>
+                </select>
+            </th>
+            <th>
+                <button type="reset" class="btn btn-secondary">Reset</button>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model.Users)
+        {
+            var included = user.RoomName == Model.Room.Name;
+            <tr>
+                <td>
+                    <a href="~/Editor/Users/Detail/@user.UserID" class="btn btn-secondary">@user.UserName</a>
+                </td>
+                <td>
+                    @if (user.OrganizationID is not null)
+                    {
+                        <a href="~/Editor/Organizations/Detail/@user.OrganizationID" class="btn btn-secondary">@user.OrganizationName</a>
+                    }
+                    else
+                    {
+                        @:none
+                    }
+                </td>
+                <td colspan="2">
+                    <input type="checkbox"
+                           value="@(included ? "on": "off")"
+                           style="display:none">
+                    <form method="post" asp-page-handler="SetUser">
+                        <input type="hidden" name="userID" value="@user.UserID">
+                        <button type="submit" class="btn @(included ? "btn-danger" : "btn-outline-danger")">
+                            @(included ? "Remove" : "Add")
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

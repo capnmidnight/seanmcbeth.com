@@ -1,0 +1,62 @@
+@page "{roleName}"
+@model Yarrow.Pages.Editor.Roles.DetailModel
+@{
+    Layout = "_EditorLayout";
+    ViewData["Title"] = "Role";
+}
+
+@section Scripts {
+    <bundle-css dir="js/dom-apps" name="resource-summary/index" versioned />
+    <bundle-js dir="js/dom-apps" name="resource-summary" versioned />
+}
+
+@section Breadcrumb {
+    <li class="crumb"><a href="~/Editor/Roles/">Roles</a></li>
+    <li class="crumb">@Model.Role.Name</li>
+}
+
+<h1>Role - @Model.Role.Name</h1>
+
+@if (!string.IsNullOrEmpty(Model.StatusMessage))
+{
+    <div class="alert alert-@Model.StatusType">@Model.StatusMessage</div>
+}
+
+@if (Model.CurrentUser.IsAdmin)
+{
+    <dl>
+        <dt></dt>
+        <dd>
+            <form method="post" asp-page-handler="Delete">
+                @Html.AntiForgeryToken()
+                <button type="button"
+                        class="btn @(Model.CanDelete ? "btn-danger" : "btn-outline-danger")"
+                        disabled="@(!Model.CanDelete)"
+                        title="@(Model.CanDelete ? "Delete role" : "Role cannot be deleted")"
+                        onclick="document.querySelector('#confirmDelete').style.display='inline-block'">
+                    Delete
+                </button>
+                <span id="confirmDelete"
+                      style="display:none">
+                    <button type="button"
+                            class="btn btn-outline-primary"
+                            onclick="document.querySelector('#confirmDelete').style.display='none'">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                            class="btn btn-outline-danger">
+                        Ok
+                    </button>
+                </span>
+            </form>
+        </dd>
+    </dl>
+}
+
+<hr />
+<h2>Users</h2>
+@await Component.InvokeAsync("UserList", new {
+    currentUser=Model.CurrentUser,
+    roleName = Model.Role.Name,
+    resourceName = "Roles"
+})

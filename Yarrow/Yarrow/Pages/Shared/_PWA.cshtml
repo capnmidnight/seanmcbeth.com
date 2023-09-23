@@ -1,0 +1,20 @@
+@{
+    var title = ViewData["Title"] as string;
+    var description = ViewData["Description"] as string;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head prefix="og: http://ogp.me/ns#">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, shrink-to-fit=0, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+
+    <meta name="description" content="@description" />
+    <title>@title</title>
+    <bundle-css name="lato" />
+    <bundle-css name="segoeuiemoji" />
+    @RenderSection("Scripts", false)
+</head>
+<body>
+    @RenderBody()
+</body>
+</html>

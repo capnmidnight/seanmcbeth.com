@@ -1,9 +1,6 @@
+using Juniper.AppShell;
 using Juniper.Services;
 using Juniper.TSBuild;
-using Juniper.AppShell;
-using System.IO;
-
-var here = new DirectoryInfo(Directory.GetCurrentDirectory());
 
 if (BuildOptions.IsBuildCommand(args))
 {
@@ -11,18 +8,23 @@ if (BuildOptions.IsBuildCommand(args))
 }
 else
 {
-    var app = WebApplication.CreateBuilder(args)
+    await WebApplication.CreateBuilder(args)
         .ConfigureJuniperWebApplication()
-        .ConfigureJuniperAppShell<WpfAppShellFactory<WpfAppShell>>()
+        .ConfigureJuniperAppShell<WpfAppShellFactory<WpfAppShell>>(new AppShellOptions { 
+            SplashScreenPath = "splash.html",
+            Window = new()
+            {
+                Title = "Image Viewer",
+                Size = new()
+                {
+                    Width = 1920,
+                    Height =1080
+                }
+            }
+        })
         .AddJuniperBuildSystem<ImageViewer.BuildConfig>()
         .AddJuniperHTTPClient()
         .Build()
-        .ConfigureJuniperRequestPipeline();
-
-    await Task.WhenAll(
-        app.StartAppShellAsync("Image Viewer", "splash.html"),
-        app.BuildAsync()
-    );
-
-    await app.RunAppShellAsync();
+        .ConfigureJuniperRequestPipeline()
+        .BuildAndRunAsync();
 }

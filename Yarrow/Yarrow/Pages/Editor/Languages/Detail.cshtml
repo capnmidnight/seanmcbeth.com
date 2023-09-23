@@ -1,0 +1,109 @@
+@page "{id:int}"
+@model Yarrow.Pages.Editor.Languages.DetailModel
+@{
+    Layout = "_EditorLayout";
+    ViewData["Title"] = "Language Detail";
+}
+
+@section Scripts {
+    <bundle-css dir="js/dom-apps" name="thumbnail-viewer/index" versioned />
+    <bundle-js dir="js/dom-apps" name="thumbnail-viewer" versioned />
+    <bundle-css dir="js/dom-apps" name="resource-detail/index" versioned />
+    <bundle-js dir="js/dom-apps" name="resource-detail" versioned />
+    <bundle-css dir="js/dom-apps" name="resource-summary/index" versioned />
+    <bundle-js dir="js/dom-apps" name="resource-summary" versioned />
+}
+
+@section Breadcrumb {
+    <li class="crumb"><a href="~/Editor/Languages/">Languages</a></li>
+    <li class="crumb">@Model.Language.Name</li>
+}
+
+<h1>Language - @Model.Language.Name</h1>
+
+@if (!string.IsNullOrEmpty(Model.StatusMessage))
+{
+    <div class="alert alert-@Model.StatusType">@Model.StatusMessage</div>
+}
+
+<form method="post" enctype="multipart/form-data" asp-page-handler="Update">
+    <div class="detailSection">
+        <dl>
+            <dt>ID</dt>
+            <dd>
+                <input type="hidden"
+                       name="languageId"
+                       value="@Model.Language.Id" />
+                <input type="text"
+                       class="form-control"
+                       readonly
+                       disabled
+                       value="@Model.Language.Id" />
+            </dd>
+
+            <dt><label for="nameInput">Name</label></dt>
+            <dd>
+                <input type="text"
+                       id="nameInput"
+                       name="name"
+                       class="form-control"
+                       disabled="@(!(Model.CurrentUser.IsAdmin))"
+                       required
+                       placeholder="Language name"
+                       title="Language name"
+                       value="@Model.Language.Name" />
+            </dd>
+
+
+            @if (Model.CurrentUser.IsAdmin)
+            {
+                <dt></dt>
+                <dd>
+                    <button type="button"
+                            id="saveDetailButton"
+                            class="btn btn-danger">
+                        Save
+                    </button>
+                    <button type="button"
+                            id="deleteDetailButton"
+                            class="btn btn-danger"
+                            disabled="@Model.HasScenarios"
+                            title="@(Model.HasScenarios
+                            ? "Language cannot be deleted because it still contains scenarios."
+                            : "Permanently delete the current language.")">
+                        Delete
+                    </button>
+                </dd>
+
+                <dt></dt>
+                <dd>
+                    <div id="saveDetailMessage" class="alert alert-info" style="display:none">
+                        <h3>Save</h3>
+                        <p>
+                            Are you sure you want to save Language - @Model.Language.Name?
+                        </p>
+                        <button type="button" class="btn btn-danger confirm">Yes</button>
+                        <button type="button" class="btn btn-primary cancel">No</button>
+                    </div>
+                    <div id="deleteDetailMessage" class="alert alert-danger" style="display:none">
+                        <h3>Delete</h3>
+                        <p>
+                            Are you sure you want to delete Language - @Model.Language.Name?
+                        </p>
+                        <button type="button" class="btn btn-danger confirm">Yes</button>
+                        <button type="button" class="btn btn-primary cancel">No</button>
+                    </div>
+                </dd>
+            }
+        </dl>
+    </div>
+</form>
+
+<hr />
+<h2>Scenarios</h2>
+@await Component.InvokeAsync("ScenarioList", new {
+    currentUser=Model.CurrentUser,
+    langId = Model.Language.Id,
+    orgId = Model.CurrentUser.VisibleOrganizationID,
+    resourceName = "Languages"
+})

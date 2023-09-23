@@ -1,0 +1,80 @@
+@page "{id:int}"
+@model Yarrow.Pages.Editor.Organizations.DetailModel
+@{
+    Layout = "_EditorLayout";
+    ViewData["Title"] = "Organization";
+}
+
+@section Scripts {
+    <bundle-css dir="js/dom-apps" name="resource-summary/index" versioned />
+    <bundle-js dir="js/dom-apps" name="resource-summary" versioned />
+    <bundle-css dir="js/dom-apps" name="resource-detail/index" versioned />
+    <bundle-js dir="js/dom-apps" name="confirm-button" versioned />
+}
+
+@section Breadcrumb {
+    @if (Model.CurrentUser.IsAdmin)
+    {
+        <li class="crumb"><a href="~/Editor/Organizations/">Organizations</a></li>
+    }
+    else
+    {
+        <li class="crumb">Organization</li>
+    }
+    <li class="crumb">@Model.Organization.Name</li>
+}
+
+<h1>Organization - @Model.Organization.Name</h1>
+
+@if (!string.IsNullOrEmpty(Model.StatusMessage))
+{
+    <div class="alert alert-@Model.StatusType">@Model.StatusMessage</div>
+}
+
+@if (Model.CurrentUser.IsAdmin && Model.Organization.Name != "Anonymous")
+{
+    <dl>
+        <dt></dt>
+        <dd>
+            <form method="post" asp-page-handler="Delete">
+                <button type="button"
+                        class="btn @(Model.CanDelete ? "btn-danger" : "btn-outline-danger") confirm-button deleteButton"
+                        disabled="@(!Model.CanDelete)"
+                        title="@(Model.CanDelete ? "Permanently delete organization." : "Organization cannot be deleted while it still contains users.")"
+                        data-updatemessage="confirmDelete">
+                    Delete
+                </button>
+                <span class="confirmDelete" style="display:none">
+                    <button type="button"
+                            class="btn btn-outline-primary">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                            class="btn btn-outline-danger">
+                        Ok
+                    </button>
+                </span>
+            </form>
+        </dd>
+    </dl>
+}
+
+@if (Model.Organization.Name != "Anonymous")
+{
+    <hr />
+    <h2>Users</h2>
+    @await Component.InvokeAsync("UserList", new {
+        currentUser=Model.CurrentUser,
+        orgId = Model.Organization.Id,
+        resourceName = "Organizations"
+    })
+}
+
+<hr />
+<h2>Scenarios</h2>
+@await Component.InvokeAsync("ScenarioList", new {
+    currentUser=Model.CurrentUser,
+    orgId = Model.Organization.Id,
+    showCreateScenario = false,
+    resourceName = "Organizations"
+})

@@ -1,0 +1,61 @@
+@page "{name?}"
+@model TestModel
+@{
+    Layout = "_EditorLayout";
+    ViewData["Title"] = "Test - " + Model.Name;
+}
+
+@section Breadcrumb {
+    @if (Model.HasTest)
+    {
+        <li class="crumb"><a href="~/Editor/Test">Tests</a></li>
+        <li class="crumb">@Model.Name</li>
+    }
+    else
+    {
+        <li class="crumb">Tests</li>
+    }
+}
+
+@section Scripts {
+    @if (Model.HasTest)
+    {
+        if (Model.IncludeThreeJS)
+        {
+            <bundle-js name="three" versioned />
+        }
+
+        if (Model.IncludeCSS)
+        {
+            <bundle-css dir="js/tests" name="@Model.Name/index" versioned />
+        }
+
+        <bundle-js dir="js/tests" name="@Model.Name" versioned />
+    }
+    else
+    {
+        <style type="text/css">
+            nav > ul > li > a {
+                text-transform: capitalize;
+            }
+        </style>
+    }
+}
+
+@if (Model.HasTest)
+{
+    @Html.AntiForgeryToken()
+}
+else
+{
+    <nav>
+        <ul>
+            <li>Yarrow <a href="~/editor/split?path=/%3Fm=TEST&count=2">2x</a> | <a href="~/editor/split?path=/%3Fm=TEST&count=4">4x</a>
+            <li><hr /></li>
+                @foreach (var name in Model.TestNames)
+                {
+                <li><a href="~/editor/test/@name">@name</a></li>
+                }
+        </ul>
+    </nav>
+}

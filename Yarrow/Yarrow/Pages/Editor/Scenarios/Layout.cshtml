@@ -1,0 +1,28 @@
+@page "{scenarioID:int}"
+@model Yarrow.Pages.Editor.Scenarios.LayoutModel
+@{
+    Layout = "_EditorLayout";
+    ViewData["Title"] = "Scenarios Detail";
+    ViewData["SkipViewport"] = true;
+}
+
+@section Scripts {
+    <bundle-css name="segoeuiemoji" />
+    <bundle-js dir="js/libs" name="three" versioned />
+    <bundle-css dir="js/dom-apps" name="editor/index" versioned />
+    <bundle-js dir="js/dom-apps" name="editor" versioned />
+}
+
+@section Breadcrumb {
+    <li class="crumb"><a href="~/Editor/Scenarios">Scenarios</a></li>
+    <li class="crumb"><a href="~/Editor/Scenarios/Detail/@Model.Scenario.ScenarioGroupId">@Model.Scenario.Name</a></li>
+    <li class="crumb">Edit</li>
+}
+
+<form id="layoutForm" data-lpignore="true" autocomplete="off">
+    @Html.AntiForgeryToken()
+</form>
+
+@section FooterAddendum {
+    - v<span id="yarrowVersion">@Model.AppVersion</span>
+}

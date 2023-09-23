@@ -1,0 +1,200 @@
+@page "{scenarioID:int?}"
+@model Yarrow.Pages.IndexModel
+@{
+    ViewData["Title"] = "DLS VR - Login";
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <bundle-css name="home" versioned />
+    <bundle-css name="yarrow" versioned />
+    <bundle-css dir="js/dom-apps" name="login/index" versioned />
+    <bundle-js dir="js/dom-apps" name="login" versioned />
+}
+
+@section Menu {
+    @if (Model.CurrentUser.CanViewBackend)
+    {
+        <li><a href="~/Editor">Editor</a></li>
+    }
+}
+
+@section PostMain {
+    <section id="appContainer">
+        <canvas id="frontBuffer"></canvas>
+    </section>
+}
+
+@section FooterAddendum {
+                - v<span id="yarrowVersion">@(@Model.AppVersion)</span>
+}
+
+<h1>Virtual Reality<br /> Language Training</h1>
+
+<form>
+    @Html.AntiForgeryToken()
+    <input type="hidden" id="scenarioID" value="@Model.ScenarioID" />
+    <input type="hidden" id="userType" value="@Model.CurrentUser.UserType" />
+
+    <div id="alerts">
+        <div id="audioWarning" class="alert alert-warning" style="display:block">
+            🎧🎙️ This site has a voice chat feature. Voice chat is best experienced using headphones.
+        </div>
+
+        <div id="iOSError" class="alert alert-danger" style="display:none">
+            <img src="~/images/safari-icon.png" alt="Safari icon" />
+            iOS and ipadOS are currently not supported.
+        </div>
+
+        @if (Model.CurrentUser.IsAnonymous)
+        {
+            <div id="loginWarning" class="alert alert-warning" style="display:block">
+                🧑‍🎓 🧑‍🏫 You are not logged in. Please either
+
+                <a asp-area="Identity" asp-page="/Account/RequestAccount">Register a New Account</a>
+
+                or
+
+                <a asp-area="Identity" asp-page="/Account/Login">Login to an Existing Account</a>.
+            </div>
+        }
+        else
+        {
+            <div id="loginWelcom" class="alert alert-info" style="display:block">
+                @(Model.CurrentUser.IsStudent ? "🧑‍🎓" : Model.CurrentUser.IsInstructor ? "🧑‍🏫" : "🧑")
+
+                Welcome back, @Model.CurrentUser.FullName.
+            </div>
+        }
+    </div>
+
+    <section id="selectUserTypeForm">
+        <h2>Join Session as...</h2>
+
+        @if (!Model.CurrentUser.IsInstructor)
+        {
+            <button type="button"
+                id="studentButton"
+                title="Join session as Student"
+                disabled
+                class="btn btn-primary btn-large">
+                Student
+            </button>
+        }
+
+        @if (!Model.CurrentUser.IsStudent)
+        {
+            <button type="button"
+                id="instructorButton"
+                title="Join session as Instructor"
+                disabled
+                class="btn btn-primary btn-large">
+                Instructor
+            </button>
+        }
+
+        <h2 style="margin:10px;">
+            Or...
+        </h2>
+
+        <button type="button"
+                id="exploreButton"
+                disabled
+                class="btn btn-primary btn-large">
+            Explore alone
+        </button>
+    </section>
+
+    <section id="loginForm" style="display:none">
+        <h2 id="joinSessionMessage">Start Session</h2>
+        <div id="userNameGroup" class="form-group span-width">
+            <label for="userName">User Name</label>
+
+            <span id="userNameValidationMessage" class="alert alert-warning"></span>
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <label for="userName" class="input-group-text">
+                        <i class="fa fa-user"></i>
+                    </label>
+                </div>
+                <input type="text"
+                       id="userName"
+                       name="userName"
+                       class="form-control"
+                       placeholder="Enter user name" title="Enter user name"
+                       spellcheck="false"
+                       minlength="2"
+                       autocomplete="on"
+                       required
+                       disabled="@(!Model.CurrentUser.IsAnonymous)"
+                       value="@Model.CurrentUser.DisplayName"
+                       pattern='^[^<>{}"]*$'>
+            </div>
+        </div>
+
+        <div id="meetingIDGroup" class="form-group span-width">
+            <label for="meetingID">Meeting ID</label>
+            <span id="meetingIDValidationMessage" class="alert alert-warning"></span>
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <label for="meetingID" class="input-group-text">
+                        <i class="fa fa-comments"></i>
+                    </label>
+                </div>
+                <input type="text"
+                       id="meetingID"
+                       name="meetingID"
+                       class="form-control"
+                       placeholder="Enter meeting ID" title="Enter meeting ID"
+                       aria-describedby="meetingIDHelpBlock"
+                       spellcheck="false"
+                       autocomplete="off"
+                       required
+                       value="@Model.CurrentUser.RoomName"
+                       pattern="^\w+$">
+            </div>
+        </div>
+
+        <div id="loginControls">
+            <div id="instructorMeetingIDHelpBlock"
+                 class="form-text text-white-50"
+                 style="display:none;text-transform:none">
+                @if (Model.CurrentUser.IsAnonymous)
+                {
+                    <span>
+                        Enter your own Meeting ID: something unique but easy to remember. Share the Meeting ID with your student(s).
+                    </span>
+                }
+                else
+                {
+                    <span>
+                        Visit <a href="/profile"> User Profile</a> to change display name.
+                    </span>
+                }
+            </div>
+            <div id="studentMeetingIDHelpBlock"
+                 class="form-text text-white-50"
+                 style="display:none">
+                @if (Model.CurrentUser.IsAnonymous)
+                {
+                    <span>
+                        Contact your instructor for the Meeting ID.
+                    </span>
+                }
+                else
+                {
+                    <span>
+                        Visit <a href="/profile"> User Profile</a> to change display name.
+                    </span>
+                }
+            </div>
+
+            <button id="connectButton"
+                    type="button"
+                    class="btn btn-primary btn-large"
+                    disabled>
+                Connect
+            </button>
+        </div>
+    </section>
+</form>

@@ -1,0 +1,68 @@
+#logo > img, #mainMenu > button {
+    height: 2em;
+}
+
+.editor.dock.panel {
+    width: 100%;
+    height: 100%;
+}
+
+.editor * {
+    font-family: system-ui, -apple-system, '.SFNSText-Regular', 'San Francisco', 'Segoe UI', 'Ubuntu', 'Roboto', 'Noto Sans' 'Droid Sans', sans-serif;
+    font-size: 10pt;
+}
+
+.editor h1 {
+    font-size: 14pt;
+}
+
+.editor h2 {
+    font-size: 12pt;
+}
+
+.editor h3 {
+    font-size: 10pt;
+}
+
+.editor .dock.cell {
+    border: 1px solid black;
+    border-radius: 5px;
+    background-color: silver;
+}
+
+    .editor .dock.cell > .content {
+        background-color: white;
+        overflow: auto;
+    }
+
+        .editor .dock.cell > .content > .section {
+            grid-area: 1/1/2/2;
+            display: grid;
+        }
+
+        .editor .dock.cell > .content > .tab-panel > .tabs {
+            margin-top: -28px;
+        }
+
+.tip {
+    font-size: 85%;
+    font-style: italic;
+}
+
+    .tip > ul {
+        padding-inline-start: 1em;
+    }
+
+.controls {
+    display: grid;
+    grid-auto-flow: column;
+}
+
+.map {
+    display: grid;
+    grid-template-rows: auto auto 1fr;
+}
+
+#appContainer {
+    position: relative;
+}

@@ -1,0 +1,43 @@
+#menuEditor {
+    display: grid;
+    height: 100%;
+    column-gap: 1em;
+    grid-template-columns: auto 1fr;
+}
+
+.menu-item-view {
+    display: grid;
+    column-gap: 1em;
+    grid-template-columns: auto auto 1fr;
+    grid-template-rows: auto auto auto 1fr;
+    grid-template-areas:
+        "A A A"
+        "B C X"
+        "Y C X";
+}
+
+    .menu-item-view .controls {
+        grid-area: A;
+    }
+
+    .menu-item-view .properties {
+        grid-area: B;
+    }
+
+    .menu-item-view > .properties .preview {
+        max-width: 20em;
+        max-height: 40em;
+    }
+
+    .menu-item-view .preview-file-name {
+        text-align: center;
+    }
+
+    .menu-item-view .preview {
+        grid-area: C;
+    }
+
+        .menu-item-view .preview > canvas {
+            width: 20em;
+            height: 40em;
+        }

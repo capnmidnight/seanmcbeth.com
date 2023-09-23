@@ -1,0 +1,65 @@
+@page
+@model Yarrow.Pages.ProfileModel
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <bundle-css name="home" versioned />
+    <bundle-css dir="js/dom-apps" name="login/index" versioned />
+}
+
+@if (!string.IsNullOrEmpty(Model.StatusMessage))
+{
+    <div class="alert alert-@Model.StatusType" style="display:block;white-space:pre-line">@Model.StatusMessage</div>
+}
+
+<form method="post">
+    <dl>
+        <dt>User name</dt>
+        <dd>@Model.UserProfile.User.UserName</dd>
+
+        <dt>Email</dt>
+        <dd>@Model.UserProfile.User.Email</dd>
+
+        <dt>Organization</dt>
+        <dd>@(Model.UserProfile.Organization?.Name ?? "none")</dd>
+
+        <dt>Current classroom</dt>
+        <dd>@(Model.UserProfile.Room?.Name ?? "none")</dd>
+
+        <dt><label for="fullName">Full name</label></dt>
+        <dd>
+            <input type="text"
+                   id="fullName"
+                   name="fullName"
+                   class="form-control"
+                   placeholder="Enter full name"
+                   title="Your full name should be entered as you would like to be addressed."
+                   spellcheck="false"
+                   minlength="2"
+                   autocomplete="on"
+                   required
+                   pattern='^[^<>{}"]*$'
+                   value="@Model.UserProfile.FullName" />
+        </dd>
+        <dt><label for="displayName">Display name</label></dt>
+        <dd>
+            <input type="text"
+                   id="displayName"
+                   name="displayName"
+                   class="form-control"
+                   placeholder="Enter display name"
+                   title="Your display name appears next to your avatar in the VR view."
+                   spellcheck="false"
+                   minlength="2"
+                   autocomplete="on"
+                   required
+                   pattern='^[^<>{}"]*$'
+                   value="@Model.UserProfile.DisplayName" />
+        </dd>
+    </dl>
+    <button type="submit"
+            class="btn btn-danger">
+        Save changes
+    </button>
+</form>
+<a class="btn btn-primary" href="/">Return home</a>

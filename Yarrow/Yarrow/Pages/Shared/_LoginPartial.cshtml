@@ -1,0 +1,26 @@
+@using Yarrow.Data;
+@inject YarrowContext db;
+@{
+    var currentUser = db.GetCurrentUserWithRoles(User);
+}
+
+@if (currentUser.IsAnonymous)
+{
+    <li>
+        <a asp-area="Identity" asp-page="/Account/RequestAccount">Register</a>
+    </li>
+    <li>
+        <a asp-area="Identity" asp-page="/Account/Login">Login</a>
+    </li>
+}
+else
+{
+    <li>
+        <a href="/Profile" title="View user profile">@currentUser.FullName</a>
+    </li>
+    <li>
+        <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/", new { area = "" })" method="post">
+            <button type="submit" class="btn btn-link">Logout</button>
+        </form>
+    </li>
+}

@@ -1,0 +1,79 @@
+@page
+@model Yarrow.Pages.Editor.Rooms.IndexModel
+@{
+    Layout = "_EditorLayout";
+    ViewData["Title"] = "Rooms";
+}
+
+@section Scripts {
+    <bundle-css dir="js/dom-apps" name="resource-summary/index" versioned />
+    <bundle-js dir="js/dom-apps" name="resource-summary" versioned />
+    <bundle-js dir="js/dom-apps" name="named-object-creator" versioned />
+    <bundle-js dir="js/dom-apps" name="confirm-button" versioned />
+}
+
+@section Breadcrumb {
+    <li class="crumb">Classrooms</li>
+}
+
+<h1>Classrooms</h1>
+
+@if (!string.IsNullOrEmpty(Model.StatusMessage))
+{
+    <div class="alert alert-@Model.StatusType">@Model.StatusMessage</div>
+}
+
+
+<table class="table table-responsive table-hover table-striped summary" data-resourcename="Rooms">
+    <thead>
+        <tr>
+            <th><label for="filterName">Name</label></th>
+            <th><label>User count</label></th>
+            <th><label>Actions</label></th>
+        </tr>
+        <tr>
+            <th>
+                <input type="text" id="filterName" placeholder="Filter by Name" title="Filter by Name" />
+            </th>
+            <th></th>
+            <th>
+                <button type="reset" class="btn btn-secondary">Reset</button>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var room in Model.Rooms)
+        {
+            <tr>
+                <td>@room.Name</td>
+                <td>@room.Users.Count</td>
+                <td><a class="btn btn-primary" href="~/Editor/Rooms/Detail/@room.Id">Detail</a></td>
+            </tr>
+        }
+    </tbody>
+    <tfoot>
+        <tr>
+            <td>
+                <input type="text"
+                       id="newName"
+                       name="Name"
+                       form="createRoom"
+                       required
+                       placeholder="Enter name for new room" title="Enter name for new room" />
+            </td>
+            <td></td>
+            <td>
+                <button type="submit"
+                        id="submitNewNameButton"
+                        form="createRoom"
+                        asp-page-handler="Create"
+                        disabled
+                        class="btn btn-outline-danger">
+                    Create
+                </button>
+            </td>
+        </tr>
+    </tfoot>
+</table>
+<form id="createRoom" method="post" asp-page-handler="Create">
+</form>

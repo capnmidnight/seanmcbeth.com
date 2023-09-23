@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/environment/BaseEnvironment/style.css"],
+  "sourcesContent": ["#appContainer, #frontBuffer {\r\n    position: absolute;\r\n    left: 0;\r\n    top: 0;\r\n    width: 100%;\r\n    height: 100%;\r\n    margin: 0;\r\n    padding: 0;\r\n    border: 0;\r\n}\r\n\r\n#frontBuffer {\r\n    touch-action: none;\r\n}\r\n"],
+  "mappings": ";AAAA;AAAA;AACI;AACA;AACA;AACA;AACA;AACA;AACA;AACA;AAAA;AAGJ;AACI;AAAA;",
+  "names": []
+}
