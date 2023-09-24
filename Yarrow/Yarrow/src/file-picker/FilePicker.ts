@@ -1,13 +1,13 @@
-import { JuniperAudioContext } from "@juniper-lib/audio/context/JuniperAudioContext";
-import { className, id, value } from "@juniper-lib/dom/attrs";
-import { buttonSetEnabled, DataList, Div, elementApply, elementClearChildren, Option } from "@juniper-lib/dom/tags";
-import type { IFetcher } from "@juniper-lib/fetcher/IFetcher";
-import { unwrapResponse } from "@juniper-lib/fetcher/unwrapResponse";
-import { MediaType } from "@juniper-lib/mediatypes";
-import type { Environment } from "@juniper-lib/threejs/environment/Environment";
-import { arrayReplace } from "@juniper-lib/collections/arrays";
-import { DialogBox } from "@juniper-lib/widgets/DialogBox";
-import { TabPanel } from "@juniper-lib/widgets/TabPanel";
+import { JuniperAudioContext } from "@juniper-lib/audio/dist/context/JuniperAudioContext";
+import { className, id, value } from "@juniper-lib/dom/dist/attrs";
+import { buttonSetEnabled, DataList, Div, HtmlRender, elementClearChildren, Option } from "@juniper-lib/dom/dist/tags";
+import type { IFetcher } from "@juniper-lib/fetcher/dist/IFetcher";
+import { unwrapResponse } from "@juniper-lib/fetcher/dist/unwrapResponse";
+import { MediaType } from "@juniper-lib/mediatypes/dist";
+import type { Environment } from "@juniper-lib/threejs/dist/environment/Environment";
+import { arrayReplace } from "@juniper-lib/collections/dist/arrays";
+import { DialogBox } from "@juniper-lib/widgets/dist/DialogBox";
+import { TabPanel } from "@juniper-lib/widgets/dist/TabPanel";
 import type { FileData } from "../vr-apps/yarrow/data";
 import { FilePickerLinkTab } from "./FilePickerLinkTab";
 import { FilePickerSelectTab } from "./FilePickerSelectTab";
@@ -47,7 +47,7 @@ export class FilePicker extends DialogBox {
             this.fetcher,
             audioSys);
 
-        elementApply(this.contentArea,
+        HtmlRender(this.contentArea,
             this.existingTags = DataList(id(EXISTING_TAGS_ID)),
             this.tabs = TabPanel.create(
                 ["upload-file", "Upload new file", this.uploadTab = new FilePickerUploadTab(this.fetcher, EXISTING_TAGS_ID)],

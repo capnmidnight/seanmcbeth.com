@@ -1,5 +1,5 @@
-import { height, left, position, top, width } from "@juniper-lib/dom/css";
-import { Canvas, HtmlRender } from "@juniper-lib/dom/tags";
+import { height, left, position, top, width } from "@juniper-lib/dom/dist/css";
+import { Canvas, HtmlRender } from "@juniper-lib/dom/dist/tags";
 import { JavaScript, Primrose } from "primrose/src";
 
 

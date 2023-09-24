@@ -1,8 +1,8 @@
-import { ID, Query } from "@juniper-lib/dom/attrs";
-import { onInput } from "@juniper-lib/dom/evts";
+import { ID, Query } from "@juniper-lib/dom/dist/attrs";
+import { onInput } from "@juniper-lib/dom/dist/evts";
 import { smallAirplane, smallBlueDiamond } from "@juniper-lib/emoji";
-import { WindowLogger } from "@juniper-lib/testing/WindowLogger";
-import { SelectList, SelectListElement, SelectListItemSelectedEvent, DataAttr, onItemSelected } from "@juniper-lib/widgets/SelectList";
+import { WindowLogger } from "@juniper-lib/testing/dist/WindowLogger";
+import { SelectList, SelectListElement, SelectListItemSelectedEvent, DataAttr, onItemSelected } from "@juniper-lib/widgets/dist/SelectList";
 
 interface Obj {
     id: number;

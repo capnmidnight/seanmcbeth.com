@@ -1,7 +1,7 @@
-import { AssetImage } from "@juniper-lib/fetcher/Asset";
+import { AssetImage } from "@juniper-lib/fetcher/dist/Asset";
 import { Image_Jpeg } from "@juniper-lib/mediatypes";
-import { getRayTarget, RayTarget } from "@juniper-lib/threejs/eventSystem/RayTarget";
-import { Image2D } from "@juniper-lib/threejs/widgets/Image2D";
+import { getRayTarget, RayTarget } from "@juniper-lib/threejs/dist/eventSystem/RayTarget";
+import { Image2D } from "@juniper-lib/threejs/dist/widgets/Image2D";
 import { JavaScript, Primrose } from "primrose/src";
 import { withTestEnvironment } from "../../createTestEnvironment";
 import { isDebug } from "../../isDebug";

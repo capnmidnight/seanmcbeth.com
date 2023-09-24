@@ -1,6 +1,6 @@
-import { onClick } from "@juniper-lib/dom/evts";
-import { ButtonDangerSmall, elementApply } from "@juniper-lib/dom/tags";
-import { TransformMode } from "@juniper-lib/threejs/TransformEditor";
+import { onClick } from "@juniper-lib/dom/dist/evts";
+import { ButtonDangerSmall, HtmlRender } from "@juniper-lib/dom/dist/tags";
+import { TransformMode } from "@juniper-lib/threejs/dist/TransformEditor";
 import { Asset, AssetResetEvent, isConnection, ResetableAsset, ResetableAssetEvents } from "../models";
 import { BaseScenarioObjectView } from "./BaseScenarioObjectView";
 
@@ -17,7 +17,7 @@ export abstract class BaseScenarioResetableObjectView<EventsT, ValueT extends Re
                 onClick(() => this.dispatchEvent(new AssetResetEvent(this.value)))
             )
         );
-        elementApply(
+        HtmlRender(
             this.element
         );
     }

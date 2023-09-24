@@ -1,12 +1,12 @@
-import { arrayReplace, compareBy } from "@juniper-lib/collections/arrays";
-import { ID, Max, Min, Selected, Step, Value } from "@juniper-lib/dom/attrs";
-import { onClick, onInput } from "@juniper-lib/dom/evts";
-import { ButtonDanger, ButtonPrimary, DD, HtmlRender, Img, InputRange, Meter, Option, Pre, Select, TextArea, elementClearChildren, elementGetText, elementSetText, getElements } from "@juniper-lib/dom/tags";
-import { TypedEvent, TypedEventTarget } from "@juniper-lib/events/TypedEventTarget";
-import { debounce } from "@juniper-lib/events/debounce";
-import { CultureDescriptions, LanguageDescriptions } from "@juniper-lib/tslib/Languages";
-import { PropertyList } from "@juniper-lib/widgets/PropertyList";
-import "@juniper-lib/widgets/TabPanel";
+import { arrayReplace, compareBy } from "@juniper-lib/collections/dist/arrays";
+import { ID, Max, Min, Selected, Step, Value } from "@juniper-lib/dom/dist/attrs";
+import { onClick, onInput } from "@juniper-lib/dom/dist/evts";
+import { ButtonDanger, ButtonPrimary, DD, HtmlRender, Img, InputRange, Meter, Option, Pre, Select, TextArea, elementClearChildren, elementGetText, elementSetText, getElements } from "@juniper-lib/dom/dist/tags";
+import { TypedEvent, TypedEventTarget } from "@juniper-lib/events/dist/TypedEventTarget";
+import { debounce } from "@juniper-lib/events/dist/debounce";
+import { CultureDescriptions, LanguageDescriptions } from "@juniper-lib/tslib/dist/Languages";
+import { PropertyList } from "@juniper-lib/widgets/dist/PropertyList";
+import "@juniper-lib/widgets/dist/TabPanel";
 import { CharacterLineElement } from "./CharacterLine";
 import { Models, Viseme, Voice, genderNames } from "./ConversationClient";
 

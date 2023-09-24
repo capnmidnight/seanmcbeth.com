@@ -1,4 +1,4 @@
-import { isString } from "@juniper-lib/tslib/typeChecks";
+import { isString } from "@juniper-lib/tslib/dist/typeChecks";
 
 for (const button of document.querySelectorAll<HTMLButtonElement>("button[type=button].confirm-button")) {
     const warningName = button.dataset.updatemessage;

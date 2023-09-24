@@ -1,7 +1,7 @@
-import { coallesce } from "@juniper-lib/collections/coallesce";
-import { IProgress } from "@juniper-lib/progress/IProgress";
-import { progressSplitWeighted } from "@juniper-lib/progress/progressSplit";
-import { isDefined } from "@juniper-lib/tslib/typeChecks";
+import { coallesce } from "@juniper-lib/collections/dist/coallesce";
+import { IProgress } from "@juniper-lib/progress/dist/IProgress";
+import { progressSplitWeighted } from "@juniper-lib/progress/dist/progressSplit";
+import { isDefined } from "@juniper-lib/tslib/dist/typeChecks";
 import { Audio } from "../../../vr-apps/yarrow/Audio";
 import type { AudioTrackData, FileData, TransformData } from "../../../vr-apps/yarrow/data";
 import { Station } from "../../../vr-apps/yarrow/Station";

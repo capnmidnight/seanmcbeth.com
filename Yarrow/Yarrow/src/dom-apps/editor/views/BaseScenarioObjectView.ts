@@ -1,9 +1,9 @@
-import { classList, className, placeHolder } from "@juniper-lib/dom/attrs";
-import { onClick, onEnterKeyPressed } from "@juniper-lib/dom/evts";
-import { ButtonDangerSmall, Div, elementSetText, InputText, Span } from "@juniper-lib/dom/tags";
-import { IProgress } from "@juniper-lib/progress/IProgress";
-import { isDefined } from "@juniper-lib/tslib/typeChecks";
-import { group } from "@juniper-lib/widgets/PropertyList";
+import { classList, className, placeHolder } from "@juniper-lib/dom/dist/attrs";
+import { onClick, onEnterKeyPressed } from "@juniper-lib/dom/dist/evts";
+import { ButtonDangerSmall, Div, elementSetText, InputText, Span } from "@juniper-lib/dom/dist/tags";
+import { IProgress } from "@juniper-lib/progress/dist/IProgress";
+import { isDefined } from "@juniper-lib/tslib/dist/typeChecks";
+import { group } from "@juniper-lib/widgets/dist/PropertyList";
 import { EditableScenario } from "../EditableScenario";
 import { Asset, AssetDeleteEvent, AssetEvents, AssetRenameEvent, DeletableAsset } from "../models";
 import { BaseScenarioView } from "./BaseScenarioView";

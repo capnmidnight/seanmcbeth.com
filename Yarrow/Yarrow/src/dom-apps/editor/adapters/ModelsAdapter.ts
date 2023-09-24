@@ -1,7 +1,7 @@
-import { coallesce } from "@juniper-lib/collections/coallesce";
-import { deg2rad } from "@juniper-lib/tslib/math";
-import { IProgress } from "@juniper-lib/progress/IProgress";
-import { progressSplitWeighted } from "@juniper-lib/progress/progressSplit";
+import { coallesce } from "@juniper-lib/collections/dist/coallesce";
+import { deg2rad } from "@juniper-lib/tslib/dist/math";
+import { IProgress } from "@juniper-lib/progress/dist/IProgress";
+import { progressSplitWeighted } from "@juniper-lib/progress/dist/progressSplit";
 import type { FileData, ModelData, TransformData } from "../../../vr-apps/yarrow/data";
 import type { Model } from "../../../vr-apps/yarrow/Model";
 import { Station } from "../../../vr-apps/yarrow/Station";

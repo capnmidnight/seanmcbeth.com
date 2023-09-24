@@ -1,4 +1,4 @@
-import { IDataLogger } from "@juniper-lib/tslib/IDataLogger";
+import { IDataLogger } from "@juniper-lib/tslib/dist/IDataLogger";
 
 export class DataLogger implements IDataLogger {
     constructor(public readonly log: (key: string, value?: object) => void) {

@@ -1,6 +1,6 @@
-import { Query } from "@juniper-lib/dom/attrs";
-import { Main } from "@juniper-lib/dom/tags";
-import { SelectBox } from "@juniper-lib/widgets/SelectBox";
+import { Query } from "@juniper-lib/dom/dist/attrs";
+import { Main } from "@juniper-lib/dom/dist/tags";
+import { SelectBox } from "@juniper-lib/widgets/dist/SelectBox";
 
 interface Obj {
     id: number;

@@ -1,6 +1,6 @@
-import { onClick } from "@juniper-lib/dom/evts";
-import { ButtonPrimary, HtmlRender } from "@juniper-lib/dom/tags";
-import { PropertyList } from "@juniper-lib/widgets/PropertyList";
+import { onClick } from "@juniper-lib/dom/dist/evts";
+import { ButtonPrimary, HtmlRender } from "@juniper-lib/dom/dist/tags";
+import { PropertyList } from "@juniper-lib/widgets/dist/PropertyList";
 const [propList1] = PropertyList.find();
 
 HtmlRender("main",

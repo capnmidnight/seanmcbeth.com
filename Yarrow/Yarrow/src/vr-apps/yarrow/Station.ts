@@ -1,5 +1,5 @@
-import { ILatLngPoint } from "@juniper-lib/gis/LatLngPoint";
-import { IProgress } from "@juniper-lib/progress/IProgress";
+import { ILatLngPoint } from "@juniper-lib/gis/dist/LatLngPoint";
+import { IProgress } from "@juniper-lib/progress/dist/IProgress";
 import { BaseScenario } from "./BaseScenario";
 import { StationData } from "./data";
 

@@ -1,7 +1,7 @@
-﻿import { setContextSize } from "@juniper-lib/dom/canvas";
-import { TypedEvent, TypedEventTarget } from "@juniper-lib/events/TypedEventTarget";
-import { xy2i } from "@juniper-lib/tslib/math";
-import { singleton } from "@juniper-lib/tslib/singleton";
+﻿import { setContextSize } from "@juniper-lib/dom/dist/canvas";
+import { TypedEvent, TypedEventTarget } from "@juniper-lib/events/dist/TypedEventTarget";
+import { xy2i } from "@juniper-lib/tslib/dist/math";
+import { singleton } from "@juniper-lib/tslib/dist/singleton";
 
 type ActionTypes = "down" | "move" | "up";
 const actionTypes = singleton("Juniper:Graphics2D:Dirt:StopTypes", () => new Map<string, ActionTypes>([

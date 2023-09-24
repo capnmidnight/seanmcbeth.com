@@ -1,4 +1,4 @@
-import { elementSetClass, getButton, getInput } from "@juniper-lib/dom/tags";
+import { elementSetClass, getButton, getInput } from "@juniper-lib/dom/dist/tags";
 
 const roleNameInput = getInput("#newName");
 const submitButton = getButton("#submitNewNameButton");

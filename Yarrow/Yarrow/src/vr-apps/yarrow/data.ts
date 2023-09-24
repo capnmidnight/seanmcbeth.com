@@ -1,7 +1,7 @@
-import { ILatLngPoint } from "@juniper-lib/gis/LatLngPoint";
-import { specialize } from "@juniper-lib/mediatypes/util";
-import { SphereEncodingName, StereoLayoutName } from "@juniper-lib/threejs/VideoPlayer3D";
-import { isDefined } from "@juniper-lib/tslib/typeChecks";
+import { ILatLngPoint } from "@juniper-lib/gis/dist/LatLngPoint";
+import { specialize } from "@juniper-lib/mediatypes/dist/util";
+import { SphereEncodingName, StereoLayoutName } from "@juniper-lib/threejs/dist/VideoPlayer3D";
+import { isDefined } from "@juniper-lib/tslib/dist/typeChecks";
 
 export interface BaseFileAssetData {
     fileID: number;

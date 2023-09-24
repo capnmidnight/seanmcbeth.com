@@ -24,6 +24,7 @@ namespace SeanMcBeth
             var here = workingDir.GoUpUntil(here => here.CD(ProjectName, "src").Exists)
                 ?? throw new DirectoryNotFoundException("Could not find project root from " + workingDir.FullName);
 
+            var primroseDir = here.CD("Primrose/Primrose.TypeScript");
             var juniperDir = here.CD("Juniper");
             var projectDir = here.CD(ProjectName);
             var nodeModules = projectDir.CD("node_modules");
@@ -77,7 +78,11 @@ namespace SeanMcBeth
                     pathHelper.UIExitAudio.MakeDependency(audioOutput)
                 },
                 OptionalDependencies = CopyMetaFiles("apps", tsInput, jsOutput)
-                    .Union(CopyMetaFiles("tests", tsInput, jsOutput))
+                    .Union(CopyMetaFiles("tests", tsInput, jsOutput)),
+                AdditionalNPMProjects = new[]
+                {
+                    primroseDir
+                } 
             };
 
             pathHelper.AddUITextures(Options, uiImgOUtput);

@@ -1,21 +1,21 @@
 /* eslint-disable no-inner-declarations */
 
-import { buttonSetEnabled, elementSetDisplay, elementSetText, getButton, getCanvas, getElement, getInput } from "@juniper-lib/dom/tags";
-import { assertSuccess } from "@juniper-lib/fetcher/assertSuccess";
-import { unwrapResponse } from "@juniper-lib/fetcher/unwrapResponse";
-import { getUserNumber, hasUserNumber } from "@juniper-lib/testing/userNumber";
-import type { BaseTele } from "@juniper-lib/threejs/BaseTele";
-import { ScreenMode } from "@juniper-lib/threejs/ScreenMode";
-import type { Environment, EnvironmentModule } from "@juniper-lib/threejs/environment/Environment";
-import { URLBuilder } from "@juniper-lib/tslib/URLBuilder";
-import { Task } from "@juniper-lib/events/Task";
-import { WindowQuitEventer } from "@juniper-lib/events/WindowQuitEventer";
-import { all } from "@juniper-lib/events/all";
-import { isIOS, isMobileVR } from "@juniper-lib/tslib/flags";
-import { IProgress } from "@juniper-lib/progress/IProgress";
-import { progressSplit, progressSplitWeighted } from "@juniper-lib/progress/progressSplit";
-import { SetIntervalTimer } from "@juniper-lib/timers/SetIntervalTimer";
-import { isDefined } from "@juniper-lib/tslib/typeChecks";
+import { buttonSetEnabled, elementSetDisplay, elementSetText, getButton, getCanvas, getElement, getInput } from "@juniper-lib/dom/dist/tags";
+import { assertSuccess } from "@juniper-lib/fetcher/dist/assertSuccess";
+import { unwrapResponse } from "@juniper-lib/fetcher/dist/unwrapResponse";
+import { getUserNumber, hasUserNumber } from "@juniper-lib/testing/dist/userNumber";
+import type { BaseTele } from "@juniper-lib/threejs/dist/BaseTele";
+import { ScreenMode } from "@juniper-lib/threejs/dist/ScreenMode";
+import type { Environment, EnvironmentModule } from "@juniper-lib/threejs/dist/environment/Environment";
+import { URLBuilder } from "@juniper-lib/tslib/dist/URLBuilder";
+import { Task } from "@juniper-lib/events/dist/Task";
+import { WindowQuitEventer } from "@juniper-lib/events/dist/WindowQuitEventer";
+import { all } from "@juniper-lib/events/dist/all";
+import { isIOS, isMobileVR } from "@juniper-lib/tslib/dist/flags";
+import { IProgress } from "@juniper-lib/progress/dist/IProgress";
+import { progressSplit, progressSplitWeighted } from "@juniper-lib/progress/dist/progressSplit";
+import { SetIntervalTimer } from "@juniper-lib/timers/dist/SetIntervalTimer";
+import { isDefined } from "@juniper-lib/tslib/dist/typeChecks";
 import { version as threeJSVersion } from "../../../node_modules/three/package.json";
 import { createFetcher } from "../../createFetcher";
 import { isDebug } from "../../isDebug";

@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../../Juniper/src/Juniper.TypeScript/@juniper-lib/widgets/FilterableTable/style.css"],
-  "sourcesContent": ["table.summary > tbody > tr.selected,\r\ntable.summary > tbody > tr.selected > td {\r\n    background-color: rgb(221, 255, 255);\r\n}\r\n\r\ntable.summary > thead > tr > th:not(.multi) .btn,\r\ntable.summary > * > tr > td:not(.multi) .btn {\r\n    width: 100%;\r\n}\r\n\r\n.form-control {\r\n    display: inline-block;\r\n}\r\n\r\n.multi .form-control {\r\n    width: unset;\r\n}\r\n\r\ntable.summary input[required=true]::before,\r\ntable.summary select[required=true]::before {\r\n    content: \"*\";\r\n    color: red;\r\n}"],
-  "mappings": ";AAAA;AAAA;AAEI;AAAA;AAGJ;AAAA;AAEI;AAAA;AAGJ;AACI;AAAA;AAGJ;AACI;AAAA;AAGJ;AAAA;AAEI;AACA;AAAA;",
-  "names": []
-}

@@ -1,8 +1,8 @@
-import { JuniperAudioContext } from "@juniper-lib/audio/context/JuniperAudioContext";
-import { Disabled, Max, Min, Step, Title_attr, Value } from "@juniper-lib/dom/attrs";
-import { isModifierless, onClick, onInput } from "@juniper-lib/dom/evts";
-import { ButtonPrimary, InputRange } from "@juniper-lib/dom/tags";
-import { AudioGraphDialog } from "@juniper-lib/graphics2d/AudioGraphDialog";
+import { JuniperAudioContext } from "@juniper-lib/audio/dist/context/JuniperAudioContext";
+import { Disabled, Max, Min, Step, Title_attr, Value } from "@juniper-lib/dom/dist/attrs";
+import { isModifierless, onClick, onInput } from "@juniper-lib/dom/dist/evts";
+import { ButtonPrimary, InputRange } from "@juniper-lib/dom/dist/tags";
+import { AudioGraphDialog } from "@juniper-lib/graphics2d/dist/AudioGraphDialog";
 
 (async function () {
     const context = new JuniperAudioContext({ latencyHint: "interactive" });

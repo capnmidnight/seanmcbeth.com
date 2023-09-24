@@ -1,10 +1,10 @@
-import { id, list, multiple, value } from "@juniper-lib/dom/attrs";
-import { display, em, gridAutoFlow, perc, width } from "@juniper-lib/dom/css";
-import { makeEnterKeyEventHandler } from "@juniper-lib/dom/evts";
-import { ButtonDanger, ButtonPrimary, Div, elementApply, elementClearChildren, ErsatzElement, InputText, Option, Select } from "@juniper-lib/dom/tags";
-import { arrayReplace, arraySortedInsert } from "@juniper-lib/collections/arrays";
-import { TypedEvent, TypedEventBase } from "@juniper-lib/events/EventBase";
-import { isString } from "@juniper-lib/tslib/typeChecks";
+import { id, list, multiple, value } from "@juniper-lib/dom/dist/attrs";
+import { display, em, gridAutoFlow, perc, width } from "@juniper-lib/dom/dist/css";
+import { makeEnterKeyEventHandler } from "@juniper-lib/dom/dist/evts";
+import { ButtonDanger, ButtonPrimary, Div, HtmlRender, elementClearChildren, ErsatzElement, InputText, Option, Select } from "@juniper-lib/dom/dist/tags";
+import { arrayReplace, arraySortedInsert } from "@juniper-lib/collections/dist/arrays";
+import { TypedEvent, TypedEventBase } from "@juniper-lib/events/dist/EventBase";
+import { isString } from "@juniper-lib/tslib/dist/typeChecks";
 
 export class TagPickerTagsChangedEvent extends TypedEvent<"tagschanged"> {
     constructor(public tags: readonly string[]) {
@@ -78,7 +78,7 @@ export class TagPicker extends TypedEventBase<TagPickerEvents> implements Ersatz
         }
 
 
-        elementApply(this.element,
+        HtmlRender(this.element,
             this.newTagName,
             this.addTagButton,
             this.tagsList,

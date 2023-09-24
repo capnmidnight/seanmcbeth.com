@@ -1,7 +1,7 @@
-import { AutoPlay, Controls, Muted } from "@juniper-lib/dom/attrs";
-import { left, maxHeight, position, top, transform, width } from "@juniper-lib/dom/css";
-import { onClick } from "@juniper-lib/dom/evts";
-import { ButtonPrimary, Video, HtmlRender, elementSetDisplay } from "@juniper-lib/dom/tags";
+import { AutoPlay, Controls, Muted } from "@juniper-lib/dom/dist/attrs";
+import { left, maxHeight, position, top, transform, width } from "@juniper-lib/dom/dist/css";
+import { onClick } from "@juniper-lib/dom/dist/evts";
+import { ButtonPrimary, HtmlRender, Video, elementSetDisplay } from "@juniper-lib/dom/dist/tags";
 
 const camvid = Video(
     position("absolute"),

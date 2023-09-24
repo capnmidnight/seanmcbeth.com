@@ -1,8 +1,8 @@
-import { CanvasTypes } from "@juniper-lib/dom/canvas";
-import { PhotosphereCaptureResolution } from "@juniper-lib/threejs/PhotosphereRig";
-import { IProgress } from "@juniper-lib/progress/IProgress";
-import { FullWorkerClientOptions } from "@juniper-lib/workers/WorkerClientOptions";
-import { WorkerConstructorT, WorkerPool } from "@juniper-lib/workers/WorkerPool";
+import { CanvasTypes } from "@juniper-lib/dom/dist/canvas";
+import { PhotosphereCaptureResolution } from "@juniper-lib/threejs/dist/PhotosphereRig";
+import { IProgress } from "@juniper-lib/progress/dist/IProgress";
+import { FullWorkerClientOptions } from "@juniper-lib/workers/dist/WorkerClientOptions";
+import { WorkerConstructorT, WorkerPool } from "@juniper-lib/workers/dist/WorkerPool";
 import { IPhotosphereRig } from "./StreetViewPhotosphereRig";
 import { StreetViewPhotosphereServiceClient } from "./StreetViewPhotosphereServiceClient";
 

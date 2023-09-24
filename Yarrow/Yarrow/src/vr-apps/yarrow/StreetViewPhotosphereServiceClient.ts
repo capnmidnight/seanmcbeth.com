@@ -1,9 +1,9 @@
-import { CanvasTypes, createCanvasFromImage, createImageFromFile } from "@juniper-lib/dom/canvas";
-import { PhotosphereCaptureResolution } from "@juniper-lib/threejs/PhotosphereRig";
-import { IProgress } from "@juniper-lib/progress/IProgress";
-import { assertNever } from "@juniper-lib/tslib/typeChecks";
-import { WorkerClient } from "@juniper-lib/workers/WorkerClient";
-import { WorkerServerEventMessage } from "@juniper-lib/workers/WorkerMessages";
+import { CanvasTypes, createCanvasFromImage, createImageFromFile } from "@juniper-lib/dom/dist/canvas";
+import { PhotosphereCaptureResolution } from "@juniper-lib/threejs/dist/PhotosphereRig";
+import { IProgress } from "@juniper-lib/progress/dist/IProgress";
+import { assertNever } from "@juniper-lib/tslib/dist/typeChecks";
+import { WorkerClient } from "@juniper-lib/workers/dist/WorkerClient";
+import { WorkerServerEventMessage } from "@juniper-lib/workers/dist/WorkerMessages";
 import { IPhotosphereRig } from "./StreetViewPhotosphereRig";
 
 export class StreetViewPhotosphereServiceClient

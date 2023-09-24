@@ -1,6 +1,6 @@
-import { getButton, getInput } from "@juniper-lib/dom/tags";
-import { makeAction } from "@juniper-lib/widgets/makeAction";
-import { makeAlerts } from "@juniper-lib/widgets/makeAlerts";
+import { getButton, getInput } from "@juniper-lib/dom/dist/tags";
+import { makeAction } from "@juniper-lib/widgets/dist/makeAction";
+import { makeAlerts } from "@juniper-lib/widgets/dist/makeAlerts";
 
 import "./styles.css";
 

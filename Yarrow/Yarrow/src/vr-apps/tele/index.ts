@@ -1,6 +1,6 @@
-import { BaseTele } from "@juniper-lib/threejs/BaseTele";
-import type { Environment } from "@juniper-lib/threejs/environment/Environment";
-import { TeleconferenceManager } from "@juniper-lib/webrtc/TeleconferenceManager";
+import { BaseTele } from "@juniper-lib/threejs/dist/BaseTele";
+import type { Environment } from "@juniper-lib/threejs/dist/environment/Environment";
+import { TeleconferenceManager } from "@juniper-lib/webrtc/dist/TeleconferenceManager";
 import { SignalRHub } from "./SignalRHub";
 
 export default class Tele extends BaseTele {

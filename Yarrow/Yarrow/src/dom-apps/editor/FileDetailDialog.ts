@@ -1,7 +1,7 @@
-import { title } from "@juniper-lib/dom/attrs";
-import { border, em, height, width } from "@juniper-lib/dom/css";
-import { elementApply, elementSetDisplay, elementSetText, IFrame } from "@juniper-lib/dom/tags";
-import { DialogBox } from "@juniper-lib/widgets/DialogBox";
+import { title } from "@juniper-lib/dom/dist/attrs";
+import { border, em, height, width } from "@juniper-lib/dom/dist/css";
+import { HtmlRender, elementSetDisplay, elementSetText, IFrame } from "@juniper-lib/dom/dist/tags";
+import { DialogBox } from "@juniper-lib/widgets/dist/DialogBox";
 
 export class FileDetailDialog extends DialogBox {
     private readonly iframe: HTMLIFrameElement;
@@ -12,7 +12,7 @@ export class FileDetailDialog extends DialogBox {
         elementSetDisplay(this.cancelButton, false);
         elementSetText(this.confirmButton, "Close");
 
-        elementApply(this.contentArea,
+        HtmlRender(this.contentArea,
             this.iframe = IFrame(
                 border("none"),
                 width(em(40)),

@@ -1,5 +1,5 @@
-import type { Environment } from "@juniper-lib/threejs/environment/Environment";
-import { IDataLogger } from "@juniper-lib/tslib/IDataLogger";
+import type { Environment } from "@juniper-lib/threejs/dist/environment/Environment";
+import { IDataLogger } from "@juniper-lib/tslib/dist/IDataLogger";
 import { BaseAssetScenario } from "../../vr-apps/yarrow/AssetScenario";
 import { FullScenarioData } from "../../vr-apps/yarrow/data";
 import { EditableScenario } from "./EditableScenario";

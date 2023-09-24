@@ -1,5 +1,5 @@
-import { HtmlRender, H3 } from "@juniper-lib/dom/tags";
-import { DockCell, DockGroupColumn, DockGroupRow, DockPanel, rearrangeable, resizable } from "@juniper-lib/widgets/DockPanel";
+import { HtmlRender, H3 } from "@juniper-lib/dom/dist/tags";
+import { DockCell, DockGroupColumn, DockGroupRow, DockPanel, rearrangeable, resizable } from "@juniper-lib/widgets/dist/DockPanel";
 
 import "./styles.css";
 

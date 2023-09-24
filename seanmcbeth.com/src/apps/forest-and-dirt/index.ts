@@ -1,15 +1,15 @@
-﻿import { AssetImage, AssetWorker } from "@juniper-lib/fetcher/Asset";
+﻿import { dispose } from "@juniper-lib/dom/dist/canvas";
+import { AssetImage, AssetWorker } from "@juniper-lib/fetcher/dist/Asset";
 import { Image_Jpeg } from "@juniper-lib/mediatypes";
-import type { Pointer3DEvent } from "@juniper-lib/threejs/eventSystem/devices/Pointer3DEvent";
-import { RayTarget } from "@juniper-lib/threejs/eventSystem/RayTarget";
-import { mesh } from "@juniper-lib/threejs/objects";
+import { RayTarget } from "@juniper-lib/threejs/dist/eventSystem/RayTarget";
+import type { Pointer3DEvent } from "@juniper-lib/threejs/dist/eventSystem/devices/Pointer3DEvent";
+import { mesh } from "@juniper-lib/threejs/dist/objects";
 import { FrontSide, LinearFilter, LinearMipmapLinearFilter, MeshPhongMaterial, PlaneGeometry, Texture } from "three";
 import { withTestEnvironment } from "../../createTestEnvironment";
 import { Forest } from "../../forest/Forest";
-import { isDebug, JS_EXT } from "../../isDebug";
+import { JS_EXT, isDebug } from "../../isDebug";
 import { version } from "../../settings";
 import { DirtWorkerClient } from "../../workers/dirt/DirtWorkerClient";
-import { dispose } from "@juniper-lib/dom/canvas";
 
 const S = 5;
 const R = 200;

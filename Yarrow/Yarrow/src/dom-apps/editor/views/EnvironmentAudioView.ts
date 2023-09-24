@@ -1,20 +1,20 @@
-import { effectStore } from "@juniper-lib/audio/effects";
-import { classList, max, min, placeHolder, step, value } from "@juniper-lib/dom/attrs";
-import { Context2D, createUtilityCanvas } from "@juniper-lib/dom/canvas";
-import { deg, hsla, perc } from "@juniper-lib/dom/css";
-import { onInput } from "@juniper-lib/dom/evts";
-import { elementApply, elementSetText, InputCheckbox, InputNumber, Option, Run, Select } from "@juniper-lib/dom/tags";
-import { g2y } from "@juniper-lib/google-maps/conversion";
-import { Audio_Mpeg, Audio_Webm } from "@juniper-lib/mediatypes";
-import { TransformMode } from "@juniper-lib/threejs/TransformEditor";
-import { LatLngPoint } from "@juniper-lib/gis/LatLngPoint";
-import { formatNumber, parseNumber, Tau } from "@juniper-lib/tslib/math";
-import { IProgress } from "@juniper-lib/progress/IProgress";
-import { isDefined, isNullOrUndefined } from "@juniper-lib/tslib/typeChecks";
-import { meters2Millimeters, millimeters2Meters } from "@juniper-lib/tslib/units/length";
-import { percent2Ratio, ratio2Percent } from "@juniper-lib/tslib/units/unitless";
-import { GroupPanel } from "@juniper-lib/widgets/GroupPanel";
-import { InputRangeWithNumber } from "@juniper-lib/widgets/InputRangeWithNumber";
+import { effectStore } from "@juniper-lib/audio/dist/effects";
+import { classList, max, min, placeHolder, step, value } from "@juniper-lib/dom/dist/attrs";
+import { Context2D, createUtilityCanvas } from "@juniper-lib/dom/dist/canvas";
+import { deg, hsla, perc } from "@juniper-lib/dom/dist/css";
+import { onInput } from "@juniper-lib/dom/dist/evts";
+import { HtmlRender, elementSetText, InputCheckbox, InputNumber, Option, Run, Select } from "@juniper-lib/dom/dist/tags";
+import { g2y } from "@juniper-lib/google/dist-maps/conversion";
+import { Audio_Mpeg, Audio_Webm } from "@juniper-lib/mediatypes/dist";
+import { TransformMode } from "@juniper-lib/threejs/dist/TransformEditor";
+import { LatLngPoint } from "@juniper-lib/gis/dist/LatLngPoint";
+import { formatNumber, parseNumber, Tau } from "@juniper-lib/tslib/dist/math";
+import { IProgress } from "@juniper-lib/progress/dist/IProgress";
+import { isDefined, isNullOrUndefined } from "@juniper-lib/tslib/dist/typeChecks";
+import { meters2Millimeters, millimeters2Meters } from "@juniper-lib/tslib/dist/units/length";
+import { percent2Ratio, ratio2Percent } from "@juniper-lib/tslib/dist/units/unitless";
+import { GroupPanel } from "@juniper-lib/widgets/dist/GroupPanel";
+import { InputRangeWithNumber } from "@juniper-lib/widgets/dist/InputRangeWithNumber";
 import { FilePicker } from "../../../file-picker/FilePicker";
 import type { Audio } from "../../../vr-apps/yarrow/Audio";
 import { FileData, Zone } from "../../../vr-apps/yarrow/data";
@@ -128,7 +128,7 @@ export class EnvironmentAudioView
             ]
         );
 
-        elementApply(this.effectInput,
+        HtmlRender(this.effectInput,
             Option("NONE"),
             ...Array.from(effectStore
                 .keys())

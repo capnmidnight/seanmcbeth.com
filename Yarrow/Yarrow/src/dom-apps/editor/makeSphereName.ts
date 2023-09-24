@@ -1,4 +1,4 @@
-import { globeShowingAmericas, questionMark, star } from "@juniper-lib/emoji";
+import { globeShowingAmericas, questionMark, star } from "@juniper-lib/emoji/dist";
 import type { PhotosphereMetadata, StationData } from "../../vr-apps/yarrow/data";
 import { EditableScenario } from "./EditableScenario";
 

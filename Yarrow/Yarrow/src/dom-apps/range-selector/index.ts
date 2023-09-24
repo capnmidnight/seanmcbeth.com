@@ -1,6 +1,6 @@
-import { elementSetClass, getInputs } from "@juniper-lib/dom/tags";
-import { PriorityList } from "@juniper-lib/collections/PriorityList";
-import { isDefined, isNullOrUndefined } from "@juniper-lib/tslib/typeChecks";
+import { elementSetClass, getInputs } from "@juniper-lib/dom/dist/tags";
+import { PriorityList } from "@juniper-lib/collections/dist/PriorityList";
+import { isDefined, isNullOrUndefined } from "@juniper-lib/tslib/dist/typeChecks";
 
 
 const starters = new PriorityList<string, HTMLInputElement>();

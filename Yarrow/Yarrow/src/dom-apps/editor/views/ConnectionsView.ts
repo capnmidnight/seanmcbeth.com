@@ -1,10 +1,10 @@
-import { columnGap, px } from "@juniper-lib/dom/css";
-import { onClick } from "@juniper-lib/dom/evts";
-import { ButtonSecondarySmall, elementSetText, Run } from "@juniper-lib/dom/tags";
-import { TypedEvent } from "@juniper-lib/events/EventBase";
-import { Task } from "@juniper-lib/events/Task";
-import { isNullOrUndefined } from "@juniper-lib/tslib/typeChecks";
-import { GroupPanel } from "@juniper-lib/widgets/GroupPanel";
+import { columnGap, px } from "@juniper-lib/dom/dist/css";
+import { onClick } from "@juniper-lib/dom/dist/evts";
+import { ButtonSecondarySmall, elementSetText, Run } from "@juniper-lib/dom/dist/tags";
+import { TypedEvent } from "@juniper-lib/events/dist/EventBase";
+import { Task } from "@juniper-lib/events/dist/Task";
+import { isNullOrUndefined } from "@juniper-lib/tslib/dist/typeChecks";
+import { GroupPanel } from "@juniper-lib/widgets/dist/GroupPanel";
 import type { StationConnectionData } from "../../../vr-apps/yarrow/data";
 import { Station } from "../../../vr-apps/yarrow/Station";
 import { AssetDeleteEvent, AssetResetEvent, AssetSelectedEvent } from "../models";

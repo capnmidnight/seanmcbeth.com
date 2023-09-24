@@ -1,8 +1,8 @@
-import { Controls, Disabled, Muted, Src, SrcObject } from "@juniper-lib/dom/attrs";
-import { onClick } from "@juniper-lib/dom/evts";
-import { onUserGesture } from "@juniper-lib/dom/onUserGesture";
-import { Audio, ButtonPrimary, Div, HtmlRender } from "@juniper-lib/dom/tags";
-import { once } from "@juniper-lib/events/once";
+import { Controls, Disabled, Muted, Src, SrcObject } from "@juniper-lib/dom/dist/attrs";
+import { onClick } from "@juniper-lib/dom/dist/evts";
+import { onUserGesture } from "@juniper-lib/dom/dist/onUserGesture";
+import { Audio, ButtonPrimary, Div, HtmlRender } from "@juniper-lib/dom/dist/tags";
+import { once } from "@juniper-lib/events/dist/once";
 
 (async function () {
     const context = new AudioContext();

@@ -1,7 +1,7 @@
-import { onClick } from "@juniper-lib/dom/evts";
-import { ButtonPrimary, buttonSetEnabled, elementApply, elementClearChildren, elementSetClass, elementSetText, Run } from "@juniper-lib/dom/tags";
-import { TypedEvent } from "@juniper-lib/events/EventBase";
-import { isDefined } from "@juniper-lib/tslib/typeChecks";
+import { onClick } from "@juniper-lib/dom/dist/evts";
+import { ButtonPrimary, buttonSetEnabled, HtmlRender, elementClearChildren, elementSetClass, elementSetText, Run } from "@juniper-lib/dom/dist/tags";
+import { TypedEvent } from "@juniper-lib/events/dist/EventBase";
+import { isDefined } from "@juniper-lib/tslib/dist/typeChecks";
 import { EditableScenario } from "../EditableScenario";
 import { BaseScenarioView } from "./BaseScenarioView";
 
@@ -106,7 +106,7 @@ export class ScenarioView extends BaseScenarioView<{
             elementSetText(this.nameBox, this.scenario.name);
             elementSetText(this.versionBox, this.scenario.version.toFixed(0));
             elementSetText(this.isPublishedBox, this.scenario.published ? "Yes" : "No");
-            elementApply(this.previousVersionsBox,
+            HtmlRender(this.previousVersionsBox,
                 ...this.scenario.versions
                     .filter(v => v.version !== this.scenario.version)
                     .map(v => ButtonPrimary(

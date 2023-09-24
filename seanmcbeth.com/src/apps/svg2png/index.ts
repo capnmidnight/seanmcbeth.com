@@ -1,16 +1,16 @@
-import { ID, Query, Src } from "@juniper-lib/dom/attrs";
-import { canvasToBlob, setContextSize } from "@juniper-lib/dom/canvas";
-import { onClick, onDragOver, onDrop, onInput } from "@juniper-lib/dom/evts";
-import "@juniper-lib/dom/fileSystemAPIPolyfill";
-import { Button, Canvas, Form, Img, Input, Span, TextArea, buttonSetEnabled } from "@juniper-lib/dom/tags";
-import { once } from "@juniper-lib/events/once";
+import { ID, Query, Src } from "@juniper-lib/dom/dist/attrs";
+import { canvasToBlob, setContextSize } from "@juniper-lib/dom/dist/canvas";
+import { onClick, onDragOver, onDrop, onInput } from "@juniper-lib/dom/dist/evts";
+import "@juniper-lib/dom/dist/fileSystemAPIPolyfill";
+import { Button, Canvas, Form, Img, Input, Span, TextArea, buttonSetEnabled } from "@juniper-lib/dom/dist/tags";
+import { once } from "@juniper-lib/events/dist/once";
 import { Image_Jpeg, Image_Png, Image_SvgXml, MediaType } from "@juniper-lib/mediatypes";
-import { centimeters2Inches, inches2Centimeters } from "@juniper-lib/tslib/units/length";
-import { PropertyList } from "@juniper-lib/widgets/PropertyList";
-import { LabelField, SelectList, SelectedItem, DataAttr } from "@juniper-lib/widgets/SelectList";
-import "@juniper-lib/widgets/TabPanel";
+import { centimeters2Inches, inches2Centimeters } from "@juniper-lib/tslib/dist/units/length";
+import { PropertyList } from "@juniper-lib/widgets/dist/PropertyList";
+import { DataAttr, LabelField, SelectList, SelectedItem } from "@juniper-lib/widgets/dist/SelectList";
+import "@juniper-lib/widgets/dist/TabPanel";
+import { TabPanel, onTabSelected } from "@juniper-lib/widgets/dist/TabPanel";
 import "./index.css";
-import { TabPanel, onTabSelected } from "@juniper-lib/widgets/TabPanel";
 
 type UnitsSystem = "metric" | "us-customary";
 const unitsLabels = new Map<UnitsSystem, string>([

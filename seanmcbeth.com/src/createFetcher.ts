@@ -1,9 +1,9 @@
-﻿import { Fetcher } from "@juniper-lib/fetcher/Fetcher";
-import { FetchingService } from "@juniper-lib/fetcher/FetchingService";
-import { FetchingServiceImplXHR } from "@juniper-lib/fetcher/FetchingServiceImplXHR";
-import { FetchingServicePool } from "@juniper-lib/fetcher/FetchingServicePool";
-import type { IFetcher } from "@juniper-lib/fetcher/IFetcher";
-import { IFetchingService } from "@juniper-lib/fetcher/IFetchingService";
+﻿import { Fetcher } from "@juniper-lib/fetcher/dist/Fetcher";
+import { FetchingService } from "@juniper-lib/fetcher/dist/FetchingService";
+import { FetchingServiceImplXHR } from "@juniper-lib/fetcher/dist/FetchingServiceImplXHR";
+import { FetchingServicePool } from "@juniper-lib/fetcher/dist/FetchingServicePool";
+import type { IFetcher } from "@juniper-lib/fetcher/dist/IFetcher";
+import { IFetchingService } from "@juniper-lib/fetcher/dist/IFetchingService";
 import { isDebug, JS_EXT } from "./isDebug";
 import { version } from "./settings";
 

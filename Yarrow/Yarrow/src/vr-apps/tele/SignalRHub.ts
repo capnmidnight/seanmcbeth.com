@@ -1,5 +1,5 @@
-import { TypedEventBase } from "@juniper-lib/events/EventBase";
-import { ConnectionState } from "@juniper-lib/webrtc/ConnectionState";
+import { TypedEventBase } from "@juniper-lib/events/dist/EventBase";
+import { ConnectionState } from "@juniper-lib/webrtc/dist/ConnectionState";
 import {
     HubAnswerReceivedEvent,
     HubCloseEvent,
@@ -12,7 +12,7 @@ import {
     HubUserLeftEvent,
     IHub,
     IHubEvents
-} from "@juniper-lib/webrtc/IHub";
+} from "@juniper-lib/webrtc/dist/IHub";
 import {
     HttpTransportType,
     HubConnection,

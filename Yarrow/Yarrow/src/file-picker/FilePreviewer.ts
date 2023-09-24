@@ -1,31 +1,31 @@
-import { JuniperAudioContext } from "@juniper-lib/audio/context/JuniperAudioContext";
-import { AudioPlayer } from "@juniper-lib/audio/sources/AudioPlayer";
-import { NoSpatializer } from "@juniper-lib/audio/spatializers/NoSpatializer";
-import { classList, controls, src } from "@juniper-lib/dom/attrs";
-import { canvasToBlob } from "@juniper-lib/dom/canvas";
+import { JuniperAudioContext } from "@juniper-lib/audio/dist/context/JuniperAudioContext";
+import { AudioPlayer } from "@juniper-lib/audio/dist/sources/AudioPlayer";
+import { NoSpatializer } from "@juniper-lib/audio/dist/spatializers/NoSpatializer";
+import { classList, controls, src } from "@juniper-lib/dom/dist/attrs";
+import { canvasToBlob } from "@juniper-lib/dom/dist/canvas";
 import {
     Audio, Div,
-    elementApply,
+    HtmlRender,
     elementClearChildren, Elements, ErsatzElement, H2,
     IFrame,
     Img,
     resolveElement, TextArea,
     Video
-} from "@juniper-lib/dom/tags";
-import type { IFetcher } from "@juniper-lib/fetcher/IFetcher";
-import { unwrapResponse } from "@juniper-lib/fetcher/unwrapResponse";
-import { PDFImage } from "@juniper-lib/graphics2d/PDFImage";
-import { Application_Javascript, Application_Json, Application_Pdf, Application_X_Url, Image_Png, Text_Html } from "@juniper-lib/mediatypes";
-import { MediaTypeDB } from "@juniper-lib/mediatypes/db";
-import { create } from "@juniper-lib/mediatypes/util";
-import type { Environment } from "@juniper-lib/threejs/environment/Environment";
-import { blobToObjectURL } from "@juniper-lib/tslib/blobToObjectURL";
-import { isDefined, isNullOrUndefined } from "@juniper-lib/tslib/typeChecks";
-import { formatBytes } from "@juniper-lib/tslib/units/fileSize";
-import { VideoPlayer } from "@juniper-lib/video/VideoPlayer";
-import { YouTubeProxy } from "@juniper-lib/video/YouTubeProxy";
-import { YTMetadata } from "@juniper-lib/video/yt-dlp";
-import { registerThumbnails } from "@juniper-lib/widgets/registerThumbnails";
+} from "@juniper-lib/dom/dist/tags";
+import type { IFetcher } from "@juniper-lib/fetcher/dist/IFetcher";
+import { unwrapResponse } from "@juniper-lib/fetcher/dist/unwrapResponse";
+import { PDFImage } from "@juniper-lib/graphics2d/dist/PDFImage";
+import { Application_Javascript, Application_Json, Application_Pdf, Application_X_Url, Image_Png, Text_Html } from "@juniper-lib/mediatypes/dist";
+import { MediaTypeDB } from "@juniper-lib/mediatypes/dist/db";
+import { create } from "@juniper-lib/mediatypes/dist/util";
+import type { Environment } from "@juniper-lib/threejs/dist/environment/Environment";
+import { blobToObjectURL } from "@juniper-lib/tslib/dist/blobToObjectURL";
+import { isDefined, isNullOrUndefined } from "@juniper-lib/tslib/dist/typeChecks";
+import { formatBytes } from "@juniper-lib/tslib/dist/units/fileSize";
+import { VideoPlayer } from "@juniper-lib/video/dist/VideoPlayer";
+import { YouTubeProxy } from "@juniper-lib/video/dist/YouTubeProxy";
+import { YTMetadata } from "@juniper-lib/video/dist/yt-dlp";
+import { registerThumbnails } from "@juniper-lib/widgets/dist/registerThumbnails";
 import { getScriptUrl } from "../settings";
 import { FileData, Video_Vnd_DlsDc_YtDlp_Json } from "../vr-apps/yarrow/data";
 import { makeProxyURL } from "../vr-apps/yarrow/proxy";
@@ -230,10 +230,10 @@ export class FilePreviewer
 
         this._hasFile = element.tagName !== "DIV";
         elementClearChildren(this);
-        elementApply(this,
+        HtmlRender(this,
             H2(name),
             Div(size && `${type}: ${formatBytes(size)}` || ''),
-            elementApply(element,
+            HtmlRender(element,
                 classList(...classes)
             )
         );

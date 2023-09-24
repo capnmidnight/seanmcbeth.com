@@ -1,7 +1,7 @@
-import type { IFetcher } from "@juniper-lib/fetcher/IFetcher";
-import { IResponse } from "@juniper-lib/fetcher/IResponse";
-import { translateResponse } from "@juniper-lib/fetcher/translateResponse";
-import type { IProgress } from "@juniper-lib/progress/IProgress";
+import type { IFetcher } from "@juniper-lib/fetcher/dist/IFetcher";
+import { IResponse } from "@juniper-lib/fetcher/dist/IResponse";
+import { translateResponse } from "@juniper-lib/fetcher/dist/translateResponse";
+import type { IProgress } from "@juniper-lib/progress/dist/IProgress";
 import type { PhotosphereMetadata } from "../../vr-apps/yarrow/data";
 
 export class GSVMetadata {

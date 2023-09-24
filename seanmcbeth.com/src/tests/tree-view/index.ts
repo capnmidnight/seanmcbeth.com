@@ -1,8 +1,8 @@
-import { ID, Query } from "@juniper-lib/dom/attrs";
-import { height, left, position, right, top, width } from "@juniper-lib/dom/css";
-import { Main, Nav } from "@juniper-lib/dom/tags";
-import { identity } from "@juniper-lib/tslib/identity";
-import { TreeView } from "@juniper-lib/widgets/TreeView";
+import { ID, Query } from "@juniper-lib/dom/dist/attrs";
+import { height, left, position, right, top, width } from "@juniper-lib/dom/dist/css";
+import { Main, Nav } from "@juniper-lib/dom/dist/tags";
+import { identity } from "@juniper-lib/tslib/dist/identity";
+import { TreeView } from "@juniper-lib/widgets/dist/TreeView";
 
 const values = new Array<number>();
 for (let i = 0; i < 0xff; ++i) {

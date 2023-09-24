@@ -1,4 +1,4 @@
-import { buttonSetEnabled, elementSetClass, getButton, getInput } from "@juniper-lib/dom/tags";
+import { buttonSetEnabled, elementSetClass, getButton, getInput } from "@juniper-lib/dom/dist/tags";
 
 const userNameInput = getInput("#newUserName");
 const userEmailInput = getInput("#newUserEmail");

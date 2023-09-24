@@ -1,6 +1,6 @@
-import { cancelTag, framedPicture, globeShowingAmericas, joystick, megaphone, memo, scroll, speakerHighVolume, upArrow, videoCamera, wastebasket, worldMap } from "@juniper-lib/emoji";
-import { TypedEvent } from "@juniper-lib/events/EventBase";
-import { assertNever, isDefined, isNullOrUndefined, isString } from "@juniper-lib/tslib/typeChecks";
+import { cancelTag, framedPicture, globeShowingAmericas, joystick, megaphone, memo, scroll, speakerHighVolume, upArrow, videoCamera, wastebasket, worldMap } from "@juniper-lib/emoji/dist";
+import { TypedEvent } from "@juniper-lib/events/dist/EventBase";
+import { assertNever, isDefined, isNullOrUndefined, isString } from "@juniper-lib/tslib/dist/typeChecks";
 import { Audio } from "../../vr-apps/yarrow/Audio";
 import { StationConnectionData, Zone } from "../../vr-apps/yarrow/data";
 import { Model } from "../../vr-apps/yarrow/Model";

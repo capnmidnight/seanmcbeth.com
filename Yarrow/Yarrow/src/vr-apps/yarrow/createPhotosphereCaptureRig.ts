@@ -1,10 +1,10 @@
-import { CancelToken } from "@juniper-lib/events/CancelToken";
-import { IFetcher } from "@juniper-lib/fetcher/IFetcher";
-import { unwrapResponse } from "@juniper-lib/fetcher/unwrapResponse";
-import { Application_Javascript } from "@juniper-lib/mediatypes";
-import { Exception } from "@juniper-lib/tslib/Exception";
-import { isFirefox } from "@juniper-lib/tslib/flags";
-import { isBoolean } from "@juniper-lib/tslib/typeChecks";
+import { CancelToken } from "@juniper-lib/events/dist/CancelToken";
+import { IFetcher } from "@juniper-lib/fetcher/dist/IFetcher";
+import { unwrapResponse } from "@juniper-lib/fetcher/dist/unwrapResponse";
+import { Application_Javascript } from "@juniper-lib/mediatypes/dist";
+import { Exception } from "@juniper-lib/tslib/dist/Exception";
+import { isFirefox } from "@juniper-lib/tslib/dist/flags";
+import { isBoolean } from "@juniper-lib/tslib/dist/typeChecks";
 import { createFetcher } from "../../createFetcher";
 import { getLibScriptUrl, getWorkerUrl } from "../../settings";
 import { IPhotosphereRig, StreetViewPhotosphereRig } from "./StreetViewPhotosphereRig";

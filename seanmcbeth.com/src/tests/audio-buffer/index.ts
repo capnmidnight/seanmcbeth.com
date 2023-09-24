@@ -1,12 +1,12 @@
-import { JuniperAudioBufferSourceNode } from "@juniper-lib/audio/context/JuniperAudioBufferSourceNode";
-import { JuniperAudioContext } from "@juniper-lib/audio/context/JuniperAudioContext";
-import { Value } from "@juniper-lib/dom/attrs";
-import { isModifierless } from "@juniper-lib/dom/evts";
-import { Progress } from "@juniper-lib/dom/tags";
-import { unwrapResponse } from "@juniper-lib/fetcher/unwrapResponse";
-import { AudioGraphDialog } from "@juniper-lib/graphics2d/AudioGraphDialog";
+import { JuniperAudioBufferSourceNode } from "@juniper-lib/audio/dist/context/JuniperAudioBufferSourceNode";
+import { JuniperAudioContext } from "@juniper-lib/audio/dist/context/JuniperAudioContext";
+import { Value } from "@juniper-lib/dom/dist/attrs";
+import { isModifierless } from "@juniper-lib/dom/dist/evts";
+import { Progress } from "@juniper-lib/dom/dist/tags";
+import { unwrapResponse } from "@juniper-lib/fetcher/dist/unwrapResponse";
+import { AudioGraphDialog } from "@juniper-lib/graphics2d/dist/AudioGraphDialog";
 import { Audio_Mpeg } from "@juniper-lib/mediatypes";
-import { progressHTML } from "@juniper-lib/widgets/progressHTML";
+import { progressHTML } from "@juniper-lib/widgets/dist/progressHTML";
 import { createFetcher } from "../../createFetcher";
 import { tilReady } from "../../createTestEnvironment";
 

@@ -1,7 +1,6 @@
-﻿import { JuniperAudioContext } from "@juniper-lib/audio/context/JuniperAudioContext";
-import { arrayRandom } from "@juniper-lib/collections/arrays";
-import { CustomElement } from "@juniper-lib/dom/CustomElement";
-import { ClassList, ID } from "@juniper-lib/dom/attrs";
+﻿import { JuniperAudioContext } from "@juniper-lib/audio/dist/context/JuniperAudioContext";
+import { arrayRandom } from "@juniper-lib/collections/dist/arrays";
+import { ClassList, ID } from "@juniper-lib/dom/dist/attrs";
 import {
     backgroundColor,
     backgroundImage,
@@ -9,10 +8,10 @@ import {
     borderWidth,
     boxShadow, color, deg, display, fontFamily, fontSize, fontWeight, getMonospaceFamily, height, left, overflow, padding, perc, position,
     px, rotate, rule, scale, textTransform, top, transform, width, zIndex
-} from "@juniper-lib/dom/css";
-import { onClick, onMouseOut, onTouchStart } from "@juniper-lib/dom/evts";
-import { Button, Div, HtmlRender, P, Span, StyleBlob, getElement } from "@juniper-lib/dom/tags";
-import { EventTargetMixin } from "@juniper-lib/events/EventTarget";
+} from "@juniper-lib/dom/dist/css";
+import { onClick, onMouseOut, onTouchStart } from "@juniper-lib/dom/dist/evts";
+import { Button, Div, HtmlRender, P, Span, StyleBlob, getElement } from "@juniper-lib/dom/dist/tags";
+import { EventTargetMixin } from "@juniper-lib/events/dist/EventTarget";
 
 import "./index.css";
 
@@ -214,7 +213,6 @@ const faceStyle = StyleBlob(
 
 function Face() { return document.createElement("yabs-face") as FaceElement; }
 
-@CustomElement("yabs-face")
 class FaceElement extends HTMLElement implements GameObject {
     private element: HTMLElement;
     private boop: HTMLElement;
@@ -399,6 +397,8 @@ class FaceElement extends HTMLElement implements GameObject {
     }
 }
 
+customElements.define("yabs-face", HTMLElement);
+
 const cloudStyle = StyleBlob(
     rule(":host, .cloud-bit",
         position("absolute")
@@ -417,7 +417,6 @@ const cloudStyle = StyleBlob(
 
 function Cloud() { return document.createElement("yabs-cloud") as CloudElement; }
 
-@CustomElement("yabs-cloud")
 class CloudElement extends HTMLElement implements GameObject {
     x: number;
     private y: number;
@@ -502,6 +501,8 @@ class CloudElement extends HTMLElement implements GameObject {
     }
 }
 
+customElements.define("yabs-cloud", CloudElement);
+
 const beamStyle = StyleBlob(
     rule(":host, .subBeam",
         position("absolute"),
@@ -526,7 +527,6 @@ const beamStyle = StyleBlob(
 
 function Beam() { return document.createElement("yabs-beam") as BeamElement; }
 
-@CustomElement("yabs-beam")
 class BeamElement extends HTMLElement implements GameObject {
     private subBeam: HTMLElement;
     x = 0;
@@ -735,6 +735,7 @@ class BeamElement extends HTMLElement implements GameObject {
     }
 }
 
+customElements.define("yabs-beam", BeamElement);
 
 for (let i = 0; i < 88; ++i) {
     const gn = audio.createGain();

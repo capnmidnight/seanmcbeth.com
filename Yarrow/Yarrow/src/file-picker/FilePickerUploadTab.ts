@@ -1,21 +1,21 @@
-import { id, name, required } from "@juniper-lib/dom/attrs";
+import { id, name, required } from "@juniper-lib/dom/dist/attrs";
 import {
     Div,
-    elementApply,
+    HtmlRender,
     elementClearChildren, ErsatzElement, InputDate,
     InputFile,
     InputText
-} from "@juniper-lib/dom/tags";
-import { IFetcher } from "@juniper-lib/fetcher/IFetcher";
-import { unwrapResponse } from "@juniper-lib/fetcher/unwrapResponse";
-import { MediaType } from "@juniper-lib/mediatypes";
-import { MediaTypeDB } from "@juniper-lib/mediatypes/db";
-import { TypedEventBase } from "@juniper-lib/events/EventBase";
-import { RefreshEvent } from "@juniper-lib/events/RefreshEvent";
-import { isDefined, isNullOrUndefined } from "@juniper-lib/tslib/typeChecks";
-import { BootstrapProgressBar, BootstrapProgressBarElement } from "@juniper-lib/widgets/BootstrapProgressBar";
-import { FileUploadInput } from "@juniper-lib/widgets/FileUploadInput";
-import { PropertyList } from "@juniper-lib/widgets/PropertyList";
+} from "@juniper-lib/dom/dist/tags";
+import { IFetcher } from "@juniper-lib/fetcher/dist/IFetcher";
+import { unwrapResponse } from "@juniper-lib/fetcher/dist/unwrapResponse";
+import { MediaType } from "@juniper-lib/mediatypes/dist";
+import { MediaTypeDB } from "@juniper-lib/mediatypes/dist/db";
+import { TypedEventBase } from "@juniper-lib/events/dist/EventBase";
+import { RefreshEvent } from "@juniper-lib/events/dist/RefreshEvent";
+import { isDefined, isNullOrUndefined } from "@juniper-lib/tslib/dist/typeChecks";
+import { BootstrapProgressBar, BootstrapProgressBarElement } from "@juniper-lib/widgets/dist/BootstrapProgressBar";
+import { FileUploadInput } from "@juniper-lib/widgets/dist/FileUploadInput";
+import { PropertyList } from "@juniper-lib/widgets/dist/PropertyList";
 import { FileData } from "../vr-apps/yarrow/data";
 import { FileSelectedEvent } from "./FilePickerEvents";
 import { TagPicker } from "./TagPicker";
@@ -106,7 +106,7 @@ export class FilePickerUploadTab
     }
 
     private addMessage(msg: string) {
-        elementApply(this.selectionMessage, Div(msg));
+        HtmlRender(this.selectionMessage, Div(msg));
     }
 
     refresh() {

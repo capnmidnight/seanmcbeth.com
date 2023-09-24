@@ -1,6 +1,6 @@
-import { touchAction } from "@juniper-lib/dom/css";
-import { onPointerCancel, onPointerDown, onPointerEnter, onPointerLeave, onPointerMove, onPointerOut } from "@juniper-lib/dom/evts";
-import { Div, HtmlRender, elementSetText } from "@juniper-lib/dom/tags";
+import { touchAction } from "@juniper-lib/dom/dist/css";
+import { onPointerCancel, onPointerDown, onPointerEnter, onPointerLeave, onPointerMove, onPointerOut } from "@juniper-lib/dom/dist/evts";
+import { Div, HtmlRender, elementSetText } from "@juniper-lib/dom/dist/tags";
 
 HtmlRender(document.body,
     touchAction("none"),

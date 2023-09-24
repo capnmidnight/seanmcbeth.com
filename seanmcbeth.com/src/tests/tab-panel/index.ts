@@ -1,1 +1,1 @@
-import "@juniper-lib/widgets/TabPanel";
+import "@juniper-lib/widgets/dist/TabPanel";

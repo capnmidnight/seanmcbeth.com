@@ -1,14 +1,14 @@
-import { className, src, title } from "@juniper-lib/dom/attrs";
-import { onClick } from "@juniper-lib/dom/evts";
+import { className, src, title } from "@juniper-lib/dom/dist/attrs";
+import { onClick } from "@juniper-lib/dom/dist/evts";
 import {
     ButtonPrimarySmall,
     Div,
-    elementApply,
+    HtmlRender,
     elementClearChildren,
     elementSetDisplay,
     Img
-} from "@juniper-lib/dom/tags";
-import { DialogBox } from "@juniper-lib/widgets/DialogBox";
+} from "@juniper-lib/dom/dist/tags";
+import { DialogBox } from "@juniper-lib/widgets/dist/DialogBox";
 
 import "./PlaceResultsDialog.css";
 
@@ -22,7 +22,7 @@ export class PlaceResultsDialog extends DialogBox {
 
         elementSetDisplay(this.confirmButton, false);
 
-        elementApply(this.contentArea,
+        HtmlRender(this.contentArea,
             Div(
                 className("table"),
                 Div(
@@ -53,7 +53,7 @@ export class PlaceResultsDialog extends DialogBox {
     async selectResult(results: google.maps.places.PlaceResult[]): Promise<google.maps.places.PlaceResult> {
         let selection: google.maps.places.PlaceResult = null;
         elementClearChildren(this.results);
-        elementApply(this.results, ...results.map(r =>
+        HtmlRender(this.results, ...results.map(r =>
             Div(className("table-row"),
                 Div(className("table-cell"),
                     Img(className("thumbnail"),

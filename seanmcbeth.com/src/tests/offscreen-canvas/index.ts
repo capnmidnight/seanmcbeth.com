@@ -1,6 +1,6 @@
 ﻿import { Application_Javascript } from "@juniper-lib/mediatypes";
-import { cleanup } from "@juniper-lib/threejs/cleanup";
-import { hasWebXR } from "@juniper-lib/tslib/flags";
+import { cleanup } from "@juniper-lib/threejs/dist/cleanup";
+import { hasWebXR } from "@juniper-lib/tslib/dist/flags";
 import { Float32BufferAttribute, Mesh, MeshBasicMaterial, PlaneGeometry, Texture } from "three";
 import { withTestEnvironment } from "../../createTestEnvironment";
 import Environment from "../../environment";

@@ -1,10 +1,10 @@
-import { className } from "@juniper-lib/dom/attrs";
-import { fr } from "@juniper-lib/dom/css";
-import { Div, elementInsertBefore, Elements } from "@juniper-lib/dom/tags";
-import { isDefined } from "@juniper-lib/tslib/typeChecks";
-import { Property, PropertyList } from "@juniper-lib/widgets/PropertyList";
-import { ScrollPanel } from "@juniper-lib/widgets/ScrollPanel";
-import { TipBox } from "@juniper-lib/widgets/TipBox";
+import { className } from "@juniper-lib/dom/dist/attrs";
+import { fr } from "@juniper-lib/dom/dist/css";
+import { Div, elementInsertBefore, Elements } from "@juniper-lib/dom/dist/tags";
+import { isDefined } from "@juniper-lib/tslib/dist/typeChecks";
+import { Property, PropertyList } from "@juniper-lib/widgets/dist/PropertyList";
+import { ScrollPanel } from "@juniper-lib/widgets/dist/ScrollPanel";
+import { TipBox } from "@juniper-lib/widgets/dist/TipBox";
 import { EditableScenario } from "../EditableScenario";
 import { Asset } from "../models";
 import { BaseEditorView } from "./BaseEditorView";

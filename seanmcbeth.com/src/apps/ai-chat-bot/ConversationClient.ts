@@ -1,10 +1,10 @@
-import { arrayInsertAt, arrayReplace, compareBy } from "@juniper-lib/collections/arrays";
-import { IFetcher } from "@juniper-lib/fetcher/IFetcher";
-import { IResponse } from "@juniper-lib/fetcher/IResponse";
-import { translateResponse } from "@juniper-lib/fetcher/translateResponse";
-import { unwrapResponse } from "@juniper-lib/fetcher/unwrapResponse";
+import { arrayInsertAt, arrayReplace, compareBy } from "@juniper-lib/collections/dist/arrays";
+import { IFetcher } from "@juniper-lib/fetcher/dist/IFetcher";
+import { IResponse } from "@juniper-lib/fetcher/dist/IResponse";
+import { translateResponse } from "@juniper-lib/fetcher/dist/translateResponse";
+import { unwrapResponse } from "@juniper-lib/fetcher/dist/unwrapResponse";
 import { Application_JsonUTF8 } from "@juniper-lib/mediatypes";
-import * as allAudioTypes from "@juniper-lib/mediatypes/audio";
+import * as allAudioTypes from "@juniper-lib/mediatypes/dist/audio";
 
 export interface Voice {
     gender: 0 | 1 | 2;

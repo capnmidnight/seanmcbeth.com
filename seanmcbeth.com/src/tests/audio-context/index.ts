@@ -1,7 +1,7 @@
-import { JuniperAudioContext } from "@juniper-lib/audio/context/JuniperAudioContext";
-import { JuniperOscillatorNode } from "@juniper-lib/audio/context/JuniperOscillatorNode";
-import { isModifierless } from "@juniper-lib/dom/evts";
-import { AudioGraphDialog } from "@juniper-lib/graphics2d/AudioGraphDialog";
+import { JuniperAudioContext } from "@juniper-lib/audio/dist/context/JuniperAudioContext";
+import { JuniperOscillatorNode } from "@juniper-lib/audio/dist/context/JuniperOscillatorNode";
+import { isModifierless } from "@juniper-lib/dom/dist/evts";
+import { AudioGraphDialog } from "@juniper-lib/graphics2d/dist/AudioGraphDialog";
 import { tilReady } from "../../createTestEnvironment";
 
 (async function () {

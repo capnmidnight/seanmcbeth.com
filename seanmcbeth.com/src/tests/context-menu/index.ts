@@ -1,8 +1,8 @@
-import { backgroundColor, border, color, margin, padding, width } from "@juniper-lib/dom/css";
-import { onContextMenu } from "@juniper-lib/dom/evts";
-import { Div, HtmlRender, HR, Span } from "@juniper-lib/dom/tags";
-import { isDefined } from "@juniper-lib/tslib/typeChecks";
-import { ContextMenu } from "@juniper-lib/widgets/ContextMenu";
+import { backgroundColor, border, color, margin, padding, width } from "@juniper-lib/dom/dist/css";
+import { onContextMenu } from "@juniper-lib/dom/dist/evts";
+import { Div, HtmlRender, HR, Span } from "@juniper-lib/dom/dist/tags";
+import { isDefined } from "@juniper-lib/tslib/dist/typeChecks";
+import { ContextMenu } from "@juniper-lib/widgets/dist/ContextMenu";
 
 type Options =
     | "red"

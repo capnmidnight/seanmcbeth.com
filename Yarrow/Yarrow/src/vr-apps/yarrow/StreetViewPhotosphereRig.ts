@@ -1,7 +1,7 @@
-import { CanvasTypes, createCanvasFromImage, createImageFromFile } from "@juniper-lib/dom/canvas";
-import { IFetcher } from "@juniper-lib/fetcher/IFetcher";
-import { PhotosphereCaptureResolution, PhotosphereRig } from "@juniper-lib/threejs/PhotosphereRig";
-import { IProgress } from "@juniper-lib/progress/IProgress";
+import { CanvasTypes, createCanvasFromImage, createImageFromFile } from "@juniper-lib/dom/dist/canvas";
+import { IFetcher } from "@juniper-lib/fetcher/dist/IFetcher";
+import { PhotosphereCaptureResolution, PhotosphereRig } from "@juniper-lib/threejs/dist/PhotosphereRig";
+import { IProgress } from "@juniper-lib/progress/dist/IProgress";
 
 function getStreetViewImagePath(pano: string, fovDegrees: number, headingDegrees: number, pitchDegrees: number) {
     return `/Editor/Google/StreetView/Image/${pano}/${fovDegrees}/${headingDegrees}/${pitchDegrees}/`;

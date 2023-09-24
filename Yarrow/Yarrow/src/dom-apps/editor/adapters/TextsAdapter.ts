@@ -1,8 +1,8 @@
-import { coallesce } from "@juniper-lib/collections/coallesce";
-import { deg2rad } from "@juniper-lib/tslib/math";
-import { IProgress } from "@juniper-lib/progress/IProgress";
-import { progressSplitWeighted } from "@juniper-lib/progress/progressSplit";
-import { inches2Meters } from "@juniper-lib/tslib/units/length";
+import { coallesce } from "@juniper-lib/collections/dist/coallesce";
+import { deg2rad } from "@juniper-lib/tslib/dist/math";
+import { IProgress } from "@juniper-lib/progress/dist/IProgress";
+import { progressSplitWeighted } from "@juniper-lib/progress/dist/progressSplit";
+import { inches2Meters } from "@juniper-lib/tslib/dist/units/length";
 import { DEMO_PPI } from "../../../settings";
 import type { FileData, TextData, TransformData } from "../../../vr-apps/yarrow/data";
 import { Station } from "../../../vr-apps/yarrow/Station";

@@ -1,9 +1,9 @@
-import { JuniperAudioContext } from "@juniper-lib/audio/context/JuniperAudioContext";
-import { autoComplete, classList, className, customData, placeHolder, title, value, wrap } from "@juniper-lib/dom/attrs";
-import { resizeContext } from "@juniper-lib/dom/canvas";
-import { px } from "@juniper-lib/dom/css";
-import { onClick, onInput } from "@juniper-lib/dom/evts";
-import { loadFont } from "@juniper-lib/dom/fonts";
+import { JuniperAudioContext } from "@juniper-lib/audio/dist/context/JuniperAudioContext";
+import { autoComplete, classList, className, customData, placeHolder, title, value, wrap } from "@juniper-lib/dom/dist/attrs";
+import { resizeContext } from "@juniper-lib/dom/dist/canvas";
+import { px } from "@juniper-lib/dom/dist/css";
+import { onClick, onInput } from "@juniper-lib/dom/dist/evts";
+import { loadFont } from "@juniper-lib/dom/dist/fonts";
 import {
     ButtonDanger,
     ButtonPrimary, buttonSetEnabled, Canvas, Div, elementSetClass,
@@ -13,19 +13,19 @@ import {
     H2,
     Img, InputText, Option,
     Select, TextArea
-} from "@juniper-lib/dom/tags";
-import { lightBulb, warning } from "@juniper-lib/emoji";
-import type { IFetcher } from "@juniper-lib/fetcher/IFetcher";
-import { unwrapResponse } from "@juniper-lib/fetcher/unwrapResponse";
-import { TextImage } from "@juniper-lib/graphics2d/TextImage";
-import { Image_Jpeg, Image_Png } from "@juniper-lib/mediatypes";
-import { TreeNode } from "@juniper-lib/collections/TreeNode";
-import { TypedEvent } from "@juniper-lib/events/EventBase";
-import { stringRandom } from "@juniper-lib/tslib/strings/stringRandom";
-import { isDefined } from "@juniper-lib/tslib/typeChecks";
-import { formatBytes } from "@juniper-lib/tslib/units/fileSize";
-import { FilterableTable } from "@juniper-lib/widgets/FilterableTable";
-import { group, PropertyList } from "@juniper-lib/widgets/PropertyList";
+} from "@juniper-lib/dom/dist/tags";
+import { lightBulb, warning } from "@juniper-lib/emoji/dist";
+import type { IFetcher } from "@juniper-lib/fetcher/dist/IFetcher";
+import { unwrapResponse } from "@juniper-lib/fetcher/dist/unwrapResponse";
+import { TextImage } from "@juniper-lib/graphics2d/dist/TextImage";
+import { Image_Jpeg, Image_Png } from "@juniper-lib/mediatypes/dist";
+import { TreeNode } from "@juniper-lib/collections/dist/TreeNode";
+import { TypedEvent } from "@juniper-lib/events/dist/EventBase";
+import { stringRandom } from "@juniper-lib/tslib/dist/strings/stringRandom";
+import { isDefined } from "@juniper-lib/tslib/dist/typeChecks";
+import { formatBytes } from "@juniper-lib/tslib/dist/units/fileSize";
+import { FilterableTable } from "@juniper-lib/widgets/dist/FilterableTable";
+import { group, PropertyList } from "@juniper-lib/widgets/dist/PropertyList";
 import { FilePicker } from "../../file-picker/FilePicker";
 import { menu } from "../../settings";
 import { MenuItemData, ScenarioGroupData } from "../../vr-apps/yarrow/data";

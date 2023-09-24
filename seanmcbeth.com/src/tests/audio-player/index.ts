@@ -1,5 +1,5 @@
-import { objGraph } from "@juniper-lib/threejs/objects";
-import { PlaybackButton } from "@juniper-lib/threejs/widgets/PlaybackButton";
+import { objGraph } from "@juniper-lib/threejs/dist/objects";
+import { PlaybackButton } from "@juniper-lib/threejs/dist/widgets/PlaybackButton";
 import { withTestEnvironment } from "../../createTestEnvironment";
 
 withTestEnvironment(async env => {

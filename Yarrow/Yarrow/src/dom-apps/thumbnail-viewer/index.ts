@@ -1,3 +1,3 @@
-import { registerThumbnails } from "@juniper-lib/widgets/registerThumbnails";
+import { registerThumbnails } from "@juniper-lib/widgets/dist/registerThumbnails";
 
 registerThumbnails();

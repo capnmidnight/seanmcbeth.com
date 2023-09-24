@@ -1,6 +1,6 @@
-import { JuniperAudioContext } from "@juniper-lib/audio/context/JuniperAudioContext";
-import { getButton, getElement, getInput, getSelect } from "@juniper-lib/dom/tags";
-import { FileUploadInput } from "@juniper-lib/widgets/FileUploadInput";
+import { JuniperAudioContext } from "@juniper-lib/audio/dist/context/JuniperAudioContext";
+import { getButton, getElement, getInput, getSelect } from "@juniper-lib/dom/dist/tags";
+import { FileUploadInput } from "@juniper-lib/widgets/dist/FileUploadInput";
 import { createFetcher } from "../../createFetcher";
 import { FilePreviewer } from "../../file-picker/FilePreviewer";
 import type { TagPickerTagsChangedEvent } from "../../file-picker/TagPicker";

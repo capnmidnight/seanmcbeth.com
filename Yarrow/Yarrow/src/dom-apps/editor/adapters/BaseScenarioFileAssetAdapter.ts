@@ -1,10 +1,10 @@
-import { unwrapResponse } from "@juniper-lib/fetcher/unwrapResponse";
-import { arrayRemove } from "@juniper-lib/collections/arrays";
-import { PriorityList } from "@juniper-lib/collections/PriorityList";
-import { TypedEvent, TypedEventBase } from "@juniper-lib/events/EventBase";
-import { IProgress } from "@juniper-lib/progress/IProgress";
-import { isDefined } from "@juniper-lib/tslib/typeChecks";
-import { IDisposable } from "@juniper-lib/tslib/using";
+import { unwrapResponse } from "@juniper-lib/fetcher/dist/unwrapResponse";
+import { arrayRemove } from "@juniper-lib/collections/dist/arrays";
+import { PriorityList } from "@juniper-lib/collections/dist/PriorityList";
+import { TypedEvent, TypedEventBase } from "@juniper-lib/events/dist/EventBase";
+import { IProgress } from "@juniper-lib/progress/dist/IProgress";
+import { isDefined } from "@juniper-lib/tslib/dist/typeChecks";
+import { IDisposable } from "@juniper-lib/tslib/dist/using";
 import { BaseScenarioFileAssetData, FileData, TransformData } from "../../../vr-apps/yarrow/data";
 import { Station } from "../../../vr-apps/yarrow/Station";
 import { Transform } from "../../../vr-apps/yarrow/Transform";

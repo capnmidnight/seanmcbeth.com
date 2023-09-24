@@ -1,8 +1,8 @@
-import { unwrapResponse } from "@juniper-lib/fetcher/unwrapResponse";
-import { PhotosphereCaptureResolution } from "@juniper-lib/threejs/PhotosphereRig";
-import { arrayRandom } from "@juniper-lib/collections/arrays";
-import { IProgress } from "@juniper-lib/progress/IProgress";
-import { progressTasks } from "@juniper-lib/progress/progressTasks";
+import { unwrapResponse } from "@juniper-lib/fetcher/dist/unwrapResponse";
+import { PhotosphereCaptureResolution } from "@juniper-lib/threejs/dist/PhotosphereRig";
+import { arrayRandom } from "@juniper-lib/collections/dist/arrays";
+import { IProgress } from "@juniper-lib/progress/dist/IProgress";
+import { progressTasks } from "@juniper-lib/progress/dist/progressTasks";
 import { createTestEnvironment } from "../../createTestEnvironment";
 import { createPhotosphereCaptureRig } from "../../vr-apps/yarrow/createPhotosphereCaptureRig";
 import { PhotosphereMetadata } from "../../vr-apps/yarrow/data";

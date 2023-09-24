@@ -1,5 +1,5 @@
-﻿import { Environment } from "@juniper-lib/threejs/environment/Environment";
-import { obj } from "@juniper-lib/threejs/objects";
+﻿import { Environment } from "@juniper-lib/threejs/dist/environment/Environment";
+import { obj } from "@juniper-lib/threejs/dist/objects";
 import { CanvasTexture, Color, DoubleSide, InstancedMesh, MeshBasicMaterial, PlaneGeometry } from "three";
 
 export function makeGrass(env: Environment, spatter: HTMLImageElement | HTMLCanvasElement | HTMLVideoElement | ImageBitmap): void {

@@ -1,13 +1,40 @@
-import { ClassList, Disabled, HtmlAttr, Src } from "@juniper-lib/dom/attrs";
-import { backgroundColor, border, borderColor, borderRadius, borderStyle, borderWidth, cursor, display, marginTop, position, px, right, rule, top, verticalAlign } from "@juniper-lib/dom/css";
-import { onClick, onPause, onPlaying } from "@juniper-lib/dom/evts";
-import { Audio, ButtonSmall, HtmlRender, Span, StyleBlob, elementSetText } from "@juniper-lib/dom/tags";
+import { ClassList, Disabled, HtmlAttr, Src } from "@juniper-lib/dom/dist/attrs";
+import { backgroundColor, border, borderColor, borderRadius, borderStyle, borderWidth, cursor, display, marginTop, position, px, right, rule, top, verticalAlign } from "@juniper-lib/dom/dist/css";
+import { onClick, onPause, onPlaying } from "@juniper-lib/dom/dist/evts";
+import { Audio, ButtonSmall, HtmlRender, Span, StyleBlob, elementSetText } from "@juniper-lib/dom/dist/tags";
 import { crossMark, pauseButton, playButton } from "@juniper-lib/emoji";
-import { ITypedEventTarget, TypedEvent, TypedEventListenerOrEventListenerObject } from "@juniper-lib/events/TypedEventTarget";
-import { blobToObjectURL } from "@juniper-lib/tslib/blobToObjectURL";
+import { ITypedEventTarget, TypedEvent, TypedEventListenerOrEventListenerObject } from "@juniper-lib/events/dist/TypedEventTarget";
+import { blobToObjectURL } from "@juniper-lib/tslib/dist/blobToObjectURL";
 import { ConversationLine } from "./ConversationClient";
-import { CustomElement } from "@juniper-lib/dom/CustomElement";
-import { EventTargetMixin } from "@juniper-lib/events/EventTarget";
+import { EventTargetMixin } from "@juniper-lib/events/dist/EventTarget";
+
+function splitTime(time: number, showHours: boolean) {
+    const hours = Math.floor(time / 3600);
+    const minutes = Math.floor((time - hours * 3600) / 60);
+    const seconds = time - hours * 3600 - minutes * 60;
+
+    let hoursSt = hours.toString();
+    let minutesSt = minutes.toString();
+    let secondsSt = seconds.toFixed(3);
+
+    if (hours < 10) {
+        hoursSt = "0" + hoursSt;
+    }
+    if (minutes < 10) {
+        minutesSt = "0" + minutesSt;
+    }
+    if (seconds < 10) {
+        secondsSt = "0" + secondsSt;
+    }
+
+    const parts = new Array<string>();
+    if (showHours) {
+        parts.push(hoursSt);
+    }
+
+    parts.push(minutesSt, secondsSt);
+    return parts.join(":");
+}
 
 function CharacterName(value: string) { return new HtmlAttr("name", value, false, "character-line"); }
 function CharacterAutoPlay(value: boolean) { return new HtmlAttr("autoplay", value, false, "character-line"); }
@@ -63,7 +90,6 @@ export function CharacterLine(name: string, autoplay: boolean) {
     ) as CharacterLineElement;
 }
 
-@CustomElement("character-line")
 export class CharacterLineElement extends HTMLElement implements ITypedEventTarget<CharacterLineElementEvents> {
     private _error: string = null;
     private _text: string = null;
@@ -232,30 +258,4 @@ export class CharacterLineElement extends HTMLElement implements ITypedEventTarg
     }
 }
 
-function splitTime(time: number, showHours: boolean) {
-    const hours = Math.floor(time / 3600);
-    const minutes = Math.floor((time - hours * 3600) / 60);
-    const seconds = time - hours * 3600 - minutes * 60;
-
-    let hoursSt = hours.toString();
-    let minutesSt = minutes.toString();
-    let secondsSt = seconds.toFixed(3);
-
-    if (hours < 10) {
-        hoursSt = "0" + hoursSt;
-    }
-    if (minutes < 10) {
-        minutesSt = "0" + minutesSt;
-    }
-    if (seconds < 10) {
-        secondsSt = "0" + secondsSt;
-    }
-
-    const parts = new Array<string>();
-    if (showHours) {
-        parts.push(hoursSt);
-    }
-
-    parts.push(minutesSt, secondsSt);
-    return parts.join(":");
-}
+customElements.define("character-line", CharacterLineElement);

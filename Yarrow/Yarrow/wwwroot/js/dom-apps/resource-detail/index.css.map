@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../../Yarrow.TypeScript/src/dom-apps/resource-detail/styles.css"],
-  "sourcesContent": ["dl {\r\n    display: grid;\r\n    grid-template-columns: auto auto 1fr;\r\n}\r\n\r\ndt {\r\n    grid-column: 1/2;\r\n    padding: 0 1em 0 2em;\r\n}\r\n\r\ndd {\r\n    grid-column: 2/3;\r\n}\r\n\r\n.fileList > tfoot td {\r\n    text-align: right;\r\n}\r\n\r\n    .fileList > tfoot td * {\r\n        margin: 0 0.5em;\r\n    }\r\n\r\n\r\n.thumbnail {\r\n    max-width: 20em;\r\n    max-height: 15em;\r\n}\r\n"],
-  "mappings": ";AAAA;AACI;AACA;AAAA;AAGJ;AACI;AACA;AAAA;AAGJ;AACI;AAAA;AAGJ;AACI;AAAA;AAGA;AACI;AAAA;AAIR;AACI;AACA;AAAA;",
-  "names": []
-}

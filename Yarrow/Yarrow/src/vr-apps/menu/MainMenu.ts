@@ -1,24 +1,24 @@
-import { CanvasImageTypes } from "@juniper-lib/dom/canvas";
-import { elementApply } from "@juniper-lib/dom/tags";
-import { unwrapResponse } from "@juniper-lib/fetcher/unwrapResponse";
-import { cleanup } from "@juniper-lib/threejs/cleanup";
-import { Application, ApplicationEvents } from "@juniper-lib/threejs/environment/Application";
-import type { Environment } from "@juniper-lib/threejs/environment/Environment";
-import { Menu, MenuDescription, MenuItemDescription } from "@juniper-lib/threejs/menu/Menu";
-import { objGraph } from "@juniper-lib/threejs/objects";
-import { ButtonImageWidget } from "@juniper-lib/threejs/widgets/ButtonImageWidget";
-import { Image2D } from "@juniper-lib/threejs/widgets/Image2D";
-import { widgetSetEnabled } from "@juniper-lib/threejs/widgets/widgets";
-import { PriorityList } from "@juniper-lib/collections/PriorityList";
-import { TreeNode, buildTree } from "@juniper-lib/collections/TreeNode";
-import { makeLookup } from "@juniper-lib/collections/makeLookup";
-import { TypedEvent } from "@juniper-lib/events/EventBase";
-import { IProgress } from "@juniper-lib/progress/IProgress";
-import { progressOfArray } from "@juniper-lib/progress/progressOfArray";
-import { progressSplitWeighted } from "@juniper-lib/progress/progressSplit";
-import { progressTasksWeighted } from "@juniper-lib/progress/progressTasks";
-import { isDefined, isNullOrUndefined } from "@juniper-lib/tslib/typeChecks";
-import { dispose } from "@juniper-lib/tslib/using";
+import { CanvasImageTypes } from "@juniper-lib/dom/dist/canvas";
+import { HtmlRender } from "@juniper-lib/dom/dist/tags";
+import { unwrapResponse } from "@juniper-lib/fetcher/dist/unwrapResponse";
+import { cleanup } from "@juniper-lib/threejs/dist/cleanup";
+import { Application, ApplicationEvents } from "@juniper-lib/threejs/dist/environment/Application";
+import type { Environment } from "@juniper-lib/threejs/dist/environment/Environment";
+import { Menu, MenuDescription, MenuItemDescription } from "@juniper-lib/threejs/dist/menu/Menu";
+import { objGraph } from "@juniper-lib/threejs/dist/objects";
+import { ButtonImageWidget } from "@juniper-lib/threejs/dist/widgets/ButtonImageWidget";
+import { Image2D } from "@juniper-lib/threejs/dist/widgets/Image2D";
+import { widgetSetEnabled } from "@juniper-lib/threejs/dist/widgets/widgets";
+import { PriorityList } from "@juniper-lib/collections/dist/PriorityList";
+import { TreeNode, buildTree } from "@juniper-lib/collections/dist/TreeNode";
+import { makeLookup } from "@juniper-lib/collections/dist/makeLookup";
+import { TypedEvent } from "@juniper-lib/events/dist/EventBase";
+import { IProgress } from "@juniper-lib/progress/dist/IProgress";
+import { progressOfArray } from "@juniper-lib/progress/dist/progressOfArray";
+import { progressSplitWeighted } from "@juniper-lib/progress/dist/progressSplit";
+import { progressTasksWeighted } from "@juniper-lib/progress/dist/progressTasks";
+import { isDefined, isNullOrUndefined } from "@juniper-lib/tslib/dist/typeChecks";
+import { dispose } from "@juniper-lib/tslib/dist/using";
 import { MenuItemData } from "../yarrow/data";
 
 type Node = TreeNode<MenuItemData>;
@@ -88,7 +88,7 @@ export class MainMenu extends Application<MainMenuEvents> {
 
         objGraph(this.env.worldUISpace, this.menu);
         this.env.xrUI.addItem(this.lobbyButton, { x: 1, y: 1, scale: 0.5 });
-        elementApply(this.env.screenUISpace.topRight, this.lobbyButton);
+        HtmlRender(this.env.screenUISpace.topRight, this.lobbyButton);
     }
 
     private async loadMenuData(prog?: IProgress): Promise<void> {

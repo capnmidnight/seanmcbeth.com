@@ -1,5 +1,5 @@
-import { getElements } from "@juniper-lib/dom/tags";
-import { FilterableTable } from "@juniper-lib/widgets/FilterableTable";
+import { getElements } from "@juniper-lib/dom/dist/tags";
+import { FilterableTable } from "@juniper-lib/widgets/dist/FilterableTable";
 
 const tables = getElements<HTMLTableElement>("table.summary");
 for (const table of tables) {

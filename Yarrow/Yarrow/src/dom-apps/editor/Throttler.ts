@@ -1,4 +1,4 @@
-import { isDefined } from "@juniper-lib/tslib/typeChecks";
+import { isDefined } from "@juniper-lib/tslib/dist/typeChecks";
 
 export class Throttler {
 

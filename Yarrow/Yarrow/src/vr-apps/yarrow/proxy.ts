@@ -1,6 +1,6 @@
-import { isNullOrUndefined, isString } from "@juniper-lib/tslib/typeChecks";
-import { URLBuilder } from "@juniper-lib/tslib/URLBuilder";
-import { isYouTube } from "@juniper-lib/video/YouTubeProxy";
+import { isNullOrUndefined, isString } from "@juniper-lib/tslib/dist/typeChecks";
+import { URLBuilder } from "@juniper-lib/tslib/dist/URLBuilder";
+import { isYouTube } from "@juniper-lib/video/dist/YouTubeProxy";
 
 function resolveURL(url: string | URL): URL {
     if (isNullOrUndefined(url)) {

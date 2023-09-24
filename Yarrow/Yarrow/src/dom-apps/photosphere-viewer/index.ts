@@ -1,6 +1,6 @@
-import { getCanvas } from "@juniper-lib/dom/tags";
-import { unwrapResponse } from "@juniper-lib/fetcher/unwrapResponse";
-import { BaseEnvironment } from "@juniper-lib/threejs/environment/BaseEnvironment";
+import { getCanvas } from "@juniper-lib/dom/dist/tags";
+import { unwrapResponse } from "@juniper-lib/fetcher/dist/unwrapResponse";
+import { BaseEnvironment } from "@juniper-lib/threejs/dist/environment/BaseEnvironment";
 import { createFetcher } from "../../createFetcher";
 import { getDOMStyleUrl } from "../../settings";
 

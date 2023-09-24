@@ -1,8 +1,8 @@
-﻿import { AssetImage } from "@juniper-lib/fetcher/Asset";
+﻿import { AssetImage } from "@juniper-lib/fetcher/dist/Asset";
 import { Image_Jpeg, Image_Png } from "@juniper-lib/mediatypes";
-import { objGraph } from "@juniper-lib/threejs/objects";
-import { Image2D } from "@juniper-lib/threejs/widgets/Image2D";
-import { deg2rad } from "@juniper-lib/tslib/math";
+import { objGraph } from "@juniper-lib/threejs/dist/objects";
+import { Image2D } from "@juniper-lib/threejs/dist/widgets/Image2D";
+import { deg2rad } from "@juniper-lib/tslib/dist/math";
 import { withTestEnvironment } from "../../createTestEnvironment";
 import { isDebug } from "../../isDebug";
 

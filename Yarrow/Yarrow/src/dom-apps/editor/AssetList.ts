@@ -1,10 +1,10 @@
-import { Attr } from "@juniper-lib/dom/attrs";
-import { CssElementStyleProp } from "@juniper-lib/dom/css";
-import { lockedWithKey, questionMark, star } from "@juniper-lib/emoji";
-import { arrayInsertAt } from "@juniper-lib/collections/arrays";
-import { buildTree } from "@juniper-lib/collections/TreeNode";
-import { isDefined, isNullOrUndefined } from "@juniper-lib/tslib/typeChecks";
-import { TreeView } from "@juniper-lib/widgets/TreeView";
+import { Attr } from "@juniper-lib/dom/dist/attrs";
+import { CssElementStyleProp } from "@juniper-lib/dom/dist/css";
+import { lockedWithKey, questionMark, star } from "@juniper-lib/emoji/dist";
+import { arrayInsertAt } from "@juniper-lib/collections/dist/arrays";
+import { buildTree } from "@juniper-lib/collections/dist/TreeNode";
+import { isDefined, isNullOrUndefined } from "@juniper-lib/tslib/dist/typeChecks";
+import { TreeView } from "@juniper-lib/widgets/dist/TreeView";
 import { Station } from "../../vr-apps/yarrow/Station";
 import { EditableScenario } from "../editor/EditableScenario";
 import { Asset, assetIcons, assetNames, DeletableAsset, DeletableAssetKind, DeletableAssetKindValues, getAssetKind, isAmbientAudio, isAudio, isConnection, isModel, isScenario, isSign, isStation, isText, isVideo, isVoiceOver, isZone } from "./models";

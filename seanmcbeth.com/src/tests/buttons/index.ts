@@ -1,7 +1,7 @@
-﻿import { AudioGraphDialog } from "@juniper-lib/graphics2d/AudioGraphDialog";
-import { TextImageOptions } from "@juniper-lib/graphics2d/TextImage";
-import { objGraph } from "@juniper-lib/threejs/objects";
-import { TextMeshButton } from "@juniper-lib/threejs/widgets/TextMeshButton";
+﻿import { AudioGraphDialog } from "@juniper-lib/graphics2d/dist/AudioGraphDialog";
+import { TextImageOptions } from "@juniper-lib/graphics2d/dist/TextImage";
+import { objGraph } from "@juniper-lib/threejs/dist/objects";
+import { TextMeshButton } from "@juniper-lib/threejs/dist/widgets/TextMeshButton";
 import { withTestEnvironment } from "../../createTestEnvironment";
 
 const buttonStyle: Partial<TextImageOptions> = {

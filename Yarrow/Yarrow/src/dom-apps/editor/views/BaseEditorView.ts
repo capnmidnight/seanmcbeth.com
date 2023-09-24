@@ -1,6 +1,6 @@
-import { elementIsDisplayed, elementSetDisplay, ErsatzElement } from "@juniper-lib/dom/tags";
-import { debounce } from "@juniper-lib/events/debounce";
-import { TypedEventBase } from "@juniper-lib/events/EventBase";
+import { elementIsDisplayed, elementSetDisplay, ErsatzElement } from "@juniper-lib/dom/dist/tags";
+import { debounce } from "@juniper-lib/events/dist/debounce";
+import { TypedEventBase } from "@juniper-lib/events/dist/EventBase";
 
 export abstract class BaseEditorView<T>
     extends TypedEventBase<T>

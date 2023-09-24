@@ -1,12 +1,12 @@
-﻿import { onClick } from "@juniper-lib/dom/evts";
-import { ButtonPrimary, HtmlRender, elementSetText } from "@juniper-lib/dom/tags";
-import { AssetImage } from "@juniper-lib/fetcher/Asset";
+﻿import { onClick } from "@juniper-lib/dom/dist/evts";
+import { ButtonPrimary, HtmlRender, elementSetText } from "@juniper-lib/dom/dist/tags";
+import { AssetImage } from "@juniper-lib/fetcher/dist/Asset";
 import { Image_Jpeg } from "@juniper-lib/mediatypes";
-import { cube } from "@juniper-lib/threejs/Cube";
-import { lit } from "@juniper-lib/threejs/materials";
-import { objGraph } from "@juniper-lib/threejs/objects";
-import { TransformEditor, TransformMode } from "@juniper-lib/threejs/TransformEditor";
-import { deg2rad } from "@juniper-lib/tslib/math";
+import { cube } from "@juniper-lib/threejs/dist/Cube";
+import { TransformEditor, TransformMode } from "@juniper-lib/threejs/dist/TransformEditor";
+import { lit } from "@juniper-lib/threejs/dist/materials";
+import { objGraph } from "@juniper-lib/threejs/dist/objects";
+import { deg2rad } from "@juniper-lib/tslib/dist/math";
 import { withTestEnvironment } from "../../createTestEnvironment";
 import { isDebug } from "../../isDebug";
 

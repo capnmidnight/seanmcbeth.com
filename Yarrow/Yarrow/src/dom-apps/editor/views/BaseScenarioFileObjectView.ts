@@ -1,8 +1,8 @@
-import { onClick } from "@juniper-lib/dom/evts";
-import { ButtonPrimarySmall } from "@juniper-lib/dom/tags";
-import { MediaType } from "@juniper-lib/mediatypes";
-import { IProgress } from "@juniper-lib/progress/IProgress";
-import { isDefined } from "@juniper-lib/tslib/typeChecks";
+import { onClick } from "@juniper-lib/dom/dist/evts";
+import { ButtonPrimarySmall } from "@juniper-lib/dom/dist/tags";
+import { MediaType } from "@juniper-lib/mediatypes/dist";
+import { IProgress } from "@juniper-lib/progress/dist/IProgress";
+import { isDefined } from "@juniper-lib/tslib/dist/typeChecks";
 import { FilePicker } from "../../../file-picker/FilePicker";
 import { FileData } from "../../../vr-apps/yarrow/data";
 import { Asset, AssetViewFileEvent, FileAsset, FileAssetEvents } from "../models";

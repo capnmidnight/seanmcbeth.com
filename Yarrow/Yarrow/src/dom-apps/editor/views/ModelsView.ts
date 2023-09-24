@@ -1,10 +1,10 @@
-import { classList, max, min, placeHolder, step } from "@juniper-lib/dom/attrs";
-import { onInput } from "@juniper-lib/dom/evts";
-import { Model_Gltf_Binary, Model_Gltf_Json } from "@juniper-lib/mediatypes";
-import { formatNumber, parseNumber } from "@juniper-lib/tslib/math";
-import { IProgress } from "@juniper-lib/progress/IProgress";
-import { isNullOrUndefined } from "@juniper-lib/tslib/typeChecks";
-import { InputRangeWithNumber } from "@juniper-lib/widgets/InputRangeWithNumber";
+import { classList, max, min, placeHolder, step } from "@juniper-lib/dom/dist/attrs";
+import { onInput } from "@juniper-lib/dom/dist/evts";
+import { Model_Gltf_Binary, Model_Gltf_Json } from "@juniper-lib/mediatypes/dist";
+import { formatNumber, parseNumber } from "@juniper-lib/tslib/dist/math";
+import { IProgress } from "@juniper-lib/progress/dist/IProgress";
+import { isNullOrUndefined } from "@juniper-lib/tslib/dist/typeChecks";
+import { InputRangeWithNumber } from "@juniper-lib/widgets/dist/InputRangeWithNumber";
 import { FilePicker } from "../../../file-picker/FilePicker";
 import { FileData } from "../../../vr-apps/yarrow/data";
 import type { Model } from "../../../vr-apps/yarrow/Model";

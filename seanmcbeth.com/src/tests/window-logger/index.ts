@@ -1,6 +1,6 @@
-import { DebugLogger } from "@juniper-lib/testing/DebugLogger";
-import { RayTarget } from "@juniper-lib/threejs/eventSystem/RayTarget";
-import type { Pointer3DEvent } from "@juniper-lib/threejs/eventSystem/devices/Pointer3DEvent";
+import { DebugLogger } from "@juniper-lib/testing/dist/DebugLogger";
+import { RayTarget } from "@juniper-lib/threejs/dist/eventSystem/RayTarget";
+import type { Pointer3DEvent } from "@juniper-lib/threejs/dist/eventSystem/devices/Pointer3DEvent";
 import { withTestEnvironment } from "../../createTestEnvironment";
 import { Forest } from "../../forest/Forest";
 

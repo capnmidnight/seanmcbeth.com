@@ -1,8 +1,8 @@
-import { Application } from "@juniper-lib/threejs/environment/Application";
-import type { Environment } from "@juniper-lib/threejs/environment/Environment";
-import { Exception } from "@juniper-lib/tslib/Exception";
-import { IProgress } from "@juniper-lib/progress/IProgress";
-import { isDefined, isNumber, isString } from "@juniper-lib/tslib/typeChecks";
+import { Application } from "@juniper-lib/threejs/dist/environment/Application";
+import type { Environment } from "@juniper-lib/threejs/dist/environment/Environment";
+import { Exception } from "@juniper-lib/tslib/dist/Exception";
+import { IProgress } from "@juniper-lib/progress/dist/IProgress";
+import { isDefined, isNumber, isString } from "@juniper-lib/tslib/dist/typeChecks";
 import { AssetScenario } from "./AssetScenario";
 import { Scenario } from "./Scenario";
 

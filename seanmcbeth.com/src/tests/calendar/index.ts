@@ -1,7 +1,7 @@
-﻿import { ColSpan } from "@juniper-lib/dom/attrs";
-import { display } from "@juniper-lib/dom/css";
-import { onBlur, onEnterKeyPressed, onFocus, onMouseOut, onMouseOver } from "@juniper-lib/dom/evts";
-import { InputText, Span, TBody, TD, TH, THead, TR, Table, HtmlRender, elementClearChildren, elementGetText, elementSetDisplay } from "@juniper-lib/dom/tags";
+﻿import { ColSpan } from "@juniper-lib/dom/dist/attrs";
+import { display } from "@juniper-lib/dom/dist/css";
+import { onBlur, onEnterKeyPressed, onFocus, onMouseOut, onMouseOver } from "@juniper-lib/dom/dist/evts";
+import { HtmlRender, InputText, Span, TBody, TD, TH, THead, TR, Table, elementClearChildren, elementGetText, elementSetDisplay } from "@juniper-lib/dom/dist/tags";
 
 import "./index.css";
 

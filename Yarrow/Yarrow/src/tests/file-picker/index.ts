@@ -1,8 +1,8 @@
-import { JuniperAudioContext } from "@juniper-lib/audio/context/JuniperAudioContext";
-import { id } from "@juniper-lib/dom/attrs";
-import { onClick } from "@juniper-lib/dom/evts";
-import { ButtonPrimary, Div, elementApply, Form, P } from "@juniper-lib/dom/tags";
-import { Audio_Mpeg, Audio_Webm, Image_Jpeg, Image_Png, Model_Gltf_Binary, Model_Gltf_Json, Video_Mpeg, Video_Webm } from "@juniper-lib/mediatypes";
+import { JuniperAudioContext } from "@juniper-lib/audio/dist/context/JuniperAudioContext";
+import { id } from "@juniper-lib/dom/dist/attrs";
+import { onClick } from "@juniper-lib/dom/dist/evts";
+import { ButtonPrimary, Div, HtmlRender, Form, P } from "@juniper-lib/dom/dist/tags";
+import { Audio_Mpeg, Audio_Webm, Image_Jpeg, Image_Png, Model_Gltf_Binary, Model_Gltf_Json, Video_Mpeg, Video_Webm } from "@juniper-lib/mediatypes/dist";
 import { createFetcher } from "../../createFetcher";
 import { FilePicker } from "../../file-picker/FilePicker";
 import { Video_Vnd_DlsDc_YtDlp_Json } from "../../vr-apps/yarrow/data";
@@ -27,7 +27,7 @@ function Btn(label: string, callback: () => void): HTMLButtonElement {
     );
 };
 
-elementApply("main", Form(
+HtmlRender("main", Form(
     Btn("No filter", () => {
         picker.setTags();
         picker.setTypeFilters();

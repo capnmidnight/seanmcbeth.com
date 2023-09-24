@@ -1,18 +1,18 @@
-import { id, name, placeHolder, required } from "@juniper-lib/dom/attrs";
-import { display } from "@juniper-lib/dom/css";
-import { Div, elementApply, elementClearChildren, elementSetDisplay, ErsatzElement, InputDate, InputText, InputURL, Span } from "@juniper-lib/dom/tags";
-import { clockwiseVerticalArrows } from "@juniper-lib/emoji";
-import { IFetcher } from "@juniper-lib/fetcher/IFetcher";
-import { unwrapResponse } from "@juniper-lib/fetcher/unwrapResponse";
-import { Application_X_Url, MediaType } from "@juniper-lib/mediatypes";
-import { mediaTypesToAcceptValue } from "@juniper-lib/mediatypes/util";
-import { arrayReplace } from "@juniper-lib/collections/arrays";
-import { TypedEventBase } from "@juniper-lib/events/EventBase";
-import { RefreshEvent } from "@juniper-lib/events/RefreshEvent";
-import { isDefined, isNullOrUndefined, isString } from "@juniper-lib/tslib/typeChecks";
-import { YTMetadata } from "@juniper-lib/video/yt-dlp";
-import { BootstrapProgressBar, BootstrapProgressBarElement } from "@juniper-lib/widgets/BootstrapProgressBar";
-import { PropertyList } from "@juniper-lib/widgets/PropertyList";
+import { id, name, placeHolder, required } from "@juniper-lib/dom/dist/attrs";
+import { display } from "@juniper-lib/dom/dist/css";
+import { Div, HtmlRender, elementClearChildren, elementSetDisplay, ErsatzElement, InputDate, InputText, InputURL, Span } from "@juniper-lib/dom/dist/tags";
+import { clockwiseVerticalArrows } from "@juniper-lib/emoji/dist";
+import { IFetcher } from "@juniper-lib/fetcher/dist/IFetcher";
+import { unwrapResponse } from "@juniper-lib/fetcher/dist/unwrapResponse";
+import { Application_X_Url, MediaType } from "@juniper-lib/mediatypes/dist";
+import { mediaTypesToAcceptValue } from "@juniper-lib/mediatypes/dist/util";
+import { arrayReplace } from "@juniper-lib/collections/dist/arrays";
+import { TypedEventBase } from "@juniper-lib/events/dist/EventBase";
+import { RefreshEvent } from "@juniper-lib/events/dist/RefreshEvent";
+import { isDefined, isNullOrUndefined, isString } from "@juniper-lib/tslib/dist/typeChecks";
+import { YTMetadata } from "@juniper-lib/video/dist/yt-dlp";
+import { BootstrapProgressBar, BootstrapProgressBarElement } from "@juniper-lib/widgets/dist/BootstrapProgressBar";
+import { PropertyList } from "@juniper-lib/widgets/dist/PropertyList";
 import { Throttler } from "../dom-apps/editor/Throttler";
 import { FileData, Video_Vnd_DlsDc_YtDlp_Json } from "../vr-apps/yarrow/data";
 import { isProxyableDomain, makeProxyURL, stripParameters } from "../vr-apps/yarrow/proxy";
@@ -190,7 +190,7 @@ export class FilePickerLinkTab
     }
 
     private addMessage(msg: string) {
-        elementApply(this.selectionMessage, Div(msg));
+        HtmlRender(this.selectionMessage, Div(msg));
     }
 
     refresh(errMsg?: string) {

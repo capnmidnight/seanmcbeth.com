@@ -1,6 +1,6 @@
-import { cleanup } from "@juniper-lib/threejs/cleanup";
-import { arrayRemove } from "@juniper-lib/collections/arrays";
-import { all } from "@juniper-lib/events/all";
+import { cleanup } from "@juniper-lib/threejs/dist/cleanup";
+import { arrayRemove } from "@juniper-lib/collections/dist/arrays";
+import { all } from "@juniper-lib/events/dist/all";
 import { StationConnectionData } from "../../../vr-apps/yarrow/data";
 import { Station } from "../../../vr-apps/yarrow/Station";
 import { EditableScenario } from "../EditableScenario";

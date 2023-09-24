@@ -1,14 +1,14 @@
-import { id } from "@juniper-lib/dom/attrs";
-import { position, rule } from "@juniper-lib/dom/css";
-import { Canvas, Div, elementApply, Style } from "@juniper-lib/dom/tags";
-import { tilReady } from "@juniper-lib/dom/tilReady";
-import { Environment } from "@juniper-lib/threejs/environment/Environment";
+import { id } from "@juniper-lib/dom/dist/attrs";
+import { position, rule } from "@juniper-lib/dom/dist/css";
+import { Canvas, Div, HtmlRender, Style } from "@juniper-lib/dom/dist/tags";
+import { tilReady } from "@juniper-lib/dom/dist/tilReady";
+import { Environment } from "@juniper-lib/threejs/dist/environment/Environment";
 import { createFetcher } from "./createFetcher";
 import { isDebug } from "./isDebug";
 import {
     BasicLabelColor,
-    defaultFont,
     DLSBlue,
+    defaultFont,
     enableFullResolution,
     getAppScriptUrl,
     getUIImagePaths,
@@ -25,7 +25,7 @@ export async function createTestEnvironment(): Promise<Environment> {
         canvas
     );
 
-    elementApply("main", container);
+    HtmlRender("main", container);
 
     await loadFonts();
     const fetcher = createFetcher(false);

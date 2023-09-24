@@ -1,14 +1,14 @@
-import { list, value } from "@juniper-lib/dom/attrs";
-import { onClick } from "@juniper-lib/dom/evts";
-import { ButtonPrimarySmall, elementApply, elementClearChildren, elementSetClass, ErsatzElement, InputNumber, InputText, Option, Select } from "@juniper-lib/dom/tags";
-import { IFetcher } from "@juniper-lib/fetcher/IFetcher";
-import { unwrapResponse } from "@juniper-lib/fetcher/unwrapResponse";
-import { Application_JsonUTF8, MediaType } from "@juniper-lib/mediatypes";
-import { mediaTypesToAcceptValue } from "@juniper-lib/mediatypes/util";
-import { arrayClear, arrayReplace } from "@juniper-lib/collections/arrays";
-import { TypedEvent, TypedEventBase } from "@juniper-lib/events/EventBase";
-import { isDefined } from "@juniper-lib/tslib/typeChecks";
-import { FilterableTable } from "@juniper-lib/widgets/FilterableTable";
+import { list, value } from "@juniper-lib/dom/dist/attrs";
+import { onClick } from "@juniper-lib/dom/dist/evts";
+import { ButtonPrimarySmall, HtmlRender, elementClearChildren, elementSetClass, ErsatzElement, InputNumber, InputText, Option, Select } from "@juniper-lib/dom/dist/tags";
+import { IFetcher } from "@juniper-lib/fetcher/dist/IFetcher";
+import { unwrapResponse } from "@juniper-lib/fetcher/dist/unwrapResponse";
+import { Application_JsonUTF8, MediaType } from "@juniper-lib/mediatypes/dist";
+import { mediaTypesToAcceptValue } from "@juniper-lib/mediatypes/dist/util";
+import { arrayClear, arrayReplace } from "@juniper-lib/collections/dist/arrays";
+import { TypedEvent, TypedEventBase } from "@juniper-lib/events/dist/EventBase";
+import { isDefined } from "@juniper-lib/tslib/dist/typeChecks";
+import { FilterableTable } from "@juniper-lib/widgets/dist/FilterableTable";
 import { FileData } from "../vr-apps/yarrow/data";
 import { FileDataSelectedEvent, SelectingEvent } from "./FilePickerEvents";
 import { SearchInput } from "./models";
@@ -110,7 +110,7 @@ export class FilePickerSelectTab
         arrayReplace(this.typeFilters, ...types);
         this.typeFilter = mediaTypesToAcceptValue(this.typeFilters);
         elementClearChildren(this.typeSelector);
-        elementApply(this.typeSelector,
+        HtmlRender(this.typeSelector,
             Option(value(""), "--"),
             ...this.typeFilters.map(t => Option(
                 value(t.value),

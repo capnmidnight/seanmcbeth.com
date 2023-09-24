@@ -1,5 +1,5 @@
-import type { Environment } from "@juniper-lib/threejs/environment/Environment";
-import { IDataLogger } from "@juniper-lib/tslib/IDataLogger";
+import type { Environment } from "@juniper-lib/threejs/dist/environment/Environment";
+import { IDataLogger } from "@juniper-lib/tslib/dist/IDataLogger";
 import { BaseScenario } from "./BaseScenario";
 import type { FullScenarioData } from "./data";
 

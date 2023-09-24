@@ -1,7 +1,7 @@
-import { Query } from "@juniper-lib/dom/attrs";
-import { fontSize, maxWidth } from "@juniper-lib/dom/css";
-import { Main } from "@juniper-lib/dom/tags";
-import { TestOutputHTML } from "@juniper-lib/testing/tdd/TestOutputHTML";
+import { Query } from "@juniper-lib/dom/dist/attrs";
+import { fontSize, maxWidth } from "@juniper-lib/dom/dist/css";
+import { Main } from "@juniper-lib/dom/dist/tags";
+import { TestOutputHTML } from "@juniper-lib/testing/dist/tdd/TestOutputHTML";
 import { tests as JuniperTests } from "@juniper-lib/tests";
 
 const output = new TestOutputHTML(

@@ -1,4 +1,4 @@
-import { WorkerServer } from "@juniper-lib/workers/WorkerServer";
+import { WorkerServer } from "@juniper-lib/workers/dist/WorkerServer";
 import { createFetcher } from "../../createFetcher";
 import { StreetViewPhotosphereRig } from "../../vr-apps/yarrow/StreetViewPhotosphereRig";
 
