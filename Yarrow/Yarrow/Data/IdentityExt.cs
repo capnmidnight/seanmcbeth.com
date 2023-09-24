@@ -12,24 +12,20 @@ namespace Yarrow.Data
         Manager,
 
         Instructor,
-        Student,
-
-        Headset
+        Student
     }
 
     public static class IdentityExt
     {
         private static readonly Dictionary<Role, Role[]> ExclusiveRoles = new()
         {
-            { Role.Developer, new []{ Role.Admin, Role.Editor, Role.Manager, Role.Headset } },
-            { Role.Admin, new[]{ Role.Developer, Role.Editor, Role.Manager, Role.Headset } },
-            { Role.Editor, new []{ Role.Developer, Role.Admin, Role.Headset } },
-            { Role.Manager , new []{ Role.Developer, Role.Admin, Role.Headset } },
+            { Role.Developer, new []{ Role.Admin, Role.Editor, Role.Manager} },
+            { Role.Admin, new[]{ Role.Developer, Role.Editor, Role.Manager} },
+            { Role.Editor, new []{ Role.Developer, Role.Admin} },
+            { Role.Manager , new []{ Role.Developer, Role.Admin } },
 
-            { Role.Instructor, new [] { Role.Student, Role.Headset } },
-            { Role.Student, new [] { Role.Instructor, Role.Headset } },
-
-            { Role.Headset, new []{ Role.Developer, Role.Admin, Role.Editor, Role.Manager, Role.Instructor, Role.Student } }
+            { Role.Instructor, new [] { Role.Student} },
+            { Role.Student, new [] { Role.Instructor} }
         };
 
         public static IQueryable<IdentityRole> GetRoles(this RoleManager<IdentityRole> roles, UserOutput currentUser) =>
@@ -37,7 +33,6 @@ namespace Yarrow.Data
                 .Where(r => currentUser.IsAdmin || (
                     r.Name != "Admin"
                     && r.Name != "Developer"
-                    && r.Name != "Headset"
                 ))
                 .OrderBy(r => r.Name);
 
@@ -55,7 +50,6 @@ namespace Yarrow.Data
 
         public static async Task<(bool added, IdentityResult result)> ToggleUserRole(this UserManager<IdentityUser> users, IdentityUser user, string roleName)
         {
-
             var isAdd = !await users.IsInRoleAsync(user, roleName);
 
             if (isAdd && Enum.TryParse<Role>(roleName, out var role))

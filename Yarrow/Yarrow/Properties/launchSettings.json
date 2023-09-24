@@ -1,16 +1,26 @@
 {
   "profiles": {
-    "Yarrow.Server": {
+    "Yarrow (Web App)": {
       "commandName": "Project",
-      "launchBrowser": true,
-      "launchUrl": "https://localhost/editor",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation"
       },
       "hotReloadEnabled": true,
       "applicationUrl": "https://localhost:443;http://localhost:80",
-      "dotnetRunMessages": false
+      "launchBrowser": true,
+      "launchUrl": "https://localhost/editor",
+      "dotnetRunMessages": true
+    },
+    "Yarrow (Interactive Build Tool)": {
+      "commandName": "Project",
+      "commandLineArgs": "--interactive",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation"
+      },
+      "launchBrowser": false,
+      "dotnetRunMessages": true
     }
   }
 }

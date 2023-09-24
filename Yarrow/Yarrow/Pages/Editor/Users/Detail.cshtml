@@ -113,25 +113,6 @@
                     <a href="~/Editor/Rooms/Detail/@Model.UserProfile.RoomID">View Room...</a>
                 }
             </dd>
-
-            @if (!Model.UserProfile.IsHeadset)
-            {
-                <dt><label for="headsetID">Current headset</label></dt>
-                <dd>
-                    <select name="headsetID"
-                            id="headsetID"
-                            class="custom-select">
-                        <option value="" selected="@(Model.UserProfile.HeadsetID is null)">none</option>
-                        @foreach (var headset in Model.Headsets)
-                        {
-                            <option value="@headset.Id"
-                                    selected="@(headset.Id == Model.UserProfile.HeadsetID)">
-                                @headset.UserName
-                            </option>
-                        }
-                    </select>
-                </dd>
-            }
         }
         else
         {
@@ -282,7 +263,6 @@
     <thead>
         <tr>
             <th><label for="filterScenario">Scenario</label></th>
-            <th><label for="filterLanguage">Language</label></th>
             <th><label for="filterVersion">Version</label></th>
             <th><label>Created on</label></th>
             <th><label for="filterCreatedBy">Created by</label></th>
@@ -293,15 +273,6 @@
         </tr>
         <tr>
             <th><input type="text" id="filterScenario" placeholder="Filter by Scenario" title="Filter by Scenario" /></th>
-            <th>
-                <select id="filterLanguage">
-                    <option value="">--</option>
-                    @foreach (var lang in Model.Languages)
-                    {
-                        <option value="@lang.Name.ToLowerInvariant()">@lang.Name</option>
-                    }
-                </select>
-            </th>
             <th><input type="number" id="filterScenario" placeholder="Filter by Version" title="Filter by Version" /></th>
             @await Component.InvokeAsync("DateRange", new { idStub = "UserScenarioVersionCreatedOn"})
             <th><input type="text" id="filterCreatedBy" placeholder="Filter by Creator" title="Filter by Creator" /></th>
@@ -324,11 +295,10 @@
         {
             <tr>
                 <td>@scenario.ScenarioGroup.Name</td>
-                <td>@scenario.ScenarioGroup.Language.Name</td>
                 <td>
                     @scenario.Version
                 </td>
-                @await Component.InvokeAsync("DateCell", new { value=scenario.Timestamp })
+                @await Component.InvokeAsync("DateCell", new { value=scenario.CreatedOn })
                 <td>
                     @if (scenario.CreatedById is not null)
                     {
@@ -441,22 +411,12 @@
         <tr>
             <th>Timestamp</th>
             <th>Duration</th>
-            <th>Language</th>
             <th>Scenarios</th>
             <th></th>
         </tr>
         <tr>
             @await Component.InvokeAsync("DateRange", new { idStub = "UserReports"})
             <th></th>
-            <th>
-                <select id="filterLanguage">
-                    <option value="">--</option>
-                    @foreach (var lang in Model.Languages)
-                    {
-                        <option value="@lang.Name.ToLowerInvariant()">@lang.Name</option>
-                    }
-                </select>
-            </th>
             <th>
                 <input type="text"
                        id="filterScenario"
@@ -473,12 +433,6 @@
                 @await Component.InvokeAsync("DateCell", new { value=report.Timestamp })
                 <td>
                     @report.Duration.ToSillyString()
-                </td>
-                <td class="multi">
-                    @foreach (var lang in report.Languages)
-                    {
-                        <a href="~/Editor/Languages/Detail/@lang.Id" class="btn btn-sm btn-secondary">@lang.Name</a>
-                    }
                 </td>
                 <td class="multi">
                     @foreach (var scene in report.Scenarios)
@@ -568,7 +522,7 @@
 
                     <tr>
                         <td>@log.Id</td>
-                        @await Component.InvokeAsync("DateCell", new { value=log.Timestamp })
+                        @await Component.InvokeAsync("DateCell", new { value=log.CreatedOn })
                         <td>
                             @log.FromAddress
                         </td>

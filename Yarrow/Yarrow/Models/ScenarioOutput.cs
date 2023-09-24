@@ -11,7 +11,6 @@ namespace Yarrow.Models
     {
         public string Name { get; }
         public int ID { get; }
-        public string LanguageName { get; }
         public float StartRotation { get; }
         public int? StartStationID { get; }
         public DateTime CreatedOn { get; }
@@ -29,7 +28,6 @@ namespace Yarrow.Models
             int id,
             int version,
             bool published,
-            string languageName,
             LatLngPoint origin,
             int? startStationID,
             float startRotation,
@@ -42,7 +40,6 @@ namespace Yarrow.Models
             ID = id;
             Version = version;
             Published = published;
-            LanguageName = languageName;
             Origin = origin;
             StartStationID = startStationID;
             StartRotation = startRotation;
@@ -52,20 +49,19 @@ namespace Yarrow.Models
             PublishedBy = publishedBy;
         }
 
-        public ScenarioOutput(Scenario scn)
+        public ScenarioOutput(ScenarioSnapshot scn)
             : this(
                   scn.ScenarioGroup.Name,
                   scn.Id,
                   scn.Version,
                   scn.Published,
-                  scn.ScenarioGroup.Language.Name,
                   (scn.OriginLatitude is not null
                 && scn.OriginLongitude is not null)
                     ? new(scn.OriginLatitude.Value, scn.OriginLongitude.Value, scn.OriginAltitude ?? 0)
                   : null,
                   scn.StartStationId,
                   scn.StartRotation,
-                  scn.Timestamp,
+                  scn.CreatedOn,
                   scn.CreatedBy?.FullName,
                   scn.PublishedOn,
                   scn.PublishedBy?.FullName)
@@ -79,7 +75,6 @@ namespace Yarrow.Models
                   info.GetInt32(nameof(ID)),
                   info.GetInt32(nameof(Version)),
                   info.GetBoolean(nameof(Published)),
-                  info.GetString(nameof(LanguageName)),
                   info.GetValue<LatLngPoint>(nameof(Origin)),
                   info.GetInt32(nameof(StartStationID)),
                   info.GetSingle(nameof(StartRotation)),

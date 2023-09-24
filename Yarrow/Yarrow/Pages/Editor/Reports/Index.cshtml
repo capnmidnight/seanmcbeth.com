@@ -28,7 +28,6 @@
                 <th><label>Date</label></th>
                 <th><label>Duration</label></th>
                 <th><label for="filterName">User</label></th>
-                <th><label for="filterLanguage">Languages</label></th>
                 <th><label for="filterScenario">Scenarios</label></th>
                 <th></th>
             </tr>
@@ -41,15 +40,6 @@
                         @foreach (var name in Model.Names)
                         {
                             <option value="@name.ToLowerInvariant()">@name</option>
-                        }
-                    </select>
-                </th>
-                <th>
-                    <select id="filterLanguage">
-                        <option value="">--</option>
-                        @foreach (var lang in Model.Languages)
-                        {
-                            <option value="@lang.Name.ToLowerInvariant()">@lang.Name</option>
                         }
                     </select>
                 </th>
@@ -78,12 +68,6 @@
                         else
                         {
                             @(report.DisplayName ?? "Unknown")
-                        }
-                    </td>
-                    <td class="multi">
-                        @foreach (var lang in report.Languages)
-                        {
-                            <a href="~/Editor/Languages/Detail/@lang.Id" class="btn btn-secondary">@lang.Name</a>
                         }
                     </td>
                     <td class="multi">

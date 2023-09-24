@@ -16,7 +16,7 @@ namespace Yarrow.Models
         private readonly int? orgId;
         private readonly ILogger logger;
 
-        public ScenarioArchiveResult(YarrowContext db, int? orgId, Scenario scenario, ILogger logger)
+        public ScenarioArchiveResult(YarrowContext db, int? orgId, ScenarioSnapshot scenario, ILogger logger)
         {
             this.db = db;
             this.orgId = orgId;
@@ -45,7 +45,7 @@ namespace Yarrow.Models
             {
                 var scenario = await db.GetFullScenarioOutputAsync(orgId, scenarioID);
 
-                response.Headers[HeaderNames.ContentDisposition] = $"attachment; filename=\"{scenario.Name} ({scenario.LanguageName}).zip\"";
+                response.Headers[HeaderNames.ContentDisposition] = $"attachment; filename=\"{MediaType.Application_Zip.AddExtension(scenario.Name)}\"";
 
                 using var zip = new ZipArchive(response.Body, ZipArchiveMode.Create);
                 await db.ExportScenarioAsync(zip, scenario, httpContext.RequestAborted);

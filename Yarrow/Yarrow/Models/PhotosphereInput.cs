@@ -6,6 +6,6 @@ namespace Yarrow.Models
         public float Latitude { get; set; }
         public float Longitude { get; set; }
         public string Copyright { get; set; }
-        public DateTime? Date { get; set; }
+        public DateTime Date { get; set; }
     }
 }

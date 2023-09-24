@@ -22,7 +22,7 @@ namespace Yarrow.Models
             Published = published;
         }
 
-        public ScenarioVersionOutput(Scenario scn)
+        public ScenarioVersionOutput(ScenarioSnapshot scn)
             : this(
                   scn.Id,
                   scn.Version,

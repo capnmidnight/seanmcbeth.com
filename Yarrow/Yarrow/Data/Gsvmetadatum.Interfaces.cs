@@ -1,6 +1,6 @@
 namespace Yarrow.Data
 {
-    public partial class Gsvmetadatum : IFileReference
+    public partial class GsvMetadatum : IFileReference
     {
     }
 }

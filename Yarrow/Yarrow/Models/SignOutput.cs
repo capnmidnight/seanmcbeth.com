@@ -19,7 +19,7 @@ namespace Yarrow.Models
             string mediaType,
             string trueMediaType,
             string copyright,
-            DateTime? copyrightDate,
+            DateTime copyrightDate,
             int key,
             int scenarioID,
             int transformID,
@@ -42,7 +42,7 @@ namespace Yarrow.Models
             AlwaysVisible = alwaysVisible;
         }
 
-        public SignOutput(Scenario scenario, Sign s)
+        public SignOutput(ScenarioSnapshot scenario, Sign s)
             : base(scenario, s)
         {
             IsCallout = s.IsCallout;

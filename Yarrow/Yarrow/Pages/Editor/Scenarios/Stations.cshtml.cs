@@ -15,7 +15,7 @@ namespace Yarrow.Pages.Editor.Scenarios
 
         public async Task<IActionResult> OnPostAddAsync(int scenarioID, [FromBody] StationCreateInput input)
         {
-            var scenario = await Database.Scenarios
+            var scenario = await Database.ScenariosSnapshots
                 .Include(scn => scn.StartStation)
                 .SingleAsync(scn => scn.Id == scenarioID);
 
@@ -57,7 +57,7 @@ namespace Yarrow.Pages.Editor.Scenarios
 
         public async Task<IActionResult> OnPostDeleteAsync(int scenarioID, [FromBody] int stationID)
         {
-            var scenario = await Database.Scenarios
+            var scenario = await Database.ScenariosSnapshots
                 .SingleOrDefaultAsync(scn => scn.Id == scenarioID);
 
             if (scenario is null)
@@ -81,7 +81,7 @@ namespace Yarrow.Pages.Editor.Scenarios
 
         public async Task<IActionResult> OnPostMarkStartAsync(int scenarioID, [FromBody] int stationID)
         {
-            var scenario = await Database.Scenarios
+            var scenario = await Database.ScenariosSnapshots
                 .SingleAsync(scenario => scenario.Id == scenarioID);
 
             scenario.StartStationId = stationID;
@@ -93,7 +93,7 @@ namespace Yarrow.Pages.Editor.Scenarios
 
         public async Task<IActionResult> OnPostSetStartRotationAsync(int scenarioID, [FromBody] float startRotation)
         {
-            var scenario = await Database.Scenarios
+            var scenario = await Database.ScenariosSnapshots
                 .SingleAsync(scenario => scenario.Id == scenarioID);
 
             scenario.StartRotation = startRotation;

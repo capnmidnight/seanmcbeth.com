@@ -26,7 +26,7 @@ namespace Yarrow.Hubs
                 .Value;
 
         protected override IEnumerable<Uri> TurnServers =>
-            db.WebRtcs
+            db.WebRTCSettings
                 .Where(w => w.Enabled != false)
                 .AsEnumerable()
                 .Select(w => new UriBuilder(w.Protocol, w.Host, w.Port).Uri);

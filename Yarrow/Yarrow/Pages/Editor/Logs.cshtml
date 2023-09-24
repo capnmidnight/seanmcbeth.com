@@ -99,7 +99,7 @@
 
                 <tr>
                     <td>@log.Id</td>
-                    @await Component.InvokeAsync("DateCell", new { value=log.Timestamp })
+                    @await Component.InvokeAsync("DateCell", new { value=log.CreatedOn })
                     <td>
                         @if (log.User is not null)
                         {

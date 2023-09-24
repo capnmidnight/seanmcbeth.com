@@ -8,8 +8,8 @@ namespace Yarrow.Models
 
         public Visit(Data.Report report)
             : this(
-                  report?.Logs?.MaybeMin(l => l.Timestamp) ?? DateTime.MinValue,
-                  report?.Logs?.MaybeMax(l => l.Timestamp) ?? DateTime.MaxValue)
+                  report?.Logs?.MaybeMin(l => l.CreatedOn) ?? DateTime.MinValue,
+                  report?.Logs?.MaybeMax(l => l.CreatedOn) ?? DateTime.MaxValue)
         {
 
         }

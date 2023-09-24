@@ -22,7 +22,7 @@ namespace Yarrow.Pages
         public IActionResult OnGet(int? scenarioID)
         {
             if (scenarioID is not null
-                && !Database.Scenarios.Any(s => s.Id == scenarioID))
+                && !Database.ScenariosSnapshots.Any(s => s.Id == scenarioID))
             {
                 return NotFound();
             }

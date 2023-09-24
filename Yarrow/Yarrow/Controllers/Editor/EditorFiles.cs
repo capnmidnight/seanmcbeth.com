@@ -50,7 +50,7 @@ namespace Yarrow.Controllers.Editor
                 null,
                 fileUpload.TagString,
                 fileUpload.Copyright,
-                fileUpload.CopyrightDate?.ToDateOnly(),
+                fileUpload.CopyrightDate.ToDateOnly(),
                 fileID);
 
             await db.SaveChangesAsync();

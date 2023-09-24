@@ -65,8 +65,7 @@ namespace Yarrow.Pages.Editor
                 () => OnGet(id, null),
                 async () =>
                 {
-                    var sg = await Database.ScenarioGroups
-                        .Include(sg => sg.Language)
+                    var sg = await Database.Scenarios
                         .Include(sg => sg.Scenarios
                             .Where(s => s.Published == true))
                         .SingleOrDefaultAsync(a => a.Id == input.ScenarioGroupID);
@@ -84,15 +83,6 @@ namespace Yarrow.Pages.Editor
                         ?? throw new InvalidDataException();
 
                     int? parentId = input?.ParentID;
-                    if (parentId is null && sg is not null)
-                    {
-                        var langMenuItem = await Database.MenuItems
-                            .FirstOrDefaultAsync(m =>
-                                m.OrganizationId == orgId
-                                && m.Label.Trim().ToLower() == sg.Language.Name.Trim().ToLower());
-                        parentId = langMenuItem?.Id;
-                    }
-
                     var numSiblings = Database.MenuItems
                         .Where(m => m.ParentId == parentId)
                         .Count();

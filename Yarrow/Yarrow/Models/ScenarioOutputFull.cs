@@ -26,7 +26,6 @@ namespace Yarrow.Models
             int id,
             int version,
             bool published,
-            string languageName,
             float startRotation,
             int? startStationID,
             LatLngPoint origin,
@@ -48,7 +47,6 @@ namespace Yarrow.Models
                 id,
                 version,
                 published,
-                languageName,
                 origin,
                 startStationID,
                 startRotation,
@@ -69,7 +67,7 @@ namespace Yarrow.Models
         }
 
         public ScenarioOutputFull(
-            Scenario scn,
+            ScenarioSnapshot scn,
             IEnumerable<ScenarioVersionOutput> versions,
             IEnumerable<TransformOutput> transforms,
             IEnumerable<StationOutput> stations,
@@ -108,8 +106,7 @@ namespace Yarrow.Models
 
         private static readonly Regex disallowedRoomNameCharactersPattern = new("\\W+", RegexOptions.Compiled);
         public string RoomName =>
-                disallowedRoomNameCharactersPattern.Replace(
-                    string.Join(" ", LanguageName, Name), "_")
+                disallowedRoomNameCharactersPattern.Replace(Name, "_")
                 .ToLowerInvariant();
     }
 }

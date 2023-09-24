@@ -23,7 +23,7 @@ namespace Yarrow.Models
             string mediaType,
             string trueMediaType,
             string copyright,
-            DateTime? copyrightDate,
+            DateTime copyrightDate,
             int key,
             int scenarioID,
             int transformID,
@@ -50,7 +50,7 @@ namespace Yarrow.Models
             Location = location;
         }
 
-        public StationOutput(Scenario scenario, Station s)
+        public StationOutput(ScenarioSnapshot scenario, Station s)
             : base(scenario, s)
         {
             Location = new LatLngPoint(s.Latitude, s.Longitude, s.Altitude);

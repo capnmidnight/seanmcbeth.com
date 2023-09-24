@@ -160,9 +160,7 @@ namespace Yarrow.Controllers.Public
                 .Include(s => s.Transform)
                     .ThenInclude(t => t.Scenario)
                         .ThenInclude(scn => scn.ScenarioGroup)
-                            .ThenInclude(g => g.Language)
-                .Where(s => s.Transform.Scenario.ScenarioGroup.Language.Name == "Meta"
-                    && s.Transform.Scenario.ScenarioGroup.Name == "Landing Page"
+                .Where(s => s.Transform.Scenario.ScenarioGroup.Name == "Landing Page"
                     && s.Transform.Scenario.StartStationId == s.TransformId
                     && s.Transform.Scenario.Published == true)
                 .OrderByDescending(s => s.Transform.Scenario.Version)
@@ -177,9 +175,5 @@ namespace Yarrow.Controllers.Public
             HttpHead("scenario/{scenarioID}")]
         public async Task<IActionResult> GetScenario(int scenarioID) =>
             new ObjectResult(await db.GetFullScenarioOutputAsync(CurrentUser.VisibleOrganizationID, scenarioID));
-
-        [HttpGet("languages")]
-        public IActionResult GetLanguages() =>
-            new ObjectResult(db.GetLanguages(CurrentUser.IsAdmin));
     }
 }

@@ -16,7 +16,6 @@
 
 @section Breadcrumb {
     <li class="crumb"><a href="~/Editor/Scenarios/">Scenarios</a></li>
-    <li class="crumb"><a href="~/Editor/Languages/Detail/@Model.ScenarioGroup.LanguageId">@Model.ScenarioGroup.Language.Name</a></li>
     <li class="crumb">@Model.ScenarioGroup.Name</li>
 }
 
@@ -53,24 +52,9 @@
                        value="@Model.ScenarioGroup.Name" />
             </dd>
 
-            <dt><label for="languageInput">Language</label></dt>
-            <dd>
-                <select id="languageInput"
-                        name="languageId"
-                        class="custom-select">
-                    @foreach (var language in Model.Languages)
-                    {
-                        <option value="@language.Id"
-                                selected="@(language.Id == @Model.ScenarioGroup.LanguageId)">
-                            @language.Name
-                        </option>
-                    }
-                </select>
-            </dd>
-
             <dt>Created on</dt>
             <dd>
-                @Model.ScenarioGroup.Timestamp.ToLongDateString()
+                @Model.ScenarioGroup.CreatedOn.ToLongDateString()
             </dd>
 
             <dt>Created by</dt>
@@ -205,7 +189,7 @@
                     @scenario.Version
                 </td>
                 <td>
-                    @scenario.Timestamp.ToLongDateString()
+                    @scenario.CreatedOn.ToLongDateString()
                 </td>
                 <td>
                     @if (scenario.CreatedById is not null)

@@ -21,7 +21,7 @@ namespace Yarrow.Data
         // Email, FullName, Organization, isBootstrapUser, Roles
         private static readonly (string, string, string, bool, Role[])[] coreUsers = new[]
         {
-            ("sean@seanmcbeth.com", "Sean T. McBeth", "STM", true, new []{ Role.Developer })
+            ("sean@seanmcbeth.com", "Sean T. McBeth", "STM", true, new []{ Role.Developer, Role.Admin })
         };
 
         private static readonly string[] fileTags = new[]
@@ -63,9 +63,9 @@ namespace Yarrow.Data
         };
 
         // Scenario Name, Language Name
-        private static readonly (string, string)[] scenarios = new[]
+        private static readonly string[] scenarios = new[]
         {
-            ("Landing Page", "Meta")
+            "Landing Page"
         };
 
         public void SeedData(RoleManager<IdentityRole> roleMgr, UserManager<IdentityUser> userMgr, ILogger logger)
@@ -73,11 +73,11 @@ namespace Yarrow.Data
             CreateRolesUsersAndOrgs(roleMgr, userMgr, logger).Wait();
 
             var admin = coreUsers.First().Item1;
-            var adminId = userMgr.GetUsersInRoleAsync("Admin")
+            var adminId = userMgr.GetUsersInRoleAsync(Role.Admin)
                 .Result
                 .OrderByDescending(u => u.Email == admin)
                 .Select(u => u.Id)
-                .FirstOrDefault();
+                .First();
 
             CreateLandingPage(adminId).Wait();
             CreateMetadata();
@@ -205,7 +205,7 @@ namespace Yarrow.Data
                     idUsers.Add(email, idUser);
                 }
 
-                if (userProfiles.TryGetValue(email, out UserProfile value))
+                if (userProfiles.TryGetValue(email, out UserProfile? value))
                 {
                     var profile = value;
                     profile.DisplayName ??= profile.FullName;
@@ -226,7 +226,7 @@ namespace Yarrow.Data
 
                 foreach (var profile in UserProfiles)
                 {
-                    profile.Timestamp ??= DateTime.UtcNow
+                    profile.CreatedOn ??= DateTime.UtcNow
                         .ToDateOnly()
                         .ToDateTime(TimeOnly.MinValue)
                         .AddDays(-1);
@@ -283,44 +283,32 @@ namespace Yarrow.Data
 
         private async Task CreateLandingPage(string adminId)
         {
-            var DLS = await Organizations.SingleAsync(o => o.Name == "DLS");
-            var requiredLanguages = new HashSet<string>(scenarios.Select(s => s.Item2).Distinct());
-            var languages = Languages
-                .AsEnumerable()
-                .Where(l => requiredLanguages.Contains(l.Name))
-                .GroupBy(l => l.Name)
-                .ToDictionary(l => l.Key, l => l.First());
+            var DLS = await Organizations.SingleAsync(o => o.Name == "STM");
 
-            var requiredScenes = new HashSet<string>(scenarios.Select(s => s.Item1)).Distinct();
-            var groups = ScenarioGroups
+            var requiredScenes = new HashSet<string>(scenarios);
+            var groups = Scenarios
                 .AsEnumerable()
                 .Where(g => requiredScenes.Contains(g.Name))
                 .GroupBy(g => g.Name)
                 .ToDictionary(g => g.Key, g => g.First());
 
-            foreach (var (scenarioName, languageName) in scenarios)
+            foreach (var scenarioName in scenarios)
             {
-                if (!languages.TryGetValue(languageName, out var language))
-                {
-                    Languages.Add(language = new Language
-                    {
-                        Name = languageName
-                    });
-                }
-
                 if (!groups.TryGetValue(scenarioName, out var group))
                 {
-                    ScenarioGroups.Add(group = new ScenarioGroup
+                    Scenarios.Add(group = new Scenario
                     {
-                        Language = language,
                         Name = scenarioName,
                         CreatedById = adminId
                     });
 
-                    Scenarios.Add(new Scenario
+                    ScenariosSnapshots.Add(new ScenarioSnapshot
                     {
                         ScenarioGroup = group,
                         CreatedById = adminId,
+                        Published = true,
+                        PublishedById = adminId,
+                        PublishedOn = DateTime.Now,
                         Transforms = new[]{
                             new Transform
                             {
@@ -360,11 +348,11 @@ namespace Yarrow.Data
 
             foreach (var (protocol, host, port, enabled) in webrtcs)
             {
-                if (!WebRtcs.Any(w => w.Protocol == protocol
+                if (!WebRTCSettings.Any(w => w.Protocol == protocol
                     && w.Host == host
                     && w.Port == port))
                 {
-                    WebRtcs.Add(new WebRtc
+                    WebRTCSettings.Add(new WebRTCSetting
                     {
                         Protocol = protocol,
                         Host = host,

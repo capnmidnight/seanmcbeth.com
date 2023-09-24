@@ -18,7 +18,7 @@ namespace Yarrow.Models
             string mediaType,
             string trueMediaType,
             string copyright,
-            DateTime? copyrightDate,
+            DateTime copyrightDate,
             int key,
             int scenarioID,
             int transformID,
@@ -39,7 +39,7 @@ namespace Yarrow.Models
             IsGrabbable = isGrabbable;
         }
 
-        public ModelOutput(Scenario scenario, Model m)
+        public ModelOutput(ScenarioSnapshot scenario, Model m)
             : base(scenario, m)
         {
             IsGrabbable = m.IsGrabbable;

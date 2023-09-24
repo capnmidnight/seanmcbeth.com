@@ -19,7 +19,7 @@ namespace Yarrow.Models
             string mediaType,
             string trueMediaType,
             string copyright,
-            DateTime? copyrightDate,
+            DateTime copyrightDate,
             int key,
             int scenarioID,
             int transformID,
@@ -48,7 +48,7 @@ namespace Yarrow.Models
             StereoLayoutName = stereoLayoutName;
         }
 
-        public VideoClipOutput(Scenario scenario, VideoClip vc)
+        public VideoClipOutput(ScenarioSnapshot scenario, VideoClip vc)
             : base(scenario, vc)
         {
             SphereEncodingName = vc.SphereEncodingName;

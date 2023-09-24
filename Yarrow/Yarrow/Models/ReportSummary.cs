@@ -7,7 +7,7 @@ namespace Yarrow.Models
     public class ReportSummary : Visit
     {
         private readonly Report report;
-        private readonly Dictionary<int, Scenario> scenarios;
+        private readonly Dictionary<int, ScenarioSnapshot> scenarios;
 
         public int ReportID => report.Id;
 
@@ -25,7 +25,7 @@ namespace Yarrow.Models
             ?? MeetingName
             ?? FromAddress?.ToString();
 
-        public DateTime Timestamp => report.Timestamp;
+        public DateTime Timestamp => report.CreatedOn;
 
         public IEnumerable<Log> Logs => report.Logs;
 
@@ -39,8 +39,8 @@ namespace Yarrow.Models
                 select userName)
                 .FirstOrDefault();
 
-        private IEnumerable<Scenario> visitedScenarios;
-        public IEnumerable<Scenario> Scenarios =>
+        private IEnumerable<ScenarioSnapshot> visitedScenarios;
+        public IEnumerable<ScenarioSnapshot> Scenarios =>
             visitedScenarios ??= from l in report.Logs
                 where l.Key == ReportSession.SCENARIO_START
                 let scenarioID = l.GetID()
@@ -51,15 +51,7 @@ namespace Yarrow.Models
                 orderby scenario.ScenarioGroup.Name
                 select scenario;
 
-        private IEnumerable<Language> languages;
-        public IEnumerable<Language> Languages =>
-            languages ??= from s in Scenarios
-                group s by s.ScenarioGroup.Language into g
-                let language = g.Key
-                orderby language.Name
-                select language;
-
-        public ReportSummary(Report report, Dictionary<int, Scenario> scenarios)
+        public ReportSummary(Report report, Dictionary<int, ScenarioSnapshot> scenarios)
             : base(report)
         {
             this.report = report;

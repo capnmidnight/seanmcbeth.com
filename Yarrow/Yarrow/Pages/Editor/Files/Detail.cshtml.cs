@@ -32,7 +32,7 @@ namespace Yarrow.Pages.Editor.Files
         {
             return new FileWithUsageCount(await Database.Files
                 .Include(f => f.MenuItems)
-                .Include(f => f.Gsvmetadatum)
+                .Include(f => f.GsvMetadatum)
                 .Include(f => f.AudioTracks)
                     .ThenInclude(a => a.Transform)
                 .Include(f => f.Signs)
@@ -54,7 +54,7 @@ namespace Yarrow.Pages.Editor.Files
             return await Database.Files
                 .Include(f => f.MenuItems)
                 .Include(f => f.AudioTracks)
-                .Include(f => f.Gsvmetadatum)
+                .Include(f => f.GsvMetadatum)
                 .Include(f => f.Signs)
                 .Include(f => f.Models)
                 .Include(f => f.VideoClips)
@@ -189,7 +189,7 @@ namespace Yarrow.Pages.Editor.Files
                         null,
                         null,
                         fileUpload.Copyright,
-                        fileUpload.CopyrightDate?.ToDateOnly(),
+                        fileUpload.CopyrightDate.ToDateOnly(),
                         fileID);
 
                     await Database.SaveChangesAsync();

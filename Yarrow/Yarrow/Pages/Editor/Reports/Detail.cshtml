@@ -155,7 +155,7 @@ else
 
             <dl>
                 <dt>Name</dt>
-                <dd><a href="~/Editor/Scenarios/Detail/@scenario.ScenarioID" target="_blank">@scenario.Name (@scenario.Language)</a></dd>
+                <dd><a href="~/Editor/Scenarios/Detail/@scenario.ScenarioID" target="_blank">@scenario.Name</a></dd>
 
                 <dt>Times visited</dt>
                 <dd>@(scenario.Visits.Count == 0 ? "None!" : scenario.Visits.Count.ToString())</dd>
@@ -388,7 +388,7 @@ else
                             </td>
                             <td>@log.Id</td>
                             <td>
-                                @log.Timestamp.ToLocalTime()
+                                @log.CreatedOn.ToLocalTime()
                             </td>
                             <td>
                                 @log.FromAddress

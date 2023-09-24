@@ -1,83 +1,52 @@
-using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Juniper.Data;
+
 using Microsoft.EntityFrameworkCore;
+
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Yarrow.Data
 {
     public partial class YarrowContext
     {
-        public virtual DbSet<Transform> Transforms { get; set; }
+        public DbSet<Transform> Transforms { get; set; }
     }
 
     public partial class Transform
     {
-        internal static void Configure(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<Transform>(entity =>
-            {
-                entity.HasIndex(e => e.ScenarioId, "fki_FK_Transform_Scenario");
-
-                entity.HasIndex(e => e.ParentTransformId, "fki_FK_Transforms_ParentTransforms");
-
-                entity.Property(e => e.Id).HasColumnName("ID");
-
-                entity.Property(e => e.Matrix)
-                    .IsRequired()
-                    .HasDefaultValueSql("'1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1'");
-
-                entity.Property(e => e.Name).IsRequired();
-
-                entity.Property(e => e.ParentTransformId).HasColumnName("ParentTransformID");
-
-                entity.Property(e => e.ScenarioId).HasColumnName("ScenarioID");
-
-                entity.HasOne(d => d.ParentTransform)
-                    .WithMany(p => p.InverseParentTransform)
-                    .HasForeignKey(d => d.ParentTransformId)
-                    .OnDelete(DeleteBehavior.Restrict)
-                    .HasConstraintName("FK_Transforms_ParentTransforms");
-
-                entity.HasOne(d => d.Scenario)
-                    .WithMany(p => p.Transforms)
-                    .HasForeignKey(d => d.ScenarioId)
-                    .OnDelete(DeleteBehavior.Restrict)
-                    .HasConstraintName("FK_Transform_Scenario");
-
-                entity.Ignore(e => e.Matrix);
-            });
-        }
-
-        public Transform()
-        {
-            AudioTracks = new HashSet<AudioTrack>();
-            InverseParentTransform = new HashSet<Transform>();
-            Models = new HashSet<Model>();
-            Signs = new HashSet<Sign>();
-            StationConnections = new HashSet<StationConnection>();
-            VideoClips = new HashSet<VideoClip>();
-            Texts = new HashSet<Text>();
-        }
-
         public int Id { get; set; }
         public string Name { get; set; }
+
+        [DefaultValueSql("'1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1'")]
         public string MatrixString { get; set; }
-        private float[] matrix;
+        private float[]? matrix;
+
+        [NotMapped]
         public float[] Matrix
         {
             get => matrix ??= MatrixString.Split(',').Select(float.Parse).ToArray();
             set => MatrixString = (matrix = value).Select(v => v.ToString()).ToArray().Join(",");
         }
+
+        [ForeignKey(nameof(ParentTransform))]
         public int? ParentTransformId { get; set; }
+
+        [ForeignKey(nameof(Scenario))]
         public int ScenarioId { get; set; }
 
-        public virtual Transform ParentTransform { get; set; }
-        public virtual Scenario Scenario { get; set; }
-        public virtual Station Station { get; set; }
-        public virtual ICollection<AudioTrack> AudioTracks { get; set; }
-        public virtual ICollection<Transform> InverseParentTransform { get; set; }
-        public virtual ICollection<Model> Models { get; set; }
-        public virtual ICollection<Sign> Signs { get; set; }
-        public virtual ICollection<StationConnection> StationConnections { get; set; }
-        public virtual ICollection<VideoClip> VideoClips { get; set; }
-        public virtual ICollection<Text> Texts { get; set; }
+        [DeleteBehavior(DeleteBehavior.Cascade)]
+        public Transform? ParentTransform { get; set; }
+
+        [DeleteBehavior(DeleteBehavior.Cascade)]
+        public ScenarioSnapshot? Scenario { get; set; }
+
+        public Station? Station { get; set; }
+
+        public ICollection<AudioTrack> AudioTracks { get; set; } = new HashSet<AudioTrack>();
+        public ICollection<Transform> InverseParentTransform { get; set; } = new HashSet<Transform>();
+        public ICollection<Model> Models { get; set; } = new HashSet<Model>();
+        public ICollection<Sign> Signs { get; set; } = new HashSet<Sign>();
+        public ICollection<StationConnection> StationConnections { get; set; } = new HashSet<StationConnection>();
+        public ICollection<VideoClip> VideoClips { get; set; } = new HashSet<VideoClip>();
+        public ICollection<Text> Texts { get; set; } = new HashSet<Text>(); 
     }
 }

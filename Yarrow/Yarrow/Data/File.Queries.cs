@@ -20,7 +20,7 @@ namespace Yarrow.Data
                 .OrderBy(t => t.Name)
                 .Select(t => t.Name);
 
-        public async Task<File> SaveFileAsync(IFormFile fileInput, string altContentType, string tagsString, string copyright, DateOnly? copyrightDate, int? fileID = null)
+        public async Task<File> SaveFileAsync(IFormFile fileInput, string altContentType, string tagsString, string copyright, DateOnly copyrightDate, int? fileID = null)
         {
             if (fileInput is null)
             {
@@ -37,9 +37,9 @@ namespace Yarrow.Data
             return await SaveFileAsync(fileName, length, contentType, altContentType, data, tagsString, copyright, copyrightDate, fileID);
         }
 
-        public async Task<File> SaveFileAsync(string fileName, int length, string contentType, string altContentType, byte[] data, string tagsString, string copyright, DateOnly? copyrightDate, int? fileID = null)
+        public async Task<File> SaveFileAsync(string fileName, int length, string contentType, string? altContentType, byte[] data, string tagsString, string copyright, DateOnly copyrightDate, int? fileID = null)
         {
-            File file = null;
+            File? file = null;
 
             if (fileID is null)
             {
@@ -81,15 +81,10 @@ namespace Yarrow.Data
                 }
             }
 
-            if (copyright is not null)
-            {
-                copyright = Uri.UnescapeDataString(copyright.Trim());
-            }
-
             file.AltMime = altContentType;
-            file.Copyright = copyright;
+            file.Copyright = Uri.UnescapeDataString(copyright.Trim());
             file.CopyrightDate = copyrightDate;
-            file.Timestamp = DateTime.UtcNow;
+            file.CreatedOn = DateTime.UtcNow;
 
             if (string.IsNullOrEmpty(contentType)
                 || contentType == MediaType.Application_Octet_Stream)
@@ -109,7 +104,7 @@ namespace Yarrow.Data
             return file;
         }
 
-        public Task<File> GetFileAsync(int fileID) =>
+        public Task<File?> GetFileAsync(int fileID) =>
             Files.SingleOrDefaultAsync(f => f.Id == fileID);
 
         public async Task<string> GetFileAsText(int fileID)
@@ -147,7 +142,7 @@ namespace Yarrow.Data
         {
             var file = await Files
                 .Include(f => f.Tags)
-                .Include(f => f.Gsvmetadatum)
+                .Include(f => f.GsvMetadatum)
                 .Include(f => f.FileContent)
                 .SingleOrDefaultAsync(f => f.Id == fileID);
 
@@ -156,9 +151,9 @@ namespace Yarrow.Data
                 throw new FileNotFoundException();
             }
 
-            if (file.Gsvmetadatum is not null)
+            if (file.GsvMetadatum is not null)
             {
-                Gsvmetadata.Remove(file.Gsvmetadatum);
+                GsvMetadata.Remove(file.GsvMetadatum);
             }
 
             if (file.FileContent is not null)
@@ -171,7 +166,7 @@ namespace Yarrow.Data
             await SaveChangesAsync();
         }
 
-        public async Task<int> SavePhotosphereAsync(IFormFile file, string pano, float latitude, float longitude, string copyright, DateOnly? date = null, int? fileID = null)
+        public async Task<int> SavePhotosphereAsync(IFormFile file, string pano, float latitude, float longitude, string copyright, DateOnly date, int? fileID = null)
         {
             var fileInfo = await SaveFileAsync(
                 file,
@@ -181,17 +176,20 @@ namespace Yarrow.Data
                 date,
                 fileID);
 
-            var sphere = await Gsvmetadata
+            var sphere = await GsvMetadata
                 .SingleOrDefaultAsync(gsvm => gsvm.FileId == fileID);
 
             if (sphere is null)
             {
-                sphere = new Gsvmetadatum
+                sphere = new GsvMetadatum
                 {
-                    Pano = pano
+                    Pano = pano,
+                    FileId = fileInfo.Id,
+                    Latitude = latitude,
+                    Longitude = longitude,
                 };
                 sphere.File = fileInfo;
-                Gsvmetadata.Add(sphere);
+                GsvMetadata.Add(sphere);
             }
 
             sphere.Latitude = latitude;
@@ -209,7 +207,7 @@ namespace Yarrow.Data
                 fileUpload.AltContentType,
                 fileUpload.TagString,
                 fileUpload.Copyright,
-                fileUpload.CopyrightDate?.ToDateOnly());
+                fileUpload.CopyrightDate.ToDateOnly());
 
             await SaveChangesAsync();
 

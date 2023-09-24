@@ -20,7 +20,7 @@ namespace Yarrow.Models
             string mediaType,
             string trueMediaType,
             string copyright,
-            DateTime? copyrightDate,
+            DateTime copyrightDate,
             int key,
             int scenarioID,
             int transformID,
@@ -45,7 +45,7 @@ namespace Yarrow.Models
             Label = label;
         }
 
-        protected AbstractMediaAsset(Scenario scenario, IMediaAsset asset)
+        protected AbstractMediaAsset(ScenarioSnapshot scenario, IMediaAsset asset)
             : base(scenario, asset)
         {
             Volume = asset.Volume;

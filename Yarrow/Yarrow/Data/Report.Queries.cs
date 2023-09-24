@@ -8,9 +8,8 @@ namespace Yarrow.Data
     {
         public async Task<IEnumerable<ReportSummary>> GetReportSummariesAsync(int? orgId, string userID = null)
         {
-            var scenarios = await Scenarios
+            var scenarios = await ScenariosSnapshots
                 .Include(s => s.ScenarioGroup)
-                    .ThenInclude(sg => sg.Language)
                 .Include(s => s.ScenarioGroup)
                     .ThenInclude(sg => sg.Organizations)
                 .Where(s => s.ScenarioGroup.Organizations.Any(o => orgId == null || o.Id == orgId))
@@ -22,7 +21,7 @@ namespace Yarrow.Data
                     .ThenInclude(u => u.User)
                 .Include(r => r.Logs)
                 .Where(r => orgId == null || r.User.OrganizationID == orgId)
-                .OrderBy(r => r.Timestamp)
+                .OrderBy(r => r.CreatedOn)
                 .Select(r => new ReportSummary(r, scenarios));
         }
     }

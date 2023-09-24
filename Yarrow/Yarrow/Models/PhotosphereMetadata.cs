@@ -7,8 +7,8 @@ namespace Yarrow.Models
         public int FileID { get; }
         public string FileName { get; }
 
-        public PhotosphereMetadata(Gsvmetadatum data)
-            : base(data.Pano, data.Latitude, data.Longitude, data.File.Copyright, data.File.CopyrightDate?.ToDateTime(TimeOnly.MinValue))
+        public PhotosphereMetadata(GsvMetadatum data)
+            : base(data.Pano, data.Latitude, data.Longitude, data.File.Copyright, data.File.CopyrightDate.ToDateTime(TimeOnly.MinValue))
         {
             FileID = data.FileId;
             FileName = data.File.Name;

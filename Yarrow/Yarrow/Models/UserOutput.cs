@@ -8,19 +8,17 @@ namespace Yarrow.Models
 {
     public class UserOutput
     {
-        private readonly IdentityUser user;
+        private readonly IdentityUser? user;
         private readonly Organization org;
-        private readonly Room room;
-        private readonly UserProfile headset;
-        private readonly UserProfile headsetUser;
-
-        public string UserName => user?.UserName;
-        public string UserID => user?.Id;
-        public string Email => user?.Email;
+        private readonly Room? room;
+        
+        public string? UserName => user?.UserName;
+        public string? UserID => user?.Id;
+        public string? Email => user?.Email;
         public DateTimeOffset? LockoutEnd => user?.LockoutEnd;
         public bool HasPassword => user?.PasswordHash is not null;
 
-        public string UserType =>
+        public string? UserType =>
             IsStudent
                 ? "Student"
                 : IsInstructor
@@ -28,7 +26,7 @@ namespace Yarrow.Models
                     : null;
 
         public int? OrganizationID => org?.Id;
-        public string OrganizationName => org?.Name;
+        public string? OrganizationName => org?.Name;
 
         public int? VisibleOrganizationID =>
             IsAdmin
@@ -36,16 +34,10 @@ namespace Yarrow.Models
                 : OrganizationID;
 
         public int? RoomID => room?.Id;
-        public string RoomName => room?.Name;
+        public string? RoomName => room?.Name;
 
-        public string HeadsetID => headset?.UserId;
-        public string HeadsetName => headset?.User?.UserName;
-
-        public string HeadsetUserID => headsetUser?.UserId;
-        public string HeadsetUserName => headsetUser?.User?.UserName;
-
-        public string FullName { get; }
-        public string DisplayName { get; }
+        public string? FullName { get; }
+        public string? DisplayName { get; }
         public string RolesString { get; }
 
         public DateTime? CreatedOn { get; }
@@ -57,9 +49,7 @@ namespace Yarrow.Models
             user = null;
             org = anon;
             room = null;
-            headset = null;
-            headsetUser = null;
-
+            
             FullName = null;
             DisplayName = null;
             RolesString = "";
@@ -72,22 +62,15 @@ namespace Yarrow.Models
         public UserOutput(UserProfile profile, Organization anon, IEnumerable<string> roles)
         {
             user = profile?.User;
-            org = profile?.Organization ?? anon;
-            headset = profile?.Headset;
-            headsetUser = profile?.HeadsetUser;
-
-            // In which room is the user located (who might be impersonated by a headset)
-            room = headset?.Room // user is logged in as themsleves, but they have a headset assigned to them, and the headset is assigned to a room
-                ?? profile?.Room // user or headset is logged in as themselves, they have no headset
-                ?? headsetUser?.Room; // headset is logged in as itself, a user is assigned to it, and the user has a room assign
-
+            org = profile?.Organization ?? anon;            
+            room = profile?.Room;
             FullName = profile?.FullName;
             DisplayName = profile?.DisplayName;
             RolesString = roles
                 .OrderBy(Always.Identity)
                 .ToString(", ");
 
-            CreatedOn = profile?.Timestamp;
+            CreatedOn = profile?.CreatedOn;
 
             Roles = new HashSet<string>(roles);
         }
@@ -106,8 +89,6 @@ namespace Yarrow.Models
         public bool IsStudent => IsInRole(Role.Student);
 
         public bool IsInstructor => IsInRole(Role.Instructor);
-
-        public bool IsHeadset => IsInRole(Role.Headset);
 
         public bool IsDeveloper => IsInRole(Role.Developer);
 

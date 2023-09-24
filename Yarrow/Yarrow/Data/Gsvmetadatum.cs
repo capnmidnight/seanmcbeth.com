@@ -1,46 +1,28 @@
+// Ignore Spelling: Gsv Metadatum Metadata Pano
+
 using Microsoft.EntityFrameworkCore;
+
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Yarrow.Data
 {
     public partial class YarrowContext
     {
-        public virtual DbSet<Gsvmetadatum> Gsvmetadata { get; set; }
+        public DbSet<GsvMetadatum> GsvMetadata { get; set; }
     }
 
-    public partial class Gsvmetadatum
+    public partial class GsvMetadatum
     {
-        internal static void Configure(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<Gsvmetadatum>(entity =>
-            {
-                entity.HasKey(e => e.FileId)
-                    .HasName("GSVMetadata_pkey");
+        [Key]
+        [ForeignKey(nameof(File))]
+        public required int FileId { get; set; }
 
-                entity.ToTable("GSVMetadata");
+        [DeleteBehavior(DeleteBehavior.Cascade)]
+        public File? File { get; set; }
 
-                entity.HasIndex(e => e.Pano, "GSVMetadata_unique_pano")
-                    .IsUnique();
-
-                entity.HasIndex(e => e.FileId, "fki_Metadata_Files");
-
-                entity.Property(e => e.FileId)
-                    .ValueGeneratedNever()
-                    .HasColumnName("FileID");
-
-                entity.Property(e => e.Pano).IsRequired();
-
-                entity.HasOne(d => d.File)
-                    .WithOne(p => p.Gsvmetadatum)
-                    .HasForeignKey<Gsvmetadatum>(d => d.FileId)
-                    .HasConstraintName("fk_Metadata_Files");
-            });
-        }
-
-        public int FileId { get; set; }
-        public string Pano { get; set; }
-        public float Latitude { get; set; }
-        public float Longitude { get; set; }
-
-        public virtual File File { get; set; }
+        public required string Pano { get; set; }
+        public required float Latitude { get; set; }
+        public required float Longitude { get; set; }
     }
 }

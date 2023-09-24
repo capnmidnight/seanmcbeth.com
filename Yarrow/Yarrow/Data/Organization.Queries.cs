@@ -10,7 +10,7 @@ namespace Yarrow.Data
                 .SingleOrDefaultAsync(org => org.Id == organizationID)
                 ?? throw new FileNotFoundException();
 
-            var scenarioGroup = GetScenarioGroups(null, null, null, null)
+            var scenarioGroup = GetScenarioGroups(null, null, null)
                 .FirstOrDefault(sg => sg.Id == scenarioGroupID)
                 ?? throw new FileNotFoundException();
 

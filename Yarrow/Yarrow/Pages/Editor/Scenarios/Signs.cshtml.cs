@@ -24,7 +24,7 @@ namespace Yarrow.Pages.Editor.Scenarios
 
         public async Task<IActionResult> OnPostCreateAsync(int scenarioID, [FromBody] SignCreateInput input)
         {
-            var scenario = await Database.Scenarios
+            var scenario = await Database.ScenariosSnapshots
                 .SingleOrDefaultAsync(a => a.Id == scenarioID);
 
             if (scenario is null)
@@ -89,7 +89,7 @@ namespace Yarrow.Pages.Editor.Scenarios
 
         public async Task<IActionResult> OnPostUpdateAsync(int scenarioID, [FromBody] SignUpdateInput input)
         {
-            var scenario = await Database.Scenarios
+            var scenario = await Database.ScenariosSnapshots
                 .SingleOrDefaultAsync(a => a.Id == scenarioID);
 
             if (scenario is null)
@@ -118,7 +118,7 @@ namespace Yarrow.Pages.Editor.Scenarios
 
         public async Task<IActionResult> OnPostDeleteAsync(int scenarioID, [FromBody] int signID)
         {
-            var scenario = await Database.Scenarios
+            var scenario = await Database.ScenariosSnapshots
                 .SingleOrDefaultAsync(a => a.Id == scenarioID);
 
             if (scenario is null)

@@ -6,7 +6,6 @@ namespace Yarrow.Models
 
         public int? ScenarioID => Scenario?.ID;
 
-        public string Language => Scenario?.LanguageName;
         public string Name => Scenario?.Name;
 
         private readonly Dictionary<int, TransformOutput> transforms = new();

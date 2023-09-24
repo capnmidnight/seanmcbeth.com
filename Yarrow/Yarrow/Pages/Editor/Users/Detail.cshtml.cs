@@ -18,16 +18,13 @@ namespace Yarrow.Pages.Editor.Users
         private readonly IConfiguration config;
 
         public UserOutput UserProfile { get; private set; }
-        public IEnumerable<Scenario> Scenarios { get; private set; }
+        public IEnumerable<ScenarioSnapshot> Scenarios { get; private set; }
         public IEnumerable<ReportSummary> Reports { get; private set; }
         public Log[] Logs { get; private set; }
         public IEnumerable<IdentityRole> Roles { get; private set; }
         public IEnumerable<Organization> Organizations { get; private set; }
         public IEnumerable<Room> Rooms { get; private set; }
-        public IEnumerable<IdentityUser> Headsets { get; private set; }
         public IEnumerable<IdentityUser> Users { get; private set; }
-
-        public IEnumerable<Language> Languages { get; private set; }
 
         [BindProperty]
         public bool[] SelectedLog { get; set; }
@@ -82,25 +79,19 @@ namespace Yarrow.Pages.Editor.Users
                 .Rooms
                 .OrderBy(r => r.Name);
 
-            Headsets = await users.GetUsersInRoleAsync(Role.Headset);
             Users = users.Users
-                .AsEnumerable()
-                .Where(u => !(users.IsInRoleAsync(u, Role.Headset).Result));
+                .AsEnumerable();
 
-            Scenarios = Database.Scenarios
+            Scenarios = Database.ScenariosSnapshots
                 .Include(s => s.ScenarioGroup)
-                    .ThenInclude(sg => sg.Language)
                 .Include(s => s.CreatedBy)
                     .ThenInclude(u => u.User)
                 .Include(s => s.PublishedBy)
                     .ThenInclude(u => u.User)
                 .Where(s => s.CreatedById == userID
                     || s.PublishedById == userID)
-                .OrderBy(s => s.ScenarioGroup.Language.Name)
                 .OrderBy(s => s.ScenarioGroup.Name)
                 .ThenByDescending(s => s.Version);
-
-            Languages = Database.GetLanguages(false);
 
             return Page();
         }
@@ -166,8 +157,6 @@ namespace Yarrow.Pages.Editor.Users
                 var identUser = await users.FindByIdAsync(profile.UserId)
                     ?? throw new FileNotFoundException($"No user found for id {userID}");
 
-                var isHeadset = await users.IsInRoleAsync(identUser, Role.Headset);
-
                 var message = new List<string>();
                 if (input.FullName != profile.FullName)
                 {
@@ -206,17 +195,10 @@ namespace Yarrow.Pages.Editor.Users
                 }
 
                 if (input.CreatedOn is not null
-                    && input.CreatedOn.Value != profile.Timestamp)
+                    && input.CreatedOn.Value != profile.CreatedOn)
                 {
-                    message.Add($@"Created date changed from ""{profile.Timestamp}"" to ""{input.CreatedOn}""");
-                    profile.Timestamp = input.CreatedOn.Value.ToUniversalTime().UtcDateTime;
-                }
-
-                if (!isHeadset && input.HeadsetID != profile.HeadsetId)
-                {
-                    var headset = await Database.GetUserProfileAsync(input.HeadsetID);
-                    message.Add($@"Headset changed from ""{profile.Headset?.FullName ?? "none"}"" to ""{headset?.FullName ?? "none"}""");
-                    profile.HeadsetId = input.HeadsetID;
+                    message.Add($@"Created date changed from ""{profile.CreatedOn}"" to ""{input.CreatedOn}""");
+                    profile.CreatedOn = input.CreatedOn.Value.ToUniversalTime().UtcDateTime;
                 }
 
                 if (message.Count > 0)

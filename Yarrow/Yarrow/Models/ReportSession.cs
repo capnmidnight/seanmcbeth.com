@@ -105,7 +105,7 @@ namespace Yarrow.Models
                             scenarios.Add(scenarioID, report = new ReportScenario(scenario));
                         }
 
-                        report.Visits.Start(log.Timestamp, End);
+                        report.Visits.Start(log.CreatedOn, End);
                     }
                 }
             });
@@ -126,7 +126,7 @@ namespace Yarrow.Models
                     else
                     {
                         var scenario = scenarios[scenarioID];
-                        if (!scenario.Visits.End(log.Timestamp))
+                        if (!scenario.Visits.End(log.CreatedOn))
                         {
                             AdditionalLogs.Add(log);
                         }
@@ -163,7 +163,7 @@ namespace Yarrow.Models
                             var found = false;
                             foreach (var scenario in allScenarios)
                             {
-                                if (func(scenario, id, log.Timestamp))
+                                if (func(scenario, id, log.CreatedOn))
                                 {
                                     found = true;
                                     break;
@@ -202,7 +202,7 @@ namespace Yarrow.Models
                             var found = false;
                             foreach (var scenario in allScenarios)
                             {
-                                if (func(scenario, id, log.Timestamp, duration))
+                                if (func(scenario, id, log.CreatedOn, duration))
                                 {
                                     found = true;
                                     break;
@@ -231,7 +231,7 @@ namespace Yarrow.Models
                         var found = false;
                         foreach (var scenario in allScenarios)
                         {
-                            if (scenario.RecordSignPageLoaded(id, log.Timestamp, page))
+                            if (scenario.RecordSignPageLoaded(id, log.CreatedOn, page))
                             {
                                 found = true;
                                 break;

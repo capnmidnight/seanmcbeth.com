@@ -65,3 +65,5 @@ package-lock.json
 /deploy/
 /UnrealVRProject1/
 /.vscode
+*.db-shm
+*.db-wal

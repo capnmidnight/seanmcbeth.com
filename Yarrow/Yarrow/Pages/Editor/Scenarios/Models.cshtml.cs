@@ -19,7 +19,7 @@ namespace Yarrow.Pages.Editor.Scenarios
 
         public async Task<IActionResult> OnPostCreateAsync(int scenarioID, [FromBody] ModelCreateInput input)
         {
-            var scenario = await Database.Scenarios
+            var scenario = await Database.ScenariosSnapshots
                 .SingleOrDefaultAsync(a => a.Id == scenarioID);
 
             if (scenario is null)
@@ -77,7 +77,7 @@ namespace Yarrow.Pages.Editor.Scenarios
 
         public async Task<IActionResult> OnPostUpdateAsync(int scenarioID, [FromBody] ModelUpdateInput input)
         {
-            var scenario = await Database.Scenarios
+            var scenario = await Database.ScenariosSnapshots
                 .SingleOrDefaultAsync(a => a.Id == scenarioID);
 
             if (scenario is null)
@@ -103,7 +103,7 @@ namespace Yarrow.Pages.Editor.Scenarios
 
         public async Task<IActionResult> OnPostDeleteAsync(int scenarioID, [FromBody] int modelID)
         {
-            var scenario = await Database.Scenarios
+            var scenario = await Database.ScenariosSnapshots
                 .SingleOrDefaultAsync(a => a.Id == scenarioID);
 
             if (scenario is null)

@@ -16,7 +16,7 @@ namespace Yarrow.Models
         public string MediaType { get; }
         public string TrueMediaType { get; }
         public string Copyright { get; }
-        public DateTime? CopyrightDate { get; }
+        public DateTime CopyrightDate { get; }
 
         [JsonConstructor]
         protected AbstractFileAsset(
@@ -27,7 +27,7 @@ namespace Yarrow.Models
             string mediaType,
             string trueMediaType,
             string copyright,
-            DateTime? copyrightDate)
+            DateTime copyrightDate)
         {
             FileID = fileID;
             FileName = fileName;
@@ -53,7 +53,7 @@ namespace Yarrow.Models
                   asset.File.AltMime ?? asset.File.Mime,
                   asset.File.Mime,
                   asset.File.Copyright,
-                  asset.File.CopyrightDate?.ToDateTime(TimeOnly.MinValue))
+                  asset.File.CopyrightDate.ToDateTime(TimeOnly.MinValue))
         {
         }
 

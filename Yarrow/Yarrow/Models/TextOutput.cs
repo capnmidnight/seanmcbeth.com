@@ -21,7 +21,7 @@ namespace Yarrow.Models
             string mediaType,
             string trueMediaType,
             string copyright,
-            DateTime? copyrightDate,
+            DateTime copyrightDate,
             int key,
             int scenarioID,
             int transformID,
@@ -46,7 +46,7 @@ namespace Yarrow.Models
             Text = text;
         }
 
-        public TextOutput(Scenario scenario, Text t)
+        public TextOutput(ScenarioSnapshot scenario, Text t)
             : base(scenario, t)
         {
             IsCallout = t.IsCallout;

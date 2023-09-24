@@ -8,9 +8,7 @@ namespace Yarrow.Pages.Editor.Scenarios
 {
     public class DetailModel : EditorPageModel
     {
-        public ScenarioGroup ScenarioGroup { get; private set; }
-
-        public IEnumerable<Language> Languages { get; private set; }
+        public Scenario ScenarioGroup { get; private set; }
 
         public IEnumerable<Organization> Organizations { get; private set; }
 
@@ -28,18 +26,12 @@ namespace Yarrow.Pages.Editor.Scenarios
 
             try
             {
-                ScenarioGroup = await Database.GetScenarioGroups(CurrentUser.VisibleOrganizationID, null, null, null)
+                ScenarioGroup = await Database.GetScenarioGroups(CurrentUser.VisibleOrganizationID, null, null)
                     .SingleOrDefaultAsync(sg => sg.Id == scenarioGroupID);
             }
             catch (UnauthorizedAccessException)
             {
                 return Forbid();
-            }
-
-            Languages = Database.GetLanguages(CurrentUser.IsAdmin);
-            if (CurrentUser.IsAdmin)
-            {
-                Organizations = Database.Organizations.OrderBy(o => o.Name);
             }
 
             return Page();
@@ -58,13 +50,8 @@ namespace Yarrow.Pages.Editor.Scenarios
                     var messages = new List<string>();
 
                     var group = Database
-                        .ScenarioGroups
+                        .Scenarios
                         .SingleOrDefault(scn => scn.Id == scenarioGroupID);
-                    if (group.LanguageId != input.LanguageId)
-                    {
-                        messages.Add("Changed language.");
-                        group.LanguageId = input.LanguageId;
-                    }
 
                     if (group.Name != input.Name)
                     {
@@ -113,7 +100,7 @@ namespace Yarrow.Pages.Editor.Scenarios
                 () => OnGetAsync(scenarioGroupID),
                 async () =>
                 {
-                    var group = await Database.ScenarioGroups
+                    var group = await Database.Scenarios
                         .Include(g => g.Scenarios)
                         .Include(g => g.MenuItems)
                         .SingleOrDefaultAsync(g => g.Id == scenarioGroupID);
@@ -123,7 +110,7 @@ namespace Yarrow.Pages.Editor.Scenarios
                         await Database.DeleteScenarioAsync(scenario);
                     }
 
-                    Database.ScenarioGroups.Remove(group);
+                    Database.Scenarios.Remove(group);
                     Database.MenuItems.RemoveRange(group.MenuItems);
 
                     await Database.SaveChangesAsync();

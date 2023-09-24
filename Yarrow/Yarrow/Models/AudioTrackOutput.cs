@@ -22,7 +22,7 @@ namespace Yarrow.Models
             string mediaType,
             string trueMediaType,
             string copyright,
-            DateTime? copyrightDate,
+            DateTime copyrightDate,
             int key,
             int scenarioID,
             int transformID,
@@ -57,7 +57,7 @@ namespace Yarrow.Models
             Spatialize = spatialize;
         }
 
-        public AudioTrackOutput(Scenario scenario, AudioTrack at)
+        public AudioTrackOutput(ScenarioSnapshot scenario, AudioTrack at)
             : base(scenario, at)
         {
             Zone = at.Zone ?? "";

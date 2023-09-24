@@ -10,7 +10,7 @@ namespace Yarrow.Models
         public string FilePath { get; }
         public string TagsString { get; }
         public string Copyright { get; }
-        public DateTime? CopyrightDate { get; }
+        public DateTime CopyrightDate { get; }
         public int Size { get; }
         public string SizeString { get; }
         public DateTime CreatedOn { get; }
@@ -30,8 +30,8 @@ namespace Yarrow.Models
                 .Select(t => t.Name)
                 .ToString(", ");
             Copyright = data.Copyright;
-            CopyrightDate = data.CopyrightDate?.ToDateTime(TimeOnly.MinValue);
-            CreatedOn = data.Timestamp;
+            CopyrightDate = data.CopyrightDate.ToDateTime(TimeOnly.MinValue);
+            CreatedOn = data.CreatedOn;
         }
     }
 }

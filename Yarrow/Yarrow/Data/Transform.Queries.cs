@@ -4,7 +4,7 @@ namespace Yarrow.Data
 {
     public partial class YarrowContext
     {
-        public async Task DeleteTransformTree(Scenario scenario, int startTransformId)
+        public async Task DeleteTransformTree(ScenarioSnapshot scenario, int startTransformId)
         {
             var allTransforms = Transforms
                 .Include(t => t.Station)

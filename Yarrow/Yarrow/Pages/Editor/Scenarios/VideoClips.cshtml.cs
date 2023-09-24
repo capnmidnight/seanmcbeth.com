@@ -34,7 +34,7 @@ namespace Yarrow.Pages.Editor.Scenarios
         /// </returns>
         public async Task<IActionResult> OnPostCreateAsync(int scenarioID, [FromBody] VideoClipCreateInput input)
         {
-            var scenario = await Database.Scenarios
+            var scenario = await Database.ScenariosSnapshots
                 .SingleOrDefaultAsync(a => a.Id == scenarioID);
 
             if (scenario is null)
@@ -98,7 +98,7 @@ namespace Yarrow.Pages.Editor.Scenarios
 
         public async Task<IActionResult> OnPostUpdateAsync(int scenarioID, [FromBody] VideoClipUpdateInput input)
         {
-            var scenario = await Database.Scenarios
+            var scenario = await Database.ScenariosSnapshots
                 .SingleOrDefaultAsync(a => a.Id == scenarioID);
 
             if (scenario is null)
@@ -129,7 +129,7 @@ namespace Yarrow.Pages.Editor.Scenarios
 
         public async Task<IActionResult> OnPostDeleteAsync(int scenarioID, [FromBody] int videoClipID)
         {
-            var scenario = await Database.Scenarios
+            var scenario = await Database.ScenariosSnapshots
                 .SingleOrDefaultAsync(a => a.Id == scenarioID);
 
             if (scenario is null)

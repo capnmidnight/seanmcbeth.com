@@ -14,7 +14,7 @@ namespace Yarrow.Pages.Editor.Scenarios
     {
         public Version AppVersion { get; }
 
-        public Scenario Scenario { get; private set; }
+        public ScenarioSnapshot Scenario { get; private set; }
 
         public LayoutModel(YarrowContext db, IConfiguration config, IWebHostEnvironment env, ILogger<LayoutModel> logger)
             : base(db, "layout", env, logger)
@@ -38,7 +38,7 @@ namespace Yarrow.Pages.Editor.Scenarios
                     return Forbid();
                 }
 
-                Scenario = await Database.Scenarios
+                Scenario = await Database.ScenariosSnapshots
                     .Include(s => s.ScenarioGroup)
                         .ThenInclude(sg => sg.Organizations)
                     .FirstOrDefaultAsync(s => s.Id == scenarioID);
@@ -52,9 +52,9 @@ namespace Yarrow.Pages.Editor.Scenarios
             }
         }
 
-        private async Task<IActionResult> WithScenarioAsync(int scenarioID, Func<Scenario, Task<IActionResult>> action)
+        private async Task<IActionResult> WithScenarioAsync(int scenarioID, Func<ScenarioSnapshot, Task<IActionResult>> action)
         {
-            var scenario = Database.Scenarios.SingleOrDefault(s => s.Id == scenarioID);
+            var scenario = Database.ScenariosSnapshots.SingleOrDefault(s => s.Id == scenarioID);
             if (scenario is null)
             {
                 return NotFound();
@@ -63,9 +63,9 @@ namespace Yarrow.Pages.Editor.Scenarios
             return await action(scenario);
         }
 
-        private IActionResult WithScenario(int scenarioID, Func<Scenario, IActionResult> action)
+        private IActionResult WithScenario(int scenarioID, Func<ScenarioSnapshot, IActionResult> action)
         {
-            var scenario = Database.Scenarios.SingleOrDefault(s => s.Id == scenarioID);
+            var scenario = Database.ScenariosSnapshots.SingleOrDefault(s => s.Id == scenarioID);
             if (scenario is null)
             {
                 return NotFound();

@@ -74,15 +74,14 @@ namespace Yarrow.Pages.Editor.Scenarios
                         orgs.Add(Database.Organizations.Single(o => o.Id == input.OrganizationId));
                     }
 
-                    var group = new ScenarioGroup
+                    var group = new Scenario
                     {
-                        LanguageId = input.LanguageId,
                         Name = input.Name,
                         Organizations = orgs,
                         CreatedById = CurrentUser.UserID
                     };
 
-                    var scenario = new Scenario
+                    var scenario = new ScenarioSnapshot
                     {
                         ScenarioGroup = group,
                         CreatedById = CurrentUser.UserID,
@@ -95,8 +94,8 @@ namespace Yarrow.Pages.Editor.Scenarios
                             }
                         }
                     };
-                    await Database.ScenarioGroups.AddAsync(group);
-                    await Database.Scenarios.AddAsync(scenario);
+                    await Database.Scenarios.AddAsync(group);
+                    await Database.ScenariosSnapshots.AddAsync(scenario);
                     await Database.SaveChangesAsync();
                     return $"redirect:~/Editor/Scenarios/Detail/{scenario.ScenarioGroupId}";
                 });

@@ -20,9 +20,7 @@ namespace Yarrow.Pages.Editor.Reports
 
         public IEnumerable<string> Names { get; set; }
 
-        public IEnumerable<Language> Languages { get; set; }
-
-        public IEnumerable<Scenario> Scenarios { get; set; }
+        public IEnumerable<ScenarioSnapshot> Scenarios { get; set; }
 
         public async Task<IActionResult> OnGet()
         {
@@ -37,13 +35,9 @@ namespace Yarrow.Pages.Editor.Reports
                 .Select(r => r.DisplayName)
                 .Distinct()
                 .OrderBy(Always.Identity);
-            Languages = Database
-                .Languages
-                .OrderBy(l => l.Name);
             Scenarios = Database
-                .Scenarios
+                .ScenariosSnapshots
                 .Include(s => s.ScenarioGroup)
-                    .ThenInclude(g => g.Language)
                 .OrderBy(s => s.ScenarioGroup.Name);
 
             return Page();

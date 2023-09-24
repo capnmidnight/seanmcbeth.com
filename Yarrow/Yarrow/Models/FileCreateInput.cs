@@ -10,6 +10,6 @@ namespace Yarrow.Models
         public string AltContentType { get; set; }
         public string TagString { get; set; }
         public string Copyright { get; set; }
-        public DateTime? CopyrightDate { get; set; }
+        public DateTime CopyrightDate { get; set; }
     }
 }

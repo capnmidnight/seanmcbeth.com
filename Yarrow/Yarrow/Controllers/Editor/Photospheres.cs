@@ -21,13 +21,13 @@ namespace Yarrow.Controllers.Editor
 
         [HttpGet]
         public IActionResult GetAll() =>
-            new ObjectResult(db.Gsvmetadata
+            new ObjectResult(db.GsvMetadata
                 .Include(g => g.File)
                 .Select(g => new PhotosphereMetadata(g)));
 
         [HttpGet("{fileID:int}")]
         public async Task<IActionResult> Get(int fileID) =>
-            new ObjectResult(await db.Gsvmetadata
+            new ObjectResult(await db.GsvMetadata
                 .Include(g => g.File)
                 .Where(g => g.FileId == fileID)
                 .Select(g => new PhotosphereMetadata(g))
@@ -35,7 +35,7 @@ namespace Yarrow.Controllers.Editor
 
         [HttpGet("search/{pano}")]
         public async Task<IActionResult> Search(string pano) =>
-            new ObjectResult(await db.Gsvmetadata
+            new ObjectResult(await db.GsvMetadata
                 .Include(g => g.File)
                 .Where(g => g.Pano == pano)
                 .Select(g => new PhotosphereMetadata(g))
@@ -50,7 +50,7 @@ namespace Yarrow.Controllers.Editor
                     input.Latitude,
                     input.Longitude,
                     input.Copyright,
-                    input.Date?.ToDateOnly()));
+                    input.Date.ToDateOnly()));
 
         [HttpPost("create/{fileID:int}")]
         public async Task<IActionResult> Update(int fileID, [FromForm] PhotosphereInput input) =>
@@ -60,7 +60,7 @@ namespace Yarrow.Controllers.Editor
                 input.Latitude,
                 input.Longitude,
                 input.Copyright,
-                input.Date?.ToDateOnly(),
+                input.Date.ToDateOnly(),
                 fileID));
     }
 }

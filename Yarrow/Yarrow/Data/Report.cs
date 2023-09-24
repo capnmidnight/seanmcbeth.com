@@ -1,47 +1,29 @@
+using Juniper.Data;
+
 using Microsoft.EntityFrameworkCore;
+
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Yarrow.Data
 {
     public partial class YarrowContext
     {
-        public virtual DbSet<Report> Reports { get; set; }
+        public DbSet<Report> Reports { get; set; }
     }
 
     public partial class Report
     {
-        internal static void Configure(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<Report>(entity =>
-            {
-                entity.HasKey(e => e.Id);
-
-                entity.Property(e => e.UserId)
-                    .IsRequired(false);
-
-                entity.Property(e => e.Timestamp)
-                    .IsRequired()
-                    .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                entity.HasOne(d => d.User)
-                    .WithMany(p => p.Reports)
-                    .HasForeignKey(d => d.UserId)
-                    .OnDelete(DeleteBehavior.Cascade);
-
-                entity.HasIndex(e => e.UserId);
-                entity.HasIndex(e => new { e.Id, e.UserId, e.Timestamp });
-            });
-        }
-
-        public Report()
-        {
-            Logs = new HashSet<Log>();
-        }
-
         public int Id { get; set; }
-        public string UserId { get; set; }
-        public DateTime Timestamp { get; set; }
 
-        public virtual UserProfile User { get; set; }
-        public virtual IEnumerable<Log> Logs { get; set; }
+        [ForeignKey(nameof(User))]
+        public required string UserId { get; set; }
+
+        [DeleteBehavior(DeleteBehavior.Cascade)]
+        public UserProfile? User { get; set; }
+
+        [DefaultValueSql("CURRENT_TIMESTAMP")]
+        public DateTime CreatedOn { get; set; }
+
+        public IEnumerable<Log> Logs { get; set; } = new HashSet<Log>();
     }
 }

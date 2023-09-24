@@ -7,6 +7,6 @@ namespace Yarrow.Models
         [Display(Name = "File")]
         public IFormFile FormFile { get; set; }
         public string Copyright { get; set; }
-        public DateTime? CopyrightDate { get; set; }
+        public DateTime CopyrightDate { get; set; }
     }
 }

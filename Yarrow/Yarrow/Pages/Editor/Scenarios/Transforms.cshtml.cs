@@ -46,7 +46,7 @@ namespace Yarrow.Pages.Editor.Scenarios
 
         public async Task<IActionResult> OnPostDeleteAsync(int scenarioID, [FromBody] int transformID)
         {
-            var scenario = await Database.Scenarios
+            var scenario = await Database.ScenariosSnapshots
                 .SingleOrDefaultAsync(a => a.Id == scenarioID);
 
             if (scenario is null)

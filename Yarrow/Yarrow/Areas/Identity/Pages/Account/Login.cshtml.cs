@@ -21,7 +21,7 @@ namespace Yarrow.Areas.Identity.Pages.Account
         }
 
         [BindProperty]
-        public InputModel Input { get; set; }
+        public InputModel? Input { get; set; }
 
         public string ReturnUrl { get; set; }
 
@@ -42,7 +42,7 @@ namespace Yarrow.Areas.Identity.Pages.Account
             public bool RememberMe { get; set; }
         }
 
-        public async Task OnGetAsync(string returnUrl = null)
+        public async Task OnGetAsync(string? returnUrl = null)
         {
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -61,7 +61,7 @@ namespace Yarrow.Areas.Identity.Pages.Account
         {
             ReturnUrl ??= Url.Content("~/");
 
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && Input is not null)
             {
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true

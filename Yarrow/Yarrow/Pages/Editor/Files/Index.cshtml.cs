@@ -34,7 +34,7 @@ namespace Yarrow.Pages.Editor.Files
             Files = Database.Files
                 .AsNoTracking()
                 .Include(f => f.MenuItems)
-                .Include(f => f.Gsvmetadatum)
+                .Include(f => f.GsvMetadatum)
                 .Include(f => f.AudioTracks)
                     .ThenInclude(a => a.Transform)
                 .Include(f => f.Signs)

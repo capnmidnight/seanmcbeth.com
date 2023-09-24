@@ -5,6 +5,6 @@ namespace Yarrow.Data
         public int Id { get; }
         public int TransformId { get; }
 
-        public Transform Transform { get; }
+        public Transform? Transform { get; }
     }
 }

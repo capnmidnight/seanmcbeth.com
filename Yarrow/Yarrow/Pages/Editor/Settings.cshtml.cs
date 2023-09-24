@@ -8,7 +8,7 @@ namespace Yarrow.Pages.Editor
     public class SettingsModel : EditorPageModel
     {
         public IEnumerable<Setting> Settings { get; private set; }
-        public IEnumerable<WebRtc> Servers { get; private set; }
+        public IEnumerable<WebRTCSetting> Servers { get; private set; }
 
         public SettingsModel(YarrowContext db, IWebHostEnvironment env, ILogger<SettingsModel> logger)
             : base(db, "setting", env, logger)
@@ -27,7 +27,7 @@ namespace Yarrow.Pages.Editor
                 .OrderBy(s => s.Name)
                 .AsEnumerable();
 
-            Servers = Database.WebRtcs
+            Servers = Database.WebRTCSettings
                 .AsNoTracking()
                 .OrderBy(s => s.Host)
                 .ThenBy(s => s.Protocol)
@@ -75,38 +75,38 @@ namespace Yarrow.Pages.Editor
                     return $"Deleted setting {input.Name}.";
                 });
 
-        public Task<IActionResult> OnPostCreateWebRTC(WebRtc server) =>
+        public Task<IActionResult> OnPostCreateWebRTC(WebRTCSetting server) =>
             WithStatusReportAsync("create",
                 OnGet,
                 async () =>
                 {
                     server.Id = 0;
                     server.Enabled = true;
-                    Database.WebRtcs.Add(server);
+                    Database.WebRTCSettings.Add(server);
 
                     await Database.SaveChangesAsync();
                     return $"Created WebRTC Server entry.";
                 });
 
-        public Task<IActionResult> OnPostToggleWebRTCEnabled(WebRtc input) =>
+        public Task<IActionResult> OnPostToggleWebRTCEnabled(WebRTCSetting input) =>
             WithStatusReportAsync("toggle-enabled",
                 OnGet,
                 async () =>
                 {
-                    var setting = Database.WebRtcs.Single(s => s.Id == input.Id);
+                    var setting = Database.WebRTCSettings.Single(s => s.Id == input.Id);
                     setting.Enabled = !setting.Enabled;
 
                     await Database.SaveChangesAsync();
                     return $"{(setting.Enabled == true ? "Enabled" : "Disabled")}";
                 });
 
-        public Task<IActionResult> OnPostUpdateWebRTC(WebRtc input) =>
+        public Task<IActionResult> OnPostUpdateWebRTC(WebRTCSetting input) =>
             WithStatusReportAsync("update",
                 OnGet,
                 async () =>
                 {
                     var messages = new List<string>();
-                    var setting = Database.WebRtcs.Single(s => s.Id == input.Id);
+                    var setting = Database.WebRTCSettings.Single(s => s.Id == input.Id);
 
                     if (setting.Protocol != input.Protocol)
                     {
@@ -135,13 +135,13 @@ namespace Yarrow.Pages.Editor
                     return "No change.";
                 });
 
-        public Task<IActionResult> OnPostDeleteWebRTC(WebRtc server) =>
+        public Task<IActionResult> OnPostDeleteWebRTC(WebRTCSetting server) =>
             WithStatusReportAsync("delete",
                 OnGet,
                 async () =>
                 {
-                    var toDelete = Database.WebRtcs.Single(s => s.Id == server.Id);
-                    Database.WebRtcs.Remove(toDelete);
+                    var toDelete = Database.WebRTCSettings.Single(s => s.Id == server.Id);
+                    Database.WebRTCSettings.Remove(toDelete);
 
                     await Database.SaveChangesAsync();
                     return $"Deleted WebRCT setting entry";

@@ -20,7 +20,7 @@ namespace Yarrow.Models
             string mediaType,
             string trueMediaType,
             string copyright,
-            DateTime? copyrightDate,
+            DateTime copyrightDate,
             int key,
             int scenarioID,
             int transformID)
@@ -39,7 +39,7 @@ namespace Yarrow.Models
             TransformID = transformID;
         }
 
-        protected AbstractScenarioFileAsset(Scenario scenario, IAsset asset)
+        protected AbstractScenarioFileAsset(ScenarioSnapshot scenario, IAsset asset)
             : base(asset)
         {
             Key = asset.Id;

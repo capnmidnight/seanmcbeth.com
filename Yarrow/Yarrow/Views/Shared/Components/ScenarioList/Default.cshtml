@@ -10,10 +10,6 @@
                 <th><label>ID</label></th>
             }
             <th><label for="filterName">Scenario</label></th>
-            @if (Model.Languages is not null)
-            {
-                <th><label for="filterLanguage">Language</label></th>
-            }
             <th><label>Created on</label></th>
             @if (Model.ShowCreatedBy)
             {
@@ -46,18 +42,6 @@
                        placeholder="Filter by Name"
                        title="Filter by Name" />
             </th>
-            @if (Model.Languages is not null)
-            {
-                <th>
-                    <select id="filterLanguage">
-                        <option value="" selected>--</option>
-                        @foreach (var item in Model.Languages)
-                        {
-                            <option value="@item.Name.ToLowerInvariant()">@item.Name</option>
-                        }
-                    </select>
-                </th>
-            }
 
             @await Component.InvokeAsync("DateRange", new { idStub = "CreatedOn"})
 
@@ -122,16 +106,7 @@
                     <td>@scenarioGroup.Id</td>
                 }
                 <td>@scenarioGroup.Name</td>
-                @if (Model.Languages is not null)
-                {
-                    <td>
-                        <a class="btn btn-secondary"
-                           href="~/Editor/Languages/Detail/@scenarioGroup.LanguageId">
-                            @scenarioGroup.Language.Name
-                        </a>
-                    </td>
-                }
-                @await Component.InvokeAsync("DateCell", new { value=scenarioGroup.Timestamp })
+                @await Component.InvokeAsync("DateCell", new { value=scenarioGroup.CreatedOn })
                 @if (Model.ShowCreatedBy)
                 {
                     <td>
@@ -244,18 +219,6 @@
                 {
                     <td></td>
                 }
-                @if (Model.Languages is not null)
-                {
-                    <td>
-                        <select name="languageId"
-                                form="createScenario">
-                            @foreach (var item in Model.Languages)
-                            {
-                                <option value="@item.Id">@item.Name</option>
-                            }
-                        </select>
-                    </td>
-                }
                 <td colspan="@(Model.ShowCreatedBy ? 5 : 4)">
                     <input type="text"
                            name="name"
@@ -264,14 +227,6 @@
                            placeholder="Enter scenario name"
                            required
                            title="Enter scenario name" />
-                    @if (Model.Language is not null)
-                    {
-                        <input type="hidden"
-                               name="languageId"
-                               form="createScenario"
-                               readonly
-                               value="@Model.Language.Id" />
-                    }
                     @if (Model.Organization is not null)
                     {
                         <input type="hidden"
