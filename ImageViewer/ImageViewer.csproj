@@ -8,6 +8,7 @@
         <OutputType>Exe</OutputType>
         <DebugType>portable</DebugType>
         <ApplicationIcon>foxglove.ico</ApplicationIcon>
+        <Platforms>AnyCPU;x64</Platforms>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)'=='Release'">
