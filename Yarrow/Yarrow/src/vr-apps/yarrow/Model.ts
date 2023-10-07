@@ -1,13 +1,12 @@
+import { DwellEventer } from "@juniper-lib/events/dist/DwellEventer";
+import { IProgress } from "@juniper-lib/progress/dist/IProgress";
 import { AssetGltfModel } from "@juniper-lib/threejs/dist/AssetGltfModel";
 import { cleanup } from "@juniper-lib/threejs/dist/cleanup";
 import { RayTarget } from "@juniper-lib/threejs/dist/eventSystem/RayTarget";
-import { GLTF } from "@juniper-lib/threejs/dist/examples/loaders/GLTFLoader";
 import { convertMaterials, materialStandardToPhong } from "@juniper-lib/threejs/dist/materials";
 import { objGraph } from "@juniper-lib/threejs/dist/objects";
 import { isMesh } from "@juniper-lib/threejs/dist/typeChecks";
-import { DwellEventer } from "@juniper-lib/events/dist/DwellEventer";
 import { rad2deg } from "@juniper-lib/tslib/dist/math";
-import { IProgress } from "@juniper-lib/progress/dist/IProgress";
 import { singleton } from "@juniper-lib/tslib/dist/singleton";
 import { isDefined } from "@juniper-lib/tslib/dist/typeChecks";
 import { IDisposable } from "@juniper-lib/tslib/dist/using";
@@ -15,7 +14,7 @@ import { Object3D } from "three";
 import { BaseScenario } from "./BaseScenario";
 import type { ModelData } from "./data";
 
-const modelTemplateTasks = singleton("Yarrow:Model:modelTemplateTasks", () => new Map<string, Promise<GLTF>>());
+const modelTemplateTasks = singleton("Yarrow:Model:modelTemplateTasks", () => new Map<string, Promise<any>>());
 
 export class Model
     extends Object3D

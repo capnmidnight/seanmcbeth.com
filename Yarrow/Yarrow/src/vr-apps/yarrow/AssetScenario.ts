@@ -2,13 +2,13 @@ import { BaseAsset } from "@juniper-lib/fetcher/dist/Asset";
 import { IFetcher } from "@juniper-lib/fetcher/dist/IFetcher";
 import { unwrapResponse } from "@juniper-lib/fetcher/dist/unwrapResponse";
 import { Application_JsonUTF8 } from "@juniper-lib/mediatypes/dist";
-import type { Environment } from "@juniper-lib/threejs/dist/environment/Environment";
-import { IDataLogger } from "@juniper-lib/tslib/dist/IDataLogger";
 import { IProgress } from "@juniper-lib/progress/dist/IProgress";
 import { progressSplitWeighted } from "@juniper-lib/progress/dist/progressSplit";
+import type { Environment } from "@juniper-lib/threejs/dist/environment/Environment";
+import { IDataLogger } from "@juniper-lib/tslib/dist/IDataLogger";
 import type { BaseScenario } from "./BaseScenario";
-import { FullScenarioData } from "./data";
 import { Scenario } from "./Scenario";
+import { FullScenarioData } from "./data";
 
 export abstract class BaseAssetScenario<T extends BaseScenario<unknown>> extends BaseAsset<T> {
 

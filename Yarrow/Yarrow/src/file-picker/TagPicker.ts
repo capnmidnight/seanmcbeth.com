@@ -1,10 +1,11 @@
-import { id, list, multiple, value } from "@juniper-lib/dom/dist/attrs";
+import { ID, List, Multiple, Value } from "@juniper-lib/dom/dist/attrs";
 import { display, em, gridAutoFlow, perc, width } from "@juniper-lib/dom/dist/css";
 import { makeEnterKeyEventHandler } from "@juniper-lib/dom/dist/evts";
 import { ButtonDanger, ButtonPrimary, Div, HtmlRender, elementClearChildren, ErsatzElement, InputText, Option, Select } from "@juniper-lib/dom/dist/tags";
-import { arrayReplace, arraySortedInsert } from "@juniper-lib/collections/dist/arrays";
-import { TypedEvent, TypedEventBase } from "@juniper-lib/events/dist/EventBase";
+import { arrayReplace, compareBy, insertSorted } from "@juniper-lib/collections/dist/arrays";
+import { TypedEvent, TypedEventTarget } from "@juniper-lib/events/dist/TypedEventTarget";
 import { isString } from "@juniper-lib/tslib/dist/typeChecks";
+import { identity } from "@juniper-lib/tslib/dist/identity";
 
 export class TagPickerTagsChangedEvent extends TypedEvent<"tagschanged"> {
     constructor(public tags: readonly string[]) {
@@ -12,13 +13,13 @@ export class TagPickerTagsChangedEvent extends TypedEvent<"tagschanged"> {
     }
 }
 
-interface TagPickerEvents {
+type TagPickerEvents = {
     tagschanged: TagPickerTagsChangedEvent;
 }
 
 const fullWidth = width(perc(100));
 
-export class TagPicker extends TypedEventBase<TagPickerEvents> implements ErsatzElement {
+export class TagPicker extends TypedEventTarget<TagPickerEvents> implements ErsatzElement {
     readonly element: HTMLElement;
 
     private readonly _tags = new Array<string>();
@@ -46,26 +47,26 @@ export class TagPicker extends TypedEventBase<TagPickerEvents> implements Ersatz
 
         if (isString(newTagNameOrExistingTagsID)) {
             this.newTagName = InputText(
-                id("newTagName"),
-                list(newTagNameOrExistingTagsID),
+                ID("newTagName"),
+                List(newTagNameOrExistingTagsID),
                 fullWidth
             );
 
             this.addTagButton = ButtonPrimary(
-                id("addTagButton"),
+                ID("addTagButton"),
                 fullWidth,
                 "Add"
             );
 
             this.removeTagButton = ButtonDanger(
-                id("removeTagButton"),
+                ID("removeTagButton"),
                 fullWidth,
                 "Remove"
             );
 
             this.tagsList = Select(
-                id("tagsList"),
-                multiple(true),
+                ID("tagsList"),
+                Multiple(true),
                 fullWidth
             );
         }
@@ -119,14 +120,14 @@ export class TagPicker extends TypedEventBase<TagPickerEvents> implements Ersatz
         if (newTag !== null) {
             newTag = newTag.trim().toLocaleLowerCase();
             if (newTag.length > 0) {
-                arraySortedInsert(tags, newTag, false);
+                insertSorted(tags, newTag, compareBy(identity), "set");
             }
         }
 
         for (let i = 0; i < this.tagsList.options.length; ++i) {
             const tag = this.tagsList.options[i].value;
             if (tag !== oldTag) {
-                arraySortedInsert(tags, tag, false);
+                insertSorted(tags, newTag, compareBy(identity), "set");
             }
         }
 
@@ -143,7 +144,7 @@ export class TagPicker extends TypedEventBase<TagPickerEvents> implements Ersatz
         arrayReplace(this._tags, ...tags);
         this._tags.sort();
         elementClearChildren(this.tagsList);
-        this.tagsList.append(...tags.map(t => Option(value(t), t)));
+        this.tagsList.append(...tags.map(t => Option(Value(t), t)));
         this.newTagName.value = "";
         this.addTagButton.disabled
             = this.removeTagButton.disabled

@@ -1,5 +1,6 @@
 import { onClick } from "@juniper-lib/dom/dist/evts";
 import { ButtonPrimarySmall } from "@juniper-lib/dom/dist/tags";
+import { TypedEventMap } from "@juniper-lib/events/dist/TypedEventTarget";
 import { MediaType } from "@juniper-lib/mediatypes/dist";
 import { IProgress } from "@juniper-lib/progress/dist/IProgress";
 import { isDefined } from "@juniper-lib/tslib/dist/typeChecks";
@@ -8,7 +9,7 @@ import { FileData } from "../../../vr-apps/yarrow/data";
 import { Asset, AssetViewFileEvent, FileAsset, FileAssetEvents } from "../models";
 import { BaseScenarioResetableObjectView } from "./BaseScenarioResetableObjectView";
 
-export abstract class BaseScenarioFileObjectView<EventsT, ValueT extends FileAsset, ParentT extends Asset>
+export abstract class BaseScenarioFileObjectView<EventsT extends TypedEventMap<string>, ValueT extends FileAsset, ParentT extends Asset>
     extends BaseScenarioResetableObjectView<EventsT & FileAssetEvents<ValueT>, ValueT, ParentT>{
 
     private readonly detailButton: HTMLButtonElement;

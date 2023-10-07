@@ -3,7 +3,7 @@ using Juniper.OpenAI;
 using Juniper.Services;
 using Juniper.TSBuild;
 
-if (BuildOptions.IsBuildCommand(args))
+if (BuildRunOptions.IsBuildCommand(args))
 {
     await BuildSystem<SeanMcBeth.BuildConfig>.Run(args);
 }

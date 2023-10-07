@@ -1,13 +1,13 @@
 import { JuniperAudioContext } from "@juniper-lib/audio/dist/context/JuniperAudioContext";
-import { className, id, value } from "@juniper-lib/dom/dist/attrs";
-import { buttonSetEnabled, DataList, Div, HtmlRender, elementClearChildren, Option } from "@juniper-lib/dom/dist/tags";
+import { arrayReplace } from "@juniper-lib/collections/dist/arrays";
+import { ClassName, CustomData, ID, Value } from "@juniper-lib/dom/dist/attrs";
+import { DataList, Div, HtmlRender, Option, buttonSetEnabled, elementClearChildren } from "@juniper-lib/dom/dist/tags";
 import type { IFetcher } from "@juniper-lib/fetcher/dist/IFetcher";
 import { unwrapResponse } from "@juniper-lib/fetcher/dist/unwrapResponse";
 import { MediaType } from "@juniper-lib/mediatypes/dist";
 import type { Environment } from "@juniper-lib/threejs/dist/environment/Environment";
-import { arrayReplace } from "@juniper-lib/collections/dist/arrays";
 import { DialogBox } from "@juniper-lib/widgets/dist/DialogBox";
-import { TabPanel } from "@juniper-lib/widgets/dist/TabPanel";
+import { TabPanel, TabPanelElement } from "@juniper-lib/widgets/dist/TabPanel";
 import type { FileData } from "../vr-apps/yarrow/data";
 import { FilePickerLinkTab } from "./FilePickerLinkTab";
 import { FilePickerSelectTab } from "./FilePickerSelectTab";
@@ -27,7 +27,7 @@ export class FilePicker extends DialogBox {
     private readonly preview: FilePreviewer;
     private readonly tags = new Array<string>();
 
-    private readonly tabs: TabPanel<TabNames>;
+    private readonly tabs: TabPanelElement<TabNames>;
     private readonly existingTags: HTMLDataListElement;
     private readonly uploadTab: FilePickerUploadTab;
     private readonly linkTab: FilePickerLinkTab;
@@ -43,16 +43,25 @@ export class FilePicker extends DialogBox {
 
         this.element.classList.add("file-picker");
         this.preview = new FilePreviewer(
-            Div(className("preview")),
+            Div(ClassName("preview")),
             this.fetcher,
             audioSys);
 
         HtmlRender(this.contentArea,
-            this.existingTags = DataList(id(EXISTING_TAGS_ID)),
-            this.tabs = TabPanel.create(
-                ["upload-file", "Upload new file", this.uploadTab = new FilePickerUploadTab(this.fetcher, EXISTING_TAGS_ID)],
-                ["link-file", "Link to file", this.linkTab = new FilePickerLinkTab(this.fetcher, EXISTING_TAGS_ID)],
-                ["pick-file", "Pick existing file", this.selectTab = new FilePickerSelectTab(this.fetcher, EXISTING_TAGS_ID)]
+            this.existingTags = DataList(ID(EXISTING_TAGS_ID)),
+            this.tabs = TabPanel(
+                Div(
+                    CustomData("tab-name", "Upload new file"),
+                    this.uploadTab = new FilePickerUploadTab(this.fetcher, EXISTING_TAGS_ID)
+                ),
+                Div(
+                    CustomData("tab-name", "Link to file"),
+                    this.linkTab = new FilePickerLinkTab(this.fetcher, EXISTING_TAGS_ID)
+                ),
+                Div(
+                    CustomData("tab-name", "Pick existing file"),
+                    this.selectTab = new FilePickerSelectTab(this.fetcher, EXISTING_TAGS_ID)
+                )
             ),
             this.preview
         );
@@ -115,7 +124,7 @@ export class FilePicker extends DialogBox {
         elementClearChildren(this.existingTags);
         this.existingTags.append(
             ...tags.map(tag => Option(
-                value(tag),
+                Value(tag),
                 tag)
             )
         );

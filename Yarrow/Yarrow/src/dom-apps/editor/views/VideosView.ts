@@ -1,21 +1,22 @@
-import { autoComplete, classList, customData, max, min, placeHolder, step, value, wrap } from "@juniper-lib/dom/dist/attrs";
+import { AutoComplete, ClassList, CustomData, Max, Min, PlaceHolder, Step, Value, Wrap } from "@juniper-lib/dom/dist/attrs";
 import { onInput } from "@juniper-lib/dom/dist/evts";
 import { InputCheckbox, Option, Select, TextArea } from "@juniper-lib/dom/dist/tags";
+import { TypedEventMap } from "@juniper-lib/events/dist/TypedEventTarget";
 import { Video_Mp4, Video_Mpeg, Video_Webm } from "@juniper-lib/mediatypes/dist";
+import { IProgress } from "@juniper-lib/progress/dist/IProgress";
 import { SphereEncodingName, SphereEncodingNames, StereoLayoutName, StereoLayoutNames } from "@juniper-lib/threejs/dist/VideoPlayer3D";
 import { formatNumber, formatVolume, parseNumber, parseVolume } from "@juniper-lib/tslib/dist/math";
-import { IProgress } from "@juniper-lib/progress/dist/IProgress";
 import { isDefined, isNullOrUndefined } from "@juniper-lib/tslib/dist/typeChecks";
 import { InputRangeWithNumber } from "@juniper-lib/widgets/dist/InputRangeWithNumber";
 import { FilePicker } from "../../../file-picker/FilePicker";
-import { FileData, Video_Vnd_DlsDc_YtDlp_Json } from "../../../vr-apps/yarrow/data";
 import { Station } from "../../../vr-apps/yarrow/Station";
 import type { Video } from "../../../vr-apps/yarrow/Video";
+import { FileData, Video_Vnd_Yarrow_YtDlp_Json } from "../../../vr-apps/yarrow/data";
 import { Asset, isStation } from "../models";
 import { BaseScenarioFileObjectView } from "./BaseScenarioFileObjectView";
 
 export class VideosView
-    extends BaseScenarioFileObjectView<void, Video, Station> {
+    extends BaseScenarioFileObjectView<TypedEventMap<string>, Video, Station> {
 
     private readonly enabledInput: HTMLInputElement;
     private readonly labelInput: HTMLTextAreaElement;
@@ -36,7 +37,7 @@ export class VideosView
                 Video_Mp4,
                 Video_Mpeg,
                 Video_Webm,
-                Video_Vnd_DlsDc_YtDlp_Json
+                Video_Vnd_Yarrow_YtDlp_Json
             ],
             [
                 "video"
@@ -74,51 +75,51 @@ export class VideosView
 
             ["Label",
                 this.labelInput = TextArea(
-                    classList("form-control"),
-                    placeHolder("Enter label"),
-                    wrap("soft"),
-                    autoComplete(false),
-                    customData("lpignore", "true"),
+                    ClassList("form-control"),
+                    PlaceHolder("Enter label"),
+                    Wrap("soft"),
+                    AutoComplete("off"),
+                    CustomData("lpignore", "true"),
                     onInput(saver)
                 )
             ],
 
             ["Volume",
                 this.volumeInput = new InputRangeWithNumber(
-                    classList("form-control"),
-                    min(0),
-                    max(100),
-                    step(1),
-                    placeHolder("Volume"),
+                    ClassList("form-control"),
+                    Min(0),
+                    Max(100),
+                    Step(1),
+                    PlaceHolder("Volume"),
                     onInput(saver)
                 )
             ],
 
             ["Type",
                 this.sphereEncodingInput = Select(
-                    classList("custom-select"),
+                    ClassList("custom-select"),
                     onInput(setType),
                     ...SphereEncodingNames.map(n =>
-                        Option(n, value(n)))
+                        Option(n, Value(n)))
                 )
             ],
 
             ["Layout",
                 this.stereoLayoutInput = Select(
-                    classList("custom-select"),
+                    ClassList("custom-select"),
                     onInput(setType),
                     ...StereoLayoutNames.map(n =>
-                        Option(n, value(n)))
+                        Option(n, Value(n)))
                 )
             ],
 
             ["Width",
                 this.sizeInput = new InputRangeWithNumber(
-                    classList("form-control"),
-                    min(0),
-                    max(10),
-                    step(0.1),
-                    placeHolder("Size"),
+                    ClassList("form-control"),
+                    Min(0),
+                    Max(10),
+                    Step(0.1),
+                    PlaceHolder("Size"),
                     onInput(() =>
                         this.scenario.videoAdapter.setSize(this.value, this.size))
                 )
@@ -126,29 +127,29 @@ export class VideosView
 
             ["Pitch",
                 this.rotationXInput = new InputRangeWithNumber(
-                    classList("form-control"),
-                    min(-180),
-                    max(180),
-                    step(0.1),
+                    ClassList("form-control"),
+                    Min(-180),
+                    Max(180),
+                    Step(0.1),
                     onInput(rotate)
                 )
             ],
 
             ["Yaw",
                 this.rotationYInput = new InputRangeWithNumber(
-                    classList("form-control"),
-                    min(-180),
-                    max(180),
-                    step(0.1),
+                    ClassList("form-control"),
+                    Min(-180),
+                    Max(180),
+                    Step(0.1),
                     onInput(rotate)
                 )],
 
             ["Roll",
                 this.rotationZInput = new InputRangeWithNumber(
-                    classList("form-control"),
-                    min(-180),
-                    max(180),
-                    step(0.1),
+                    ClassList("form-control"),
+                    Min(-180),
+                    Max(180),
+                    Step(0.1),
                     onInput(rotate)
                 )
             ]);

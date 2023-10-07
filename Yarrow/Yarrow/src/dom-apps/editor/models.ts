@@ -1,13 +1,13 @@
 import { cancelTag, framedPicture, globeShowingAmericas, joystick, megaphone, memo, scroll, speakerHighVolume, upArrow, videoCamera, wastebasket, worldMap } from "@juniper-lib/emoji/dist";
-import { TypedEvent } from "@juniper-lib/events/dist/EventBase";
+import { TypedEvent } from "@juniper-lib/events/dist/TypedEventTarget";
 import { assertNever, isDefined, isNullOrUndefined, isString } from "@juniper-lib/tslib/dist/typeChecks";
 import { Audio } from "../../vr-apps/yarrow/Audio";
-import { StationConnectionData, Zone } from "../../vr-apps/yarrow/data";
 import { Model } from "../../vr-apps/yarrow/Model";
 import { Sign } from "../../vr-apps/yarrow/Sign";
 import { Station } from "../../vr-apps/yarrow/Station";
-import { Video } from "../../vr-apps/yarrow/Video";
 import { Text } from "../../vr-apps/yarrow/Text";
+import { Video } from "../../vr-apps/yarrow/Video";
+import { StationConnectionData, Zone } from "../../vr-apps/yarrow/data";
 import { EditableScenario } from "../editor/EditableScenario";
 
 export type FileAssetKind =
@@ -178,10 +178,10 @@ export class AssetDeleteEvent<AssetT extends DeletableAsset = DeletableAsset> ex
     }
 }
 
-export interface AssetEvents<AssetT extends DeletableAsset = DeletableAsset> {
+export type AssetEvents<AssetT extends DeletableAsset = DeletableAsset> = {
     "assetrename": AssetRenameEvent<AssetT>;
     "assetdelete": AssetDeleteEvent<AssetT>;
-}
+};
 
 
 export class AssetResetEvent<AssetT extends ResetableAsset = ResetableAsset> extends AssetEvent<"assetreset", AssetT> {
@@ -190,9 +190,9 @@ export class AssetResetEvent<AssetT extends ResetableAsset = ResetableAsset> ext
     }
 }
 
-export interface ResetableAssetEvents<AssetT extends ResetableAsset = ResetableAsset> {
+export type ResetableAssetEvents<AssetT extends ResetableAsset = ResetableAsset> = {
     "assetreset": AssetResetEvent<AssetT>;
-}
+};
 
 
 export class AssetViewFileEvent<AssetT extends FileAsset = FileAsset> extends AssetEvent<"assetviewfile", AssetT> {
@@ -201,9 +201,9 @@ export class AssetViewFileEvent<AssetT extends FileAsset = FileAsset> extends As
     }
 }
 
-export interface FileAssetEvents<AssetT extends FileAsset = FileAsset> {
+export type FileAssetEvents<AssetT extends FileAsset = FileAsset> = {
     "assetviewfile": AssetViewFileEvent<AssetT>;
-}
+};
 
 export const assetIcons = new Map<AssetKind, string>([
     ["scenario", scroll.emojiStyle],

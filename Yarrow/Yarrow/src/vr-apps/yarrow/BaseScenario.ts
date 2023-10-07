@@ -5,7 +5,7 @@ import { PriorityMap } from "@juniper-lib/collections/dist/PriorityMap";
 import { arrayClear, arrayScan } from "@juniper-lib/collections/dist/arrays";
 import { CanvasImageTypes, isImageBitmap } from "@juniper-lib/dom/dist/canvas";
 import { CancelSignalException, CancelToken } from "@juniper-lib/events/dist/CancelToken";
-import { TypedEvent, TypedEventBase } from "@juniper-lib/events/dist/EventBase";
+import { TypedEvent, TypedEventTarget } from "@juniper-lib/events/dist/TypedEventTarget";
 import { WindowQuitEventer } from "@juniper-lib/events/dist/WindowQuitEventer";
 import { all } from "@juniper-lib/events/dist/all";
 import { unwrapResponse } from "@juniper-lib/fetcher/dist/unwrapResponse";
@@ -69,13 +69,13 @@ export class PresentEvent<T extends Object3D> extends Event {
     }
 }
 
-export interface ScenarioEvents {
+export type ScenarioEvents = {
     navigate: ScenarioNavigateEvent;
     present: PresentEvent<Object3D>;
-}
+};
 
 export abstract class BaseScenario<EventsType = unknown>
-    extends TypedEventBase<EventsType & ScenarioEvents>
+    extends TypedEventTarget<EventsType & ScenarioEvents>
     implements IDisposable, IDataLogger {
 
     readonly yt: YouTubeProxy;

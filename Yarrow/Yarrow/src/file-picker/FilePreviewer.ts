@@ -1,7 +1,7 @@
 import { JuniperAudioContext } from "@juniper-lib/audio/dist/context/JuniperAudioContext";
 import { AudioPlayer } from "@juniper-lib/audio/dist/sources/AudioPlayer";
 import { NoSpatializer } from "@juniper-lib/audio/dist/spatializers/NoSpatializer";
-import { classList, controls, src } from "@juniper-lib/dom/dist/attrs";
+import { ClassList, Controls, Src } from "@juniper-lib/dom/dist/attrs";
 import { canvasToBlob } from "@juniper-lib/dom/dist/canvas";
 import {
     Audio, Div,
@@ -27,7 +27,7 @@ import { YouTubeProxy } from "@juniper-lib/video/dist/YouTubeProxy";
 import { YTMetadata } from "@juniper-lib/video/dist/yt-dlp";
 import { registerThumbnails } from "@juniper-lib/widgets/dist/registerThumbnails";
 import { getScriptUrl } from "../settings";
-import { FileData, Video_Vnd_DlsDc_YtDlp_Json } from "../vr-apps/yarrow/data";
+import { FileData, Video_Vnd_Yarrow_YtDlp_Json } from "../vr-apps/yarrow/data";
 import { makeProxyURL } from "../vr-apps/yarrow/proxy";
 import type { FileTypes } from "./models";
 
@@ -134,7 +134,7 @@ export class FilePreviewer
         }
 
         let element: Elements = null;
-        if (Video_Vnd_DlsDc_YtDlp_Json.matches(type)) {
+        if (Video_Vnd_Yarrow_YtDlp_Json.matches(type)) {
             const data = await this.yt.loadData(metadata || path);
             if (isNullOrUndefined(data.videos) || data.videos.length === 0) {
                 element = await this.aud.load(data);
@@ -177,11 +177,11 @@ export class FilePreviewer
     }
 
     private makeAudio(path: string): HTMLElement {
-        return Audio(controls(true), src(path));
+        return Audio(Controls(true), Src(path));
     }
 
     private makeVideo(path: string): HTMLElement {
-        return Video(controls(true), src(path));
+        return Video(Controls(true), Src(path));
     }
 
     private async makeText(path: string): Promise<HTMLElement> {
@@ -201,20 +201,20 @@ export class FilePreviewer
         const canvBlob = await canvasToBlob(pdf.canvas, Image_Png);
         const canvURL = blobToObjectURL(canvBlob);
         return Img(
-            classList(
+            ClassList(
                 "thumbnail",
                 "image"
             ),
-            src(canvURL));
+            Src(canvURL));
     }
 
     private makeImage(path: string): HTMLElement {
         return Img(
-            classList(
+            ClassList(
                 "thumbnail",
                 "image"
             ),
-            src(path));
+            Src(path));
     }
 
     private makeUnknown(path: string): HTMLElement {
@@ -222,7 +222,7 @@ export class FilePreviewer
     }
 
     private makeIFrame(path: string): HTMLElement {
-        return IFrame(src(path));
+        return IFrame(Src(path));
     }
 
     private setElement(element: Elements, type: string, name: string, size: number, ...classes: string[]) {
@@ -234,7 +234,7 @@ export class FilePreviewer
             H2(name),
             Div(size && `${type}: ${formatBytes(size)}` || ''),
             HtmlRender(element,
-                classList(...classes)
+                ClassList(...classes)
             )
         );
 

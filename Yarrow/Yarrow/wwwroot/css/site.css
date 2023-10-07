@@ -3,8 +3,15 @@
     --main-bg-color: #fff;
 }
 
+@font-face {
+    font-family: "Segoe UI Emoji";
+    src: local("Segoe UI Emoji"), url("../fonts/seguiemj.ttf") format("truetype");
+}
+
+
 * {
-    font-family: Lato;
+    box-sizing: border-box;
+    font-family: -apple-system, ".SFNSText-Regular", "San Francisco", "Roboto", "Segoe UI", "Helvetica Neue", "Lucida Grande", sans-serif;
 }
 
 html {

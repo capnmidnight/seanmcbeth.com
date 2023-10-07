@@ -2,7 +2,7 @@ using Juniper.AppShell;
 using Juniper.Services;
 using Juniper.TSBuild;
 
-if (BuildOptions.IsBuildCommand(args))
+if (BuildRunOptions.IsBuildCommand(args))
 {
     await BuildSystem<ImageViewer.BuildConfig>.Run(args);
 }

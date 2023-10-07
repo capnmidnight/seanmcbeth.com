@@ -1,20 +1,20 @@
-import { unwrapResponse } from "@juniper-lib/fetcher/dist/unwrapResponse";
-import { RayTarget } from "@juniper-lib/threejs/dist/eventSystem/RayTarget";
-import { objGraph } from "@juniper-lib/threejs/dist/objects";
-import { SphereEncodingName, StereoLayoutName, VideoPlayer3D } from "@juniper-lib/threejs/dist/VideoPlayer3D";
-import { Image2D } from "@juniper-lib/threejs/dist/widgets/Image2D";
-import { PlaybackButton } from "@juniper-lib/threejs/dist/widgets/PlaybackButton";
 import { DwellEventer } from "@juniper-lib/events/dist/DwellEventer";
-import { rad2deg } from "@juniper-lib/tslib/dist/math";
+import { unwrapResponse } from "@juniper-lib/fetcher/dist/unwrapResponse";
 import { IProgress } from "@juniper-lib/progress/dist/IProgress";
 import { progressSplitWeighted } from "@juniper-lib/progress/dist/progressSplit";
+import { SphereEncodingName, StereoLayoutName, VideoPlayer3D } from "@juniper-lib/threejs/dist/VideoPlayer3D";
+import { RayTarget } from "@juniper-lib/threejs/dist/eventSystem/RayTarget";
+import { objGraph } from "@juniper-lib/threejs/dist/objects";
+import { Image2D } from "@juniper-lib/threejs/dist/widgets/Image2D";
+import { PlaybackButton } from "@juniper-lib/threejs/dist/widgets/PlaybackButton";
+import { rad2deg } from "@juniper-lib/tslib/dist/math";
 import { isDefined } from "@juniper-lib/tslib/dist/typeChecks";
 import { IDisposable } from "@juniper-lib/tslib/dist/using";
-import { FullVideoRecord } from "@juniper-lib/video/dist/data";
 import { YouTubeProxy } from "@juniper-lib/video/dist/YouTubeProxy";
+import { FullVideoRecord } from "@juniper-lib/video/dist/data";
 import { Object3D } from "three";
 import { BaseScenario } from "./BaseScenario";
-import { VideoClipData, Video_Vnd_DlsDc_YtDlp_Json } from "./data";
+import { VideoClipData, Video_Vnd_Yarrow_YtDlp_Json } from "./data";
 
 export class Video
     extends Object3D
@@ -109,7 +109,7 @@ export class Video
 
         try {
             const progs = progressSplitWeighted(prog, [10, 1]);
-            if (Video_Vnd_DlsDc_YtDlp_Json.matches(this.mediaType)) {
+            if (Video_Vnd_Yarrow_YtDlp_Json.matches(this.mediaType)) {
                 this.data = await this.proxy.loadData(this.filePath, progs.shift());
                 const thumbnailImage = await this.scenario.env.fetcher
                     .get(this.data.thumbnail.url)

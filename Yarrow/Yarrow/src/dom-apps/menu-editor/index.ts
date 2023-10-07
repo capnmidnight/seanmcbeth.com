@@ -1,15 +1,15 @@
 import { JuniperAudioContext } from "@juniper-lib/audio/dist/context/JuniperAudioContext";
-import { id } from "@juniper-lib/dom/dist/attrs";
+import { arrayScan } from "@juniper-lib/collections/dist/arrays";
+import { makeLookup } from "@juniper-lib/collections/dist/makeLookup";
+import { ID } from "@juniper-lib/dom/dist/attrs";
 import { em, minWidth } from "@juniper-lib/dom/dist/css";
 import { Div, HtmlRender, getInput, getSelect } from "@juniper-lib/dom/dist/tags";
 import { fileFolder, label } from "@juniper-lib/emoji/dist";
+import { Task } from "@juniper-lib/events/dist/Task";
+import { all } from "@juniper-lib/events/dist/all";
 import { assertSuccess } from "@juniper-lib/fetcher/dist/assertSuccess";
 import { unwrapResponse } from "@juniper-lib/fetcher/dist/unwrapResponse";
 import { Application_JsonUTF8 } from "@juniper-lib/mediatypes/dist";
-import { arrayScan } from "@juniper-lib/collections/dist/arrays";
-import { makeLookup } from "@juniper-lib/collections/dist/makeLookup";
-import { all } from "@juniper-lib/events/dist/all";
-import { Task } from "@juniper-lib/events/dist/Task";
 import { alwaysTrue } from "@juniper-lib/tslib/dist/identity";
 import { isDefined, isNullOrUndefined } from "@juniper-lib/tslib/dist/typeChecks";
 import { TreeView, TreeViewOptions } from "@juniper-lib/widgets/dist/TreeView";
@@ -82,7 +82,7 @@ const treeView = new TreeView<MenuItemData>(
 HtmlRender(
     "#menuForm",
     Div(
-        id("menuEditor"),
+        ID("menuEditor"),
         treeView,
         itemView
     )

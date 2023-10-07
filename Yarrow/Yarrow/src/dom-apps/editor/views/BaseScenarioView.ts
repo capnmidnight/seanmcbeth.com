@@ -1,6 +1,7 @@
-import { className } from "@juniper-lib/dom/dist/attrs";
+import { ClassName } from "@juniper-lib/dom/dist/attrs";
 import { fr } from "@juniper-lib/dom/dist/css";
 import { Div, elementInsertBefore, Elements } from "@juniper-lib/dom/dist/tags";
+import { TypedEventMap } from "@juniper-lib/events/dist/TypedEventTarget";
 import { isDefined } from "@juniper-lib/tslib/dist/typeChecks";
 import { Property, PropertyList } from "@juniper-lib/widgets/dist/PropertyList";
 import { ScrollPanel } from "@juniper-lib/widgets/dist/ScrollPanel";
@@ -9,7 +10,7 @@ import { EditableScenario } from "../EditableScenario";
 import { Asset } from "../models";
 import { BaseEditorView } from "./BaseEditorView";
 
-export abstract class BaseScenarioView<EventsT, ValueT extends Asset> extends BaseEditorView<EventsT> {
+export abstract class BaseScenarioView<EventsT extends TypedEventMap<string>, ValueT extends Asset> extends BaseEditorView<EventsT> {
 
     private _scenario: EditableScenario = null;
 
@@ -21,19 +22,19 @@ export abstract class BaseScenarioView<EventsT, ValueT extends Asset> extends Ba
         super();
 
         this._element = Div(
-            className("section"),
+            ClassName("section"),
             this.scrollPanel = new ScrollPanel(
                 this.properties = PropertyList.create()
             ),
             this.assetControls = Div(
-                className("controls"),
+                ClassName("controls"),
             )
         );
 
         if (isDefined(tips) && tips.length > 0) {
             elementInsertBefore(
                 this.element,
-                new TipBox(title + "Tips", ...tips),
+                TipBox(title + "Tips", ...tips),
                 this.scrollPanel
             );
         }

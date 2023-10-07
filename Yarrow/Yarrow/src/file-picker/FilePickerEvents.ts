@@ -1,4 +1,4 @@
-import { TypedEvent } from "@juniper-lib/events/dist/EventBase";
+import { TypedEvent } from "@juniper-lib/events/dist/TypedEventTarget";
 import { FileData } from "../vr-apps/yarrow/data";
 
 export class SelectingEvent extends TypedEvent<"selecting"> {

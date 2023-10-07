@@ -1,12 +1,12 @@
 import { coallesce } from "@juniper-lib/collections/dist/coallesce";
-import { deg2rad } from "@juniper-lib/tslib/dist/math";
 import { IProgress } from "@juniper-lib/progress/dist/IProgress";
 import { progressSplitWeighted } from "@juniper-lib/progress/dist/progressSplit";
+import { deg2rad } from "@juniper-lib/tslib/dist/math";
 import { inches2Meters } from "@juniper-lib/tslib/dist/units/length";
 import { DEMO_PPI } from "../../../settings";
-import type { FileData, TextData, TransformData } from "../../../vr-apps/yarrow/data";
 import { Station } from "../../../vr-apps/yarrow/Station";
 import type { Text } from "../../../vr-apps/yarrow/Text";
+import type { FileData, TextData, TransformData } from "../../../vr-apps/yarrow/data";
 import type { EditableScenario } from "../EditableScenario";
 import { AssetSelectedEvent } from "../models";
 import { BaseScenarioFileAssetAdapter } from "./BaseScenarioFileAssetAdapter";

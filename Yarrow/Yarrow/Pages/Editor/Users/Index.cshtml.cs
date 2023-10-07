@@ -82,7 +82,7 @@ namespace Yarrow.Pages.Editor.Users
                     await Database.UserProfiles.AddAsync(profile);
                     await Database.SaveChangesAsync();
 
-                    result = await userManager.SendPasswordChangeEmailAsync(Request, Logger, Url, this.email, user, config.GetValue<string>("Mail:From"), "DLS VR Editor", "Diplomatic Language Services", !IsDev);
+                    result = await userManager.SendPasswordChangeEmailAsync(Request, Logger, Url, this.email, user, config.GetValue<string>("Mail:From"), "Yarrow Editor", "Yarrow", !IsDev);
                     result.Check();
 
                     return $"redirect:~/Editor/Users/Detail/{user.Id}";

@@ -1,10 +1,11 @@
 import { onClick } from "@juniper-lib/dom/dist/evts";
 import { ButtonDangerSmall, HtmlRender } from "@juniper-lib/dom/dist/tags";
+import { TypedEventMap } from "@juniper-lib/events/dist/TypedEventTarget";
 import { TransformMode } from "@juniper-lib/threejs/dist/TransformEditor";
-import { Asset, AssetResetEvent, isConnection, ResetableAsset, ResetableAssetEvents } from "../models";
+import { Asset, AssetResetEvent, ResetableAsset, ResetableAssetEvents, isConnection } from "../models";
 import { BaseScenarioObjectView } from "./BaseScenarioObjectView";
 
-export abstract class BaseScenarioResetableObjectView<EventsT, ValueT extends ResetableAsset, ParentT extends Asset>
+export abstract class BaseScenarioResetableObjectView<EventsT extends TypedEventMap<string>, ValueT extends ResetableAsset, ParentT extends Asset>
     extends BaseScenarioObjectView<EventsT & ResetableAssetEvents<ValueT>, ValueT, ParentT>{
 
     protected readonly resetButton: HTMLButtonElement;

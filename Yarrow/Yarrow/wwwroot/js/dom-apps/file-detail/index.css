@@ -1,0 +1,50 @@
+/* ../../Juniper/src/Juniper.TypeScript/@juniper-lib/widgets/dist/registerThumbnails.css */
+.thumbnail-view {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 75%;
+  height: 80%;
+  transform: translate(-50%, -50%);
+  border: solid 1px grey;
+  background-color: white;
+  padding: 4em;
+  margin: auto;
+  text-align: center;
+  z-index: 150;
+}
+.thumbnail {
+  cursor: zoom-in;
+}
+.thumbnail-view > img {
+  height: 100%;
+}
+.thumbnail-view > iframe {
+  width: 100%;
+  height: 100%;
+}
+.img-thumbnail {
+  width: 2em;
+}
+
+/* src/file-picker/FilePreviewer.css */
+.preview {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto auto 1fr;
+  text-align: center;
+}
+.preview h2 {
+  text-align: center;
+  word-break: break-all;
+}
+.file-picker .thumbnail {
+  max-width: 20em;
+  max-height: 50em;
+}
+.preview > div,
+.preview > div > video,
+.preview > div > img {
+  max-width: 100%;
+}
+/*# sourceMappingURL=index.css.map */

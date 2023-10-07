@@ -1,12 +1,12 @@
 import type { IResponse } from "@juniper-lib/fetcher/dist/IResponse";
-import { g2y } from "@juniper-lib/google/dist-maps/conversion";
+import { g2y } from "@juniper-lib/google-maps/dist/conversion";
 import { Application_JsonUTF8 } from "@juniper-lib/mediatypes/dist";
 import { cleanup } from "@juniper-lib/threejs/dist/cleanup";
 import type { Environment } from "@juniper-lib/threejs/dist/environment/Environment";
 import { objectSetWorldPosition } from "@juniper-lib/threejs/dist/objects";
-import { arrayReplace, arraySortedInsert } from "@juniper-lib/collections/dist/arrays";
+import { arrayReplace, compareBy, insertSorted } from "@juniper-lib/collections/dist/arrays";
 import { PriorityMap } from "@juniper-lib/collections/dist/PriorityMap";
-import { TypedEvent } from "@juniper-lib/events/dist/EventBase";
+import { TypedEvent } from "@juniper-lib/events/dist/TypedEventTarget";
 import { ILatLngPoint, LatLngPoint } from "@juniper-lib/gis/dist/LatLngPoint";
 import { UTMPoint } from "@juniper-lib/gis/dist/UTMPoint";
 import { IDataLogger } from "@juniper-lib/tslib/dist/IDataLogger";
@@ -36,6 +36,7 @@ import { EditableScenarioObjectMovedEvent } from "./EditableScenarioObjectMovedE
 import { AssetSelectedEvent, AssetUpdatedEvent, ResetableAsset } from "./models";
 import { Throttler } from "./Throttler";
 import type { IMapView } from "./views/MapView";
+import { identity } from "@juniper-lib/tslib/dist/identity";
 
 interface EditableScenarioEvents {
     assetselected: AssetSelectedEvent;
@@ -108,13 +109,13 @@ export class EditableScenario
         const newZones = new Array<string>();
         for (const station of this.stations) {
             if (isDefined(station.zone)) {
-                arraySortedInsert(newZones, station.zone, false);
+                insertSorted(newZones, station.zone, compareBy(identity), "set");
             }
         }
 
         for (const audio of this.audios) {
             if (isDefined(audio.zone)) {
-                arraySortedInsert(newZones, audio.zone, false);
+                insertSorted(newZones, audio.zone, compareBy(identity), "set");
             }
         }
 

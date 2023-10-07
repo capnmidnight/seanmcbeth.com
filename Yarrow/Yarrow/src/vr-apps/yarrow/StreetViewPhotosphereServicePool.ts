@@ -1,16 +1,17 @@
 import { CanvasTypes } from "@juniper-lib/dom/dist/canvas";
-import { PhotosphereCaptureResolution } from "@juniper-lib/threejs/dist/PhotosphereRig";
+import { TypedEventMap } from "@juniper-lib/events/dist/TypedEventTarget";
 import { IProgress } from "@juniper-lib/progress/dist/IProgress";
+import { PhotosphereCaptureResolution } from "@juniper-lib/threejs/dist/PhotosphereRig";
 import { FullWorkerClientOptions } from "@juniper-lib/workers/dist/WorkerClientOptions";
 import { WorkerConstructorT, WorkerPool } from "@juniper-lib/workers/dist/WorkerPool";
 import { IPhotosphereRig } from "./StreetViewPhotosphereRig";
 import { StreetViewPhotosphereServiceClient } from "./StreetViewPhotosphereServiceClient";
 
 export class StreetViewPhotosphereServicePool
-    extends WorkerPool<void, StreetViewPhotosphereServiceClient>
+    extends WorkerPool<TypedEventMap<never>, StreetViewPhotosphereServiceClient>
     implements IPhotosphereRig {
 
-    constructor(options: FullWorkerClientOptions, WorkerClientClass: WorkerConstructorT<void, StreetViewPhotosphereServiceClient>) {
+    constructor(options: FullWorkerClientOptions, WorkerClientClass: WorkerConstructorT<TypedEventMap<never>, StreetViewPhotosphereServiceClient>) {
         if (options.workers !== 1) {
             options.workers = 1;
         }

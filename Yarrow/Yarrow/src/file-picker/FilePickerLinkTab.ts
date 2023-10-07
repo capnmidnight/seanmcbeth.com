@@ -1,30 +1,30 @@
-import { id, name, placeHolder, required } from "@juniper-lib/dom/dist/attrs";
+import { arrayReplace } from "@juniper-lib/collections/dist/arrays";
+import { ID, Name, PlaceHolder, Required } from "@juniper-lib/dom/dist/attrs";
 import { display } from "@juniper-lib/dom/dist/css";
-import { Div, HtmlRender, elementClearChildren, elementSetDisplay, ErsatzElement, InputDate, InputText, InputURL, Span } from "@juniper-lib/dom/dist/tags";
+import { Div, ErsatzElement, HtmlRender, InputDate, InputText, InputURL, Span, elementClearChildren, elementSetDisplay } from "@juniper-lib/dom/dist/tags";
 import { clockwiseVerticalArrows } from "@juniper-lib/emoji/dist";
+import { RefreshEvent } from "@juniper-lib/events/dist/RefreshEvent";
+import { TypedEventTarget } from "@juniper-lib/events/dist/TypedEventTarget";
 import { IFetcher } from "@juniper-lib/fetcher/dist/IFetcher";
 import { unwrapResponse } from "@juniper-lib/fetcher/dist/unwrapResponse";
 import { Application_X_Url, MediaType } from "@juniper-lib/mediatypes/dist";
 import { mediaTypesToAcceptValue } from "@juniper-lib/mediatypes/dist/util";
-import { arrayReplace } from "@juniper-lib/collections/dist/arrays";
-import { TypedEventBase } from "@juniper-lib/events/dist/EventBase";
-import { RefreshEvent } from "@juniper-lib/events/dist/RefreshEvent";
 import { isDefined, isNullOrUndefined, isString } from "@juniper-lib/tslib/dist/typeChecks";
 import { YTMetadata } from "@juniper-lib/video/dist/yt-dlp";
 import { BootstrapProgressBar, BootstrapProgressBarElement } from "@juniper-lib/widgets/dist/BootstrapProgressBar";
 import { PropertyList } from "@juniper-lib/widgets/dist/PropertyList";
 import { Throttler } from "../dom-apps/editor/Throttler";
-import { FileData, Video_Vnd_DlsDc_YtDlp_Json } from "../vr-apps/yarrow/data";
+import { FileData, Video_Vnd_Yarrow_YtDlp_Json } from "../vr-apps/yarrow/data";
 import { isProxyableDomain, makeProxyURL, stripParameters } from "../vr-apps/yarrow/proxy";
 import { FileDataSelectedEvent, SelectingEvent, URLSelectedEvent } from "./FilePickerEvents";
 import { TagPicker } from "./TagPicker";
 
-interface FilePickerLinkTabEvents {
+type FilePickerLinkTabEvents = {
     "refresh": RefreshEvent;
     "urlselected": URLSelectedEvent;
     "filedataselected": FileDataSelectedEvent;
     "selecting": SelectingEvent;
-}
+};
 
 
 function makeXUrlBlob(url: URL): Blob {
@@ -32,7 +32,7 @@ function makeXUrlBlob(url: URL): Blob {
 }
 
 export class FilePickerLinkTab
-    extends TypedEventBase<FilePickerLinkTabEvents>
+    extends TypedEventTarget<FilePickerLinkTabEvents>
     implements ErsatzElement {
 
     readonly element: HTMLElement;
@@ -60,8 +60,8 @@ export class FilePickerLinkTab
             PropertyList.create(
                 ["File",
                     this.urlInput = InputURL(
-                        placeHolder("Paste in URL to file"),
-                        required(true)
+                        PlaceHolder("Paste in URL to file"),
+                        Required(true)
                     ),
                     this.loadingIndicator = Span(
                         display("none"),
@@ -71,16 +71,16 @@ export class FilePickerLinkTab
 
                 ["Copyright",
                     this.copyrightInput = InputText(
-                        id("copyright"),
-                        name("copyright"),
-                        required(true)
+                        ID("copyright"),
+                        Name("copyright"),
+                        Required(true)
                     )],
 
                 ["Copyright date",
                     this.copyrightDateInput = InputDate(
-                        id("copyrightDate"),
-                        name("copyrightDate"),
-                        required(true)
+                        ID("copyrightDate"),
+                        Name("copyrightDate"),
+                        Required(true)
                     )],
 
                 ["Tags",
@@ -121,7 +121,7 @@ export class FilePickerLinkTab
                             this.selectedURL = stripParameters(this.selectedURL);
                             this.urlInput.value = this.selectedURL.href;
 
-                            const mediaType = this.selectedType = Video_Vnd_DlsDc_YtDlp_Json.value;
+                            const mediaType = this.selectedType = Video_Vnd_Yarrow_YtDlp_Json.value;
                             const fileURL = makeProxyURL(this.selectedURL);
                             const metadata = await this.fetcher
                                 .get(fileURL)

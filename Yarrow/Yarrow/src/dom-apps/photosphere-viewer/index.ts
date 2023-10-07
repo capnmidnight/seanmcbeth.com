@@ -12,7 +12,9 @@ import { getDOMStyleUrl } from "../../settings";
         getCanvas("#frontBuffer"),
         getDOMStyleUrl("photosphere-viewer"),
         fetcher,
-        false);
+        false,
+        false
+    );
     await env.withFade(async () => {
         const path = `/vr/file/${fileID}`;
         const image = await fetcher

@@ -1,13 +1,13 @@
-import { unwrapResponse } from "@juniper-lib/fetcher/dist/unwrapResponse";
-import { arrayRemove } from "@juniper-lib/collections/dist/arrays";
 import { PriorityList } from "@juniper-lib/collections/dist/PriorityList";
-import { TypedEvent, TypedEventBase } from "@juniper-lib/events/dist/EventBase";
+import { arrayRemove } from "@juniper-lib/collections/dist/arrays";
+import { TypedEvent, TypedEventTarget } from "@juniper-lib/events/dist/TypedEventTarget";
+import { unwrapResponse } from "@juniper-lib/fetcher/dist/unwrapResponse";
 import { IProgress } from "@juniper-lib/progress/dist/IProgress";
 import { isDefined } from "@juniper-lib/tslib/dist/typeChecks";
 import { IDisposable } from "@juniper-lib/tslib/dist/using";
-import { BaseScenarioFileAssetData, FileData, TransformData } from "../../../vr-apps/yarrow/data";
 import { Station } from "../../../vr-apps/yarrow/Station";
 import { Transform } from "../../../vr-apps/yarrow/Transform";
+import { BaseScenarioFileAssetData, FileData, TransformData } from "../../../vr-apps/yarrow/data";
 import { EditableScenario } from "../EditableScenario";
 import { makeMarkerPath } from "../makeSphereName";
 import { AssetUpdatedEvent, DeletableAsset } from "../models";
@@ -22,7 +22,7 @@ export class ScenarioAdapterTransformMovedEvent<T> extends TypedEvent<"transform
     }
 }
 
-interface BaseScenarioFileAssetAdapterEvents<T> {
+type BaseScenarioFileAssetAdapterEvents<T> = {
     "transformmoved": ScenarioAdapterTransformMovedEvent<T>;
 }
 
@@ -30,7 +30,7 @@ export abstract class BaseScenarioFileAssetAdapter<
     T extends BaseScenarioFileAssetData & IDisposable & { error: unknown },
     CreateInputT,
     CreateOutputT extends BaseScenarioFileAssetCreateOutputData>
-    extends TypedEventBase<BaseScenarioFileAssetAdapterEvents<T>> {
+    extends TypedEventTarget<BaseScenarioFileAssetAdapterEvents<T>> {
 
     constructor(protected readonly scenario: EditableScenario,
         private readonly assets: T[],

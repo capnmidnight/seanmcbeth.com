@@ -1,11 +1,11 @@
 import { JuniperAudioContext } from "@juniper-lib/audio/dist/context/JuniperAudioContext";
-import { id } from "@juniper-lib/dom/dist/attrs";
+import { ID } from "@juniper-lib/dom/dist/attrs";
 import { onClick } from "@juniper-lib/dom/dist/evts";
-import { ButtonPrimary, Div, HtmlRender, Form, P } from "@juniper-lib/dom/dist/tags";
+import { ButtonPrimary, Div, Form, HtmlRender, P } from "@juniper-lib/dom/dist/tags";
 import { Audio_Mpeg, Audio_Webm, Image_Jpeg, Image_Png, Model_Gltf_Binary, Model_Gltf_Json, Video_Mpeg, Video_Webm } from "@juniper-lib/mediatypes/dist";
 import { createFetcher } from "../../createFetcher";
 import { FilePicker } from "../../file-picker/FilePicker";
-import { Video_Vnd_DlsDc_YtDlp_Json } from "../../vr-apps/yarrow/data";
+import { Video_Vnd_Yarrow_YtDlp_Json } from "../../vr-apps/yarrow/data";
 
 const fetcher = createFetcher(false);
 const context = new JuniperAudioContext();
@@ -36,7 +36,7 @@ HtmlRender("main", Form(
 
     Btn("Videos", () => {
         picker.setTags();
-        picker.setTypeFilters(Video_Mpeg, Video_Webm, Video_Vnd_DlsDc_YtDlp_Json);
+        picker.setTypeFilters(Video_Mpeg, Video_Webm, Video_Vnd_Yarrow_YtDlp_Json);
         logPickedFile();
     }),
 
@@ -68,7 +68,7 @@ HtmlRender("main", Form(
         alert("Whoops!")),
 
     Div(
-        id("lipsum"),
+        ID("lipsum"),
         P("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam eu pellentesque libero. Proin porta dictum porta. Proin placerat dignissim congue. Phasellus quis posuere metus. Sed eu augue nulla. Ut rhoncus nec ipsum et molestie. Quisque a libero quis nulla bibendum semper ullamcorper et ante. Mauris eget laoreet ante. Donec velit augue, ornare et eleifend condimentum, rhoncus ac tortor. Curabitur porta nisi vitae est venenatis, in ullamcorper libero faucibus. Donec sagittis accumsan ante at volutpat. Sed interdum lobortis tristique."),
         P("Mauris a congue ex. Vestibulum suscipit iaculis lacus non suscipit. Duis commodo tortor eu felis imperdiet, in congue urna tincidunt. Nulla mattis nisi vel magna egestas euismod. Quisque aliquet vestibulum lacus, sit amet posuere libero elementum facilisis. Nulla tempus leo ut lectus molestie finibus. In sit amet lacus vitae velit efficitur viverra ut sed urna."),
         P("Donec fringilla laoreet nisi. Proin cursus sem sit amet dui viverra feugiat. In eu diam mauris. Pellentesque sit amet dignissim erat. Sed tristique justo nec velit convallis, sit amet facilisis sem gravida. Sed commodo quam dolor, quis mollis mauris euismod ut. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Sed semper quis tellus vel consectetur. Nulla tempus vel sem eu maximus. Nulla eget nulla at enim cursus elementum. Morbi fermentum enim non lorem tempor, et dapibus dui mollis."),

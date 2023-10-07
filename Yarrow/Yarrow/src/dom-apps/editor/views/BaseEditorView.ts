@@ -1,9 +1,9 @@
 import { elementIsDisplayed, elementSetDisplay, ErsatzElement } from "@juniper-lib/dom/dist/tags";
 import { debounce } from "@juniper-lib/events/dist/debounce";
-import { TypedEventBase } from "@juniper-lib/events/dist/EventBase";
+import { TypedEventMap, TypedEventTarget } from "@juniper-lib/events/dist/TypedEventTarget";
 
-export abstract class BaseEditorView<T>
-    extends TypedEventBase<T>
+export abstract class BaseEditorView<EventsT extends TypedEventMap<string>>
+    extends TypedEventTarget<EventsT>
     implements ErsatzElement {
 
     protected _element: HTMLElement = null;

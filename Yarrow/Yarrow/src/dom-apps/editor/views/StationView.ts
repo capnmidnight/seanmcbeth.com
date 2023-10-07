@@ -1,13 +1,13 @@
-import { autoComplete, classList, className, customData, max, min, placeHolder, step, wrap } from "@juniper-lib/dom/dist/attrs";
+import { AutoComplete, ClassList, ClassName, CustomData, Max, Min, PlaceHolder, Step, Wrap } from "@juniper-lib/dom/dist/attrs";
 import { em, maxWidth, overflow, textOverflow, whiteSpace } from "@juniper-lib/dom/dist/css";
 import { onClick, onInput } from "@juniper-lib/dom/dist/evts";
-import { ButtonPrimarySmall, Div, elementInsertBefore, elementSetText, elementSetTitle, InputNumber, Run, TextArea } from "@juniper-lib/dom/dist/tags";
-import { Image_Jpeg } from "@juniper-lib/mediatypes/dist";
-import { TransformMode } from "@juniper-lib/threejs/dist/TransformEditor";
-import { TypedEvent } from "@juniper-lib/events/dist/EventBase";
+import { ButtonPrimarySmall, Div, InputNumber, Run, TextArea, elementInsertBefore, elementSetText, elementSetTitle } from "@juniper-lib/dom/dist/tags";
+import { TypedEvent } from "@juniper-lib/events/dist/TypedEventTarget";
 import { LatLngPoint } from "@juniper-lib/gis/dist/LatLngPoint";
-import { deg2rad, formatNumber, parseNumber, rad2deg } from "@juniper-lib/tslib/dist/math";
+import { Image_Jpeg } from "@juniper-lib/mediatypes/dist";
 import { IProgress } from "@juniper-lib/progress/dist/IProgress";
+import { TransformMode } from "@juniper-lib/threejs/dist/TransformEditor";
+import { deg2rad, formatNumber, parseNumber, rad2deg } from "@juniper-lib/tslib/dist/math";
 import { isDefined } from "@juniper-lib/tslib/dist/typeChecks";
 import { meters2Millimeters, millimeters2Meters } from "@juniper-lib/tslib/dist/units/length";
 import { GroupPanel } from "@juniper-lib/widgets/dist/GroupPanel";
@@ -15,8 +15,8 @@ import { InputRangeWithNumber } from "@juniper-lib/widgets/dist/InputRangeWithNu
 import { group } from "@juniper-lib/widgets/dist/PropertyList";
 import { Euler, Object3D, Quaternion } from "three";
 import { FilePicker } from "../../../file-picker/FilePicker";
-import type { FileData, PhotosphereMetadata, Zone } from "../../../vr-apps/yarrow/data";
 import { Station } from "../../../vr-apps/yarrow/Station";
+import type { FileData, PhotosphereMetadata, Zone } from "../../../vr-apps/yarrow/data";
 import { EditableScenario } from "../EditableScenario";
 import { Asset, isZone } from "../models";
 import { IMapView } from "../views/MapView";
@@ -40,10 +40,10 @@ export class StationCreateConnectionEvent extends StationViewEvent<"createconnec
     }
 }
 
-interface StationDetailViewEvents {
+type StationDetailViewEvents = {
     stationmarkstart: StationViewMarkStartEvent;
     createconnection: StationCreateConnectionEvent;
-}
+};
 
 const GOOGLE_METADATA = "googleMetadataGroup";
 const START_STATION_ROTATION = "startStationRotationGroup";
@@ -113,11 +113,11 @@ export class StationView
             group(START_STATION_ROTATION,
                 ["Start rotation",
                     this.startRotationBox = new InputRangeWithNumber(
-                        classList("form-control"),
-                        min(0),
-                        max(360),
-                        step(0.1),
-                        placeHolder("degrees"),
+                        ClassList("form-control"),
+                        Min(0),
+                        Max(360),
+                        Step(0.1),
+                        PlaceHolder("degrees"),
                         onInput(() => {
                             if (this.isStartStation) {
                                 this.scenario.stationAdapter.setStartRotation(this.value, deg2rad(this.startRotationBox.valueAsNumber));
@@ -130,11 +130,11 @@ export class StationView
 
             ["Label",
                 this.labelInput = TextArea(
-                    classList("form-control"),
-                    placeHolder("Enter label"),
-                    wrap("soft"),
-                    autoComplete(false),
-                    customData("lpignore", "true"),
+                    ClassList("form-control"),
+                    PlaceHolder("Enter label"),
+                    Wrap("soft"),
+                    AutoComplete("off"),
+                    CustomData("lpignore", "true"),
                     onInput(() =>
                         this.scenario.stationAdapter.updateThrottled(this.value, {
                             label: this.label
@@ -154,10 +154,10 @@ export class StationView
                 new GroupPanel(
                     this.elevationInput = InputNumber(
                         "Reset",
-                        classList("form-control"),
+                        ClassList("form-control"),
                         onInput(() => this.scenario.stationAdapter.moveThrottled(this.value, this.value.location.lat, this.value.location.lng, this.elevation, false)),
-                        placeHolder("Elevation"),
-                        step(0.001)
+                        PlaceHolder("Elevation"),
+                        Step(0.001)
                     ),
                     this.resetButton
                 )
@@ -165,30 +165,30 @@ export class StationView
 
             ["Pitch",
                 this.rotationXInput = new InputRangeWithNumber(
-                    classList("form-control"),
-                    min(-180),
-                    max(180),
-                    step(0.1),
+                    ClassList("form-control"),
+                    Min(-180),
+                    Max(180),
+                    Step(0.1),
                     onInput(rotationSaver)
                 )
             ],
 
             ["Yaw",
                 this.rotationYInput = new InputRangeWithNumber(
-                    classList("form-control"),
-                    min(-180),
-                    max(180),
-                    step(0.1),
+                    ClassList("form-control"),
+                    Min(-180),
+                    Max(180),
+                    Step(0.1),
                     onInput(rotationSaver)
                 )
             ],
 
             ["Roll",
                 this.rotationZInput = new InputRangeWithNumber(
-                    classList("form-control"),
-                    min(-180),
-                    max(180),
-                    step(0.1),
+                    ClassList("form-control"),
+                    Min(-180),
+                    Max(180),
+                    Step(0.1),
                     onInput(rotationSaver)
                 )
             ]
@@ -197,7 +197,7 @@ export class StationView
         elementInsertBefore(
             this.element,
             Div(
-                className("controls"),
+                ClassName("controls"),
                 this.markStartButton = ButtonPrimarySmall(
                     "Mark Start",
                     onClick(() => this.dispatchEvent(new StationViewMarkStartEvent(this.value)))

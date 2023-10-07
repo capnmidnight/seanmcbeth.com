@@ -1,15 +1,16 @@
 import { effectStore } from "@juniper-lib/audio/dist/effects";
-import { classList, max, min, placeHolder, step, value } from "@juniper-lib/dom/dist/attrs";
+import { ClassList, Max, Min, PlaceHolder, Step, Value } from "@juniper-lib/dom/dist/attrs";
 import { Context2D, createUtilityCanvas } from "@juniper-lib/dom/dist/canvas";
 import { deg, hsla, perc } from "@juniper-lib/dom/dist/css";
 import { onInput } from "@juniper-lib/dom/dist/evts";
-import { HtmlRender, elementSetText, InputCheckbox, InputNumber, Option, Run, Select } from "@juniper-lib/dom/dist/tags";
-import { g2y } from "@juniper-lib/google/dist-maps/conversion";
-import { Audio_Mpeg, Audio_Webm } from "@juniper-lib/mediatypes/dist";
-import { TransformMode } from "@juniper-lib/threejs/dist/TransformEditor";
+import { HtmlRender, InputCheckbox, InputNumber, Option, Run, Select, elementSetText } from "@juniper-lib/dom/dist/tags";
+import { TypedEventMap } from "@juniper-lib/events/dist/TypedEventTarget";
 import { LatLngPoint } from "@juniper-lib/gis/dist/LatLngPoint";
-import { formatNumber, parseNumber, Tau } from "@juniper-lib/tslib/dist/math";
+import { g2y } from "@juniper-lib/google-maps/dist/conversion";
+import { Audio_Mpeg, Audio_Webm } from "@juniper-lib/mediatypes/dist";
 import { IProgress } from "@juniper-lib/progress/dist/IProgress";
+import { TransformMode } from "@juniper-lib/threejs/dist/TransformEditor";
+import { Tau, formatNumber, parseNumber } from "@juniper-lib/tslib/dist/math";
 import { isDefined, isNullOrUndefined } from "@juniper-lib/tslib/dist/typeChecks";
 import { meters2Millimeters, millimeters2Meters } from "@juniper-lib/tslib/dist/units/length";
 import { percent2Ratio, ratio2Percent } from "@juniper-lib/tslib/dist/units/unitless";
@@ -23,7 +24,7 @@ import { IMapView } from "../views/MapView";
 import { BaseScenarioFileObjectView } from "./BaseScenarioFileObjectView";
 
 export class EnvironmentAudioView
-    extends BaseScenarioFileObjectView<void, Audio, Zone> {
+    extends BaseScenarioFileObjectView<TypedEventMap<string>, Audio, Zone> {
 
     private readonly volumeInput: InputRangeWithNumber;
     private readonly latitudeBox: HTMLSpanElement;
@@ -79,10 +80,10 @@ export class EnvironmentAudioView
             ["Elevation",
                 new GroupPanel(
                     this.elevationInput = InputNumber(
-                        classList("form-control"),
+                        ClassList("form-control"),
                         onInput(() => this.scenario.audioAdapter.changeElevationThrottled(this.value, this.elevation)),
-                        placeHolder("Elevation"),
-                        step(0.001)
+                        PlaceHolder("Elevation"),
+                        Step(0.001)
                     ),
                     this.resetButton
                 )
@@ -90,39 +91,39 @@ export class EnvironmentAudioView
 
             ["Volume",
                 this.volumeInput = new InputRangeWithNumber(
-                    classList("form-control"),
-                    min(0),
-                    max(500),
-                    placeHolder("Volume"),
+                    ClassList("form-control"),
+                    Min(0),
+                    Max(500),
+                    PlaceHolder("Volume"),
                     onInput(saver)
                 )
             ],
 
             ["Effect",
                 this.effectInput = Select(
-                    classList("custom-select"),
+                    ClassList("custom-select"),
                     onInput(saver)
                 )
             ],
 
             ["Min dist",
                 this.minDistanceInput = InputNumber(
-                    classList("form-control"),
-                    min(0),
-                    max(1000),
-                    step(0.01),
-                    placeHolder("Minimum distance"),
+                    ClassList("form-control"),
+                    Min(0),
+                    Max(1000),
+                    Step(0.01),
+                    PlaceHolder("Minimum distance"),
                     onInput(saver)
                 )
             ],
 
             ["Max dist",
                 this.maxDistanceInput = InputNumber(
-                    classList("form-control"),
-                    min(0),
-                    max(1000),
-                    step(0.01),
-                    placeHolder("Maximum distance"),
+                    ClassList("form-control"),
+                    Min(0),
+                    Max(1000),
+                    Step(0.01),
+                    PlaceHolder("Maximum distance"),
                     onInput(saver)
                 )
             ]
@@ -133,7 +134,7 @@ export class EnvironmentAudioView
             ...Array.from(effectStore
                 .keys())
                 .map(effectName =>
-                    Option(effectName, value(effectName))));
+                    Option(effectName, Value(effectName))));
 
         Object.seal(this);
 

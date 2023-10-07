@@ -1,31 +1,34 @@
 import { JuniperAudioContext } from "@juniper-lib/audio/dist/context/JuniperAudioContext";
-import { autoComplete, classList, className, customData, placeHolder, title, value, wrap } from "@juniper-lib/dom/dist/attrs";
+import { TreeNode } from "@juniper-lib/collections/dist/TreeNode";
+import { AutoComplete, ClassList, ClassName, CustomData, PlaceHolder, Title_attr, Value, Wrap } from "@juniper-lib/dom/dist/attrs";
 import { resizeContext } from "@juniper-lib/dom/dist/canvas";
 import { px } from "@juniper-lib/dom/dist/css";
 import { onClick, onInput } from "@juniper-lib/dom/dist/evts";
 import { loadFont } from "@juniper-lib/dom/dist/fonts";
 import {
     ButtonDanger,
-    ButtonPrimary, buttonSetEnabled, Canvas, Div, elementSetClass,
-    elementSetDisplay,
-    elementSetText,
+    ButtonPrimary,
+    Canvas, Div,
     Em,
     H2,
     Img, InputText, Option,
-    Select, TextArea
+    Select, TextArea,
+    buttonSetEnabled,
+    elementSetClass,
+    elementSetDisplay,
+    elementSetText
 } from "@juniper-lib/dom/dist/tags";
 import { lightBulb, warning } from "@juniper-lib/emoji/dist";
+import { TypedEvent } from "@juniper-lib/events/dist/TypedEventTarget";
 import type { IFetcher } from "@juniper-lib/fetcher/dist/IFetcher";
 import { unwrapResponse } from "@juniper-lib/fetcher/dist/unwrapResponse";
 import { TextImage } from "@juniper-lib/graphics2d/dist/TextImage";
 import { Image_Jpeg, Image_Png } from "@juniper-lib/mediatypes/dist";
-import { TreeNode } from "@juniper-lib/collections/dist/TreeNode";
-import { TypedEvent } from "@juniper-lib/events/dist/EventBase";
 import { stringRandom } from "@juniper-lib/tslib/dist/strings/stringRandom";
 import { isDefined } from "@juniper-lib/tslib/dist/typeChecks";
 import { formatBytes } from "@juniper-lib/tslib/dist/units/fileSize";
 import { FilterableTable } from "@juniper-lib/widgets/dist/FilterableTable";
-import { group, PropertyList } from "@juniper-lib/widgets/dist/PropertyList";
+import { PropertyList, group } from "@juniper-lib/widgets/dist/PropertyList";
 import { FilePicker } from "../../file-picker/FilePicker";
 import { menu } from "../../settings";
 import { MenuItemData, ScenarioGroupData } from "../../vr-apps/yarrow/data";
@@ -50,10 +53,10 @@ export class MenuItemViewDeleteEvent extends MenuItemViewEvent<"delete"> {
     }
 }
 
-interface MenuItemViewEvents {
+type MenuItemViewEvents = {
     update: MenuItemViewUpdateEvent;
     delete: MenuItemViewDeleteEvent;
-}
+};
 
 const MIN_IMAGE_WIDTH = 512;
 const MIN_IMAGE_HEIGHT = 1024;
@@ -99,13 +102,13 @@ export class MenuItemView
 
         this._element = Div(
 
-            className("menu-item-view"),
+            ClassName("menu-item-view"),
 
             Div(
-                className("controls"),
+                ClassName("controls"),
 
                 this.deleter = ButtonDanger(
-                    title("Delete menu item"),
+                    Title_attr("Delete menu item"),
                     onEnabledClick(() => {
                         this.deleter.disabled = true;
                         this.dispatchEvent(new MenuItemViewDeleteEvent(this.node));
@@ -119,11 +122,11 @@ export class MenuItemView
 
                 ["Label",
                     this.labelField = TextArea(
-                        placeHolder("Enter label"),
-                        classList("form-control"),
-                        wrap("soft"),
-                        autoComplete(false),
-                        customData("lpignore", "true"),
+                        PlaceHolder("Enter label"),
+                        ClassList("form-control"),
+                        Wrap("soft"),
+                        AutoComplete("off"),
+                        CustomData("lpignore", "true"),
                         onInput(() => {
                             if (this.hasNode) {
                                 this.node.value.label = this.labelField.value;
@@ -135,19 +138,19 @@ export class MenuItemView
 
                 ["",
 
-                    Div(className("alert alert-info"),
+                    Div(ClassName("alert alert-info"),
                         lightBulb.emojiStyle,
                         " ",
                         Em(`Upload PNG or JPEG files, ${px(MIN_IMAGE_WIDTH)} wide by ${px(MIN_IMAGE_HEIGHT)} tall.`)
                     ),
 
-                    this.aspectWarning = Div(className("alert alert-warning"),
+                    this.aspectWarning = Div(ClassName("alert alert-warning"),
                         warning.emojiStyle,
                         " ",
                         Em("Images should be twice as tall as they are wide. This image will be distorted in the menu.")
                     ),
 
-                    this.resolutionWarning = Div(className("alert alert-warning"),
+                    this.resolutionWarning = Div(ClassName("alert alert-warning"),
                         warning.emojiStyle,
                         " ",
                         Em(`Images should be ${px(MIN_IMAGE_WIDTH)} wide by ${px(MIN_IMAGE_HEIGHT)} tall. This image will be blurry in the menu.`)
@@ -173,9 +176,9 @@ export class MenuItemView
                 group(this.actionTypeID = "actionType" + stringRandom(8),
                     ["Action type",
                         this.actionType = Select(
-                            classList("custom-select", "custom-select-sm"),
-                            Option("NONE", value("")),
-                            Option("Start scenario", value("yarrow")),
+                            ClassList("custom-select", "custom-select-sm"),
+                            Option("NONE", Value("")),
+                            Option("Start scenario", Value("yarrow")),
                             onInput(() => {
                                 if (this.hasNode
                                     && this.actionType.value !== "yarrow"
@@ -228,13 +231,13 @@ export class MenuItemView
             ),
 
             Div(
-                className("preview"),
+                ClassName("preview"),
                 H2("Preview"),
                 this.previewCanvas = Canvas()
             )
         );
 
-        this.image = Img(title("Menu item image"))
+        this.image = Img(Title_attr("Menu item image"))
 
         this.previewContext = this.previewCanvas.getContext("2d");
 

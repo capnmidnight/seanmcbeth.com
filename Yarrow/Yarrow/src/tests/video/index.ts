@@ -1,12 +1,12 @@
 import { JuniperAudioContext } from "@juniper-lib/audio/dist/context/JuniperAudioContext";
 import { NoSpatializer } from "@juniper-lib/audio/dist/spatializers/NoSpatializer";
-import { value } from "@juniper-lib/dom/dist/attrs";
+import { Value } from "@juniper-lib/dom/dist/attrs";
 import { onInput } from "@juniper-lib/dom/dist/evts";
 import { BR, ButtonPrimary, HtmlRender, Option, Select } from "@juniper-lib/dom/dist/tags";
 import { isDefined } from "@juniper-lib/tslib/dist/typeChecks";
-import { FullVideoRecord } from "@juniper-lib/video/dist/data";
 import { VideoPlayer } from "@juniper-lib/video/dist/VideoPlayer";
 import { YouTubeProxy } from "@juniper-lib/video/dist/YouTubeProxy";
+import { FullVideoRecord } from "@juniper-lib/video/dist/data";
 import { createFetcher } from "../../createFetcher";
 import { makeProxyURL } from "../../vr-apps/yarrow/proxy";
 
@@ -70,7 +70,7 @@ import { makeProxyURL } from "../../vr-apps/yarrow/proxy";
     HtmlRender(videosSelect, ...Array.from(videos.keys()).map(title =>
         Option(
             title,
-            value(title)
+            Value(title)
         )
     ));
 

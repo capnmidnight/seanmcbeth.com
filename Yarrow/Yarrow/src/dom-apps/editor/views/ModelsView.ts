@@ -1,19 +1,20 @@
-import { classList, max, min, placeHolder, step } from "@juniper-lib/dom/dist/attrs";
+import { ClassList, Max, Min, PlaceHolder, Step } from "@juniper-lib/dom/dist/attrs";
 import { onInput } from "@juniper-lib/dom/dist/evts";
+import { TypedEventMap } from "@juniper-lib/events/dist/TypedEventTarget";
 import { Model_Gltf_Binary, Model_Gltf_Json } from "@juniper-lib/mediatypes/dist";
-import { formatNumber, parseNumber } from "@juniper-lib/tslib/dist/math";
 import { IProgress } from "@juniper-lib/progress/dist/IProgress";
+import { formatNumber, parseNumber } from "@juniper-lib/tslib/dist/math";
 import { isNullOrUndefined } from "@juniper-lib/tslib/dist/typeChecks";
 import { InputRangeWithNumber } from "@juniper-lib/widgets/dist/InputRangeWithNumber";
 import { FilePicker } from "../../../file-picker/FilePicker";
-import { FileData } from "../../../vr-apps/yarrow/data";
 import type { Model } from "../../../vr-apps/yarrow/Model";
 import { Station } from "../../../vr-apps/yarrow/Station";
+import { FileData } from "../../../vr-apps/yarrow/data";
 import { Asset, isStation } from "../models";
 import { BaseScenarioFileObjectView } from "./BaseScenarioFileObjectView";
 
 export class ModelsView
-    extends BaseScenarioFileObjectView<void, Model, Station> {
+    extends BaseScenarioFileObjectView<TypedEventMap<string>, Model, Station> {
 
     private readonly sizeInput: InputRangeWithNumber;
     private readonly rotationXInput: InputRangeWithNumber;
@@ -44,11 +45,11 @@ export class ModelsView
         this.addProperties(
             ["Size",
                 this.sizeInput = new InputRangeWithNumber(
-                    classList("form-control"),
-                    min(0),
-                    max(10),
-                    step(0.1),
-                    placeHolder("Size"),
+                    ClassList("form-control"),
+                    Min(0),
+                    Max(10),
+                    Step(0.1),
+                    PlaceHolder("Size"),
                     onInput(() =>
                         this.scenario.modelAdapter.setSize(this.value, this.size))
                 )
@@ -56,29 +57,29 @@ export class ModelsView
 
             ["Pitch",
                 this.rotationXInput = new InputRangeWithNumber(
-                    classList("form-control"),
-                    min(-180),
-                    max(180),
-                    step(0.1),
+                    ClassList("form-control"),
+                    Min(-180),
+                    Max(180),
+                    Step(0.1),
                     onInput(rotate)
                 )
             ],
 
             ["Yaw",
                 this.rotationYInput = new InputRangeWithNumber(
-                    classList("form-control"),
-                    min(-180),
-                    max(180),
-                    step(0.1),
+                    ClassList("form-control"),
+                    Min(-180),
+                    Max(180),
+                    Step(0.1),
                     onInput(rotate)
                 )
             ],
 
             ["Roll",
                 this.rotationZInput = new InputRangeWithNumber(
-                    min(-180),
-                    max(180),
-                    step(0.1),
+                    Min(-180),
+                    Max(180),
+                    Step(0.1),
                     onInput(rotate)
                 )
             ]);

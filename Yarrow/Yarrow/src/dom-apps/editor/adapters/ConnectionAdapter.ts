@@ -1,8 +1,8 @@
-import { cleanup } from "@juniper-lib/threejs/dist/cleanup";
 import { arrayRemove } from "@juniper-lib/collections/dist/arrays";
 import { all } from "@juniper-lib/events/dist/all";
-import { StationConnectionData } from "../../../vr-apps/yarrow/data";
+import { cleanup } from "@juniper-lib/threejs/dist/cleanup";
 import { Station } from "../../../vr-apps/yarrow/Station";
+import { StationConnectionData } from "../../../vr-apps/yarrow/data";
 import { EditableScenario } from "../EditableScenario";
 
 interface ConnectionInput {

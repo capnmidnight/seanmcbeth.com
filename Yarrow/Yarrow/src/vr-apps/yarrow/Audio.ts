@@ -1,9 +1,9 @@
 import { FullAudioRecord } from "@juniper-lib/audio/dist/data";
 import { AudioElementSource } from "@juniper-lib/audio/dist/sources/AudioElementSource";
 import { AudioPlayer } from "@juniper-lib/audio/dist/sources/AudioPlayer";
+import { IProgress } from "@juniper-lib/progress/dist/IProgress";
 import { objGraph } from "@juniper-lib/threejs/dist/objects";
 import { PlaybackButton } from "@juniper-lib/threejs/dist/widgets/PlaybackButton";
-import { IProgress } from "@juniper-lib/progress/dist/IProgress";
 import { isDefined, isNullOrUndefined } from "@juniper-lib/tslib/dist/typeChecks";
 import { IDisposable } from "@juniper-lib/tslib/dist/using";
 import { Object3D, Vector3 } from "three";

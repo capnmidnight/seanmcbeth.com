@@ -1,6 +1,6 @@
-import { title } from "@juniper-lib/dom/dist/attrs";
+import { Title_attr } from "@juniper-lib/dom/dist/attrs";
 import { border, em, height, width } from "@juniper-lib/dom/dist/css";
-import { HtmlRender, elementSetDisplay, elementSetText, IFrame } from "@juniper-lib/dom/dist/tags";
+import { HtmlRender, IFrame, elementSetDisplay, elementSetText } from "@juniper-lib/dom/dist/tags";
 import { DialogBox } from "@juniper-lib/widgets/dist/DialogBox";
 
 export class FileDetailDialog extends DialogBox {
@@ -17,7 +17,7 @@ export class FileDetailDialog extends DialogBox {
                 border("none"),
                 width(em(40)),
                 height(em(50)),
-                title("File detail")
+                Title_attr("File detail")
             )
         );
     }

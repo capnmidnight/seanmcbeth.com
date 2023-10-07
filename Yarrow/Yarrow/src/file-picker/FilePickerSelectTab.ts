@@ -1,4 +1,4 @@
-import { list, value } from "@juniper-lib/dom/dist/attrs";
+import { List, Value } from "@juniper-lib/dom/dist/attrs";
 import { onClick } from "@juniper-lib/dom/dist/evts";
 import { ButtonPrimarySmall, HtmlRender, elementClearChildren, elementSetClass, ErsatzElement, InputNumber, InputText, Option, Select } from "@juniper-lib/dom/dist/tags";
 import { IFetcher } from "@juniper-lib/fetcher/dist/IFetcher";
@@ -6,7 +6,7 @@ import { unwrapResponse } from "@juniper-lib/fetcher/dist/unwrapResponse";
 import { Application_JsonUTF8, MediaType } from "@juniper-lib/mediatypes/dist";
 import { mediaTypesToAcceptValue } from "@juniper-lib/mediatypes/dist/util";
 import { arrayClear, arrayReplace } from "@juniper-lib/collections/dist/arrays";
-import { TypedEvent, TypedEventBase } from "@juniper-lib/events/dist/EventBase";
+import { TypedEvent, TypedEventTarget } from "@juniper-lib/events/dist/TypedEventTarget";
 import { isDefined } from "@juniper-lib/tslib/dist/typeChecks";
 import { FilterableTable } from "@juniper-lib/widgets/dist/FilterableTable";
 import { FileData } from "../vr-apps/yarrow/data";
@@ -28,15 +28,15 @@ class FilePickerSelectTabSearchCompleteEvent extends TypedEvent<"searchcomplete"
     }
 }
 
-interface FilePickerSelectTabEvents {
+type FilePickerSelectTabEvents = {
     "searching": FilePickerSelectTabSearchingEvent;
     "searchcomplete": FilePickerSelectTabSearchCompleteEvent;
     "filedataselected": FileDataSelectedEvent;
     "selecting": SelectingEvent;
-}
+};
 
 export class FilePickerSelectTab
-    extends TypedEventBase<FilePickerSelectTabEvents>
+    extends TypedEventTarget<FilePickerSelectTabEvents>
     implements ErsatzElement<HTMLTableElement> {
 
     private readonly table: FilterableTable<FileData>;
@@ -87,7 +87,7 @@ export class FilePickerSelectTab
                 getCellValue: f => f.mediaType
             }, {
                 header: "Tags",
-                filter: InputText(list(existingTagsID)),
+                filter: InputText(List(existingTagsID)),
                 getCellValue: f => f.tagsString
             }, {
                 header: "Size",
@@ -111,9 +111,9 @@ export class FilePickerSelectTab
         this.typeFilter = mediaTypesToAcceptValue(this.typeFilters);
         elementClearChildren(this.typeSelector);
         HtmlRender(this.typeSelector,
-            Option(value(""), "--"),
+            Option(Value(""), "--"),
             ...this.typeFilters.map(t => Option(
-                value(t.value),
+                Value(t.value),
                 t.value
             ))
         )

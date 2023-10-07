@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Yarrow;
 using Yarrow.Data;
 
-if (BuildOptions.IsBuildCommand(args))
+if (BuildRunOptions.IsBuildCommand(args))
 {
     await BuildSystem<BuildConfig>.Run(args);
 }

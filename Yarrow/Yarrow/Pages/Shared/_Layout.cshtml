@@ -3,7 +3,7 @@
     var setViewport = (ViewData["SkipViewport"] as bool?) != true;
     var hideBanner = (ViewData["HideBanner"] as bool?) == true;
     var giantHero = (ViewData["GiantHero"] as bool?) != false;
-    var logoTarget = (ViewData["LogoTarget"] as string) ?? "https://dlsdc.com/";
+    var logoTarget = (ViewData["LogoTarget"] as string) ?? "https://www.seanmcbeth.com/";
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -18,7 +18,6 @@
     <bundle-css name="lato" />
     <bundle-css name="segoeuiemoji" />
     <bundle-css name="fontawesome" />
-    <bundle-css name="bootstrap" versioned />
     <bundle-css name="site" versioned />
     <bundle-js type="text/javascript" name="jquery" />
     @RenderSection("Scripts", false)
@@ -33,7 +32,7 @@
     }
     else {
         <header>
-            <a id="logo" href="@logoTarget" title="DLS logo"><img src="/images/logos/logo-240x81.png?v2" title="DLS logo"></a>
+            <a id="logo" href="@logoTarget" title="logo"><img src="/images/logos/logo-240x81.png?v2" title="logo"></a>
             @RenderSection("Header", false)
 
             @if (IsSectionDefined("Menu"))
@@ -98,7 +97,7 @@
     else
     {
         <footer class="border-top footer text-muted">
-            <a href="https://www.dlsdc.com">Diplomatic Language Services</a>
+            <a href="https://www.seanmcbeth.com">Sean T. McBeth</a>
             - &copy; 2019 - @DateTime.Now.Year
             - <a href="/">Home</a>
             - <a href="/Privacy">Privacy</a>

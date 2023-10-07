@@ -1,3 +1,4 @@
+import { TypedEventMap } from "@juniper-lib/events/dist/TypedEventTarget";
 import { Zone } from "../../../vr-apps/yarrow/data";
 import { BaseScenarioObjectView } from "./BaseScenarioObjectView";
 
@@ -6,7 +7,7 @@ function isDefault(v: string): boolean {
     return /^default$/i.test(v);
 }
 
-export class ZoneView extends BaseScenarioObjectView<void, Zone, never> {
+export class ZoneView extends BaseScenarioObjectView<TypedEventMap<string>, Zone, never> {
     constructor() {
         super("Zone", [
             "Use zones to group environment audio and stations",

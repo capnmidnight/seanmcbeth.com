@@ -1,13 +1,14 @@
 import { CanvasTypes, createCanvasFromImage, createImageFromFile } from "@juniper-lib/dom/dist/canvas";
-import { PhotosphereCaptureResolution } from "@juniper-lib/threejs/dist/PhotosphereRig";
+import { TypedEventMap } from "@juniper-lib/events/dist/TypedEventTarget";
 import { IProgress } from "@juniper-lib/progress/dist/IProgress";
+import { PhotosphereCaptureResolution } from "@juniper-lib/threejs/dist/PhotosphereRig";
 import { assertNever } from "@juniper-lib/tslib/dist/typeChecks";
 import { WorkerClient } from "@juniper-lib/workers/dist/WorkerClient";
 import { WorkerServerEventMessage } from "@juniper-lib/workers/dist/WorkerMessages";
 import { IPhotosphereRig } from "./StreetViewPhotosphereRig";
 
 export class StreetViewPhotosphereServiceClient
-    extends WorkerClient<void>
+    extends WorkerClient<TypedEventMap<never>>
     implements IPhotosphereRig {
 
     canvases: CanvasTypes[];
@@ -16,7 +17,7 @@ export class StreetViewPhotosphereServiceClient
         this.callMethod("init", [baseURL, isDebug]);
     }
 
-    protected propogateEvent(msg: WorkerServerEventMessage<void>): void {
+    protected propogateEvent(msg: WorkerServerEventMessage<TypedEventMap<never>>): void {
         assertNever(msg.eventName)
     }
 

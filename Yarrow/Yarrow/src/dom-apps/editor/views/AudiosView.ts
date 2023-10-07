@@ -1,4 +1,4 @@
-import { autoComplete, classList, customData, max, min, placeHolder, step, wrap } from "@juniper-lib/dom/dist/attrs";
+import { AutoComplete, ClassList, CustomData, Max, Min, PlaceHolder, Step, Wrap } from "@juniper-lib/dom/dist/attrs";
 import { onInput } from "@juniper-lib/dom/dist/evts";
 import { InputCheckbox, TextArea } from "@juniper-lib/dom/dist/tags";
 import { Audio_Mpeg, Audio_Webm } from "@juniper-lib/mediatypes/dist";
@@ -12,9 +12,10 @@ import { FileData } from "../../../vr-apps/yarrow/data";
 import { Station } from "../../../vr-apps/yarrow/Station";
 import { Asset, isStation } from "../models";
 import { BaseScenarioFileObjectView } from "./BaseScenarioFileObjectView";
+import { TypedEventMap } from "@juniper-lib/events/dist/TypedEventTarget";
 
 export class AudiosView
-    extends BaseScenarioFileObjectView<void, Audio, Station> {
+    extends BaseScenarioFileObjectView<TypedEventMap<string>, Audio, Station> {
 
     private readonly labelInput: HTMLTextAreaElement;
     private readonly enabledInput: HTMLInputElement;
@@ -52,22 +53,22 @@ export class AudiosView
 
             ["Label",
                 this.labelInput = TextArea(
-                    placeHolder("Enter label"),
-                    classList("form-control"),
-                    wrap("soft"),
-                    autoComplete(false),
-                    customData("lpignore", "true"),
+                    PlaceHolder("Enter label"),
+                    ClassList("form-control"),
+                    Wrap("soft"),
+                    AutoComplete("off"),
+                    CustomData("lpignore", "true"),
                     onInput(saver)
                 )
             ],
 
             ["Volume",
                 this.volumeInput = new InputRangeWithNumber(
-                    classList("form-control"),
-                    min(0),
-                    max(100),
-                    step(1),
-                    placeHolder("Volume"),
+                    ClassList("form-control"),
+                    Min(0),
+                    Max(100),
+                    Step(1),
+                    PlaceHolder("Volume"),
                     onInput(saver)
                 )
             ]);

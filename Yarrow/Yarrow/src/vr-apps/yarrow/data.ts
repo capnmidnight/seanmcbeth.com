@@ -210,5 +210,5 @@ export interface DeleteOp {
     texts?: number[];
 }
 
-export const Video_Vnd_DlsDc_YtDlp_Json = /*@__PURE__*/ specialize("video")("vnd.dlsdc.ytdlp+json", "ytdlp.json", "ytdlp", "json");
+export const Video_Vnd_Yarrow_YtDlp_Json = /*@__PURE__*/ specialize("video")("vnd.yarrow.ytdlp+json", "ytdlp.json", "ytdlp", "json");
 export const Image_Vendor_Google_StreetView_Pano = /*@__PURE_*/ specialize("image")("vnd.google.streetview.pano");

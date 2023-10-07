@@ -1,5 +1,5 @@
 import { documentReady } from "@juniper-lib/dom/dist/documentReady";
-import { buttonSetEnabled, HtmlRender, elementSetText, getInput, H2, P } from "@juniper-lib/dom/dist/tags";
+import { H2, HtmlRender, P, buttonSetEnabled, elementSetText, getInput } from "@juniper-lib/dom/dist/tags";
 import { assertSuccess } from "@juniper-lib/fetcher/dist/assertSuccess";
 import { Application_X_Zip_Compressed, Application_Zip } from "@juniper-lib/mediatypes/dist";
 import { IProgress } from "@juniper-lib/progress/dist/IProgress";

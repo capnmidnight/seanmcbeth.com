@@ -1,12 +1,12 @@
 import { columnGap, px } from "@juniper-lib/dom/dist/css";
 import { onClick } from "@juniper-lib/dom/dist/evts";
-import { ButtonSecondarySmall, elementSetText, Run } from "@juniper-lib/dom/dist/tags";
-import { TypedEvent } from "@juniper-lib/events/dist/EventBase";
+import { ButtonSecondarySmall, Run, elementSetText } from "@juniper-lib/dom/dist/tags";
 import { Task } from "@juniper-lib/events/dist/Task";
+import { TypedEvent } from "@juniper-lib/events/dist/TypedEventTarget";
 import { isNullOrUndefined } from "@juniper-lib/tslib/dist/typeChecks";
 import { GroupPanel } from "@juniper-lib/widgets/dist/GroupPanel";
-import type { StationConnectionData } from "../../../vr-apps/yarrow/data";
 import { Station } from "../../../vr-apps/yarrow/Station";
+import type { StationConnectionData } from "../../../vr-apps/yarrow/data";
 import { AssetDeleteEvent, AssetResetEvent, AssetSelectedEvent } from "../models";
 import { BaseScenarioResetableObjectView } from "./BaseScenarioResetableObjectView";
 
@@ -16,13 +16,13 @@ export class ConnectionStartedEvent extends TypedEvent<"connectionstarted"> {
     }
 }
 
-interface StationConnectionsViewEvents {
+type StationConnectionsViewEvents = {
     assetreset: AssetResetEvent<StationConnectionData>;
     assetdelete: AssetDeleteEvent<StationConnectionData>;
     assetselected: AssetSelectedEvent<Station>;
     connectionstarted: ConnectionStartedEvent;
     connectionending: TypedEvent<"connectionending">;
-}
+};
 
 export class ConnectionsView
     extends BaseScenarioResetableObjectView<StationConnectionsViewEvents, StationConnectionData, Station> {

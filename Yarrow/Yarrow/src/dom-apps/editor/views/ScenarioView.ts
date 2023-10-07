@@ -1,6 +1,6 @@
 import { onClick } from "@juniper-lib/dom/dist/evts";
-import { ButtonPrimary, buttonSetEnabled, HtmlRender, elementClearChildren, elementSetClass, elementSetText, Run } from "@juniper-lib/dom/dist/tags";
-import { TypedEvent } from "@juniper-lib/events/dist/EventBase";
+import { ButtonPrimary, HtmlRender, Run, buttonSetEnabled, elementClearChildren, elementSetClass, elementSetText } from "@juniper-lib/dom/dist/tags";
+import { TypedEvent } from "@juniper-lib/events/dist/TypedEventTarget";
 import { isDefined } from "@juniper-lib/tslib/dist/typeChecks";
 import { EditableScenario } from "../EditableScenario";
 import { BaseScenarioView } from "./BaseScenarioView";

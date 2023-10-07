@@ -63,7 +63,7 @@ namespace Yarrow.Pages.Editor.Scenarios
             if (contentType != MediaType.Video_Mp4
                 && contentType != MediaType.Video_Mpeg
                 && contentType != MediaType.Video_Webm
-                && contentType != Options.Video_Vnd_DlsDc_YtDlp_Json)
+                && contentType != Options.Video_Vnd_Yarrow_YtDlp_Json)
             {
                 return BadRequest("Error uploading model: video format must be MPG or WEBM.");
             }

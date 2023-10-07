@@ -1,4 +1,4 @@
-import { id, name, required } from "@juniper-lib/dom/dist/attrs";
+import { ID, Name, Required } from "@juniper-lib/dom/dist/attrs";
 import {
     Div,
     HtmlRender,
@@ -10,7 +10,7 @@ import { IFetcher } from "@juniper-lib/fetcher/dist/IFetcher";
 import { unwrapResponse } from "@juniper-lib/fetcher/dist/unwrapResponse";
 import { MediaType } from "@juniper-lib/mediatypes/dist";
 import { MediaTypeDB } from "@juniper-lib/mediatypes/dist/db";
-import { TypedEventBase } from "@juniper-lib/events/dist/EventBase";
+import { TypedEventTarget } from "@juniper-lib/events/dist/TypedEventTarget";
 import { RefreshEvent } from "@juniper-lib/events/dist/RefreshEvent";
 import { isDefined, isNullOrUndefined } from "@juniper-lib/tslib/dist/typeChecks";
 import { BootstrapProgressBar, BootstrapProgressBarElement } from "@juniper-lib/widgets/dist/BootstrapProgressBar";
@@ -20,13 +20,13 @@ import { FileData } from "../vr-apps/yarrow/data";
 import { FileSelectedEvent } from "./FilePickerEvents";
 import { TagPicker } from "./TagPicker";
 
-interface FilePickerUploadTabEvents {
+type FilePickerUploadTabEvents = {
     "refresh": RefreshEvent;
     "fileselected": FileSelectedEvent;
-}
+};
 
 export class FilePickerUploadTab
-    extends TypedEventBase<FilePickerUploadTabEvents>
+    extends TypedEventTarget<FilePickerUploadTabEvents>
     implements ErsatzElement {
 
     readonly element: HTMLElement;
@@ -52,23 +52,23 @@ export class FilePickerUploadTab
                         "Upload new file",
                         "primary",
                         InputFile(
-                            required(true)
+                            Required(true)
                         )
                     ),
                     this.selectionMessage = Div()],
 
                 ["Copyright",
                     this.copyrightInput = InputText(
-                        id("copyright"),
-                        name("copyright"),
-                        required(true)
+                        ID("copyright"),
+                        Name("copyright"),
+                        Required(true)
                     )],
 
                 ["Copyright date",
                     this.copyrightDateInput = InputDate(
-                        id("copyrightDate"),
-                        name("copyrightDate"),
-                        required(true)
+                        ID("copyrightDate"),
+                        Name("copyrightDate"),
+                        Required(true)
                     )],
 
                 ["Tags",

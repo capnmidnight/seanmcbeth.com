@@ -1,4 +1,4 @@
-import { id } from "@juniper-lib/dom/dist/attrs";
+import { ID } from "@juniper-lib/dom/dist/attrs";
 import { position, rule } from "@juniper-lib/dom/dist/css";
 import { Canvas, Div, HtmlRender, Style } from "@juniper-lib/dom/dist/tags";
 import { tilReady } from "@juniper-lib/dom/dist/tilReady";
@@ -19,9 +19,9 @@ Style(rule("#appContainer, #frontBuffer", position("relative")));
 
 export async function createTestEnvironment(): Promise<Environment> {
 
-    const canvas = Canvas(id("frontBuffer"));
+    const canvas = Canvas(ID("frontBuffer"));
     const container = Div(
-        id("appContainer"),
+        ID("appContainer"),
         canvas
     );
 

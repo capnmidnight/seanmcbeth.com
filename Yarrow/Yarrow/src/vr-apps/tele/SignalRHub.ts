@@ -1,4 +1,4 @@
-import { TypedEventBase } from "@juniper-lib/events/dist/EventBase";
+import { TypedEventTarget } from "@juniper-lib/events/dist/TypedEventTarget";
 import { ConnectionState } from "@juniper-lib/webrtc/dist/ConnectionState";
 import {
     HubAnswerReceivedEvent,
@@ -28,7 +28,7 @@ const hubStateTranslations = new Map<HubConnectionState, ConnectionState>([
     [HubConnectionState.Disconnecting, ConnectionState.Disconnecting]
 ]);
 
-export class SignalRHub extends TypedEventBase<IHubEvents> implements IHub {
+export class SignalRHub extends TypedEventTarget<IHubEvents> implements IHub {
     private readonly hub: HubConnection;
     constructor(signalRPath: string) {
         super();

@@ -11,17 +11,18 @@ namespace Yarrow.Data
 {
     public partial class YarrowContext
     {
+        const string PRIMARY_ORG_NAME = "STM";
 
         private static readonly string[] orgs = new[]
         {
-            "STM",
+            PRIMARY_ORG_NAME,
             "Anonymous"
         };
 
         // Email, FullName, Organization, isBootstrapUser, Roles
         private static readonly (string, string, string, bool, Role[])[] coreUsers = new[]
         {
-            ("sean@seanmcbeth.com", "Sean T. McBeth", "STM", true, new []{ Role.Developer, Role.Admin })
+            ("sean@seanmcbeth.com", "Sean T. McBeth", PRIMARY_ORG_NAME, true, new []{ Role.Developer, Role.Admin })
         };
 
         private static readonly string[] fileTags = new[]
@@ -283,7 +284,7 @@ namespace Yarrow.Data
 
         private async Task CreateLandingPage(string adminId)
         {
-            var DLS = await Organizations.SingleAsync(o => o.Name == "STM");
+            var primaryOrg = await Organizations.SingleAsync(o => o.Name == PRIMARY_ORG_NAME);
 
             var requiredScenes = new HashSet<string>(scenarios);
             var groups = Scenarios

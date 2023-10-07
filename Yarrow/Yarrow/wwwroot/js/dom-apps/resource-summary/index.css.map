@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../../Juniper/src/Juniper.TypeScript/@juniper-lib/widgets/dist/FilterableTable/style.css"],
+  "sourcesContent": ["table.summary > tbody > tr.selected,\r\ntable.summary > tbody > tr.selected > td {\r\n    background-color: rgb(221, 255, 255);\r\n}\r\n\r\ntable.summary > thead > tr > th:not(.multi) .btn,\r\ntable.summary > * > tr > td:not(.multi) .btn {\r\n    width: 100%;\r\n}\r\n\r\n.form-control {\r\n    display: inline-block;\r\n}\r\n\r\n.multi .form-control {\r\n    width: unset;\r\n}\r\n\r\ntable.summary input[required=true]::before,\r\ntable.summary select[required=true]::before {\r\n    content: \"*\";\r\n    color: red;\r\n}"],
+  "mappings": ";AAAA,KAAK,CAAC,QAAQ,EAAE,MAAM,EAAE,EAAE,CAAC;AAC3B,KAAK,CADC,QACQ,EAAE,MAAM,EAAE,EAAE,CADC,SACS,EAAE;AAClC,oBAAkB,IAAI,GAAG,EAAE,GAAG,EAAE;AACpC;AAEA,KAAK,CALC,QAKQ,EAAE,MAAM,EAAE,GAAG,EAAE,EAAE,KAAK,CAAC,OAAO,CAAC;AAC7C,KAAK,CANC,QAMQ,EAAE,EAAE,EAAE,GAAG,EAAE,EAAE,KAAK,CADK,OACG,CADK;AAEzC,SAAO;AACX;AAEA,CAAC;AACG,WAAS;AACb;AAEA,CATqC,MAS9B,CAJN;AAKG,SAAO;AACX;AAEA,KAAK,CAlBC,QAkBQ,KAAK,CAAC,cAAc;AAClC,KAAK,CAnBC,QAmBQ,MAAM,CAAC,cAAc;AAC/B,WAAS;AACT,SAAO;AACX;",
+  "names": []
+}

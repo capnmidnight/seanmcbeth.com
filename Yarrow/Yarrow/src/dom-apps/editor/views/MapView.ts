@@ -1,22 +1,22 @@
 import { Loader as GMapsLoader } from "@googlemaps/js-api-loader";
-import { classList, className, id, placeHolder, title } from "@juniper-lib/dom/dist/attrs";
-import { canvasToBlob, CanvasTypes, isCanvas } from "@juniper-lib/dom/dist/canvas";
+import { ClassList, ClassName, ID, PlaceHolder, Title_attr } from "@juniper-lib/dom/dist/attrs";
+import { CanvasTypes, canvasToBlob, isCanvas } from "@juniper-lib/dom/dist/canvas";
 import { height, padding, perc, px, width } from "@juniper-lib/dom/dist/css";
 import { makeEnterKeyEventHandler, onClick, onInput, onKeyUp } from "@juniper-lib/dom/dist/evts";
-import { ButtonPrimarySmall, ButtonSecondarySmall, buttonSetEnabled, Div, elementSetClass, elementSetText, FAIcon, InputText, Run } from "@juniper-lib/dom/dist/tags";
+import { ButtonPrimarySmall, ButtonSecondarySmall, Div, FAIcon, InputText, Run, buttonSetEnabled, elementSetClass, elementSetText } from "@juniper-lib/dom/dist/tags";
+import { TypedEvent } from "@juniper-lib/events/dist/TypedEventTarget";
 import type { IFetcher } from "@juniper-lib/fetcher/dist/IFetcher";
 import { unwrapResponse } from "@juniper-lib/fetcher/dist/unwrapResponse";
-import { g2y, y2g } from "@juniper-lib/google/dist-maps/conversion";
-import { PlacesAsync } from "@juniper-lib/google/dist-maps/PlacesAsync";
-import { StreetViewAsync } from "@juniper-lib/google/dist-maps/StreetViewAsync";
-import { Image_Jpeg, Image_Png } from "@juniper-lib/mediatypes/dist";
-import type { Environment } from "@juniper-lib/threejs/dist/environment/Environment";
-import { PhotosphereCaptureResolution } from "@juniper-lib/threejs/dist/PhotosphereRig";
-import { blobToObjectURL } from "@juniper-lib/tslib/dist/blobToObjectURL";
-import { TypedEvent } from "@juniper-lib/events/dist/EventBase";
 import { ILatLngPoint } from "@juniper-lib/gis/dist/LatLngPoint";
+import { PlacesAsync } from "@juniper-lib/google-maps/dist/PlacesAsync";
+import { StreetViewAsync } from "@juniper-lib/google-maps/dist/StreetViewAsync";
+import { g2y, y2g } from "@juniper-lib/google-maps/dist/conversion";
+import { Image_Jpeg, Image_Png } from "@juniper-lib/mediatypes/dist";
 import { IProgress } from "@juniper-lib/progress/dist/IProgress";
 import { progressSplitWeighted } from "@juniper-lib/progress/dist/progressSplit";
+import { PhotosphereCaptureResolution } from "@juniper-lib/threejs/dist/PhotosphereRig";
+import type { Environment } from "@juniper-lib/threejs/dist/environment/Environment";
+import { blobToObjectURL } from "@juniper-lib/tslib/dist/blobToObjectURL";
 import { isDefined, isNullOrUndefined } from "@juniper-lib/tslib/dist/typeChecks";
 import { toBytes } from "@juniper-lib/tslib/dist/units/fileSize";
 import { GroupPanel } from "@juniper-lib/widgets/dist/GroupPanel";
@@ -53,7 +53,7 @@ export class StreetViewCaptureCompleteEvent
     }
 }
 
-interface MapViewEvents {
+type MapViewEvents = {
     "capturestart": StreetViewCaptureStartEvent;
     "capturecomplete": StreetViewCaptureCompleteEvent;
     "streetviewopened": TypedEvent<"streetviewopened">;
@@ -90,15 +90,15 @@ export class MapView
         this.files = new GSVMetadata(this.fetcher);
 
         this._element = Div(
-            className("map"),
+            ClassName("map"),
             width(perc(100)),
             height(perc(100)),
 
             new GroupPanel(
                 this.searchBox = InputText(
-                    id("mapSearch"),
-                    classList("form-control"),
-                    placeHolder("Search map and Street View"),
+                    ID("mapSearch"),
+                    ClassList("form-control"),
+                    PlaceHolder("Search map and Street View"),
                     onKeyUp(makeEnterKeyEventHandler(() =>
                         this.search(this.searchBox.value, true))),
                     onInput(() =>
@@ -107,7 +107,7 @@ export class MapView
 
                 this.searchButton = ButtonPrimarySmall(
                     FAIcon("search-location"),
-                    title("Search"),
+                    Title_attr("Search"),
                     onClick(() =>
                         this.search(this.searchBox.value, true))
                 ),
@@ -124,14 +124,14 @@ export class MapView
 
             new GroupPanel(
                 this.sphereNameInput = InputText(
-                    id("sphereName"),
-                    classList("form-control"),
-                    placeHolder("Enter station name"),
+                    ID("sphereName"),
+                    ClassList("form-control"),
+                    PlaceHolder("Enter station name"),
                     onInput(() => this.refresh())
                 ),
 
                 this.copyrightLabel = Run(
-                    id("streetViewCopyright"),
+                    ID("streetViewCopyright"),
                     padding(px(5))
                 ),
 
@@ -141,15 +141,15 @@ export class MapView
                 ),
 
                 this.captureButton = ButtonPrimarySmall(
-                    id("streetViewCaptureButton"),
+                    ID("streetViewCaptureButton"),
                     "Capture",
                     onClick(() => this.captureStreetView(false))
                 )
             ),
 
             this.mapContainer = Div(
-                className("detail"),
-                id("mapView")
+                ClassName("detail"),
+                ID("mapView")
             )
         );
 

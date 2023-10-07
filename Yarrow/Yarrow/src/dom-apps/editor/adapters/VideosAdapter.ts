@@ -1,13 +1,13 @@
-import { SphereEncodingName, StereoLayoutName } from "@juniper-lib/threejs/dist/VideoPlayer3D";
 import { coallesce } from "@juniper-lib/collections/dist/coallesce";
-import { deg2rad } from "@juniper-lib/tslib/dist/math";
 import { IProgress } from "@juniper-lib/progress/dist/IProgress";
 import { progressSplitWeighted } from "@juniper-lib/progress/dist/progressSplit";
+import { SphereEncodingName, StereoLayoutName } from "@juniper-lib/threejs/dist/VideoPlayer3D";
+import { deg2rad } from "@juniper-lib/tslib/dist/math";
 import { isDefined } from "@juniper-lib/tslib/dist/typeChecks";
-import type { FileData, TransformData, VideoClipData } from "../../../vr-apps/yarrow/data";
 import { Station } from "../../../vr-apps/yarrow/Station";
 import { Transform } from "../../../vr-apps/yarrow/Transform";
 import { Video } from "../../../vr-apps/yarrow/Video";
+import type { FileData, TransformData, VideoClipData } from "../../../vr-apps/yarrow/data";
 import type { EditableScenario } from "../EditableScenario";
 import { AssetSelectedEvent } from "../models";
 import { BaseScenarioFileAssetAdapter } from "./BaseScenarioFileAssetAdapter";

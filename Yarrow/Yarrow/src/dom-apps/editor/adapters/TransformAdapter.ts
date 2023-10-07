@@ -1,8 +1,8 @@
 import { unwrapResponse } from "@juniper-lib/fetcher/dist/unwrapResponse";
-import { y2g } from "@juniper-lib/google/dist-maps/conversion";
+import { y2g } from "@juniper-lib/google-maps/dist/conversion";
 import { isDefined } from "@juniper-lib/tslib/dist/typeChecks";
-import { BaseScenarioFileAssetData, TransformData } from "../../../vr-apps/yarrow/data";
 import { Transform } from "../../../vr-apps/yarrow/Transform";
+import { BaseScenarioFileAssetData, TransformData } from "../../../vr-apps/yarrow/data";
 import { EditableScenario } from "../EditableScenario";
 import { EditableScenarioObjectMovedEvent } from "../EditableScenarioObjectMovedEvent";
 

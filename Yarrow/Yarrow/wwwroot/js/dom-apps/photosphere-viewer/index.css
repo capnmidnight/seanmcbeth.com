@@ -1,0 +1,16 @@
+/* ../../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs/dist/environment/BaseEnvironment/style.css */
+#appContainer,
+#frontBuffer {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+#frontBuffer {
+  touch-action: none;
+}
+/*# sourceMappingURL=index.css.map */

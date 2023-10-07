@@ -255,7 +255,7 @@ namespace Yarrow.Pages.Editor.Users
             WithIdentityUserAsync("reset password for", userID, async (user) =>
             (
                 "password reset",
-                await users.SendPasswordChangeEmailAsync(Request, Logger, Url, email, user, config.GetValue<string>("Mail:From"), "DLS VR Editor", "Diplomatic Language Services", !IsDev)
+                await users.SendPasswordChangeEmailAsync(Request, Logger, Url, email, user, config.GetValue<string>("Mail:From"), "Yarrow Editor", "Yarrow", !IsDev)
             ));
 
         public Task<IActionResult> OnPostAddLockoutAsync([FromRoute] string userID) =>

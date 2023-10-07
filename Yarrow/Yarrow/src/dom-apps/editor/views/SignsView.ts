@@ -1,21 +1,22 @@
-import { classList, max, min, placeHolder, step } from "@juniper-lib/dom/dist/attrs";
+import { ClassList, Max, Min, PlaceHolder, Step } from "@juniper-lib/dom/dist/attrs";
 import { onInput } from "@juniper-lib/dom/dist/evts";
 import { InputCheckbox } from "@juniper-lib/dom/dist/tags";
+import { TypedEventMap } from "@juniper-lib/events/dist/TypedEventTarget";
 import { Application_Pdf, Image_Jpeg, Image_Png } from "@juniper-lib/mediatypes/dist";
-import { formatNumber, parseNumber } from "@juniper-lib/tslib/dist/math";
 import { IProgress } from "@juniper-lib/progress/dist/IProgress";
+import { formatNumber, parseNumber } from "@juniper-lib/tslib/dist/math";
 import { isDefined, isNullOrUndefined } from "@juniper-lib/tslib/dist/typeChecks";
 import { InputRangeWithNumber } from "@juniper-lib/widgets/dist/InputRangeWithNumber";
 import { FilePicker } from "../../../file-picker/FilePicker";
 import { DEMO_DIM, DEMO_PPI, DEMO_PX } from "../../../settings";
-import { FileData } from "../../../vr-apps/yarrow/data";
 import type { Sign } from "../../../vr-apps/yarrow/Sign";
 import { Station } from "../../../vr-apps/yarrow/Station";
+import { FileData } from "../../../vr-apps/yarrow/data";
 import { Asset, isStation } from "../models";
 import { BaseScenarioFileObjectView } from "./BaseScenarioFileObjectView";
 
 export class SignsView
-    extends BaseScenarioFileObjectView<void, Sign, Station> {
+    extends BaseScenarioFileObjectView<TypedEventMap<string>, Sign, Station> {
 
     private readonly isCalloutInput: HTMLInputElement;
     private readonly alwaysVisibleInput: HTMLInputElement;
@@ -50,11 +51,11 @@ export class SignsView
         this.addProperties(
             ["Width",
                 this.sizeInput = new InputRangeWithNumber(
-                    classList("form-control"),
-                    min(0),
-                    max(10),
-                    step(0.1),
-                    placeHolder("Size"),
+                    ClassList("form-control"),
+                    Min(0),
+                    Max(10),
+                    Step(0.1),
+                    PlaceHolder("Size"),
                     onInput(() =>
                         this.scenario.signAdapter.setSize(this.value, this.size))
                 )
@@ -80,30 +81,30 @@ export class SignsView
 
             ["Pitch",
                 this.rotationXInput = new InputRangeWithNumber(
-                    classList("form-control"),
-                    min(-180),
-                    max(180),
-                    step(0.1),
+                    ClassList("form-control"),
+                    Min(-180),
+                    Max(180),
+                    Step(0.1),
                     onInput(rotate)
                 )
             ],
 
             ["Yaw",
                 this.rotationYInput = new InputRangeWithNumber(
-                    classList("form-control"),
-                    min(-180),
-                    max(180),
-                    step(0.1),
+                    ClassList("form-control"),
+                    Min(-180),
+                    Max(180),
+                    Step(0.1),
                     onInput(rotate)
                 )
             ],
 
             ["Roll",
                 this.rotationZInput = new InputRangeWithNumber(
-                    classList("form-control"),
-                    min(-180),
-                    max(180),
-                    step(0.1),
+                    ClassList("form-control"),
+                    Min(-180),
+                    Max(180),
+                    Step(0.1),
                     onInput(rotate)
                 )
             ]);

@@ -81,11 +81,11 @@ namespace Yarrow.Areas.Identity.Pages.Account
                     var msg = new EmailMessage(config.GetValue<string>("Mail:From"),
                         user is not null
                             ? "Duplicate Account Request"
-                            : $"New DLSVR Account Request: {Name}");
+                            : $"New Account Request: {Name}");
                     msg += H1(
                         user is not null
-                            ? "Duplicate DLS VR Editor Account Request"
-                            : "New DLS VR Editor Account Request");
+                            ? "Duplicate Editor Account Request"
+                            : "New Editor Account Request");
 
                     if (user is not null)
                     {
@@ -95,7 +95,6 @@ namespace Yarrow.Areas.Identity.Pages.Account
 that address already exists.");
                         msg += P($@"Please validate that this is an authorized user and reset their password from the Editor dashboard
 at {usersPage}.");
-                        msg += Thanks("DLS VR Website");
                     }
                     else
                     {
@@ -107,7 +106,7 @@ at {createLink}.");
                     }
 
 
-                    msg += Thanks("DLS VR Website");
+                    msg += Thanks("Yarrow");
 
                     if (!IsDev)
                     {

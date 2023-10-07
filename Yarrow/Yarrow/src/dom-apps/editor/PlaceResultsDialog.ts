@@ -1,12 +1,12 @@
-import { className, src, title } from "@juniper-lib/dom/dist/attrs";
+import { ClassName, Src, Title_attr } from "@juniper-lib/dom/dist/attrs";
 import { onClick } from "@juniper-lib/dom/dist/evts";
 import {
     ButtonPrimarySmall,
     Div,
     HtmlRender,
+    Img,
     elementClearChildren,
-    elementSetDisplay,
-    Img
+    elementSetDisplay
 } from "@juniper-lib/dom/dist/tags";
 import { DialogBox } from "@juniper-lib/widgets/dist/DialogBox";
 
@@ -24,24 +24,24 @@ export class PlaceResultsDialog extends DialogBox {
 
         HtmlRender(this.contentArea,
             Div(
-                className("table"),
+                ClassName("table"),
                 Div(
-                    className("table-head"),
+                    ClassName("table-head"),
                     Div(
-                        className("table-row"),
-                        Div(className("table-cell")),
-                        Div(className("table-cell"), "Name"),
-                        Div(className("table-cell"), "Address"),
-                        Div(className("table-cell"))
+                        ClassName("table-row"),
+                        Div(ClassName("table-cell")),
+                        Div(ClassName("table-cell"), "Name"),
+                        Div(ClassName("table-cell"), "Address"),
+                        Div(ClassName("table-cell"))
                     )
                 ),
 
                 this.results = Div(
-                    className("table-body"),
+                    ClassName("table-body"),
                     Div(
-                        className("table-row"),
+                        ClassName("table-row"),
                         Div(
-                            className("table-cell"),
+                            ClassName("table-cell"),
                             "Searching..."
                         )
                     )
@@ -54,14 +54,14 @@ export class PlaceResultsDialog extends DialogBox {
         let selection: google.maps.places.PlaceResult = null;
         elementClearChildren(this.results);
         HtmlRender(this.results, ...results.map(r =>
-            Div(className("table-row"),
-                Div(className("table-cell"),
-                    Img(className("thumbnail"),
-                        title("Place icon"),
-                        src(r.icon))),
-                Div(className("table-cell"), r.name),
-                Div(className("table-cell"), r.formatted_address),
-                Div(className("table-cell"),
+            Div(ClassName("table-row"),
+                Div(ClassName("table-cell"),
+                    Img(ClassName("thumbnail"),
+                        Title_attr("Place icon"),
+                        Src(r.icon))),
+                Div(ClassName("table-cell"), r.name),
+                Div(ClassName("table-cell"), r.formatted_address),
+                Div(ClassName("table-cell"),
                     ButtonPrimarySmall(
                         "Select",
                         onClick(() => {

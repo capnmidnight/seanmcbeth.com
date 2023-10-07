@@ -1,20 +1,20 @@
-import { Attr } from "@juniper-lib/dom/dist/attrs";
+import { buildTree } from "@juniper-lib/collections/dist/TreeNode";
+import { arrayInsertAt } from "@juniper-lib/collections/dist/arrays";
+import { HtmlAttr } from "@juniper-lib/dom/dist/attrs";
 import { CssElementStyleProp } from "@juniper-lib/dom/dist/css";
 import { lockedWithKey, questionMark, star } from "@juniper-lib/emoji/dist";
-import { arrayInsertAt } from "@juniper-lib/collections/dist/arrays";
-import { buildTree } from "@juniper-lib/collections/dist/TreeNode";
 import { isDefined, isNullOrUndefined } from "@juniper-lib/tslib/dist/typeChecks";
 import { TreeView } from "@juniper-lib/widgets/dist/TreeView";
 import { Station } from "../../vr-apps/yarrow/Station";
 import { EditableScenario } from "../editor/EditableScenario";
-import { Asset, assetIcons, assetNames, DeletableAsset, DeletableAssetKind, DeletableAssetKindValues, getAssetKind, isAmbientAudio, isAudio, isConnection, isModel, isScenario, isSign, isStation, isText, isVideo, isVoiceOver, isZone } from "./models";
+import { Asset, DeletableAsset, DeletableAssetKind, DeletableAssetKindValues, assetIcons, assetNames, getAssetKind, isAmbientAudio, isAudio, isConnection, isModel, isScenario, isSign, isStation, isText, isVideo, isVoiceOver, isZone } from "./models";
 
 
 export class AssetList extends TreeView<Asset, DeletableAssetKind>{
 
     private _scenario: EditableScenario = null;
 
-    constructor(...styleProps: (CssElementStyleProp | Attr<"id">)[]) {
+    constructor(...styleProps: (CssElementStyleProp | HtmlAttr<"id">)[]) {
 
         super({
             showNameFilter: true,

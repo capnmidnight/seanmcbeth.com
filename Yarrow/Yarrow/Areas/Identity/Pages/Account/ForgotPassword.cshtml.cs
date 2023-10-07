@@ -60,7 +60,7 @@ namespace Yarrow.Areas.Identity.Pages.Account
                 }
                 else
                 {
-                    var result = await users.SendPasswordChangeEmailAsync(Request, logger, Url, email, user, config.GetValue<string>("Mail:From"), "DLS VR Editor", "Diplomatic Language Services", !IsDev);
+                    var result = await users.SendPasswordChangeEmailAsync(Request, logger, Url, email, user, config.GetValue<string>("Mail:From"), "VR Editor", "Yarrow", !IsDev);
                     if (result.Succeeded)
                     {
                         StatusMessage = $"An email with a password reset link has been sent to {Email}. Please close this window and continue from the reset link. Reset links expire after 24 hours.";
@@ -69,7 +69,7 @@ namespace Yarrow.Areas.Identity.Pages.Account
                     {
                         var errors = result.Errors.Select(e => e.Description).ToArray().Join(", ");
                         logger.LogError("Error reseting password for {Email}: {errors}", Email, errors);
-                        StatusMessage = "There was an error while attempting to reset the password. Please contact the system adminstrator at vr@dlsdc.com";
+                        StatusMessage = "There was an error while attempting to reset the password. Please contact the system adminstrator at sean@seanmcbeth.com";
                     }
                 }
             }

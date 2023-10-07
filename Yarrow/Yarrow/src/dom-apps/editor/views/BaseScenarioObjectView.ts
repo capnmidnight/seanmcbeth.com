@@ -1,6 +1,7 @@
-import { classList, className, placeHolder } from "@juniper-lib/dom/dist/attrs";
+import { ClassList, ClassName, PlaceHolder } from "@juniper-lib/dom/dist/attrs";
 import { onClick, onEnterKeyPressed } from "@juniper-lib/dom/dist/evts";
-import { ButtonDangerSmall, Div, elementSetText, InputText, Span } from "@juniper-lib/dom/dist/tags";
+import { ButtonDangerSmall, Div, InputText, Span, elementSetText } from "@juniper-lib/dom/dist/tags";
+import { TypedEventMap } from "@juniper-lib/events/dist/TypedEventTarget";
 import { IProgress } from "@juniper-lib/progress/dist/IProgress";
 import { isDefined } from "@juniper-lib/tslib/dist/typeChecks";
 import { group } from "@juniper-lib/widgets/dist/PropertyList";
@@ -10,7 +11,7 @@ import { BaseScenarioView } from "./BaseScenarioView";
 
 const DEFAULT_WARNING = "renameWarning";
 
-export abstract class BaseScenarioObjectView<EventsT, ValueT extends DeletableAsset, ParentT extends Asset>
+export abstract class BaseScenarioObjectView<EventsT extends TypedEventMap<string>, ValueT extends DeletableAsset, ParentT extends Asset>
     extends BaseScenarioView<EventsT & AssetEvents<ValueT>, ValueT> {
 
     private _value: ValueT = null;
@@ -25,13 +26,13 @@ export abstract class BaseScenarioObjectView<EventsT, ValueT extends DeletableAs
         this.addProperties(
             ["Name",
                 this.nameInput = InputText(
-                    classList("form-control"),
-                    placeHolder(title + " name")
+                    ClassList("form-control"),
+                    PlaceHolder(title + " name")
                 )
             ],
 
             group(DEFAULT_WARNING, Div(
-                className("alert alert-warning"),
+                ClassName("alert alert-warning"),
                 `Cannot rename ${title} to `,
                 this.renameWarningText = Span()
             ))

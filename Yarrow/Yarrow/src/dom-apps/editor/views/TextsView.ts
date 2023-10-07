@@ -1,21 +1,22 @@
-import { classList, max, min, placeHolder, step } from "@juniper-lib/dom/dist/attrs";
+import { ClassList, Max, Min, PlaceHolder, Step } from "@juniper-lib/dom/dist/attrs";
 import { onInput } from "@juniper-lib/dom/dist/evts";
 import { InputCheckbox, TextArea } from "@juniper-lib/dom/dist/tags";
+import { TypedEventMap } from "@juniper-lib/events/dist/TypedEventTarget";
 import { unwrapResponse } from "@juniper-lib/fetcher/dist/unwrapResponse";
 import { Text_Plain } from "@juniper-lib/mediatypes/dist";
-import { formatNumber, parseNumber } from "@juniper-lib/tslib/dist/math";
 import { IProgress } from "@juniper-lib/progress/dist/IProgress";
+import { formatNumber, parseNumber } from "@juniper-lib/tslib/dist/math";
 import { isDefined, isNullOrUndefined } from "@juniper-lib/tslib/dist/typeChecks";
 import { InputRangeWithNumber } from "@juniper-lib/widgets/dist/InputRangeWithNumber";
 import { FilePicker } from "../../../file-picker/FilePicker";
-import { FileData } from "../../../vr-apps/yarrow/data";
 import { Station } from "../../../vr-apps/yarrow/Station";
 import type { Text } from "../../../vr-apps/yarrow/Text";
+import { FileData } from "../../../vr-apps/yarrow/data";
 import { Asset, isStation } from "../models";
 import { BaseScenarioFileObjectView } from "./BaseScenarioFileObjectView";
 
 export class TextsView
-    extends BaseScenarioFileObjectView<void, Text, Station> {
+    extends BaseScenarioFileObjectView<TypedEventMap<string>, Text, Station> {
 
     private readonly textInput: HTMLTextAreaElement;
     private readonly isCalloutInput: HTMLInputElement;
@@ -57,11 +58,11 @@ export class TextsView
             ],
             ["Width",
                 this.sizeInput = new InputRangeWithNumber(
-                    classList("form-control"),
-                    min(0),
-                    max(10),
-                    step(0.1),
-                    placeHolder("Size"),
+                    ClassList("form-control"),
+                    Min(0),
+                    Max(10),
+                    Step(0.1),
+                    PlaceHolder("Size"),
                     onInput(() =>
                         this.scenario.textAdapter.setSize(this.value, this.size))
                 )
@@ -87,30 +88,30 @@ export class TextsView
 
             ["Pitch",
                 this.rotationXInput = new InputRangeWithNumber(
-                    classList("form-control"),
-                    min(-180),
-                    max(180),
-                    step(0.1),
+                    ClassList("form-control"),
+                    Min(-180),
+                    Max(180),
+                    Step(0.1),
                     onInput(rotate)
                 )
             ],
 
             ["Yaw",
                 this.rotationYInput = new InputRangeWithNumber(
-                    classList("form-control"),
-                    min(-180),
-                    max(180),
-                    step(0.1),
+                    ClassList("form-control"),
+                    Min(-180),
+                    Max(180),
+                    Step(0.1),
                     onInput(rotate)
                 )
             ],
 
             ["Roll",
                 this.rotationZInput = new InputRangeWithNumber(
-                    classList("form-control"),
-                    min(-180),
-                    max(180),
-                    step(0.1),
+                    ClassList("form-control"),
+                    Min(-180),
+                    Max(180),
+                    Step(0.1),
                     onInput(rotate)
                 )
             ]);

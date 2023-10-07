@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/dom-apps/resource-detail/styles.css"],
+  "sourcesContent": ["dl {\r\n    display: grid;\r\n    grid-template-columns: auto auto 1fr;\r\n}\r\n\r\ndt {\r\n    grid-column: 1/2;\r\n    padding: 0 1em 0 2em;\r\n}\r\n\r\ndd {\r\n    grid-column: 2/3;\r\n}\r\n\r\n.fileList > tfoot td {\r\n    text-align: right;\r\n}\r\n\r\n    .fileList > tfoot td * {\r\n        margin: 0 0.5em;\r\n    }\r\n\r\n\r\n.thumbnail {\r\n    max-width: 20em;\r\n    max-height: 15em;\r\n}\r\n"],
+  "mappings": ";AAAA;AACI,WAAS;AACT,yBAAuB,KAAK,KAAK;AACrC;AAEA;AACI,eAAa,CAAC,CAAC;AACf,WAAS,EAAE,IAAI,EAAE;AACrB;AAEA;AACI,eAAa,CAAC,CAAC;AACnB;AAEA,CAAC,SAAS,EAAE,MAAM;AACd,cAAY;AAChB;AAEI,CAJH,SAIa,EAAE,MAAM,GAAG;AACjB,UAAQ,EAAE;AACd;AAGJ,CAAC;AACG,aAAW;AACX,cAAY;AAChB;",
+  "names": []
+}

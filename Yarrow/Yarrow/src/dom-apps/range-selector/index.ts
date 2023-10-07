@@ -1,5 +1,5 @@
-import { elementSetClass, getInputs } from "@juniper-lib/dom/dist/tags";
 import { PriorityList } from "@juniper-lib/collections/dist/PriorityList";
+import { elementSetClass, getInputs } from "@juniper-lib/dom/dist/tags";
 import { isDefined, isNullOrUndefined } from "@juniper-lib/tslib/dist/typeChecks";
 
 

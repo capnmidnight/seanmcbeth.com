@@ -1,20 +1,20 @@
 /* eslint-disable no-inner-declarations */
 
 import { buttonSetEnabled, elementSetDisplay, elementSetText, getButton, getCanvas, getElement, getInput } from "@juniper-lib/dom/dist/tags";
+import { Task } from "@juniper-lib/events/dist/Task";
+import { WindowQuitEventer } from "@juniper-lib/events/dist/WindowQuitEventer";
+import { all } from "@juniper-lib/events/dist/all";
 import { assertSuccess } from "@juniper-lib/fetcher/dist/assertSuccess";
 import { unwrapResponse } from "@juniper-lib/fetcher/dist/unwrapResponse";
+import { IProgress } from "@juniper-lib/progress/dist/IProgress";
+import { progressSplit, progressSplitWeighted } from "@juniper-lib/progress/dist/progressSplit";
 import { getUserNumber, hasUserNumber } from "@juniper-lib/testing/dist/userNumber";
 import type { BaseTele } from "@juniper-lib/threejs/dist/BaseTele";
 import { ScreenMode } from "@juniper-lib/threejs/dist/ScreenMode";
 import type { Environment, EnvironmentModule } from "@juniper-lib/threejs/dist/environment/Environment";
-import { URLBuilder } from "@juniper-lib/tslib/dist/URLBuilder";
-import { Task } from "@juniper-lib/events/dist/Task";
-import { WindowQuitEventer } from "@juniper-lib/events/dist/WindowQuitEventer";
-import { all } from "@juniper-lib/events/dist/all";
-import { isIOS, isMobileVR } from "@juniper-lib/tslib/dist/flags";
-import { IProgress } from "@juniper-lib/progress/dist/IProgress";
-import { progressSplit, progressSplitWeighted } from "@juniper-lib/progress/dist/progressSplit";
 import { SetIntervalTimer } from "@juniper-lib/timers/dist/SetIntervalTimer";
+import { URLBuilder } from "@juniper-lib/tslib/dist/URLBuilder";
+import { isIOS, isMobileVR } from "@juniper-lib/tslib/dist/flags";
 import { isDefined } from "@juniper-lib/tslib/dist/typeChecks";
 import { version as threeJSVersion } from "../../../node_modules/three/package.json";
 import { createFetcher } from "../../createFetcher";

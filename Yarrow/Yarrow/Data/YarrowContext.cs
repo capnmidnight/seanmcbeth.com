@@ -3,8 +3,6 @@ using Juniper.Data;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-using System.Reflection;
-
 namespace Yarrow.Data
 {
     public partial class YarrowContext : IdentityDbContext
@@ -29,7 +27,7 @@ namespace Yarrow.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            this.JuniperModelCreating(modelBuilder);
+            modelBuilder.JuniperModelCreating<YarrowContext>();
         }
     }
 }

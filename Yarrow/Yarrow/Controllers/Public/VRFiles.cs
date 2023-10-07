@@ -134,7 +134,7 @@ namespace Yarrow.Controllers.Public
                 {
                     var result = new ContentResult
                     {
-                        ContentType = Options.Video_Vnd_DlsDc_YtDlp_Json,
+                        ContentType = Options.Video_Vnd_Yarrow_YtDlp_Json,
                         StatusCode = 200
                     };
 

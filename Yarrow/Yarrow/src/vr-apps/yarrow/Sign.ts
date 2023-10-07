@@ -1,20 +1,20 @@
 import { CanvasImageTypes } from "@juniper-lib/dom/dist/canvas";
+import { DwellEventer } from "@juniper-lib/events/dist/DwellEventer";
+import { TypedEventTarget } from "@juniper-lib/events/dist/TypedEventTarget";
+import { all } from "@juniper-lib/events/dist/all";
 import { IResponse } from "@juniper-lib/fetcher/dist/IResponse";
 import { unwrapResponse } from "@juniper-lib/fetcher/dist/unwrapResponse";
 import { PDFImage } from "@juniper-lib/graphics2d/dist/PDFImage";
 import { TextImageOptions } from "@juniper-lib/graphics2d/dist/TextImage";
 import { Application_Pdf } from "@juniper-lib/mediatypes/dist";
+import { IProgress } from "@juniper-lib/progress/dist/IProgress";
 import { cleanup } from "@juniper-lib/threejs/dist/cleanup";
 import { RayTarget } from "@juniper-lib/threejs/dist/eventSystem/RayTarget";
 import { ErsatzObject, isErsatzObject, objGraph } from "@juniper-lib/threejs/dist/objects";
 import { Image2D } from "@juniper-lib/threejs/dist/widgets/Image2D";
 import { MeshButton } from "@juniper-lib/threejs/dist/widgets/MeshButton";
 import { TextMesh } from "@juniper-lib/threejs/dist/widgets/TextMesh";
-import { all } from "@juniper-lib/events/dist/all";
-import { DwellEventer } from "@juniper-lib/events/dist/DwellEventer";
-import { TypedEventBase } from "@juniper-lib/events/dist/EventBase";
 import { clamp, project, rad2deg } from "@juniper-lib/tslib/dist/math";
-import { IProgress } from "@juniper-lib/progress/dist/IProgress";
 import { isDefined } from "@juniper-lib/tslib/dist/typeChecks";
 import { IDisposable } from "@juniper-lib/tslib/dist/using";
 import { FrontSide, Matrix4, Object3D, Quaternion, Vector3 } from "three";
@@ -169,9 +169,9 @@ export class Sign
         this.pdf = null;
     }
 
-    private removeButton(obj: ErsatzObject | TypedEventBase<any>) {
+    private removeButton(obj: ErsatzObject | TypedEventTarget) {
         if (isDefined(obj)) {
-            if (obj instanceof TypedEventBase) {
+            if (obj instanceof TypedEventTarget) {
                 obj.removeScope(this);
             }
 

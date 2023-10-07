@@ -1,16 +1,16 @@
 import { upArrowText } from "@juniper-lib/emoji/dist";
+import { TypedEvent } from "@juniper-lib/events/dist/TypedEventTarget";
+import { BaseProgress } from "@juniper-lib/progress/dist/BaseProgress";
+import { IProgress } from "@juniper-lib/progress/dist/IProgress";
 import { Cube } from "@juniper-lib/threejs/dist/Cube";
 import type { BaseEnvironment } from "@juniper-lib/threejs/dist/environment/BaseEnvironment";
 import { solidWhite } from "@juniper-lib/threejs/dist/materials";
 import { ErsatzObject, objGraph } from "@juniper-lib/threejs/dist/objects";
 import { TextMeshButton } from "@juniper-lib/threejs/dist/widgets/TextMeshButton";
-import { TypedEvent } from "@juniper-lib/events/dist/EventBase";
-import { BaseProgress } from "@juniper-lib/progress/dist/BaseProgress";
-import { IProgress } from "@juniper-lib/progress/dist/IProgress";
 import { Matrix4, Object3D } from "three";
 import { textButtonStyle } from "../../settings";
-import { StationConnectionData } from "./data";
 import type { Transform } from "./Transform";
+import { StationConnectionData } from "./data";
 
 const DEFAULT_NAV_ICON = ` ${upArrowText.textStyle} `;
 const TEST_OBJECT = new Object3D();

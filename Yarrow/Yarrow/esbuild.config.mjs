@@ -22,7 +22,7 @@ function findBundles(isWorker, isThree, ...dirs) {
     return new Build(args, isWorker)
         .plugin((minify) => glsl({ minify }))
         .addThreeJS(!isThree)
-        .outDir("../Yarrow.Server/wwwroot/js/")
+        .outDir("../Yarrow/wwwroot/js/")
         .find(...dirs)
         .run();
 }

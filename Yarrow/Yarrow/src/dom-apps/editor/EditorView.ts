@@ -3,9 +3,10 @@ import { ClassList, CustomData, ID } from "@juniper-lib/dom/dist/attrs";
 import { color, overflow } from "@juniper-lib/dom/dist/css";
 import { Canvas, Div, ErsatzElement, HR, HtmlRender, Span } from "@juniper-lib/dom/dist/tags";
 import { warning } from "@juniper-lib/emoji/dist";
+import { TypedEventMap } from "@juniper-lib/events/dist/TypedEventTarget";
 import { IFetcher } from "@juniper-lib/fetcher/dist/IFetcher";
 import { unwrapResponse } from "@juniper-lib/fetcher/dist/unwrapResponse";
-import { y2g } from "@juniper-lib/google/dist-maps/conversion";
+import { y2g } from "@juniper-lib/google-maps/dist/conversion";
 import { IProgress } from "@juniper-lib/progress/dist/IProgress";
 import { progressSplitWeighted } from "@juniper-lib/progress/dist/progressSplit";
 import { TransformEditor } from "@juniper-lib/threejs/dist/TransformEditor";
@@ -17,7 +18,7 @@ import { isDefined, isNullOrUndefined } from "@juniper-lib/tslib/dist/typeChecks
 import { ContextMenu } from "@juniper-lib/widgets/dist/ContextMenu";
 import { DockCell, DockGroupColumn, DockGroupRow, DockPanel, rearrangeable, resizable } from "@juniper-lib/widgets/dist/DockPanel";
 import { TabPanel, TabPanelElement } from "@juniper-lib/widgets/dist/TabPanel";
-import { TreeViewNodeEvent } from "@juniper-lib/widgets/dist/TreeView/TreeViewNode";
+import { TreeViewNodeEvent } from "@juniper-lib/widgets/dist/TreeView/TreeViewNodeElement";
 import { FilePicker } from "../../file-picker/FilePicker";
 import {
     BasicLabelColor,
@@ -63,7 +64,7 @@ export class EditorView implements ErsatzElement {
     private readonly stationView: StationView;
     private readonly connectionView: ConnectionsView;
     private readonly mapView: MapView;
-    private readonly propertyViews: Map<AssetKind, BaseScenarioView<unknown, Asset>>;
+    private readonly propertyViews: Map<AssetKind, BaseScenarioView<TypedEventMap<string>, Asset>>;
     private readonly viewTabs: TabPanelElement<"streetview" | "appContainer">;
     private readonly contextMenu: ContextMenu;
 
@@ -147,12 +148,12 @@ export class EditorView implements ErsatzElement {
             ["connection", this.connectionView = new ConnectionsView()]
         ]);
 
-        const objPropertyViews = new Map<DeletableAssetKind, BaseScenarioObjectView<unknown, DeletableAsset, Asset>>([
+        const objPropertyViews = new Map<DeletableAssetKind, BaseScenarioObjectView<TypedEventMap<string>, DeletableAsset, Asset>>([
             ...Array.from(resetablePropertyViews.entries()),
             ["zone", new ZoneView()]
         ]);
 
-        this.propertyViews = new Map<AssetKind, BaseScenarioView<unknown, Asset>>([
+        this.propertyViews = new Map<AssetKind, BaseScenarioView<TypedEventMap<string>, Asset>>([
             ...Array.from(objPropertyViews.entries()),
             ["scenario", this.scenarioView = new ScenarioView()]
         ]);
@@ -272,9 +273,15 @@ export class EditorView implements ErsatzElement {
                     Span(".", color("transparent")),
                     overflow("visible"),
                     CustomData("proportion", 6),
-                    this.viewTabs = TabPanel.create(
-                        ["appContainer", "Preview", environmentView],
-                        ["streetview", "Google StreetView", streetViewContainer]
+                    this.viewTabs = TabPanel(
+                        Div(
+                            CustomData("tab-name", "Preview"),
+                            environmentView
+                        ),
+                        Div(
+                            CustomData("tab-name", "Google StreetView"),
+                            streetViewContainer
+                        )
                     )
                 )
             )
@@ -681,19 +688,19 @@ export class EditorView implements ErsatzElement {
         }
     }
 
-    private getView(kind: FileAssetKind): BaseScenarioFileObjectView<void, FileAsset, DeletableAsset>;
-    private getView(kind: ResetableAssetKind): BaseScenarioResetableObjectView<void, ResetableAsset, DeletableAsset>;
-    private getView(kind: DeletableAssetKind): BaseScenarioObjectView<void, DeletableAsset, Asset>;
-    private getView(kind: AssetKind): BaseScenarioView<void, Asset>
-    private getView(kind: AssetKind): BaseScenarioView<void, Asset> {
+    private getView(kind: FileAssetKind): BaseScenarioFileObjectView<any, FileAsset, DeletableAsset>;
+    private getView(kind: ResetableAssetKind): BaseScenarioResetableObjectView<any, ResetableAsset, DeletableAsset>;
+    private getView(kind: DeletableAssetKind): BaseScenarioObjectView<any, DeletableAsset, Asset>;
+    private getView(kind: AssetKind): BaseScenarioView<any, Asset>
+    private getView(kind: AssetKind): BaseScenarioView<any, Asset> {
         return this.propertyViews.get(kind);
     }
 
-    private getViewFor(asset: FileAsset): BaseScenarioFileObjectView<void, FileAsset, DeletableAsset>;
-    private getViewFor(asset: ResetableAsset): BaseScenarioResetableObjectView<void, ResetableAsset, DeletableAsset>;
-    private getViewFor(asset: DeletableAsset): BaseScenarioObjectView<void, DeletableAsset, Asset>;
-    private getViewFor(asset: Asset): BaseScenarioView<void, Asset>
-    private getViewFor(asset: Asset): BaseScenarioView<void, Asset> {
+    private getViewFor(asset: FileAsset): BaseScenarioFileObjectView<any, FileAsset, DeletableAsset>;
+    private getViewFor(asset: ResetableAsset): BaseScenarioResetableObjectView<any, ResetableAsset, DeletableAsset>;
+    private getViewFor(asset: DeletableAsset): BaseScenarioObjectView<any, DeletableAsset, Asset>;
+    private getViewFor(asset: Asset): BaseScenarioView<any, Asset>
+    private getViewFor(asset: Asset): BaseScenarioView<any, Asset> {
         const kind = getAssetKind(asset);
         return this.getView(kind);
     }
