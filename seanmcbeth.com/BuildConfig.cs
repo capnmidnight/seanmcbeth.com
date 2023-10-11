@@ -43,17 +43,12 @@ namespace SeanMcBeth
 
             Options = new BuildSystemOptions
             {
+                Project = projectDir,
                 CleanDirs = new[]
                 {
                     jsOutput
                 },
-                InProject= projectDir,
-                OutProject = projectDir,
-                Deployment = new DeploymentOptions(
-                    "seanmcbeth.com",
-                    "smcbeth",
-                    keyFile,
-                    "SeanMcBeth.Site"),
+                SkipPreBuild = true,
                 BannedDependencies = new[]
                 {
                     ("pdfjs-dist", "2.15.349", "Internal KeyboardManager does not work on old Oculus for Business Quest 2s. Use 2.14.305 instead.")
@@ -82,7 +77,12 @@ namespace SeanMcBeth
                 AdditionalNPMProjects = new[]
                 {
                     primroseDir
-                } 
+                },
+                Deployment = new DeploymentOptions(
+                    "seanmcbeth.com",
+                    "smcbeth",
+                    keyFile,
+                    "SeanMcBeth.Site")
             };
 
             pathHelper.AddUITextures(Options, uiImgOUtput);

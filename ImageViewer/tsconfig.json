@@ -1,9 +1,9 @@
 {
     "include": [
-        "src/**/*.ts",
-        "src/**/*.glsl",
-        "src/**/*.frag",
-        "src/**/*.vert",
+        "**/*.ts",
+        "**/*.glsl",
+        "**/*.frag",
+        "**/*.vert",
         "package.json"
     ],
 

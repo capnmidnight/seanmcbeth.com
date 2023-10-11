@@ -36,12 +36,12 @@ public class BuildConfig : IBuildConfig
 
         Options = new BuildSystemOptions()
         {
+            Project = here,
             CleanDirs = new[]
             {
                 jsOutput
             },
-            InProject = here,
-            OutProject = here,
+            SkipPreBuild = true,
             BannedDependencies = new[]
             {
                 ("pdfjs-dist", "2.15.349", "Internal KeyboardManager does not work on old Oculus for Business Quest 2s. Use 2.14.305 instead.")

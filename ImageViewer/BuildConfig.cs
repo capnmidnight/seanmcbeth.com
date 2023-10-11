@@ -11,18 +11,18 @@ public class BuildConfig : IBuildConfig
     public BuildConfig()
     {
         var workingDir = new DirectoryInfo(".");
-        var here = workingDir.GoUpUntil(here => here.CD(ProjectName, "src").Exists)
+        var here = workingDir.GoUpUntil(here => here.CD(ProjectName).Exists)
             ?? throw new DirectoryNotFoundException("Could not find project root from " + workingDir.FullName);
         here = here.CD(ProjectName);
 
         Options = new BuildSystemOptions
         {
+            Project = here,
             CleanDirs = new[]
             {
                 here.CD("wwwroot", "js")
             },
-            InProject = here,
-            OutProject = here
+            SkipPreBuild = true
         };
     }
 
