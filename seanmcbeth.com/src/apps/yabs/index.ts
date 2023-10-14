@@ -1,27 +1,18 @@
 ﻿import { JuniperAudioContext } from "@juniper-lib/audio/dist/context/JuniperAudioContext";
-import { arrayRandom } from "@juniper-lib/collections/dist/arrays";
 import { ClassList, ID } from "@juniper-lib/dom/dist/attrs";
 import {
-    backgroundColor,
-    backgroundImage,
-    borderBottomLeftRadius, borderBottomRightRadius, borderColor, borderRadius, borderStyle, borderTopLeftRadius, borderTopRightRadius,
-    borderWidth,
-    boxShadow, color, deg, display, fontFamily, fontSize, fontWeight, getMonospaceFamily, height, left, overflow, padding, perc, position,
-    px, rotate, rule, scale, textTransform, top, transform, width, zIndex
+    color,
+    px, scale
 } from "@juniper-lib/dom/dist/css";
-import { onClick, onMouseOut, onTouchStart } from "@juniper-lib/dom/dist/evts";
-import { Button, Div, HtmlRender, P, Span, StyleBlob, getElement } from "@juniper-lib/dom/dist/tags";
-import { EventTargetMixin } from "@juniper-lib/events/dist/EventTarget";
-
+import { onClick } from "@juniper-lib/dom/dist/evts";
+import { Button, Div, HtmlRender, P, Span, getElement } from "@juniper-lib/dom/dist/tags";
+import { Beam, ScoreEvent } from "./Beam";
+import { Cloud } from "./Cloud";
+import { Face } from "./Face";
+import { GameObject } from "./GameObject";
 import "./index.css";
 
 document.title = "No More Jabber Yabs: The Game";
-
-interface GameObject extends HTMLElement {
-    update(dt: number): void;
-    render(): void;
-    get x(): number;
-}
 
 function PointDisplay() {
     return Span(ClassList("pointDisplay"), 0);
@@ -67,7 +58,7 @@ HtmlRender("main",
     )
 );
 
-const NUM_YABS = Math.round(window.innerWidth / 30),
+export const NUM_YABS = Math.round(window.innerWidth / 30),
     NUM_CLD = Math.round(window.innerWidth / 200),
     HIT_POINTS = 2,
     MSG_TIMEOUT = 5000,
@@ -93,7 +84,7 @@ const NUM_YABS = Math.round(window.innerWidth / 30),
     timers = new Map<GainNode, number>(),
     base = Math.pow(2, 1 / 12);
 
-let fading = false,
+export let fading = false,
     scaling = 1,
     lt: number = null,
     dt = 0,
@@ -108,7 +99,7 @@ function piano(n: number) {
     return 440 * Math.pow(base, n - 49);
 }
 
-function play(i: number, volume: number, duration: number) {
+export function play(i: number, volume: number, duration: number) {
     const o = osc[i];
     if (o) {
         if (timers.has(o)) {
@@ -123,11 +114,11 @@ function play(i: number, volume: number, duration: number) {
     }
 }
 
-function randomRange(min: number, max: number): number {
+export function randomRange(min: number, max: number): number {
     return min + Math.random() * (max - min);
 }
 
-function randomInt(min: number, max: number): number {
+export function randomInt(min: number, max: number): number {
     return Math.floor(randomRange(min, max));
 }
 
@@ -162,580 +153,12 @@ function music(t: number) {
     lnt = nt;
 }
 
-function shake(elem?: HTMLElement) {
+export function shake(elem?: HTMLElement) {
     elem = elem || document.body;
     const dx = randomRange(-4, 4);
     const dy = randomRange(-4, 4);
     elem.style.transform = `translate(${px(dx)}, ${px(dy)})`;
 }
-
-function isFace(obj: GameObject): obj is FaceElement {
-    return obj instanceof FaceElement;
-}
-
-const faceStyle = StyleBlob(
-    rule(".frowny, .shadow, .boop",
-        position("absolute")
-    ),
-
-    rule(".frowny",
-        fontSize(px(32)),
-        getMonospaceFamily(),
-        color("black"),
-        padding(px(5)),
-        borderStyle("solid"),
-        borderWidth(px(2)),
-        borderColor("black"),
-        borderRadius(px(10)),
-        transform(rotate(deg(90))),
-        width(px(50)),
-        height(px(50)),
-        overflow("hidden")
-    ),
-
-    rule(".shadow",
-        width(px(45)),
-        height(px(10)),
-        borderRadius(px(5)),
-        backgroundImage("radial-gradient(rgba(0,0,0,0.5), transparent)")
-    ),
-
-    rule(".boop",
-        display("none"),
-        color("white"),
-        textTransform("uppercase"),
-        fontFamily("sans-serif"),
-        fontWeight("bold"),
-        fontSize(px(13)),
-        zIndex(9001)
-    )
-);
-
-function Face() { return document.createElement("yabs-face") as FaceElement; }
-
-class FaceElement extends HTMLElement implements GameObject {
-    private element: HTMLElement;
-    private boop: HTMLElement;
-    private shadow: HTMLElement;
-    alive: boolean;
-    hits: number;
-    onground: boolean;
-    x: number;
-    private y: number;
-    private z: number;
-    private f: number;
-    private dx: number;
-    private dy: number;
-    private df: number;
-    private width: number;
-    private height: number;
-    private boopFor: number;
-    private boopX: number;
-    private boopY: number;
-    private boopDX: number;
-    private boopDY: number;
-
-    private readonly eventTarget: EventTargetMixin;
-
-    constructor() {
-        super();
-
-        this.eventTarget = new EventTargetMixin(
-            super.addEventListener.bind(this),
-            super.removeEventListener.bind(this),
-            super.dispatchEvent.bind(this)
-        );
-
-        this.alive = true;
-        this.hits = 0;
-        this.onground = false;
-        this.x = randomRange(0, window.innerWidth);
-        this.y = randomRange(0, window.innerHeight / 2);
-        this.z = randomInt(0, 10);
-        this.f = 0;
-        this.dx = randomRange(-1, 1);
-        this.dy = 0;
-        this.df = randomRange(0.05, 0.1);
-        this.element = Div(
-            ClassList("frowny"),
-            onMouseOut(this.jump.bind(this, "boop")),
-            onTouchStart(this.jump.bind(this, "boop")),
-            backgroundColor(arrayRandom(skins)),
-            zIndex(this.z)
-        );
-
-        this.width = 5;
-        this.height = 5;
-
-        this.boop = Div(ClassList("boop"), "boop");
-        this.boopFor = 0;
-        this.boopX = 0;
-        this.boopY = 0;
-        this.boopDX = 0;
-        this.boopDY = 0;
-
-        this.shadow = Div(
-            ClassList("shadow"),
-            zIndex(this.z - 1)
-        );
-    }
-
-    override addEventListener(type: string, callback: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void {
-        this.eventTarget.addEventListener(type, callback, options);
-    }
-
-    override removeEventListener(type: string, callback: EventListenerOrEventListenerObject) {
-        this.eventTarget.removeEventListener(type, callback);
-    }
-
-    override dispatchEvent(evt: Event): boolean {
-        return this.eventTarget.dispatchEvent(evt);
-    }
-
-    addBubbler(bubbler: EventTarget) {
-        this.eventTarget.addBubbler(bubbler);
-    }
-
-    removeBubbler(bubbler: EventTarget) {
-        this.eventTarget.removeBubbler(bubbler);
-    }
-
-    addScopedEventListener(scope: object, type: string, callback: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void {
-        this.eventTarget.addScopedEventListener(scope, type, callback, options);
-    }
-
-    removeScope(scope: object) {
-        this.eventTarget.removeScope(scope);
-    }
-
-    clearEventListeners(type?: string): void {
-        this.eventTarget.clearEventListeners(type);
-    }
-
-    connectedCallback() {
-        const shadowRoot = this.attachShadow({ mode: "closed" });
-
-        shadowRoot.append(faceStyle.cloneNode(), this.element, this.boop, this.shadow);
-
-        this.render();
-    }
-
-    jump(word: string) {
-        if (this.onground) {
-            this.boop.innerHTML = word;
-            this.dy = -5;
-            this.onground = false;
-            this.boopX = this.x;
-            this.boopY = this.y - 125;
-            this.boopDX = randomRange(-0.5, 0.5);
-            this.boopDY = randomRange(-0.5, 0);
-            this.boopFor = 100;
-            play(30 + 3 * randomInt(0, 5), 0.125, 0.05);
-            fading = true;
-        }
-    }
-
-    render() {
-        this.boop.style.display = this.boopFor > 0 ? "block" : "none";
-        this.boop.style.left = px(this.boopX);
-        this.boop.style.top = px(this.boopY);
-        this.boop.style.transform = `scale(${(0.5 + this.boopFor / 200)})`;
-        this.shadow.style.left = this.element.style.left = px(this.x);
-        this.element.style.top = px(this.y + 10 * this.z - 120);
-        this.shadow.style.top = px(10 * this.z + window.innerHeight - 120);
-
-
-        const sy = Math.sqrt(Math.abs(this.dy)) * 10;
-        this.element.style.paddingLeft =
-            this.element.style.paddingRight = px(this.height + sy);
-        this.element.style.paddingTop =
-            this.element.style.paddingBottom = px(this.width - sy);
-
-        if (this.alive && this.f > 1) {
-            this.element.innerHTML = arrayRandom(score > 0 ? sadFaces : happyFaces);
-            this.f = 0;
-        } else if (!this.alive) {
-            this.element.innerHTML = "X(";
-        }
-    }
-
-    update(dt: number) {
-        this.boopFor -= dt;
-        this.boopX += this.boopDX * dt;
-        this.boopY += this.boopDY * dt;
-
-        this.x += this.dx * dt;
-        this.y += this.dy * dt;
-        this.f += this.df * dt;
-
-        if (!this.onground) {
-            // gravity
-            this.dy = (this.dy + 0.1 * dt);
-        }
-
-        if (this.x <= 0 && this.dx < 0 || (this.x +
-            this.element.clientWidth) >= window.innerWidth && this.dx >
-            0) {
-            this.dx *= -1;
-        }
-
-        if (!this.onground && (this.y + this.element.clientHeight) >=
-            window.innerHeight && this.dy > 0) {
-            if (this.dy > 2) {
-                this.dy *= -0.5;
-            } else {
-                this.onground = true;
-                this.dy = 0;
-                if (!this.alive) {
-                    this.dx = 0;
-                }
-            }
-            play((score > 0 ? 10 : 20) + 3 * randomInt(0, 5), 0.125,
-                0.05);
-            shake();
-        }
-    }
-}
-
-customElements.define("yabs-face", HTMLElement);
-
-const cloudStyle = StyleBlob(
-    rule(":host, .cloud-bit",
-        position("absolute")
-    ),
-
-    rule(".cloud-bit",
-        backgroundColor("white"),
-        width(px(100)),
-        height(px(50)),
-        borderBottomRightRadius(px(25)),
-        borderBottomLeftRadius(px(50)),
-        borderTopRightRadius(px(12.5)),
-        borderTopLeftRadius(px(6.25))
-    )
-);
-
-function Cloud() { return document.createElement("yabs-cloud") as CloudElement; }
-
-class CloudElement extends HTMLElement implements GameObject {
-    x: number;
-    private y: number;
-    private dx: number;
-
-    private readonly bits = new Array<HTMLDivElement>();
-    private readonly eventTarget: EventTargetMixin;
-    constructor() {
-        super();
-
-        this.eventTarget = new EventTargetMixin(
-            super.addEventListener.bind(this),
-            super.removeEventListener.bind(this),
-            super.dispatchEvent.bind(this)
-        );
-
-        const n = randomInt(4, 7);
-        for (let i = 0; i < n; ++i) {
-            const b = document.createElement("div");
-            b.className = "cloud-bit";
-            b.style.top = px(randomRange(-25, 25));
-            b.style.left = px(randomRange(-50, 50));
-            this.bits.push(b);
-        }
-
-        this.x = randomRange(0, window.innerWidth);
-        this.y = randomRange(0, window.innerHeight / 4) + 50;
-        this.dx = randomRange(-0.25, 0.25);
-    }
-
-    override addEventListener(type: string, callback: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void {
-        this.eventTarget.addEventListener(type, callback, options);
-    }
-
-    override removeEventListener(type: string, callback: EventListenerOrEventListenerObject) {
-        this.eventTarget.removeEventListener(type, callback);
-    }
-
-    override dispatchEvent(evt: Event): boolean {
-        return this.eventTarget.dispatchEvent(evt);
-    }
-
-    addBubbler(bubbler: EventTarget) {
-        this.eventTarget.addBubbler(bubbler);
-    }
-
-    removeBubbler(bubbler: EventTarget) {
-        this.eventTarget.removeBubbler(bubbler);
-    }
-
-    addScopedEventListener(scope: object, type: string, callback: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void {
-        this.eventTarget.addScopedEventListener(scope, type, callback, options);
-    }
-
-    removeScope(scope: object) {
-        this.eventTarget.removeScope(scope);
-    }
-
-    clearEventListeners(type?: string): void {
-        this.eventTarget.clearEventListeners(type);
-    }
-
-    connectedCallback() {
-        const shadowRoot = this.attachShadow({ mode: "closed" });
-        shadowRoot.append(cloudStyle.cloneNode(), ...this.bits);
-        this.style.zIndex = (-this.y).toFixed(0);
-        this.render();
-    }
-
-    render() {
-        this.style.left = px(this.x);
-        this.style.top = px(this.y);
-    }
-
-    update(dt: number) {
-        this.x += this.dx * dt;
-        if (this.x <= 0 && this.dx < 0 || (this.x +
-            this.clientWidth) >= window.innerWidth && this.dx >
-            0) {
-            this.dx *= -1;
-        }
-    }
-}
-
-customElements.define("yabs-cloud", CloudElement);
-
-const beamStyle = StyleBlob(
-    rule(":host, .subBeam",
-        position("absolute"),
-        display("none"),
-        backgroundColor("red"),
-        boxShadow("0 0 25px red"),
-        left(0)
-    ),
-
-    rule(":host",
-        top(0),
-        width(px(50)),
-        height(px(50)),
-        borderRadius(perc(50))
-    ),
-
-    rule(".subBeam",
-        top(perc(50)),
-        height(px(2000))
-    )
-);
-
-function Beam() { return document.createElement("yabs-beam") as BeamElement; }
-
-class BeamElement extends HTMLElement implements GameObject {
-    private subBeam: HTMLElement;
-    x = 0;
-
-    private y = 0;
-    private t = 0;
-    private charging = false;
-    private firing = false;
-
-    private readonly eventTarget: EventTargetMixin;
-
-    constructor() {
-        super();
-
-        this.eventTarget = new EventTargetMixin(
-            super.addEventListener.bind(this),
-            super.removeEventListener.bind(this),
-            super.dispatchEvent.bind(this)
-        );
-
-        this.subBeam = Div(ClassList("subBeam"));
-    }
-
-    override addEventListener(type: string, callback: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void {
-        this.eventTarget.addEventListener(type, callback, options);
-    }
-
-    override removeEventListener(type: string, callback: EventListenerOrEventListenerObject) {
-        this.eventTarget.removeEventListener(type, callback);
-    }
-
-    override dispatchEvent(evt: Event): boolean {
-        return this.eventTarget.dispatchEvent(evt);
-    }
-
-    addBubbler(bubbler: EventTarget) {
-        this.eventTarget.addBubbler(bubbler);
-    }
-
-    removeBubbler(bubbler: EventTarget) {
-        this.eventTarget.removeBubbler(bubbler);
-    }
-
-    addScopedEventListener(scope: object, type: string, callback: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void {
-        this.eventTarget.addScopedEventListener(scope, type, callback, options);
-    }
-
-    removeScope(scope: object) {
-        this.eventTarget.removeScope(scope);
-    }
-
-    clearEventListeners(type?: string): void {
-        this.eventTarget.clearEventListeners(type);
-    }
-
-    connectedCallback() {
-        const shadowRoot = this.attachShadow({ mode: "closed" });
-        shadowRoot.append(beamStyle.cloneNode(), this.subBeam);
-    }
-
-    get disabled() { return this.hasAttribute("disabled"); }
-    set disabled(v) {
-        if (v) {
-            this.setAttribute("disabled", "");
-        }
-        else {
-            this.removeAttribute("disabled");
-        }
-    }
-
-    disable() {
-        this.disabled = true;
-    }
-
-    update(dt: number) {
-        if (this.charging && this.t < 100) {
-            this.t += dt;
-            if (this.t >= 100) {
-                this.firing = true;
-                if (goodEndingTimer) {
-                    clearTimeout(goodEndingTimer);
-                }
-            }
-        } else if (!this.charging && this.t > 0) {
-            this.t -= dt / 4;
-            if (this.t <= 0) {
-                this.firing = false;
-            }
-        }
-
-        if (this.firing) {
-            shake(this);
-            for (let i = 0, l = this.t / 10; i < l; ++i) {
-                play(87 - i, 0.02, dt / 100);
-            }
-
-            for (let i = 0; i < NUM_YABS; ++i) {
-                const yab = fs[i];
-                if (isFace(yab) && yab.alive && yab.onground) {
-                    if (this.x <= yab.x + 50 && this.x + 50 >= yab.x) {
-                        if (score === 0) {
-                            scoreBox.style.display = "block";
-                            document.body.style.backgroundImage =
-                                "linear-gradient(hsl(0, 50%, 0%), hsl(0, 50%, 50%) 75%, hsl(0, 50%, 15%) 75%, hsl(0, 50%, 33%))";
-                            for (let j = 0; j < NUM_CLD; ++j) {
-                                const cld = fs[NUM_YABS + j];
-                                for (let k = 0; k < cld.children.length; ++k) {
-                                    const bit = (cld.children[k] as HTMLElement).style;
-                                    bit.backgroundColor = "black";
-                                }
-                            }
-                        }
-                        ++score;
-                        for (let j = 0; j < scoreBoxes.length; ++j) {
-                            scoreBoxes[j].innerHTML = score.toFixed(0);
-                        }
-                        shake(yab);
-                        ++yab.hits;
-                        if (yab.hits >= HIT_POINTS) {
-                            yab.alive = false;
-                            ++kills;
-                            score += 10;
-                            if (kills === NUM_YABS - 2) {
-                                repopulateTimer = setTimeout(() => {
-                                    messages[2].style.display = "block";
-                                    scoreBox.style.display = "none";
-                                    this.disable();
-                                }, MSG_TIMEOUT) as any;
-                            }
-                            else if (kills === NUM_YABS - 1) {
-                                clearTimeout(repopulateTimer);
-                                dystopianTimer = setTimeout(() => {
-                                    messages[1].style.display = "block";
-                                    scoreBox.style.display = "none";
-                                    this.disable();
-                                }, MSG_TIMEOUT) as any;
-                            }
-                            else if (kills === NUM_YABS) {
-                                clearTimeout(dystopianTimer);
-                                messages[0].style.display = "block";
-                                scoreBox.style.display = "none";
-                                this.disable();
-                            }
-                        } else {
-                            yab.style.transform += " rotate(90deg)";
-                        }
-                        yab.jump(arrayRandom(curses));
-                        play(10 + randomInt(-1, 2), 0.1, 0.05);
-                    } else if (this.x <= yab.x + 200 && this.x + 200 >= yab.x) {
-                        shake(yab);
-                        yab.style.transform += " rotate(90deg)";
-                    }
-                }
-            }
-        } else if (this.charging) {
-            const n = Math.floor(this.t / 10) + 70;
-            for (let i = 70; i < n; ++i) {
-                play(i, 0.02, dt / 100);
-            }
-        }
-    }
-
-    render() {
-        this.style.display = (this.charging || this.firing)
-            ? "block"
-            : "none";
-        this.subBeam.style.display = this.firing
-            ? "block"
-            : "none";
-
-        this.style.left = px(this.x);
-        this.style.top = px(this.y);
-
-        const c = "hsl(0, 100%, " + this.t + "%)";
-        this.style.backgroundColor =
-            this.subBeam.style.backgroundColor = c;
-        this.style.boxShadow = this.subBeam.style.boxShadow =
-            `0 0 ${px(25)} ${c}`;
-
-        this.subBeam.style.width = this.t + "%";
-        this.subBeam.style.left = (100 - this.t) / 2 + "%";
-        this.subBeam.style.opacity = (this.t / 100).toFixed(3);
-    }
-
-    start(evt: MouseEvent | Touch) {
-        audio.resume();
-        fading = true;
-        this.x = evt.clientX - 10;
-        this.y = evt.clientY - 10;
-        if (!this.disabled) {
-            this.charging = true;
-        }
-    }
-
-    end() {
-        this.style.display = "none";
-        this.charging = false;
-        if (!this.firing) {
-            this.t = 0;
-        }
-    }
-
-    move(evt: MouseEvent | Touch) {
-        this.x = evt.clientX - 10;
-        this.y = evt.clientY - 10;
-    }
-}
-
-customElements.define("yabs-beam", BeamElement);
 
 for (let i = 0; i < 88; ++i) {
     const gn = audio.createGain();
@@ -750,7 +173,9 @@ for (let i = 0; i < 88; ++i) {
 }
 
 for (let i = 0; i < NUM_YABS; ++i) {
-    fs.push(Face());
+    const yab = Face();
+    yab.addEventListener("fade", onFade);
+    fs.push(yab);
 }
 
 for (let i = 0; i < NUM_CLD; ++i) {
@@ -758,10 +183,39 @@ for (let i = 0; i < NUM_CLD; ++i) {
 }
 
 const beam = Beam();
+beam.addEventListener("fade", onFade);
+beam.addEventListener("score", (evt) => {
+    if (evt instanceof ScoreEvent) {
+        score += evt.delta;
+        if (evt.delta === 10) {
+            ++kills;
+            if (kills === NUM_YABS - 2) {
+                repopulateTimer = setTimeout(() => {
+                    messages[2].style.display = "block";
+                    scoreBox.style.display = "none";
+                    beam.disable();
+                }, MSG_TIMEOUT) as any;
+            }
+            else if (kills === NUM_YABS - 1) {
+                clearTimeout(repopulateTimer);
+                dystopianTimer = setTimeout(() => {
+                    messages[1].style.display = "block";
+                    scoreBox.style.display = "none";
+                    beam.disable();
+                }, MSG_TIMEOUT) as any;
+            }
+            else if (kills === NUM_YABS) {
+                clearTimeout(dystopianTimer);
+                messages[0].style.display = "block";
+                scoreBox.style.display = "none";
+                beam.disable();
+            }
+        }
+    }
+});
 fs.push(beam);
 
 document.body.append(...fs);
-
 
 document.addEventListener("mousedown", (evt) => beam.start(evt), false);
 document.addEventListener("mousemove", (evt) => {
@@ -785,6 +239,10 @@ document.addEventListener("touchend", function (evt) {
         evt.preventDefault();
     }
 }, false);
+
+function onFade() {
+    fading = true;
+}
 
 function animate(t: number) {
     music(t);
@@ -828,7 +286,7 @@ starter.style.display = "block";
     }, 5000);
 })();
 
-const goodEndingTimer = setTimeout(function () {
+export const goodEndingTimer = setTimeout(function () {
     messages[messages.length - 1].style.display = "block";
     beam.disable();
 }, 15000);
