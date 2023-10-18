@@ -10,18 +10,7 @@ else
 {
     await WebApplication.CreateBuilder(args)
         .ConfigureJuniperWebApplication()
-        .ConfigureJuniperAppShell<WpfAppShellFactory<WpfAppShell>>(new AppShellOptions { 
-            SplashScreenPath = "splash.html",
-            Window = new()
-            {
-                Title = "Image Viewer",
-                Size = new()
-                {
-                    Width = 1920,
-                    Height =1080
-                }
-            }
-        })
+        .ConfigureJuniperAppShell<GtkAppShellFactory<GtkAppShell>>()
         .AddJuniperBuildSystem<ImageViewer.BuildConfig>()
         .AddJuniperHTTPClient()
         .Build()
