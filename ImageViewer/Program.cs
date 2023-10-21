@@ -8,19 +8,15 @@ if (BuildRunOptions.IsBuildCommand(args))
 }
 else
 {
-    var webApp = WebApplication.CreateBuilder(args)
+    WebApplication.CreateBuilder(args)
         .ConfigureJuniperWebApplication()
         .ConfigureJuniperAppShell<GtkAppShellFactory>()
         .AddJuniperBuildSystem<ImageViewer.BuildConfig>()
         .AddJuniperHTTPClient()
         .Build()
-        .ConfigureJuniperRequestPipeline();
-
-    webApp.BuildAndStartAsync().Wait();
-
-    var appShellFactory = webApp.Services.GetRequiredService<IAppShellFactory>();
-    if (appShellFactory is GtkAppShellFactory gtkFactory)
-    {
-        gtkFactory.Run();
-    }
+        .ConfigureJuniperRequestPipeline()
+        .BuildAndStartAsync()
+        .Wait();
+        
+    Gtk.Application.Run();
 }
