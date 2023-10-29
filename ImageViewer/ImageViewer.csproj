@@ -4,27 +4,46 @@
         <TargetFramework>net7.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
-        <OutputType>Exe</OutputType>
-        <DebugType>portable</DebugType>
         <ApplicationIcon>foxglove.ico</ApplicationIcon>
         <Platforms>AnyCPU;x64</Platforms>
     </PropertyGroup>
 
+    <PropertyGroup Condition="'$(Configuration)'=='Debug'">
+        <OutputType>Exe</OutputType>
+        <DebugType>portable</DebugType>
+        <DefineConstants>TRACE;DEBUG</DefineConstants>
+    </PropertyGroup>
     <PropertyGroup Condition="'$(Configuration)'=='Release'">
         <OutputType>WinExe</OutputType>
         <DebugType>none</DebugType>
+        <DefineConstants>TRACE</DefineConstants>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
+        <TargetFramework>net7.0-windows</TargetFramework>
+        <DefineConstants>$(DefineConstants);WINDOWS</DefineConstants>
+    </PropertyGroup>
+    <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
+        <TargetFramework>net7.0-linux</TargetFramework>
+        <DefineConstants>$(DefineConstants);LINUX</DefineConstants>
     </PropertyGroup>
 
     <ItemGroup>
-      <Content Include="foxglove.ico" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <ProjectReference Include="..\Juniper\src\Juniper.AppShell.GTK\Juniper.AppShell.GTK.csproj" />
         <ProjectReference Include="..\Juniper\src\Juniper.AppShell\Juniper.AppShell.csproj" />
         <ProjectReference Include="..\Juniper\src\Juniper.Root\Juniper.Root.csproj" />
         <ProjectReference Include="..\Juniper\src\Juniper.Server\Juniper.Server.csproj" />
         <ProjectReference Include="..\Juniper\src\Juniper.TSBuild\Juniper.TSBuild.csproj" />
+    </ItemGroup>
+
+    <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
+        <ProjectReference Include="..\Juniper\src\Juniper.AppShell.WPF\Juniper.AppShell.WPF.csproj" />
+    </ItemGroup>
+    <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
+        <ProjectReference Include="..\Juniper\src\Juniper.AppShell.GTK\Juniper.AppShell.GTK.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="foxglove.ico" />
     </ItemGroup>
 
 </Project>
