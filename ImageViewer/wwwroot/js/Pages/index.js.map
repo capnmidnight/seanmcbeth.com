@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["../../../Pages/index.ts"],
-  "sourcesContent": ["\uFEFFconsole.log(\"Hello, world\");"],
-  "mappings": ";AAAC,QAAQ,IAAI,cAAc;",
+  "sourcesContent": ["import \"./index.css\";\nconsole.log(\"Hello, world2\");"],
+  "mappings": ";AACA,QAAQ,IAAI,eAAe;",
   "names": []
 }

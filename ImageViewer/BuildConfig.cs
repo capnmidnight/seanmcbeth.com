@@ -22,7 +22,7 @@ public class BuildConfig : IBuildConfig
             {
                 here.CD("wwwroot", "js")
             },
-            SkipPreBuild = true
+            SkipPreBuild = false
         };
     }
 

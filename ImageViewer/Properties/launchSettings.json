@@ -1,12 +1,21 @@
 {
   "profiles": {
-    "ImageViewer": {
+    "AppShell": {
       "commandName": "Project",
-      "dotnetRunMessages": true,
+      "dotnetRunMessages": false,
       "launchBrowser": false,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
+    },
+    "Browser": {
+      "commandName": "Project",      
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "NO_APP_SHELL": "true"
+      },
+      "dotnetRunMessages": false
     }
   }
 }

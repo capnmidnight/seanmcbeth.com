@@ -103,7 +103,7 @@
                     <td>
                         @if (log.User is not null)
                         {
-                            <a href="~/Editor/Users/Detail/@log.UserId" class="btn btn-primary">@log.User.User.UserName</a>
+                            <a href="~/Editor/Users/Detail/@log?.UserId" class="btn btn-primary">@log?.User?.User?.UserName</a>
                         }
                         else
                         {
@@ -111,13 +111,13 @@
                         }
                     </td>
                     <td>
-                        @log.FromAddress
+                        @log?.FromAddress
                     </td>
                     <td>
-                        @log.Key
+                        @log?.Key
                     </td>
                     <td>
-                        @(log.Value ?? "none")
+                        @(log?.Value ?? "none")
                         </td>
                         <td>
                             <input type="checkbox"

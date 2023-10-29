@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - ImageViewer</title>
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-
+    <link rel="stylesheet" href="~/js/Pages/Shared/index.css"></script>
+    <script type="module" src="~/js/Pages/Shared/index.js"></script>
 
     @await RenderSectionAsync("Head", required: false)
 </head>
@@ -15,6 +15,7 @@
     </header>
     <div class="scroll">
         <main>
+            <button id="closeBtn">Close</button>
             @RenderBody()
         </main>
     </div>

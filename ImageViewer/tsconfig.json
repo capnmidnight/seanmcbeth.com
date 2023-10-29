@@ -1,21 +1,46 @@
 {
     "include": [
+        "*.ts",
         "**/*.ts",
         "**/*.glsl",
         "**/*.frag",
         "**/*.vert",
-        "package.json"
+        "./package.json"
     ],
 
     "exclude": [
         "bin",
         "obj",
-        "node_modules"
+        "node_modules",
+        "wwwroot"
     ],
 
     "compileOnSave": true,
 
+    "references": [
+        { "path": "../Juniper/src/Juniper.TypeScript/@juniper-lib/appshell" },
+        { "path": "../Juniper/src/Juniper.TypeScript/@juniper-lib/audio" },
+        { "path": "../Juniper/src/Juniper.TypeScript/@juniper-lib/collections" },
+        { "path": "../Juniper/src/Juniper.TypeScript/@juniper-lib/dom" },
+        { "path": "../Juniper/src/Juniper.TypeScript/@juniper-lib/emoji" },
+        { "path": "../Juniper/src/Juniper.TypeScript/@juniper-lib/events" },
+        { "path": "../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher" },
+        { "path": "../Juniper/src/Juniper.TypeScript/@juniper-lib/graphics2d" },
+        { "path": "../Juniper/src/Juniper.TypeScript/@juniper-lib/indexdb" },
+        { "path": "../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes" },
+        { "path": "../Juniper/src/Juniper.TypeScript/@juniper-lib/progress" },
+        { "path": "../Juniper/src/Juniper.TypeScript/@juniper-lib/speech" },
+        { "path": "../Juniper/src/Juniper.TypeScript/@juniper-lib/tests" },
+        { "path": "../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs" },
+        { "path": "../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib" },
+        { "path": "../Juniper/src/Juniper.TypeScript/@juniper-lib/webgl" },
+        { "path": "../Juniper/src/Juniper.TypeScript/@juniper-lib/webrtc" },
+        { "path": "../Juniper/src/Juniper.TypeScript/@juniper-lib/widgets" },
+        { "path": "../Juniper/src/Juniper.TypeScript/@juniper-lib/workers" },
+    ],
+
     "compilerOptions": {
+        "composite": true,
         "lib": [ "ES2021", "DOM", "WebWorker", "DOM.Iterable" ],
         "target": "ES2021",
         "module": "ES2020",

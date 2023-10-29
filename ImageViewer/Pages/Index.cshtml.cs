@@ -1,24 +1,20 @@
-﻿using Juniper.AppShell;
-
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace ImageViewer.Pages
 {
     public class IndexModel : PageModel
     {
-        private readonly ILogger<IndexModel> _logger;
-        private readonly IAppShell appShell;
+        private ILogger<IndexModel> logger;
 
-        public IndexModel(ILogger<IndexModel> logger, IAppShell appShell)
+        public IndexModel(ILogger<IndexModel> logger)
         {
-            _logger = logger;
-            this.appShell = appShell;
+            this.logger = logger;
         }
 
-        public async Task OnGetAsync()
+        public void OnGet()
         {
-            await appShell.SetTitleAsync("Image Viewer - Home");
+            logger.LogInformation("OK, I got it already");
         }
     }
 }

@@ -28,6 +28,7 @@
     "tslib": "2.6.2"
   },
   "dependencies": {
+    "@juniper-lib/appshell": "file:../Juniper/src/Juniper.TypeScript/@juniper-lib/appshell",
     "@juniper-lib/audio": "file:../Juniper/src/Juniper.TypeScript/@juniper-lib/audio",
     "@juniper-lib/collections": "file:../Juniper/src/Juniper.TypeScript/@juniper-lib/collections",
     "@juniper-lib/dom": "file:../Juniper/src/Juniper.TypeScript/@juniper-lib/dom",
@@ -37,6 +38,7 @@
     "@juniper-lib/graphics2d": "file:../Juniper/src/Juniper.TypeScript/@juniper-lib/graphics2d",
     "@juniper-lib/indexdb": "file:../Juniper/src/Juniper.TypeScript/@juniper-lib/indexdb",
     "@juniper-lib/mediatypes": "file:../Juniper/src/Juniper.TypeScript/@juniper-lib/mediatypes",
+    "@juniper-lib/progress": "file:../Juniper/src/Juniper.TypeScript/@juniper-lib/progress",
     "@juniper-lib/speech": "file:../Juniper/src/Juniper.TypeScript/@juniper-lib/speech",
     "@juniper-lib/tests": "file:../Juniper/src/Juniper.TypeScript/@juniper-lib/tests",
     "@juniper-lib/threejs": "file:../Juniper/src/Juniper.TypeScript/@juniper-lib/threejs",
@@ -46,7 +48,6 @@
     "@juniper-lib/widgets": "file:../Juniper/src/Juniper.TypeScript/@juniper-lib/widgets",
     "@juniper-lib/workers": "file:../Juniper/src/Juniper.TypeScript/@juniper-lib/workers",
     "gl-matrix": "3.4.3",
-    "pdfjs-dist": "2.16.105",
     "three": "0.150.1",
     "typescript": "5.2.2"
   }

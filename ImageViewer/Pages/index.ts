@@ -1,1 +1,2 @@
-﻿console.log("Hello, world");
+import "./index.css";
+console.log("Hello, world2");
