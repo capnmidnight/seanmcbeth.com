@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["../../../Pages/index.ts"],
-  "sourcesContent": ["import \"./index.css\";\r\nconsole.log(\"Hello, world2\");"],
+  "sourcesContent": ["import \"./index.css\";\nconsole.log(\"Hello, world2\");"],
   "mappings": ";AACA,QAAQ,IAAI,eAAe;",
   "names": []
 }
