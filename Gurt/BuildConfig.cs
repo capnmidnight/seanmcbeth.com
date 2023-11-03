@@ -2,11 +2,11 @@
 
 using System.IO;
 
-namespace ImageViewer;
+namespace Gurt;
 
 public class BuildConfig : IBuildConfig
 {
-    private const string ProjectName = "ImageViewer";
+    private const string ProjectName = "Gurt";
 
     public BuildConfig()
     {

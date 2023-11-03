@@ -4,13 +4,13 @@ using Juniper.TSBuild;
 
 if (BuildRunOptions.IsBuildCommand(args))
 {
-    await BuildSystem<ImageViewer.BuildConfig>.Run(args);
+    await BuildSystem<Gurt.BuildConfig>.Run(args);
 }
 else
 {
     var builder = WebApplication.CreateBuilder(args)
         .ConfigureJuniperWebApplication()
-        .AddJuniperBuildSystem<ImageViewer.BuildConfig>();
+        .AddJuniperBuildSystem<Gurt.BuildConfig>();
 
     if (!AppShellConfiguration.NoAppShell)
     {

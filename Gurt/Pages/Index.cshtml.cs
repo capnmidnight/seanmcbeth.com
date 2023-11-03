@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace ImageViewer.Pages
+namespace Gurt.Pages
 {
     public class IndexModel : PageModel
     {

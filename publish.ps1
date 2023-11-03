@@ -1,4 +1,4 @@
-$projectName = "ImageViewer"
+$projectName = "Gurt"
 $version = "None"
 $config = "Release"
 
