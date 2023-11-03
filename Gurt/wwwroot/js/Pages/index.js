@@ -414,6 +414,7 @@ function onClick(callback, opts) {
 }
 
 // Pages/index.ts
+console.log("Your mom");
 var counter = 0;
 Button(
   ID("go"),
@@ -422,4 +423,12 @@ Button(
     document.body.append(Div(counter.toFixed(0)));
   })
 );
+window.addEventListener("keydown", (e) => {
+  console.log(e);
+  document.body.append(Div("Down", e.key));
+});
+window.addEventListener("keyup", (e) => {
+  console.log(e);
+  document.body.append(Div("Up", e.key));
+});
 //# sourceMappingURL=index.js.map
