@@ -8,7 +8,14 @@ import { isDebug, JS_EXT } from "./isDebug";
 import { version } from "./settings";
 
 declare const IS_WORKER: boolean;
+
+const GLOBAL_FETCHER_KEY = "JUNIPER::FETCHER";
+
 export function createFetcher(enableWorkers = true): IFetcher {
+    if(GLOBAL_FETCHER_KEY in window) {
+        return window[GLOBAL_FETCHER_KEY] as IFetcher;
+    }
+
     let fallback: IFetchingService = new FetchingService(new FetchingServiceImplXHR());
 
     if (!IS_WORKER && enableWorkers) {
@@ -17,5 +24,7 @@ export function createFetcher(enableWorkers = true): IFetcher {
         }, fallback);
     }
 
-    return new Fetcher(fallback, !isDebug);
+    const fetcher = new Fetcher(fallback, !isDebug);
+    (window as any)[GLOBAL_FETCHER_KEY] = fetcher;
+    return fetcher;
 }

@@ -169,6 +169,7 @@ main > nav ul {
   flex-direction: column;
 }
 main > nav li {
+  padding: 0.5rem 1rem;
   margin-top: 2px;
 }
 main > nav.hidden > ul {
@@ -180,7 +181,6 @@ main > nav span {
 }
 main > nav li > a,
 main > nav li > details > summary {
-  padding: 0.5rem 1rem;
   cursor: pointer;
 }
 main > nav li > a:hover,

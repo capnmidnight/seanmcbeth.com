@@ -4,7 +4,9 @@ import { createFetcher } from "../../createFetcher";
 const fetcher = createFetcher();
 const appShell = new AppShell(fetcher);
 
-appShell.setCloseButton(document.querySelector("#closeBtn"));
+appShell.setCloseButton(
+    document.querySelector("#closeBtn")
+);
 
 Object.assign(window, {
     fetcher,

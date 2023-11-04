@@ -37,127 +37,6 @@ function isArrayBuffer(val) {
   val.constructor && val.constructor.name === "ArrayBuffer");
 }
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/events/dist/debounce.js
-function debounce(timeOrAction, action) {
-  let time = 0;
-  if (isNumber(timeOrAction)) {
-    time = timeOrAction;
-  } else {
-    action = timeOrAction;
-  }
-  let ready = true;
-  return (...args) => {
-    if (ready) {
-      ready = false;
-      setTimeout(() => {
-        ready = true;
-        action(...args);
-      }, time);
-    }
-  };
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/dist/assertSuccess.js
-function assertSuccess(response) {
-  if (response.status >= 400) {
-    throw new Error("Resource could not be retrieved: " + response.requestPath);
-  }
-  return response;
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/dist/unwrapResponse.js
-function unwrapResponse(response) {
-  const { content } = assertSuccess(response);
-  return content;
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/appshell/dist/index.js
-var AppShell = class {
-  constructor(fetcher2) {
-    this.fetcher = fetcher2;
-  }
-  close() {
-    alert("closing");
-    return this.fetcher.post("/api/appshell/close").exec();
-  }
-  maximize() {
-    return this.fetcher.post("/api/appshell/maximize").exec();
-  }
-  minimize() {
-    return this.fetcher.post("/api/appshell/minimize").exec();
-  }
-  setMenuHidden(hidden) {
-    return this.fetcher.post("/api/appshell/hidemenu").body(hidden).exec();
-  }
-  getCanGoBack() {
-    return this.fetcher.get("/api/appshell/cangoback").object().then(unwrapResponse);
-  }
-  getCanGoForward() {
-    return this.fetcher.get("/api/appshell/cangoforward").object().then(unwrapResponse);
-  }
-  setMenuUI(mainNav, button) {
-    mainNav.classList.toggle("hidden", localStorage.getItem("menuHidden") == "true");
-    button.addEventListener("click", () => {
-      mainNav.classList.toggle("hidden");
-      const hidden = mainNav.classList.contains("hidden");
-      localStorage.setItem("menuHidden", hidden ? "true" : "false");
-      this.setMenuHidden(hidden);
-    });
-  }
-  setCloseButton(button) {
-    if (button) {
-      button.addEventListener("click", () => this.close());
-    }
-  }
-  setBodyUI(scrollToTop, scrollToBottom, article) {
-    if (scrollToTop || scrollToBottom) {
-      let indicateScroll = function() {
-        const scrollTopVisible = article.scrollTop > 25;
-        const scrollBottomVisible = article.scrollTop + article.clientHeight < article.scrollHeight - 25;
-        if (scrollToTop) {
-          scrollToTop.classList.toggle("visible", scrollTopVisible);
-        }
-        if (scrollToBottom) {
-          scrollToBottom.classList.toggle("visible", scrollBottomVisible);
-        }
-      };
-      const indScroll = debounce(indicateScroll);
-      if (scrollToTop) {
-        scrollToTop.addEventListener("click", () => article.scroll({
-          behavior: "smooth",
-          top: 0
-        }));
-      }
-      if (scrollToBottom) {
-        scrollToBottom.addEventListener("click", () => article.scroll({
-          behavior: "smooth",
-          top: article.scrollHeight
-        }));
-      }
-      article.addEventListener("scroll", indScroll);
-      const resizer = new ResizeObserver((evts) => {
-        for (const evt of evts) {
-          if (evt.target === document.body) {
-            indScroll();
-          }
-        }
-      });
-      resizer.observe(document.body);
-      indicateScroll();
-    }
-  }
-  setHistoryUI(backButton, fwdButton) {
-    if (backButton) {
-      backButton.addEventListener("click", () => history.back());
-      this.getCanGoBack().then((yes) => backButton.disabled = !yes);
-    }
-    if (fwdButton) {
-      fwdButton.addEventListener("click", () => history.forward());
-      this.getCanGoForward().then((yes) => fwdButton.disabled = !yes);
-    }
-  }
-};
-
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/collections/dist/arrays.js
 function arrayClear(arr) {
   return arr.splice(0);
@@ -197,17 +76,6 @@ function _arrayScan(forward, arr, tests) {
 }
 function arrayScan(arr, ...tests) {
   return _arrayScan(true, arr, tests);
-}
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/dist/identity.js
-function identity(item) {
-  return item;
-}
-function alwaysTrue() {
-  return true;
-}
-function alwaysFalse() {
-  return false;
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/events/dist/EventTarget.js
@@ -305,6 +173,177 @@ var CustomEventTarget = class {
     return true;
   }
 };
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/events/dist/TypedEventTarget.js
+var TypedEvent = class extends Event {
+  get type() {
+    return super.type;
+  }
+  constructor(type, eventInitDict) {
+    super(type, eventInitDict);
+  }
+};
+var TypedEventTarget = class extends CustomEventTarget {
+  addBubbler(bubbler) {
+    super.addBubbler(bubbler);
+  }
+  removeBubbler(bubbler) {
+    super.removeBubbler(bubbler);
+  }
+  addScopedEventListener(scope, type, callback, options) {
+    super.addScopedEventListener(scope, type, callback, options);
+  }
+  addEventListener(type, callback, options) {
+    super.addEventListener(type, callback, options);
+  }
+  removeEventListener(type, callback) {
+    super.removeEventListener(type, callback);
+  }
+  clearEventListeners(type) {
+    return super.clearEventListeners(type);
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/events/dist/debounce.js
+function debounce(timeOrAction, action) {
+  let time = 0;
+  if (isNumber(timeOrAction)) {
+    time = timeOrAction;
+  } else {
+    action = timeOrAction;
+  }
+  let ready = true;
+  return (...args) => {
+    if (ready) {
+      ready = false;
+      setTimeout(() => {
+        ready = true;
+        action(...args);
+      }, time);
+    }
+  };
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/dist/assertSuccess.js
+function assertSuccess(response) {
+  if (response.status >= 400) {
+    throw new Error("Resource could not be retrieved: " + response.requestPath);
+  }
+  return response;
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/dist/unwrapResponse.js
+function unwrapResponse(response) {
+  const { content } = assertSuccess(response);
+  return content;
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/appshell/dist/index.js
+var AppShellClosingEvent = class extends TypedEvent {
+  constructor() {
+    super("closing");
+  }
+};
+var AppShell = class extends TypedEventTarget {
+  constructor(fetcher2) {
+    super();
+    this.fetcher = fetcher2;
+  }
+  async close() {
+    const evt = new AppShellClosingEvent();
+    this.dispatchEvent(evt);
+    if (!evt.defaultPrevented) {
+      await this.fetcher.post("/api/appshell/close").exec();
+    }
+  }
+  maximize() {
+    return this.fetcher.post("/api/appshell/maximize").exec();
+  }
+  minimize() {
+    return this.fetcher.post("/api/appshell/minimize").exec();
+  }
+  setMenuHidden(hidden) {
+    return this.fetcher.post("/api/appshell/hidemenu").body(hidden).exec();
+  }
+  getCanGoBack() {
+    return this.fetcher.get("/api/appshell/cangoback").object().then(unwrapResponse);
+  }
+  getCanGoForward() {
+    return this.fetcher.get("/api/appshell/cangoforward").object().then(unwrapResponse);
+  }
+  setMenuUI(mainNav, button) {
+    mainNav.classList.toggle("hidden", localStorage.getItem("menuHidden") == "true");
+    button.addEventListener("click", () => {
+      mainNav.classList.toggle("hidden");
+      const hidden = mainNav.classList.contains("hidden");
+      localStorage.setItem("menuHidden", hidden ? "true" : "false");
+      this.setMenuHidden(hidden);
+    });
+  }
+  setCloseButton(button) {
+    if (button) {
+      button.addEventListener("click", () => this.close());
+    }
+  }
+  setBodyUI(scrollToTop, scrollToBottom, article) {
+    if (scrollToTop || scrollToBottom) {
+      let indicateScroll = function() {
+        const scrollTopVisible = article.scrollTop > 25;
+        const scrollBottomVisible = article.scrollTop + article.clientHeight < article.scrollHeight - 25;
+        if (scrollToTop) {
+          scrollToTop.classList.toggle("visible", scrollTopVisible);
+        }
+        if (scrollToBottom) {
+          scrollToBottom.classList.toggle("visible", scrollBottomVisible);
+        }
+      };
+      const indScroll = debounce(indicateScroll);
+      if (scrollToTop) {
+        scrollToTop.addEventListener("click", () => article.scroll({
+          behavior: "smooth",
+          top: 0
+        }));
+      }
+      if (scrollToBottom) {
+        scrollToBottom.addEventListener("click", () => article.scroll({
+          behavior: "smooth",
+          top: article.scrollHeight
+        }));
+      }
+      article.addEventListener("scroll", indScroll);
+      const resizer = new ResizeObserver((evts) => {
+        for (const evt of evts) {
+          if (evt.target === document.body) {
+            indScroll();
+          }
+        }
+      });
+      resizer.observe(document.body);
+      indicateScroll();
+    }
+  }
+  setHistoryUI(backButton, fwdButton) {
+    if (backButton) {
+      backButton.addEventListener("click", () => history.back());
+      this.getCanGoBack().then((yes) => backButton.disabled = !yes);
+    }
+    if (fwdButton) {
+      fwdButton.addEventListener("click", () => history.forward());
+      this.getCanGoForward().then((yes) => fwdButton.disabled = !yes);
+    }
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/dist/identity.js
+function identity(item) {
+  return item;
+}
+function alwaysTrue() {
+  return true;
+}
+function alwaysFalse() {
+  return false;
+}
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/events/dist/Task.js
 var Task = class {
@@ -892,28 +931,6 @@ function Script(...rest) {
   return HtmlTag("script", ...rest);
 }
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/events/dist/TypedEventTarget.js
-var TypedEventTarget = class extends CustomEventTarget {
-  addBubbler(bubbler) {
-    super.addBubbler(bubbler);
-  }
-  removeBubbler(bubbler) {
-    super.removeBubbler(bubbler);
-  }
-  addScopedEventListener(scope, type, callback, options) {
-    super.addScopedEventListener(scope, type, callback, options);
-  }
-  addEventListener(type, callback, options) {
-    super.addEventListener(type, callback, options);
-  }
-  removeEventListener(type, callback) {
-    super.removeEventListener(type, callback);
-  }
-  clearEventListeners(type) {
-    return super.clearEventListeners(type);
-  }
-};
-
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/progress/dist/BaseProgress.js
 var BaseProgress = class extends TypedEventTarget {
   constructor() {
@@ -1411,6 +1428,14 @@ var RequestBuilder = class {
     } else {
       assertNever(this.method);
     }
+  }
+  async dataUri(acceptType) {
+    const response = await this.blob(acceptType);
+    const reader = new FileReader();
+    const task = new Promise((resolve) => reader.addEventListener("loadend", (evt) => resolve(evt.target.result)));
+    reader.readAsDataURL(response.content);
+    const value = await task;
+    return await translateResponse(response, () => value);
   }
   text(acceptType) {
     this.accept(acceptType || Text_Plain);
@@ -2959,20 +2984,28 @@ var loadedFonts = singleton("juniper::loadedFonts", () => []);
 var version = true ? stringRandom(10) : pkgVersion;
 
 // createFetcher.ts
+var GLOBAL_FETCHER_KEY = "JUNIPER::FETCHER";
 function createFetcher(enableWorkers = true) {
+  if (GLOBAL_FETCHER_KEY in window) {
+    return window[GLOBAL_FETCHER_KEY];
+  }
   let fallback = new FetchingService(new FetchingServiceImplXHR());
   if (enableWorkers) {
     fallback = new FetchingServicePool({
       scriptPath: `/js/workers/fetcher/index${JS_EXT}?${version}`
     }, fallback);
   }
-  return new Fetcher(fallback, !isDebug);
+  const fetcher2 = new Fetcher(fallback, !isDebug);
+  window[GLOBAL_FETCHER_KEY] = fetcher2;
+  return fetcher2;
 }
 
 // Pages/Shared/index.ts
 var fetcher = createFetcher();
 var appShell = new AppShell(fetcher);
-appShell.setCloseButton(document.querySelector("#closeBtn"));
+appShell.setCloseButton(
+  document.querySelector("#closeBtn")
+);
 Object.assign(window, {
   fetcher,
   appShell

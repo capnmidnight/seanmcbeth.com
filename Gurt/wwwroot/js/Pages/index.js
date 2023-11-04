@@ -414,7 +414,6 @@ function onClick(callback, opts) {
 }
 
 // Pages/index.ts
-console.log("Your mom");
 var counter = 0;
 Button(
   ID("go"),
