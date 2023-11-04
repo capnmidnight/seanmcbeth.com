@@ -245,9 +245,9 @@ var AppShellClosingEvent = class extends TypedEvent {
   }
 };
 var AppShell = class extends TypedEventTarget {
-  constructor(fetcher2) {
+  constructor(fetcher) {
     super();
-    this.fetcher = fetcher2;
+    this.fetcher = fetcher;
   }
   async close() {
     const evt = new AppShellClosingEvent();
@@ -1108,18 +1108,18 @@ var BaseAsset = class {
       };
     });
   }
-  async getSize(fetcher2) {
+  async getSize(fetcher) {
     try {
-      const { contentLength } = await fetcher2.head(this.path).accept(this.type).exec();
+      const { contentLength } = await fetcher.head(this.path).accept(this.type).exec();
       return [this, contentLength || 1];
     } catch (exp) {
       console.warn(exp);
       return [this, 1];
     }
   }
-  async fetch(fetcher2, prog) {
+  async fetch(fetcher, prog) {
     try {
-      const result = await this.getResult(fetcher2, prog);
+      const result = await this.getResult(fetcher, prog);
       this.resolve(result);
     } catch (err) {
       this.reject(err);
@@ -1264,8 +1264,8 @@ function canPlay(type) {
   return testAudio.canPlayType(type) !== "";
 }
 var RequestBuilder = class {
-  constructor(fetcher2, method, path, useBLOBs = false) {
-    this.fetcher = fetcher2;
+  constructor(fetcher, method, path, useBLOBs = false) {
+    this.fetcher = fetcher;
     this.method = method;
     this.path = path;
     this.useBLOBs = useBLOBs;
@@ -2882,9 +2882,9 @@ var FetchingServiceClient = class extends WorkerClient {
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher/dist/FetchingServicePool.js
 var FetchingServicePool = class extends WorkerPool {
-  constructor(options, fetcher2) {
+  constructor(options, fetcher) {
     super(options, FetchingServiceClient);
-    this.fetcher = fetcher2;
+    this.fetcher = fetcher;
   }
   getFetcher(obj) {
     if (obj instanceof FormData) {
@@ -2985,29 +2985,40 @@ var version = true ? stringRandom(10) : pkgVersion;
 
 // createFetcher.ts
 var GLOBAL_FETCHER_KEY = "JUNIPER::FETCHER";
-function createFetcher(enableWorkers = true) {
+function createFetcher() {
   if (GLOBAL_FETCHER_KEY in window) {
     return window[GLOBAL_FETCHER_KEY];
   }
   let fallback = new FetchingService(new FetchingServiceImplXHR());
-  if (enableWorkers) {
+  if (true) {
     fallback = new FetchingServicePool({
       scriptPath: `/js/workers/fetcher/index${JS_EXT}?${version}`
     }, fallback);
   }
-  const fetcher2 = new Fetcher(fallback, !isDebug);
-  window[GLOBAL_FETCHER_KEY] = fetcher2;
-  return fetcher2;
+  const fetcher = new Fetcher(fallback, !isDebug);
+  Object.assign(window, {
+    [GLOBAL_FETCHER_KEY]: fetcher
+  });
+  return fetcher;
+}
+
+// createAppShell.ts
+var GLOBAL_APPSHELL_KEY = "JUNIPER::APPSHELL";
+function createAppShell() {
+  if (GLOBAL_APPSHELL_KEY in window) {
+    return window[GLOBAL_APPSHELL_KEY];
+  }
+  const fetcher = createFetcher();
+  const appShell = new AppShell(fetcher);
+  appShell.setCloseButton(
+    document.querySelector("#closeBtn")
+  );
+  Object.assign(window, {
+    [GLOBAL_APPSHELL_KEY]: appShell
+  });
+  return appShell;
 }
 
 // Pages/Shared/index.ts
-var fetcher = createFetcher();
-var appShell = new AppShell(fetcher);
-appShell.setCloseButton(
-  document.querySelector("#closeBtn")
-);
-Object.assign(window, {
-  fetcher,
-  appShell
-});
+createAppShell();
 //# sourceMappingURL=index.js.map

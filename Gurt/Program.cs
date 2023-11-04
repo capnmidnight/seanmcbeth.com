@@ -14,10 +14,10 @@ else
 
     if (!AppShellConfiguration.NoAppShell)
     {
-#if LINUX
-        builder.ConfigureJuniperAppShell<GtkAppShellFactory>();
-#elif WINDOWS
+#if WINDOWS
         builder.ConfigureJuniperAppShell<WpfAppShellFactory>();
+#else
+        builder.ConfigureJuniperAppShell<GtkAppShellFactory>();
 #endif
     }
     var app = builder.AddJuniperHTTPClient()
@@ -30,11 +30,11 @@ else
     }
     else
     {
-#if LINUX
+#if WINDOWS
+        app.BuildAndRunAsync().Wait();
+#else
         app.BuildAndStartAsync().Wait();
         Gtk.Application.Run();
-#elif WINDOWS
-        app.BuildAndRunAsync().Wait();
 #endif
     }
 }

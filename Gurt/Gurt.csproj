@@ -1,7 +1,8 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web"
+    xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
     <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
+        <Configuration Condition="'$(Configuration)' == ''">Debug</Configuration>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <ApplicationIcon>foxglove.ico</ApplicationIcon>
@@ -13,33 +14,46 @@
         <DebugType>portable</DebugType>
         <DefineConstants>TRACE;DEBUG</DefineConstants>
     </PropertyGroup>
+
     <PropertyGroup Condition="'$(Configuration)'=='Release'">
         <OutputType>WinExe</OutputType>
         <DebugType>none</DebugType>
         <DefineConstants>TRACE</DefineConstants>
     </PropertyGroup>
 
-    <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
-        <TargetFramework>net7.0-windows</TargetFramework>
-        <DefineConstants>$(DefineConstants);WINDOWS</DefineConstants>
-    </PropertyGroup>
-    <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
-        <TargetFramework>net7.0</TargetFramework>
-        <DefineConstants>$(DefineConstants);LINUX</DefineConstants>
-    </PropertyGroup>
+    <ItemGroup>
+        <Content Include="splash.html">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+
+    <Choose>
+        <When Condition="$([MSBuild]::IsOSPlatform('Windows'))">
+            <PropertyGroup>
+                <TargetFramework>net7.0-windows</TargetFramework>
+                <DefineConstants>$(DefineConstants);WINDOWS</DefineConstants>
+            </PropertyGroup>
+            <ItemGroup>
+                <ProjectReference
+                    Include="..\Juniper\src\Juniper.AppShell.WPF\Juniper.AppShell.WPF.csproj" />
+            </ItemGroup>
+        </When>
+        <Otherwise>
+            <PropertyGroup>
+                <TargetFramework>net7.0</TargetFramework>
+            </PropertyGroup>
+            <ItemGroup>
+                <ProjectReference
+                    Include="..\Juniper\src\Juniper.AppShell.GTK\Juniper.AppShell.GTK.csproj" />
+            </ItemGroup>
+        </Otherwise>
+    </Choose>
 
     <ItemGroup>
         <ProjectReference Include="..\Juniper\src\Juniper.AppShell\Juniper.AppShell.csproj" />
         <ProjectReference Include="..\Juniper\src\Juniper.Root\Juniper.Root.csproj" />
         <ProjectReference Include="..\Juniper\src\Juniper.Server\Juniper.Server.csproj" />
         <ProjectReference Include="..\Juniper\src\Juniper.TSBuild\Juniper.TSBuild.csproj" />
-    </ItemGroup>
-
-    <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
-        <ProjectReference Include="..\Juniper\src\Juniper.AppShell.WPF\Juniper.AppShell.WPF.csproj" />
-    </ItemGroup>
-    <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
-        <ProjectReference Include="..\Juniper\src\Juniper.AppShell.GTK\Juniper.AppShell.GTK.csproj" />
     </ItemGroup>
 
     <ItemGroup>

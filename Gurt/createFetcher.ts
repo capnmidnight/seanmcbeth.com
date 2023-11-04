@@ -11,20 +11,23 @@ declare const IS_WORKER: boolean;
 
 const GLOBAL_FETCHER_KEY = "JUNIPER::FETCHER";
 
-export function createFetcher(enableWorkers = true): IFetcher {
-    if(GLOBAL_FETCHER_KEY in window) {
+export function createFetcher(): IFetcher {
+    if (GLOBAL_FETCHER_KEY in window) {
         return window[GLOBAL_FETCHER_KEY] as IFetcher;
     }
 
     let fallback: IFetchingService = new FetchingService(new FetchingServiceImplXHR());
 
-    if (!IS_WORKER && enableWorkers) {
+    if (!IS_WORKER) {
         fallback = new FetchingServicePool({
             scriptPath: `/js/workers/fetcher/index${JS_EXT}?${version}`
         }, fallback);
     }
 
     const fetcher = new Fetcher(fallback, !isDebug);
-    (window as any)[GLOBAL_FETCHER_KEY] = fetcher;
+    Object.assign(window, {
+        [GLOBAL_FETCHER_KEY]: fetcher
+    });
+    
     return fetcher;
 }

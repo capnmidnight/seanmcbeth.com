@@ -212,4 +212,9 @@ main > nav details > summary > .collapser,
 main > nav details[open] > summary > .expander {
   display: none;
 }
+
+/* Pages/Shared/index.css */
+body {
+  background-color: green;
+}
 /*# sourceMappingURL=index.css.map */
