@@ -1,45 +1,45 @@
-import { Canvas } from "@juniper-lib/dom/src/tags";
 import { ID } from "@juniper-lib/dom/src/attrs";
-import "./index.css";
+import { Canvas } from "@juniper-lib/dom/src/tags";
+import { vec2 } from "gl-matrix";
+import { Camera } from "./Camera";
+import { Keyboard } from "./Keyboard";
+import { Physics } from "./Physics";
+import { Planetoid } from "./Planetoid";
 import { Ship } from "./Ship";
+import { Starfield } from "./Starfield";
+import "./index.css";
+import { IDrawable, IUpdatable } from './interfaces';
 import { registerResizer } from "./registerResizer";
 import { runAnimation } from "./runAnimation";
 
-const frontBuffer = Canvas(ID("frontBuffer"));
-registerResizer(frontBuffer);
-const g = frontBuffer.getContext("2d");
-const ship = new Ship();
-let left = false,
-    right = false,
-    up = false,
-    down = false;
+const canvas = Canvas(ID("frontBuffer"));
+const g = canvas.getContext("2d");
+const keyboard = new Keyboard();
+const ship = new Ship(keyboard);
+const blackhole = new Planetoid(1e7, 10, 0);
+const planet = new Planetoid(1e6, 50, 50);
+const camera = new Camera(canvas, ship)
+const starfield = new Starfield(canvas, camera);
+const physics = new Physics(blackhole, planet, ship);
+const updatables: IUpdatable[] = [physics, blackhole, planet, ship, camera];
+const drawables: IDrawable[] = [camera, starfield, blackhole, planet, ship];
+
+vec2.set(blackhole.position, 500, 100);
+vec2.set(planet.position, -500, -150);
+vec2.set(planet.velocity, 30, -30);
+
+registerResizer(canvas);
 
 runAnimation(dt => {
-    ship.turnRate = left ? -1 : right ? 1 : 0;
-    ship.force = up ? 1 : down ? 0.5 : 0;
-    ship.update(dt);
-
     g.save();
-    g.fillStyle = "rgba(0, 0, 0, 0.5)";
-    g.fillRect(0, 0, frontBuffer.width, frontBuffer.height);
 
-    g.translate(frontBuffer.width * 0.5, frontBuffer.height * 0.5);
+    for (const updatable of updatables) {
+        updatable.update(dt);
+    }
 
-    ship.draw(g);
+    for (const drawable of drawables) {
+        drawable.draw(g);
+    }
 
     g.restore();
-});
-
-window.addEventListener("keydown", evt => {
-    left = left || evt.key === "ArrowLeft";
-    right = right || evt.key === "ArrowRight";
-    up = up || evt.key === "ArrowUp";
-    down = down || evt.key === "ArrowDown";
-});
-
-window.addEventListener("keyup", evt => {
-    left = left && evt.key !== "ArrowLeft";
-    right = right && evt.key !== "ArrowRight";
-    up = up && evt.key !== "ArrowUp";
-    down = down && evt.key !== "ArrowDown";
 });

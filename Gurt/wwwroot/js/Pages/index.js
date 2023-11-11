@@ -24,6 +24,64 @@ function isDefined(obj) {
   return !isNullOrUndefined(obj);
 }
 
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/src/attrs.ts
+var warnings = /* @__PURE__ */ new Map();
+var HtmlAttr = class {
+  /**
+   * Creates a new setter functor for HTML Attributes
+   * @param key - the attribute name.
+   * @param value - the value to set for the attribute.
+   * @param bySetAttribute - whether the attribute should be set via the setAttribute method.
+   * @param tags - the HTML tags that support this attribute.
+   */
+  constructor(key, value, bySetAttribute, ...tags) {
+    this.key = key;
+    this.value = value;
+    this.bySetAttribute = bySetAttribute;
+    this.tags = tags.map((t2) => t2.toLocaleUpperCase());
+    Object.freeze(this);
+  }
+  tags;
+  /**
+   * Set the attribute value on an HTMLElement
+   * @param elem - the element on which to set the attribute.
+   */
+  applyToElement(elem) {
+    if (this.tags.length > 0 && this.tags.indexOf(elem.tagName) === -1) {
+      let set2 = warnings.get(elem.tagName);
+      if (!set2) {
+        warnings.set(elem.tagName, set2 = /* @__PURE__ */ new Set());
+      }
+      if (!set2.has(this.key)) {
+        set2.add(this.key);
+        console.warn(`Element ${elem.tagName} does not support Attribute ${this.key}`);
+      }
+    }
+    if (this.bySetAttribute) {
+      elem.setAttribute(this.key, this.value.toString());
+    } else if (this.key in elem) {
+      elem[this.key] = this.value;
+    } else if (this.value === false) {
+      elem.removeAttribute(this.key);
+    } else if (this.value === true) {
+      elem.setAttribute(this.key, "");
+    } else if (isFunction(this.value)) {
+      this.value(elem);
+    } else {
+      elem.setAttribute(this.key, this.value.toString());
+    }
+  }
+};
+function attr(key, value, bySetAttribute, ...tags) {
+  return new HtmlAttr(key, value, bySetAttribute, ...tags);
+}
+function isAttr(obj) {
+  return obj instanceof HtmlAttr;
+}
+function ID(value) {
+  return attr("id", value, false);
+}
+
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/collections/dist/arrays.js
 function arrayClear(arr) {
   return arr.splice(0);
@@ -238,64 +296,6 @@ var Task = class {
     }
   }
 };
-
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/src/attrs.ts
-var warnings = /* @__PURE__ */ new Map();
-var HtmlAttr = class {
-  /**
-   * Creates a new setter functor for HTML Attributes
-   * @param key - the attribute name.
-   * @param value - the value to set for the attribute.
-   * @param bySetAttribute - whether the attribute should be set via the setAttribute method.
-   * @param tags - the HTML tags that support this attribute.
-   */
-  constructor(key, value, bySetAttribute, ...tags) {
-    this.key = key;
-    this.value = value;
-    this.bySetAttribute = bySetAttribute;
-    this.tags = tags.map((t2) => t2.toLocaleUpperCase());
-    Object.freeze(this);
-  }
-  tags;
-  /**
-   * Set the attribute value on an HTMLElement
-   * @param elem - the element on which to set the attribute.
-   */
-  applyToElement(elem) {
-    if (this.tags.length > 0 && this.tags.indexOf(elem.tagName) === -1) {
-      let set2 = warnings.get(elem.tagName);
-      if (!set2) {
-        warnings.set(elem.tagName, set2 = /* @__PURE__ */ new Set());
-      }
-      if (!set2.has(this.key)) {
-        set2.add(this.key);
-        console.warn(`Element ${elem.tagName} does not support Attribute ${this.key}`);
-      }
-    }
-    if (this.bySetAttribute) {
-      elem.setAttribute(this.key, this.value.toString());
-    } else if (this.key in elem) {
-      elem[this.key] = this.value;
-    } else if (this.value === false) {
-      elem.removeAttribute(this.key);
-    } else if (this.value === true) {
-      elem.setAttribute(this.key, "");
-    } else if (isFunction(this.value)) {
-      this.value(elem);
-    } else {
-      elem.setAttribute(this.key, this.value.toString());
-    }
-  }
-};
-function attr(key, value, bySetAttribute, ...tags) {
-  return new HtmlAttr(key, value, bySetAttribute, ...tags);
-}
-function isAttr(obj) {
-  return obj instanceof HtmlAttr;
-}
-function ID(value) {
-  return attr("id", value, false);
-}
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/dom/src/tags.ts
 function isErsatzElement(obj) {
@@ -656,55 +656,328 @@ var forEach = function() {
   };
 }();
 
-// Pages/Ship.ts
+// Pages/Camera.ts
+var Camera = class {
+  constructor(canvas2, target) {
+    this.canvas = canvas2;
+    this.target = target;
+  }
+  position = vec2_exports.create();
+  update(_) {
+    vec2_exports.set(this.position, this.canvas.width, this.canvas.height);
+    vec2_exports.scale(this.position, this.position, 0.5);
+    vec2_exports.scaleAndAdd(this.position, this.position, this.target.position, -1);
+    const speed = vec2_exports.len(this.target.velocity);
+    if (speed > 0) {
+      vec2_exports.scaleAndAdd(this.position, this.position, this.target.velocity, -1 / Math.pow(speed, 0.25));
+    }
+  }
+  draw(g2) {
+    g2.fillStyle = "rgba(0, 0, 0, 0.5)";
+    g2.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    g2.translate(this.position[0], this.position[1]);
+  }
+};
+
+// Pages/Keyboard.ts
+var Keyboard = class {
+  keySet = /* @__PURE__ */ new Set();
+  constructor() {
+    window.addEventListener("keydown", (evt) => {
+      this.keySet.add(evt.key);
+    });
+    window.addEventListener("keyup", (evt) => {
+      this.keySet.delete(evt.key);
+    });
+  }
+  has(key) {
+    return this.keySet.has(key);
+  }
+  get shift() {
+    return this.keySet.has("Shift") ? 1 : 0;
+  }
+  get vertical() {
+    return this.keySet.has("ArrowUp") ? 1 : this.keySet.has("ArrowDown") ? -1 : 0;
+  }
+  get horizontal() {
+    return this.keySet.has("ArrowRight") ? 1 : this.keySet.has("ArrowLeft") ? -1 : 0;
+  }
+};
+
+// Pages/constants.ts
 var zero2 = vec2_exports.create();
-var drag = 0.1;
-var Ship = class {
-  force = 0;
-  turnRate = 0;
-  rotation = 0;
-  thrust = vec2_exports.create();
+
+// Pages/Physics.ts
+var G = 1;
+var delta = vec2_exports.create();
+var Physics = class {
+  bodies;
+  constructor(...bodies) {
+    this.bodies = bodies;
+  }
+  update(_) {
+    for (const body of this.bodies) {
+      vec2_exports.copy(body.gravity, zero2);
+    }
+    for (let i = 0; i < this.bodies.length - 1; ++i) {
+      const a = this.bodies[i];
+      for (let j = i + 1; j < this.bodies.length; ++j) {
+        const b = this.bodies[j];
+        vec2_exports.sub(delta, a.position, b.position);
+        const rSquared = vec2_exports.sqrLen(delta);
+        if (rSquared > 0) {
+          vec2_exports.normalize(delta, delta);
+          const F5 = G * a.mass * b.mass / rSquared;
+          vec2_exports.scaleAndAdd(a.gravity, a.gravity, delta, -F5 / a.mass);
+          vec2_exports.scaleAndAdd(b.gravity, b.gravity, delta, F5 / b.mass);
+        }
+      }
+    }
+  }
+};
+
+// Pages/Planetoid.ts
+var Planetoid = class {
+  constructor(mass, radius, atmoRadius) {
+    this.mass = mass;
+    this.radius = radius;
+    this.atmoRadius = atmoRadius;
+    if (this.atmoRadius > 0) {
+      this.atmoRadius += this.radius;
+    }
+  }
+  gravity = vec2_exports.create();
   velocity = vec2_exports.create();
-  displacement = vec2_exports.create();
+  position = vec2_exports.create();
   update(dt) {
-    this.rotation += dt * this.turnRate * 5e-3;
-    vec2_exports.set(this.thrust, 1, 0);
-    vec2_exports.rotate(this.thrust, this.thrust, zero2, this.rotation);
-    vec2_exports.scale(this.thrust, this.thrust, this.force * dt * 5e-5);
-    vec2_exports.scaleAndAdd(this.thrust, this.thrust, this.velocity, -drag * dt * 1e-3);
-    vec2_exports.scaleAndAdd(this.velocity, this.velocity, this.thrust, dt);
-    vec2_exports.scaleAndAdd(this.displacement, this.displacement, this.velocity, dt);
+    vec2_exports.scaleAndAdd(this.velocity, this.velocity, this.gravity, dt);
+    vec2_exports.scaleAndAdd(this.position, this.position, this.velocity, dt);
   }
   draw(g2) {
     g2.save();
     g2.fillStyle = "black";
     g2.strokeStyle = "white";
-    g2.lineWidth = 0.3;
-    g2.translate(this.displacement[0], this.displacement[1]);
-    g2.rotate(this.rotation);
-    g2.scale(5, 5);
+    g2.lineWidth = 10;
+    g2.translate(this.position[0], this.position[1]);
     g2.beginPath();
-    g2.moveTo(1, 0);
-    g2.lineTo(-1, 1);
+    g2.arc(0, 0, this.radius, 0, 2 * Math.PI);
+    g2.stroke();
+    g2.fill();
+    if (this.atmoRadius > 0) {
+      g2.lineWidth = 0.5;
+      g2.beginPath();
+      g2.arc(0, 0, this.atmoRadius, 0, 2 * Math.PI);
+      g2.stroke();
+    }
+    g2.restore();
+  }
+};
+
+// Pages/Ship.ts
+var S = 5;
+var R = 5;
+var F = 1e3;
+var D = -0.05;
+var Ship = class {
+  constructor(keyboard2) {
+    this.keyboard = keyboard2;
+  }
+  enginePower = 0;
+  turnRate = 0;
+  drag = 0;
+  mass = 1;
+  rotation = 0;
+  shake = vec2_exports.create();
+  acceleration = vec2_exports.create();
+  gravity = vec2_exports.create();
+  velocity = vec2_exports.create();
+  position = vec2_exports.create();
+  update(dt) {
+    this.turnRate = this.keyboard.horizontal;
+    this.enginePower = Math.max(-0.5, this.keyboard.vertical) + this.keyboard.shift * 7;
+    this.rotation += R * this.turnRate * dt;
+    vec2_exports.set(this.acceleration, 1, 0);
+    vec2_exports.rotate(this.acceleration, this.acceleration, zero2, this.rotation);
+    vec2_exports.scale(this.acceleration, this.acceleration, F * this.enginePower * dt);
+    vec2_exports.set(this.shake, 0, Math.random() * 2 - 1);
+    vec2_exports.rotate(this.shake, this.shake, zero2, this.rotation);
+    const shudder = Math.pow(vec2_exports.len(this.acceleration), 0.3333);
+    vec2_exports.scaleAndAdd(this.shake, zero2, this.shake, shudder);
+    vec2_exports.scaleAndAdd(this.acceleration, this.acceleration, this.velocity, D * this.drag);
+    vec2_exports.add(this.acceleration, this.acceleration, this.gravity);
+    vec2_exports.scaleAndAdd(this.velocity, this.velocity, this.acceleration, dt);
+    vec2_exports.scaleAndAdd(this.position, this.position, this.velocity, dt);
+  }
+  draw(g2) {
+    g2.save();
+    g2.fillStyle = "black";
+    g2.strokeStyle = "white";
+    g2.lineWidth = 0.25;
+    g2.translate(this.position[0] + this.shake[0], this.position[1] + this.shake[1]);
+    g2.rotate(this.rotation);
+    g2.scale(S, S);
+    g2.beginPath();
+    g2.moveTo(1.75, 0);
+    g2.lineTo(-1, 1.25);
     g2.lineTo(-0.5, 0);
-    g2.lineTo(-1, -1);
+    if (this.enginePower > 0) {
+      g2.lineTo(-this.enginePower + 0.4 * Math.random(), 0.2 + 0.4 * Math.random());
+      g2.lineTo(-0.7 + 0.1 * Math.random(), 0 + 0.1 * Math.random());
+      g2.lineTo(-this.enginePower - 0.4 * Math.random(), -0.2 - 0.4 * Math.random());
+      g2.lineTo(-0.5, 0);
+    }
+    g2.lineTo(-1, -1.25);
     g2.closePath();
     g2.stroke();
     g2.restore();
   }
 };
 
+// node_modules/simplex-noise/dist/esm/simplex-noise.js
+var F2 = 0.5 * (Math.sqrt(3) - 1);
+var G2 = (3 - Math.sqrt(3)) / 6;
+var F3 = 1 / 3;
+var G3 = 1 / 6;
+var F4 = (Math.sqrt(5) - 1) / 4;
+var G4 = (5 - Math.sqrt(5)) / 20;
+var fastFloor = (x) => Math.floor(x) | 0;
+var grad2 = /* @__PURE__ */ new Float64Array([
+  1,
+  1,
+  -1,
+  1,
+  1,
+  -1,
+  -1,
+  -1,
+  1,
+  0,
+  -1,
+  0,
+  1,
+  0,
+  -1,
+  0,
+  0,
+  1,
+  0,
+  -1,
+  0,
+  1,
+  0,
+  -1
+]);
+function createNoise2D(random2 = Math.random) {
+  const perm = buildPermutationTable(random2);
+  const permGrad2x = new Float64Array(perm).map((v) => grad2[v % 12 * 2]);
+  const permGrad2y = new Float64Array(perm).map((v) => grad2[v % 12 * 2 + 1]);
+  return function noise2D(x, y) {
+    let n0 = 0;
+    let n1 = 0;
+    let n2 = 0;
+    const s = (x + y) * F2;
+    const i = fastFloor(x + s);
+    const j = fastFloor(y + s);
+    const t2 = (i + j) * G2;
+    const X0 = i - t2;
+    const Y0 = j - t2;
+    const x0 = x - X0;
+    const y0 = y - Y0;
+    let i1, j1;
+    if (x0 > y0) {
+      i1 = 1;
+      j1 = 0;
+    } else {
+      i1 = 0;
+      j1 = 1;
+    }
+    const x1 = x0 - i1 + G2;
+    const y1 = y0 - j1 + G2;
+    const x2 = x0 - 1 + 2 * G2;
+    const y2 = y0 - 1 + 2 * G2;
+    const ii = i & 255;
+    const jj = j & 255;
+    let t0 = 0.5 - x0 * x0 - y0 * y0;
+    if (t0 >= 0) {
+      const gi0 = ii + perm[jj];
+      const g0x = permGrad2x[gi0];
+      const g0y = permGrad2y[gi0];
+      t0 *= t0;
+      n0 = t0 * t0 * (g0x * x0 + g0y * y0);
+    }
+    let t1 = 0.5 - x1 * x1 - y1 * y1;
+    if (t1 >= 0) {
+      const gi1 = ii + i1 + perm[jj + j1];
+      const g1x = permGrad2x[gi1];
+      const g1y = permGrad2y[gi1];
+      t1 *= t1;
+      n1 = t1 * t1 * (g1x * x1 + g1y * y1);
+    }
+    let t22 = 0.5 - x2 * x2 - y2 * y2;
+    if (t22 >= 0) {
+      const gi2 = ii + 1 + perm[jj + 1];
+      const g2x = permGrad2x[gi2];
+      const g2y = permGrad2y[gi2];
+      t22 *= t22;
+      n2 = t22 * t22 * (g2x * x2 + g2y * y2);
+    }
+    return 70 * (n0 + n1 + n2);
+  };
+}
+function buildPermutationTable(random2) {
+  const tableSize = 512;
+  const p = new Uint8Array(tableSize);
+  for (let i = 0; i < tableSize / 2; i++) {
+    p[i] = i;
+  }
+  for (let i = 0; i < tableSize / 2 - 1; i++) {
+    const r = i + ~~(random2() * (256 - i));
+    const aux = p[i];
+    p[i] = p[r];
+    p[r] = aux;
+  }
+  for (let i = 256; i < tableSize; i++) {
+    p[i] = p[i - 256];
+  }
+  return p;
+}
+
+// Pages/Starfield.ts
+var S2 = 10;
+var Starfield = class {
+  constructor(canvas2, target) {
+    this.canvas = canvas2;
+    this.target = target;
+  }
+  noise = createNoise2D(Math.random);
+  draw(g2) {
+    g2.save();
+    g2.fillStyle = "white";
+    for (let dy = 0; dy < this.canvas.height; dy += S2) {
+      const y = dy - S2 * Math.round(this.target.position[1] / S2);
+      for (let dx = 0; dx < this.canvas.width; dx += S2) {
+        const x = dx - S2 * Math.round(this.target.position[0] / S2);
+        const v = this.noise(S2 * x, S2 * y);
+        if (v > 0.9) {
+          g2.fillRect(x, y, 2, 2);
+        }
+      }
+    }
+    g2.restore();
+  }
+};
+
 // Pages/registerResizer.ts
-function registerResizer(canvas) {
+function registerResizer(canvas2) {
   let doResize = false;
   function resize() {
-    canvas.width = devicePixelRatio * canvas.clientWidth;
-    canvas.height = devicePixelRatio * canvas.clientHeight;
+    canvas2.width = devicePixelRatio * canvas2.clientWidth;
+    canvas2.height = devicePixelRatio * canvas2.clientHeight;
     doResize = false;
   }
   const resizer = new ResizeObserver((evts) => {
     for (const evt of evts) {
-      if (evt.target === canvas) {
+      if (evt.target === canvas2) {
         if (!doResize) {
           doResize = true;
           queueMicrotask(resize);
@@ -712,18 +985,20 @@ function registerResizer(canvas) {
       }
     }
   });
-  resizer.observe(canvas);
+  resizer.observe(canvas2);
 }
 
 // Pages/runAnimation.ts
 function runAnimation(update) {
   let lt = 0;
   requestAnimationFrame((t2) => {
+    t2 *= 1e-3;
     lt = t2;
     requestAnimationFrame(doFrame);
   });
   function doFrame(t2) {
-    let dt = t2 - lt;
+    t2 *= 1e-3;
+    const dt = t2 - lt;
     lt = t2;
     requestAnimationFrame(doFrame);
     update(dt, t2);
@@ -731,36 +1006,29 @@ function runAnimation(update) {
 }
 
 // Pages/index.ts
-var frontBuffer = Canvas(ID("frontBuffer"));
-registerResizer(frontBuffer);
-var g = frontBuffer.getContext("2d");
-var ship = new Ship();
-ship.drag = 0.999;
-var left = false;
-var right = false;
-var up = false;
-var down = false;
+var canvas = Canvas(ID("frontBuffer"));
+var g = canvas.getContext("2d");
+var keyboard = new Keyboard();
+var ship = new Ship(keyboard);
+var blackhole = new Planetoid(1e7, 10, 0);
+var planet = new Planetoid(1e6, 50, 50);
+var camera = new Camera(canvas, ship);
+var starfield = new Starfield(canvas, camera);
+var physics = new Physics(blackhole, planet, ship);
+var updatables = [physics, blackhole, planet, ship, camera];
+var drawables = [camera, starfield, blackhole, planet, ship];
+vec2_exports.set(blackhole.position, 500, 100);
+vec2_exports.set(planet.position, -500, -150);
+vec2_exports.set(planet.velocity, 30, -30);
+registerResizer(canvas);
 runAnimation((dt) => {
-  ship.turnRate = left ? -1 : right ? 1 : 0;
-  ship.force = up ? 1 : down ? 0.5 : 0;
-  ship.update(dt);
   g.save();
-  g.fillStyle = "rgba(0, 0, 0, 0.5)";
-  g.fillRect(0, 0, frontBuffer.width, frontBuffer.height);
-  g.translate(frontBuffer.width * 0.5, frontBuffer.height * 0.5);
-  ship.draw(g);
+  for (const updatable of updatables) {
+    updatable.update(dt);
+  }
+  for (const drawable of drawables) {
+    drawable.draw(g);
+  }
   g.restore();
-});
-window.addEventListener("keydown", (evt) => {
-  left = left || evt.key === "ArrowLeft";
-  right = right || evt.key === "ArrowRight";
-  up = up || evt.key === "ArrowUp";
-  down = down || evt.key === "ArrowDown";
-});
-window.addEventListener("keyup", (evt) => {
-  left = left && evt.key !== "ArrowLeft";
-  right = right && evt.key !== "ArrowRight";
-  up = up && evt.key !== "ArrowUp";
-  down = down && evt.key !== "ArrowDown";
 });
 //# sourceMappingURL=index.js.map
