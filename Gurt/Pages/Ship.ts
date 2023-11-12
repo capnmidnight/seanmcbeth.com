@@ -66,4 +66,12 @@ export class Ship implements IDrawable, IGravitatable {
         g.stroke();
         g.restore();
     }
+
+    drawMini(g: CanvasRenderingContext2D): void {
+        g.save();
+        g.fillStyle = "yellow";
+        const s = S * 200;
+        g.fillRect(this.position[0] - 0.5 * s, this.position[1] - 0.5 * s, s, s);
+        g.restore();
+    }
 }

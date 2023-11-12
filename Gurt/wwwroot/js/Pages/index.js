@@ -78,8 +78,14 @@ function attr(key, value, bySetAttribute, ...tags) {
 function isAttr(obj) {
   return obj instanceof HtmlAttr;
 }
+function Height(value) {
+  return attr("height", value, false, "canvas", "embed", "iframe", "img", "input", "object", "video");
+}
 function ID(value) {
   return attr("id", value, false);
+}
+function Width(value) {
+  return attr("width", value, false, "canvas", "embed", "iframe", "img", "input", "object", "video");
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/collections/dist/arrays.js
@@ -658,24 +664,31 @@ var forEach = function() {
 
 // Pages/Camera.ts
 var Camera = class {
-  constructor(canvas2, target) {
-    this.canvas = canvas2;
+  constructor(target) {
     this.target = target;
   }
   position = vec2_exports.create();
-  update(_) {
-    vec2_exports.set(this.position, this.canvas.width, this.canvas.height);
+  predict(g2) {
+    g2.fillStyle = "rgba(0, 0, 0, 0.5)";
+    g2.fillRect(0, 0, g2.canvas.width, g2.canvas.height);
+    vec2_exports.set(this.position, g2.canvas.width, g2.canvas.height);
     vec2_exports.scale(this.position, this.position, 0.5);
     vec2_exports.scaleAndAdd(this.position, this.position, this.target.position, -1);
     const speed = vec2_exports.len(this.target.velocity);
     if (speed > 0) {
       vec2_exports.scaleAndAdd(this.position, this.position, this.target.velocity, -1 / Math.pow(speed, 0.25));
     }
-  }
-  draw(g2) {
-    g2.fillStyle = "rgba(0, 0, 0, 0.5)";
-    g2.fillRect(0, 0, this.canvas.width, this.canvas.height);
     g2.translate(this.position[0], this.position[1]);
+  }
+  prepare(g2, scale2) {
+    g2.clearRect(0, 0, g2.canvas.width, g2.canvas.height);
+    g2.fillStyle = "rgba(0, 0, 0, 0.75)";
+    g2.fillRect(0, 0, g2.canvas.width, g2.canvas.height);
+    vec2_exports.set(this.position, g2.canvas.width, g2.canvas.height);
+    vec2_exports.scale(this.position, this.position, 0.5);
+    vec2_exports.scaleAndAdd(this.position, this.position, this.target.position, -scale2);
+    g2.translate(this.position[0], this.position[1]);
+    g2.scale(scale2, scale2);
   }
 };
 
@@ -701,6 +714,31 @@ var Keyboard = class {
   }
   get horizontal() {
     return this.keySet.has("ArrowRight") ? 1 : this.keySet.has("ArrowLeft") ? -1 : 0;
+  }
+};
+
+// Pages/Minimap.ts
+var Minimap = class {
+  constructor(camera2, drawables2) {
+    this.camera = camera2;
+    this.drawables = drawables2;
+  }
+  buffer = Canvas(Width(256), Height(128));
+  g = this.buffer.getContext("2d");
+  draw(g2) {
+    this.g.save();
+    this.camera.prepare(this.g, 1e-3);
+    for (const drawable of this.drawables) {
+      drawable.drawMini(this.g);
+    }
+    this.g.restore();
+    g2.save();
+    g2.strokeStyle = "rgba(255, 255, 255, 0.25)";
+    g2.lineWidth = 1;
+    g2.translate(10, 10);
+    g2.drawImage(this.buffer, 0, 0);
+    g2.strokeRect(0, 0, this.buffer.width, this.buffer.height);
+    g2.restore();
   }
 };
 
@@ -755,20 +793,28 @@ var Planetoid = class {
   }
   draw(g2) {
     g2.save();
-    g2.fillStyle = "black";
     g2.strokeStyle = "white";
+    g2.fillStyle = "black";
     g2.lineWidth = 10;
-    g2.translate(this.position[0], this.position[1]);
-    g2.beginPath();
-    g2.arc(0, 0, this.radius, 0, 2 * Math.PI);
+    this.drawMajor(g2, 1);
     g2.stroke();
-    g2.fill();
     if (this.atmoRadius > 0) {
       g2.lineWidth = 0.5;
       g2.beginPath();
-      g2.arc(0, 0, this.atmoRadius, 0, 2 * Math.PI);
+      g2.arc(this.position[0], this.position[1], this.atmoRadius, 0, 2 * Math.PI);
       g2.stroke();
     }
+    g2.restore();
+  }
+  drawMajor(g2, scale2) {
+    g2.beginPath();
+    g2.arc(this.position[0], this.position[1], this.radius * scale2, 0, 2 * Math.PI);
+    g2.fill();
+  }
+  drawMini(g2) {
+    g2.save();
+    g2.fillStyle = "white";
+    this.drawMajor(g2, 50);
     g2.restore();
   }
 };
@@ -829,6 +875,13 @@ var Ship = class {
     g2.lineTo(-1, -1.25);
     g2.closePath();
     g2.stroke();
+    g2.restore();
+  }
+  drawMini(g2) {
+    g2.save();
+    g2.fillStyle = "yellow";
+    const s = S * 200;
+    g2.fillRect(this.position[0] - 0.5 * s, this.position[1] - 0.5 * s, s, s);
     g2.restore();
   }
 };
@@ -945,17 +998,16 @@ function buildPermutationTable(random2) {
 // Pages/Starfield.ts
 var S2 = 10;
 var Starfield = class {
-  constructor(canvas2, target) {
-    this.canvas = canvas2;
+  constructor(target) {
     this.target = target;
   }
   noise = createNoise2D(Math.random);
   draw(g2) {
     g2.save();
     g2.fillStyle = "white";
-    for (let dy = 0; dy < this.canvas.height; dy += S2) {
+    for (let dy = 0; dy < g2.canvas.height; dy += S2) {
       const y = dy - S2 * Math.round(this.target.position[1] / S2);
-      for (let dx = 0; dx < this.canvas.width; dx += S2) {
+      for (let dx = 0; dx < g2.canvas.width; dx += S2) {
         const x = dx - S2 * Math.round(this.target.position[0] / S2);
         const v = this.noise(S2 * x, S2 * y);
         if (v > 0.9) {
@@ -964,6 +1016,8 @@ var Starfield = class {
       }
     }
     g2.restore();
+  }
+  drawMini(_) {
   }
 };
 
@@ -1010,25 +1064,28 @@ var canvas = Canvas(ID("frontBuffer"));
 var g = canvas.getContext("2d");
 var keyboard = new Keyboard();
 var ship = new Ship(keyboard);
+var camera = new Camera(ship);
 var blackhole = new Planetoid(1e7, 10, 0);
 var planet = new Planetoid(1e6, 50, 50);
-var camera = new Camera(canvas, ship);
-var starfield = new Starfield(canvas, camera);
+var starfield = new Starfield(camera);
 var physics = new Physics(blackhole, planet, ship);
-var updatables = [physics, blackhole, planet, ship, camera];
-var drawables = [camera, starfield, blackhole, planet, ship];
+var updatables = [physics, blackhole, planet, ship];
+var drawables = [starfield, blackhole, planet, ship];
+var minimap = new Minimap(camera, drawables);
 vec2_exports.set(blackhole.position, 500, 100);
 vec2_exports.set(planet.position, -500, -150);
-vec2_exports.set(planet.velocity, 30, -30);
+vec2_exports.set(planet.velocity, 200, -100);
 registerResizer(canvas);
 runAnimation((dt) => {
   g.save();
   for (const updatable of updatables) {
     updatable.update(dt);
   }
+  camera.predict(g);
   for (const drawable of drawables) {
     drawable.draw(g);
   }
   g.restore();
+  minimap.draw(g);
 });
 //# sourceMappingURL=index.js.map
