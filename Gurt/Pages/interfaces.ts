@@ -5,8 +5,8 @@ export interface IUpdatable {
 }
 
 export interface IDrawable {
-    draw(g: CanvasRenderingContext2D): void;
-    drawMini(g: CanvasRenderingContext2D): void;
+    draw(g: CanvasRenderingContext2D, scale: number): void;
+    drawMini(g: CanvasRenderingContext2D, scale: number): void;
 }
 
 export interface IPositionable {

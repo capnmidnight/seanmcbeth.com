@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["../../../Pages/index.css"],
-  "sourcesContent": ["canvas#frontBuffer {\n    width: 100%;\n    height: 100%;\n    image-rendering: optimizeQuality;\n}"],
-  "mappings": ";AAAA,MAAM,CAAC;AACH,SAAO;AACP,UAAQ;AACR,mBAAiB;AACrB;",
+  "sourcesContent": ["canvas#frontBuffer {\n    width: 100%;\n    height: 100%;\n}"],
+  "mappings": ";AAAA,MAAM,CAAC;AACH,SAAO;AACP,UAAQ;AACZ;",
   "names": []
 }

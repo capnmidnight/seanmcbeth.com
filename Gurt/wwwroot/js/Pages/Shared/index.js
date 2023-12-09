@@ -274,16 +274,6 @@ var AppShell = class extends TypedEventTarget {
   setMenuUI(mainNav, button) {
     mainNav.classList.toggle("hidden", localStorage.getItem("menuHidden") == "true");
     button.addEventListener("click", () => {
-      if (!mainNav.classList.contains("hidden")) {
-        for (const child of mainNav.children) {
-          if (child instanceof HTMLElement) {
-            const style = getComputedStyle(child);
-            const marginStart = parseFloat(style.marginInlineStart);
-            const marginEnd = parseFloat(style.marginInlineEnd);
-            child.style.width = mainNav.clientWidth - marginStart - marginEnd + "px";
-          }
-        }
-      }
       const hidden = mainNav.classList.toggle("hidden");
       localStorage.setItem("menuHidden", hidden ? "true" : "false");
       this.setMenuHidden(hidden);
@@ -332,13 +322,19 @@ var AppShell = class extends TypedEventTarget {
     }
   }
   setHistoryUI(backButton, fwdButton) {
+    this.setHistoryUIBackButton(backButton);
+    this.setHistoryUIForwardButton(fwdButton);
+  }
+  async setHistoryUIBackButton(backButton) {
     if (backButton) {
       backButton.addEventListener("click", () => history.back());
-      this.getCanGoBack().then((yes) => backButton.disabled = !yes);
+      backButton.disabled = !await this.getCanGoBack();
     }
+  }
+  async setHistoryUIForwardButton(fwdButton) {
     if (fwdButton) {
       fwdButton.addEventListener("click", () => history.forward());
-      this.getCanGoForward().then((yes) => fwdButton.disabled = !yes);
+      fwdButton.disabled = !await this.getCanGoForward();
     }
   }
 };

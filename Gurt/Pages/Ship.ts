@@ -3,7 +3,6 @@ import { Keyboard } from "./Keyboard";
 import { zero } from "./constants";
 import { IDrawable, IGravitatable } from "./interfaces";
 
-const S = 5;
 const R = 5;
 const F = 1000;
 const D = -0.05;
@@ -34,7 +33,7 @@ export class Ship implements IDrawable, IGravitatable {
 
         vec2.set(this.shake, 0, Math.random() * 2 - 1);
         vec2.rotate(this.shake, this.shake, zero, this.rotation);
-        const shudder = Math.pow(vec2.len(this.acceleration), 0.3333);
+        const shudder = 0; //Math.pow(vec2.len(this.acceleration), 0.3333);
         vec2.scaleAndAdd(this.shake, zero, this.shake, shudder);
 
         vec2.scaleAndAdd(this.acceleration, this.acceleration, this.velocity, D * this.drag);
@@ -43,35 +42,36 @@ export class Ship implements IDrawable, IGravitatable {
         vec2.scaleAndAdd(this.position, this.position, this.velocity, dt);
     }
 
-    draw(g: CanvasRenderingContext2D) {
+    draw(g: CanvasRenderingContext2D, scale: number) {
         g.save();
         g.fillStyle = "black";
         g.strokeStyle = "white";
-        g.lineWidth = 0.25;
+        g.lineWidth = 1.25 / scale;
+        g.scale(scale, scale);
         g.translate(this.position[0] + this.shake[0], this.position[1] + this.shake[1]);
         g.rotate(this.rotation);
-        g.scale(S, S);
         g.beginPath();
-        g.moveTo(1.75, 0);
-        g.lineTo(-1, 1.25);
-        g.lineTo(-0.5, 0);
+        g.moveTo(14, 0);
+        g.lineTo(-8, 10);
+        g.lineTo(-4, 0);
         if (this.enginePower > 0) {
-            g.lineTo(-this.enginePower + 0.4 * Math.random(), 0.2 + 0.4 * Math.random());
-            g.lineTo(-0.7 + 0.1 * Math.random(), 0 + 0.1 * Math.random());
-            g.lineTo(-this.enginePower - 0.4 * Math.random(), -0.2 - 0.4 * Math.random());
-            g.lineTo(-0.5, 0);
+            const ep = -8 * Math.sqrt(this.enginePower);
+            g.lineTo(ep - 3.2 * Math.random(), 1.6 + 3.2 * Math.random());
+            g.lineTo(-5.6 + 0.8 * Math.random(), 0 + 0.8 * Math.random());
+            g.lineTo(ep - 3.2 * Math.random(), -1.6 - 3.2 * Math.random());
+            g.lineTo(-4, 0);
         }
-        g.lineTo(-1, -1.25);
+        g.lineTo(-8, -10);
         g.closePath();
         g.stroke();
         g.restore();
     }
 
-    drawMini(g: CanvasRenderingContext2D): void {
+    drawMini(g: CanvasRenderingContext2D, scale: number): void {
+        const s = 4 / scale;
         g.save();
         g.fillStyle = "yellow";
-        const s = S * 200;
-        g.fillRect(this.position[0] - 0.5 * s, this.position[1] - 0.5 * s, s, s);
+        g.fillRect(this.position[0], this.position[1], s, s);
         g.restore();
     }
 }

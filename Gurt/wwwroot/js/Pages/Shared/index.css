@@ -1,37 +1,9 @@
-/* ../Juniper/src/Juniper.TypeScript/@juniper-lib/appshell/dist/header.css */
-header {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  padding: 1rem;
-  gap: 1rem;
-}
-#headerTitleArea {
-  flex-grow: 1;
-}
-header button {
-  border: none;
-  padding: 0;
-  background-color: transparent;
-  font-family: monospace;
-  transition: text-shadow .2s;
-}
-#mainNavVisiblityControlButton {
-  font-size: 40pt;
-}
-header button:disabled {
-  opacity: 0.75;
-  cursor: not-allowed;
-}
-header > img {
-  height: 50px;
-}
-header > input[type=search] {
-  padding: .5rem 1rem;
-  font-size: 12pt;
-}
-
 /* ../Juniper/src/Juniper.TypeScript/@juniper-lib/appshell/dist/index.css */
+*,
+*::after,
+*::before {
+  box-sizing: border-box;
+}
 html,
 body {
   height: 100%;
@@ -142,8 +114,11 @@ main {
   padding: 0 2rem;
   max-width: 15rem;
 }
-button {
+button:not(:disabled) {
   cursor: pointer;
+}
+button:disabled {
+  cursor: not-allowed;
 }
 
 /* ../Juniper/src/Juniper.TypeScript/@juniper-lib/appshell/dist/nav.css */
@@ -161,7 +136,7 @@ main > nav > ul {
   opacity: 1;
   transition: opacity .2s;
   padding: 0;
-  margin: 2rem;
+  margin: 0;
 }
 main > nav ul {
   list-style: none;
@@ -187,6 +162,12 @@ main > nav li > a:hover,
 main > nav li > details > summary:hover {
   margin-left: 2px;
   font-weight: bold;
+}
+main > nav button:disabled {
+  opacity: 0.75;
+}
+main > nav hr {
+  display: none;
 }
 main > nav summary {
   list-style: none;

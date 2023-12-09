@@ -8,16 +8,17 @@ export class Minimap {
     private readonly buffer = Canvas(Width(256), Height(128));
     private readonly g = this.buffer.getContext("2d");
 
-    constructor(private readonly camera: Camera, private readonly drawables: IDrawable[]) {
+    constructor(private readonly scale: number, private readonly camera: Camera, private readonly drawables: IDrawable[]) {
     }
 
     draw(g: CanvasRenderingContext2D) {
         this.g.save();
 
-        this.camera.prepare(this.g, 0.001);
+        this.camera.prepare(this.g, this.scale);
+        g.scale(this.scale, this.scale);
 
         for (const drawable of this.drawables) {
-            drawable.drawMini(this.g);
+            drawable.drawMini(this.g, this.scale);
         }
 
         this.g.restore();

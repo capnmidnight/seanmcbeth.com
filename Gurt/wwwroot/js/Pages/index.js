@@ -515,9 +515,9 @@ function scale(out, a, b) {
   out[1] = a[1] * b;
   return out;
 }
-function scaleAndAdd(out, a, b, scale2) {
-  out[0] = a[0] + b[0] * scale2;
-  out[1] = a[1] + b[1] * scale2;
+function scaleAndAdd(out, a, b, scale3) {
+  out[0] = a[0] + b[0] * scale3;
+  out[1] = a[1] + b[1] * scale3;
   return out;
 }
 function distance(a, b) {
@@ -571,11 +571,11 @@ function lerp(out, a, b, t2) {
   out[1] = ay + t2 * (b[1] - ay);
   return out;
 }
-function random(out, scale2) {
-  scale2 = scale2 || 1;
+function random(out, scale3) {
+  scale3 = scale3 || 1;
   var r = RANDOM() * 2 * Math.PI;
-  out[0] = Math.cos(r) * scale2;
-  out[1] = Math.sin(r) * scale2;
+  out[0] = Math.cos(r) * scale3;
+  out[1] = Math.sin(r) * scale3;
   return out;
 }
 function transformMat2(out, a, m) {
@@ -668,27 +668,26 @@ var Camera = class {
     this.target = target;
   }
   position = vec2_exports.create();
-  predict(g2) {
-    g2.fillStyle = "rgba(0, 0, 0, 0.5)";
-    g2.fillRect(0, 0, g2.canvas.width, g2.canvas.height);
+  do(g2, scale3, color, addVelocity) {
     vec2_exports.set(this.position, g2.canvas.width, g2.canvas.height);
     vec2_exports.scale(this.position, this.position, 0.5);
-    vec2_exports.scaleAndAdd(this.position, this.position, this.target.position, -1);
-    const speed = vec2_exports.len(this.target.velocity);
-    if (speed > 0) {
-      vec2_exports.scaleAndAdd(this.position, this.position, this.target.velocity, -1 / Math.pow(speed, 0.25));
+    vec2_exports.scaleAndAdd(this.position, this.position, this.target.position, -scale3);
+    if (addVelocity) {
+      const speed = vec2_exports.len(this.target.velocity);
+      if (speed > 0) {
+        vec2_exports.scaleAndAdd(this.position, this.position, this.target.velocity, -scale3 / Math.pow(speed, 0.25));
+      }
     }
+    g2.fillStyle = color;
+    g2.fillRect(0, 0, g2.canvas.width, g2.canvas.height);
     g2.translate(this.position[0], this.position[1]);
   }
-  prepare(g2, scale2) {
+  predict(g2, scale3) {
+    this.do(g2, scale3, "rgba(0, 0, 0, 0.5)", true);
+  }
+  prepare(g2, scale3) {
     g2.clearRect(0, 0, g2.canvas.width, g2.canvas.height);
-    g2.fillStyle = "rgba(0, 0, 0, 0.75)";
-    g2.fillRect(0, 0, g2.canvas.width, g2.canvas.height);
-    vec2_exports.set(this.position, g2.canvas.width, g2.canvas.height);
-    vec2_exports.scale(this.position, this.position, 0.5);
-    vec2_exports.scaleAndAdd(this.position, this.position, this.target.position, -scale2);
-    g2.translate(this.position[0], this.position[1]);
-    g2.scale(scale2, scale2);
+    this.do(g2, scale3, "rgba(0, 0, 0, 0.75)", false);
   }
 };
 
@@ -719,7 +718,8 @@ var Keyboard = class {
 
 // Pages/Minimap.ts
 var Minimap = class {
-  constructor(camera2, drawables2) {
+  constructor(scale3, camera2, drawables2) {
+    this.scale = scale3;
     this.camera = camera2;
     this.drawables = drawables2;
   }
@@ -727,9 +727,10 @@ var Minimap = class {
   g = this.buffer.getContext("2d");
   draw(g2) {
     this.g.save();
-    this.camera.prepare(this.g, 1e-3);
+    this.camera.prepare(this.g, this.scale);
+    g2.scale(this.scale, this.scale);
     for (const drawable of this.drawables) {
-      drawable.drawMini(this.g);
+      drawable.drawMini(this.g, this.scale);
     }
     this.g.restore();
     g2.save();
@@ -746,29 +747,39 @@ var Minimap = class {
 var zero2 = vec2_exports.create();
 
 // Pages/Physics.ts
-var G = 1;
 var delta = vec2_exports.create();
+var timeStep = 0.01;
 var Physics = class {
   bodies;
+  timeAccum = 0;
   constructor(...bodies) {
     this.bodies = bodies;
   }
-  update(_) {
-    for (const body of this.bodies) {
-      vec2_exports.copy(body.gravity, zero2);
-    }
-    for (let i = 0; i < this.bodies.length - 1; ++i) {
-      const a = this.bodies[i];
-      for (let j = i + 1; j < this.bodies.length; ++j) {
-        const b = this.bodies[j];
-        vec2_exports.sub(delta, a.position, b.position);
-        const rSquared = vec2_exports.sqrLen(delta);
-        if (rSquared > 0) {
-          vec2_exports.normalize(delta, delta);
-          const F5 = G * a.mass * b.mass / rSquared;
-          vec2_exports.scaleAndAdd(a.gravity, a.gravity, delta, -F5 / a.mass);
-          vec2_exports.scaleAndAdd(b.gravity, b.gravity, delta, F5 / b.mass);
+  update(dt) {
+    for (this.timeAccum += dt; this.timeAccum > 0; this.timeAccum -= timeStep) {
+      for (const body of this.bodies) {
+        vec2_exports.copy(body.gravity, zero2);
+      }
+      for (let i = 0; i < this.bodies.length - 1; ++i) {
+        const a = this.bodies[i];
+        if (a.mass !== 0) {
+          for (let j = i + 1; j < this.bodies.length; ++j) {
+            const b = this.bodies[j];
+            if (b.mass !== 0) {
+              vec2_exports.sub(delta, a.position, b.position);
+              const rSquared = vec2_exports.sqrLen(delta);
+              if (rSquared > 0) {
+                vec2_exports.normalize(delta, delta);
+                const F5 = 0;
+                vec2_exports.scaleAndAdd(a.gravity, a.gravity, delta, -F5 / a.mass);
+                vec2_exports.scaleAndAdd(b.gravity, b.gravity, delta, F5 / b.mass);
+              }
+            }
+          }
         }
+      }
+      for (const body of this.bodies) {
+        body.update(timeStep);
       }
     }
   }
@@ -776,10 +787,12 @@ var Physics = class {
 
 // Pages/Planetoid.ts
 var Planetoid = class {
-  constructor(mass, radius, atmoRadius) {
+  constructor(name, mass, radius, atmoRadius, color) {
+    this.name = name;
     this.mass = mass;
     this.radius = radius;
     this.atmoRadius = atmoRadius;
+    this.color = color;
     if (this.atmoRadius > 0) {
       this.atmoRadius += this.radius;
     }
@@ -791,36 +804,48 @@ var Planetoid = class {
     vec2_exports.scaleAndAdd(this.velocity, this.velocity, this.gravity, dt);
     vec2_exports.scaleAndAdd(this.position, this.position, this.velocity, dt);
   }
-  draw(g2) {
+  drawMajor(g2, scale3, color) {
+    g2.fillStyle = color;
+    g2.translate(this.position[0], this.position[1]);
+    if (this.radius * scale3 >= 2) {
+      g2.beginPath();
+      g2.arc(0, 0, this.radius, 0, 2 * Math.PI);
+      g2.fill();
+    } else {
+      g2.fillRect(0, 0, 2 / scale3, 2 / scale3);
+    }
+    g2.textAlign = "center";
+    g2.textBaseline = "middle";
+    g2.fillStyle = "white";
+  }
+  draw(g2, scale3) {
     g2.save();
-    g2.strokeStyle = "white";
-    g2.fillStyle = "black";
-    g2.lineWidth = 10;
-    this.drawMajor(g2, 1);
-    g2.stroke();
+    g2.scale(scale3, scale3);
     if (this.atmoRadius > 0) {
-      g2.lineWidth = 0.5;
+      g2.fillStyle = "rgba(255, 255, 255, .05)";
+      g2.lineWidth = 0.5 / scale3;
       g2.beginPath();
       g2.arc(this.position[0], this.position[1], this.atmoRadius, 0, 2 * Math.PI);
+      g2.fill();
       g2.stroke();
     }
+    g2.lineWidth = 2 / scale3;
+    this.drawMajor(g2, scale3, "black");
+    const fontSize = 50 / scale3;
+    g2.font = `normal ${fontSize}px monospace`;
+    g2.fillText(this.name, 0, 0);
+    g2.strokeStyle = this.color;
+    g2.stroke();
     g2.restore();
   }
-  drawMajor(g2, scale2) {
-    g2.beginPath();
-    g2.arc(this.position[0], this.position[1], this.radius * scale2, 0, 2 * Math.PI);
-    g2.fill();
-  }
-  drawMini(g2) {
+  drawMini(g2, scale3) {
     g2.save();
-    g2.fillStyle = "white";
-    this.drawMajor(g2, 50);
+    this.drawMajor(g2, scale3, this.color);
     g2.restore();
   }
 };
 
 // Pages/Ship.ts
-var S = 5;
 var R = 5;
 var F = 1e3;
 var D = -0.05;
@@ -847,41 +872,42 @@ var Ship = class {
     vec2_exports.scale(this.acceleration, this.acceleration, F * this.enginePower * dt);
     vec2_exports.set(this.shake, 0, Math.random() * 2 - 1);
     vec2_exports.rotate(this.shake, this.shake, zero2, this.rotation);
-    const shudder = Math.pow(vec2_exports.len(this.acceleration), 0.3333);
+    const shudder = 0;
     vec2_exports.scaleAndAdd(this.shake, zero2, this.shake, shudder);
     vec2_exports.scaleAndAdd(this.acceleration, this.acceleration, this.velocity, D * this.drag);
     vec2_exports.add(this.acceleration, this.acceleration, this.gravity);
     vec2_exports.scaleAndAdd(this.velocity, this.velocity, this.acceleration, dt);
     vec2_exports.scaleAndAdd(this.position, this.position, this.velocity, dt);
   }
-  draw(g2) {
+  draw(g2, scale3) {
     g2.save();
     g2.fillStyle = "black";
     g2.strokeStyle = "white";
-    g2.lineWidth = 0.25;
+    g2.lineWidth = 1.25 / scale3;
+    g2.scale(scale3, scale3);
     g2.translate(this.position[0] + this.shake[0], this.position[1] + this.shake[1]);
     g2.rotate(this.rotation);
-    g2.scale(S, S);
     g2.beginPath();
-    g2.moveTo(1.75, 0);
-    g2.lineTo(-1, 1.25);
-    g2.lineTo(-0.5, 0);
+    g2.moveTo(14, 0);
+    g2.lineTo(-8, 10);
+    g2.lineTo(-4, 0);
     if (this.enginePower > 0) {
-      g2.lineTo(-this.enginePower + 0.4 * Math.random(), 0.2 + 0.4 * Math.random());
-      g2.lineTo(-0.7 + 0.1 * Math.random(), 0 + 0.1 * Math.random());
-      g2.lineTo(-this.enginePower - 0.4 * Math.random(), -0.2 - 0.4 * Math.random());
-      g2.lineTo(-0.5, 0);
+      const ep = -8 * Math.sqrt(this.enginePower);
+      g2.lineTo(ep - 3.2 * Math.random(), 1.6 + 3.2 * Math.random());
+      g2.lineTo(-5.6 + 0.8 * Math.random(), 0 + 0.8 * Math.random());
+      g2.lineTo(ep - 3.2 * Math.random(), -1.6 - 3.2 * Math.random());
+      g2.lineTo(-4, 0);
     }
-    g2.lineTo(-1, -1.25);
+    g2.lineTo(-8, -10);
     g2.closePath();
     g2.stroke();
     g2.restore();
   }
-  drawMini(g2) {
+  drawMini(g2, scale3) {
+    const s = 4 / scale3;
     g2.save();
     g2.fillStyle = "yellow";
-    const s = S * 200;
-    g2.fillRect(this.position[0] - 0.5 * s, this.position[1] - 0.5 * s, s, s);
+    g2.fillRect(this.position[0], this.position[1], s, s);
     g2.restore();
   }
 };
@@ -996,28 +1022,30 @@ function buildPermutationTable(random2) {
 }
 
 // Pages/Starfield.ts
-var S2 = 10;
+var step = 10;
 var Starfield = class {
   constructor(target) {
     this.target = target;
   }
   noise = createNoise2D(Math.random);
-  draw(g2) {
+  draw(g2, scale3) {
     g2.save();
     g2.fillStyle = "white";
-    for (let dy = 0; dy < g2.canvas.height; dy += S2) {
-      const y = dy - S2 * Math.round(this.target.position[1] / S2);
-      for (let dx = 0; dx < g2.canvas.width; dx += S2) {
-        const x = dx - S2 * Math.round(this.target.position[0] / S2);
-        const v = this.noise(S2 * x, S2 * y);
+    const ddx = 0.5 * g2.canvas.width;
+    const ddy = 0.5 * g2.canvas.height;
+    for (let dy = -ddy; dy < ddy; dy += step) {
+      const y = dy - step * Math.round(this.target.position[1] / step);
+      for (let dx = -ddx; dx < ddx; dx += step) {
+        const x = dx - step * Math.round(this.target.position[0] / step);
+        const v = this.noise(step * x, step * y);
         if (v > 0.9) {
-          g2.fillRect(x, y, 2, 2);
+          g2.fillRect(x, y, 2 / scale3, 2 / scale3);
         }
       }
     }
     g2.restore();
   }
-  drawMini(_) {
+  drawMini(_, _scale) {
   }
 };
 
@@ -1065,25 +1093,26 @@ var g = canvas.getContext("2d");
 var keyboard = new Keyboard();
 var ship = new Ship(keyboard);
 var camera = new Camera(ship);
-var blackhole = new Planetoid(1e7, 10, 0);
-var planet = new Planetoid(1e6, 50, 50);
+var sun = new Planetoid("Sol", 2e30, 695700, 0, "yellow");
+var earth = new Planetoid("Terra", 6e24, 6371, 335, "blue");
 var starfield = new Starfield(camera);
-var physics = new Physics(blackhole, planet, ship);
-var updatables = [physics, blackhole, planet, ship];
-var drawables = [starfield, blackhole, planet, ship];
-var minimap = new Minimap(camera, drawables);
-vec2_exports.set(blackhole.position, 500, 100);
-vec2_exports.set(planet.position, -500, -150);
-vec2_exports.set(planet.velocity, 200, -100);
+var physics = new Physics(sun, earth, ship);
+var updatables = [physics];
+var drawables = [starfield, sun, earth, ship];
+var minimap = new Minimap(1e-5, camera, drawables);
+var scale2 = 1e-6;
+vec2_exports.set(sun.position, -15e10, 0);
+vec2_exports.set(earth.velocity, 0, 30);
+vec2_exports.set(ship.position, 42e3, 0);
 registerResizer(canvas);
 runAnimation((dt) => {
-  g.save();
   for (const updatable of updatables) {
     updatable.update(dt);
   }
-  camera.predict(g);
+  g.save();
+  camera.predict(g, scale2);
   for (const drawable of drawables) {
-    drawable.draw(g);
+    drawable.draw(g, scale2);
   }
   g.restore();
   minimap.draw(g);

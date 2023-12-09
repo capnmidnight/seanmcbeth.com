@@ -8,29 +8,29 @@ export class Camera implements IPositionable {
     constructor(private readonly target: IPositionable & IMovable) {
     }
 
-    predict(g: CanvasRenderingContext2D) {
-        g.fillStyle = "rgba(0, 0, 0, 0.5)";
-        g.fillRect(0, 0, g.canvas.width, g.canvas.height);
+    private do(g: CanvasRenderingContext2D, scale: number, color: string, addVelocity: boolean) {
 
         vec2.set(this.position, g.canvas.width, g.canvas.height);
-        vec2.scale(this.position, this.position, 0.5);
-        vec2.scaleAndAdd(this.position, this.position, this.target.position, -1);
-        const speed = vec2.len(this.target.velocity);
-        if (speed > 0) {
-            vec2.scaleAndAdd(this.position, this.position, this.target.velocity, -1 / Math.pow(speed, .25));
+        vec2.scale(this.position, this.position, 0.5)
+        vec2.scaleAndAdd(this.position, this.position, this.target.position, -scale);
+        if (addVelocity) {
+            const speed = vec2.len(this.target.velocity);
+            if (speed > 0) {
+                vec2.scaleAndAdd(this.position, this.position, this.target.velocity, -scale / Math.pow(speed, .25));
+            }
         }
+        
+        g.fillStyle = color;
+        g.fillRect(0, 0, g.canvas.width, g.canvas.height);
         g.translate(this.position[0], this.position[1]);
+    }
+
+    predict(g: CanvasRenderingContext2D, scale: number) {
+        this.do(g, scale, "rgba(0, 0, 0, 0.5)", true);
     }
 
     prepare(g: CanvasRenderingContext2D, scale: number) {
         g.clearRect(0, 0, g.canvas.width, g.canvas.height);
-        g.fillStyle = "rgba(0, 0, 0, 0.75)";
-        g.fillRect(0, 0, g.canvas.width, g.canvas.height);
-    
-        vec2.set(this.position, g.canvas.width, g.canvas.height);
-        vec2.scale(this.position, this.position, 0.5);
-        vec2.scaleAndAdd(this.position, this.position, this.target.position, -scale);
-        g.translate(this.position[0], this.position[1]);
-        g.scale(scale, scale);
+        this.do(g, scale, "rgba(0, 0, 0, 0.75)", false);
     }
 }

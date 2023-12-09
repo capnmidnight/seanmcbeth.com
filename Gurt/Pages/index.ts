@@ -18,31 +18,32 @@ const g = canvas.getContext("2d");
 const keyboard = new Keyboard();
 const ship = new Ship(keyboard);
 const camera = new Camera(ship);
-const blackhole = new Planetoid(1e7, 10, 0);
-const planet = new Planetoid(1e6, 50, 50);
+const sun = new Planetoid("Sol", 2e30, 6.957e5, 0, "yellow");
+const earth = new Planetoid("Terra", 6e24, 6.371e3, 335, "blue");
 const starfield = new Starfield(camera);
-const physics = new Physics(blackhole, planet, ship);
-const updatables: IUpdatable[] = [physics, blackhole, planet, ship];
-const drawables: IDrawable[] = [starfield, blackhole, planet, ship];
-const minimap = new Minimap(camera, drawables);
+const physics = new Physics(sun, earth, ship);
+const updatables: IUpdatable[] = [physics];
+const drawables: IDrawable[] = [starfield, sun, earth, ship];
+const minimap = new Minimap(1e-5, camera, drawables);
+const scale = 1e-6;
 
-vec2.set(blackhole.position, 500, 100);
-vec2.set(planet.position, -500, -150);
-vec2.set(planet.velocity, 200, -100);
+vec2.set(sun.position, -1.5e11, 0);
+vec2.set(earth.velocity, 0, 30);
+vec2.set(ship.position, 4.2e4, 0);
 
 registerResizer(canvas);
 
 runAnimation(dt => {
-    g.save();
 
     for (const updatable of updatables) {
         updatable.update(dt);
     }
 
-    camera.predict(g);
+    g.save();
 
+    camera.predict(g, scale);
     for (const drawable of drawables) {
-        drawable.draw(g);
+        drawable.draw(g, scale);
     }
 
     g.restore();
