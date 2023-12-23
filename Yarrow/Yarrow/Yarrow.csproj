@@ -21,15 +21,15 @@
 
   <ItemGroup>
     <PackageReference Include="BuildBundlerMinifier" Version="3.2.449" />
-    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="7.0.11" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="7.0.11" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="7.0.11" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="7.0.11" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.11">
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="7.0.14" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="7.0.14" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="7.0.14" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="7.0.14" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.14">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.11">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.14">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
@@ -51,6 +51,9 @@
     <ProjectReference Include="..\..\Juniper\src\Juniper.Sound\Juniper.Sound.csproj" />
     <ProjectReference Include="..\..\Juniper\src\Juniper.YouTubeDLP\Juniper.YouTubeDLP.csproj" />
     <ProjectReference Include="..\..\Juniper\src\Juniper.TSBuild\Juniper.TSBuild.csproj" />
+    <ProjectReference Include="..\..\Juniper\src\Juniper.XR\Juniper.XR.csproj" />
+    <ProjectReference Include="..\..\Juniper\src\Juniper.Server.WebRTC\Juniper.Server.WebRTC.csproj" />
+    <ProjectReference Include="..\..\Juniper\src\Juniper.WebRTC\Juniper.WebRTC.csproj" />
   </ItemGroup>
 
 </Project>

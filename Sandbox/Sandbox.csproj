@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Juniper\src\Juniper.Root\Juniper.Root.csproj" />
+    <ProjectReference Include="..\Juniper\src\Juniper.Processes\Juniper.Processes.csproj" />
   </ItemGroup>
 
 </Project>

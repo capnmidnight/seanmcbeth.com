@@ -1,4 +1,4 @@
-using Juniper.WebRTC;
+using Juniper.Server.WebRTC;
 
 using Yarrow.Data;
 

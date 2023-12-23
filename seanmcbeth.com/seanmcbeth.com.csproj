@@ -27,7 +27,7 @@
 	<ItemGroup>
         <PackageReference Include="Betalgo.OpenAI" Version="7.1.5" />
 		<PackageReference Include="BuildBundlerMinifier" Version="3.2.449" />
-		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="7.0.11" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="7.0.14" />
 		<PackageReference Include="Microsoft.Extensions.Hosting.Systemd" Version="7.0.0" />
 		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="7.0.10" />
 		<ProjectReference Include="..\Juniper\src\Juniper.Azure\Juniper.Azure.csproj" />
@@ -38,5 +38,9 @@
 		<ProjectReference Include="..\Juniper\src\Juniper.Sound\Juniper.Sound.csproj" />
         <ProjectReference Include="..\Juniper\src\Juniper.TSBuild\Juniper.TSBuild.csproj" />
     </ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\Juniper\src\Juniper.Logic\Juniper.Logic.csproj" />
+	</ItemGroup>
 
 </Project>

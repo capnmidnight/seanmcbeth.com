@@ -47,8 +47,9 @@
     "@juniper-lib/webrtc": "file:../Juniper/src/Juniper.TypeScript/@juniper-lib/webrtc",
     "@juniper-lib/widgets": "file:../Juniper/src/Juniper.TypeScript/@juniper-lib/widgets",
     "@juniper-lib/workers": "file:../Juniper/src/Juniper.TypeScript/@juniper-lib/workers",
-    "gl-matrix": "3.4.3",
-    "simplex-noise": "^4.0.1",
+    "@webgpu/types": "0.1.40",
+    "gl-matrix": "4.0.0-beta.1",
+    "simplex-noise": "4.0.1",
     "three": "0.150.1",
     "typescript": "5.2.2"
   }

@@ -3,6 +3,7 @@
 using Juniper;
 using Juniper.Azure;
 using Juniper.HTTP;
+using Juniper.Logic;
 using Juniper.Sound;
 
 using Microsoft.AspNetCore.Identity;
