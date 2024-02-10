@@ -77,12 +77,7 @@ namespace SeanMcBeth
                 AdditionalNPMProjects = new[]
                 {
                     primroseDir
-                },
-                Deployment = new DeploymentOptions(
-                    "seanmcbeth.com",
-                    "smcbeth",
-                    keyFile,
-                    "SeanMcBeth.Site")
+                }
             };
 
             pathHelper.AddUITextures(Options, uiImgOUtput);

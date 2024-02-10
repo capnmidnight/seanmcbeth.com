@@ -1,0 +1,48 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "C#: Gurt (AppShell)",
+            "type": "coreclr",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/Gurt/bin/Debug/net8.0",
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "program": "./Gurt.dll",
+            "preLaunchTask": "build",
+            "postDebugTask": "Terminate All Tasks"
+        },
+        {
+            "name": "C#: Gurt (Browser)",
+            "type": "coreclr",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/Gurt/bin/Debug/net8.0",
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "program": "./Gurt.dll",
+            "args": [
+                "--no-appshell"
+            ],
+            "preLaunchTask": "build",
+            "postDebugTask": "Terminate All Tasks",
+            "console": "internalConsole",
+            "serverReadyAction": {
+                "pattern": "\\brunning at address (https?://\\S+)",
+                "action": "debugWithChrome",
+                "killOnServerStop": true
+            },
+            "launchBrowser": {
+                "enabled": true,
+                "linux": {
+                    "command": "xdg-open",
+                    "args": "${auto-detect-url} --enable-unsafe-webgpu --enable-features=Vulkan"
+                }
+            }
+        }
+    ]
+}

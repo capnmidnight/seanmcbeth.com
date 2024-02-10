@@ -1,9 +1,3 @@
-var __defProp = Object.defineProperty;
-var __export = (target, all) => {
-  for (var name in all)
-    __defProp(target, name, { get: all[name], enumerable: true });
-};
-
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/dist/typeChecks.js
 function t(o, s, c) {
   return typeof o === s || o instanceof c;
@@ -13,6 +7,9 @@ function isFunction(obj) {
 }
 function isString(obj) {
   return t(obj, "string", String);
+}
+function isNumber(obj) {
+  return t(obj, "number", Number);
 }
 function isObject(obj) {
   return isDefined(obj) && t(obj, "object", Object);
@@ -48,12 +45,12 @@ var HtmlAttr = class {
    */
   applyToElement(elem) {
     if (this.tags.length > 0 && this.tags.indexOf(elem.tagName) === -1) {
-      let set2 = warnings.get(elem.tagName);
-      if (!set2) {
-        warnings.set(elem.tagName, set2 = /* @__PURE__ */ new Set());
+      let set = warnings.get(elem.tagName);
+      if (!set) {
+        warnings.set(elem.tagName, set = /* @__PURE__ */ new Set());
       }
-      if (!set2.has(this.key)) {
-        set2.add(this.key);
+      if (!set.has(this.key)) {
+        set.add(this.key);
         console.warn(`Element ${elem.tagName} does not support Attribute ${this.key}`);
       }
     }
@@ -78,14 +75,8 @@ function attr(key, value, bySetAttribute, ...tags) {
 function isAttr(obj) {
   return obj instanceof HtmlAttr;
 }
-function Height(value) {
-  return attr("height", value, false, "canvas", "embed", "iframe", "img", "input", "object", "video");
-}
 function ID(value) {
   return attr("id", value, false);
-}
-function Width(value) {
-  return attr("width", value, false, "canvas", "embed", "iframe", "img", "input", "object", "video");
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/collections/dist/arrays.js
@@ -372,749 +363,1015 @@ function Canvas(...rest) {
   return HtmlTag("canvas", ...rest);
 }
 
-// node_modules/gl-matrix/esm/common.js
-var EPSILON = 1e-6;
-var ARRAY_TYPE = typeof Float32Array !== "undefined" ? Float32Array : Array;
-var RANDOM = Math.random;
-var degree = Math.PI / 180;
-if (!Math.hypot)
-  Math.hypot = function() {
-    var y = 0, i = arguments.length;
-    while (i--) {
-      y += arguments[i] * arguments[i];
-    }
-    return Math.sqrt(y);
-  };
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/collections/src/arrays.ts
+function arrayRandom(arr, defaultValue) {
+  const offset = defaultValue != null ? 1 : 0, idx = Math.floor(Math.random() * (arr.length + offset)) - offset;
+  if (idx < 0) {
+    return defaultValue;
+  } else {
+    return arr[idx];
+  }
+}
 
-// node_modules/gl-matrix/esm/vec2.js
-var vec2_exports = {};
-__export(vec2_exports, {
-  add: () => add,
-  angle: () => angle,
-  ceil: () => ceil,
-  clone: () => clone,
-  copy: () => copy,
-  create: () => create,
-  cross: () => cross,
-  dist: () => dist,
-  distance: () => distance,
-  div: () => div,
-  divide: () => divide,
-  dot: () => dot,
-  equals: () => equals,
-  exactEquals: () => exactEquals,
-  floor: () => floor,
-  forEach: () => forEach,
-  fromValues: () => fromValues,
-  inverse: () => inverse,
-  len: () => len,
-  length: () => length,
-  lerp: () => lerp,
-  max: () => max,
-  min: () => min,
-  mul: () => mul,
-  multiply: () => multiply,
-  negate: () => negate,
-  normalize: () => normalize,
-  random: () => random,
-  rotate: () => rotate,
-  round: () => round,
-  scale: () => scale,
-  scaleAndAdd: () => scaleAndAdd,
-  set: () => set,
-  sqrDist: () => sqrDist,
-  sqrLen: () => sqrLen,
-  squaredDistance: () => squaredDistance,
-  squaredLength: () => squaredLength,
-  str: () => str,
-  sub: () => sub,
-  subtract: () => subtract,
-  transformMat2: () => transformMat2,
-  transformMat2d: () => transformMat2d,
-  transformMat3: () => transformMat3,
-  transformMat4: () => transformMat4,
-  zero: () => zero
-});
-function create() {
-  var out = new ARRAY_TYPE(2);
-  if (ARRAY_TYPE != Float32Array) {
+// node_modules/gl-matrix/dist/esm/common.js
+var EPSILON = 1e-6;
+
+// node_modules/gl-matrix/dist/esm/vec2.js
+var Vec2 = class _Vec2 extends Float32Array {
+  /**
+   * The number of bytes in a {@link Vec2}.
+   */
+  static BYTE_LENGTH = 2 * Float32Array.BYTES_PER_ELEMENT;
+  /**
+   * Create a {@link Vec2}.
+   */
+  constructor(...values) {
+    switch (values.length) {
+      case 2: {
+        const v = values[0];
+        if (typeof v === "number") {
+          super([v, values[1]]);
+        } else {
+          super(v, values[1], 2);
+        }
+        break;
+      }
+      case 1: {
+        const v = values[0];
+        if (typeof v === "number") {
+          super([v, v]);
+        } else {
+          super(v, 0, 2);
+        }
+        break;
+      }
+      default:
+        super(2);
+        break;
+    }
+  }
+  //============
+  // Attributes
+  //============
+  // Getters and setters to make component access read better.
+  // These are likely to be a little bit slower than direct array access.
+  /**
+   * The x component of the vector. Equivalent to `this[0];`
+   * @category Vector components
+   */
+  get x() {
+    return this[0];
+  }
+  set x(value) {
+    this[0] = value;
+  }
+  /**
+   * The y component of the vector. Equivalent to `this[1];`
+   * @category Vector components
+   */
+  get y() {
+    return this[1];
+  }
+  set y(value) {
+    this[1] = value;
+  }
+  // Alternate set of getters and setters in case this is being used to define
+  // a color.
+  /**
+   * The r component of the vector. Equivalent to `this[0];`
+   * @category Color components
+   */
+  get r() {
+    return this[0];
+  }
+  set r(value) {
+    this[0] = value;
+  }
+  /**
+   * The g component of the vector. Equivalent to `this[1];`
+   * @category Color components
+   */
+  get g() {
+    return this[1];
+  }
+  set g(value) {
+    this[1] = value;
+  }
+  /**
+   * The magnitude (length) of this.
+   * Equivalent to `Vec2.magnitude(this);`
+   *
+   * Magnitude is used because the `length` attribute is already defined by
+   * `Float32Array` to mean the number of elements in the array.
+   */
+  get magnitude() {
+    return Math.hypot(this[0], this[1]);
+  }
+  /**
+   * Alias for {@link Vec2.magnitude}
+   */
+  get mag() {
+    return this.magnitude;
+  }
+  /**
+   * The squared magnitude (length) of `this`.
+   * Equivalent to `Vec2.squaredMagnitude(this);`
+   */
+  get squaredMagnitude() {
+    const x = this[0];
+    const y = this[1];
+    return x * x + y * y;
+  }
+  /**
+   * Alias for {@link Vec2.squaredMagnitude}
+   */
+  get sqrMag() {
+    return this.squaredMagnitude;
+  }
+  /**
+   * A string representation of `this`
+   * Equivalent to `Vec2.str(this);`
+   */
+  get str() {
+    return _Vec2.str(this);
+  }
+  //===================
+  // Instances methods
+  //===================
+  /**
+   * Copy the values from another {@link Vec2} into `this`.
+   *
+   * @param a the source vector
+   * @returns `this`
+   */
+  copy(a) {
+    this.set(a);
+    return this;
+  }
+  // Instead of zero(), use a.fill(0) for instances;
+  /**
+   * Adds a {@link Vec2} to `this`.
+   * Equivalent to `Vec2.add(this, this, b);`
+   *
+   * @param b - The vector to add to `this`
+   * @returns `this`
+   */
+  add(b) {
+    this[0] += b[0];
+    this[1] += b[1];
+    return this;
+  }
+  /**
+   * Subtracts a {@link Vec2} from `this`.
+   * Equivalent to `Vec2.subtract(this, this, b);`
+   *
+   * @param b - The vector to subtract from `this`
+   * @returns `this`
+   */
+  subtract(b) {
+    this[0] -= b[0];
+    this[1] -= b[1];
+    return this;
+  }
+  /**
+   * Alias for {@link Vec2.subtract}
+   */
+  sub(b) {
+    return this;
+  }
+  /**
+   * Multiplies `this` by a {@link Vec2}.
+   * Equivalent to `Vec2.multiply(this, this, b);`
+   *
+   * @param b - The vector to multiply `this` by
+   * @returns `this`
+   */
+  multiply(b) {
+    this[0] *= b[0];
+    this[1] *= b[1];
+    return this;
+  }
+  /**
+   * Alias for {@link Vec2.multiply}
+   */
+  mul(b) {
+    return this;
+  }
+  /**
+   * Divides `this` by a {@link Vec2}.
+   * Equivalent to `Vec2.divide(this, this, b);`
+   *
+   * @param b - The vector to divide `this` by
+   * @returns {Vec2} `this`
+   */
+  divide(b) {
+    this[0] /= b[0];
+    this[1] /= b[1];
+    return this;
+  }
+  /**
+   * Alias for {@link Vec2.divide}
+   */
+  div(b) {
+    return this;
+  }
+  /**
+   * Scales `this` by a scalar number.
+   * Equivalent to `Vec2.scale(this, this, b);`
+   *
+   * @param b - Amount to scale `this` by
+   * @returns `this`
+   */
+  scale(b) {
+    this[0] *= b;
+    this[1] *= b;
+    return this;
+  }
+  /**
+   * Calculates `this` scaled by a scalar value then adds the result to `this`.
+   * Equivalent to `Vec2.scaleAndAdd(this, this, b, scale);`
+   *
+   * @param b - The vector to add to `this`
+   * @param scale - The amount to scale `b` by before adding
+   * @returns `this`
+   */
+  scaleAndAdd(b, scale) {
+    this[0] += b[0] * scale;
+    this[1] += b[1] * scale;
+    return this;
+  }
+  /**
+   * Calculates the euclidian distance between another {@link Vec2} and `this`.
+   * Equivalent to `Vec2.distance(this, b);`
+   *
+   * @param b - The vector to calculate the distance to
+   * @returns Distance between `this` and `b`
+   */
+  distance(b) {
+    return _Vec2.distance(this, b);
+  }
+  /**
+   * Alias for {@link Vec2.distance}
+   */
+  dist(b) {
+    return 0;
+  }
+  /**
+   * Calculates the squared euclidian distance between another {@link Vec2} and `this`.
+   * Equivalent to `Vec2.squaredDistance(this, b);`
+   *
+   * @param b The vector to calculate the squared distance to
+   * @returns Squared distance between `this` and `b`
+   */
+  squaredDistance(b) {
+    return _Vec2.squaredDistance(this, b);
+  }
+  /**
+   * Alias for {@link Vec2.squaredDistance}
+   */
+  sqrDist(b) {
+    return 0;
+  }
+  /**
+   * Negates the components of `this`.
+   * Equivalent to `Vec2.negate(this, this);`
+   *
+   * @returns `this`
+   */
+  negate() {
+    this[0] *= -1;
+    this[1] *= -1;
+    return this;
+  }
+  /**
+   * Inverts the components of `this`.
+   * Equivalent to `Vec2.inverse(this, this);`
+   *
+   * @returns `this`
+   */
+  invert() {
+    this[0] = 1 / this[0];
+    this[1] = 1 / this[1];
+    return this;
+  }
+  /**
+   * Calculates the dot product of this and another {@link Vec2}.
+   * Equivalent to `Vec2.dot(this, b);`
+   *
+   * @param b - The second operand
+   * @returns Dot product of `this` and `b`
+   */
+  dot(b) {
+    return this[0] * b[0] + this[1] * b[1];
+  }
+  /**
+   * Normalize `this`.
+   * Equivalent to `Vec2.normalize(this, this);`
+   *
+   * @returns `this`
+   */
+  normalize() {
+    return _Vec2.normalize(this, this);
+  }
+  //================
+  // Static methods
+  //================
+  /**
+   * Creates a new, empty {@link Vec2}
+   * @category Static
+   *
+   * @returns A new 2D vector
+   */
+  static create() {
+    return new _Vec2();
+  }
+  /**
+   * Creates a new {@link Vec2} initialized with values from an existing vector
+   * @category Static
+   *
+   * @param a - Vector to clone
+   * @returns A new 2D vector
+   */
+  static clone(a) {
+    return new _Vec2(a);
+  }
+  /**
+   * Creates a new {@link Vec2} initialized with the given values
+   * @category Static
+   *
+   * @param x - X component
+   * @param y - Y component
+   * @returns A new 2D vector
+   */
+  static fromValues(x, y) {
+    return new _Vec2(x, y);
+  }
+  /**
+   * Copy the values from one {@link Vec2} to another
+   * @category Static
+   *
+   * @param out - the receiving vector
+   * @param a - The source vector
+   * @returns `out`
+   */
+  static copy(out, a) {
+    out[0] = a[0];
+    out[1] = a[1];
+    return out;
+  }
+  /**
+   * Set the components of a {@link Vec2} to the given values
+   * @category Static
+   *
+   * @param out - The receiving vector
+   * @param x - X component
+   * @param y - Y component
+   * @returns `out`
+   */
+  static set(out, x, y) {
+    out[0] = x;
+    out[1] = y;
+    return out;
+  }
+  /**
+   * Adds two {@link Vec2}s
+   * @category Static
+   *
+   * @param out - The receiving vector
+   * @param a - The first operand
+   * @param b - The second operand
+   * @returns `out`
+   */
+  static add(out, a, b) {
+    out[0] = a[0] + b[0];
+    out[1] = a[1] + b[1];
+    return out;
+  }
+  /**
+   * Subtracts vector b from vector a
+   * @category Static
+   *
+   * @param out - The receiving vector
+   * @param a - The first operand
+   * @param b - The second operand
+   * @returns `out`
+   */
+  static subtract(out, a, b) {
+    out[0] = a[0] - b[0];
+    out[1] = a[1] - b[1];
+    return out;
+  }
+  /**
+   * Alias for {@link Vec2.subtract}
+   * @category Static
+   */
+  static sub(out, a, b) {
+    return [0, 0];
+  }
+  /**
+   * Multiplies two {@link Vec2}s
+   * @category Static
+   *
+   * @param out - The receiving vector
+   * @param a - The first operand
+   * @param b - The second operand
+   * @returns `out`
+   */
+  static multiply(out, a, b) {
+    out[0] = a[0] * b[0];
+    out[1] = a[1] * b[1];
+    return out;
+  }
+  /**
+   * Alias for {@link Vec2.multiply}
+   * @category Static
+   */
+  static mul(out, a, b) {
+    return [0, 0];
+  }
+  /**
+   * Divides two {@link Vec2}s
+   * @category Static
+   *
+   * @param out - The receiving vector
+   * @param a - The first operand
+   * @param b - The second operand
+   * @returns `out`
+   */
+  static divide(out, a, b) {
+    out[0] = a[0] / b[0];
+    out[1] = a[1] / b[1];
+    return out;
+  }
+  /**
+   * Alias for {@link Vec2.divide}
+   * @category Static
+   */
+  static div(out, a, b) {
+    return [0, 0];
+  }
+  /**
+   * Math.ceil the components of a {@link Vec2}
+   * @category Static
+   *
+   * @param out - The receiving vector
+   * @param a - Vector to ceil
+   * @returns `out`
+   */
+  static ceil(out, a) {
+    out[0] = Math.ceil(a[0]);
+    out[1] = Math.ceil(a[1]);
+    return out;
+  }
+  /**
+   * Math.floor the components of a {@link Vec2}
+   * @category Static
+   *
+   * @param out - The receiving vector
+   * @param a - Vector to floor
+   * @returns `out`
+   */
+  static floor(out, a) {
+    out[0] = Math.floor(a[0]);
+    out[1] = Math.floor(a[1]);
+    return out;
+  }
+  /**
+   * Returns the minimum of two {@link Vec2}s
+   * @category Static
+   *
+   * @param out - The receiving vector
+   * @param a - The first operand
+   * @param b - The second operand
+   * @returns `out`
+   */
+  static min(out, a, b) {
+    out[0] = Math.min(a[0], b[0]);
+    out[1] = Math.min(a[1], b[1]);
+    return out;
+  }
+  /**
+   * Returns the maximum of two {@link Vec2}s
+   * @category Static
+   *
+   * @param out - The receiving vector
+   * @param a - The first operand
+   * @param b - The second operand
+   * @returns `out`
+   */
+  static max(out, a, b) {
+    out[0] = Math.max(a[0], b[0]);
+    out[1] = Math.max(a[1], b[1]);
+    return out;
+  }
+  /**
+   * Math.round the components of a {@link Vec2}
+   * @category Static
+   *
+   * @param out - The receiving vector
+   * @param a - Vector to round
+   * @returns `out`
+   */
+  static round(out, a) {
+    out[0] = Math.round(a[0]);
+    out[1] = Math.round(a[1]);
+    return out;
+  }
+  /**
+   * Scales a {@link Vec2} by a scalar number
+   * @category Static
+   *
+   * @param out - The receiving vector
+   * @param a - The vector to scale
+   * @param b - Amount to scale the vector by
+   * @returns `out`
+   */
+  static scale(out, a, b) {
+    out[0] = a[0] * b;
+    out[1] = a[1] * b;
+    return out;
+  }
+  /**
+   * Adds two Vec2's after scaling the second operand by a scalar value
+   * @category Static
+   *
+   * @param out - The receiving vector
+   * @param a - The first operand
+   * @param b - The second operand
+   * @param scale - The amount to scale b by before adding
+   * @returns `out`
+   */
+  static scaleAndAdd(out, a, b, scale) {
+    out[0] = a[0] + b[0] * scale;
+    out[1] = a[1] + b[1] * scale;
+    return out;
+  }
+  /**
+   * Calculates the euclidian distance between two {@link Vec2}s
+   * @category Static
+   *
+   * @param a - The first operand
+   * @param b - The second operand
+   * @returns distance between `a` and `b`
+   */
+  static distance(a, b) {
+    return Math.hypot(b[0] - a[0], b[1] - a[1]);
+  }
+  /**
+   * Alias for {@link Vec2.distance}
+   * @category Static
+   */
+  static dist(a, b) {
+    return 0;
+  }
+  /**
+   * Calculates the squared euclidian distance between two {@link Vec2}s
+   * @category Static
+   *
+   * @param a - The first operand
+   * @param b - The second operand
+   * @returns Squared distance between `a` and `b`
+   */
+  static squaredDistance(a, b) {
+    const x = b[0] - a[0];
+    const y = b[1] - a[1];
+    return x * x + y * y;
+  }
+  /**
+   * Alias for {@link Vec2.distance}
+   * @category Static
+   */
+  static sqrDist(a, b) {
+    return 0;
+  }
+  /**
+   * Calculates the magnitude (length) of a {@link Vec2}
+   * @category Static
+   *
+   * @param a - Vector to calculate magnitude of
+   * @returns Magnitude of a
+   */
+  static magnitude(a) {
+    let x = a[0];
+    let y = a[1];
+    return Math.sqrt(x * x + y * y);
+  }
+  /**
+   * Alias for {@link Vec2.magnitude}
+   * @category Static
+   */
+  static mag(a) {
+    return 0;
+  }
+  /**
+   * Alias for {@link Vec2.magnitude}
+   * @category Static
+   * @deprecated Use {@link Vec2.magnitude} to avoid conflicts with builtin `length` methods/attribs
+   *
+   * @param a - vector to calculate length of
+   * @returns length of a
+   */
+  // @ts-ignore: Length conflicts with Function.length
+  static length(a) {
+    return 0;
+  }
+  /**
+   * Alias for {@link Vec2.magnitude}
+   * @category Static
+   * @deprecated Use {@link Vec2.mag}
+   */
+  static len(a) {
+    return 0;
+  }
+  /**
+   * Calculates the squared length of a {@link Vec2}
+   * @category Static
+   *
+   * @param a - Vector to calculate squared length of
+   * @returns Squared length of a
+   */
+  static squaredLength(a) {
+    const x = a[0];
+    const y = a[1];
+    return x * x + y * y;
+  }
+  /**
+   * Alias for {@link Vec2.squaredLength}
+   */
+  static sqrLen(a, b) {
+    return 0;
+  }
+  /**
+   * Negates the components of a {@link Vec2}
+   * @category Static
+   *
+   * @param out - The receiving vector
+   * @param a - Vector to negate
+   * @returns `out`
+   */
+  static negate(out, a) {
+    out[0] = -a[0];
+    out[1] = -a[1];
+    return out;
+  }
+  /**
+   * Returns the inverse of the components of a {@link Vec2}
+   * @category Static
+   *
+   * @param out - The receiving vector
+   * @param a - Vector to invert
+   * @returns `out`
+   */
+  static inverse(out, a) {
+    out[0] = 1 / a[0];
+    out[1] = 1 / a[1];
+    return out;
+  }
+  /**
+   * Normalize a {@link Vec2}
+   * @category Static
+   *
+   * @param out - The receiving vector
+   * @param a - Vector to normalize
+   * @returns `out`
+   */
+  static normalize(out, a) {
+    const x = a[0];
+    const y = a[1];
+    let len = x * x + y * y;
+    if (len > 0) {
+      len = 1 / Math.sqrt(len);
+    }
+    out[0] = a[0] * len;
+    out[1] = a[1] * len;
+    return out;
+  }
+  /**
+   * Calculates the dot product of two {@link Vec2}s
+   * @category Static
+   *
+   * @param a - The first operand
+   * @param b - The second operand
+   * @returns Dot product of `a` and `b`
+   */
+  static dot(a, b) {
+    return a[0] * b[0] + a[1] * b[1];
+  }
+  /**
+   * Computes the cross product of two {@link Vec2}s
+   * Note that the cross product must by definition produce a 3D vector.
+   * For this reason there is also not instance equivalent for this function.
+   * @category Static
+   *
+   * @param out - The receiving vector
+   * @param a - The first operand
+   * @param b - The second operand
+   * @returns `out`
+   */
+  static cross(out, a, b) {
+    const z = a[0] * b[1] - a[1] * b[0];
+    out[0] = out[1] = 0;
+    out[2] = z;
+    return out;
+  }
+  /**
+   * Performs a linear interpolation between two {@link Vec2}s
+   * @category Static
+   *
+   * @param out - The receiving vector
+   * @param a - The first operand
+   * @param b - The second operand
+   * @param t - Interpolation amount, in the range [0-1], between the two inputs
+   * @returns `out`
+   */
+  static lerp(out, a, b, t2) {
+    const ax = a[0];
+    const ay = a[1];
+    out[0] = ax + t2 * (b[0] - ax);
+    out[1] = ay + t2 * (b[1] - ay);
+    return out;
+  }
+  /**
+   * Transforms the {@link Vec2} with a {@link Mat2}
+   *
+   * @param out - The receiving vector
+   * @param a - The vector to transform
+   * @param m - Matrix to transform with
+   * @returns `out`
+   */
+  static transformMat2(out, a, m) {
+    const x = a[0];
+    const y = a[1];
+    out[0] = m[0] * x + m[2] * y;
+    out[1] = m[1] * x + m[3] * y;
+    return out;
+  }
+  /**
+   * Transforms the {@link Vec2} with a {@link Mat2d}
+   *
+   * @param out - The receiving vector
+   * @param a - The vector to transform
+   * @param m - Matrix to transform with
+   * @returns `out`
+   */
+  static transformMat2d(out, a, m) {
+    const x = a[0];
+    const y = a[1];
+    out[0] = m[0] * x + m[2] * y + m[4];
+    out[1] = m[1] * x + m[3] * y + m[5];
+    return out;
+  }
+  /**
+   * Transforms the {@link Vec2} with a {@link Mat3}
+   * 3rd vector component is implicitly '1'
+   *
+   * @param out - The receiving vector
+   * @param a - The vector to transform
+   * @param m - Matrix to transform with
+   * @returns `out`
+   */
+  static transformMat3(out, a, m) {
+    const x = a[0];
+    const y = a[1];
+    out[0] = m[0] * x + m[3] * y + m[6];
+    out[1] = m[1] * x + m[4] * y + m[7];
+    return out;
+  }
+  /**
+   * Transforms the {@link Vec2} with a {@link Mat4}
+   * 3rd vector component is implicitly '0'
+   * 4th vector component is implicitly '1'
+   *
+   * @param out - The receiving vector
+   * @param a - The vector to transform
+   * @param m - Matrix to transform with
+   * @returns `out`
+   */
+  static transformMat4(out, a, m) {
+    const x = a[0];
+    const y = a[1];
+    out[0] = m[0] * x + m[4] * y + m[12];
+    out[1] = m[1] * x + m[5] * y + m[13];
+    return out;
+  }
+  /**
+   * Rotate a 2D vector
+   * @category Static
+   *
+   * @param out - The receiving {@link Vec2}
+   * @param a - The {@link Vec2} point to rotate
+   * @param b - The origin of the rotation
+   * @param rad - The angle of rotation in radians
+   * @returns `out`
+   */
+  static rotate(out, a, b, rad) {
+    const p0 = a[0] - b[0];
+    const p1 = a[1] - b[1];
+    const sinC = Math.sin(rad);
+    const cosC = Math.cos(rad);
+    out[0] = p0 * cosC - p1 * sinC + b[0];
+    out[1] = p0 * sinC + p1 * cosC + b[1];
+    return out;
+  }
+  /**
+   * Get the angle between two 2D vectors
+   * @category Static
+   *
+   * @param a - The first operand
+   * @param b - The second operand
+   * @returns The angle in radians
+   */
+  static angle(a, b) {
+    const x1 = a[0];
+    const y1 = a[1];
+    const x2 = b[0];
+    const y2 = b[1];
+    const mag = Math.sqrt(x1 * x1 + y1 * y1) * Math.sqrt(x2 * x2 + y2 * y2);
+    const cosine = mag && (x1 * x2 + y1 * y2) / mag;
+    return Math.acos(Math.min(Math.max(cosine, -1), 1));
+  }
+  /**
+   * Set the components of a {@link Vec2} to zero
+   * @category Static
+   *
+   * @param out - The receiving vector
+   * @returns `out`
+   */
+  static zero(out) {
     out[0] = 0;
     out[1] = 0;
+    return out;
   }
-  return out;
-}
-function clone(a) {
-  var out = new ARRAY_TYPE(2);
-  out[0] = a[0];
-  out[1] = a[1];
-  return out;
-}
-function fromValues(x, y) {
-  var out = new ARRAY_TYPE(2);
-  out[0] = x;
-  out[1] = y;
-  return out;
-}
-function copy(out, a) {
-  out[0] = a[0];
-  out[1] = a[1];
-  return out;
-}
-function set(out, x, y) {
-  out[0] = x;
-  out[1] = y;
-  return out;
-}
-function add(out, a, b) {
-  out[0] = a[0] + b[0];
-  out[1] = a[1] + b[1];
-  return out;
-}
-function subtract(out, a, b) {
-  out[0] = a[0] - b[0];
-  out[1] = a[1] - b[1];
-  return out;
-}
-function multiply(out, a, b) {
-  out[0] = a[0] * b[0];
-  out[1] = a[1] * b[1];
-  return out;
-}
-function divide(out, a, b) {
-  out[0] = a[0] / b[0];
-  out[1] = a[1] / b[1];
-  return out;
-}
-function ceil(out, a) {
-  out[0] = Math.ceil(a[0]);
-  out[1] = Math.ceil(a[1]);
-  return out;
-}
-function floor(out, a) {
-  out[0] = Math.floor(a[0]);
-  out[1] = Math.floor(a[1]);
-  return out;
-}
-function min(out, a, b) {
-  out[0] = Math.min(a[0], b[0]);
-  out[1] = Math.min(a[1], b[1]);
-  return out;
-}
-function max(out, a, b) {
-  out[0] = Math.max(a[0], b[0]);
-  out[1] = Math.max(a[1], b[1]);
-  return out;
-}
-function round(out, a) {
-  out[0] = Math.round(a[0]);
-  out[1] = Math.round(a[1]);
-  return out;
-}
-function scale(out, a, b) {
-  out[0] = a[0] * b;
-  out[1] = a[1] * b;
-  return out;
-}
-function scaleAndAdd(out, a, b, scale3) {
-  out[0] = a[0] + b[0] * scale3;
-  out[1] = a[1] + b[1] * scale3;
-  return out;
-}
-function distance(a, b) {
-  var x = b[0] - a[0], y = b[1] - a[1];
-  return Math.hypot(x, y);
-}
-function squaredDistance(a, b) {
-  var x = b[0] - a[0], y = b[1] - a[1];
-  return x * x + y * y;
-}
-function length(a) {
-  var x = a[0], y = a[1];
-  return Math.hypot(x, y);
-}
-function squaredLength(a) {
-  var x = a[0], y = a[1];
-  return x * x + y * y;
-}
-function negate(out, a) {
-  out[0] = -a[0];
-  out[1] = -a[1];
-  return out;
-}
-function inverse(out, a) {
-  out[0] = 1 / a[0];
-  out[1] = 1 / a[1];
-  return out;
-}
-function normalize(out, a) {
-  var x = a[0], y = a[1];
-  var len2 = x * x + y * y;
-  if (len2 > 0) {
-    len2 = 1 / Math.sqrt(len2);
+  /**
+   * Returns whether or not the vectors have exactly the same elements in the same position (when compared with ===)
+   * @category Static
+   *
+   * @param a - The first vector.
+   * @param b - The second vector.
+   * @returns `true` if the vectors components are ===, `false` otherwise.
+   */
+  static exactEquals(a, b) {
+    return a[0] === b[0] && a[1] === b[1];
   }
-  out[0] = a[0] * len2;
-  out[1] = a[1] * len2;
-  return out;
+  /**
+   * Returns whether or not the vectors have approximately the same elements in the same position.
+   * @category Static
+   *
+   * @param a - The first vector.
+   * @param b - The second vector.
+   * @returns `true` if the vectors are approximately equal, `false` otherwise.
+   */
+  static equals(a, b) {
+    const a0 = a[0];
+    const a1 = a[1];
+    const b0 = b[0];
+    const b1 = b[1];
+    return Math.abs(a0 - b0) <= EPSILON * Math.max(1, Math.abs(a0), Math.abs(b0)) && Math.abs(a1 - b1) <= EPSILON * Math.max(1, Math.abs(a1), Math.abs(b1));
+  }
+  /**
+   * Returns a string representation of a vector
+   * @category Static
+   *
+   * @param a - Vector to represent as a string
+   * @returns String representation of the vector
+   */
+  static str(a) {
+    return `Vec2(${a.join(", ")})`;
+  }
+};
+Vec2.prototype.sub = Vec2.prototype.subtract;
+Vec2.prototype.mul = Vec2.prototype.multiply;
+Vec2.prototype.div = Vec2.prototype.divide;
+Vec2.prototype.dist = Vec2.prototype.distance;
+Vec2.prototype.sqrDist = Vec2.prototype.squaredDistance;
+Vec2.sub = Vec2.subtract;
+Vec2.mul = Vec2.multiply;
+Vec2.div = Vec2.divide;
+Vec2.dist = Vec2.distance;
+Vec2.sqrDist = Vec2.squaredDistance;
+Vec2.sqrLen = Vec2.squaredLength;
+Vec2.mag = Vec2.magnitude;
+Vec2.length = Vec2.magnitude;
+Vec2.len = Vec2.magnitude;
+
+// Pages/Ball.ts
+function randomRange(min, max) {
+  return Math.random() * (max - min) + min;
 }
-function dot(a, b) {
-  return a[0] * b[0] + a[1] * b[1];
-}
-function cross(out, a, b) {
-  var z = a[0] * b[1] - a[1] * b[0];
-  out[0] = out[1] = 0;
-  out[2] = z;
-  return out;
-}
-function lerp(out, a, b, t2) {
-  var ax = a[0], ay = a[1];
-  out[0] = ax + t2 * (b[0] - ax);
-  out[1] = ay + t2 * (b[1] - ay);
-  return out;
-}
-function random(out, scale3) {
-  scale3 = scale3 || 1;
-  var r = RANDOM() * 2 * Math.PI;
-  out[0] = Math.cos(r) * scale3;
-  out[1] = Math.sin(r) * scale3;
-  return out;
-}
-function transformMat2(out, a, m) {
-  var x = a[0], y = a[1];
-  out[0] = m[0] * x + m[2] * y;
-  out[1] = m[1] * x + m[3] * y;
-  return out;
-}
-function transformMat2d(out, a, m) {
-  var x = a[0], y = a[1];
-  out[0] = m[0] * x + m[2] * y + m[4];
-  out[1] = m[1] * x + m[3] * y + m[5];
-  return out;
-}
-function transformMat3(out, a, m) {
-  var x = a[0], y = a[1];
-  out[0] = m[0] * x + m[3] * y + m[6];
-  out[1] = m[1] * x + m[4] * y + m[7];
-  return out;
-}
-function transformMat4(out, a, m) {
-  var x = a[0];
-  var y = a[1];
-  out[0] = m[0] * x + m[4] * y + m[12];
-  out[1] = m[1] * x + m[5] * y + m[13];
-  return out;
-}
-function rotate(out, a, b, rad) {
-  var p0 = a[0] - b[0], p1 = a[1] - b[1], sinC = Math.sin(rad), cosC = Math.cos(rad);
-  out[0] = p0 * cosC - p1 * sinC + b[0];
-  out[1] = p0 * sinC + p1 * cosC + b[1];
-  return out;
-}
-function angle(a, b) {
-  var x1 = a[0], y1 = a[1], x2 = b[0], y2 = b[1], mag = Math.sqrt(x1 * x1 + y1 * y1) * Math.sqrt(x2 * x2 + y2 * y2), cosine = mag && (x1 * x2 + y1 * y2) / mag;
-  return Math.acos(Math.min(Math.max(cosine, -1), 1));
-}
-function zero(out) {
-  out[0] = 0;
-  out[1] = 0;
-  return out;
-}
-function str(a) {
-  return "vec2(" + a[0] + ", " + a[1] + ")";
-}
-function exactEquals(a, b) {
-  return a[0] === b[0] && a[1] === b[1];
-}
-function equals(a, b) {
-  var a0 = a[0], a1 = a[1];
-  var b0 = b[0], b1 = b[1];
-  return Math.abs(a0 - b0) <= EPSILON * Math.max(1, Math.abs(a0), Math.abs(b0)) && Math.abs(a1 - b1) <= EPSILON * Math.max(1, Math.abs(a1), Math.abs(b1));
-}
-var len = length;
-var sub = subtract;
-var mul = multiply;
-var div = divide;
-var dist = distance;
-var sqrDist = squaredDistance;
-var sqrLen = squaredLength;
-var forEach = function() {
-  var vec = create();
-  return function(a, stride, offset, count, fn, arg) {
-    var i, l;
-    if (!stride) {
-      stride = 2;
+var colors = [
+  "red",
+  "green",
+  "blue",
+  "yellow",
+  "magenta",
+  "cyan"
+];
+var Ball = class _Ball {
+  #pos;
+  get pos() {
+    return this.#pos;
+  }
+  #vel;
+  get vel() {
+    return this.#vel;
+  }
+  #color;
+  static BYTE_LENGTH = 2 * Vec2.BYTE_LENGTH;
+  constructor(floats) {
+    this.#pos = new Vec2(floats, 0);
+    this.#vel = new Vec2(floats, Vec2.BYTE_LENGTH);
+    this.#color = arrayRandom(colors);
+  }
+  static fill(outputArray) {
+    const buffer = new ArrayBuffer(_Ball.BYTE_LENGTH * outputArray.length);
+    for (let i = 0; i < outputArray.length; ++i) {
+      const floats = new Float32Array(buffer, _Ball.BYTE_LENGTH * i, 4);
+      const ball = outputArray[i] = new _Ball(floats);
+      ball.pos.x = randomRange(-1, 1);
+      ball.pos.y = randomRange(-1, 1);
+      ball.vel.x = randomRange(-0.1, 0.1);
+      ball.vel.y = randomRange(-0.1, 0.1);
     }
-    if (!offset) {
-      offset = 0;
+    return buffer;
+  }
+  draw2d(g, s, sh) {
+    const heading = Math.atan2(this.vel.y, this.vel.x);
+    const speed = this.vel.magnitude;
+    g.save();
+    g.fillStyle = this.#color;
+    g.translate(this.#pos.x, this.#pos.y);
+    g.rotate(heading);
+    g.scale(1 + speed, 1);
+    g.fillRect(-sh, -sh, s, s);
+    g.restore();
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/events/src/debounce.ts
+function debounce(timeOrAction, action) {
+  let time = 0;
+  if (isNumber(timeOrAction)) {
+    time = timeOrAction;
+  } else {
+    action = timeOrAction;
+  }
+  let ready = true;
+  return (...args) => {
+    if (ready) {
+      ready = false;
+      setTimeout(() => {
+        ready = true;
+        action(...args);
+      }, time);
     }
-    if (count) {
-      l = Math.min(count * stride + offset, a.length);
-    } else {
-      l = a.length;
-    }
-    for (i = offset; i < l; i += stride) {
-      vec[0] = a[i];
-      vec[1] = a[i + 1];
-      fn(vec, vec, arg);
-      a[i] = vec[0];
-      a[i + 1] = vec[1];
-    }
-    return a;
   };
-}();
-
-// Pages/Camera.ts
-var Camera = class {
-  constructor(target) {
-    this.target = target;
-  }
-  position = vec2_exports.create();
-  do(g2, scale3, color, addVelocity) {
-    vec2_exports.set(this.position, g2.canvas.width, g2.canvas.height);
-    vec2_exports.scale(this.position, this.position, 0.5);
-    vec2_exports.scaleAndAdd(this.position, this.position, this.target.position, -scale3);
-    if (addVelocity) {
-      const speed = vec2_exports.len(this.target.velocity);
-      if (speed > 0) {
-        vec2_exports.scaleAndAdd(this.position, this.position, this.target.velocity, -scale3 / Math.pow(speed, 0.25));
-      }
-    }
-    g2.fillStyle = color;
-    g2.fillRect(0, 0, g2.canvas.width, g2.canvas.height);
-    g2.translate(this.position[0], this.position[1]);
-  }
-  predict(g2, scale3) {
-    this.do(g2, scale3, "rgba(0, 0, 0, 0.5)", true);
-  }
-  prepare(g2, scale3) {
-    g2.clearRect(0, 0, g2.canvas.width, g2.canvas.height);
-    this.do(g2, scale3, "rgba(0, 0, 0, 0.75)", false);
-  }
-};
-
-// Pages/Keyboard.ts
-var Keyboard = class {
-  keySet = /* @__PURE__ */ new Set();
-  constructor() {
-    window.addEventListener("keydown", (evt) => {
-      this.keySet.add(evt.key);
-    });
-    window.addEventListener("keyup", (evt) => {
-      this.keySet.delete(evt.key);
-    });
-  }
-  has(key) {
-    return this.keySet.has(key);
-  }
-  get shift() {
-    return this.keySet.has("Shift") ? 1 : 0;
-  }
-  get vertical() {
-    return this.keySet.has("ArrowUp") ? 1 : this.keySet.has("ArrowDown") ? -1 : 0;
-  }
-  get horizontal() {
-    return this.keySet.has("ArrowRight") ? 1 : this.keySet.has("ArrowLeft") ? -1 : 0;
-  }
-};
-
-// Pages/Minimap.ts
-var Minimap = class {
-  constructor(scale3, camera2, drawables2) {
-    this.scale = scale3;
-    this.camera = camera2;
-    this.drawables = drawables2;
-  }
-  buffer = Canvas(Width(256), Height(128));
-  g = this.buffer.getContext("2d");
-  draw(g2) {
-    this.g.save();
-    this.camera.prepare(this.g, this.scale);
-    g2.scale(this.scale, this.scale);
-    for (const drawable of this.drawables) {
-      drawable.drawMini(this.g, this.scale);
-    }
-    this.g.restore();
-    g2.save();
-    g2.strokeStyle = "rgba(255, 255, 255, 0.25)";
-    g2.lineWidth = 1;
-    g2.translate(10, 10);
-    g2.drawImage(this.buffer, 0, 0);
-    g2.strokeRect(0, 0, this.buffer.width, this.buffer.height);
-    g2.restore();
-  }
-};
-
-// Pages/constants.ts
-var zero2 = vec2_exports.create();
-
-// Pages/Physics.ts
-var delta = vec2_exports.create();
-var timeStep = 0.01;
-var Physics = class {
-  bodies;
-  timeAccum = 0;
-  constructor(...bodies) {
-    this.bodies = bodies;
-  }
-  update(dt) {
-    for (this.timeAccum += dt; this.timeAccum > 0; this.timeAccum -= timeStep) {
-      for (const body of this.bodies) {
-        vec2_exports.copy(body.gravity, zero2);
-      }
-      for (let i = 0; i < this.bodies.length - 1; ++i) {
-        const a = this.bodies[i];
-        if (a.mass !== 0) {
-          for (let j = i + 1; j < this.bodies.length; ++j) {
-            const b = this.bodies[j];
-            if (b.mass !== 0) {
-              vec2_exports.sub(delta, a.position, b.position);
-              const rSquared = vec2_exports.sqrLen(delta);
-              if (rSquared > 0) {
-                vec2_exports.normalize(delta, delta);
-                const F5 = 0;
-                vec2_exports.scaleAndAdd(a.gravity, a.gravity, delta, -F5 / a.mass);
-                vec2_exports.scaleAndAdd(b.gravity, b.gravity, delta, F5 / b.mass);
-              }
-            }
-          }
-        }
-      }
-      for (const body of this.bodies) {
-        body.update(timeStep);
-      }
-    }
-  }
-};
-
-// Pages/Planetoid.ts
-var Planetoid = class {
-  constructor(name, mass, radius, atmoRadius, color) {
-    this.name = name;
-    this.mass = mass;
-    this.radius = radius;
-    this.atmoRadius = atmoRadius;
-    this.color = color;
-    if (this.atmoRadius > 0) {
-      this.atmoRadius += this.radius;
-    }
-  }
-  gravity = vec2_exports.create();
-  velocity = vec2_exports.create();
-  position = vec2_exports.create();
-  update(dt) {
-    vec2_exports.scaleAndAdd(this.velocity, this.velocity, this.gravity, dt);
-    vec2_exports.scaleAndAdd(this.position, this.position, this.velocity, dt);
-  }
-  drawMajor(g2, scale3, color) {
-    g2.fillStyle = color;
-    g2.translate(this.position[0], this.position[1]);
-    if (this.radius * scale3 >= 2) {
-      g2.beginPath();
-      g2.arc(0, 0, this.radius, 0, 2 * Math.PI);
-      g2.fill();
-    } else {
-      g2.fillRect(0, 0, 2 / scale3, 2 / scale3);
-    }
-    g2.textAlign = "center";
-    g2.textBaseline = "middle";
-    g2.fillStyle = "white";
-  }
-  draw(g2, scale3) {
-    g2.save();
-    g2.scale(scale3, scale3);
-    if (this.atmoRadius > 0) {
-      g2.fillStyle = "rgba(255, 255, 255, .05)";
-      g2.lineWidth = 0.5 / scale3;
-      g2.beginPath();
-      g2.arc(this.position[0], this.position[1], this.atmoRadius, 0, 2 * Math.PI);
-      g2.fill();
-      g2.stroke();
-    }
-    g2.lineWidth = 2 / scale3;
-    this.drawMajor(g2, scale3, "black");
-    const fontSize = 50 / scale3;
-    g2.font = `normal ${fontSize}px monospace`;
-    g2.fillText(this.name, 0, 0);
-    g2.strokeStyle = this.color;
-    g2.stroke();
-    g2.restore();
-  }
-  drawMini(g2, scale3) {
-    g2.save();
-    this.drawMajor(g2, scale3, this.color);
-    g2.restore();
-  }
-};
-
-// Pages/Ship.ts
-var R = 5;
-var F = 1e3;
-var D = -0.05;
-var Ship = class {
-  constructor(keyboard2) {
-    this.keyboard = keyboard2;
-  }
-  enginePower = 0;
-  turnRate = 0;
-  drag = 0;
-  mass = 1;
-  rotation = 0;
-  shake = vec2_exports.create();
-  acceleration = vec2_exports.create();
-  gravity = vec2_exports.create();
-  velocity = vec2_exports.create();
-  position = vec2_exports.create();
-  update(dt) {
-    this.turnRate = this.keyboard.horizontal;
-    this.enginePower = Math.max(-0.5, this.keyboard.vertical) + this.keyboard.shift * 7;
-    this.rotation += R * this.turnRate * dt;
-    vec2_exports.set(this.acceleration, 1, 0);
-    vec2_exports.rotate(this.acceleration, this.acceleration, zero2, this.rotation);
-    vec2_exports.scale(this.acceleration, this.acceleration, F * this.enginePower * dt);
-    vec2_exports.set(this.shake, 0, Math.random() * 2 - 1);
-    vec2_exports.rotate(this.shake, this.shake, zero2, this.rotation);
-    const shudder = 0;
-    vec2_exports.scaleAndAdd(this.shake, zero2, this.shake, shudder);
-    vec2_exports.scaleAndAdd(this.acceleration, this.acceleration, this.velocity, D * this.drag);
-    vec2_exports.add(this.acceleration, this.acceleration, this.gravity);
-    vec2_exports.scaleAndAdd(this.velocity, this.velocity, this.acceleration, dt);
-    vec2_exports.scaleAndAdd(this.position, this.position, this.velocity, dt);
-  }
-  draw(g2, scale3) {
-    g2.save();
-    g2.fillStyle = "black";
-    g2.strokeStyle = "white";
-    g2.lineWidth = 1.25 / scale3;
-    g2.scale(scale3, scale3);
-    g2.translate(this.position[0] + this.shake[0], this.position[1] + this.shake[1]);
-    g2.rotate(this.rotation);
-    g2.beginPath();
-    g2.moveTo(14, 0);
-    g2.lineTo(-8, 10);
-    g2.lineTo(-4, 0);
-    if (this.enginePower > 0) {
-      const ep = -8 * Math.sqrt(this.enginePower);
-      g2.lineTo(ep - 3.2 * Math.random(), 1.6 + 3.2 * Math.random());
-      g2.lineTo(-5.6 + 0.8 * Math.random(), 0 + 0.8 * Math.random());
-      g2.lineTo(ep - 3.2 * Math.random(), -1.6 - 3.2 * Math.random());
-      g2.lineTo(-4, 0);
-    }
-    g2.lineTo(-8, -10);
-    g2.closePath();
-    g2.stroke();
-    g2.restore();
-  }
-  drawMini(g2, scale3) {
-    const s = 4 / scale3;
-    g2.save();
-    g2.fillStyle = "yellow";
-    g2.fillRect(this.position[0], this.position[1], s, s);
-    g2.restore();
-  }
-};
-
-// node_modules/simplex-noise/dist/esm/simplex-noise.js
-var F2 = 0.5 * (Math.sqrt(3) - 1);
-var G2 = (3 - Math.sqrt(3)) / 6;
-var F3 = 1 / 3;
-var G3 = 1 / 6;
-var F4 = (Math.sqrt(5) - 1) / 4;
-var G4 = (5 - Math.sqrt(5)) / 20;
-var fastFloor = (x) => Math.floor(x) | 0;
-var grad2 = /* @__PURE__ */ new Float64Array([
-  1,
-  1,
-  -1,
-  1,
-  1,
-  -1,
-  -1,
-  -1,
-  1,
-  0,
-  -1,
-  0,
-  1,
-  0,
-  -1,
-  0,
-  0,
-  1,
-  0,
-  -1,
-  0,
-  1,
-  0,
-  -1
-]);
-function createNoise2D(random2 = Math.random) {
-  const perm = buildPermutationTable(random2);
-  const permGrad2x = new Float64Array(perm).map((v) => grad2[v % 12 * 2]);
-  const permGrad2y = new Float64Array(perm).map((v) => grad2[v % 12 * 2 + 1]);
-  return function noise2D(x, y) {
-    let n0 = 0;
-    let n1 = 0;
-    let n2 = 0;
-    const s = (x + y) * F2;
-    const i = fastFloor(x + s);
-    const j = fastFloor(y + s);
-    const t2 = (i + j) * G2;
-    const X0 = i - t2;
-    const Y0 = j - t2;
-    const x0 = x - X0;
-    const y0 = y - Y0;
-    let i1, j1;
-    if (x0 > y0) {
-      i1 = 1;
-      j1 = 0;
-    } else {
-      i1 = 0;
-      j1 = 1;
-    }
-    const x1 = x0 - i1 + G2;
-    const y1 = y0 - j1 + G2;
-    const x2 = x0 - 1 + 2 * G2;
-    const y2 = y0 - 1 + 2 * G2;
-    const ii = i & 255;
-    const jj = j & 255;
-    let t0 = 0.5 - x0 * x0 - y0 * y0;
-    if (t0 >= 0) {
-      const gi0 = ii + perm[jj];
-      const g0x = permGrad2x[gi0];
-      const g0y = permGrad2y[gi0];
-      t0 *= t0;
-      n0 = t0 * t0 * (g0x * x0 + g0y * y0);
-    }
-    let t1 = 0.5 - x1 * x1 - y1 * y1;
-    if (t1 >= 0) {
-      const gi1 = ii + i1 + perm[jj + j1];
-      const g1x = permGrad2x[gi1];
-      const g1y = permGrad2y[gi1];
-      t1 *= t1;
-      n1 = t1 * t1 * (g1x * x1 + g1y * y1);
-    }
-    let t22 = 0.5 - x2 * x2 - y2 * y2;
-    if (t22 >= 0) {
-      const gi2 = ii + 1 + perm[jj + 1];
-      const g2x = permGrad2x[gi2];
-      const g2y = permGrad2y[gi2];
-      t22 *= t22;
-      n2 = t22 * t22 * (g2x * x2 + g2y * y2);
-    }
-    return 70 * (n0 + n1 + n2);
-  };
-}
-function buildPermutationTable(random2) {
-  const tableSize = 512;
-  const p = new Uint8Array(tableSize);
-  for (let i = 0; i < tableSize / 2; i++) {
-    p[i] = i;
-  }
-  for (let i = 0; i < tableSize / 2 - 1; i++) {
-    const r = i + ~~(random2() * (256 - i));
-    const aux = p[i];
-    p[i] = p[r];
-    p[r] = aux;
-  }
-  for (let i = 256; i < tableSize; i++) {
-    p[i] = p[i - 256];
-  }
-  return p;
-}
-
-// Pages/Starfield.ts
-var step = 10;
-var Starfield = class {
-  constructor(target) {
-    this.target = target;
-  }
-  noise = createNoise2D(Math.random);
-  draw(g2, scale3) {
-    g2.save();
-    g2.fillStyle = "white";
-    const ddx = 0.5 * g2.canvas.width;
-    const ddy = 0.5 * g2.canvas.height;
-    for (let dy = -ddy; dy < ddy; dy += step) {
-      const y = dy - step * Math.round(this.target.position[1] / step);
-      for (let dx = -ddx; dx < ddx; dx += step) {
-        const x = dx - step * Math.round(this.target.position[0] / step);
-        const v = this.noise(step * x, step * y);
-        if (v > 0.9) {
-          g2.fillRect(x, y, 2 / scale3, 2 / scale3);
-        }
-      }
-    }
-    g2.restore();
-  }
-  drawMini(_, _scale) {
-  }
-};
-
-// Pages/registerResizer.ts
-function registerResizer(canvas2) {
-  let doResize = false;
-  function resize() {
-    canvas2.width = devicePixelRatio * canvas2.clientWidth;
-    canvas2.height = devicePixelRatio * canvas2.clientHeight;
-    doResize = false;
-  }
-  const resizer = new ResizeObserver((evts) => {
-    for (const evt of evts) {
-      if (evt.target === canvas2) {
-        if (!doResize) {
-          doResize = true;
-          queueMicrotask(resize);
-        }
-      }
-    }
-  });
-  resizer.observe(canvas2);
-}
-
-// Pages/runAnimation.ts
-function runAnimation(update) {
-  let lt = 0;
-  requestAnimationFrame((t2) => {
-    t2 *= 1e-3;
-    lt = t2;
-    requestAnimationFrame(doFrame);
-  });
-  function doFrame(t2) {
-    t2 *= 1e-3;
-    const dt = t2 - lt;
-    lt = t2;
-    requestAnimationFrame(doFrame);
-    update(dt, t2);
-  }
 }
 
 // Pages/index.ts
 var canvas = Canvas(ID("frontBuffer"));
-var g = canvas.getContext("2d");
-var keyboard = new Keyboard();
-var ship = new Ship(keyboard);
-var camera = new Camera(ship);
-var sun = new Planetoid("Sol", 2e30, 695700, 0, "yellow");
-var earth = new Planetoid("Terra", 6e24, 6371, 335, "blue");
-var starfield = new Starfield(camera);
-var physics = new Physics(sun, earth, ship);
-var updatables = [physics];
-var drawables = [starfield, sun, earth, ship];
-var minimap = new Minimap(1e-5, camera, drawables);
-var scale2 = 1e-6;
-vec2_exports.set(sun.position, -15e10, 0);
-vec2_exports.set(earth.velocity, 0, 30);
-vec2_exports.set(ship.position, 42e3, 0);
-registerResizer(canvas);
-runAnimation((dt) => {
-  for (const updatable of updatables) {
-    updatable.update(dt);
+var context = canvas.getContext("2d", { alpha: true, desynchronized: true });
+var resize = debounce(_resize);
+var resizer = new ResizeObserver((evts) => {
+  for (const evt of evts) {
+    if (evt.target === canvas) {
+      resize();
+    }
   }
-  g.save();
-  camera.predict(g, scale2);
-  for (const drawable of drawables) {
-    drawable.draw(g, scale2);
-  }
-  g.restore();
-  minimap.draw(g);
 });
+var adapter = await navigator.gpu.requestAdapter({ powerPreference: "high-performance" });
+var device = await adapter.requestDevice();
+var balls = new Array(100);
+var srcArrayBuffer = Ball.fill(balls);
+var srcDataBuffer = new Uint8Array(srcArrayBuffer);
+var gpuBuffer = device.createBuffer({
+  mappedAtCreation: true,
+  size: srcArrayBuffer.byteLength,
+  usage: GPUBufferUsage.MAP_WRITE
+});
+var gpuArrayBuffer = gpuBuffer.getMappedRange();
+var gpuDataBuffer = new Uint8Array(gpuArrayBuffer);
+gpuDataBuffer.set(srcDataBuffer);
+resizer.observe(canvas);
+function _resize() {
+  canvas.width = canvas.clientWidth * devicePixelRatio;
+  canvas.height = canvas.clientHeight * devicePixelRatio;
+}
+requestAnimationFrame(draw);
+function draw() {
+  requestAnimationFrame(draw);
+  const s = Math.min(canvas.width, canvas.height);
+  const sh = s / 2;
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  context.save();
+  context.translate(canvas.width / 2, canvas.height / 2);
+  context.scale(0.01, 0.01);
+  for (const ball of balls) {
+    ball.draw2d(context, s, sh);
+  }
+  context.restore();
+}
+requestAnimationFrame(update);
+async function update() {
+  requestAnimationFrame(update);
+}
 //# sourceMappingURL=index.js.map

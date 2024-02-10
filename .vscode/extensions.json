@@ -1,0 +1,14 @@
+{
+    "recommendations": [
+        "patcx.vscode-nuget-gallery",
+        "ms-dotnettools.vscode-dotnet-runtime",
+        "ms-dotnettools.csharp",
+        "ms-dotnettools.csdevkit",
+        "editorconfig.editorconfig",
+        "ms-vscode.vscode-typescript-next",
+        "christian-kohler.npm-intellisense",
+        "christian-kohler.path-intellisense",
+        "yoavbls.pretty-ts-errors",
+        "pmneo.tsimporter"
+    ]
+}

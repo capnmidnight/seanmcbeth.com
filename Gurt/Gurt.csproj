@@ -30,7 +30,7 @@
     <Choose>
         <When Condition="$([MSBuild]::IsOSPlatform('Windows'))">
             <PropertyGroup>
-                <TargetFramework>net7.0-windows</TargetFramework>
+                <TargetFramework>net8.0-windows</TargetFramework>
                 <DefineConstants>$(DefineConstants);WINDOWS</DefineConstants>
             </PropertyGroup>
             <ItemGroup>
@@ -40,7 +40,7 @@
         </When>
         <Otherwise>
             <PropertyGroup>
-                <TargetFramework>net7.0</TargetFramework>
+                <TargetFramework>net8.0</TargetFramework>
             </PropertyGroup>
             <ItemGroup>
                 <ProjectReference

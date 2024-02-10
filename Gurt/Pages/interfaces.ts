@@ -1,4 +1,4 @@
-import { vec2 } from "gl-matrix";
+import { Vec2 } from "gl-matrix";
 
 export interface IUpdatable {
     update(dt: number): void;
@@ -10,14 +10,14 @@ export interface IDrawable {
 }
 
 export interface IPositionable {
-    position: vec2;
+    position: Vec2;
 }
 
 export interface IMovable extends IPositionable, IUpdatable {
-    velocity: vec2;
+    velocity: Vec2;
 }
 
 export interface IGravitatable extends IMovable {
     mass: number;
-    gravity: vec2;
+    gravity: Vec2;
 }

@@ -11,7 +11,6 @@
     "exclude": [
         "bin",
         "obj",
-        "node_modules",
         "wwwroot"
     ],
 
@@ -23,6 +22,7 @@
         { "path": "../Juniper/src/Juniper.TypeScript/@juniper-lib/collections" },
         { "path": "../Juniper/src/Juniper.TypeScript/@juniper-lib/dom" },
         { "path": "../Juniper/src/Juniper.TypeScript/@juniper-lib/emoji" },
+        { "path": "../Juniper/src/Juniper.TypeScript/@juniper-lib/esbuild" },
         { "path": "../Juniper/src/Juniper.TypeScript/@juniper-lib/events" },
         { "path": "../Juniper/src/Juniper.TypeScript/@juniper-lib/fetcher" },
         { "path": "../Juniper/src/Juniper.TypeScript/@juniper-lib/graphics2d" },

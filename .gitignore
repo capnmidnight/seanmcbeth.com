@@ -65,6 +65,5 @@ package-lock.json
 /seanmcbeth.com/wwwroot/js/
 /deploy/
 /UnrealVRProject1/
-/.vscode
 *.db-shm
 *.db-wal

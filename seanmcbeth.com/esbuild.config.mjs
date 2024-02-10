@@ -1,9 +1,9 @@
-import { Build } from "@juniper-lib/esbuild";
+import { Build, runBuilds } from "@juniper-lib/esbuild";
 import { glsl } from "esbuild-plugin-glsl";
 
 const args = process.argv.slice(2);
 
-await Promise.all([
+await runBuilds(
     findBundles(false, false,
         "./src",
         "./src/apps",
@@ -15,13 +15,12 @@ await Promise.all([
     findBundles(true, false,
         "./src/workers"
     )
-]);
+);
 
 function findBundles(isWorker, isThree, ...dirs) {
     return new Build(args, isWorker)
         .plugin((minify) => glsl({ minify }))
         .addThreeJS(!isThree)
         .outDir("./wwwroot/js/")
-        .find(...dirs)
-        .run();
+        .find(...dirs);
 }
