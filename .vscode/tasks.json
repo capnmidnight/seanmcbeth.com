@@ -16,11 +16,22 @@
         "problemMatcher": []
       },
       {
-        "label": "build",
+        "label": "build Gurt",
         "command": "dotnet",
         "args": [
           "build",
           "./Gurt/Gurt.csproj"
+        ],
+        "problemMatcher": [
+          "$msCompile"
+        ]
+      },
+      {
+        "label": "build seanmcbeth.com",
+        "command": "dotnet",
+        "args": [
+          "build",
+          "./seanmcbeth.com/seanmcbeth.com.csproj"
         ],
         "problemMatcher": [
           "$msCompile"
