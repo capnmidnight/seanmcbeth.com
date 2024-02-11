@@ -280,7 +280,7 @@ export class EditableScenario
         const rootUTMVec = this.originUTM.toVec3();
         const objVec = vec3.fromValues(objVector.x, objVector.y, objVector.z);
         const objUTMVec = vec3.add(vec3.create(), rootUTMVec, objVec);
-        const objUTM = new UTMPoint().fromVec3(objUTMVec, this.originUTM.zone);
+        const objUTM = new UTMPoint().fromArr3(objUTMVec, this.originUTM.zone);
         const objLL = objUTM.toLatLng();
         return objLL;
     }

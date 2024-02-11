@@ -30,12 +30,13 @@ export class Physics implements IUpdatable {
                         const b = this.bodies[j];
                         if (b.mass !== 0) {
                             vec2.sub(delta, a.position, b.position);
-                            const rSquared = vec2.sqrLen(delta);
+                            
+                            const rSquared = delta.squaredMagnitude;
                             if (rSquared > 0) {
-                                vec2.normalize(delta, delta);
-                                const F = 0;// G * a.mass * b.mass / rSquared;
-                                vec2.scaleAndAdd(a.gravity, a.gravity, delta, -F / a.mass);
-                                vec2.scaleAndAdd(b.gravity, b.gravity, delta, F / b.mass);
+                                delta.normalize();
+                                const F = G * a.mass * b.mass / rSquared;
+                                a.gravity.scaleAndAdd(delta, -F / a.mass);
+                                b.gravity.scaleAndAdd(delta, F / b.mass);
                             }
                         }
                     }

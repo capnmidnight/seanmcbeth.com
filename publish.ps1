@@ -1,4 +1,4 @@
-$projectName = "Gurt"
+$projectName = "seanmcbeth.com"
 $version = "None"
 $config = "Release"
 

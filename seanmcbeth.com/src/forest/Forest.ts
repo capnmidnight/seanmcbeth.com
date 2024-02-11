@@ -59,7 +59,7 @@ export class Forest implements IDisposable {
         return this._trees;
     }
 
-    readonly assets: BaseAsset<any, any>[];
+    readonly assets: BaseAsset<any>[];
 
     constructor(private readonly env: Environment) {
         this.assets = [
