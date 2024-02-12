@@ -7,7 +7,7 @@ namespace SeanMcBeth
         private const string ProjectName = "seanmcbeth.com";
 
         private static readonly string[] FilePatterns =
-        {
+        [
             "description.txt",
             "index.html",
             "name.txt",
@@ -16,7 +16,7 @@ namespace SeanMcBeth
             "logo.png",
             "logo_small.png",
             "*.bool"
-        };
+        ];
 
         public BuildConfig()
         {
@@ -44,40 +44,40 @@ namespace SeanMcBeth
             Options = new BuildSystemOptions
             {
                 Project = projectDir,
-                CleanDirs = new[]
-                {
+                CleanDirs =
+                [
                     jsOutput
-                },
+                ],
                 SkipPreBuild = true,
-                BannedDependencies = new[]
-                {
+                BannedDependencies =
+                [
                     ("pdfjs-dist", "2.15.349", "Internal KeyboardManager does not work on old Oculus for Business Quest 2s. Use 2.14.305 instead.")
-                },
-                Dependencies = new List<BuildSystemDependency>()
-                {
-                    pathHelper.CursorModel.MakeDependency(modelOutput),
-                    pathHelper.WatchModel.MakeDependency(modelOutput),
+                ],
+                Dependencies =
+                [
+                    pathHelper.CursorModel.CopyTo(modelOutput),
+                    pathHelper.WatchModel.CopyTo(modelOutput),
 
-                    pathHelper.ForestGroundModel.MakeDependency(modelOutput),
-                    pathHelper.ForestTreeModel.MakeDependency(modelOutput),
+                    pathHelper.ForestGroundModel.CopyTo(modelOutput),
+                    pathHelper.ForestTreeModel.CopyTo(modelOutput),
 
-                    pathHelper.ForestAudio.MakeDependency(audioOutput),
-                    pathHelper.StarTrekComputerBeep55Audio.MakeDependency(audioOutput),
-                    pathHelper.FootStepsAudio.MakeDependency(audioOutput),
-                    pathHelper.ButtonPressAudio.MakeDependency(audioOutput),
-                    pathHelper.DoorOpenAudio.MakeDependency(audioOutput),
-                    pathHelper.DoorCloseAudio.MakeDependency(audioOutput),
-                    pathHelper.UIDraggedAudio.MakeDependency(audioOutput),
-                    pathHelper.UIEnterAudio.MakeDependency(audioOutput),
-                    pathHelper.UIErrorAudio.MakeDependency(audioOutput),
-                    pathHelper.UIExitAudio.MakeDependency(audioOutput)
-                },
+                    pathHelper.ForestAudio.CopyTo(audioOutput),
+                    pathHelper.StarTrekComputerBeep55Audio.CopyTo(audioOutput),
+                    pathHelper.FootStepsAudio.CopyTo(audioOutput),
+                    pathHelper.ButtonPressAudio.CopyTo(audioOutput),
+                    pathHelper.DoorOpenAudio.CopyTo(audioOutput),
+                    pathHelper.DoorCloseAudio.CopyTo(audioOutput),
+                    pathHelper.UIDraggedAudio.CopyTo(audioOutput),
+                    pathHelper.UIEnterAudio.CopyTo(audioOutput),
+                    pathHelper.UIErrorAudio.CopyTo(audioOutput),
+                    pathHelper.UIExitAudio.CopyTo(audioOutput)
+                ],
                 OptionalDependencies = CopyMetaFiles("apps", tsInput, jsOutput)
                     .Union(CopyMetaFiles("tests", tsInput, jsOutput)),
-                AdditionalNPMProjects = new[]
-                {
+                AdditionalNPMProjects =
+                [
                     primroseDir
-                }
+                ]
             };
 
             pathHelper.AddUITextures(Options, uiImgOUtput);
@@ -97,7 +97,7 @@ namespace SeanMcBeth
                         var files = appInDir.GetFiles(pattern);
                         foreach (var file in files)
                         {
-                            yield return file.MakeDependency(appOutDir);
+                            yield return file.CopyTo(appOutDir);
                         }
                     }
                 }

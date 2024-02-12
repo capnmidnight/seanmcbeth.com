@@ -3,18 +3,18 @@ import { AudioManager } from "@juniper-lib/audio/dist/AudioManager";
 import { DeviceManager } from "@juniper-lib/audio/dist/DeviceManager";
 import { LocalUserMicrophone } from "@juniper-lib/audio/dist/LocalUserMicrophone";
 import { audioBufferToWav } from "@juniper-lib/audio/dist/audioBufferToWav";
+import { arrayClear, arrayRemove } from "@juniper-lib/collections/dist/arrays";
+import { all } from "@juniper-lib/events/dist/all";
 import { unwrapResponse } from "@juniper-lib/fetcher/dist/unwrapResponse";
 import { Application_JsonUTF8 } from "@juniper-lib/mediatypes";
 import { AzureSpeechRecognizer } from "@juniper-lib/speech/dist/AzureSpeechRecognizer";
 import { CultureDescriptions } from "@juniper-lib/tslib/dist/Languages";
 import { blobToObjectURL } from "@juniper-lib/tslib/dist/blobToObjectURL";
-import { arrayClear, arrayRemove } from "@juniper-lib/collections/dist/arrays";
-import { all } from "@juniper-lib/events/dist/all";
+import { makeErrorMessage } from "@juniper-lib/tslib/dist/makeErrorMessage";
 import { createFetcher } from "../../createFetcher";
 import { AIForm } from "./AIForm";
 import { CharacterLine, CharacterLineElement } from "./CharacterLine";
 import { ConversationClient, Models } from "./ConversationClient";
-
 import "./index.css";
 
 (async function () {
@@ -178,7 +178,7 @@ import "./index.css";
         }
         catch (exp) {
             console.error(exp);
-            form.setStatus(`Export failed: ${exp.message}`);
+            form.setStatus(makeErrorMessage("Export failed: $1", exp));
         }
         finally {
             form.enabled = true;

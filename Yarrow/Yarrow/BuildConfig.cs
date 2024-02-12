@@ -48,25 +48,25 @@ public class BuildConfig : IBuildConfig
             },
             Dependencies = new List<BuildSystemDependency>()
                 {
-                    pathHelper.PDFJSWorkerBundle.MakeDependency(pdfJsOut),
-                    pathHelper.PDFJSWorkerMap.MakeDependency(pdfJsOut),
-                    pathHelper.PDFJSWorkerMinBundle.MakeDependency(pdfJsOut),
+                    pathHelper.PDFJSWorkerBundle.CopyTo(pdfJsOut),
+                    pathHelper.PDFJSWorkerMap.CopyTo(pdfJsOut),
+                    pathHelper.PDFJSWorkerMinBundle.CopyTo(pdfJsOut),
 
-                    pathHelper.JQueryBundle.MakeDependency(jQueryOut),
-                    pathHelper.JQueryMinBundle.MakeDependency(jQueryOut),
+                    pathHelper.JQueryBundle.CopyTo(jQueryOut),
+                    pathHelper.JQueryMinBundle.CopyTo(jQueryOut),
 
-                    pathHelper.CursorModel.MakeDependency(modelOutput),
-                    pathHelper.WatchModel.MakeDependency(modelOutput),
+                    pathHelper.CursorModel.CopyTo(modelOutput),
+                    pathHelper.WatchModel.CopyTo(modelOutput),
 
-                    pathHelper.StarTrekComputerBeep55Audio.MakeDependency(audioOutput.Touch("test-clip.mp3")),
-                    pathHelper.FootStepsAudio.MakeDependency(audioOutput.Touch("footsteps.mp3")),
-                    pathHelper.ButtonPressAudio.MakeDependency(audioOutput),
-                    pathHelper.DoorOpenAudio.MakeDependency(audioOutput),
-                    pathHelper.DoorCloseAudio.MakeDependency(audioOutput),
-                    pathHelper.UIDraggedAudio.MakeDependency(audioOutput),
-                    pathHelper.UIEnterAudio.MakeDependency(audioOutput),
-                    pathHelper.UIErrorAudio.MakeDependency(audioOutput),
-                    pathHelper.UIExitAudio.MakeDependency(audioOutput)
+                    pathHelper.StarTrekComputerBeep55Audio.CopyAs(audioOutput.Touch("test-clip.mp3")),
+                    pathHelper.FootStepsAudio.CopyAs(audioOutput.Touch("footsteps.mp3")),
+                    pathHelper.ButtonPressAudio.CopyTo(audioOutput),
+                    pathHelper.DoorOpenAudio.CopyTo(audioOutput),
+                    pathHelper.DoorCloseAudio.CopyTo(audioOutput),
+                    pathHelper.UIDraggedAudio.CopyTo(audioOutput),
+                    pathHelper.UIEnterAudio.CopyTo(audioOutput),
+                    pathHelper.UIErrorAudio.CopyTo(audioOutput),
+                    pathHelper.UIExitAudio.CopyTo(audioOutput)
                 },
             OptionalDependencies = CopyMetaFiles("dom-apps", jsInput, jsOutput)
                 .Union(CopyMetaFiles("tests", jsInput, jsOutput))
@@ -88,7 +88,7 @@ public class BuildConfig : IBuildConfig
                     var files = appInDir.GetFiles(pattern);
                     foreach (var file in files)
                     {
-                        yield return file.MakeDependency(appOutDir);
+                        yield return file.CopyTo(appOutDir);
                     }
                 }
             }
