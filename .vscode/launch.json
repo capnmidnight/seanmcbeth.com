@@ -48,11 +48,11 @@
             "name": "C#: seanmcbeth.com (Browser)",
             "type": "coreclr",
             "request": "launch",
-            "cwd": "${workspaceFolder}/seanmcbeth.com/bin/Debug/net8.0",
+            "cwd": "${workspaceFolder}/seanmcbeth.com",
             "env": {
                 "ASPNETCORE_ENVIRONMENT": "Development"
             },
-            "program": "./SeanMcBeth.Site.dll",
+            "program": "./bin/Debug/net8.0/SeanMcBeth.Site.dll",
             "args": [
                 "--no-appshell"
             ],
