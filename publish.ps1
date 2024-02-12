@@ -1,78 +1,73 @@
-$projectName = "seanmcbeth.com"
-$version = "None"
-$config = "Release"
+param (
+    [ValidateNotNullOrEmpty()]
+    [String] $ProjectName = "seanmcbeth.com",
 
-if($args.Length -eq 1) {
-    if($args[0] -match "^(Debug|Test|Release)$") {
-        $config = $args[0]
-    }
-    elseif($args[0] -match "^(Major|Minor|Patch)$") {
-        $version = $args[0]
-    }
-}
-elseif($args.Length -eq 2) {
-    if($args[0] -match "^(Major|Minor|Patch)$" -and $args[1] -match "^(Debug|Test|Release)$") {
-        $version = $args[0]
-        $config = $args[1]
-    }
-    elseif($args[0] -match "^(Debug|Test|Release)$" -and $args[1] -match "^(Major|Minor|Patch)$") {
-        $config = $args[0]
-        $version = $args[1]
-    }
-}
+    [ValidateSet("None", "Major", "Minor", "Patch")]    
+    [String] $VersionBump = "None",
 
-$buildProj = ".\$projectName\$projectName.csproj"
-$publishdir = ".\pack\$config"
-$archivedir = ".\archive\$config"
-$archivefile = "$archivedir\$projectName.zip"
+    [ValidateSet("None", "Debug", "Test", "Release")]
+    [String] $Config = "Release"
+)
 
+$buildProj = Join-Path . $ProjectName "$ProjectName.csproj"
+
+$publishdir = Join-Path . pack $Config
 if(-not (Test-Path $publishdir)) {
     mkdir ".\pack"
     mkdir $publishdir
 }
+$publishdir = Join-Path $publishdir $ProjectName
 
-if(-not (Test-Path $archivedir)) {
-    mkdir ".\archive"
-    mkdir $archivedir
+$version = (Get-Content $ProjectName/package.json) -join "`n" `
+    | ConvertFrom-Json `
+    | Select-Object -ExpandProperty "version"
+
+Write-Output "Building in $Config mode with version bump $VersionBump"
+
+$VersionBump = $VersionBump.ToLower()
+
+if($VersionBump -ne "none") {
+    Write-Output "Bumping version number"
+    Push-Location $ProjectName
+    $lastVersion = $version
+    $version = npm version $VersionBump
+    Pop-Location
+    Write-Output "$lastVersion -> $version"
 }
 
-if((Test-Path $archivefile)) {
-    rm $archivefile
-}
-
-Write-Output "Building in $config mode with version bump $version"
-
-if($version -ne "None") {
-    cd $projectName
-    npm version $version.ToLower()
-    cd ..
-}
-
-# make sure the JavaScript is up to date.
+Write-Output "Building JavaScript bundles"
 dotnet run `
     --project $buildProj `
     --configuration Debug `
     -- --build
 
+Write-Output "Building .NET Project"
 # check Properties/PublishProfiles/FolderProfile.pubxml for publish settings
 dotnet publish `
     --nologo `
     -p:PublishProfile=FolderProfile `
-    --configuration $config `
+    --configuration $Config `
     $buildProj
-    
-dotnet publish `
-    --nologo `
-    -p:PublishProfile=FolderProfile `
-    --configuration $config `
-    .\Starter\Starter.csproj
 
-Write-Output "Compressing $publishdir to $archivedir"
+$publishOutput = Path-Join .. seanmcbeth.com.deploy
+cp $publishdir/* $publishOutput
 
-Compress-Archive `
-    -Path "$publishdir\*" `
-    -CompressionLevel "Optimal" `
-    -DestinationPath $archivefile
+Push-Location $publishOutput
+git add -A
+git commit -m $version
+git push
 
-# open the output directory
-explorer $archivedir
+Pop-Location
+
+@"
+cd bin/seanmcbeth.com
+git pull
+cd ../
+rm -rf SeanMcBeth.Site.old
+cp -r SeanMcBeth.Site SeanMcBeth.Site.old
+sudo systemctl stop SeanMcBeth.Site.service
+rm -rf SeanMcBeth.Site/*
+cp -r seanmcbeth.com/* SeanMcBeth.Site
+cp -r SeanMcBeth.Site.old/certs SeanMcBeth.Site
+sudo systemctl start SeanMcBeth.Site.service
+"@ | ssh smcbeth@seanmcbeth.com
