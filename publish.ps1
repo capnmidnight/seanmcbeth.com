@@ -49,8 +49,9 @@ dotnet publish `
     --configuration $Config `
     $buildProj
 
-$publishOutput = Path-Join .. seanmcbeth.com.deploy
-cp $publishdir/* $publishOutput
+$publishOutput = Join-Path .. seanmcbeth.com.deploy
+rm -rf $publishOutput/*
+cp -r $publishdir/* $publishOutput
 
 Push-Location $publishOutput
 git add -A
