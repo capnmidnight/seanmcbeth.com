@@ -6,9 +6,10 @@ import {
 } from "@juniper-lib/dom/dist/css";
 import { onClick } from "@juniper-lib/dom/dist/evts";
 import { Button, Div, HtmlRender, P, Span, getElement } from "@juniper-lib/dom/dist/tags";
+import { randomInt, randomRange } from "@juniper-lib/tslib/dist/math";
 import { Beam, ScoreEvent } from "./Beam";
 import { Cloud } from "./Cloud";
-import { Face } from "./Face";
+import { Face, FaceElement } from "./Face";
 import { GameObject } from "./GameObject";
 import "./index.css";
 
@@ -58,20 +59,9 @@ HtmlRender("main",
     )
 );
 
-export const NUM_YABS = Math.round(window.innerWidth / 30),
+const NUM_YABS = Math.round(window.innerWidth / 30),
     NUM_CLD = Math.round(window.innerWidth / 200),
-    HIT_POINTS = 2,
     MSG_TIMEOUT = 5000,
-    skins: CssColorHashValue[] = ["#FFDFC4", "#F0D5BE", "#EECEB3", "#E1B899", "#E5C298",
-        "#FFDCB2", "#E5B887", "#E5A073", "#E79E6D", "#DB9065", "#CE967C",
-        "#C67856", "#BA6C49", "#A57257", "#F0C8C9", "#DDA8A0", "#B97C6D",
-        "#A8756C", "#AD6452", "#5C3836", "#CB8442", "#BD723C", "#704139",
-        "#A3866A", "#870400", "#710101", "#430000", "#5B0001", "#302E2E"],
-    curses = ["ow!", "yikes!", "holy cow!", "ouch!", "that smarts!",
-        "ow!", "yikes!", "holy cow!", "ouch!", "that smarts!", "ow!", "yikes!",
-        "holy cow!", "ouch!", "that smarts!", "mother puss-bucket!"],
-    happyFaces = [":)", ":o", ":^", ":.", ":P", ":D"],
-    sadFaces = [":(", ":(", ":(", ":(", ":(", ":(", ":O"],
     inst = getElement("#instructions"),
     starter = getElement("#starter"),
     scoreBox = getElement("#scoreBox"),
@@ -84,7 +74,7 @@ export const NUM_YABS = Math.round(window.innerWidth / 30),
     timers = new Map<GainNode, number>(),
     base = Math.pow(2, 1 / 12);
 
-export let fading = false,
+let fading = false,
     scaling = 1,
     lt: number = null,
     dt = 0,
@@ -112,14 +102,6 @@ export function play(i: number, volume: number, duration: number) {
             timers.delete(o);
         }, duration * 1000) as any);
     }
-}
-
-export function randomRange(min: number, max: number): number {
-    return min + Math.random() * (max - min);
-}
-
-export function randomInt(min: number, max: number): number {
-    return Math.floor(randomRange(min, max));
 }
 
 function music(t: number) {
@@ -172,9 +154,12 @@ for (let i = 0; i < 88; ++i) {
     osc.push(gn);
 }
 
+const yabs = new Array<FaceElement>();
+
 for (let i = 0; i < NUM_YABS; ++i) {
     const yab = Face();
     yab.addEventListener("fade", onFade);
+    yabs.push(yab);
     fs.push(yab);
 }
 
@@ -182,11 +167,32 @@ for (let i = 0; i < NUM_CLD; ++i) {
     fs.push(Cloud());
 }
 
-const beam = Beam();
+const beam = Beam(yabs, audio);
 beam.addEventListener("fade", onFade);
 beam.addEventListener("score", (evt) => {
     if (evt instanceof ScoreEvent) {
         score += evt.delta;
+        for (let j = 0; j < scoreBoxes.length; ++j) {
+            scoreBoxes[j].innerHTML = score.toFixed(0);
+        }
+
+        if (beam.friendly) {
+            scoreBox.style.display = "block";
+            document.body.style.backgroundImage =
+                "linear-gradient(hsl(0, 50%, 0%), hsl(0, 50%, 50%) 75%, hsl(0, 50%, 15%) 75%, hsl(0, 50%, 33%))";
+            for (let j = 0; j < NUM_CLD; ++j) {
+                const cld = fs[NUM_YABS + j];
+                for (let k = 0; k < cld.children.length; ++k) {
+                    const bit = (cld.children[k] as HTMLElement).style;
+                    bit.backgroundColor = "black";
+                }
+            }
+        }
+
+        beam.friendly = false;
+        for (const yab of yabs) {
+            yab.sad = true;
+        }
         if (evt.delta === 10) {
             ++kills;
             if (kills === NUM_YABS - 2) {
@@ -275,16 +281,14 @@ out.connect(audio.destination);
 inst.style.opacity = "1";
 starter.style.display = "block";
 
-(async function () {
-    await audio.ready;
-    starter.style.display = "none";
-    inst.style.display = "block";
-    requestAnimationFrame(animate);
+await audio.ready;
+starter.style.display = "none";
+inst.style.display = "block";
+requestAnimationFrame(animate);
 
-    setTimeout(function () {
-        fading = true;
-    }, 5000);
-})();
+setTimeout(function () {
+    fading = true;
+}, 5000);
 
 export const goodEndingTimer = setTimeout(function () {
     messages[messages.length - 1].style.display = "block";

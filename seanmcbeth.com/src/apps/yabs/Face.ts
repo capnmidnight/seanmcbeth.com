@@ -4,46 +4,54 @@ import { backgroundColor, backgroundImage, borderColor, borderRadius, borderStyl
 import { onMouseOut, onTouchStart } from "@juniper-lib/dom/dist/evts";
 import { Div, StyleBlob } from "@juniper-lib/dom/dist/tags";
 import { EventTargetMixin } from "@juniper-lib/events/dist/EventTarget";
-import { happyFaces, play, randomInt, randomRange, sadFaces, score, shake, skins } from ".";
+import { play, shake } from ".";
 import { GameObject } from "./GameObject";
+import { randomInt, randomRange } from "@juniper-lib/tslib/dist/math";
 
-const faceStyle = StyleBlob(
-    rule(".frowny, .shadow, .boop",
-        position("absolute")
-    ),
+const skins: CssColorHashValue[] = ["#FFDFC4", "#F0D5BE", "#EECEB3", "#E1B899", "#E5C298",
+    "#FFDCB2", "#E5B887", "#E5A073", "#E79E6D", "#DB9065", "#CE967C",
+    "#C67856", "#BA6C49", "#A57257", "#F0C8C9", "#DDA8A0", "#B97C6D",
+    "#A8756C", "#AD6452", "#5C3836", "#CB8442", "#BD723C", "#704139",
+    "#A3866A", "#870400", "#710101", "#430000", "#5B0001", "#302E2E"],
+    happyFaces = [":)", ":o", ":^", ":.", ":P", ":D"],
+    sadFaces = [":(", ":(", ":(", ":(", ":(", ":(", ":O"],
+    faceStyle = StyleBlob(
+        rule(".frowny, .shadow, .boop",
+            position("absolute")
+        ),
 
-    rule(".frowny",
-        fontSize(px(32)),
-        getMonospaceFamily(),
-        color("black"),
-        padding(px(5)),
-        borderStyle("solid"),
-        borderWidth(px(2)),
-        borderColor("black"),
-        borderRadius(px(10)),
-        transform(rotate(deg(90))),
-        width(px(50)),
-        height(px(50)),
-        overflow("hidden")
-    ),
+        rule(".frowny",
+            fontSize(px(32)),
+            getMonospaceFamily(),
+            color("black"),
+            padding(px(5)),
+            borderStyle("solid"),
+            borderWidth(px(2)),
+            borderColor("black"),
+            borderRadius(px(10)),
+            transform(rotate(deg(90))),
+            width(px(50)),
+            height(px(50)),
+            overflow("hidden")
+        ),
 
-    rule(".shadow",
-        width(px(45)),
-        height(px(10)),
-        borderRadius(px(5)),
-        backgroundImage("radial-gradient(rgba(0,0,0,0.5), transparent)")
-    ),
+        rule(".shadow",
+            width(px(45)),
+            height(px(10)),
+            borderRadius(px(5)),
+            backgroundImage("radial-gradient(rgba(0,0,0,0.5), transparent)")
+        ),
 
-    rule(".boop",
-        display("none"),
-        color("white"),
-        textTransform("uppercase"),
-        fontFamily("sans-serif"),
-        fontWeight("bold"),
-        fontSize(px(13)),
-        zIndex(9001)
-    )
-);
+        rule(".boop",
+            display("none"),
+            color("white"),
+            textTransform("uppercase"),
+            fontFamily("sans-serif"),
+            fontWeight("bold"),
+            fontSize(px(13)),
+            zIndex(9001)
+        )
+    );
 
 export function Face() { return document.createElement("yabs-face") as FaceElement; }
 
@@ -74,7 +82,7 @@ export class FaceElement extends HTMLElement implements GameObject {
 
     constructor() {
         super();
-        
+
         this.eventTarget = new EventTargetMixin(
             super.addEventListener.bind(this),
             super.removeEventListener.bind(this),
@@ -170,6 +178,8 @@ export class FaceElement extends HTMLElement implements GameObject {
         }
     }
 
+    sad = false;
+
     render() {
         this.boop.style.display = this.boopFor > 0 ? "block" : "none";
         this.boop.style.left = px(this.boopX);
@@ -181,16 +191,20 @@ export class FaceElement extends HTMLElement implements GameObject {
 
 
         const sy = Math.sqrt(Math.abs(this.dy)) * 10;
-        this.element.style.paddingLeft =
-            this.element.style.paddingRight = px(this.height + sy);
-        this.element.style.paddingTop =
-            this.element.style.paddingBottom = px(this.width - sy);
+        this.element.style.paddingLeft
+            = this.element.style.paddingRight
+            = px(this.height + sy);
+        this.element.style.paddingTop
+            = this.element.style.paddingBottom
+            = px(this.width - sy);
 
-        if (this.alive && this.f > 1) {
-            this.element.innerHTML = arrayRandom(score > 0 ? sadFaces : happyFaces);
+        if (this.f > 1) {
             this.f = 0;
-        } else if (!this.alive) {
-            this.element.innerHTML = "X(";
+            if (this.alive) {
+                this.element.innerHTML = arrayRandom(this.sad ? sadFaces : happyFaces);
+            } else if (!this.alive) {
+                this.element.innerHTML = "X(";
+            }
         }
     }
 
@@ -208,14 +222,16 @@ export class FaceElement extends HTMLElement implements GameObject {
             this.dy = (this.dy + 0.1 * dt);
         }
 
-        if (this.x <= 0 && this.dx < 0 || (this.x +
-            this.element.clientWidth) >= window.innerWidth && this.dx >
-            0) {
+        if (this.x <= 0
+            && this.dx < 0
+            || (this.x + this.element.clientWidth) >= window.innerWidth
+            && this.dx > 0) {
             this.dx *= -1;
         }
 
-        if (!this.onground && (this.y + this.element.clientHeight) >=
-            window.innerHeight && this.dy > 0) {
+        if (!this.onground
+            && (this.y + this.element.clientHeight) >= window.innerHeight
+            && this.dy > 0) {
             if (this.dy > 2) {
                 this.dy *= -0.5;
             } else {
@@ -225,7 +241,7 @@ export class FaceElement extends HTMLElement implements GameObject {
                     this.dx = 0;
                 }
             }
-            play((score > 0 ? 10 : 20) + 3 * randomInt(0, 5), 0.125,
+            play((this.sad ? 10 : 20) + 3 * randomInt(0, 5), 0.125,
                 0.05);
             shake();
         }

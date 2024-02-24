@@ -1,11 +1,13 @@
+import { JuniperAudioContext } from "@juniper-lib/audio/dist/context/JuniperAudioContext";
 import { arrayRandom } from "@juniper-lib/collections/dist/arrays";
 import { ClassList } from "@juniper-lib/dom/dist/attrs";
 import { backgroundColor, borderRadius, boxShadow, display, height, left, perc, position, px, rule, top, width } from "@juniper-lib/dom/dist/css";
 import { Div, StyleBlob } from "@juniper-lib/dom/dist/tags";
 import { EventTargetMixin } from "@juniper-lib/events/dist/EventTarget";
-import { HIT_POINTS, NUM_CLD, NUM_YABS, audio, curses, fs, goodEndingTimer, play, randomInt, score, scoreBox, scoreBoxes, shake } from ".";
-import { GameObject } from "./GameObject";
+import { goodEndingTimer, play, shake } from ".";
 import { FaceElement } from "./Face";
+import { GameObject } from "./GameObject";
+import { randomInt } from "@juniper-lib/tslib/dist/math";
 
 const beamStyle = StyleBlob(
     rule(":host, .subBeam",
@@ -29,13 +31,23 @@ const beamStyle = StyleBlob(
     )
 );
 
-export function Beam() { return document.createElement("yabs-beam") as BeamElement; }
+export function Beam(yabs: FaceElement[], audio: JuniperAudioContext) {
+    const beam = document.createElement("yabs-beam") as BeamElement;
+    beam.yabs = yabs;
+    beam.audio = audio;
+    return beam;
+}
 
 export class ScoreEvent extends Event {
     constructor(public readonly delta: number) {
         super("score");
     }
 }
+
+const HIT_POINTS = 2,
+curses = ["ow!", "yikes!", "holy cow!", "ouch!", "that smarts!",
+    "ow!", "yikes!", "holy cow!", "ouch!", "that smarts!", "ow!", "yikes!",
+    "holy cow!", "ouch!", "that smarts!", "mother puss-bucket!"];
 
 class BeamElement extends HTMLElement implements GameObject {
     private subBeam: HTMLElement;
@@ -113,6 +125,12 @@ class BeamElement extends HTMLElement implements GameObject {
 
     #score1 = new ScoreEvent(1);
     #score10 = new ScoreEvent(10);
+    
+    #yabs: FaceElement[] = null;
+    get yabs() { return this.#yabs; }
+    set yabs(v) { this.#yabs = v; }
+
+    friendly = true;
 
     update(dt: number) {
         if (this.charging && this.t < 100) {
@@ -136,26 +154,10 @@ class BeamElement extends HTMLElement implements GameObject {
                 play(87 - i, 0.02, dt / 100);
             }
 
-            for (let i = 0; i < NUM_YABS; ++i) {
-                const yab = fs[i];
+            for (const yab of this.yabs) {
                 if (yab instanceof FaceElement && yab.alive && yab.onground) {
                     if (this.x <= yab.x + 50 && this.x + 50 >= yab.x) {
-                        if (score === 0) {
-                            scoreBox.style.display = "block";
-                            document.body.style.backgroundImage =
-                                "linear-gradient(hsl(0, 50%, 0%), hsl(0, 50%, 50%) 75%, hsl(0, 50%, 15%) 75%, hsl(0, 50%, 33%))";
-                            for (let j = 0; j < NUM_CLD; ++j) {
-                                const cld = fs[NUM_YABS + j];
-                                for (let k = 0; k < cld.children.length; ++k) {
-                                    const bit = (cld.children[k] as HTMLElement).style;
-                                    bit.backgroundColor = "black";
-                                }
-                            }
-                        }
                         this.dispatchEvent(this.#score1);
-                        for (let j = 0; j < scoreBoxes.length; ++j) {
-                            scoreBoxes[j].innerHTML = score.toFixed(0);
-                        }
                         shake(yab);
                         ++yab.hits;
                         if (yab.hits >= HIT_POINTS) {
@@ -202,9 +204,13 @@ class BeamElement extends HTMLElement implements GameObject {
         this.subBeam.style.opacity = (this.t / 100).toFixed(3);
     }
 
+    #audio: JuniperAudioContext = null;
+    get audio() { return this.#audio; }
+    set audio(v) { this.#audio = v;}
+
     #fade = new Event("fade");
     start(evt: MouseEvent | Touch) {
-        audio.resume();
+        this.audio.resume();
         this.dispatchEvent(this.#fade);
         this.x = evt.clientX - 10;
         this.y = evt.clientY - 10;
