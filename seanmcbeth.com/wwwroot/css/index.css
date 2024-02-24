@@ -48,7 +48,9 @@
         filter: unset;
     }
 
-    input, select, textarea {
+    input,
+    select,
+    textarea {
         color-scheme: dark;
     }
 }
@@ -77,7 +79,9 @@ body {
     grid-template-columns: auto;
 }
 
-header, .scroll-body, footer {
+header,
+.scroll-body,
+footer {
     grid-column: 1 / -1;
 }
 
@@ -99,54 +103,53 @@ main {
     min-height: 100%;
 }
 
-figure {
-    position: relative;
-    counter-increment: figure;
-    padding: 0 0.5em;
-    margin: 0;
-    z-index: 0;
+section {
+    display: flex;
+    flex-direction: column;
 }
 
-    figure img, figure iframe {
-        max-width: calc(100% - 2em);
-        margin: 0 auto;
-        display: block;
-        margin-bottom: 1.5em;
-    }
+figure {
+    background-color: var(--box-bg-color);
+    counter-increment: figure;
+    padding: -5em;
+    overflow: visible;
+    margin: 1em;
+}
 
-    figure iframe {
-        aspect-ratio: 16 / 9;
-    }
+figure img,
+figure iframe {
+    max-width: calc(100% - 2em);
+    margin: 0 auto;
+    display: block;
+    margin-bottom: 1.5em;
+}
 
-    figure > h3, figure > a[href]:last-child {
-        display: block;
-        position: relative;
-        z-index: 1;
-    }
+figure iframe {
+    aspect-ratio: 16 / 9;
+}
 
-    figure > a[href]:last-child {
-        text-align: right;
-    }
+figure>h3,
+figure>a[href]:last-child {
+    display: block;
+    text-align: center;
+}
 
-    figure > a[href]:has(img), figure > img, figure > iframe, figure > figcaption {
-        position: relative;
-        z-index: 2;
-    }
+figure>h3>a[href],
+figure>h3>a[href]:visited {
+    color: var(--main-fg-color);
+    text-decoration: none;
+}
 
-    figure > h3 > a[href], figure > h3 > a[href]:visited {
-        color: var(--main-fg-color);
-        text-decoration: none;
-    }
+figure>figcaption {
+    font-size: 10pt;
+    font-style: italic;
+    text-align: center;
+    padding: 0.25em;
+    margin: 0 auto;
+}
 
-    figure > figcaption {
-        font-size: 10pt;
-        font-style: italic;
-        text-align: center;
-        padding: 0.25em;
-        margin: 0 auto;
-    }
-
-body, #menu {
+body,
+#menu {
     background-color: var(--main-bg-color);
     color: var(--main-fg-color);
 }
@@ -157,9 +160,9 @@ a[href] {
     text-decoration: none;
 }
 
-    a[href]:hover {
-        text-decoration: underline;
-    }
+a[href]:hover {
+    text-decoration: underline;
+}
 
 a:visited,
 a:focus {
@@ -180,13 +183,13 @@ h2 {
     font-family: 'Noto Mono', monospace;
 }
 
-    h2::before {
-        content: "[";
-    }
+h2::before {
+    content: "[";
+}
 
-    h2::after {
-        content: "]";
-    }
+h2::after {
+    content: "]";
+}
 
 .icon {
     display: inline-block;
@@ -199,10 +202,10 @@ h2 {
     box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.33);
 }
 
-    .icon:hover {
-        margin: -1px 1px 1px 6px;
-        box-shadow: 2px 2px 7px rgba(0, 0, 0, 0.33);
-    }
+.icon:hover {
+    margin: -1px 1px 1px 6px;
+    box-shadow: 2px 2px 7px rgba(0, 0, 0, 0.33);
+}
 
 .icon-linkedin {
     background-position: 0 -75px;
@@ -242,24 +245,24 @@ h2 {
     text-align: center;
 }
 
-    #menu ul {
-        list-style-type: none;
-        padding: 0;
-        margin: auto 0;
-        display: flex;
-        flex-direction: row;
-    }
+#menu ul {
+    list-style-type: none;
+    padding: 0;
+    margin: auto 0;
+    display: flex;
+    flex-direction: row;
+}
 
-        #menu ul li:not(.hidden) {
-            display: inline-block;
-            flex: auto;
-        }
+#menu ul li:not(.hidden) {
+    display: inline-block;
+    flex: auto;
+}
 
-        #menu ul li a {
-            display: inline-block;
-            text-decoration: none;
-            padding: 0.75em 0.5em;
-        }
+#menu ul li a {
+    display: inline-block;
+    text-decoration: none;
+    padding: 0.75em 0.5em;
+}
 
 #portrait {
     width: 100%;
@@ -274,57 +277,37 @@ h2 {
         display: none;
     }
 
-    #contact, #contact ul {
+    #contact,
+    #contact ul {
         padding: 0;
         margin: 0;
         display: block;
         text-align: center;
     }
 
-        #contact ul li {
-            display: inline-block;
-            list-style-type: none;
-        }
+    #contact ul li {
+        display: inline-block;
+        list-style-type: none;
+    }
 
     @media (min-width: 640px) {
 
         figure {
-            background-color: unset;
-            box-shadow: unset;
+            box-shadow: 4em 2em var(--box-bg-color);
+            margin: 0 5em 5em 0;
         }
 
-            figure > h3, figure > a[href]:last-child, figure img, figure iframe {
-                box-shadow: var(--box-shadow-color) 5px 5px 5px;
-            }
+        figure>figcaption {
+            font-size: 12pt;
+            width: 60%;
+        }
 
-            figure > h3, figure > a[href]:last-child {
-                background-color: var(--box-bg-color);
-            }
-
-            figure > h3, figure > a[href]:last-child {
-                width: 80%;
-            }
-
-            figure > h3 {
-                padding: 0.25em 0 20em 0.5em;
-                margin: 2em 20% -20em 0;
-            }
-
-            figure > a[href]:last-child {
-                padding: 20em 0.25em 0.25em 0;
-                margin: -20em 0 0 20%;
-            }
-
-            figure > figcaption {
-                font-size: 12pt;
-                width: 60%;
-            }
-
-            figure img, figure iframe {
-                max-width: calc(100% - 10em);
-                max-height: 45vh;
-                margin: auto auto 1.5em auto;
-            }
+        figure img,
+        figure iframe {
+            max-width: calc(100% - 10em);
+            max-height: 45vh;
+            margin: auto auto 1.5em auto;
+        }
 
         main {
             max-width: 1000px;
@@ -341,10 +324,10 @@ h2 {
             display: inline-block;
         }
 
-            #menu ul li a {
-                display: inline-block;
-                text-decoration: none;
-            }
+        #menu ul li a {
+            display: inline-block;
+            text-decoration: none;
+        }
     }
 }
 
