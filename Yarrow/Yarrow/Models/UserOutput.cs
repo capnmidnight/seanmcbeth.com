@@ -1,6 +1,6 @@
-using Juniper;
-
 using Microsoft.AspNetCore.Identity;
+
+using Juniper.Logic;
 
 using Yarrow.Data;
 
@@ -11,7 +11,7 @@ namespace Yarrow.Models
         private readonly IdentityUser? user;
         private readonly Organization org;
         private readonly Room? room;
-        
+
         public string? UserName => user?.UserName;
         public string? UserID => user?.Id;
         public string? Email => user?.Email;
@@ -49,7 +49,7 @@ namespace Yarrow.Models
             user = null;
             org = anon;
             room = null;
-            
+
             FullName = null;
             DisplayName = null;
             RolesString = "";
@@ -62,7 +62,7 @@ namespace Yarrow.Models
         public UserOutput(UserProfile profile, Organization anon, IEnumerable<string> roles)
         {
             user = profile?.User;
-            org = profile?.Organization ?? anon;            
+            org = profile?.Organization ?? anon;
             room = profile?.Room;
             FullName = profile?.FullName;
             DisplayName = profile?.DisplayName;

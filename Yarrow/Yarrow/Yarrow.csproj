@@ -44,6 +44,7 @@
     <ProjectReference Include="..\..\Juniper\src\Juniper.Emoji\Juniper.Emoji.csproj" />
     <ProjectReference Include="..\..\Juniper\src\Juniper.GoogleMaps\Juniper.GoogleMaps.csproj" />
     <ProjectReference Include="..\..\Juniper\src\Juniper.Imaging\Juniper.Imaging.csproj" />
+    <ProjectReference Include="..\..\Juniper\src\Juniper.Logic\Juniper.Logic.csproj" />
     <ProjectReference Include="..\..\Juniper\src\Juniper.Root\Juniper.Root.csproj" />
     <ProjectReference Include="..\..\Juniper\src\Juniper.Server\Juniper.Server.csproj" />
     <ProjectReference Include="..\..\Juniper\src\Juniper.Sound\Juniper.Sound.csproj" />

@@ -1,8 +1,7 @@
-using Juniper;
-
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+
+using Juniper.Logic;
 
 using Yarrow.Data;
 using Yarrow.Models;

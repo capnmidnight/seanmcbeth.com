@@ -1,4 +1,4 @@
-using Juniper;
+using Juniper.Logic;
 
 using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
