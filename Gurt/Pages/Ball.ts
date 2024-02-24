@@ -1,9 +1,6 @@
 import { arrayRandom } from "@juniper-lib/collections/src/arrays";
 import { Vec2 } from "gl-matrix/dist/esm";
-
-function randomRange(min: number, max: number) {
-    return Math.random() * (max - min) + min;
-}
+import { randomRange } from "@juniper-lib/tslib/dist/math";
 
 const colors = [
     "red",
