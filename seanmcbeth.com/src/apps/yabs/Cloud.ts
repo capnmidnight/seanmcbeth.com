@@ -1,8 +1,8 @@
 import { backgroundColor, borderBottomLeftRadius, borderBottomRightRadius, borderTopLeftRadius, borderTopRightRadius, height, position, px, rule, width } from "@juniper-lib/dom/dist/css";
 import { StyleBlob } from "@juniper-lib/dom/dist/tags";
 import { EventTargetMixin } from "@juniper-lib/events/dist/EventTarget";
-import { randomInt, randomRange } from ".";
 import { GameObject } from "./GameObject";
+import { randomInt, randomRange } from "@juniper-lib/tslib/dist/math";
 
 const cloudStyle = StyleBlob(
     rule(":host, .cloud-bit",
