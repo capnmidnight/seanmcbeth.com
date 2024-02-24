@@ -64,7 +64,7 @@ namespace SeanMcBeth.Pages
         [BindProperty(SupportsGet = true), FromRoute]
         public string? Name { get; set; }
 
-        private DirectoryInfo BundleRoot => BundlesRoot.CD(Name);
+        private DirectoryInfo BundleRoot => BundlesRoot.CD(Name!);
 
         private string BundlePathRoot => string.Join('/', "js", BundleTypeName, Name);
 
@@ -186,7 +186,7 @@ namespace SeanMcBeth.Pages
 
 #if DEBUG
         private static readonly DirectoryInfo SrcsRoot = new("src");
-        private DirectoryInfo SrcRoot => SrcsRoot.CD(BundleTypeName, Name);
+        private DirectoryInfo SrcRoot => SrcsRoot.CD(BundleTypeName, Name!);
         private FileInfo ScreenshotFile => SrcRoot.Touch("screenshot.jpg");
 
         public async Task<IActionResult> OnPostAsync([FromForm] SingleFormFile input)

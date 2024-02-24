@@ -120,9 +120,25 @@ namespace SeanMcBeth.Controllers.Public
         {
             try
             {
+                if (input is null
+                    || input.FormFile is null
+                    || input.SpeakerCulture is null
+                    || input.TargetCulture is null)
+                {
+                    return BadRequest();
+                }
+
                 var response = await speech.RecognizeAsync(input.FormFile, input.SpeakerCulture, input.TargetCulture);
+                if (response is null
+                    || response.Culture is null
+                    || response.Text is null)
+                {
+                    return BadRequest();
+                }
+
                 Response.Headers.Add("X-Recognized-Language", Uri.EscapeDataString(response.Culture));
                 Response.Headers.Add("X-Recognized-Text", Uri.EscapeDataString(response.Text));
+                
                 return new ObjectResult(response);
             }
             catch (Exception exp)

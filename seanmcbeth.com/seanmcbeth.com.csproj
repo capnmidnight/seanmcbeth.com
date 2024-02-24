@@ -11,7 +11,6 @@
 		<UserSecretsId>a3da341e-81da-4b01-b99e-ac92445d82fd</UserSecretsId>
 		<Platforms>AnyCPU;x64</Platforms>
 		<SatelliteResourceLanguages>en</SatelliteResourceLanguages>
-		<IsTrimmable>true</IsTrimmable>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)'=='Debug'">
