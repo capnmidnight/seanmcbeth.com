@@ -6,7 +6,9 @@ param (
     [String] $VersionBump = "None",
 
     [ValidateSet("None", "Debug", "Test", "Release")]
-    [String] $Config = "Release"
+    [String] $Config = "Release",
+
+    [Switch] $SkipClient
 )
 
 $buildProj = Join-Path . $ProjectName "$ProjectName.csproj"
@@ -35,11 +37,13 @@ if($VersionBump -ne "none") {
     Write-Output "$lastVersion -> $version"
 }
 
-Write-Output "Building JavaScript bundles"
-dotnet run `
-    --project $buildProj `
-    --configuration Debug `
-    -- --build
+if(-not $SkipClient) {
+    Write-Output "Building JavaScript bundles"
+    dotnet run `
+        --project $buildProj `
+        --configuration Debug `
+        -- --build
+}
 
 Write-Output "Building .NET Project"
 # check Properties/PublishProfiles/FolderProfile.pubxml for publish settings
@@ -50,8 +54,6 @@ dotnet publish `
     $buildProj
 
 $publishOutput = Join-Path .. seanmcbeth.com.deploy
-rm -rf $publishOutput/*
-cp -r $publishdir/* $publishOutput
 
 Push-Location $publishOutput
 git add -A
@@ -61,14 +63,19 @@ git push
 Pop-Location
 
 @"
-cd bin/seanmcbeth.com
+cd bin/seanmcbeth.com.deploy/
 git pull
+
 cd ../
 rm -rf SeanMcBeth.Site.old
-cp -r SeanMcBeth.Site SeanMcBeth.Site.old
+rm -rf SeanMcBeth.Site.new
+
+mkdir SeanMcBeth.Site.new
+cp -r seanmcbeth.com.deploy/* SeanMcBeth.Site.new
+cp -r SeanMcBeth.Site/certs SeanMcBeth.Site.new
+
 sudo systemctl stop SeanMcBeth.Site.service
-rm -rf SeanMcBeth.Site/*
-cp -r seanmcbeth.com/* SeanMcBeth.Site
-cp -r SeanMcBeth.Site.old/certs SeanMcBeth.Site
+mv SeanMcBeth.Site SeanMcBeth.Site.old
+mv SeanMcBeth.Site.new SeanMcBeth.Site
 sudo systemctl start SeanMcBeth.Site.service
 "@ | ssh smcbeth@seanmcbeth.com
