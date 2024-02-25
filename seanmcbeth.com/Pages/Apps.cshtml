@@ -10,24 +10,6 @@
     ViewData["FavIcon"] = Model.LogoSmallPath;
 }
 
-@section Menu {
-    @{
-        foreach (var (text, title, href) in new[] {
-            ("home/", "Home", "/"),
-            ("etc/", "Extras", "/other")
-        })
-        {
-            <li>
-                <a href="@href"
-                   aria-label="@title"
-                   title="@title">
-                    @text
-                </a>
-            </li>
-        }
-    }
-}
-
 @section Head {
     @if (Model.ManifestPath is not null)
     {
@@ -40,7 +22,13 @@
     }
     @if (Model.IncludeThreeJS)
     {
-        <bundle-js name="libs/three" versioned />
+        <script type="importmap">
+            {
+                "imports": {
+                    "three": "/js/libs/three.module.js"
+                }
+            }
+        </script>
     }
     <bundle-js name="apps/@Model.Name" versioned />
 }

@@ -1,4 +1,5 @@
-﻿using Juniper.HTTP;
+﻿using Juniper;
+using Juniper.HTTP;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -131,14 +132,14 @@ namespace SeanMcBeth.Pages
 
                 if (ScreenshotPath is not null)
                 {
-                    manifest.Screenshots = new WebAppManifestImage[]
-                    {
+                    manifest.Screenshots =
+                    [
                         new ()
                         {
                             Source = ScreenshotPath,
                             Type = Juniper.MediaType.Image_Jpeg
                         }
-                    };
+                    ];
                 }
 
                 if (LogoPath is not null || LogoSmallPath is not null)

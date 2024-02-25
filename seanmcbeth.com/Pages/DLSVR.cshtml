@@ -6,24 +6,6 @@
     ViewData["Screenshot"] = "/img/dlsvr/screen1.jpeg";
 }
 
-@section Menu {
-    @{
-        foreach (var (text, title, href) in new[] {
-            ("home/", "Home", "/"),
-            ("etc/", "Extras", "/other")
-        })
-        {
-            <li>
-                <a href="@href"
-                   aria-label="@title"
-                   title="@title">
-                    @text
-                </a>
-            </li>
-        }
-    }
-}
-
 <h1>Diplomatic Language Services Virtual Reality</h1>
 <p>
     @ViewData["Description"] <a href="https://vr.dlsdc.com" target="_blank">View a live demo of DLS VR</a>.

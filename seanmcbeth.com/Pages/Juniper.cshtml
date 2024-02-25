@@ -6,24 +6,6 @@
     ViewData["Screenshot"] = "/img/juniper.jpeg";
 }
 
-@section Menu {
-    @{
-        foreach (var (text, title, href) in new[] {
-            ("home/", "Home", "/"),
-            ("etc/", "Extras", "/other")
-        })
-        {
-            <li>
-                <a href="@href"
-                   aria-label="@title"
-                   title="@title">
-                    @text
-                </a>
-            </li>
-        }
-    }
-}
-
 <h1>Juniper</h1>
 
 <p>

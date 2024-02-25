@@ -35,11 +35,9 @@ namespace SeanMcBeth
             var audioOutput = wwwRoot.CD("audio");
             var imgOutput = wwwRoot.CD("img");
             var uiImgOUtput = imgOutput.CD("ui");
+            var threeJS = nodeModules.CD("three", "build").Touch("three.module.js");
 
             var pathHelper = new PathHelper(juniperDir, nodeModules);
-            var keyFile = new DirectoryInfo(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile))
-                .CD(".ssh")
-                .Touch("sean-mcbeth.pem");
 
             Options = new BuildSystemOptions
             {
@@ -70,13 +68,16 @@ namespace SeanMcBeth
                     pathHelper.UIDraggedAudio.CopyTo(audioOutput),
                     pathHelper.UIEnterAudio.CopyTo(audioOutput),
                     pathHelper.UIErrorAudio.CopyTo(audioOutput),
-                    pathHelper.UIExitAudio.CopyTo(audioOutput)
+                    pathHelper.UIExitAudio.CopyTo(audioOutput),
+
+                    threeJS.CopyTo(jsOutput.CD("libs"))
                 ],
                 OptionalDependencies = CopyMetaFiles("apps", tsInput, jsOutput)
                     .Union(CopyMetaFiles("tests", tsInput, jsOutput)),
                 AdditionalNPMProjects =
                 [
-                    primroseDir
+                    primroseDir,
+                    juniperDir
                 ]
             };
 

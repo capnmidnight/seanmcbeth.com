@@ -30,7 +30,7 @@
             ],
             "preLaunchTask": "build Gurt",
             "postDebugTask": "Terminate All Tasks",
-            "console": "internalConsole",
+            "console": "integratedTerminal",
             "serverReadyAction": {
                 "pattern": "\\brunning at address (https?://\\S+)",
                 "action": "debugWithChrome",
@@ -58,7 +58,7 @@
             ],
             "preLaunchTask": "build seanmcbeth.com",
             "postDebugTask": "Terminate All Tasks",
-            "console": "internalConsole",
+            "console": "integratedTerminal",
             "serverReadyAction": {
                 "pattern": "\\brunning at address (https?://\\S+)",
                 "action": "debugWithChrome",

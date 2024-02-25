@@ -80,7 +80,37 @@
         <header>
             <nav id="menu">
                 <ul>
+                    @{
+                        var path = Context.Request.Path;
+
+                        foreach (var (text, title, href) in new[] {
+                            ("home/", "Home", "/"),
+                            ("etc/", "Extras", "/other"),
+                            ("doc/", "Blog", "/blog")
+                        })
+                        {
+                            <li>
+                                @if(path == href) 
+                                {
+                                    <a aria-label="@title"
+                                        title="@title">
+                                        @text
+                                    </a>
+                                }
+                                else 
+                                {
+                                    <a href="@href"
+                                        aria-label="@title"
+                                        title="@title">
+                                        @text
+                                    </a>
+                                }
+                            </li>
+                        }
+                    }
+
                     @RenderSection("Menu", required: false)
+
                 </ul>
             </nav>
         </header>

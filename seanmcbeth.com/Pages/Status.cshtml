@@ -4,23 +4,5 @@
     ViewData["Title"] = $"Sean T. McBeth - {Model.Code}";
 }
 
-@section Menu {
-    @{
-        foreach (var (text, title, href) in new[] {
-            ("home/", "Home", "/"),
-            ("etc/", "Extras", "/other")
-        })
-        {
-            <li>
-                <a href="@href"
-                   aria-label="@title"
-                   title="@title">
-                    @text
-                </a>
-            </li>
-        }
-    }
-}
-
 <img src="https://http.cat/@Request.RouteValues["Code"]" style="display:block;margin:0 auto" />
 <a href="~/">Return home</a>
