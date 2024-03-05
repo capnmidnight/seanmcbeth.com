@@ -15,7 +15,8 @@ namespace SeanMcBeth
             "screenshot.jpg",
             "logo.png",
             "logo_small.png",
-            "*.bool"
+            "*.bool",
+            "*.wgsl"
         ];
 
         public BuildConfig()
