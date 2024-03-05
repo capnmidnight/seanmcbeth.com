@@ -1,12 +1,12 @@
 param (
-    [ValidateNotNullOrEmpty()]
-    [String] $ProjectName = "seanmcbeth.com",
-
     [ValidateSet("None", "Major", "Minor", "Patch")]    
     [String] $VersionBump = "None",
 
     [ValidateSet("None", "Debug", "Test", "Release")]
     [String] $Config = "Release",
+
+    [ValidateNotNullOrEmpty()]
+    [String] $ProjectName = "seanmcbeth.com",
 
     [Switch] $SkipClient
 )
