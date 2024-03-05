@@ -68,7 +68,8 @@
 
         "typeRoots": [
             "./node_modules/@types",
-            "./node_modules/@juniper-types"
+            "./node_modules/@juniper-types",
+            "./node_modules/@webgpu/types"
         ]
     }
 }
