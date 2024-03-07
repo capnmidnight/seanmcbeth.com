@@ -3,10 +3,11 @@ import { Tau, randomRange } from "@juniper-lib/tslib/dist/math";
 import { Vec2 } from "gl-matrix/dist/esm";
 
 const colors = [
-    "red", "green", "blue", "yellow", "magenta", "cyan", "grey", "black"
+    "red", "green", "blue", "yellow", "magenta", "cyan", "grey", "white"
 ];
 
-const DIRECTION = 0;
+const SPEED = 0;
+const DIRECTION = 1;
 
 const PINNED = 0;
 const GRABBED = 1;
@@ -14,17 +15,16 @@ const MOVING = 2;
 
 export class Ball {
 
-    static readonly BYTE_LENGTH = 2 * Vec2.BYTE_LENGTH
-        + 1 * Float32Array.BYTES_PER_ELEMENT
-        + 1 * Uint32Array.BYTES_PER_ELEMENT;
+    static readonly BYTE_LENGTH = 
+        /* vectors */  1 * Vec2.BYTE_LENGTH
+        /* fields */ + 2 * Float32Array.BYTES_PER_ELEMENT
+        /* flags */  + 2 * Uint32Array.BYTES_PER_ELEMENT;
 
     #pos: Vec2;
     get pos() { return this.#pos; }
 
-    #vel: Vec2;
-    get vel() { return this.#vel; }
-
     #fields: Float32Array;
+    get speed() { return this.#fields[SPEED]; }
     get direction() { return this.#fields[DIRECTION]; }
 
     #flags: Uint32Array;
@@ -53,40 +53,30 @@ export class Ball {
     set moving(v) { this.#setFlag(MOVING, v); }
 
     #color: string;
+    #connections: Float32Array;
 
-    constructor(storage: ArrayBuffer, offset: number, color: string) {
-        this.#pos = new Vec2(storage, offset);
-        offset += Vec2.BYTE_LENGTH;
-
-        this.#vel = new Vec2(storage, offset);
-        offset += Vec2.BYTE_LENGTH;
-
-        this.#fields = new Float32Array(storage, offset, 1);
-        offset += this.#fields.byteLength;
-
-        this.#flags = new Uint32Array(storage, offset, 1);
-        offset += this.#flags.byteLength;
-
-        this.#color = color;
+    isConnected(j: number){
+        return this.#connections[j] > 0;
     }
 
-    static create(count: number) {
+    static create(count: number, width: number, height: number) {
         const balls = new Array<Ball>(count);
         const ballBytes = Ball.BYTE_LENGTH * count;
-        const connectionBytes = Uint32Array.BYTES_PER_ELEMENT * count * count;
-        const ballStorage = new ArrayBuffer(ballBytes + connectionBytes);
-        const ballData = new Uint8Array(ballStorage, 0, ballBytes);
+        const ballData = new Uint8Array(ballBytes);
 
-        const connectionData = new Uint32Array(ballStorage, ballBytes, connectionBytes / Uint32Array.BYTES_PER_ELEMENT);
+        const connectionData = new Float32Array(count * count);
 
         for (let n = 0; n < count; ++n) {
-            balls[n] = Ball.#createOne(ballStorage, n * Ball.BYTE_LENGTH);
+            balls[n] = Ball.#createOne(ballData.buffer, connectionData.buffer, n, count, width, height);
+        }
 
-            const connIndex = n * count;
-            for (let m = 0; m < count; ++m) {
-                if (m != n) {
-                    connectionData[connIndex + m] = Math.random() < 0.2 ? 1 : 0;
-                }
+        for(let n = 0; n < count - 1; ++n){
+            for(let m = n + 1; m < count; ++m) {
+                const i = n * count + m;
+                const j = m * count + n;
+                const connected = Math.random() < 0.0005;
+                const weight = connected ? 0.2 : -0.5
+                connectionData[i] = connectionData[j] = weight;
             }
         }
 
@@ -97,33 +87,41 @@ export class Ball {
         }
     }
 
-    static #createOne(storage: ArrayBuffer, offset: number) {
+    static #createOne(storage: ArrayBuffer, connectionData: ArrayBuffer, n: number, count: number, width: number, height: number) {
         const color = arrayRandom(colors);
-        const angle = Tau * Math.random();
+        const ball = new Ball(storage, connectionData, n, count, color);        
 
-        const ball = new Ball(storage, offset, color);
-        
-        ball.pos.x = randomRange(.1, .9);
-        ball.pos.y = randomRange(.1, .9);
-        ball.vel.x = Math.cos(angle);
-        ball.vel.y = Math.sin(angle);
-        ball.vel.scale(.0001 * colors.indexOf(color));
-        ball.pinned = Math.random() < 0.01;
+        ball.pos.x = randomRange(0, width) - 0.5 * width;
+        ball.pos.y = randomRange(0, height) - 0.5 * height;
+        ball.pinned = false;
 
         return ball;
     }
 
-    draw(g: CanvasRenderingContext2D, invW: number, invH: number) {
-        const velSpeed = this.#vel.magnitude;
+    constructor(storage: ArrayBuffer, connectionData: ArrayBuffer, n: number, count: number, color: string) {
+        let offset = n * Ball.BYTE_LENGTH;
+        this.#pos = new Vec2(storage, offset);
+        offset += this.#pos.byteLength;
+
+        this.#fields = new Float32Array(storage, offset, 2);
+        offset += this.#fields.byteLength;
+
+        this.#flags = new Uint32Array(storage, offset, 1);
+        offset += this.#flags.byteLength;
+
+        this.#color = color;
+        this.#connections = new Float32Array(connectionData, n * count * Float32Array.BYTES_PER_ELEMENT, count);
+    }
+
+    draw(g: CanvasRenderingContext2D) {
         g.save();
         g.fillStyle = this.#color;
         g.translate(
             this.#pos.x,
             this.#pos.y
         );
-        g.scale(invW, invH);
         g.rotate(this.direction);
-        g.scale(1 + velSpeed * 10, 1);
+        g.scale(1 + 0.1 * this.speed, 1);
         g.beginPath();
         g.arc(0, 0, 10, 0, Tau, false);
         g.closePath();

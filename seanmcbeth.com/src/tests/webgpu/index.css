@@ -1,6 +1,7 @@
 main { 
     display: flex;
     flex-direction: column;
+    max-width: unset;
 }
 
 #frontBuffer {

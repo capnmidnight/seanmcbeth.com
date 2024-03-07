@@ -14,82 +14,246 @@ import { RequestAnimationFrameTimer } from "@juniper-lib/timers/dist/RequestAnim
 import { SetIntervalTimer } from "@juniper-lib/timers/dist/SetIntervalTimer";
 import { TimerTickEvent } from "@juniper-lib/timers/dist/ITimer";
 import "./index.css";
+import { Uniforms } from "./Uniforms";
 
+(async function () {
 
-const titleElement = H1(Query("main > h1"));
-const title = titleElement.innerText;
-const fetcher = createFetcher();
-const shaderAsset = new AssetWgslShader("/js/tests/webgpu/index.wgsl");
-await fetcher.assets(shaderAsset);
-const shader = shaderAsset.result;
-if (!shader.entryPoints.has("compute")) {
-    throw new Exception("No compute shader found:\n" + shader.code)
-}
-const NUM_BALLS = shader.constants.get("NUM_BALLS");
-const WORK_GROUP_SIZE = shader.constants.get("WORK_GROUP_SIZE");
-
-const adapter = await navigator.gpu.requestAdapter();
-const requiredFeatures = [feat("timestamp-query")].filter(isDefined);
-console.log(adapter);
-
-const device = await adapter.requestDevice({ requiredFeatures });
-
-const { balls, ballData: ballDataCPU, connectionData: connectionDataCPU } = Ball.create(NUM_BALLS);
-
-const ballDataGPUIn = device.createBuffer({
-    label: "ballDataGPUIn",
-    size: ballDataCPU.byteLength,
-    usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST
-});
-
-const ballDataGPUOut = device.createBuffer({
-    label: "ballDataGPUOut",
-    size: ballDataCPU.byteLength,
-    usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC
-});
-
-const ballDataGPUReadable = device.createBuffer({
-    label: "ballDataGPUReadable",
-    size: ballDataCPU.byteLength,
-    usage: GPUBufferUsage.MAP_READ | GPUBufferUsage.COPY_DST
-});
-
-const connectionDataGPUIn = device.createBuffer({
-    label: "connectionDataGPU",
-    size: connectionDataCPU.byteLength,
-    usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST
-});
-
-const uniformsBuffer = new Float32Array(1);
-const DT = 0;
-const uniformsBufferIn = device.createBuffer({
-    label: "uniformsBuffer",
-    size: uniformsBuffer.byteLength,
-    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
-});
-
-
-const updateShader = device.createShaderModule({
-    label: "Compute Shader",
-    code: shader.code
-});
-
-const info = await updateShader.getCompilationInfo();
-console.log(...info.messages);
-
-const computePipeline = await device.createComputePipelineAsync({
-    label: "computePipline",
-    layout: "auto",
-    compute: {
-        module: updateShader,
-        entryPoint: shader.entryPoints.get("compute")
+    if (!navigator.gpu) {
+        throw new Exception("No WebGPU global singleton");
     }
-});
 
-function createGroups(...entrieses: { label: string, buffer: GPUBuffer }[][]) {
+    const adapter = await navigator.gpu.requestAdapter();
+    if (!adapter) {
+        throw new Exception("Couldn't create adapter");
+    }
+
+    if (DEBUG) Object.assign(window, { adapter });
+
+    function feat(name: GPUFeatureName) {
+        if (adapter.features.has(name)) {
+            return name;
+        }
+
+        return null;
+    }
+
+    const requiredFeatures = [feat("timestamp-query")].filter(isDefined);
+    if (DEBUG) Object.assign(window, { requiredFeatures });
+
+    const device = await adapter.requestDevice({ requiredFeatures });
+    if (!device) {
+        throw new Exception("Couldn't create device");
+    }
+    if (DEBUG) Object.assign(window, { device });
+
+    const titleElement = H1(Query("main > h1"));
+    const title = titleElement.innerText;
+    const fetcher = createFetcher(false);
+    const shaderAsset = new AssetWgslShader("/js/tests/webgpu/index.wgsl");
+    await fetcher.assets(shaderAsset);
+    const shader = shaderAsset.result;
+    if (DEBUG) Object.assign(window, { shader });
+    if (!shader.entryPoints.has("compute")) {
+        throw new Exception("No compute shader found:\n" + shader.code)
+    }
+    const NUM_BALLS = shader.constants.get("NUM_BALLS");
+    const WORK_GROUP_SIZE = shader.constants.get("WORK_GROUP_SIZE");
+    if (DEBUG) Object.assign(window, { NUM_BALLS, WORK_GROUP_SIZE });
+
+    const updateShader = device.createShaderModule({
+        label: "Compute Shader",
+        code: shader.code
+    });
+    if (DEBUG) Object.assign(window, { updateShader });
+
+    await checkMessages("At shader creation", updateShader);
+    const computePipeline = await device.createComputePipelineAsync({
+        label: "computePipline",
+        layout: "auto",
+        compute: {
+            module: updateShader,
+            entryPoint: shader.entryPoints.get("compute")
+        }
+    });
+    if (DEBUG) Object.assign(window, { computePipeline });
+
+    await checkMessages("At pipeline creation", updateShader);
+
+    let cooling = false;
+    const uniforms = new Uniforms();
+    uniforms.limit = 200;
+    uniforms.attract = 0.5;
+    uniforms.repel = 0.1;
+    uniforms.grav = 1.5;
+    uniforms.k0 = 1.25;
+    if (DEBUG) Object.assign(window, { uniforms });
+
+    const canvas = Canvas(ID("frontBuffer"));
+    if (DEBUG) Object.assign(window, { canvas });
+
+    const g = canvas.getContext("2d");
+    if (DEBUG) Object.assign(window, { g });
+
+    const resize = debounce(() => {
+        canvas.width = canvas.clientWidth * devicePixelRatio;
+        canvas.height = canvas.clientHeight * devicePixelRatio;
+        const area = canvas.width * canvas.height;
+        const c0 = 1;
+        const c1 = 0.1;
+        const c2 = 1.25;
+        const c4 = 0.2;
+        const c5 = 1.75;
+        const k = c0 * Math.sqrt(c1 * area / NUM_BALLS);
+        uniforms.k1 = c2 / k;
+        uniforms.k2 = c4 * Math.pow(k, c5);
+    });
+    const resizer = new ResizeObserver((evts) => {
+        for (const evt of evts) {
+            if (evt.target === canvas) {
+                resize();
+            }
+        }
+    });
+
+    resize();
+
+    const { balls, ballData: ballsCPU, connectionData: connectionDataCPU } = Ball.create(NUM_BALLS, canvas.width, canvas.height);
+    if (DEBUG) Object.assign(window, { balls, ballsCPU, connectionDataCPU });
+
+    const ballsGPUIn = device.createBuffer({
+        label: "ballDataGPUIn",
+        size: ballsCPU.byteLength,
+        usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST
+    });
+
+    const ballGPUOut = device.createBuffer({
+        label: "ballDataGPUOut",
+        size: ballsCPU.byteLength,
+        usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC
+    });
+
+    const ballsGPUReadable = device.createBuffer({
+        label: "ballDataGPUReadable",
+        size: ballsCPU.byteLength,
+        usage: GPUBufferUsage.MAP_READ | GPUBufferUsage.COPY_DST
+    });
+
+    const uniformsGPU = device.createBuffer({
+        label: "uniformsBuffer",
+        size: uniforms.byteLength,
+        usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
+    });
+
+    const connectionsGPU = device.createBuffer({
+        label: "connectionDataGPU",
+        size: connectionDataCPU.byteLength,
+        usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST
+    });
+
+    const bindGroups = createGroups(device, computePipeline, [{
+        label: "ballsIn",
+        buffer: ballsGPUIn
+    }, {
+        label: "ballsOut",
+        buffer: ballGPUOut
+    }], [{
+        label: "uniforms",
+        buffer: uniformsGPU
+    }, {
+        label: "connections",
+        buffer: connectionsGPU
+    }]);
+
+    device.queue.writeBuffer(connectionsGPU, 0, connectionDataCPU);
+
+    const renderTimings = new RingBuffer<number>(10);
+    const updateTimings = new RingBuffer<number>(10);
+    const renderTimer = new RequestAnimationFrameTimer();
+    const infoTimer = new SetIntervalTimer(1);
+
+    renderTimer.addTickHandler(render);
+    infoTimer.addTickHandler(info);
+
+    resizer.observe(canvas);
+    animateAsync(update);
+    renderTimer.start();
+    infoTimer.start();
+
+    async function update(dt: number) {
+        uniforms.dt = dt;
+        updateTimings.push(dt);
+
+        device.queue.writeBuffer(ballsGPUIn, 0, ballsCPU);
+        device.queue.writeBuffer(uniformsGPU, 0, uniforms);
+
+        const commandEncoder = device.createCommandEncoder();
+        const computePass = commandEncoder.beginComputePass();
+        computePass.setPipeline(computePipeline);
+        for (let i = 0; i < bindGroups.length; ++i) {
+            computePass.setBindGroup(i, bindGroups[i]);
+        }
+        computePass.dispatchWorkgroups(Math.ceil(balls.length / WORK_GROUP_SIZE));
+        computePass.end();
+
+        commandEncoder.copyBufferToBuffer(ballGPUOut, 0, ballsGPUReadable, 0, ballGPUOut.size);
+
+        const commands = commandEncoder.finish();
+
+        device.queue.submit([commands]);
+
+        await ballsGPUReadable.mapAsync(GPUMapMode.READ);
+        const gpuToCpuArrayBuffer = ballsGPUReadable.getMappedRange();
+        const dump = new Uint8Array(gpuToCpuArrayBuffer);
+        ballsCPU.set(dump);
+        ballsGPUReadable.unmap();
+
+        if (cooling) {
+            uniforms.limit *= 0.95;
+        }
+    }
+
+    function render(evt: TimerTickEvent) {
+        renderTimings.push(.001 * evt.dt);
+        g.clearRect(0, 0, canvas.width, canvas.height);
+        g.save();
+        g.translate(0.5 * canvas.width, 0.5 * canvas.height);
+
+        g.strokeStyle = "white";
+        g.lineWidth = 2;
+        for(let i = 0; i < NUM_BALLS - 1; ++i) {
+            const ball = balls[i];
+            for(let j = i + 1; j < NUM_BALLS; ++j){
+                if(ball.isConnected(j)) {
+                    const other = balls[j];
+                    g.beginPath();
+                    g.moveTo(ball.pos.x, ball.pos.y);
+                    g.lineTo(other.pos.x, other.pos.y);
+                    g.stroke();
+                }
+            }
+        }
+
+        for(const ball of balls) {
+            ball.draw(g);
+        }
+        g.restore();
+    }
+
+    function info() {
+        if (renderTimings.length === 10 && updateTimings.length === 10) {
+            const fr = renderTimings.reduce((a, b) => a + b / 10, 0);
+            const fps = 1 / fr;
+            const ur = updateTimings.reduce((a, b) => a + b / 10, 0);
+            const ups = 1 / ur;
+            titleElement.innerText = `${title} - ${fps.toFixed(0)}/${ups.toFixed(0)}`;
+        }
+    }
+})();
+
+function createGroups(device: GPUDevice, pipeline: GPUComputePipeline, ...entrieses: { label: string, buffer: GPUBuffer }[][]) {
     return entrieses.map((entries, group) => device.createBindGroup({
         label: `Group ${group}`,
-        layout: computePipeline.getBindGroupLayout(group),
+        layout: pipeline.getBindGroupLayout(group),
         entries: entries.map((entry, binding) => ({
             binding,
             resource: {
@@ -102,113 +266,23 @@ function createGroups(...entrieses: { label: string, buffer: GPUBuffer }[][]) {
     }));
 }
 
-const bindGroups = createGroups([{
-    label: "ballsIn",
-    buffer: ballDataGPUIn
-}, {
-    label: "connections",
-    buffer: connectionDataGPUIn
-}, {
-    label: "ballsOut",
-    buffer: ballDataGPUOut
-}], [{
-    label: "uniforms",
-    buffer: uniformsBufferIn
-}]);
+async function checkMessages(location: string, shader: GPUShaderModule) {
+    const compInfo = await shader.getCompilationInfo();
+    const infos = compInfo.messages.filter(m => m.type === "info");
+    const warnings = compInfo.messages.filter(m => m.type === "warning");
+    const errors = compInfo.messages.filter(m => m.type === "error");
 
-const canvas = Canvas(ID("frontBuffer"));
-const g = canvas.getContext("2d");
-const resize = debounce(_resize);
-const updateTimings = new RingBuffer<number>(10);
-const renderTimings = new RingBuffer<number>(10);
-const renderTimer = new RequestAnimationFrameTimer();
-const infoTimer = new SetIntervalTimer(1);
-let width: number;
-let height: number;
-let invWidth: number;
-let invHeight: number;
-
-const resizer = new ResizeObserver((evts) => {
-    for(const evt of evts) { 
-        if(evt.target === canvas) {
-            resize();
-        }
-    }
-});
-
-infoTimer.addTickHandler(() => {
-    if(renderTimings.length === 10 && updateTimings.length === 10) {
-        const fr = renderTimings.reduce((a, b) => a + b / 10, 0);
-        const rps = 1 / fr;
-        const ur = updateTimings.reduce((a, b) => a + b / 10, 0);
-        const ups = 1 / ur;
-        titleElement.innerText = `${title} - ${rps.toFixed(0)}/${ups.toFixed(0)}`;
-    }
-});
-
-resize();
-resizer.observe(canvas);
-
-animateAsync(update);
-renderTimer.addTickHandler(render);
-infoTimer.start();
-renderTimer.start();
-
-device.queue.writeBuffer(connectionDataGPUIn, 0, connectionDataCPU);
-
-async function update(dt: number) {
-    updateTimings.push(dt);
-    uniformsBuffer[DT] = dt;
-
-    device.queue.writeBuffer(ballDataGPUIn, 0, ballDataCPU);
-    device.queue.writeBuffer(uniformsBufferIn, 0, uniformsBuffer);
-
-    const commandEncoder = device.createCommandEncoder();
-    const computePass = commandEncoder.beginComputePass();
-    computePass.setPipeline(computePipeline);
-    for(let i = 0; i < bindGroups.length; ++i) {
-        computePass.setBindGroup(i, bindGroups[i]);
-    }
-    computePass.dispatchWorkgroups(Math.ceil(balls.length / WORK_GROUP_SIZE));
-    computePass.end();
-
-    commandEncoder.copyBufferToBuffer(ballDataGPUOut, 0, ballDataGPUReadable, 0, ballDataGPUOut.size);
-
-    const commands = commandEncoder.finish();
-
-    device.queue.submit([commands]);
-
-    await ballDataGPUReadable.mapAsync(GPUMapMode.READ);
-    const gpuToCpuArrayBuffer = ballDataGPUReadable.getMappedRange();
-    const dump = new Uint8Array(gpuToCpuArrayBuffer);
-    ballDataCPU.set(dump);
-    ballDataGPUReadable.unmap();
-}
-
-function render(evt: TimerTickEvent) {
-    renderTimings.push(.001 * evt.dt);
-    g.clearRect(0, 0, canvas.width, canvas.height);
-    g.save();
-    g.scale(canvas.width, canvas.height);
-    for(const ball of balls) {
-        ball.draw(g, invWidth, invHeight);
-    }
-    g.restore();
-}
-
-function _resize() {
-    width = canvas.width = canvas.clientWidth * devicePixelRatio;
-    height = canvas.height = canvas.clientHeight * devicePixelRatio;
-    invWidth = 1 / width;
-    invHeight = 1 / height;
-}
-
-function feat(name: GPUFeatureName) {
-    if (adapter.features.has(name)) {
-        return name;
+    for (const info of infos) {
+        console.info(info);
     }
 
-    return null;
+    for (const warning of warnings) {
+        console.warn(warning);
+    }
+
+    if (errors.length > 0) {
+        throw new Exception(`Shader compilation error (${location})`, errors);
+    }
 }
 
 function animateAsync(callback: (dt?: number, t?: number) => Promise<void>) {
