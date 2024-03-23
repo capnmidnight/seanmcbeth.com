@@ -1,4 +1,5 @@
 {
     "dotnet.preferVisualStudioCodeFileSystemWatcher": true,
-    "csharp.suppressDotnetRestoreNotification": true
+    "csharp.suppressDotnetRestoreNotification": true,
+    "dotnet.defaultSolution": "Personal Site.sln"
 }

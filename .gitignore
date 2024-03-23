@@ -67,3 +67,5 @@ package-lock.json
 /UnrealVRProject1/
 *.db-shm
 *.db-wal
+
+.fake
