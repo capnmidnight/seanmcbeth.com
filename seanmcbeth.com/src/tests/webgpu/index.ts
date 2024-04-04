@@ -27,8 +27,6 @@ import { Uniforms } from "./Uniforms";
         throw new Exception("Couldn't create adapter");
     }
 
-    if (DEBUG) Object.assign(window, { adapter });
-
     function feat(name: GPUFeatureName) {
         if (adapter.features.has(name)) {
             return name;
@@ -38,13 +36,10 @@ import { Uniforms } from "./Uniforms";
     }
 
     const requiredFeatures = [feat("timestamp-query")].filter(isDefined);
-    if (DEBUG) Object.assign(window, { requiredFeatures });
-
     const device = await adapter.requestDevice({ requiredFeatures });
     if (!device) {
         throw new Exception("Couldn't create device");
     }
-    if (DEBUG) Object.assign(window, { device });
 
     const titleElement = H1(Query("main > h1"));
     const title = titleElement.innerText;
@@ -52,20 +47,17 @@ import { Uniforms } from "./Uniforms";
     const shaderAsset = new AssetWgslShader("/js/tests/webgpu/index.wgsl");
     await fetcher.assets(shaderAsset);
     const shader = shaderAsset.result;
-    if (DEBUG) Object.assign(window, { shader });
     if (!shader.entryPoints.has("compute")) {
         throw new Exception("No compute shader found:\n" + shader.code)
     }
     const NUM_BALLS = shader.constants.get("NUM_BALLS");
     const WORK_GROUP_SIZE = shader.constants.get("WORK_GROUP_SIZE");
-    if (DEBUG) Object.assign(window, { NUM_BALLS, WORK_GROUP_SIZE });
-
+    
     const updateShader = device.createShaderModule({
         label: "Compute Shader",
         code: shader.code
     });
-    if (DEBUG) Object.assign(window, { updateShader });
-
+    
     await checkMessages("At shader creation", updateShader);
     const computePipeline = await device.createComputePipelineAsync({
         label: "computePipline",
@@ -75,8 +67,7 @@ import { Uniforms } from "./Uniforms";
             entryPoint: shader.entryPoints.get("compute")
         }
     });
-    if (DEBUG) Object.assign(window, { computePipeline });
-
+    
     await checkMessages("At pipeline creation", updateShader);
 
     let cooling = false;
@@ -86,14 +77,9 @@ import { Uniforms } from "./Uniforms";
     uniforms.repel = 0.1;
     uniforms.grav = 1.5;
     uniforms.k0 = 1.25;
-    if (DEBUG) Object.assign(window, { uniforms });
-
+    
     const canvas = Canvas(ID("frontBuffer"));
-    if (DEBUG) Object.assign(window, { canvas });
-
     const g = canvas.getContext("2d");
-    if (DEBUG) Object.assign(window, { g });
-
     const resize = debounce(() => {
         canvas.width = canvas.clientWidth * devicePixelRatio;
         canvas.height = canvas.clientHeight * devicePixelRatio;
@@ -118,8 +104,6 @@ import { Uniforms } from "./Uniforms";
     resize();
 
     const { balls, ballData: ballsCPU, connectionData: connectionDataCPU } = Ball.create(NUM_BALLS, canvas.width, canvas.height);
-    if (DEBUG) Object.assign(window, { balls, ballsCPU, connectionDataCPU });
-
     const ballsGPUIn = device.createBuffer({
         label: "ballDataGPUIn",
         size: ballsCPU.byteLength,

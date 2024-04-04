@@ -1772,7 +1772,10 @@ var FetchingService = class {
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/collections/dist/mapMap.js
 function mapMap(items, makeID, makeValue) {
-  return new Map(items.map((item) => [makeID(item), makeValue(item)]));
+  return new Map(items.map((item, i) => [
+    makeID(item, i),
+    makeValue(item, i)
+  ]));
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/collections/dist/makeLookup.js
@@ -1963,7 +1966,67 @@ var PriorityMap = class {
   }
 };
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/indexdb/dist/index.js
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/indexdb/dist/IDexStore.js
+var IDexStore = class {
+  constructor(db, storeName) {
+    this.db = db;
+    this.storeName = storeName;
+  }
+  async request(makeRequest, mode) {
+    const transaction = this.db.transaction(this.storeName, mode);
+    const transacting = once(transaction, "complete", "error");
+    const store = transaction.objectStore(this.storeName);
+    const request = makeRequest(store);
+    const requesting = once(request, "success", "error");
+    if (!await success(requesting)) {
+      transaction.abort();
+      throw requesting.error;
+    }
+    transaction.commit();
+    if (!await success(transacting)) {
+      throw transacting.error;
+    }
+    return request.result;
+  }
+  add(value, key) {
+    return this.request((store) => store.add(value, key), "readwrite");
+  }
+  clear() {
+    return this.request((store) => store.clear(), "readwrite");
+  }
+  getCount(query) {
+    return this.request((store) => store.count(query), "readonly");
+  }
+  async has(query) {
+    return await this.getCount(query) > 0;
+  }
+  delete(query) {
+    return this.request((store) => store.delete(query), "readwrite");
+  }
+  get(key) {
+    return this.request((store) => store.get(key), "readonly");
+  }
+  getAll() {
+    return this.request((store) => store.getAll(), "readonly");
+  }
+  getAllKeys() {
+    return this.request((store) => store.getAllKeys(), "readonly");
+  }
+  getKey(query) {
+    return this.request((store) => store.getKey(query), "readonly");
+  }
+  openCursor(query, direction) {
+    return this.request((store) => store.openCursor(query, direction), "readonly");
+  }
+  openKeyCursor(query, direction) {
+    return this.request((store) => store.openKeyCursor(query, direction), "readonly");
+  }
+  put(value, key) {
+    return this.request((store) => store.put(value, key), "readwrite");
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/indexdb/dist/IDexDB.js
 var IDexDB = class _IDexDB {
   static delete(dbName) {
     const deleteRequest = indexedDB.deleteDatabase(dbName);
@@ -2113,64 +2176,6 @@ var IDexDB = class _IDexDB {
   }
   getStore(storeName) {
     return new IDexStore(this.db, storeName);
-  }
-};
-var IDexStore = class {
-  constructor(db, storeName) {
-    this.db = db;
-    this.storeName = storeName;
-  }
-  async request(makeRequest, mode) {
-    const transaction = this.db.transaction(this.storeName, mode);
-    const transacting = once(transaction, "complete", "error");
-    const store = transaction.objectStore(this.storeName);
-    const request = makeRequest(store);
-    const requesting = once(request, "success", "error");
-    if (!await success(requesting)) {
-      transaction.abort();
-      throw requesting.error;
-    }
-    transaction.commit();
-    if (!await success(transacting)) {
-      throw transacting.error;
-    }
-    return request.result;
-  }
-  add(value, key) {
-    return this.request((store) => store.add(value, key), "readwrite");
-  }
-  clear() {
-    return this.request((store) => store.clear(), "readwrite");
-  }
-  getCount(query) {
-    return this.request((store) => store.count(query), "readonly");
-  }
-  async has(query) {
-    return await this.getCount(query) > 0;
-  }
-  delete(query) {
-    return this.request((store) => store.delete(query), "readwrite");
-  }
-  get(key) {
-    return this.request((store) => store.get(key), "readonly");
-  }
-  getAll() {
-    return this.request((store) => store.getAll(), "readonly");
-  }
-  getAllKeys() {
-    return this.request((store) => store.getAllKeys(), "readonly");
-  }
-  getKey(query) {
-    return this.request((store) => store.getKey(query), "readonly");
-  }
-  openCursor(query, direction) {
-    return this.request((store) => store.openCursor(query, direction), "readonly");
-  }
-  openKeyCursor(query, direction) {
-    return this.request((store) => store.openKeyCursor(query, direction), "readonly");
-  }
-  put(value, key) {
-    return this.request((store) => store.put(value, key), "readwrite");
   }
 };
 
@@ -2545,11 +2550,11 @@ function isProgressCallback(obj) {
 var oculusBrowserPattern = /OculusBrowser\/(\d+)\.(\d+)\.(\d+)/i;
 var oculusMatch = /* @__PURE__ */ navigator.userAgent.match(oculusBrowserPattern);
 var isOculusBrowser = !!oculusMatch;
-var oculusBrowserVersion = isOculusBrowser && {
+var oculusBrowserVersion = isOculusBrowser && oculusMatch && {
   major: parseFloat(oculusMatch[1]),
   minor: parseFloat(oculusMatch[2]),
   patch: parseFloat(oculusMatch[3])
-};
+} || null;
 var isOculusGo = isOculusBrowser && /pacific/i.test(navigator.userAgent);
 var isOculusQuest = isOculusBrowser && /quest/i.test(navigator.userAgent);
 var isOculusQuest2 = isOculusBrowser && /quest 2/i.test(navigator.userAgent);

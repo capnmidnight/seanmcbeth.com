@@ -74,7 +74,27 @@ function alwaysFalse() {
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/collections/dist/mapMap.js
 function mapMap(items, makeID, makeValue) {
-  return new Map(items.map((item) => [makeID(item), makeValue(item)]));
+  return new Map(items.map((item, i) => [
+    makeID(item, i),
+    makeValue(item, i)
+  ]));
+}
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/src/typeChecks.ts
+function t2(o, s, c) {
+  return typeof o === s || o instanceof c;
+}
+function isString2(obj) {
+  return t2(obj, "string", String);
+}
+function isObject2(obj) {
+  return isDefined2(obj) && t2(obj, "object", Object);
+}
+function isNullOrUndefined2(obj) {
+  return obj === null || obj === void 0;
+}
+function isDefined2(obj) {
+  return !isNullOrUndefined2(obj);
 }
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/collections/dist/makeLookup.js
@@ -649,7 +669,67 @@ function using(val, thunk) {
   }
 }
 
-// ../Juniper/src/Juniper.TypeScript/@juniper-lib/indexdb/dist/index.js
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/indexdb/dist/IDexStore.js
+var IDexStore = class {
+  constructor(db, storeName) {
+    this.db = db;
+    this.storeName = storeName;
+  }
+  async request(makeRequest, mode) {
+    const transaction = this.db.transaction(this.storeName, mode);
+    const transacting = once(transaction, "complete", "error");
+    const store = transaction.objectStore(this.storeName);
+    const request = makeRequest(store);
+    const requesting = once(request, "success", "error");
+    if (!await success(requesting)) {
+      transaction.abort();
+      throw requesting.error;
+    }
+    transaction.commit();
+    if (!await success(transacting)) {
+      throw transacting.error;
+    }
+    return request.result;
+  }
+  add(value, key) {
+    return this.request((store) => store.add(value, key), "readwrite");
+  }
+  clear() {
+    return this.request((store) => store.clear(), "readwrite");
+  }
+  getCount(query) {
+    return this.request((store) => store.count(query), "readonly");
+  }
+  async has(query) {
+    return await this.getCount(query) > 0;
+  }
+  delete(query) {
+    return this.request((store) => store.delete(query), "readwrite");
+  }
+  get(key) {
+    return this.request((store) => store.get(key), "readonly");
+  }
+  getAll() {
+    return this.request((store) => store.getAll(), "readonly");
+  }
+  getAllKeys() {
+    return this.request((store) => store.getAllKeys(), "readonly");
+  }
+  getKey(query) {
+    return this.request((store) => store.getKey(query), "readonly");
+  }
+  openCursor(query, direction) {
+    return this.request((store) => store.openCursor(query, direction), "readonly");
+  }
+  openKeyCursor(query, direction) {
+    return this.request((store) => store.openKeyCursor(query, direction), "readonly");
+  }
+  put(value, key) {
+    return this.request((store) => store.put(value, key), "readwrite");
+  }
+};
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/indexdb/dist/IDexDB.js
 var IDexDB = class _IDexDB {
   static delete(dbName) {
     const deleteRequest = indexedDB.deleteDatabase(dbName);
@@ -799,64 +879,6 @@ var IDexDB = class _IDexDB {
   }
   getStore(storeName) {
     return new IDexStore(this.db, storeName);
-  }
-};
-var IDexStore = class {
-  constructor(db, storeName) {
-    this.db = db;
-    this.storeName = storeName;
-  }
-  async request(makeRequest, mode) {
-    const transaction = this.db.transaction(this.storeName, mode);
-    const transacting = once(transaction, "complete", "error");
-    const store = transaction.objectStore(this.storeName);
-    const request = makeRequest(store);
-    const requesting = once(request, "success", "error");
-    if (!await success(requesting)) {
-      transaction.abort();
-      throw requesting.error;
-    }
-    transaction.commit();
-    if (!await success(transacting)) {
-      throw transacting.error;
-    }
-    return request.result;
-  }
-  add(value, key) {
-    return this.request((store) => store.add(value, key), "readwrite");
-  }
-  clear() {
-    return this.request((store) => store.clear(), "readwrite");
-  }
-  getCount(query) {
-    return this.request((store) => store.count(query), "readonly");
-  }
-  async has(query) {
-    return await this.getCount(query) > 0;
-  }
-  delete(query) {
-    return this.request((store) => store.delete(query), "readwrite");
-  }
-  get(key) {
-    return this.request((store) => store.get(key), "readonly");
-  }
-  getAll() {
-    return this.request((store) => store.getAll(), "readonly");
-  }
-  getAllKeys() {
-    return this.request((store) => store.getAllKeys(), "readonly");
-  }
-  getKey(query) {
-    return this.request((store) => store.getKey(query), "readonly");
-  }
-  openCursor(query, direction) {
-    return this.request((store) => store.openCursor(query, direction), "readonly");
-  }
-  openKeyCursor(query, direction) {
-    return this.request((store) => store.openKeyCursor(query, direction), "readonly");
-  }
-  put(value, key) {
-    return this.request((store) => store.put(value, key), "readwrite");
   }
 };
 
@@ -1550,15 +1572,35 @@ var FetchingServiceImplXHR = class {
 var oculusBrowserPattern = /OculusBrowser\/(\d+)\.(\d+)\.(\d+)/i;
 var oculusMatch = /* @__PURE__ */ navigator.userAgent.match(oculusBrowserPattern);
 var isOculusBrowser = !!oculusMatch;
-var oculusBrowserVersion = isOculusBrowser && {
+var oculusBrowserVersion = isOculusBrowser && oculusMatch && {
   major: parseFloat(oculusMatch[1]),
   minor: parseFloat(oculusMatch[2]),
   patch: parseFloat(oculusMatch[3])
-};
+} || null;
 var isOculusGo = isOculusBrowser && /pacific/i.test(navigator.userAgent);
 var isOculusQuest = isOculusBrowser && /quest/i.test(navigator.userAgent);
 var isOculusQuest2 = isOculusBrowser && /quest 2/i.test(navigator.userAgent);
 var isWorkerSupported = "Worker" in globalThis;
+
+// ../Juniper/src/Juniper.TypeScript/@juniper-lib/tslib/src/makeErrorMessage.ts
+function makeErrorMessage(errorMessageOrError, maybeError) {
+  let errorMessage = "$1";
+  if (isString2(errorMessageOrError)) {
+    errorMessage = errorMessageOrError;
+  }
+  if (isObject2(maybeError) && "target" in maybeError) {
+    maybeError = maybeError.target;
+  }
+  if (isObject2(maybeError) && "message" in maybeError) {
+    maybeError = maybeError.message;
+  }
+  if (isObject2(maybeError) && "error" in maybeError) {
+    maybeError = maybeError.error;
+  }
+  const error = JSON.stringify(maybeError);
+  errorMessage = errorMessage.replaceAll(/\$1\b/g, error);
+  return errorMessage;
+}
 
 // ../Juniper/src/Juniper.TypeScript/@juniper-lib/workers/dist/WorkerServer.js
 var WorkerServerProgress = class extends BaseProgress {
@@ -1619,22 +1661,17 @@ var WorkerServer = class {
           method(data.taskID);
         }
       } catch (exp) {
-        this.onError(data.taskID, `method invocation error: ${data.methodName}(${exp.message || exp})`);
+        this.onError(data.taskID, `method invocation error: ${data.methodName}($1)`, exp);
       }
     } else {
       this.onError(data.taskID, `method not found: ${data.methodName}`);
     }
   }
-  /**
-   * Report an error back to the calling thread.
-   * @param taskID - the invocation ID of the method that errored.
-   * @param errorMessage - what happened?
-   */
-  onError(taskID, errorMessage) {
+  onError(taskID, errorMessageOrError, maybeError) {
     const message = {
       type: "error",
       taskID,
-      errorMessage
+      errorMessage: makeErrorMessage(errorMessageOrError, maybeError)
     };
     this.postMessage(message);
   }
@@ -1676,7 +1713,7 @@ var WorkerServer = class {
         this.onReturn(taskID, returnValue, transferReturnValue);
       } catch (exp) {
         console.error(exp);
-        this.onError(taskID, exp.message || exp);
+        this.onError(taskID, exp);
       }
     });
   }

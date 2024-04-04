@@ -11,16 +11,6 @@
       "launchBrowser": true,
       "launchUrl": "https://localhost/editor",
       "dotnetRunMessages": true
-    },
-    "Yarrow (Interactive Build Tool)": {
-      "commandName": "Project",
-      "commandLineArgs": "--interactive",
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development",
-        "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation"
-      },
-      "launchBrowser": false,
-      "dotnetRunMessages": true
     }
   }
 }

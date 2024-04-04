@@ -9,28 +9,21 @@ using Microsoft.AspNetCore.Identity;
 using Yarrow;
 using Yarrow.Data;
 
-if (BuildRunOptions.IsBuildCommand(args))
-{
-    await BuildSystem<BuildConfig>.Run(args);
-}
-else
-{
-    var app = WebApplication.CreateBuilder(args)
-        .UseSystemd()
-        .ConfigureJuniperWebApplication()
-        .ConfigureJuniperDatabase<Sqlite, YarrowContext>("Name=Yarrow")
-        .AddJuniperBuildSystem<BuildConfig>()
-        .AddJuniperHTTPClient()
-        .ConfigureJuniperSpeechService()
-        .ConfigureJuniperGoogleMaps()
-        .Build()
-        .MigrateDatabase<YarrowContext>();
+var app = WebApplication.CreateBuilder(args)
+    .UseSystemd()
+    .ConfigureJuniperWebApplication()
+    .ConfigureJuniperDatabase<Sqlite, YarrowContext>("Name=Yarrow")
+    .AddJuniperBuildSystem<BuildConfig>()
+    .AddJuniperHTTPClient()
+    .ConfigureJuniperSpeechService()
+    .ConfigureJuniperGoogleMaps()
+    .Build()
+    .MigrateDatabase<YarrowContext>();
 
-    await app.ImportDataAsync(args, generator: new YarrowDataSeeder());
+await app.ImportDataAsync(args, generator: new YarrowDataSeeder());
 
-    await app.ConfigureJuniperRequestPipeline()
-        .BuildAndRunAsync();
-}
+await app.ConfigureJuniperRequestPipeline()
+    .BuildAndRunAsync();
 
 class YarrowDataSeeder : IDataGenerator<YarrowContext>
 {
