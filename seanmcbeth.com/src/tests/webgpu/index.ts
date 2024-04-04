@@ -1,18 +1,19 @@
 
 // reference: https://gpuweb.github.io/gpuweb/
 
-import { Exception } from "@juniper-lib/tslib/dist/Exception";
-import { createFetcher } from "../../createFetcher";
-import { AssetWgslShader } from "./WgslShader";
-import { Canvas, H1 } from "@juniper-lib/dom/dist/tags";
-import { ID, Query } from "@juniper-lib/dom/dist/attrs";
-import { isDefined } from "@juniper-lib/tslib/dist/typeChecks"
-import { Ball } from "./Ball";
-import { debounce } from "@juniper-lib/events/dist/debounce";
 import { RingBuffer } from "@juniper-lib/collections/dist/RingBuffer";
+import { ID, Query } from "@juniper-lib/dom/dist/attrs";
+import { Canvas, H1 } from "@juniper-lib/dom/dist/tags";
+import { debounce } from "@juniper-lib/events/dist/debounce";
+import { TimerTickEvent } from "@juniper-lib/timers/dist/ITimer";
 import { RequestAnimationFrameTimer } from "@juniper-lib/timers/dist/RequestAnimationFrameTimer";
 import { SetIntervalTimer } from "@juniper-lib/timers/dist/SetIntervalTimer";
-import { TimerTickEvent } from "@juniper-lib/timers/dist/ITimer";
+import { Exception } from "@juniper-lib/tslib/dist/Exception";
+import { randomRange } from "@juniper-lib/tslib/dist/math";
+import { isDefined } from "@juniper-lib/tslib/dist/typeChecks";
+import { AssetWgslShader } from "@juniper-lib/webgpu/dist/WgslShader";
+import { createFetcher } from "../../createFetcher";
+import { Ball } from "./Ball";
 import "./index.css";
 import { Uniforms } from "./Uniforms";
 
@@ -50,15 +51,13 @@ import { Uniforms } from "./Uniforms";
     if (!shader.entryPoints.has("compute")) {
         throw new Exception("No compute shader found:\n" + shader.code)
     }
-    const NUM_BALLS = shader.constants.get("NUM_BALLS");
+
+    const NUM_BALLS = 50;
+    shader.constants.set("NUM_BALLS", NUM_BALLS);
     const WORK_GROUP_SIZE = shader.constants.get("WORK_GROUP_SIZE");
-    
-    const updateShader = device.createShaderModule({
-        label: "Compute Shader",
-        code: shader.code
-    });
-    
-    await checkMessages("At shader creation", updateShader);
+
+    const updateShader = await shader.compile(device);
+
     const computePipeline = await device.createComputePipelineAsync({
         label: "computePipline",
         layout: "auto",
@@ -67,19 +66,19 @@ import { Uniforms } from "./Uniforms";
             entryPoint: shader.entryPoints.get("compute")
         }
     });
-    
-    await checkMessages("At pipeline creation", updateShader);
 
     let cooling = false;
     const uniforms = new Uniforms();
-    uniforms.limit = 200;
+    uniforms.limit = 10000;
     uniforms.attract = 0.5;
     uniforms.repel = 0.1;
     uniforms.grav = 1.5;
     uniforms.k0 = 1.25;
-    
+
     const canvas = Canvas(ID("frontBuffer"));
+
     const g = canvas.getContext("2d");
+
     const resize = debounce(() => {
         canvas.width = canvas.clientWidth * devicePixelRatio;
         canvas.height = canvas.clientHeight * devicePixelRatio;
@@ -103,7 +102,23 @@ import { Uniforms } from "./Uniforms";
 
     resize();
 
-    const { balls, ballData: ballsCPU, connectionData: connectionDataCPU } = Ball.create(NUM_BALLS, canvas.width, canvas.height);
+    const { balls, ballData: ballsCPU, connectionData: connectionDataCPU } = Ball.create(NUM_BALLS);
+
+    for (const ball of balls) {
+        ball.pos.x = randomRange(0, canvas.width) - 0.5 * canvas.width;
+        ball.pos.y = randomRange(0, canvas.height) - 0.5 * canvas.height;
+    }
+
+    for (let n = 0; n < balls.length - 1; ++n) {
+        for (let m = n + 1; m < balls.length; ++m) {
+            const i = n * balls.length + m;
+            const j = m * balls.length + n;
+            const connected = Math.random() < 0.005;
+            const weight = connected ? 0.6 : -0.4
+            connectionDataCPU[i] = connectionDataCPU[j] = weight;
+        }
+    }
+
     const ballsGPUIn = device.createBuffer({
         label: "ballDataGPUIn",
         size: ballsCPU.byteLength,
@@ -248,25 +263,6 @@ function createGroups(device: GPUDevice, pipeline: GPUComputePipeline, ...entrie
             }
         }))
     }));
-}
-
-async function checkMessages(location: string, shader: GPUShaderModule) {
-    const compInfo = await shader.getCompilationInfo();
-    const infos = compInfo.messages.filter(m => m.type === "info");
-    const warnings = compInfo.messages.filter(m => m.type === "warning");
-    const errors = compInfo.messages.filter(m => m.type === "error");
-
-    for (const info of infos) {
-        console.info(info);
-    }
-
-    for (const warning of warnings) {
-        console.warn(warning);
-    }
-
-    if (errors.length > 0) {
-        throw new Exception(`Shader compilation error (${location})`, errors);
-    }
 }
 
 function animateAsync(callback: (dt?: number, t?: number) => Promise<void>) {

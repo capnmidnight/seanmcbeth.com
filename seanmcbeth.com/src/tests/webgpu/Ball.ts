@@ -1,5 +1,5 @@
 import { arrayRandom } from "@juniper-lib/collections/dist/arrays";
-import { Tau, randomRange } from "@juniper-lib/tslib/dist/math";
+import { Tau } from "@juniper-lib/tslib/dist/math";
 import { Vec2 } from "gl-matrix/dist/esm";
 
 const colors = [
@@ -15,10 +15,10 @@ const MOVING = 2;
 
 export class Ball {
 
-    static readonly BYTE_LENGTH = 
+    static readonly BYTE_LENGTH =
         /* vectors */  1 * Vec2.BYTE_LENGTH
         /* fields */ + 2 * Float32Array.BYTES_PER_ELEMENT
-        /* flags */  + 2 * Uint32Array.BYTES_PER_ELEMENT;
+        /* flags */ + 2 * Uint32Array.BYTES_PER_ELEMENT;
 
     #pos: Vec2;
     get pos() { return this.#pos; }
@@ -55,11 +55,11 @@ export class Ball {
     #color: string;
     #connections: Float32Array;
 
-    isConnected(j: number){
+    isConnected(j: number) {
         return this.#connections[j] > 0;
     }
 
-    static create(count: number, width: number, height: number) {
+    static create(count: number) {
         const balls = new Array<Ball>(count);
         const ballBytes = Ball.BYTE_LENGTH * count;
         const ballData = new Uint8Array(ballBytes);
@@ -67,17 +67,7 @@ export class Ball {
         const connectionData = new Float32Array(count * count);
 
         for (let n = 0; n < count; ++n) {
-            balls[n] = Ball.#createOne(ballData.buffer, connectionData.buffer, n, count, width, height);
-        }
-
-        for(let n = 0; n < count - 1; ++n){
-            for(let m = n + 1; m < count; ++m) {
-                const i = n * count + m;
-                const j = m * count + n;
-                const connected = Math.random() < 0.0005;
-                const weight = connected ? 0.2 : -0.5
-                connectionData[i] = connectionData[j] = weight;
-            }
+            balls[n] = Ball.#createOne(ballData.buffer, connectionData.buffer, n, count);
         }
 
         return {
@@ -87,13 +77,9 @@ export class Ball {
         }
     }
 
-    static #createOne(storage: ArrayBuffer, connectionData: ArrayBuffer, n: number, count: number, width: number, height: number) {
+    static #createOne(storage: ArrayBuffer, connectionData: ArrayBuffer, n: number, count: number) {
         const color = arrayRandom(colors);
-        const ball = new Ball(storage, connectionData, n, count, color);        
-
-        ball.pos.x = randomRange(0, width) - 0.5 * width;
-        ball.pos.y = randomRange(0, height) - 0.5 * height;
-        ball.pinned = false;
+        const ball = new Ball(storage, connectionData, n, count, color);
 
         return ball;
     }

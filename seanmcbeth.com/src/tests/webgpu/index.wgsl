@@ -17,7 +17,7 @@ struct Uniforms {
     k2: f32
 }
 
-const NUM_BALLS = 2000;
+const NUM_BALLS = 200;
 const WORK_GROUP_SIZE = 128;
 
 const PINNED = 0;
@@ -88,7 +88,7 @@ fn main(
         }
         speed = length(vel);
 
-        pos += 100 * uniforms.dt * vel;
+        pos += uniforms.dt * vel;
     }
 
     ballsOut[i].pos = pos;
