@@ -42,6 +42,7 @@ namespace SeanMcBeth
 
             Options = new BuildSystemOptions
             {
+                WorkingDir = here,
                 Project = projectDir,
                 CleanDirs =
                 [
@@ -77,8 +78,6 @@ namespace SeanMcBeth
                     .Union(CopyMetaFiles("tests", tsInput, jsOutput)),
                 AdditionalNPMProjects =
                 [
-                    primroseDir,
-                    juniperDir
                 ]
             };
 
