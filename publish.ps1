@@ -13,14 +13,19 @@ param (
 
 $buildProj = Join-Path . $ProjectName "$ProjectName.csproj"
 
-$publishdir = Join-Path . pack $Config
+$publishdir = Join-Path . pack
 if(-not (Test-Path $publishdir)) {
-    mkdir ".\pack"
     mkdir $publishdir
 }
+
+$publishdir = Join-Path $publishdir $Config
+if(-not (Test-Path $publishdir)) {
+    mkdir $publishdir
+}
+
 $publishdir = Join-Path $publishdir $ProjectName
 
-$version = (Get-Content $ProjectName/package.json) -join "`n" `
+$version = (Get-Content (Join-Path $ProjectName package.json)) -join "`n" `
     | ConvertFrom-Json `
     | Select-Object -ExpandProperty "version"
 
@@ -53,29 +58,4 @@ dotnet publish `
     --configuration $Config `
     $buildProj
 
-$publishOutput = Join-Path .. seanmcbeth.com.deploy
-
-Push-Location $publishOutput
-git add -A
-git commit -m $version
-git push
-
-Pop-Location
-
-@"
-cd bin/seanmcbeth.com.deploy/
-git pull
-
-cd ../
-rm -rf SeanMcBeth.Site.old
-rm -rf SeanMcBeth.Site.new
-
-mkdir SeanMcBeth.Site.new
-cp -r seanmcbeth.com.deploy/* SeanMcBeth.Site.new
-cp -r SeanMcBeth.Site/certs SeanMcBeth.Site.new
-
-sudo systemctl stop SeanMcBeth.Site.service
-mv SeanMcBeth.Site SeanMcBeth.Site.old
-mv SeanMcBeth.Site.new SeanMcBeth.Site
-sudo systemctl start SeanMcBeth.Site.service
-"@ | ssh smcbeth@seanmcbeth.com
+./push.ps1 -CommitMessage $version -ProjectName $ProjectName
