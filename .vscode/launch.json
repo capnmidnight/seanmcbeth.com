@@ -61,7 +61,7 @@
             "console": "integratedTerminal",
             "serverReadyAction": {
                 "pattern": "\\brunning at address (https?://\\S+)",
-                "action": "debugWithChrome",
+                "action": "debugWithEdge",
                 "killOnServerStop": true
             },
             "launchBrowser": {
