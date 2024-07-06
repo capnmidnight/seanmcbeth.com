@@ -13,16 +13,11 @@ param (
 
 $buildProj = Join-Path . $ProjectName "$ProjectName.csproj"
 
-$publishdir = Join-Path . pack
+$publishdir = Join-Path . pack $Config
 if(-not (Test-Path $publishdir)) {
+    mkdir ".\pack"
     mkdir $publishdir
 }
-
-$publishdir = Join-Path $publishdir $Config
-if(-not (Test-Path $publishdir)) {
-    mkdir $publishdir
-}
-
 $publishdir = Join-Path $publishdir $ProjectName
 
 $version = (Get-Content (Join-Path $ProjectName package.json)) -join "`n" `
@@ -58,4 +53,4 @@ dotnet publish `
     --configuration $Config `
     $buildProj
 
-./push.ps1 -CommitMessage $version -ProjectName $ProjectName
+./push.ps1 -ProjectName $ProjectName -CommitMessage $version
