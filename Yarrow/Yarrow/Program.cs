@@ -1,7 +1,6 @@
+using Juniper;
 using Juniper.Azure;
 using Juniper.Data;
-using Juniper.Services;
-using Juniper.TSBuild;
 using Juniper.World.GIS.Google;
 
 using Microsoft.AspNetCore.Identity;
@@ -9,25 +8,24 @@ using Microsoft.AspNetCore.Identity;
 using Yarrow;
 using Yarrow.Data;
 
-var app = WebApplication.CreateBuilder(args)
+await WebApplication.CreateBuilder(args)
     .UseSystemd()
-    .ConfigureJuniperWebApplication()
-    .ConfigureJuniperDatabase<Sqlite, YarrowContext>("Name=Yarrow")
+    .AddJuniperServices()
+    .AddJuniperDatabase<YarrowContext>(new DefaultSqlite("Yarrow"), "Name=Yarrow")
     .AddJuniperBuildSystem<BuildConfig>()
-    .AddJuniperHTTPClient()
-    .ConfigureJuniperSpeechService()
-    .ConfigureJuniperGoogleMaps()
+    .AddHttpClient("HTTP")
+    .AddJuniperSpeechService()
+    .AddJuniperGoogleMaps()
     .Build()
-    .MigrateDatabase<YarrowContext>();
-
-await app.ImportDataAsync(args, generator: new YarrowDataSeeder());
-
-await app.ConfigureJuniperRequestPipeline()
+    .MigrateDatabase<YarrowContext>()
+    .SeedData<YarrowContext>(true)
+    .UseJuniperRequestPipeline()
     .BuildAndRunAsync();
 
-class YarrowDataSeeder : IDataGenerator<YarrowContext>
+static class YarrowDataSeeder
 {
-    public void Import(IServiceProvider services, YarrowContext db, ILogger logger)
+    [DataSeeder]
+    public static void Import(IServiceProvider services, YarrowContext db, ILogger<YarrowContext> logger)
     {
         var roles = services.GetRequiredService<RoleManager<IdentityRole>>();
         var users = services.GetRequiredService<UserManager<IdentityUser>>();

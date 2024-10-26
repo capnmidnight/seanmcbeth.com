@@ -21,38 +21,38 @@
 
   <ItemGroup>
     <PackageReference Include="BuildBundlerMinifier" Version="3.2.449" />
-    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.1">
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.10" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.10" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.10">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.1">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.10">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Hosting.Systemd" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Identity.Web" Version="2.13.4" />
-    <PackageReference Include="Microsoft.Identity.Web.UI" Version="2.13.4" />
-    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.0" />
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Systemd" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Identity.Web" Version="3.2.2" />
+    <PackageReference Include="Microsoft.Identity.Web.UI" Version="3.2.2" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.6" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.10" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Juniper\src\Juniper.Azure\Juniper.Azure.csproj" />
-    <ProjectReference Include="..\..\Juniper\src\Juniper.Data.Sqlite\Juniper.Data.Sqlite.csproj" />
-    <ProjectReference Include="..\..\Juniper\src\Juniper.Emoji\Juniper.Emoji.csproj" />
-    <ProjectReference Include="..\..\Juniper\src\Juniper.GoogleMaps\Juniper.GoogleMaps.csproj" />
-    <ProjectReference Include="..\..\Juniper\src\Juniper.Imaging\Juniper.Imaging.csproj" />
-    <ProjectReference Include="..\..\Juniper\src\Juniper.Logic\Juniper.Logic.csproj" />
-    <ProjectReference Include="..\..\Juniper\src\Juniper.Root\Juniper.Root.csproj" />
-    <ProjectReference Include="..\..\Juniper\src\Juniper.Server\Juniper.Server.csproj" />
-    <ProjectReference Include="..\..\Juniper\src\Juniper.Sound\Juniper.Sound.csproj" />
-    <ProjectReference Include="..\..\Juniper\src\Juniper.YouTubeDLP\Juniper.YouTubeDLP.csproj" />
-    <ProjectReference Include="..\..\Juniper\src\Juniper.TSBuild\Juniper.TSBuild.csproj" />
-    <ProjectReference Include="..\..\Juniper\src\Juniper.XR\Juniper.XR.csproj" />
-    <ProjectReference Include="..\..\Juniper\src\Juniper.Server.WebRTC\Juniper.Server.WebRTC.csproj" />
-    <ProjectReference Include="..\..\Juniper\src\Juniper.WebRTC\Juniper.WebRTC.csproj" />
+    <ProjectReference Include="..\..\Juniper\NETCore\Azure\Juniper.Azure.csproj" />
+    <ProjectReference Include="..\..\Juniper\NETCore\Data.Sqlite\Juniper.Data.Sqlite.csproj" />
+    <ProjectReference Include="..\..\Juniper\NETCore\Emoji\Juniper.Emoji.csproj" />
+    <ProjectReference Include="..\..\Juniper\NETCore\GoogleMaps\Juniper.GoogleMaps.csproj" />
+    <ProjectReference Include="..\..\Juniper\NETCore\Imaging\Juniper.Imaging.csproj" />
+    <ProjectReference Include="..\..\Juniper\NETCore\Logic\Juniper.Logic.csproj" />
+    <ProjectReference Include="..\..\Juniper\NETCore\Root\Juniper.Root.csproj" />
+    <ProjectReference Include="..\..\Juniper\NETCore\Server\Juniper.Server.csproj" />
+    <ProjectReference Include="..\..\Juniper\NETCore\Sound\Juniper.Sound.csproj" />
+    <ProjectReference Include="..\..\Juniper\NETCore\YouTubeDLP\Juniper.YouTubeDLP.csproj" />
+    <ProjectReference Include="..\..\Juniper\NETCore\TSBuild\Juniper.TSBuild.csproj" />
+    <ProjectReference Include="..\..\Juniper\NETCore\XR\Juniper.XR.csproj" />
+    <ProjectReference Include="..\..\Juniper\NETCore\WebRTC.Server\Juniper.WebRTC.Server.csproj" />
+    <ProjectReference Include="..\..\Juniper\NETCore\WebRTC\Juniper.WebRTC.csproj" />
   </ItemGroup>
 
 </Project>

@@ -33,20 +33,20 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Betalgo.OpenAI" Version="7.4.5" />
+        <PackageReference Include="Betalgo.OpenAI" Version="8.7.2" />
         <PackageReference Include="BuildBundlerMinifier" Version="3.2.449" />
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.1" />
-        <PackageReference Include="Microsoft.Extensions.Hosting.Systemd" Version="8.0.0" />
-        <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.0" />
-        <ProjectReference Include="..\Juniper\src\Juniper.Azure\Juniper.Azure.csproj" />
-        <ProjectReference Include="..\Juniper\src\Juniper.Data.Sqlite\Juniper.Data.Sqlite.csproj" />
-        <ProjectReference Include="..\Juniper\src\Juniper.GoogleMaps\Juniper.GoogleMaps.csproj" />
-        <ProjectReference Include="..\Juniper\src\Juniper.Logic\Juniper.Logic.csproj" />
-        <ProjectReference Include="..\Juniper\src\Juniper.OpenAI\Juniper.OpenAI.csproj" />
-        <ProjectReference Include="..\Juniper\src\Juniper.Root\Juniper.Root.csproj" />
-        <ProjectReference Include="..\Juniper\src\Juniper.Server\Juniper.Server.csproj" />
-        <ProjectReference Include="..\Juniper\src\Juniper.Sound\Juniper.Sound.csproj" />
-        <ProjectReference Include="..\Juniper\src\Juniper.TSBuild\Juniper.TSBuild.csproj" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.10" />
+        <PackageReference Include="Microsoft.Extensions.Hosting.Systemd" Version="8.0.1" />
+        <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.6" />
+        <ProjectReference Include="..\Juniper\NETCore\Azure\Juniper.Azure.csproj" />
+        <ProjectReference Include="..\Juniper\NETCore\Data.Sqlite\Juniper.Data.Sqlite.csproj" />
+        <ProjectReference Include="..\Juniper\NETCore\GoogleMaps\Juniper.GoogleMaps.csproj" />
+        <ProjectReference Include="..\Juniper\NETCore\Logic\Juniper.Logic.csproj" />
+        <ProjectReference Include="..\Juniper\NETCore\OpenAI\Juniper.OpenAI.csproj" />
+        <ProjectReference Include="..\Juniper\NETCore\Root\Juniper.Root.csproj" />
+        <ProjectReference Include="..\Juniper\NETCore\Server\Juniper.Server.csproj" />
+        <ProjectReference Include="..\Juniper\NETCore\Sound\Juniper.Sound.csproj" />
+        <ProjectReference Include="..\Juniper\NETCore\TSBuild\Juniper.TSBuild.csproj" />
     </ItemGroup>
 
 </Project>

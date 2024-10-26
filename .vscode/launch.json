@@ -5,72 +5,11 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "C#: Gurt (AppShell)",
-            "type": "coreclr",
+            "name": "C#: Launch Current Project",
+            "type": "dotnet",
             "request": "launch",
-            "cwd": "${workspaceFolder}/Gurt/bin/Debug/net8.0",
-            "env": {
-                "ASPNETCORE_ENVIRONMENT": "Development"
-            },
-            "program": "./Gurt.dll",
-            "preLaunchTask": "build Gurt",
+            "preLaunchTask": "dotnet: build",
             "postDebugTask": "Terminate All Tasks"
-        },
-        {
-            "name": "C#: Gurt (Browser)",
-            "type": "coreclr",
-            "request": "launch",
-            "cwd": "${workspaceFolder}/Gurt/bin/Debug/net8.0",
-            "env": {
-                "ASPNETCORE_ENVIRONMENT": "Development"
-            },
-            "program": "./Gurt.dll",
-            "args": [
-                "--no-appshell"
-            ],
-            "preLaunchTask": "build Gurt",
-            "postDebugTask": "Terminate All Tasks",
-            "console": "integratedTerminal",
-            "serverReadyAction": {
-                "pattern": "\\brunning at address (https?://\\S+)",
-                "action": "debugWithChrome",
-                "killOnServerStop": true
-            },
-            "launchBrowser": {
-                "enabled": true,
-                "linux": {
-                    "command": "xdg-open",
-                    "args": "${auto-detect-url} --enable-unsafe-webgpu --enable-features=Vulkan"
-                }
-            }
-        },
-        {
-            "name": "C#: seanmcbeth.com (Browser)",
-            "type": "coreclr",
-            "request": "launch",
-            "cwd": "${workspaceFolder}/seanmcbeth.com",
-            "env": {
-                "ASPNETCORE_ENVIRONMENT": "Development"
-            },
-            "program": "./bin/Debug/net8.0/SeanMcBeth.Site.dll",
-            "args": [
-                "--no-appshell"
-            ],
-            "preLaunchTask": "build seanmcbeth.com",
-            "postDebugTask": "Terminate All Tasks",
-            "console": "integratedTerminal",
-            "serverReadyAction": {
-                "pattern": "\\brunning at address (https?://\\S+)",
-                "action": "debugWithEdge",
-                "killOnServerStop": true
-            },
-            "launchBrowser": {
-                "enabled": true,
-                "linux": {
-                    "command": "xdg-open",
-                    "args": "${auto-detect-url} --enable-unsafe-webgpu --enable-features=Vulkan"
-                }
-            }
         }
     ]
 }

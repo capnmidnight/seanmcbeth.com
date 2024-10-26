@@ -83,7 +83,7 @@
                     @{
                         var path = Context.Request.Path;
 
-                        foreach (var (text, title, href) in new[] {
+                        foreach (var (text, alt, href) in new[] {
                             ("home/", "Home", "/"),
                             ("etc/", "Extras", "/other"),
                             ("doc/", "Blog", "/blog")
@@ -92,16 +92,16 @@
                             <li>
                                 @if(path == href) 
                                 {
-                                    <a aria-label="@title"
-                                        title="@title">
+                                    <a aria-label="@alt"
+                                        title="@alt">
                                         @text
                                     </a>
                                 }
                                 else 
                                 {
                                     <a href="@href"
-                                        aria-label="@title"
-                                        title="@title">
+                                        aria-label="@alt"
+                                        title="@alt">
                                         @text
                                     </a>
                                 }

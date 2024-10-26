@@ -57,7 +57,6 @@
     "@juniper-lib/widgets": "file:../../Juniper/src/Juniper.TypeScript/@juniper-lib/widgets",
     "@juniper-lib/workers": "file:../../Juniper/src/Juniper.TypeScript/@juniper-lib/workers",
     "gl-matrix": "3.4.3",
-    "jquery": "3.7.0",
     "pdfjs-dist": "2.16.105",
     "three": "0.150.1"
   }

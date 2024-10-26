@@ -36,7 +36,7 @@
             </PropertyGroup>
             <ItemGroup>
                 <ProjectReference
-                    Include="..\Juniper\src\Juniper.AppShell.WPF\Juniper.AppShell.WPF.csproj" />
+                    Include="..\Juniper\NETCore\AppShell.WPF\Juniper.AppShell.WPF.csproj" />
             </ItemGroup>
         </When>
         <Otherwise>
@@ -45,16 +45,16 @@
             </PropertyGroup>
             <ItemGroup>
                 <ProjectReference
-                    Include="..\Juniper\src\Juniper.AppShell.GTK\Juniper.AppShell.GTK.csproj" />
+                    Include="..\Juniper\NETCore\AppShell.Avalonia\Juniper.AppShell.Avalonia.csproj" />
             </ItemGroup>
         </Otherwise>
     </Choose>
 
     <ItemGroup>
-        <ProjectReference Include="..\Juniper\src\Juniper.AppShell\Juniper.AppShell.csproj" />
-        <ProjectReference Include="..\Juniper\src\Juniper.Root\Juniper.Root.csproj" />
-        <ProjectReference Include="..\Juniper\src\Juniper.Server\Juniper.Server.csproj" />
-        <ProjectReference Include="..\Juniper\src\Juniper.TSBuild\Juniper.TSBuild.csproj" />
+        <ProjectReference Include="..\Juniper\NETCore\AppShell\Juniper.AppShell.csproj" />
+        <ProjectReference Include="..\Juniper\NETCore\Root\Juniper.Root.csproj" />
+        <ProjectReference Include="..\Juniper\NETCore\Server\Juniper.Server.csproj" />
+        <ProjectReference Include="..\Juniper\NETCore\TSBuild\Juniper.TSBuild.csproj" />
     </ItemGroup>
 
     <ItemGroup>

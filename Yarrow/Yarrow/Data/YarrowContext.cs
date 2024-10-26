@@ -27,7 +27,7 @@ namespace Yarrow.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.JuniperModelCreating<YarrowContext>();
+            modelBuilder.JuniperModelCreating<YarrowContext>(this);
         }
     }
 }

@@ -1,5 +1,4 @@
-using Juniper.Data.Identity;
-
+using System.Configuration;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -12,12 +11,12 @@ namespace Yarrow.Areas.Identity.Pages.Account
     public class ForgotPasswordModel : PageModel
     {
         private readonly ILogger<LoginModel> logger;
-        private readonly UserManager<IdentityUser> users;
+        private readonly UserManager<IdentityUser<int>> users;
         private readonly IEmailSender email;
         private readonly IConfiguration config;
         private readonly IWebHostEnvironment env;
 
-        public ForgotPasswordModel(ILogger<LoginModel> logger, UserManager<IdentityUser> users, IEmailSender email, IConfiguration config, IWebHostEnvironment env)
+        public ForgotPasswordModel(ILogger<LoginModel> logger, UserManager<IdentityUser<int>> users, IEmailSender email, IConfiguration config, IWebHostEnvironment env)
         {
             this.logger = logger;
             this.users = users;
@@ -39,9 +38,9 @@ namespace Yarrow.Areas.Identity.Pages.Account
         }
 
         [BindProperty]
-        public string Email { get; set; }
+        public string? Email { get; set; }
 
-        public string StatusMessage { get; set; }
+        public string? StatusMessage { get; set; }
 
         public void OnGet()
         {
@@ -52,6 +51,7 @@ namespace Yarrow.Areas.Identity.Pages.Account
         {
             if (ModelState.IsValid)
             {
+                var fromAddress = config.GetValue<string>("Mail:From") ?? throw new ConfigurationErrorsException("From mail address has not been configured.");
                 var user = await users.FindByEmailAsync(Email);
                 if (user is null)
                 {
@@ -60,7 +60,7 @@ namespace Yarrow.Areas.Identity.Pages.Account
                 }
                 else
                 {
-                    var result = await users.SendPasswordChangeEmailAsync(Request, logger, Url, email, user, config.GetValue<string>("Mail:From"), "VR Editor", "Yarrow", !IsDev);
+                    var result = await users.SendPasswordChangeEmailAsync<IdentityUser<int>, int>(Request, logger, Url, email, user, fromAddress, "VR Editor", "Yarrow", !IsDev);
                     if (result.Succeeded)
                     {
                         StatusMessage = $"An email with a password reset link has been sent to {Email}. Please close this window and continue from the reset link. Reset links expire after 24 hours.";

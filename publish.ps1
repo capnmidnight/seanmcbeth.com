@@ -13,11 +13,16 @@ param (
 
 $buildProj = Join-Path . $ProjectName "$ProjectName.csproj"
 
-$publishdir = Join-Path . pack $Config
+$publishdir = Join-Path . pack
 if(-not (Test-Path $publishdir)) {
-    mkdir ".\pack"
     mkdir $publishdir
 }
+
+$publishdir = Join-Path $publishdir $Config
+if(-not (Test-Path $publishdir)) {
+    mkdir $publishdir
+}
+
 $publishdir = Join-Path $publishdir $ProjectName
 
 $version = (Get-Content (Join-Path $ProjectName package.json)) -join "`n" `

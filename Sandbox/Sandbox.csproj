@@ -8,8 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Juniper\src\Juniper.Root\Juniper.Root.csproj" />
-    <ProjectReference Include="..\Juniper\src\Juniper.Processes\Juniper.Processes.csproj" />
+    <ProjectReference Include="..\Juniper\NETCore\Root\Juniper.Root.csproj" />
+    <ProjectReference Include="..\Juniper\NETCore\Processes\Juniper.Processes.csproj" />
   </ItemGroup>
 
 </Project>

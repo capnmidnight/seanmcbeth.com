@@ -177,7 +177,7 @@ namespace SeanMcBeth.Pages
 #else
                 var JS_EXT = ".min.js";
 #endif
-                return File("/js/workers/service/index" + JS_EXT, Juniper.MediaType.Application_JavaScript);
+                return File("/js/workers/service/index" + JS_EXT, Juniper.MediaType.Application_Javascript);
             }
             else
             {

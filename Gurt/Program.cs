@@ -1,33 +1,23 @@
+using Juniper;
 using Juniper.AppShell;
 using Juniper.Services;
 using Juniper.TSBuild;
 
 var builder = WebApplication.CreateBuilder(args)
-    .ConfigureJuniperWebApplication()
+    .AddJuniperServices()
     .AddJuniperBuildSystem<Gurt.BuildConfig>();
 
 if (!AppShellConfiguration.NoAppShell)
 {
 #if WINDOWS
-    builder.ConfigureJuniperAppShell<WpfAppShellFactory>();
+    builder.AddJuniperAppShell<WpfAppShellFactory>();
 #else
-        builder.ConfigureJuniperAppShell<GtkAppShellFactory>();
+        builder.AddJuniperAppShell<AvaloniaAppShellFactory>();
 #endif
 }
-var app = builder.AddJuniperHTTPClient()
-    .Build()
-    .ConfigureJuniperRequestPipeline();
 
-if (AppShellConfiguration.NoAppShell)
-{
-    app.BuildAndRunAsync().Wait();
-}
-else
-{
-#if WINDOWS
-    app.BuildAndRunAsync().Wait();
-#else
-        app.BuildAndStartAsync().Wait();
-        Gtk.Application.Run();
-#endif
-}
+builder.AddHttpClient("Main")
+    .Build()
+    .UseJuniperRequestPipeline()
+    .BuildAndRunAsync()
+    .Wait();

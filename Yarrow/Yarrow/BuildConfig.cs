@@ -15,11 +15,8 @@ public class BuildConfig : IBuildConfig
 
     public BuildConfig()
     {
-        var workingDir = new DirectoryInfo(".");
-        var here = workingDir.GoUpUntil(here => here.CD(ProjectName).Touch("package.json").Exists)
-            ?? throw new DirectoryNotFoundException("Could not find project root from " + workingDir.FullName);
-        here = here.CD(ProjectName);
-
+        var workingDir = BuildSystemOptions.FindSolutionRoot(ProjectName);
+        var here = workingDir.CD(ProjectName);
         var juniperDir = here.CD("..", "..", "Juniper");
         var nodeModules = here.CD("node_modules");
         var jsInput = here.CD("src");
@@ -28,52 +25,39 @@ public class BuildConfig : IBuildConfig
         var modelOutput = wwwRoot.CD("models");
         var audioOutput = wwwRoot.CD("audio");
         var imgOutput = wwwRoot.CD("images");
-        var jQueryOut = jsOutput.CD("jquery");
         var pdfJsOut = jsOutput.CD("pdfjs");
         var uiImgOutput = imgOutput.CD("ui");
 
-        var pathHelper = new PathHelper(juniperDir, nodeModules);
+        var pathHelper = new JuniperAssetHelper(juniperDir);
 
         Options = new BuildSystemOptions()
         {
             Project = here,
-            CleanDirs = new[]
-            {
-                jsOutput
-            },
-            SkipPreBuild = true,
-            BannedDependencies = new[]
-            {
-                ("pdfjs-dist", "2.15.349", "Internal KeyboardManager does not work on old Oculus for Business Quest 2s. Use 2.14.305 instead.")
-            },
-            Dependencies = new List<BuildSystemDependency>()
-                {
-                    pathHelper.PDFJSWorkerBundle.CopyTo(pdfJsOut),
-                    pathHelper.PDFJSWorkerMap.CopyTo(pdfJsOut),
-                    pathHelper.PDFJSWorkerMinBundle.CopyTo(pdfJsOut),
+            CleanDirs = [jsOutput],
+            Dependencies = [
+                ..pathHelper.JS.PDFJS.CopyFiles(pdfJsOut),
 
-                    pathHelper.JQueryBundle.CopyTo(jQueryOut),
-                    pathHelper.JQueryMinBundle.CopyTo(jQueryOut),
+                pathHelper.Models.Cursors.CopyFile(modelOutput),
+                pathHelper.Models.Watch.CopyFile(modelOutput),
 
-                    pathHelper.CursorModel.CopyTo(modelOutput),
-                    pathHelper.WatchModel.CopyTo(modelOutput),
-
-                    pathHelper.StarTrekComputerBeep55Audio.CopyAs(audioOutput.Touch("test-clip.mp3")),
-                    pathHelper.FootStepsAudio.CopyAs(audioOutput.Touch("footsteps.mp3")),
-                    pathHelper.ButtonPressAudio.CopyTo(audioOutput),
-                    pathHelper.DoorOpenAudio.CopyTo(audioOutput),
-                    pathHelper.DoorCloseAudio.CopyTo(audioOutput),
-                    pathHelper.UIDraggedAudio.CopyTo(audioOutput),
-                    pathHelper.UIEnterAudio.CopyTo(audioOutput),
-                    pathHelper.UIErrorAudio.CopyTo(audioOutput),
-                    pathHelper.UIExitAudio.CopyTo(audioOutput)
-                },
-            OptionalDependencies = CopyMetaFiles("dom-apps", jsInput, jsOutput)
-                .Union(CopyMetaFiles("tests", jsInput, jsOutput))
-                .Union(CopyMetaFiles("vr-apps", jsInput, jsOutput))
+                pathHelper.Audios.StarTrek.ComputerBeep55.CopyFile(audioOutput.Touch("test-clip.mp3")),
+                pathHelper.Audios.FootStepsFast.CopyFile(audioOutput.Touch("footsteps.mp3")),
+                pathHelper.Audios.ButtonPress.CopyFile(audioOutput),
+                pathHelper.Audios.DoorOpen.CopyFile(audioOutput),
+                pathHelper.Audios.DoorClose.CopyFile(audioOutput),
+                pathHelper.Audios.UIDragged.CopyFile(audioOutput),
+                pathHelper.Audios.UIEnter.CopyFile(audioOutput),
+                pathHelper.Audios.UIError.CopyFile(audioOutput),
+                pathHelper.Audios.UIExit.CopyFile(audioOutput)
+            ],
+            OptionalDependencies = [
+                ..CopyMetaFiles("dom-apps", jsInput, jsOutput),
+                ..CopyMetaFiles("tests", jsInput, jsOutput),
+                ..CopyMetaFiles("vr-apps", jsInput, jsOutput)
+            ]
         };
 
-        pathHelper.AddUITextures(Options, uiImgOutput);        
+        pathHelper.Textures.AddUITextures(Options, uiImgOutput);
     }
 
     private static IEnumerable<BuildSystemDependency> CopyMetaFiles(string subName, DirectoryInfo jsInput, DirectoryInfo jsOutput)
@@ -88,7 +72,7 @@ public class BuildConfig : IBuildConfig
                     var files = appInDir.GetFiles(pattern);
                     foreach (var file in files)
                     {
-                        yield return file.CopyTo(appOutDir);
+                        yield return file.CopyFile(appOutDir);
                     }
                 }
             }

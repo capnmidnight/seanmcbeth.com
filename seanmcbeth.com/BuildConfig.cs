@@ -21,10 +21,7 @@ namespace SeanMcBeth
 
         public BuildConfig()
         {
-            var workingDir = new DirectoryInfo(".");
-            var here = workingDir.GoUpUntil(here => here.CD(ProjectName, "src").Exists)
-                ?? throw new DirectoryNotFoundException("Could not find project root from " + workingDir.FullName);
-
+            var here = BuildSystemOptions.FindSolutionRoot(ProjectName);
             var primroseDir = here.CD("Primrose/Primrose.TypeScript");
             var juniperDir = here.CD("Juniper");
             var projectDir = here.CD(ProjectName);
@@ -38,50 +35,46 @@ namespace SeanMcBeth
             var uiImgOUtput = imgOutput.CD("ui");
             var threeJS = nodeModules.CD("three", "build").Touch("three.module.js");
 
-            var pathHelper = new PathHelper(juniperDir, nodeModules);
+            var pathHelper = new JuniperAssetHelper(juniperDir);
 
             Options = new BuildSystemOptions
             {
-                WorkingDir = here,
                 Project = projectDir,
                 CleanDirs =
                 [
                     jsOutput
                 ],
-                SkipPreBuild = true,
-                BannedDependencies =
-                [
-                    ("pdfjs-dist", "2.15.349", "Internal KeyboardManager does not work on old Oculus for Business Quest 2s. Use 2.14.305 instead.")
-                ],
                 Dependencies =
                 [
-                    pathHelper.CursorModel.CopyTo(modelOutput),
-                    pathHelper.WatchModel.CopyTo(modelOutput),
+                    pathHelper.Models.Cursors.CopyFile(modelOutput),
+                    pathHelper.Models.Watch.CopyFile(modelOutput),
 
-                    pathHelper.ForestGroundModel.CopyTo(modelOutput),
-                    pathHelper.ForestTreeModel.CopyTo(modelOutput),
+                    pathHelper.Models.ForestGround.CopyFile(modelOutput),
+                    pathHelper.Models.ForestTree.CopyFile(modelOutput),
 
-                    pathHelper.ForestAudio.CopyTo(audioOutput),
-                    pathHelper.StarTrekComputerBeep55Audio.CopyTo(audioOutput),
-                    pathHelper.FootStepsAudio.CopyTo(audioOutput),
-                    pathHelper.ButtonPressAudio.CopyTo(audioOutput),
-                    pathHelper.DoorOpenAudio.CopyTo(audioOutput),
-                    pathHelper.DoorCloseAudio.CopyTo(audioOutput),
-                    pathHelper.UIDraggedAudio.CopyTo(audioOutput),
-                    pathHelper.UIEnterAudio.CopyTo(audioOutput),
-                    pathHelper.UIErrorAudio.CopyTo(audioOutput),
-                    pathHelper.UIExitAudio.CopyTo(audioOutput),
+                    pathHelper.Audios.Forest.CopyFile(audioOutput),
+                    pathHelper.Audios.StarTrek.ComputerBeep55.CopyFile(audioOutput),
+                    pathHelper.Audios.FootStepsFast.CopyFile(audioOutput),
+                    pathHelper.Audios.ButtonPress.CopyFile(audioOutput),
+                    pathHelper.Audios.DoorOpen.CopyFile(audioOutput),
+                    pathHelper.Audios.DoorClose.CopyFile(audioOutput),
+                    pathHelper.Audios.UIDragged.CopyFile(audioOutput),
+                    pathHelper.Audios.UIEnter.CopyFile(audioOutput),
+                    pathHelper.Audios.UIError.CopyFile(audioOutput),
+                    pathHelper.Audios.UIExit.CopyFile(audioOutput),
 
-                    threeJS.CopyTo(jsOutput.CD("libs"))
+                    threeJS.CopyFile(jsOutput.CD("libs"))
                 ],
-                OptionalDependencies = CopyMetaFiles("apps", tsInput, jsOutput)
-                    .Union(CopyMetaFiles("tests", tsInput, jsOutput)),
+                OptionalDependencies = [
+                    ..CopyMetaFiles("apps", tsInput, jsOutput),
+                    ..CopyMetaFiles("tests", tsInput, jsOutput)
+                ],
                 AdditionalNPMProjects =
                 [
                 ]
             };
 
-            pathHelper.AddUITextures(Options, uiImgOUtput);
+            pathHelper.Textures.AddUITextures(Options, uiImgOUtput);
         }
 
         public BuildSystemOptions Options { get; }
@@ -98,7 +91,7 @@ namespace SeanMcBeth
                         var files = appInDir.GetFiles(pattern);
                         foreach (var file in files)
                         {
-                            yield return file.CopyTo(appOutDir);
+                            yield return file.CopyFile(appOutDir);
                         }
                     }
                 }
