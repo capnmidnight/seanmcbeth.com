@@ -1,11 +1,7 @@
 using Juniper;
 using Juniper.AppShell;
-using Juniper.Services;
-using Juniper.TSBuild;
 
-var builder = WebApplication.CreateBuilder(args)
-    .AddJuniperServices()
-    .AddJuniperBuildSystem<Gurt.BuildConfig>();
+var builder = WebApplication.CreateBuilder(args);
 
 if (!AppShellConfiguration.NoAppShell)
 {
@@ -16,7 +12,9 @@ if (!AppShellConfiguration.NoAppShell)
 #endif
 }
 
-builder.AddHttpClient("Main")
+builder
+    .AddJuniperBuildSystem<Gurt.BuildConfig>()
+    .AddJuniperServices()
     .Build()
     .UseJuniperRequestPipeline()
     .BuildAndRunAsync()
