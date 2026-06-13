@@ -23,7 +23,7 @@
     "@types/web-bluetooth": "0.0.17",
     "@types/webxr": "0.5.4",
     "@types/wicg-file-system-access": "2020.9.6",
-    "esbuild": "0.19.2",
+    "esbuild": "0.28.1",
     "esbuild-plugin-glsl": "1.2.1",
     "tslib": "2.6.2"
   },
